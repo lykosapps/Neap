@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
@@ -40,6 +41,11 @@ public sealed partial class MainWindow : Window
         Tray.ToolTipText = AppInfo.Name;
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(TitleBar);
+
+        // The window's own buttons follow the Windows theme as it changes.
+        // Left to themselves they keep the colours of the theme the app
+        // started in, and after a switch to light they are white on white.
+        AppWindow.TitleBar.PreferredTheme = TitleBarTheme.UseDefaultAppMode;
 
         // Clear of the window's own buttons, however wide Windows draws them.
         AppWindow.Changed += (_, _) => FitTitleBar();
