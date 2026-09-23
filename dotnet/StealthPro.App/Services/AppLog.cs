@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace StealthPro.App.Services;
 
 /// <summary>
@@ -44,7 +46,10 @@ public static class AppLog
             lock (Gate)
             {
                 Directory.CreateDirectory(Folder);
-                string line = $"{(at ?? DateTime.Now):yyyy-MM-dd HH:mm:ss.f}  {what}";
+                // Invariant: ":" in a format is the culture's time separator,
+                // and the stamps are compared as text to keep the lines in order.
+                string line = string.Create(CultureInfo.InvariantCulture,
+                    $"{(at ?? DateTime.Now):yyyy-MM-dd HH:mm:ss.f}  {what}");
                 var lines = System.IO.File.Exists(File)
                     ? System.IO.File.ReadAllLines(File).ToList()
                     : new List<string>();
