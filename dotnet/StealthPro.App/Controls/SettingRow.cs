@@ -148,11 +148,15 @@ public sealed class SettingRow : SettingsCard
         // it, since the control takes focus; otherwise every slider announces
         // as "slider". A Range row wraps its slider in a panel with the
         // readout, so name the controls themselves, not what the builder
-        // returned.
+        // returned. The automation id is the setting's registry name, so a
+        // script can find the control by the setting it writes.
         string spoken = Header?.ToString() ?? _key.Name;
         foreach (UIElement? control in new UIElement?[] { _slider, _toggle, _choice })
             if (control is not null)
+            {
                 Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(control, spoken);
+                Microsoft.UI.Xaml.Automation.AutomationProperties.SetAutomationId(control, _key.Name);
+            }
         return true;
     }
 
