@@ -4,6 +4,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="StealthPro.Core.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Windows audio: the session volumes the mix sets, and the endpoints
          the routing checks read. -->
     <PackageReference Include="NAudio" Version="3.1.0" />

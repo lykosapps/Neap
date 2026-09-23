@@ -49,3 +49,7 @@ dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 dotnet_naming_style.underscore_camel.capitalization = camel_case
 dotnet_naming_style.underscore_camel.required_prefix = _
 dotnet_naming_style.pascal.capitalization = pascal_case
+
+[dotnet/StealthPro.Core.Tests/**.cs]
+# An expected value written inline reads better than a shared field.
+dotnet_diagnostic.CA1861.severity = none
