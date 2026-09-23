@@ -214,6 +214,7 @@ public sealed class SessionMix : IDisposable
         float chatScale = ChatScale(mix), gameScale = GameScale(mix);
         int ours = Environment.ProcessId;
         int chatSeen = 0, gameSeen = 0;
+        bool chatPlaying = false;
 
         // Refresh every time, never cache. NAudio hands back the same
         // collection until asked again, so an application that starts playing
@@ -234,6 +235,7 @@ public sealed class SessionMix : IDisposable
 
             bool isChat = IsChat(session.GetProcessID, chatApps);
             if (isChat) chatSeen++; else gameSeen++;
+            if (isChat && session.State == AudioSessionState.AudioSessionStateActive) chatPlaying = true;
 
             float scale = isChat ? chatScale : gameScale;
             if (VolumeJournal.Shared.Wanted(headset.ID, id, session.SimpleAudioVolume.Volume, scale)
@@ -249,10 +251,10 @@ public sealed class SessionMix : IDisposable
         // simply stops doing anything to chat. Discord keeps its own output
         // setting, so switching the headset does not move it.
         //
-        // Only looked for when chat was not found here, which is the only
+        // Only looked for when chat is not playing here, which is the only
         // time it can be true, and at most every few seconds because it means
         // walking every endpoint's sessions.
-        if (chatSeen == 0 && chatApps.Count > 0) LookElsewhere(chatApps, headset.ID);
+        if (!chatPlaying && chatApps.Count > 0) LookElsewhere(chatApps, headset.ID);
         else lock (_gate) _elsewhere = null;
         if (pending.Count == 0) return;
 
@@ -273,10 +275,12 @@ public sealed class SessionMix : IDisposable
 
     /// <summary>Finds where the chat application is playing instead.</summary>
     /// <remarks>
-    /// A session that exists at all is the signal, not one that is currently
-    /// making noise: a voice application sits Inactive between sounds, so
-    /// waiting for Active would report it as missing every time nobody is
-    /// talking. Having opened a device is what matters.
+    /// Only a playing (Active) session counts, here and elsewhere. An
+    /// application keeps idle sessions on every device it has played to, so
+    /// counting those put Discord "here" on the Charging Dock while it was
+    /// playing to the USB Transmitter, and the warning never appeared. Between
+    /// sounds, when chat is idle everywhere, nothing is reported: there is
+    /// nothing for the mix to miss.
     /// </remarks>
     private void LookElsewhere(List<string> chatApps, string headsetId)
     {
@@ -288,30 +292,39 @@ public sealed class SessionMix : IDisposable
             _lastLook = now;
         }
 
-        ChatElsewhere? found = null;
+        var seen = new List<ChatSession>();
         try
         {
             foreach (var device in _devices.EnumerateAudioEndPoints(
                          DataFlow.Render, DeviceState.Active))
                 using (device)
                 {
-                    if (device.ID == headsetId || found is not null) continue;
+                    if (device.ID == headsetId) continue;
                     device.AudioSessionManager.RefreshSessions();
                     var sessions = device.AudioSessionManager.Sessions;
-                    for (int i = 0; i < sessions.Count && found is null; i++)
+                    for (int i = 0; i < sessions.Count; i++)
                     {
                         var session = sessions[i];
-                        if (session.State == AudioSessionState.AudioSessionStateExpired) continue;
                         if (!IsChat(session.GetProcessID, chatApps)) continue;
-                        found = new ChatElsewhere(
-                            ProcessName(session.GetProcessID), device.FriendlyName);
+                        seen.Add(new ChatSession(ProcessName(session.GetProcessID),
+                            device.FriendlyName,
+                            session.State == AudioSessionState.AudioSessionStateActive));
                     }
                 }
         }
         catch { /* a device that will not answer is not where chat is */ }
 
-        lock (_gate) _elsewhere = found;
+        lock (_gate) _elsewhere = Elsewhere(seen);
     }
+
+    /// <summary>A chat application's session on a device other than the one being mixed.</summary>
+    internal sealed record ChatSession(string App, string Device, bool Playing);
+
+    /// <summary>The first device chat is playing on, of those not being mixed.</summary>
+    internal static ChatElsewhere? Elsewhere(IEnumerable<ChatSession> sessions) =>
+        sessions.FirstOrDefault(s => s.Playing) is { } playing
+            ? new ChatElsewhere(playing.App, playing.Device)
+            : null;
 
     /// <summary>
     /// Puts back what was turned down: on every device the journal holds
