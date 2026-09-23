@@ -158,3 +158,7 @@ Working and in daily use, but young, and honest about which is which:
 - `tools/` is now just the two USBPcap capture scripts. The Python tools
   that used to live there have been removed; the two worth keeping are
   `decode` and `raw` in the probe.
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).
