@@ -132,7 +132,7 @@ public static class Frames
         return json.Append('}').ToString();
     }
 
-    private static void EncodeString(StringBuilder json, string value)
+    internal static void EncodeString(StringBuilder json, string value)
     {
         json.Append('"');
         foreach (char c in value)
