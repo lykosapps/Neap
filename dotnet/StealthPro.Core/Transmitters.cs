@@ -11,7 +11,6 @@ public sealed record Transmitter(
 
 /// <summary>
 /// The headset pairs with up to four transmitters and keeps a slot for each.
-/// Ported from stealthpro/transmitters.py.
 /// </summary>
 public static class Transmitters
 {
@@ -21,24 +20,23 @@ public static class Transmitters
     public enum Piece { Unknown, Dock, Transmitter, Headset }
 
     /// <summary>
-    /// The whole Stealth Pro II family, read out of Swarm II's own product
-    /// catalogue rather than guessed at.
-    ///
-    /// <b>This settles a long-running muddle.</b> 229B and 229D were once
-    /// recorded the other way round on nothing better than the order some
-    /// firmware folders happened to be in, then corrected by experiment — and
-    /// the corrected guess is what the catalogue confirms. It also names a
-    /// device that had turned up in this machine's history and matched
-    /// nothing we had: 2283 is a black Xbox base.
-    ///
-    /// Swarm calls the docking device a <i>base</i>; the box calls it a
-    /// "CrossPlay 2.0 Transmitter Dock". The box wins for anything a person
-    /// reads, because that is the word they were sold.
-    ///
-    /// The catalogue is in Swarm's settings.json — zlib behind a four-byte
-    /// header. Worth remembering: the vendor's own files name the things that
-    /// captures only show anonymously.
+    /// The whole Stealth Pro II family by product id, read out of Swarm II's
+    /// own product catalogue rather than guessed at.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The catalogue is in Swarm's settings.json, zlib-compressed behind a
+    /// four-byte header. It is the authority for which id is which; the order
+    /// of firmware folders is not. It confirms 229B as the white Xbox dock and
+    /// 229D as its transmitter, and names 2283 as the black Xbox dock. The
+    /// vendor's own files name what captures only show anonymously.
+    /// </para>
+    /// <para>
+    /// Swarm calls the docking device a base; the box calls it a "CrossPlay
+    /// 2.0 Transmitter Dock". The box wins for anything a person reads,
+    /// because that is the word they were sold.
+    /// </para>
+    /// </remarks>
     public static readonly IReadOnlyDictionary<string, Piece> Family =
         new Dictionary<string, Piece>(StringComparer.OrdinalIgnoreCase)
         {
@@ -78,7 +76,7 @@ public static class Transmitters
             },
             StringComparer.OrdinalIgnoreCase);
 
-    // Indices into "info" that we are confident about.
+    // Indices into "info" that are confirmed.
     private const int InfoState = 0, InfoVendor = 5, InfoProduct = 6,
                       InfoFirmware = 7, InfoAddress = 8;
     // Indices into "control".
@@ -88,14 +86,14 @@ public static class Transmitters
 
     /// <summary>
     /// The transmitter the headset says it is actually using, or null.
-    ///
-    /// <b>Not the device we are talking through.</b> Those can be different,
-    /// and were: with both plugged in, the dock answered every question while
-    /// the headset's own slots reported the USB transmitter as the active one
-    /// — so the app named the dock while the person's sound was coming out of
-    /// the dongle. Which device answers is our business; which one is
-    /// carrying the headset is theirs, and only the headset knows it.
     /// </summary>
+    /// <remarks>
+    /// This is not necessarily the device being talked through. With both
+    /// plugged in, the Charging Dock can answer every request while the
+    /// headset's own slots report the USB Transmitter as active, and the sound
+    /// comes out of the USB Transmitter. Which device answers says nothing
+    /// about which one is carrying the headset; only the headset knows that.
+    /// </remarks>
     public static Transmitter? Active(HeadsetClient client, TimeSpan? wait = null) =>
         ReadAll(client, wait).FirstOrDefault(t => t.Active);
 
@@ -113,7 +111,7 @@ public static class Transmitters
         return found;
     }
 
-    /// <summary>Turn one slot's reply into something worth showing.</summary>
+    /// <summary>Turns one slot's reply into a <see cref="Transmitter"/>.</summary>
     public static Transmitter Describe(int slot, JsonElement block)
     {
         var info = StringsOf(block, "info");
@@ -142,11 +140,11 @@ public static class Transmitters
             Control: control);
     }
 
-    /// <summary>
-    /// Live lighting brightness, from whichever transmitter is active.
+    /// <summary>Live lighting brightness, from whichever transmitter is active.</summary>
+    /// <remarks>
     /// Returned under the registry's own keys so it can be merged straight
     /// into the values an interface already renders.
-    /// </summary>
+    /// </remarks>
     public static Dictionary<string, string> Lighting(IEnumerable<Transmitter> transmitters)
     {
         foreach (var entry in transmitters)

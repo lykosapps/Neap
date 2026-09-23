@@ -10,7 +10,7 @@ using Path = Microsoft.UI.Xaml.Shapes.Path;
 
 namespace StealthPro.App.Controls;
 
-/// <summary>Band values are tenths of a decibel everywhere; this writes them.</summary>
+/// <summary>Formats a band value, held everywhere in tenths of a decibel, as signed decibels.</summary>
 internal static class Db
 {
     public static string Text(int tenths)
@@ -21,29 +21,27 @@ internal static class Db
 }
 
 /// <summary>
-/// The equaliser as a curve rather than ten separate sliders.
-///
-/// An equaliser means a shape, and ten sliders do not show one — you had to
-/// read ten numbers to see that the mids were scooped. This draws the
-/// response instead, with a point per band you can drag.
-///
-/// <b>The stored preset is drawn behind the live one.</b> Only where the two
-/// differ, as a dashed line and a ring on each moved band. That ring is also
-/// the way back: clicking it puts that one band where the preset has it.
-/// It replaces ten revert buttons that previously held a row of layout
-/// whether they were needed or not, and it says something they could not —
-/// <i>how far</i> the band has moved, and in which direction.
-///
-/// <b>The curve never overshoots.</b> Smoothing is monotone cubic
-/// (Fritsch–Carlson), so a curve through the points cannot bulge past a
-/// neighbouring band's value and invent a boost that is not set. An ordinary
-/// Catmull-Rom spline does exactly that, which on an equaliser is not a
-/// cosmetic difference: it draws gain that the headset is not applying.
-///
-/// A press anywhere in a band's column grabs that band, so a point does not
-/// have to be hit precisely — but the value only moves once the pointer
-/// does, so a stray click changes nothing.
+/// Draws the equaliser response as a curve, with a draggable point per band.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Where the live curve differs from the stored preset, the preset is drawn
+/// behind it as a dashed line, with a ring on each moved band. The ring shows
+/// how far and which way the band has moved, and clicking it puts that band
+/// back where the preset has it.
+/// </para>
+/// <para>
+/// The curve never overshoots. Smoothing is monotone cubic (Fritsch–Carlson),
+/// so the curve cannot bulge past a neighbouring band's value. An ordinary
+/// Catmull-Rom spline does, and on an equaliser that draws gain the headset
+/// is not applying.
+/// </para>
+/// <para>
+/// A press anywhere in a band's column grabs that band, so a point does not
+/// have to be hit precisely. The value moves only once the pointer does, so a
+/// stray click changes nothing.
+/// </para>
+/// </remarks>
 public sealed class EqualiserCurve : UserControl
 {
     /// <summary>Room at top and bottom for a handle sitting at full deflection.</summary>
@@ -69,17 +67,16 @@ public sealed class EqualiserCurve : UserControl
     public int Maximum { get; set; } = 90;
     public IReadOnlyList<string> Frequencies { get; set; } = Array.Empty<string>();
 
-    /// <summary>A band was dragged. Index, and its new value in tenths of a dB.</summary>
+    /// <summary>Raised when a band is dragged, with its index and new value in tenths of a dB.</summary>
     public event Action<int, int>? BandChanged;
 
-    /// <summary>A band's ring was clicked: put it back where the preset has it.</summary>
+    /// <summary>Raised when a band's ring is clicked, asking for that band to be put back where the preset has it.</summary>
     public event Action<int>? BandReverted;
 
     public EqualiserCurve()
     {
-        // The curve is a picture of the numbers below it, not a second copy
-        // of them. A screen reader should read the bands once, from the
-        // fields that are named after their frequencies.
+        // The curve pictures the fields below it. A screen reader reads the
+        // bands once, from those fields, which are named by frequency.
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetAccessibilityView(
             this, Microsoft.UI.Xaml.Automation.Peers.AccessibilityView.Raw);
 
@@ -108,8 +105,8 @@ public sealed class EqualiserCurve : UserControl
     }
 
     /// <summary>
-    /// Show a curve, and the preset it came from. Pass no baseline, or the
-    /// same values, and nothing is drawn behind it.
+    /// Shows a curve and the preset it came from. With no stored values, or
+    /// the same values as the live ones, nothing is drawn behind it.
     /// </summary>
     public void Show(int[] live, int[]? stored)
     {
@@ -275,8 +272,8 @@ public sealed class EqualiserCurve : UserControl
     }
 
     /// <summary>
-    /// A smooth path through every point, and through no value between them
-    /// that is not there. See the class remarks on overshoot.
+    /// Builds a smooth path through every point that never overshoots between
+    /// them; see the class remarks.
     /// </summary>
     private PathGeometry Through(Point[] points, bool close)
     {

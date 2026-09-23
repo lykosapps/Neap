@@ -156,8 +156,8 @@ public sealed class VolumeJournalTests : IDisposable
     [Fact]
     public void AnOldJournalIsSplitByDevice()
     {
-        // The format before one record per device: everything under the last
-        // device written to, including an entry stranded on another.
+        // The older single-record format: everything under the last device
+        // written to, including an entry that belongs to another device.
         File.WriteAllText(_path,
             $$$"""
             {"endpoint":"{{{Dock}}}","pid":1,"sessions":{

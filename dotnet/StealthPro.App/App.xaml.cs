@@ -6,17 +6,20 @@ public partial class App : Application
 {
     public static MainWindow? Window { get; private set; }
 
-    /// <summary>
-    /// <b>One copy at a time.</b> Two copies both open the headset's channel
-    /// and take each other's replies, and the symptom is a headset that reads
-    /// as "Connecting" for ever. Nothing stopped a second copy before: open the
-    /// app from the Start menu while it sat in the notification area and there
-    /// were two.
-    ///
-    /// A second launch now asks the running copy to show its window and quits.
-    /// A second launch at login — the app already running when Windows starts
-    /// it — just quits, because there is nothing to show anyone.
-    /// </summary>
+    /// <summary>The mutex that keeps the app to one copy at a time.</summary>
+    /// <remarks>
+    /// <para>
+    /// Two copies both open the headset's channel and take each other's
+    /// replies, and the symptom is a headset that reads as "Connecting" for
+    /// ever. Opening the app from the Start menu while it sits in the
+    /// notification area would otherwise make two.
+    /// </para>
+    /// <para>
+    /// A second launch asks the running copy to show its window and quits. A
+    /// second launch at login (the app already running when Windows starts it)
+    /// just quits, because there is nothing to show anyone.
+    /// </para>
+    /// </remarks>
     private const string OneName = @"Local\StealthProIIControl";
     private const string WakeName = @"Local\StealthProIIControl.Show";
 

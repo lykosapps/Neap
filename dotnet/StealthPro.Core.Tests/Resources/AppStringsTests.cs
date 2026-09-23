@@ -4,13 +4,14 @@ using System.Xml.Linq;
 namespace StealthPro.Core.Tests.Resources;
 
 /// <summary>
-/// Every key the app asks for is in its resource file, and every entry in it
-/// is asked for.
-///
-/// A key that is not there fails without a sound: x:Uid leaves the text
-/// blank, and a lookup from code comes back empty. The app is a WinUI
-/// project and cannot be loaded here, so this reads its sources instead.
+/// Checks that every key the app asks for is in its resource file, and every
+/// entry in it is asked for.
 /// </summary>
+/// <remarks>
+/// A missing key fails silently: x:Uid leaves the text blank, and a lookup
+/// from code comes back empty. The app is a WinUI project and cannot be
+/// loaded here, so these tests read its sources instead.
+/// </remarks>
 public sealed partial class AppStringsTests
 {
     private static readonly string App = Path.Combine(RepoRoot(), "dotnet", "StealthPro.App");
@@ -44,10 +45,11 @@ public sealed partial class AppStringsTests
         Assert.Empty(unused);
     }
 
-    /// <summary>
+    /// <summary>Every resource key used in the app's C# sources.</summary>
+    /// <remarks>
     /// Keys are written out in full wherever they are used, never built, so
     /// any literal shaped like one is one.
-    /// </summary>
+    /// </remarks>
     private static IEnumerable<string> CodeKeys() =>
         Sources("*.cs").SelectMany(text => KeyLiteral().Matches(text).Select(m => m.Groups[1].Value))
             .Distinct();

@@ -2,14 +2,23 @@ namespace StealthPro.Core.Protocol;
 
 /// <summary>
 /// The verbs the device answers to, and which category each one returns.
-///
-/// Every one is confirmed: either captured from Swarm II or probed and
-/// answered. Two things here cost a day each and are worth stating plainly.
-///
-/// A request verb is <b>"S" plus a three-character category</b>. SBT, SEQ
-/// and other three-letter forms get no reply at all. Bluetooth is the one
-/// exception: <c>RBT</c>, which is why every SBT* guess drew a blank.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Every one is confirmed: either captured from Swarm II or probed and
+/// answered. Anything else is refused rather than guessed at.
+/// </para>
+/// <para>
+/// A request verb is "S" plus the category, such as <c>SGSI</c> or
+/// <c>SMic</c>. Bluetooth is the one exception: its verb is <c>RBT</c>, and
+/// <c>SBT</c> gets no reply at all. Guessed forms such as <c>SEQ</c> get no
+/// reply either.
+/// </para>
+/// <para>
+/// The chat-mix category <c>3DT</c> contains a digit, so a pattern that
+/// matches letters only drops its replies silently.
+/// </para>
+/// </remarks>
 public static class Verbs
 {
     /// <summary>Settings categories. A full read is these and only these.</summary>
@@ -29,11 +38,11 @@ public static class Verbs
         "3DT",  // game/chat mix,                0x5xx
     };
 
-    /// <summary>
-    /// The five custom equaliser slots per bank, each its own category.
+    /// <summary>The five custom equaliser slots per bank, each its own category.</summary>
+    /// <remarks>
     /// Each answers with that slot's name and all ten bands in one reply,
     /// which is how the presets are listed without selecting them.
-    /// </summary>
+    /// </remarks>
     public static readonly IReadOnlyList<string> PresetSlotCategories =
         Enumerable.Range(1, 5).Select(n => $"CG{n}")
             .Concat(Enumerable.Range(1, 5).Select(n => $"CM{n}")).ToArray();
@@ -42,7 +51,7 @@ public static class Verbs
     public static readonly IReadOnlyList<string> TransmitterCategories =
         Enumerable.Range(1, 4).Select(n => $"TX{n}").ToArray();
 
-    /// <summary>category -> request verb, for everything readable.</summary>
+    /// <summary>Category to request verb, for everything readable.</summary>
     public static readonly IReadOnlyDictionary<string, string> Readers =
         BuildReaders();
 

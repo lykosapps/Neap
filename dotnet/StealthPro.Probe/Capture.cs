@@ -8,24 +8,24 @@ namespace StealthPro.Probe;
 /// <summary>
 /// Reads a USBPcap recording of Swarm II driving the headset and prints what
 /// was said in both directions.
-///
-/// <b>This is how anything new gets learned.</b> Every command in the registry
-/// was found by watching the vendor's own app send it. The probe can ask the
-/// headset what it already knows; only a capture shows a command nobody has
-/// seen before, which is what a new firmware, a different edition of the
-/// headset, or an unexplored corner of Swarm needs.
-///
-/// Ported from the Python tool of the same purpose when that half of the
-/// project was removed. The capture scripts in tools/ are PowerShell and still
-/// run; without this they produce files nothing can read.
-///
+/// </summary>
+/// <remarks>
+/// <para>
+/// Every command in the registry was found by watching Swarm II send it. The
+/// probe can only ask the headset about what is already known; a capture is
+/// the only way to see a new command, as a new firmware, a different edition
+/// of the headset or an unexplored part of Swarm II needs. This decodes the
+/// files the capture scripts in tools/ produce.
+/// </para>
+/// <para>
 /// Make a capture with, as administrator:
 /// <code>
 /// USBPcapCMD.exe -d \\.\USBPcap&lt;n&gt; -o out.pcap --devices &lt;addr&gt; --inject-descriptors
 /// </code>
-/// Use a SHORT output path. USBPcapCMD fails past the Windows path limit and
+/// Use a short output path. USBPcapCMD fails past the Windows path limit and
 /// says only "Thread started with invalid write handle".
-/// </summary>
+/// </para>
+/// </remarks>
 internal static class Capture
 {
     private const byte SetupBmRequestType = 0x21;
@@ -34,12 +34,12 @@ internal static class Capture
     private const byte StageComplete = 3;
     private const byte InEndpoint = 0x80;
 
-    /// <summary>
-    /// <b>Verbs can end in a digit.</b> SCG1..SCG5 are the five custom
-    /// equaliser slots and STX1..STX4 the four transmitters. A letters-only
-    /// pattern truncated them to SCG and STX, turning five different commands
-    /// into five identical-looking ones.
-    /// </summary>
+    /// <summary>Matches a verb and its optional JSON argument.</summary>
+    /// <remarks>
+    /// Verbs can end in a digit: SCG1..SCG5 are the five custom equaliser
+    /// slots and STX1..STX4 the four transmitters. A letters-only pattern
+    /// truncates them to SCG and STX, so different commands look identical.
+    /// </remarks>
     private static readonly Regex Command =
         new("([A-Za-z_][A-Za-z0-9_]{2,19})(?:\u00ff(\\{.*?\\}))?", RegexOptions.Singleline);
 
@@ -130,9 +130,9 @@ internal static class Capture
                 string text = evt.ToString();
                 if (!seen.Add(text)) continue;
 
-                // Only annotate short events. A fifteen-value block is
-                // unreadable with a tag after every field, so the unnamed ones
-                // are listed underneath instead.
+                // Only short events are annotated inline. A fifteen-value
+                // block is unreadable with a tag after every field, so its
+                // unnamed keys are listed underneath instead.
                 if (evt.Values.Count <= 3)
                 {
                     Say($"  {text}" + string.Concat(evt.Values.Keys.Select(Label)));
@@ -148,10 +148,8 @@ internal static class Capture
         }
         if (seen.Count == 0) Say("  (none)");
 
-        // Anything event-shaped that would not decode. A parser for a protocol
-        // still being learned has to be able to say "I saw something I did not
-        // understand" — this project turned "cannot parse" into "does not
-        // exist" three times before it did.
+        // Anything event-shaped that would not decode, so that "cannot parse"
+        // is never mistaken for "does not exist".
         if (EventParser.Unrecognised.Count > 0)
         {
             Say();
@@ -165,7 +163,9 @@ internal static class Capture
         return 0;
     }
 
-    /// <summary>Walk the pcap: a 24-byte file header, then 16 bytes per record.</summary>
+    /// <summary>
+    /// Walks the pcap: a 24-byte file header, then a 16-byte header before each record.
+    /// </summary>
     private static IEnumerable<Packet> Records(byte[] data)
     {
         int offset = 24;
@@ -193,8 +193,8 @@ internal static class Capture
     }
 
     /// <summary>
-    /// Latin-1, so a byte offset and a character offset stay the same number.
-    /// The command pattern indexes into this.
+    /// Decodes as Latin-1, so byte offsets and character offsets match; the
+    /// command pattern indexes into the result.
     /// </summary>
     private static string Latin1(byte[] data, int from) =>
         Encoding.Latin1.GetString(data, from, data.Length - from);

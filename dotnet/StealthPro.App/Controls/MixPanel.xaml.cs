@@ -9,20 +9,20 @@ using Windows.System;
 namespace StealthPro.App.Controls;
 
 /// <summary>
-/// The game/chat crossfade.
-///
-/// Two states, and only one is ever on screen. Before an application is
-/// chosen there is nothing to mix, so the slider is not shown greyed with an
-/// explanation beside it — it is not there at all, and the one card present
-/// asks the one question. After that the slider is the content and the
-/// choice becomes a settings row underneath it.
-///
-/// This replaces a setup flow that could get stuck in seven different ways,
-/// because the thing it was setting up — a virtual audio cable the person
-/// had to install and point their chat app at — is gone. What is left needs
-/// no install, no reboot and no second audio device: naming the application
-/// is the whole configuration.
+/// The game/chat crossfade, and the choice of which application carries chat.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Only one of two states is on screen. Before an application is chosen there
+/// is nothing to mix, so the slider is absent rather than disabled, and the
+/// only card asks which application carries chat. Once one is chosen, the
+/// slider is the content and the choice becomes a settings row beneath it.
+/// </para>
+/// <para>
+/// Naming the application is the whole configuration: no virtual audio
+/// cable, install, reboot or second audio device is needed.
+/// </para>
+/// </remarks>
 public sealed partial class MixPanel : UserControl
 {
     private bool _painting;
@@ -60,9 +60,8 @@ public sealed partial class MixPanel : UserControl
     }
 
     /// <summary>
-    /// What reaches the mix depends on the transmitter, so the panel follows
-    /// the headset as well as the mix. It only followed the mix, and a change
-    /// of transmitter went unshown until something else moved.
+    /// Repaints on a change of headset status. What reaches the mix depends on
+    /// the transmitter, so the panel follows the headset as well as the mix.
     /// </summary>
     private void OnHeadset(HeadsetStatus status) => Paint();
 
@@ -75,10 +74,12 @@ public sealed partial class MixPanel : UserControl
     }
 
     /// <summary>
-    /// Ask which applications are playing to the headset. Cheap enough to do
-    /// on opening the page, and worth re-doing on demand: the chat
-    /// application may not have been running a moment ago.
+    /// Lists the applications playing to the headset into both pickers.
     /// </summary>
+    /// <remarks>
+    /// Cheap enough to run on opening the page, and re-run on demand, since
+    /// the chat application may have started since.
+    /// </remarks>
     private async Task LoadCandidates()
     {
         var candidates = await AppServices.Mix.Candidates();
@@ -128,24 +129,20 @@ public sealed partial class MixPanel : UserControl
 
         PaintKeys();
 
-        // Named, with the one thing that fixes it. The application keeps
-        // its own output setting, so changing the headset in Windows does not
-        // move it and nothing but the person can.
         var status = AppServices.Headset.Status;
 
-        // <b>On the USB Transmitter alone, the keyboard is the way in.</b> The
-        // chat wheel does not reach the app there, and the notice used to
-        // point people at a keyboard shortcut that was switched off. So the
-        // reason sits on the switch itself, directly under the slider, and
-        // the separate banner goes.
-        // Said once, above the slider, rather than on the keyboard switch as
-        // well: the switch keeps its own description and the line above says
-        // why the wheel is not moving anything.
+        // When the chat wheel cannot reach the app (settings out of reach, as
+        // on the USB Transmitter alone, or no sound), the keyboard is the way
+        // in. Say why once, above the slider; the keyboard switch keeps its
+        // own description.
         WheelBar.IsOpen = status.SettingsUnreachable || status.NoSound;
         WheelBar.Title = StateCopy.WheelTitle;
         WheelBar.Message = StateCopy.MixWithoutWheel(onAudioPage: true) + " "
             + (status.NoSound ? StateCopy.FixNoSound : StateCopy.FixUnreachable);
 
+        // The chat application is playing to another device. It keeps its own
+        // output setting, so changing the headset in Windows does not move it;
+        // name the app and the device so the person can.
         var elsewhere = AppServices.Mix.Status?.Elsewhere;
         ElsewhereBar.IsOpen = elsewhere is not null;
         if (elsewhere is not null)
@@ -194,10 +191,13 @@ public sealed partial class MixPanel : UserControl
     }
 
     /// <summary>
-    /// Press the combination you want, rather than pick it out of a list of
-    /// every key on the keyboard. The button becomes the prompt, so there is
-    /// no dialog and nothing to dismiss; Escape leaves it as it was.
+    /// Makes a button record a key combination by having it pressed, rather
+    /// than picked from a list.
     /// </summary>
+    /// <remarks>
+    /// The button itself becomes the prompt, so there is no dialog to dismiss;
+    /// Escape leaves the binding as it was.
+    /// </remarks>
     private void Capture(Button button, MixKey which)
     {
         button.Click += (_, _) =>

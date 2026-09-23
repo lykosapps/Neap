@@ -11,11 +11,11 @@ using StealthPro.Core.Presets;
 using StealthPro.Core.Protocol;
 using StealthPro.Core.Settings;
 
-// A console harness, not a product. Its job is to prove the ported library
-// against the Python app: run the same reads and compare the values.
+// A console harness, not a product: it exercises the library against the real
+// hardware and prints what comes back, for checking values and naming new ones.
 //
-// Only one process can usefully hold the headset's channel at a time, so
-// stop the Python server (and Swarm II) before using this.
+// Only one process can usefully hold the headset's channel at a time, so close
+// Swarm II and anything else talking to the headset before using this.
 
 if (args.Length == 0 || args[0] is "-h" or "--help")
 {
@@ -111,11 +111,14 @@ catch (TransportException error)
 }
 
 /// <summary>
-/// The device the headset is actually behind — not just the first collection
-/// Windows offers. With two transmitters plugged in only one has the headset
-/// on it; the other answers nothing, and this harness once reported four
-/// empty transmitter slots because of exactly that.
+/// Opens the device the headset is actually behind, not just the first
+/// collection Windows offers.
 /// </summary>
+/// <remarks>
+/// With two transmitters plugged in only one has the headset on it; the other
+/// answers nothing, so reading from it reports empty values for a connected
+/// headset.
+/// </remarks>
 static HeadsetClient Ask()
 {
     var client = HeadsetClient.Behind(allowWrites: false, out int present);
@@ -128,15 +131,15 @@ static HeadsetClient Ask()
 }
 
 /// <summary>
-/// Every device, asked on its own.
-///
-/// Everything else here opens the first device that answers and stops, which
-/// is right for talking to the headset and useless for the question "which
-/// transmitter is carrying its controls?" — the answer that matters when two
-/// are plugged in and the headset's sound and controls can be on different
-/// ones. Each is asked for the general-state block and for its transmitter
-/// slots, and says what it gave back.
+/// Asks every device separately whether it answers for the headset.
 /// </summary>
+/// <remarks>
+/// The other commands open the first device that answers, which is right for
+/// talking to the headset but cannot say which transmitter carries its
+/// controls. That matters when two are plugged in, because the headset's
+/// sound and controls can be on different ones. Each device is asked for the
+/// general-state block and its transmitter slots.
+/// </remarks>
 static int Who()
 {
     var candidates = HidTransport.Candidates();
@@ -203,10 +206,8 @@ static int Named()
     // The lighting brightnesses live inside the active transmitter's block,
     // so they arrive with the inventory rather than with the settings.
     foreach (var pair in Transmitters.Lighting(Transmitters.ReadAll(client)))
-        // Serialised rather than wrapped in quotes by hand. The value comes
-        // off the device, and a quote or a backslash in it would not make a
-        // bad string — it would make unparseable JSON and take the command
-        // down with it.
+        // Serialised rather than quoted by hand: the value comes off the
+        // device, and a quote or backslash in it would make unparseable JSON.
         values[pair.Key] = JsonSerializer.SerializeToElement(pair.Value);
 
     int named = 0;
@@ -287,8 +288,8 @@ static int Audio()
     Console.WriteLine($"         {input.Percent}%  {(input.Muted ? "muted" : "not muted")}"
                     + $"  {DeviceFormat.Current(AudioEndpoints.DefaultMatch, Flow.Input)?.Label}");
 
-    // Stored against live is the check that settles whether a format change
-    // was real. When these disagree, the setting is a decoration.
+    // Stored against live shows whether a format change took effect. When
+    // they disagree, the stored setting is not what the device is running.
     var stored = DeviceFormat.Current(AudioEndpoints.DefaultMatch);
     var live = DeviceFormat.MixFormat(AudioEndpoints.DefaultMatch);
     Console.WriteLine($"stored {stored?.Rate}Hz vs engine {live?.Rate}Hz  "
@@ -297,9 +298,9 @@ static int Audio()
 }
 
 // Where the sound is going. Windows keeps a default for each role, and the
-// headset can give it several outputs of its own — one per transmitter, and
-// one more for the headset itself over a USB-C cable — which differ by little
-// more than a word in the name. So each is named by the device behind it, and
+// headset can offer several outputs of its own (one per transmitter, and one
+// for the headset itself over the USB-C cable) that differ by little more than
+// a word in the name. Each is named by the device behind it and its level
 // sampled, because a default says where sound is sent, not where it is heard.
 static int Route()
 {
@@ -360,13 +361,13 @@ static int Route()
     return 0;
 }
 
-// Does a device reach the headset, and does a mic hear the person? A default
-// says where Windows sends sound and takes the mic from, not whether anything
-// arrives: the headset can have several devices at once, and whether it plays
-// one while another is playing, or sends the voice down each, is only known by
-// trying. So: a soft beep on one output every three seconds, for somebody to
-// listen for over whatever else is playing, and meanwhile the loudest moment
-// on each of the headset's mics, second by second. Only the level is kept.
+// Whether an output reaches the headset, and whether each mic hears the person.
+// A default says where Windows sends sound and takes the mic from, not whether
+// anything arrives. With several headset devices at once, whether it plays one
+// while another is playing, or sends the voice down each, is only known by
+// trying. This plays a soft beep on one output every three seconds, for a
+// person to listen for, and prints the loudest moment on each headset mic,
+// second by second. Only the level is kept, never the audio.
 static int Hear(string match, double seconds)
 {
     using var devices = new MMDeviceEnumerator();
@@ -376,12 +377,12 @@ static int Hear(string match, double seconds)
     if (output is null && match != "-") { Console.Error.WriteLine($"no output matching '{match}'"); return 1; }
 
     // A mic's meter reads nothing unless something is recording from it, so
-    // each is opened, and its loudest sample kept, per second.
+    // each is opened and its loudest sample kept per second.
     var mics = devices.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active)
         .Where(d => Owner(d).Length > 0).ToList();
     var loudest = new float[mics.Count];
-    // Bytes arriving at all, apart from how loud they are: a mic that
-    // delivers silence and one that delivers nothing read the same as a level.
+    // Bytes arrived, counted separately from level: a mic that delivers
+    // silence and one that delivers nothing both read as zero level.
     var arrived = new long[mics.Count];
     var captures = new List<WasapiRecorder>();
     for (int m = 0; m < mics.Count; m++)
@@ -480,7 +481,7 @@ static int Hear(string match, double seconds)
 }
 
 // Which of the headset's devices an endpoint belongs to, from the product id
-// in the path of the kernel filter behind it — as Routing does in the app.
+// in the path of the kernel filter behind it, as Routing does in Core.
 static string Owner(MMDevice device)
 {
     var filterPath = new PropertyKey(new Guid("233164c8-1b2c-4c7d-bc68-b671687a2567"), 1);
@@ -508,21 +509,20 @@ static int Formats(Flow flow)
     return 0;
 }
 
-// The crossfade with nothing in the audio path.
+// The chat/game crossfade with nothing in the audio path.
 //
-// Process loopback turned out to tap the stream after session volume, which
-// killed the capture-and-silence idea - but it also said session volume is a
-// working per-app gain. So: name the chat app, give its sessions the chat
-// half of the crossfade and everything else the game half, and both keep
-// playing natively to the headset. No cable, no capture, no engine.
+// Process loopback taps the stream after session volume (see Loopback), so
+// capturing an app and silencing its session does not work; it also shows
+// session volume is a working per-app gain. So the chat app's sessions get
+// the chat half of the crossfade and everything else the game half, and both
+// keep playing natively to the headset. No virtual cable, capture or engine.
 //
-// This is the same mechanism the current game side already uses, which is
-// known to work. The only new part is applying it to the chat app by name
-// instead of distinguishing chat from game by device.
+// The game side uses the same mechanism; the difference is that the chat app
+// is chosen by name rather than by device. These are local functions because
+// top-level statements cannot declare fields.
 static float ChatScale(int mix) => MathF.Min(1f, 2f * (mix / 100f));
 static float GameScale(int mix) => MathF.Min(1f, 2f * (1f - mix / 100f));
 
-// A local function, not a field: top-level statements cannot declare one here.
 static int MixApp(string chatApp, string what)
 {
     StealthPro.Core.Mix.SessionMix.Recover();      // clean up after any previous run
@@ -540,9 +540,9 @@ static int MixApp(string chatApp, string what)
     {
         mix.SetMix(value);
         Thread.Sleep(600);
-        // Session volumes, not the endpoint meter. The meter on an MMDevice
-        // held across a sweep reported a constant value while the volumes
-        // were demonstrably changing, so it is not to be trusted here.
+        // Session volumes, not the endpoint meter: the meter on an MMDevice
+        // held across a sweep reports a constant value while the volumes
+        // change.
         Console.WriteLine($"  mix {value,3}  chat {Levels(headset, chatApp, true)}"
                         + $"   game {Levels(headset, chatApp, false)}"
                         + $"   held {mix.Status.Held}");
@@ -550,8 +550,8 @@ static int MixApp(string chatApp, string what)
 
     if (what == "abandon")
     {
-        // Walk away without stopping, as a crash would. The journal is the
-        // only record of what these volumes used to be.
+        // Exit without stopping, as a crash would. The journal is then the
+        // only record of the original volumes.
         Console.WriteLine("  leaving without restoring - run 'recover' next");
         Environment.Exit(0);
     }
@@ -599,15 +599,13 @@ static string MixJournalPath() => Path.Combine(
     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
     "StealthProIIControl", "sessionmix-journal.json");
 
-// Own the originals, do not re-read them.
+// Record each session's original volume once, keep it in the journal, and do
+// not re-read it.
 //
-// The first version of this captured each session's current volume every
-// time it ran, so a second invocation recorded an already-attenuated level
-// as the original and multiplied down from there - Spotify ended up silent
-// and stayed silent. That is the ratcheting the engine's volume journal
-// exists to prevent, and it applies here for exactly the same reason: we
-// are holding other applications down and we are the only thing that knows
-// what they were.
+// Re-reading a session's volume after a write records our own attenuated
+// level as the original, and repeated runs ratchet an app to silence. The
+// volume journal in Core exists for the same reason: we are holding other
+// applications down and are the only thing that knows their real levels.
 static Dictionary<string, float> LoadMixJournal()
 {
     try
@@ -634,8 +632,8 @@ static int SessionMix(string chatApp, string what)
 
     var originals = LoadMixJournal();
 
-    // Refreshed, never cached: a session that starts after the mix is set is
-    // invisible otherwise, which is a bug we have already had once.
+    // Refreshed, never cached: otherwise a session that starts after the mix
+    // is set is invisible.
     headset.AudioSessionManager.RefreshSessions();
     var all = headset.AudioSessionManager.Sessions;
     int ours = Environment.ProcessId;
@@ -674,8 +672,8 @@ static int SessionMix(string chatApp, string what)
 
     void Apply(int mix)
     {
-        // Journal before touching anything, so a kill between the two costs
-        // nothing and a kill the other way round loses the originals.
+        // Journal before touching any volume: a kill after the save loses
+        // nothing, whereas saving afterwards could lose the originals.
         SaveMixJournal(originals);
         foreach (var session in chat)
             session.SimpleAudioVolume.Volume = originals[byId[session]] * ChatScale(mix);
@@ -723,14 +721,14 @@ static string ProcessName(uint pid)
     catch { return pid == 0 ? "system" : "?"; }
 }
 
-// The question that decides whether the virtual cable can go away.
+// Whether process loopback taps a stream before or after session volume.
 //
-// If we capture a chat app's audio at the process level and render our own
-// copy into the headset, the app's original stream is still going there too,
-// so we would hear it twice. The fix is to silence the app's own session and
-// play only our copy - but that only works if process loopback taps the
-// stream BEFORE the session volume is applied. If it taps after, silencing
-// the app silences our capture with it and the whole approach collapses.
+// Capturing a chat app at the process level and rendering our own copy to the
+// headset means hearing it twice unless the app's own session is silenced.
+// That only works if loopback taps the stream before session volume is
+// applied; if it taps after, silencing the app silences the capture too.
+// Measured: it taps after, which is why the crossfade above uses session
+// volume alone.
 static int Loopback(uint pid)
 {
     Console.WriteLine($"pid {pid}: capturing at full volume, then with its session muted");
@@ -820,18 +818,20 @@ static int SetFormat(int bits, int rate)
 }
 
 /// <summary>
-/// Read everything the headset will answer, over and over, and print only
-/// what moves.
-///
-/// This is for naming a value we have not identified: start it, operate the
-/// hardware, and whatever changed is on screen with the time it changed.
-/// Nothing is filtered — a value we think we understand is exactly the one
-/// that turns out to carry the flag, and three findings on this project were
-/// wrong because something matched only what was expected of it.
-///
-/// The transmitter slots are included as well as the settings categories,
-/// because dock and charge state may sit in either.
+/// Reads everything the headset will answer, repeatedly, and prints only what
+/// changes.
 /// </summary>
+/// <remarks>
+/// <para>
+/// For naming an unidentified value: start it, operate the hardware, and each
+/// change is printed with the time it happened. Nothing is filtered, because a
+/// value assumed understood can be the one that carries the flag.
+/// </para>
+/// <para>
+/// The transmitter slots are read as well as the settings categories, because
+/// dock and charge state may sit in either.
+/// </para>
+/// </remarks>
 static int Diff(double seconds)
 {
     using var client = Ask();
@@ -859,16 +859,16 @@ static int Diff(double seconds)
         catch (Exception ex)
         {
             // Docking, undocking or walking out of range can drop the link
-            // mid-pass. That is a thing worth seeing, not a reason to stop
-            // capturing — the interesting change is often on the way back.
+            // mid-pass. Report it and keep going: the interesting change is
+            // often on the way back.
             Console.WriteLine($"  [{clock.Elapsed:mm\\:ss}] link trouble: {ex.Message}");
             Thread.Sleep(1000);
             continue;
         }
 
-        // A pass where nothing answered is the headset gone, not every value
-        // changing. Say so once and keep the baseline to compare against when
-        // it comes back.
+        // A pass where nothing answered means the headset is gone, not that
+        // every value changed. Say so once and keep the baseline for when it
+        // comes back.
         if (now.Count == 0)
         {
             if (!quiet) Console.WriteLine($"  [{clock.Elapsed:mm\\:ss}] no answer");
@@ -914,7 +914,9 @@ static int Diff(double seconds)
 static string Short(string value) =>
     value.Length <= 60 ? value : value[..57] + "...";
 
-/// <summary>Every report, pushed or asked for. See RawListener.</summary>
+/// <summary>
+/// Prints every report, pushed or asked for; see <see cref="StealthPro.Probe.RawListener"/>.
+/// </summary>
 static int Raw(double seconds, ushort usagePage) =>
     StealthPro.Probe.RawListener.Run(seconds, usagePage);
 

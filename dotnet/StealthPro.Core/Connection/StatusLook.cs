@@ -17,11 +17,12 @@ public enum Tone { Good, Caution, Neutral, Critical }
 
 /// <summary>
 /// A state's headline and tone, decided once for everything that shows one.
-///
+/// </summary>
+/// <remarks>
 /// Settings out of reach and switched off are neutral rather than cautions:
 /// sound usually still plays in the first, and the second is somebody's
 /// choice. Only "nothing plugged in" is critical.
-/// </summary>
+/// </remarks>
 public readonly record struct StatusLook(Headline Headline, Tone Tone)
 {
     public static StatusLook Of(HeadsetStatus status) => status.Link switch

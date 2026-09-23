@@ -7,9 +7,9 @@
 
     <StackPanel Spacing="4">
 
-        <!--  Nothing chosen yet. One card, one question, one next step: which
-              application carries chat. Everything else about the mix is
-              meaningless until that is answered, so none of it is shown.  -->
+        <!--  Nothing chosen yet: one card asking which application carries
+              chat. The rest of the mix means nothing until that is answered,
+              so none of it is shown.  -->
         <tk:SettingsCard
             x:Name="SetupCard"
             x:Uid="Mix_SetupCard"
@@ -28,15 +28,11 @@
             </StackPanel>
         </tk:SettingsCard>
 
-        <!--  The chat application is playing somewhere the mix cannot reach.
-              Without this the wheel simply stops affecting chat and nothing
-              anywhere says why — the failure the mix cannot see is the one
-              worth spelling out.  -->
-        <!--  Directly above the slider, because this is where somebody who has
-              just turned the wheel and seen nothing move is looking. Shown
-              whenever the wheel cannot reach the app, with what brings it
-              back; the app has no way to switch it on itself, since the wheel
-              arrives over the very link that is missing.  -->
+        <!--  Shown whenever the chat wheel cannot reach the app, with what
+              brings it back. Directly above the slider, where somebody who has
+              turned the wheel and seen nothing move is looking. The app cannot
+              fix this itself: the wheel arrives over the very link that is
+              missing.  -->
         <InfoBar
             x:Name="WheelBar"
             x:Uid="Mix_WheelBar"
@@ -44,6 +40,9 @@
             IsOpen="False"
             Severity="Informational" />
 
+        <!--  The chat application is playing somewhere the mix cannot reach.
+              Without this the wheel stops affecting chat and nothing says
+              why.  -->
         <InfoBar
             x:Name="ElsewhereBar"
             x:Uid="Mix_ElsewhereBar"
@@ -51,8 +50,8 @@
             IsOpen="False"
             Severity="Warning" />
 
-        <!--  Chosen. The crossfade itself, given the room it deserves: this
-              is the control the whole app exists for.  -->
+        <!--  Chosen: the crossfade itself, given room as the app's main
+              control.  -->
         <Border
             x:Name="MixCard"
             Padding="20,18"
@@ -106,10 +105,8 @@
             </Grid>
         </Border>
 
-        <!--  Beside the thing it moves, not in a settings drawer. Someone
-              looking at the crossfade and wishing they could reach it
-              mid-game is looking at exactly the right place to be told they
-              can.  -->
+        <!--  The mix keys sit beside the crossfade they move, not in Settings:
+              that is where someone wanting to reach it mid-game is looking.  -->
         <tk:SettingsExpander
             x:Name="KeysCard"
             x:Uid="Mix_KeysCard"

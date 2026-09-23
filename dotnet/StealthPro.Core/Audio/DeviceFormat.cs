@@ -25,31 +25,31 @@ public sealed record FormatReport(
     string Device, AudioFormat? Current, IReadOnlyList<AudioFormat> Options);
 
 /// <summary>
-/// The shared-mode format of a Windows audio endpoint — the "Default Format"
-/// dropdown on the Advanced tab of a device's properties.
-///
-/// Ported from stealthpro/audioformat.py. Three things here were expensive
-/// to learn and each one is load-bearing.
-///
-/// <b>24-bit is packed here: three bytes, not four.</b> Windows stores
-/// wBitsPerSample 24 and nBlockAlign 6. Padding it into a 32-bit container
-/// looks reasonable and is simply wrong for the stored default format, and
-/// it was wrong in a way that hid itself: read back, a padded format still
-/// reports 24 bits, so the app agreed with Windows about the device's
-/// setting while being unable to set it. One wrong field produced four
-/// separate symptoms — see FINDINGS.md.
-///
-/// <b>Writing the property store is not how you change a format.</b> It
-/// persists and every dialog reads it back, while the endpoint carries on at
-/// the old rate and nothing is interrupted. What the Sound control panel
-/// does is ask the audio service to adopt the format, through IPolicyConfig.
-///
-/// <b>And that only works on a live endpoint.</b> With nothing playing there
-/// is nothing to reconfigure, so it records the new default and stops there;
-/// the next client to open the device then pins whatever the service was
-/// last actually running. Releasing the device before writing sounds
-/// sensible and is precisely what breaks it.
+/// Reads and sets the shared-mode format of a Windows audio endpoint: the
+/// "Default Format" list on the Advanced tab of a device's properties.
 /// </summary>
+/// <remarks>
+/// <para>
+/// 24-bit is packed: three bytes per sample, not four. Windows stores
+/// wBitsPerSample 24 and nBlockAlign 6 for stereo. A format padded into a
+/// 32-bit container is wrong for the stored default, and the error hides
+/// itself: read back, it still reports 24 bits, so the app agrees with
+/// Windows about the setting while being unable to set it. FINDINGS.md lists
+/// the symptoms.
+/// </para>
+/// <para>
+/// Writing the property store does not change the format. The value
+/// persists and every dialog reads it back, but the endpoint carries on at
+/// the old rate. The Sound control panel instead asks the audio service to
+/// adopt the format through IPolicyConfig, and so does this class.
+/// </para>
+/// <para>
+/// IPolicyConfig only reconfigures a live endpoint. With nothing playing it
+/// records the new default and stops, and the next client to open the device
+/// pins whatever the service was last running. Do not release the device
+/// before writing.
+/// </para>
+/// </remarks>
 public static class DeviceFormat
 {
     private const ushort WaveFormatExtensibleTag = 0xFFFE;
@@ -59,13 +59,12 @@ public static class DeviceFormat
 
     private const int ShareModeExclusive = 1;
 
-    /// <summary>
-    /// What Windows itself offers. The low rates matter: the headset
-    /// microphone offers 16000Hz as well as 48000Hz, and leaving it out of
-    /// this list meant the probe never asked and the app confidently
-    /// reported that the microphone had exactly one format. A probe only
-    /// ever finds what it thinks to ask for.
-    /// </summary>
+    /// <summary>The sample rates Windows itself offers, each of which is tried.</summary>
+    /// <remarks>
+    /// Keep the low rates: the headset microphone offers 16000 Hz as well as
+    /// 48000 Hz, and a rate missing from this list is never asked about, so
+    /// the device appears to lack it.
+    /// </remarks>
     public static readonly IReadOnlyList<int> Rates = new[]
     {
         8000, 11025, 16000, 22050, 32000, 44100, 48000, 88200, 96000, 176400, 192000
@@ -73,10 +72,11 @@ public static class DeviceFormat
 
     public static readonly IReadOnlyList<int> Depths = new[] { 16, 24, 32 };
 
-    /// <summary>
-    /// Windows' own words for each rate, so the app and the Sound dialog
-    /// agree. Confirmed on this machine for 16000, 48000 and 96000.
-    /// </summary>
+    /// <summary>Windows' own words for each rate, so the app and the Sound dialog agree.</summary>
+    /// <remarks>
+    /// Confirmed against the Sound dialog for 16000, 48000 and 96000. Rates
+    /// not listed, 96000 included, are "Studio quality".
+    /// </remarks>
     public static readonly IReadOnlyDictionary<int, string> Quality =
         new Dictionary<int, string>
         {
@@ -129,7 +129,8 @@ public static class DeviceFormat
 
     // -- writing -----------------------------------------------------------
 
-    /// <summary>Set the format, refusing anything the device has not agreed to.</summary>
+    /// <summary>Sets the format, refusing anything the device does not accept.</summary>
+    /// <exception cref="FormatException">The device does not support the format, or refused it.</exception>
     public static void Apply(string match, int bits, int rate, Flow flow = Flow.Output)
     {
         using var endpoint = Endpoint.Open(match, flow, fallBackToDefault: false);
@@ -143,20 +144,20 @@ public static class DeviceFormat
 
     // -- the parts that do the work ---------------------------------------
 
-    /// <summary>
-    /// A WAVEFORMATEXTENSIBLE shaped the way Windows shapes them.
-    ///
-    /// Mono is SPEAKER_FRONT_CENTER (0x4), not "the first speaker" (0x1).
+    /// <summary>Builds a WAVEFORMATEXTENSIBLE the way Windows builds them.</summary>
+    /// <remarks>
+    /// <para>
+    /// Mono is SPEAKER_FRONT_CENTER (0x4), not the first speaker (0x1).
     /// Windows matches the stored format against the ones its driver
-    /// advertises by value, so a plausible-but-different field gives you a
-    /// format that works and is nonetheless not theirs — it appeared as an
-    /// extra, unlabelled entry in the Sound dialog every time we wrote one.
-    ///
-    /// 32-bit is a guess and no device here offers it, so it has never been
-    /// exercised. Windows stores the Realtek output on this machine as
-    /// 32-bit PCM with 24 valid bits, not float; check what Windows writes
-    /// before trusting this line.
-    /// </summary>
+    /// advertises by value, so a plausible but different field gives a format
+    /// that works yet shows as an extra, unlabelled entry in the Sound dialog.
+    /// </para>
+    /// <para>
+    /// 32-bit float is unverified: no headset device offers 32-bit. Windows
+    /// stores one Realtek output as 32-bit PCM with 24 valid bits, not float,
+    /// so check what Windows writes before relying on it.
+    /// </para>
+    /// </remarks>
     internal static WaveFormatExtensible Build(int bits, int rate, int channels)
     {
         ushort container = (ushort)bits;             // packed, including 24-bit
@@ -201,12 +202,12 @@ public static class DeviceFormat
         finally { Marshal.ReleaseComObject(store); }
     }
 
-    /// <summary>
-    /// Asked in EXCLUSIVE mode, which is what the Windows "Default Format"
-    /// list is built from. Shared mode only ever agrees with whatever the
-    /// engine is already mixing at, so its answer moves whenever anything
-    /// else touches the device.
-    /// </summary>
+    /// <summary>Whether the device accepts a format, asked in exclusive mode.</summary>
+    /// <remarks>
+    /// Exclusive mode is what the Windows "Default Format" list is built from.
+    /// Shared mode only agrees with whatever the engine is already mixing at,
+    /// so its answer changes whenever anything else touches the device.
+    /// </remarks>
     private static bool Supports(Endpoint endpoint, WaveFormatExtensible format)
     {
         var client = ActivateClient(endpoint);
@@ -236,9 +237,8 @@ public static class DeviceFormat
     private static void Write(Endpoint endpoint, WaveFormatExtensible format)
     {
         if (PolicySetFormat(endpoint.Id, format)) return;
-        // Fallback for a machine where IPolicyConfig is not available. Still
-        // better than refusing — but on its own it only changes what the
-        // setting says, not what the device does.
+        // Fallback where IPolicyConfig is unavailable. This only changes what
+        // the setting says, not what the device does.
         WritePropertyStore(endpoint, format);
     }
 
@@ -289,7 +289,11 @@ public static class DeviceFormat
         }
     }
 
-    /// <summary>Set the default playback or recording device, as the Sound dialog does.</summary>
+    /// <summary>
+    /// Sets the default playback or recording device for all three roles, as
+    /// the Sound dialog does.
+    /// </summary>
+    /// <returns>False if IPolicyConfig is unavailable or any role is refused.</returns>
     public static bool SetDefaultEndpoint(string deviceId)
     {
         IPolicyConfig? policy;

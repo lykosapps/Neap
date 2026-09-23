@@ -10,30 +10,34 @@ namespace StealthPro.Core.Audio;
 public sealed record Routed(string Endpoint, string Product);
 
 /// <summary>
-/// Which transmitter each audio endpoint belongs to.
-///
-/// <b>Two transmitters give two sets of endpoints and they look almost
-/// identical.</b> Windows tells them apart with a "2- " in front of the
-/// name, which is positional and not something to depend on; the endpoint
-/// itself carries the path of the kernel filter behind it, and that path
-/// holds the USB product id. That is the honest way to ask which device an
-/// endpoint is, and it is the same product id the headset uses to name its
-/// paired transmitters.
-///
-/// This exists because the two can disagree without anything saying so:
-/// found on the test machine with the output correctly on the dock and the
-/// <i>microphone</i> still on the USB transmitter the headset had left.
+/// Works out which transmitter each Windows audio endpoint belongs to.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Two transmitters give two sets of endpoints that look almost identical.
+/// Windows tells them apart with a "2- " in front of the name, which is
+/// positional and not reliable. Each endpoint carries the path of the kernel
+/// filter behind it, and that path holds the USB product id: the same id the
+/// headset uses to name its paired transmitters.
+/// </para>
+/// <para>
+/// Output and input can be routed to different transmitters with nothing
+/// reporting it; seen with the output on the Charging Dock and the
+/// microphone still on the USB Transmitter the headset had left.
+/// </para>
+/// </remarks>
 public static class Routing
 {
     private static readonly NKey FilterPath =
         new(new Guid("233164c8-1b2c-4c7d-bc68-b671687a2567"), 1);
 
-    /// <summary>
-    /// The default output or input, and the product id behind it. Windows
-    /// keeps a second default for communications, which chat apps can use
-    /// and which does not move when the output is changed in Sound settings.
-    /// </summary>
+    /// <summary>The default output or input, and the product id behind it.</summary>
+    /// <remarks>
+    /// Windows keeps a second default for communications, which chat apps can
+    /// use and which does not move when the output is changed in Sound
+    /// settings.
+    /// </remarks>
+    /// <returns>The route, or null if there is no default or it cannot be read.</returns>
     public static Routed? Default(bool output, bool communications = false)
     {
         try
@@ -47,7 +51,7 @@ public static class Routing
         catch { return null; }
     }
 
-    /// <summary>Endpoints belonging to one transmitter, by product id.</summary>
+    /// <summary>Lists the active endpoints belonging to one transmitter, by product id.</summary>
     public static List<string> Belonging(string product, bool output)
     {
         var found = new List<string>();
@@ -65,8 +69,8 @@ public static class Routing
     }
 
     /// <summary>
-    /// The headset's own audio device, when it is plugged in with a USB-C
-    /// cable: its product id, or empty when it is not.
+    /// The product id of the headset's own audio device when it is plugged in
+    /// with the USB-C cable, or empty when it is not.
     /// </summary>
     public static string Cable()
     {
@@ -87,11 +91,14 @@ public static class Routing
     }
 
     /// <summary>
-    /// The headset's output or microphone that Windows is using, if it is
-    /// using one; otherwise the first of them. The one in use comes first for
-    /// the reason given on <see cref="AudioEndpoints"/>: there can be several,
-    /// all with the same name, one of them over a cable.
+    /// The headset output or microphone Windows is using, if it is using one;
+    /// otherwise the first that matches.
     /// </summary>
+    /// <remarks>
+    /// The one in use comes first for the reason given on
+    /// <see cref="Endpoint.FindMatching"/>: there can be several with the same
+    /// name, one of them over the USB-C cable.
+    /// </remarks>
     public static MMDevice? Headset(MMDeviceEnumerator devices, bool output, string match = "Stealth Pro")
     {
         var flow = output ? NFlow.Render : NFlow.Capture;
@@ -115,11 +122,14 @@ public static class Routing
     }
 
     /// <summary>
-    /// The product id behind an endpoint, if it is one of Turtle Beach's; empty
-    /// for anything else. Without the vendor check a USB webcam's microphone,
-    /// which has a product id of its own, would count as a transmitter the
-    /// headset is not on.
+    /// The product id behind an endpoint if it is a Turtle Beach device, and
+    /// empty for anything else.
     /// </summary>
+    /// <remarks>
+    /// The vendor check (VID 10F5) matters: a USB webcam's microphone has a
+    /// product id of its own and would otherwise count as a transmitter the
+    /// headset is not on.
+    /// </remarks>
     private static string ProductOf(MMDevice device)
     {
         try

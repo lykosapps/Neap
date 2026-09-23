@@ -1,21 +1,17 @@
 namespace StealthPro.Core.Settings;
 
-/// <summary>
-/// The settings confirmed by capture.
-///
-/// Every entry here was observed being written or reported by Swarm II while
-/// a specific control was operated by hand. Nothing in this file is guessed
-/// — where a value is read back but not yet matched to a control it is named
-/// with the best hypothesis and left non-writable, and says so.
-///
-/// Ported from stealthpro/keys.py.
-/// </summary>
+/// <summary>The headset settings confirmed by capture.</summary>
+/// <remarks>
+/// Every entry was observed being written or reported by Swarm II while a
+/// specific control was operated by hand. A value that is read back but not
+/// yet matched to a control is named with the best hypothesis, left
+/// non-writable, and says so in its note. The exceptions are 0x730 and 0x740,
+/// which are writable; see the comment above them.
+/// </remarks>
 public static class Registry
 {
-    /// <summary>
-    /// Zero-based, confirmed for the Mode button: before it was remapped,
-    /// pressing it toggled ANC, and its value at the time was 0.
-    /// </summary>
+    /// <summary>The Mode button's functions, zero-based.</summary>
+    /// <remarks>Confirmed: while pressing the button toggled ANC, its value was 0.</remarks>
     public static readonly IReadOnlyDictionary<int, string> ModeButtonOptions =
         new Dictionary<int, string>
         {
@@ -24,12 +20,12 @@ public static class Registry
             [2] = "Noise gate on/off",
         };
 
-    /// <summary>
-    /// The dial list is ONE-based, unlike the Mode button's. Value 0 has
-    /// never been observed; setting the dial back to its factory default
-    /// (Mic monitoring) writes 1, and asking for Treble then Bass wrote 4
-    /// then 3.
-    /// </summary>
+    /// <summary>The dial's functions, one-based unlike the Mode button's.</summary>
+    /// <remarks>
+    /// Value 0 has never been observed. Setting the dial back to its factory
+    /// default (Mic monitoring) writes 1, and choosing Treble then Bass writes
+    /// 4 then 3.
+    /// </remarks>
     public static readonly IReadOnlyDictionary<int, string> DialOptions =
         new Dictionary<int, string>
         {
@@ -61,7 +57,7 @@ public static class Registry
     public static readonly IReadOnlyDictionary<string, SettingKey> ByName =
         All.ToDictionary(k => k.Name, StringComparer.Ordinal);
 
-    /// <summary>Accept a name, a numeric key, or a "0x…" string.</summary>
+    /// <summary>Finds a setting by name, numeric key, or "0x…" string.</summary>
     public static SettingKey Resolve(object key)
     {
         switch (key)
@@ -79,15 +75,14 @@ public static class Registry
         throw new KeyNotFoundException($"unknown setting '{text}'");
     }
 
-    /// <summary>
-    /// The value to send for a write, checked against what is confirmed.
-    ///
-    /// Only a writable key in this registry, within its range, is sent. The
-    /// one addition is the lighting in the other transmitter slots: each
-    /// slot's two brightnesses sit at +1 and +2 in its own block, and only
-    /// slot one's are listed. A slot's base address is never written — doing
-    /// so once moved the headset onto a transmitter nobody had chosen.
-    /// </summary>
+    /// <summary>The value to send for a write, checked against what is confirmed.</summary>
+    /// <remarks>
+    /// Only a writable key in this registry, within its range, is sent. The one
+    /// addition is the lighting in the other transmitter slots: each slot's two
+    /// brightnesses sit at +1 and +2 in its own block, and only slot one's are
+    /// listed. A slot's base address is never written: writing it moves the
+    /// headset onto a transmitter nobody chose.
+    /// </remarks>
     /// <exception cref="ArgumentException">The write is not a confirmed one.</exception>
     public static string WireValue(int key, object value)
     {
@@ -140,8 +135,8 @@ public static class Registry
 
             // 0x4xx is the four transmitter slots, one per 0x20. These two sit
             // inside the first slot's block and come back in its "control"
-            // array, so they are readable after all — an earlier note said
-            // write-only, which was the parser dropping the reply.
+            // array, so they are readable; a parser that drops that reply makes
+            // them look write-only.
             R(0x401, "led_brightness_1", "TX1", 0, 100,
               note: "charging hub LED 1 (battery eject ring); reads back as control[1] "
                   + "of the active transmitter"),
@@ -173,9 +168,11 @@ public static class Registry
             E(0xA20, "dial_function", "Enc", DialOptions),
             E(0xB20, "mode_button_function", "Btn", ModeButtonOptions),
 
-            // Read back from the device but not yet matched to a control by
-            // capture. Named with the best current hypothesis; left
-            // non-writable until proven.
+            // 0x730 and 0x740 are named from Swarm II's Superhuman Hearing
+            // controls and written by the app, but not yet matched by capture.
+            // The values after them are read back but not matched to a control,
+            // so they are named with the best current hypothesis and left
+            // non-writable.
             E(0x730, "shh_preset", "SAF", ShhPresetOptions),
             R(0x740, "shh_level", "SAF", 0, 100, note: "Superhuman Hearing intensity"),
             R(0x640, "mic_unknown_640", "Mic", writable: false,
@@ -212,7 +209,7 @@ public static class Registry
                   + "4 = Smooth; custom slots start at 16."),
             Text(0x13C0, "mic_eq_preset_name", "AQM"),
 
-            // Bluetooth — readable after all, with the verb RBT.
+            // Bluetooth: readable, with the verb RBT rather than SBT.
             R(0x300, "bt_unknown_300", "BT", writable: false,
               note: "NOT a Bluetooth switch. Accepts a write and persists it across a "
                   + "full power cycle, but Bluetooth still connects either way."),
@@ -222,9 +219,9 @@ public static class Registry
             R(0x350, "bt_unknown_350", "BT", writable: false),
 
             // CEC: three matching pairs of count and delete register. Writing
-            // a preset's NAME to the register removes it — there is no delete
-            // by slot id. Reading it back gives the last name deleted, which
-            // is why the capture first looked like a name mirror.
+            // a preset's name to the register removes it; there is no delete
+            // by slot id. Reading it back gives the last name deleted, so in a
+            // capture it looks like a name mirror.
             R(0x1600, "game_preset_count", "CEC", writable: false,
               note: "how many custom game EQ presets are stored"),
             Text(0x1610, "delete_game_preset", "CEC",
@@ -276,7 +273,7 @@ public static class Registry
               note: "the desktop Swarm II has no control for this — mobile only"),
             // Identified by watching every value while the hardware was
             // operated, then confirmed in reverse. See LinkState for the
-            // transitions and what each bit turned out to be.
+            // transitions and what each bit means.
             R(0x290, "link_state", "GSI", writable: false,
               note: "bit 0 is Bluetooth connected; bits 1-2 are how it is "
                   + "attached, 1 = 2.4GHz and 2 = USB"),
@@ -286,16 +283,18 @@ public static class Registry
                   + "that only repeated it would be redundant"),
         };
 
-        // Ten contiguous bands per bank at 0x10 stride. Turtle Beach document
-        // a ten-band equaliser; an earlier version of this table listed eight
-        // and mislabelled the last two. Values are tenths of a decibel.
+        // Ten contiguous bands per bank at 0x10 stride, matching Turtle
+        // Beach's documented ten-band equaliser; the last two are bands too,
+        // not other settings. Values are tenths of a decibel.
         for (int band = 1; band <= 10; band++)
         {
             keys.Add(R(0x1220 + 0x10 * (band - 1), $"eq_band_{band}", "AQG", -90, 90));
             keys.Add(R(0x1320 + 0x10 * (band - 1), $"mic_eq_band_{band}", "AQM", -90, 90));
         }
 
-        // The ten custom equaliser slots, same reason as the transmitters.
+        // The ten custom equaliser slots, five per bank. Like the transmitter
+        // slots they answer as nested objects, and are listed only so a raw
+        // view can name them.
         for (int slot = 1; slot <= 5; slot++)
         {
             keys.Add(Text(0x1700 + 0x20 * (slot - 1), $"game_preset_slot_{slot}",

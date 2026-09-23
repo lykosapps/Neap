@@ -20,18 +20,20 @@ public readonly record struct HidDeviceInfo(
 
 /// <summary>
 /// An open handle to the Stealth Pro II's vendor control collection.
-///
-/// Ported from stealthpro/transport.py. Two things there were found the hard
-/// way and are kept:
-///
-/// - Replies are read with GET_REPORT of type <b>Input</b> on report id 7.
-///   The collection declares no feature reports at all, so HidD_GetFeature
-///   fails; Swarm II uses the input path and so do we.
-/// - More than one matching collection can be present. The transmitter is
-///   always there and plugging the headset in by USB-C adds a second. They
-///   speak the same protocol but they are different devices with different
-///   storage, so anything that writes must know which one it has.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Replies are read with GET_REPORT of type Input on report id 7. The
+/// collection declares no feature reports, so HidD_GetFeature fails; Swarm II
+/// uses the input path too.
+/// </para>
+/// <para>
+/// More than one matching collection can be present. The transmitter is
+/// always there, and plugging the headset in with the USB-C cable adds a
+/// second. They speak the same protocol but are different devices with
+/// different storage, so anything that writes must know which one it has.
+/// </para>
+/// </remarks>
 public sealed class HidTransport : IHidTransport
 {
     public const ushort DefaultVendorId = 0x10F5;
@@ -72,15 +74,14 @@ public sealed class HidTransport : IHidTransport
     public string Describe() =>
         $"0x{VendorId:x4}:0x{ProductId:x4} usage page 0x{UsagePage:x4}";
 
-    /// <summary>
-    /// Write one output report. It must already start with its report id.
-    ///
-    /// An oversized frame is refused rather than trimmed. There is no
-    /// continuation in this protocol, so a truncated frame is not a shorter
-    /// version of the same instruction — it is a different one, and the
-    /// headset accepts it without complaint. A preset name long enough to
-    /// overflow used to be written mangled instead of rejected.
-    /// </summary>
+    /// <summary>Writes one output report, which must already start with its report id.</summary>
+    /// <remarks>
+    /// An oversized frame is refused rather than trimmed. The protocol has no
+    /// continuation, so a truncated frame is a different instruction, not a
+    /// shorter one, and the headset accepts it without complaint; a preset
+    /// name that overflows would be stored mangled.
+    /// </remarks>
+    /// <exception cref="TransportException">The frame is too long, or the write failed.</exception>
     public void SendOutput(ReadOnlySpan<byte> report)
     {
         if (report.Length > OutputLength)
@@ -94,7 +95,7 @@ public sealed class HidTransport : IHidTransport
                 $"SetOutputReport failed ({new Win32Exception(Marshal.GetLastWin32Error()).Message})");
     }
 
-    /// <summary>Read one report from the headset, report id included.</summary>
+    /// <summary>Reads one report from the headset, report id included.</summary>
     public byte[] GetInput(byte reportId = InReportId)
     {
         var buffer = new byte[InputLength];
@@ -130,21 +131,19 @@ public sealed class HidTransport : IHidTransport
     }
 
     /// <summary>
-    /// A tie-break, not a decision: the headset itself first, then a
-    /// transmitter, then the charging hub.
-    ///
-    /// <b>Which device is present says nothing about which one the headset is
-    /// on.</b> Two transmitters can be plugged in at once and the headset
-    /// pairs with one at a time; the other opens perfectly happily and then
-    /// answers nothing. Measured: with the dongle and the hub both in, the
-    /// dongle returned no values at all while the hub returned everything.
-    /// So a caller has to ask each one rather than pick by name — see
-    /// <c>HeadsetService.Open</c> — and this order only decides who gets
-    /// asked first.
+    /// The order in which devices are asked: the headset itself (229E), the
+    /// USB Transmitter (229D), 2235, then the Charging Dock (229B).
     /// </summary>
+    /// <remarks>
+    /// This is a tie-break, not a decision. Which devices are present says
+    /// nothing about which one the headset is on: two transmitters can be
+    /// plugged in at once, the headset pairs with one at a time, and the other
+    /// opens cleanly and answers nothing. A caller must ask each one, as
+    /// <see cref="HeadsetClient.Behind"/> does.
+    /// </remarks>
     private static readonly ushort[] Preference = { 0x229E, 0x229D, 0x2235, 0x229B };
 
-    /// <summary>Every control collection present, worth-asking-first order.</summary>
+    /// <summary>Every matching control collection present, in the order to ask them.</summary>
     public static IReadOnlyList<HidDeviceInfo> Candidates(
         ushort vendorId = DefaultVendorId, ushort usagePage = VendorUsagePage)
     {
@@ -203,8 +202,8 @@ public sealed class HidTransport : IHidTransport
                 try
                 {
                     // cbSize of SP_DEVICE_INTERFACE_DETAIL_DATA_W: 8 on x64,
-                    // 6 on x86. It is the size of the *header*, not the buffer,
-                    // and getting it wrong makes the call fail with no clue.
+                    // 6 on x86. It is the size of the header, not the buffer;
+                    // a wrong value makes the call fail with no useful error.
                     Marshal.WriteInt32(detail, IntPtr.Size == 8 ? 8 : 6);
                     if (!Native.SetupDiGetDeviceInterfaceDetailW(
                             set, ref data, detail, needed, out _, IntPtr.Zero))
@@ -226,8 +225,8 @@ public sealed class HidTransport : IHidTransport
 
     private static HidDeviceInfo? Describe(string path)
     {
-        // Opened with no access rights: enough to ask what it is, and it
-        // does not disturb whoever has it open for real.
+        // No access rights: enough to query attributes and capabilities
+        // without disturbing whoever has the device open.
         IntPtr handle = Native.CreateFileW(
             path, 0, Native.FileShareReadWrite, IntPtr.Zero, Native.OpenExisting, 0, IntPtr.Zero);
         if (handle == new IntPtr(-1)) return null;

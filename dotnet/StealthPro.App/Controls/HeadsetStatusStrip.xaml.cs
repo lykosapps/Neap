@@ -7,10 +7,13 @@ using StealthPro.Core.Connection;
 namespace StealthPro.App.Controls;
 
 /// <summary>
-/// Whether the headset is there, shown from every page: a dot and a word.
-/// The readings live on Home; what belongs in a title bar is whether it is
-/// worth going to look.
+/// The headset's connection state in the title bar, on every page: a dot and
+/// a word.
 /// </summary>
+/// <remarks>
+/// The readings live on Home; the title bar says only whether it is worth
+/// going to look.
+/// </remarks>
 public sealed partial class HeadsetStatusStrip : UserControl
 {
     public HeadsetStatusStrip()
@@ -41,8 +44,8 @@ public sealed partial class HeadsetStatusStrip : UserControl
         ConnectionDot.Fill = Tones.Brush(look.Tone);
         ConnectionText.Text = StateCopy.Label(look.Headline);
 
-        // No sound happens while connected, where Detail is the device; the
-        // tooltip says what the state is instead, in the same words as Home.
+        // No sound happens while connected, where Detail names the device, so
+        // the tooltip explains the state instead, in the same words as Home.
         ToolTipService.SetToolTip(ConnectionGroup, look.Headline == Headline.NoSound
             ? StateCopy.WhatNoSound + " " + StateCopy.FixNoSound
             : status.Detail);

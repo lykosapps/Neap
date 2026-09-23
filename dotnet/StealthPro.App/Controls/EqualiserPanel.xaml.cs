@@ -11,13 +11,13 @@ using Windows.Globalization.NumberFormatting;
 namespace StealthPro.App.Controls;
 
 /// <summary>
-/// Decibels the way an equaliser reads them: one decimal place, and a sign
-/// on anything that is not zero.
-///
-/// A boost written "3.0" beside a cut written "-3.0" does not look like a
-/// pair of opposites at a glance; "+3.0" and "−3.0" do. Typing is forgiving
-/// in the other direction — "3", "3.5", "-3", "+3 dB" all land.
+/// Formats and parses decibel values for the equaliser fields: one decimal
+/// place, with a sign on any value that is not zero.
 /// </summary>
+/// <remarks>
+/// The sign makes a boost and a cut read as opposites ("+3.0" and "−3.0").
+/// Parsing is lenient: "3", "3.5", "-3" and "+3 dB" are all accepted.
+/// </remarks>
 internal sealed class DecibelFormatter : INumberFormatter2, INumberParser
 {
     public string FormatInt(long value) => FormatDouble(value);
@@ -43,35 +43,35 @@ internal sealed class DecibelFormatter : INumberFormatter2, INumberParser
 }
 
 /// <summary>
-/// One equaliser bank: its presets, and the curve in front of them.
-///
-/// What this does beyond Swarm, and why each one is here:
-///
-/// <b>It shows a shape.</b> The bands are a curve you drag, not ten separate
-/// sliders. Ten sliders make you read ten numbers to see that the mids are
-/// scooped; the curve says it at a glance, and the 0 dB line says which way
-/// is up. See <see cref="EqualiserCurve"/>.
-///
-/// <b>Type a number.</b> Dragging to exactly -3.0 dB is a game, not a
-/// control. Every band still has its own field, and arrow keys move it —
-/// which is also how the equaliser is reachable without a mouse.
-///
-/// <b>Put one band back.</b> Where the curve has left the stored preset, the
-/// preset is drawn behind it and each moved band gets a ring on it; clicking
-/// the ring is the way back for that band alone.
-///
-/// <b>Say when it has been changed.</b> The headset clears its
-/// selected-preset value the moment a band is touched, so without this a
-/// curve you have edited is indistinguishable from the preset it came from.
-///
-/// <b>Show the empty slots.</b> There are five, and how many are left is
-/// part of deciding whether to save over one.
-///
-/// Deleting confirms in place: the slot's own face becomes Delete and
-/// Cancel. An earlier version put a dialog in front of it, and a version
-/// before that added a second button to explain the first — both were more
-/// than the moment needs.
+/// One equaliser bank: its presets, and an editable response curve in front
+/// of them.
 /// </summary>
+/// <remarks>
+/// <para>
+/// The bands are a curve you drag (<see cref="EqualiserCurve"/>), not ten
+/// separate sliders, so the shape of the response and which way is up from
+/// 0 dB read at a glance.
+/// </para>
+/// <para>
+/// Every band also has its own numeric field, stepped by the arrow keys, for
+/// exact values and for use without a mouse.
+/// </para>
+/// <para>
+/// Where the curve differs from the stored preset, the preset is drawn behind
+/// it and each moved band gets a ring; clicking the ring reverts that band
+/// alone.
+/// </para>
+/// <para>
+/// The panel marks a curve as edited itself. The headset clears its
+/// selected-preset value as soon as a band changes, so without this an edited
+/// curve is indistinguishable from the preset it came from.
+/// </para>
+/// <para>
+/// Empty slots are shown: there are five, and how many are free matters when
+/// deciding whether to save over one. Deleting confirms in place: the slot's
+/// chip becomes Delete and Cancel, with no dialog.
+/// </para>
+/// </remarks>
 public sealed partial class EqualiserPanel : UserControl
 {
     private readonly List<BandCell> _cells = new();
@@ -181,18 +181,16 @@ public sealed partial class EqualiserPanel : UserControl
                 SmallChange = 0.5,
                 LargeChange = 1,
                 NumberFormatter = _decibels,
-                // No spin buttons. Compact floats them out over the next
-                // band the moment a field takes focus, which covered the
-                // neighbour and squeezed the value being edited down to its
-                // last digit. Nothing is lost: arrow keys step by
-                // SmallChange whenever the field has focus, buttons or not.
+                // No spin buttons: in Compact mode they float over the next
+                // band when a field takes focus, covering the neighbour and
+                // squeezing the value to its last digit. The arrow keys
+                // still step by SmallChange.
                 SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Hidden,
                 ValidationMode = NumberBoxValidationMode.InvalidInputOverwritten,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(3, 0, 3, 0),
             };
-            // The sliders this replaces had no name of their own, so a screen
-            // reader read out ten identical controls.
+            // Without a name, a screen reader announces ten identical controls.
             AutomationProperties.SetName(field, spec.Frequencies[i]);
 
             var hz = new TextBlock
@@ -204,8 +202,8 @@ public sealed partial class EqualiserPanel : UserControl
 
             int index = i;
 
-            // The ring on the curve puts a band back for a mouse. This is the
-            // same for the keyboard and screen readers: the field's own menu.
+            // The keyboard and screen-reader equivalent of the ring on the
+            // curve: the field's own menu puts the band back.
             var revert = new MenuFlyoutItem { Icon = new FontIcon { Glyph = "\uE7A7" } };
             revert.Click += (_, _) =>
             {
@@ -251,10 +249,13 @@ public sealed partial class EqualiserPanel : UserControl
     }
 
     /// <summary>
-    /// A preset's button, and beside it — not inside it, where a button in a
-    /// button confuses keyboard and screen-reader navigation — the way to
-    /// delete it.
+    /// Builds a preset's chip: its button, and for a custom preset a delete
+    /// button beside it.
     /// </summary>
+    /// <remarks>
+    /// The delete button sits beside the chip, not inside it; a button inside
+    /// a button confuses keyboard and screen-reader navigation.
+    /// </remarks>
     private UIElement SlotChip(Preset preset)
     {
         var slot = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, Tag = preset };
@@ -271,9 +272,8 @@ public sealed partial class EqualiserPanel : UserControl
             Paint();
         };
 
-        // Only a preset you made can be removed, and only once it is the one
-        // you are on — deleting something you are not listening to is a
-        // reach for a problem nobody has.
+        // Only a custom preset can be deleted, and the button shows only while
+        // that preset is selected (see PaintSlotStates).
         if (preset.Custom)
         {
             var remove = new Button
@@ -296,9 +296,8 @@ public sealed partial class EqualiserPanel : UserControl
     }
 
     /// <summary>
-    /// The chip becomes the question. No dialog, no second explanation: at
-    /// that moment the only two things worth offering are going through with
-    /// it and not.
+    /// Builds the in-place confirmation that replaces a preset's chip while
+    /// its deletion is pending: Delete and Cancel, with no dialog.
     /// </summary>
     private UIElement ConfirmChip(Preset preset)
     {
@@ -343,18 +342,14 @@ public sealed partial class EqualiserPanel : UserControl
         string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Keep this curve as a preset of its own.
-    ///
-    /// <b>Saving and overwriting are two buttons, not one.</b> They were one
-    /// twice over and both were wrong. First the button changed itself from
-    /// "Save as new" to "Save to Mud cut" depending on what was selected, so
-    /// the destructive action wore the safe one's clothes and sat in its
-    /// place. Then it became a single "Save preset" whose dialog let you
-    /// change the name to get a new one instead — which works, but nothing
-    /// on screen says so, and a control whose second meaning is only
-    /// reachable by guessing is not offering it. If there are two things a
-    /// person might want here, there are two buttons.
+    /// Saves the current curve as a new preset.
     /// </summary>
+    /// <remarks>
+    /// Saving and overwriting are two buttons, not one. A single button whose
+    /// label changes with the selection puts the destructive action in the
+    /// safe one's place, and a single Save whose dialog makes a new preset
+    /// only if the name is changed hides its second meaning.
+    /// </remarks>
     private async Task SaveAsNew()
     {
         if (_state is null) return;
@@ -368,15 +363,13 @@ public sealed partial class EqualiserPanel : UserControl
     }
 
     /// <summary>
-    /// Write the curve back over the preset it came from.
-    ///
-    /// Named rather than confirmed: the button says which preset it is about
-    /// to replace, and that is the part the old one was missing. Replacing is
-    /// a delete followed by a write, so it destroys more than deleting does —
-    /// but a person who has pressed a button reading "Overwrite Mud cut" has
-    /// said what they meant, and a dialog on top of that is the second
-    /// explanation this card has already thrown away once.
+    /// Writes the current curve over the custom preset it came from.
     /// </summary>
+    /// <remarks>
+    /// Named rather than confirmed: the button says which preset it replaces
+    /// ("Overwrite Mud cut"), so no dialog follows. Replacing is a delete
+    /// followed by a write.
+    /// </remarks>
     private async Task Overwrite()
     {
         if (_state?.Baseline is not { Custom: true } baseline) return;
@@ -387,16 +380,16 @@ public sealed partial class EqualiserPanel : UserControl
     }
 
     /// <summary>
-    /// Name the new preset.
-    ///
-    /// Everything that would refuse the save says so here, while there is
-    /// still something to do about it, rather than as an error once the name
-    /// has been typed: no slots left, a name already taken, a name belonging
-    /// to one of the headset's own presets, or one at the length ceiling.
-    /// A name already taken points at the other button rather than just
-    /// refusing, because wanting to replace that preset is the likeliest
-    /// reason to be typing its name.
+    /// Asks for the new preset's name. Returns the trimmed name, or an empty
+    /// string if the dialog was cancelled.
     /// </summary>
+    /// <remarks>
+    /// Anything that would refuse the save is reported while typing rather
+    /// than as an error afterwards: no free slots, a name already taken, or
+    /// the name of one of the headset's own presets. A name at the length
+    /// limit gets a note. A taken name points at the Overwrite button, since
+    /// replacing that preset is the likeliest reason to type its name.
+    /// </remarks>
     private async Task<string> AskForName()
     {
         var field = new TextBox
@@ -480,11 +473,10 @@ public sealed partial class EqualiserPanel : UserControl
     {
         if (_state is null) return;
 
-        // The presets can be listed while the headset is still not saying
-        // where its bands are — a transmitter that is plugged in with the
-        // headset switched off answers the preset slots and nothing else.
-        // Showing the card anyway gives a blank plot over ten empty fields,
-        // which reads as a broken equaliser rather than an absent headset.
+        // The presets can be listed before the headset reports its bands: a
+        // USB Transmitter plugged in with the headset off answers the preset
+        // slots and nothing else. A blank plot over ten empty fields would
+        // read as a broken equaliser rather than an absent headset.
         var live = AppServices.Presets.LiveBands(Bank);
         ShowWaiting(live is null);
         if (live is null) return;
@@ -517,11 +509,10 @@ public sealed partial class EqualiserPanel : UserControl
             EditedPill.Visibility = edited ? Visibility.Visible : Visibility.Collapsed;
             DiscardButton.Visibility = edited ? Visibility.Visible : Visibility.Collapsed;
 
-            // Only when there is something to save. It used to be enabled
-            // whenever a slot was free, so pressing it with nothing changed
-            // spent one of five slots on a copy of a preset already there.
-            // The exception is a curve we cannot place: if we never worked
-            // out which preset it came from, saving it is the way to keep it.
+            // Only when there is something to save; otherwise pressing it
+            // spends one of five slots on a copy of an existing preset. The
+            // exception is a curve whose preset is unknown: saving is the
+            // only way to keep it.
             SaveButton.IsEnabled = edited || _state.Baseline is null;
 
             // Overwrite only exists when there is a preset of yours to

@@ -4,13 +4,12 @@ namespace StealthPro.Core.Settings;
 
 public enum SettingKind { Range, Toggle, Enum, Text }
 
-/// <summary>
-/// One confirmed setting.
-///
+/// <summary>One confirmed setting.</summary>
+/// <remarks>
 /// <see cref="Writable"/> is false for values the headset reports but Swarm
-/// never sets — either because they are read-only, or because we have not
-/// established what they do and will not guess with somebody's hardware.
-/// </summary>
+/// never sets: either they are read-only, or what they do is not established
+/// and a guess is not worth risking on somebody's hardware.
+/// </remarks>
 public sealed record SettingKey(
     int Key,
     string Name,
@@ -24,7 +23,7 @@ public sealed record SettingKey(
 {
     public string Hex => $"0x{Key:x}";
 
-    /// <summary>Check a value against this key and return it as the wire form.</summary>
+    /// <summary>Checks a value against this key and returns it in wire form.</summary>
     public string Validate(object value)
     {
         if (Kind == SettingKind.Text) return value.ToString() ?? "";

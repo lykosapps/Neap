@@ -14,12 +14,15 @@ public sealed partial class MainWindow : Window
     private Microsoft.UI.Dispatching.DispatcherQueueTimer? _trim;
 
     /// <summary>
-    /// The one window, so a page can move the selection rather than navigate
-    /// the frame behind the rail's back and leave the two disagreeing.
+    /// The app's one window.
     /// </summary>
+    /// <remarks>
+    /// Pages use it to move the rail's selection rather than navigate the frame
+    /// behind the rail's back and leave the two disagreeing.
+    /// </remarks>
     public static MainWindow? Instance { get; private set; }
 
-    /// <summary>Go somewhere by its rail tag, as though it had been clicked.</summary>
+    /// <summary>Selects the page with this rail tag, as though it had been clicked.</summary>
     public void GoTo(string tag)
     {
         foreach (var item in Nav.MenuItems.OfType<NavigationViewItem>())
@@ -42,10 +45,10 @@ public sealed partial class MainWindow : Window
         AppWindow.Changed += (_, _) => FitTitleBar();
         FitTitleBar();
 
-        // Big enough for the equaliser's ten bands side by side, which is the
-        // widest thing in the app and the one that reads badly when it is
-        // cramped. Scaled by the monitor, because AppWindow works in real
-        // pixels and this would otherwise come up half-size at 200%.
+        // Big enough for the equaliser's ten bands side by side, the widest
+        // thing in the app and the one that reads badly when cramped. Scaled
+        // by the monitor's DPI, because AppWindow works in physical pixels and
+        // this would otherwise come up half-size at 200%.
         double scale = Dpi() / 96.0;
         AppWindow.Resize(new SizeInt32((int)(1180 * scale), (int)(900 * scale)));
 
@@ -53,9 +56,8 @@ public sealed partial class MainWindow : Window
 
         // Closing the window puts the app in the notification area instead of
         // stopping it. The mix, the chat wheel and the headset's own controls
-        // are the point of running at all, and none of them need a window —
-        // so closing one must not switch them off. Quit is on the tray menu,
-        // where somebody looking to stop it will look.
+        // are the point of running, and none of them need a window. Quit is on
+        // the tray menu.
         AppWindow.Closing += (_, args) =>
         {
             if (_quitting) return;
@@ -63,29 +65,28 @@ public sealed partial class MainWindow : Window
             Hide();
         };
 
-        // The tray icon exposes a command rather than a click event, so the
-        // one-line handler gets a one-line command.
+        // The tray icon exposes a command rather than a click event.
         Tray.LeftClickCommand = new Do(Show);
 
     }
 
     /// <summary>
-    /// Go straight to the notification area, for a login launch.
-    ///
-    /// Called after Activate rather than from the constructor: activation is
-    /// what puts the window on screen, so hiding before it happens gets
-    /// undone a moment later and the app greets you at every login anyway.
+    /// Hides the window to the notification area, for a launch at login.
     /// </summary>
+    /// <remarks>
+    /// Call after Activate, not from the constructor: activation puts the
+    /// window on screen, so hiding before it is undone a moment later.
+    /// </remarks>
     public void HideToTray() => Hide();
 
     /// <summary>
-    /// Bring the window forward, for a second launch of the app: someone
+    /// Brings the window forward, for a second launch of the app: someone
     /// opening it from the Start menu while it sits in the notification area
     /// wants the window, not a second copy.
     /// </summary>
     public void Reveal() => Show();
 
-    /// <summary>An ICommand that is just a method. Nothing here needs more.</summary>
+    /// <summary>An <see cref="System.Windows.Input.ICommand"/> that runs a method and is always enabled.</summary>
     private sealed class Do : System.Windows.Input.ICommand
     {
         private readonly Action _run;
@@ -96,9 +97,8 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Out of sight, and out of memory as far as Windows is concerned: the
-    /// pages we are no longer drawing get pushed out of the working set. They
-    /// come back on their own when the window is shown again.
+    /// Keeps the status strip clear of the window's caption buttons, however
+    /// wide Windows draws them.
     /// </summary>
     private void FitTitleBar()
     {
@@ -118,8 +118,8 @@ public sealed partial class MainWindow : Window
 
         // Trim again while it stays hidden. One trim at the moment of hiding
         // is not enough: the headset reader keeps working, and the pages it
-        // touches fault straight back in. Repeating it keeps a day-long
-        // background sit at a fraction of what an open window costs.
+        // touches fault straight back in. Repeating it keeps a day in the
+        // background at a fraction of what an open window costs.
         if (_trim is null)
         {
             _trim = DispatcherQueue.CreateTimer();
@@ -130,11 +130,13 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Say, once, that the app is still running. Windows 11 files a new
-    /// notification-area icon into the hidden overflow, so without this the
-    /// first close looks exactly like quitting: window gone, no icon, mix
-    /// still quietly working and no way to tell.
+    /// Shows a notification, once ever, that the app is still running.
     /// </summary>
+    /// <remarks>
+    /// Windows 11 files a new notification-area icon into the hidden overflow,
+    /// so without this the first close looks exactly like quitting: window
+    /// gone, no icon, and the mix still working with no way to tell.
+    /// </remarks>
     private void TellThemOnce()
     {
         if (AppSettings.Current.ToldAboutTray) return;
@@ -197,6 +199,10 @@ public sealed partial class MainWindow : Window
         catch { return 96; }
     }
 
+    /// <summary>
+    /// Pushes the pages no longer being drawn out of the working set. Windows
+    /// faults them back in on its own when the window is shown again.
+    /// </summary>
     private static void TrimWorkingSet()
     {
         try { SetProcessWorkingSetSize(GetCurrentProcess(), -1, -1); } catch { }

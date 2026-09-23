@@ -7,11 +7,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <!--  A dot and a word, and nothing else.
-          It grew to carry five readings — link, route, Bluetooth, signal and
-          battery — in a strip sized for one, and every fact added made the
-          others harder to read. They live on Home now. What belongs in a
-          title bar is whether to go and look.  -->
+    <!--  A dot and a word, and nothing else. Link, route, Bluetooth, signal
+          and battery belong on Home: in a strip this size each added fact
+          makes the others harder to read. The title bar says only whether to
+          go and look.  -->
     <StackPanel
         x:Name="ConnectionGroup"
         Orientation="Horizontal"

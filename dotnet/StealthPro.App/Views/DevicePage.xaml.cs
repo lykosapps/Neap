@@ -22,10 +22,13 @@ public sealed partial class DevicePage : Page
     }
 
     /// <summary>
-    /// Everything the headset has said, named where we know the name. The
-    /// unnamed ones are the point: they are how the next setting gets
-    /// identified, so they are shown rather than filtered out.
+    /// Lists every value the headset has reported, named where the registry
+    /// knows the name.
     /// </summary>
+    /// <remarks>
+    /// Unnamed values are shown rather than filtered out: they are how the
+    /// next setting gets identified.
+    /// </remarks>
     private void PaintRaw()
     {
         var values = AppServices.Headset.Values;

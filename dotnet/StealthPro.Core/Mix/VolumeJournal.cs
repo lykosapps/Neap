@@ -11,46 +11,49 @@ internal interface ISessionVolume
 }
 
 /// <summary>
-/// What other applications' volumes were before we touched them.
-///
-/// This is the most important thing in the mix. The crossfade works by
-/// holding other applications down on the headset, and this process is the
-/// only thing that knows what they were. Kill it any way you like — Task
-/// Manager, a crash, a power cut — and the next launch has to be able to put
-/// them back, or somebody is left with a permanently quiet Spotify and no
-/// record of why.
-///
-/// Five rules, each of which was learned rather than designed:
-///
-/// <b>Write before changing, not after.</b> A kill between the two costs
-/// nothing. A kill the other way round loses the originals.
-///
-/// <b>Restore only what is still where we left it.</b> Each entry records
-/// both the original and the value we applied. If a session is no longer
-/// sitting at what we applied, the person has moved it since and their
-/// choice wins.
-///
-/// <b>A level someone else set is theirs while the mix runs, too.</b> A
-/// session found away from what we applied is taken as the person's new
-/// level, and the mix scales from that. A session the mix has not moved for
-/// is left alone, so a sweep never undoes a change made in Windows' own
-/// mixer.
-///
-/// <b>One record per device.</b> Windows keeps each application's volume
-/// separately on each device, and the headset has several — the Charging
-/// Dock, the USB Transmitter and its own cable — so a session is restored on
-/// the device it was held down on, whichever device is in use now.
-///
-/// <b>Never clear a journal you do not own.</b> An early version cleared it
-/// on exit whether or not it had written anything, so a throwaway launch
-/// that only listed devices wiped the record of a crashed run — and the
-/// volumes ratcheted 1.00, 0.50, 0.25, 0.12 across three crashes. Entries
-/// owed to an application that is not running are kept for next time rather
-/// than discarded.
+/// What other applications' volumes were before the mix changed them,
+/// persisted so a later launch can put them back.
 /// </summary>
+/// <remarks>
+/// <para>
+/// The crossfade works by holding other applications down on the headset, and
+/// this process is the only thing that knows what they were. However it is
+/// killed (Task Manager, a crash, a power cut), the next launch has to be able
+/// to put them back, or somebody is left with a permanently quiet Spotify and
+/// no record of why. Five rules follow from that.
+/// </para>
+/// <para>
+/// Write before changing, not after. A kill between the two costs nothing; a
+/// kill the other way round loses the originals.
+/// </para>
+/// <para>
+/// Restore only what is still where it was left. Each entry records both the
+/// original and the value applied. If a session is no longer at the applied
+/// value, the person has moved it since and their choice wins.
+/// </para>
+/// <para>
+/// A level someone else sets while the mix runs is theirs too. A session found
+/// away from the applied value is taken as the person's new level, and the mix
+/// scales from that. A session whose share the mix has not changed is left
+/// alone, so a sweep never undoes a change made in Windows' own mixer.
+/// </para>
+/// <para>
+/// Keep one record per device. Windows keeps each application's volume
+/// separately on each device, and the headset has several (the Charging Dock,
+/// the USB Transmitter and its own USB-C cable), so a session is restored on
+/// the device it was held down on, whichever device is in use now.
+/// </para>
+/// <para>
+/// Never clear a journal this process did not write. A throwaway launch that
+/// only lists devices must not wipe the record of a crashed run; if it does,
+/// volumes ratchet 1.00, 0.50, 0.25, 0.12 across three crashes. Entries owed
+/// to an application that is not running are kept for next time rather than
+/// discarded.
+/// </para>
+/// </remarks>
 internal sealed class VolumeJournal
 {
-    /// <summary>How far a volume may sit from what we set and still be ours.</summary>
+    /// <summary>How far a volume may sit from the applied value and still count as ours.</summary>
     internal const float Tolerance = 0.01f;
 
     private sealed class Entry
@@ -60,8 +63,12 @@ internal sealed class VolumeJournal
 
         /// <summary>
         /// The share of <see cref="Original"/> that <see cref="Applied"/> was
-        /// set as. Journals from before it existed are read without it.
+        /// set as.
         /// </summary>
+        /// <remarks>
+        /// Absent from older journals; <see cref="VolumeJournal.Load"/> derives
+        /// it from the other two.
+        /// </remarks>
         [JsonPropertyName("scale")] public float? Scale { get; set; }
     }
 
@@ -71,8 +78,8 @@ internal sealed class VolumeJournal
         [JsonPropertyName("devices")]
         public Dictionary<string, Dictionary<string, Entry>> Devices { get; set; } = new();
 
-        // The format before one record per device. Read, moved into Devices,
-        // and never written again.
+        // The older single-device format. Read, moved into Devices, and never
+        // written again.
         [JsonPropertyName("endpoint"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Endpoint { get; set; }
 
@@ -109,12 +116,13 @@ internal sealed class VolumeJournal
     /// <summary>
     /// What a session should be set to for the mix to be at
     /// <paramref name="scale"/> of its level, or null to leave it alone.
-    ///
-    /// Recorded the first time a session is seen, at the level it was found
-    /// at. Recording it again on a later pass is what ratchets: the value read
-    /// then is one we set ourselves. After that the entry follows whoever else
-    /// moves the session, so the person's own changes stand.
     /// </summary>
+    /// <remarks>
+    /// The original is recorded the first time a session is seen, at the level
+    /// it was found at. Recording it again on a later pass ratchets, because
+    /// the value read then is one the mix set. After that the entry follows
+    /// whoever else moves the session, so the person's own changes stand.
+    /// </remarks>
     internal float? Wanted(string deviceId, string sessionId, float current, float scale)
     {
         lock (_gate)
@@ -148,7 +156,7 @@ internal sealed class VolumeJournal
         }
     }
 
-    /// <summary>Write down what is about to be applied, before applying it.</summary>
+    /// <summary>Records what is about to be applied, before it is applied.</summary>
     internal void Commit(string deviceId, IEnumerable<(string Id, float Wanted, float Scale)> pending)
     {
         lock (_gate)
@@ -165,10 +173,13 @@ internal sealed class VolumeJournal
     }
 
     /// <summary>
-    /// Put one device's sessions back, keeping anything we could not reach.
-    /// Only a session still sitting at the value we applied is restored — if
-    /// it has moved since, that was the person and their choice stands.
+    /// Puts one device's sessions back, keeping anything that could not be
+    /// reached.
     /// </summary>
+    /// <remarks>
+    /// Only a session still at the applied value is restored. If it has moved
+    /// since, that was the person, and their choice stands.
+    /// </remarks>
     internal void RestoreInto(string deviceId, IEnumerable<ISessionVolume> sessions)
     {
         lock (_gate)
@@ -184,8 +195,9 @@ internal sealed class VolumeJournal
                 {
                     if (MathF.Abs(session.Volume - entry.Applied) <= Tolerance)
                         session.Volume = entry.Original;
-                    // Drop it only once it is actually back, so a failure part
-                    // way through leaves the rest for the next launch.
+                    // Drop it only once it is handled, restored or left to the
+                    // person, so a failure part way through leaves the rest
+                    // for the next launch.
                     done.Add(id);
                 }
                 catch { }
@@ -205,10 +217,10 @@ internal sealed class VolumeJournal
         }
         catch { return new Record(); }
 
-        // A journal from before one record per device. Windows starts every
-        // session identifier with the id of the device it plays on, so each
-        // entry can be put back under the device it belongs to — including
-        // the ones the old format had stranded.
+        // An older single-device journal. Windows starts every session
+        // identifier with the id of the device it plays on, so each entry can
+        // be filed under the device it belongs to, including entries the old
+        // format recorded against the wrong endpoint.
         if (record.Sessions is { } old)
         {
             foreach (var (id, entry) in old)

@@ -10,18 +10,24 @@ namespace StealthPro.App.Controls;
 public enum WindowsControl { Volume, Mute }
 
 /// <summary>
-/// A volume or mute that belongs to Windows, not the headset.
-///
-/// Master volume and microphone sensitivity look like headset settings and
-/// are not. The headset reports both, but its copies are <b>mirrors</b>:
-/// write one and the number it reports changes, then Windows overwrites it
-/// and nothing sounds different. Measured on both. So these rows read and
-/// write the Windows endpoint.
-///
-/// The headset's mirror still earns its keep as the display: it is pushed to
-/// us whenever the level moves, including when something else moves it, so
-/// the row stays live without polling. Mute has no mirror and is polled.
+/// A settings row for a volume or mute that belongs to the Windows endpoint,
+/// not the headset.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Master volume and microphone sensitivity look like headset settings and
+/// are not. The headset reports both, but its copies are mirrors: writing one
+/// changes the number it reports, then Windows overwrites it and nothing
+/// sounds different. Measured on both. So these rows read and write the
+/// Windows endpoint.
+/// </para>
+/// <para>
+/// The headset's mirror is still useful for display: it is pushed whenever
+/// the level moves, from anywhere, so the slider follows it between polls.
+/// Every row also polls Windows once a second; mute has no mirror, so for
+/// mute the poll is the only way to see it change.
+/// </para>
+/// </remarks>
 public sealed class WindowsVolumeRow : SettingsCard
 {
     private const int SliderWidth = 220;
@@ -56,7 +62,7 @@ public sealed class WindowsVolumeRow : SettingsCard
     public static readonly DependencyProperty CaptureProperty = DependencyProperty.Register(
         nameof(Capture), typeof(bool), typeof(WindowsVolumeRow), new PropertyMetadata(false));
 
-    /// <summary>True for the microphone, false for the headset's output.</summary>
+    /// <summary>Gets or sets whether the row controls the microphone (true) or the headset's output (false).</summary>
     public bool Capture
     {
         get => (bool)GetValue(CaptureProperty);
@@ -74,14 +80,14 @@ public sealed class WindowsVolumeRow : SettingsCard
 
     private Flow Flow => Capture ? Flow.Input : Flow.Output;
 
-    /// <summary>The headset's mirror of this level, when it has one.</summary>
+    /// <summary>The registry name of the headset's mirror of this level, or null when it has none.</summary>
     private string? MirrorName => Kind == WindowsControl.Volume
         ? (Capture ? "mic_volume" : "master_volume") : null;
 
     /// <summary>
-    /// Named on the control, not on the card around it — the control is what
-    /// takes focus, and a page where every slider announces as "slider" is
-    /// the fault the equaliser bands had.
+    /// Names the control for screen readers, on the control rather than the
+    /// card around it, since the control takes focus; otherwise every slider
+    /// announces as "slider".
     /// </summary>
     private void Speak()
     {
@@ -144,7 +150,10 @@ public sealed class WindowsVolumeRow : SettingsCard
         _ = Refresh();
     }
 
-    /// <summary>Ask Windows directly. The only way to see mute move.</summary>
+    /// <summary>
+    /// Reads the level or mute state from Windows. A slider being dragged is
+    /// left alone.
+    /// </summary>
     private async Task Refresh()
     {
         var state = await WindowsAudio.Read(Flow);
@@ -162,10 +171,13 @@ public sealed class WindowsVolumeRow : SettingsCard
     }
 
     /// <summary>
-    /// Follow the headset's mirror between polls. It arrives the moment the
-    /// level moves anywhere, including from the headset's own volume wheel,
-    /// which is what makes this feel live rather than a second behind.
+    /// Follows the headset's mirror between polls.
     /// </summary>
+    /// <remarks>
+    /// The mirror arrives the moment the level moves anywhere, including from
+    /// the headset's own volume wheel, so the slider is live rather than up to
+    /// a second behind.
+    /// </remarks>
     private void Paint()
     {
         if (_slider is null || MirrorName is null) return;

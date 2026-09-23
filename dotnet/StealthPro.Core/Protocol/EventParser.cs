@@ -20,26 +20,28 @@ public readonly record struct DeviceEvent(
 }
 
 /// <summary>
-/// Pulls events out of a byte stream.
-///
-/// Two rules here were each responsible for a wrong finding that survived
-/// for most of a day, so they are stated rather than implied:
-///
-/// 1. <b>Category names can contain digits.</b> "3DT" carries the game/chat
-///    mix and "CG1".."CG5" carry the custom equaliser slots. A letters-only
-///    pattern silently discarded every one of them, and the silence was
-///    reported as "the wheel emits nothing".
-/// 2. <b>Where an event ends is found by counting braces, not by matching.</b>
-///    A value can itself be an object — the preset slots answer with
-///    <c>{"1700":{"name":…,"bands":[…]}}</c>. A pattern that stopped at the
-///    first closing brace cut those in half, the JSON then failed, and the
-///    reply was dropped as "never answered".
-///
-/// Anything event-shaped that does not decode is recorded in
-/// <see cref="Unrecognised"/> rather than discarded. A parser for a protocol
-/// still being learned has to be able to say "I saw something I did not
-/// understand", or it turns "cannot parse" into "does not exist".
+/// Extracts device events from the headset's byte stream.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Category names can contain digits. "3DT" carries the game/chat mix and
+/// "CG1".."CG5" carry the custom equaliser slots; a letters-only pattern
+/// drops every one of them silently, which looks like the device sending
+/// nothing.
+/// </para>
+/// <para>
+/// Where an event ends is found by counting braces, not by pattern matching.
+/// A value can itself be an object: the preset slots answer with
+/// <c>{"1700":{"name":…,"bands":[…]}}</c>. A pattern that stops at the first
+/// closing brace cuts those in half, the JSON fails, and the reply looks
+/// unanswered.
+/// </para>
+/// <para>
+/// Anything event-shaped that does not decode is recorded in
+/// <see cref="Unrecognised"/> rather than discarded, so that "cannot parse"
+/// is never mistaken for "does not exist".
+/// </para>
+/// </remarks>
 public static class EventParser
 {
     private static readonly Regex EventStart =
@@ -51,20 +53,25 @@ public static class EventParser
     private static readonly List<string> UnrecognisedFragments = new();
     private static readonly object UnrecognisedGate = new();
 
-    /// <summary>A copy, so it can be read while another thread is parsing.</summary>
+    /// <summary>
+    /// The most recent event-shaped fragments that did not decode, up to 50.
+    /// Returns a copy, so it can be read while another thread is parsing.
+    /// </summary>
     public static IReadOnlyList<string> Unrecognised
     {
         get { lock (UnrecognisedGate) return UnrecognisedFragments.ToArray(); }
     }
 
     /// <summary>
-    /// Parse complete events and hand back whatever was not consumed.
-    ///
-    /// Replies longer than one report continue in follow-on reports, and the
-    /// fragment boundary falls anywhere including mid-string, so the caller
-    /// must keep appending to the remainder rather than clearing it. An
-    /// unrelated notification can easily arrive part-way through a long reply.
+    /// Parses the complete events in a buffer and returns them with whatever
+    /// was not consumed.
     /// </summary>
+    /// <remarks>
+    /// Replies longer than one report continue in follow-on reports, and the
+    /// boundary can fall anywhere, including mid-string, so the caller must
+    /// keep appending to the remainder rather than clearing it. An unrelated
+    /// notification can arrive part-way through a long reply.
+    /// </remarks>
     public static (List<DeviceEvent> Events, byte[] Remainder) Consume(ReadOnlySpan<byte> buffer)
     {
         var events = new List<DeviceEvent>();
@@ -130,13 +137,11 @@ public static class EventParser
         return -1;
     }
 
-    /// <summary>
-    /// Record anything event-shaped that did not become an event.
-    ///
-    /// Only spans that actually produced an event count as covered. A span
-    /// that matched the pattern but failed to decode is precisely the case
-    /// worth reporting, so treating it as handled would defeat the purpose.
-    /// </summary>
+    /// <summary>Records anything event-shaped that did not become an event.</summary>
+    /// <remarks>
+    /// Only spans that produced an event count as covered. A span that matched
+    /// the start pattern but failed to decode is the case worth reporting.
+    /// </remarks>
     private static void NoteUnrecognised(string text, List<(int Start, int End)> parsed)
     {
         foreach (Match loose in Loose.Matches(text))

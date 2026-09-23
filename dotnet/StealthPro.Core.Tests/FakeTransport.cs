@@ -35,7 +35,7 @@ internal sealed class FakeTransport : IHidTransport
             foreach (string reply in replies) Push(reply);
     }
 
-    /// <summary>Queue a reply or notification, split across reports.</summary>
+    /// <summary>Queues a reply or notification, split across reports.</summary>
     public void Push(string json)
     {
         byte[] bytes = Encoding.ASCII.GetBytes(json);

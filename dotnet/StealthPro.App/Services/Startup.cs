@@ -5,28 +5,33 @@ using System.Text;
 namespace StealthPro.App.Services;
 
 /// <summary>
-/// Whether the app starts with Windows.
-///
-/// <b>A shortcut in the Startup folder, not a Run-key entry.</b> The Run entry
-/// was correct, enabled and pointing at the right file, and Windows never
-/// once started it: twelve logins in the Shell-Core log since it was written,
-/// each one reading the Run key, starting the other enabled entries around
-/// it, and passing over ours without an event of any kind. No download mark
-/// on the file, Smart App Control off, the drive mounted long before. The one
-/// thing it had that the entries Windows did start lacked was the absence of a
-/// code signature, and nothing documents that as a reason. Explorer processes
-/// the Startup folder separately, so the app uses that instead, and every
-/// launch is written to <see cref="AppLog"/> so the next login says for
-/// certain whether it worked.
-///
-/// Still per-user, still no elevation, and still visible and switchable in
-/// Task Manager's Startup tab like anything else.
-///
+/// Whether the app starts with Windows, as a shortcut in the user's Startup
+/// folder.
+/// </summary>
+/// <remarks>
+/// <para>
+/// A shortcut in the Startup folder, not a Run-key entry. A Run entry that
+/// was correct, enabled and pointing at the right file was never started:
+/// across twelve logins the Shell-Core log shows Windows reading the Run key,
+/// starting the other enabled entries around it, and passing over this one
+/// without an event of any kind. There was no download mark on the file,
+/// Smart App Control was off, and the drive was mounted long before. The one
+/// difference from the entries Windows did start was the missing code
+/// signature, and nothing documents that as a reason. Explorer processes the
+/// Startup folder separately, so the app uses that, and every launch is
+/// written to <see cref="AppLog"/> so a login says for certain whether it
+/// worked.
+/// </para>
+/// <para>
+/// It is per-user, needs no elevation, and is visible and switchable in Task
+/// Manager's Startup tab like anything else.
+/// </para>
+/// <para>
 /// The shortcut passes <c>--startup</c>, so a login puts the app in the
 /// notification area rather than opening a window in front of whatever
-/// somebody was about to do. That is the difference between a utility that
-/// runs with Windows and one that greets you every morning.
-/// </summary>
+/// somebody was about to do.
+/// </para>
+/// </remarks>
 public static class Startup
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
@@ -47,12 +52,13 @@ public static class Startup
     /// <summary>
     /// Keep the setting pointing at this copy of the app, in the form that
     /// works.
-    ///
-    /// Rewritten on every launch while it is on, so moving the app never
-    /// leaves Windows launching something that is no longer there. And an old
-    /// Run entry is converted here, so turning the setting on under the old
-    /// build carries over without anybody having to find it again.
     /// </summary>
+    /// <remarks>
+    /// Rewritten on every launch while it is on, so moving the app never
+    /// leaves Windows launching something that is no longer there. A Run-key
+    /// entry left from an older build is converted to a shortcut here, so the
+    /// setting carries over without anybody having to turn it on again.
+    /// </remarks>
     public static void Refresh()
     {
         try

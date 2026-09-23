@@ -82,10 +82,9 @@
                 <Grid x:Name="Bands" Margin="0,6,0,0" />
             </StackPanel>
 
-            <!--  Nothing to show until the headset has answered. A flat line
-                  reads as an equaliser set flat, which is a different and
-                  wrong thing. The same dash the settings rows use, for the
-                  same reason — the notice at the top of the page is what
+            <!--  Shown until the headset reports its bands. A flat line would
+                  read as an equaliser set flat. The same dash the settings
+                  rows use: the page's notice or the folded section's card
                   says why, so this only has to say there is no reading.  -->
             <TextBlock
                 x:Name="Waiting"

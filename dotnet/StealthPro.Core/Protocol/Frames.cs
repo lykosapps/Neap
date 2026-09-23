@@ -9,9 +9,13 @@ public class ProtocolException : Exception
 }
 
 /// <summary>
-/// Frame construction. Turtle Beach layer a text protocol over Airoha's RACE
-/// transport; every frame seen so far looks like this:
-///
+/// Builds outbound frames and unwraps inbound reports.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Turtle Beach layer a text protocol over Airoha's RACE transport. Every
+/// frame seen so far looks like this:
+/// </para>
 /// <code>
 ///   06              HID output report id
 ///   LL LL           total length, little-endian, from the next byte
@@ -23,13 +27,14 @@ public class ProtocolException : Exception
 ///   01 / 03         01 = verb with no argument, 03 = verb with an argument
 ///   FB c1 c2        message counter, not validated by the device
 ///   00 x7           padding
-///   &lt;tag&gt;&lt;verb&gt;     tag byte differs per verb and is not yet understood
+///   &lt;tag&gt;&lt;verb&gt;     tag is 61 00 for reads, B7 for set_kvp; not yet understood
 ///   [FF &lt;json&gt;]     argument, when present
 /// </code>
-///
-/// All of it derived from captured traffic. Ported from
-/// stealthpro/protocol.py; see FINDINGS.md for how it was worked out.
-/// </summary>
+/// <para>
+/// All of it is derived from captured traffic; FINDINGS.md at the repository
+/// root describes how.
+/// </para>
+/// </remarks>
 public static class Frames
 {
     public const byte RaceStart = 0x05;
@@ -97,17 +102,21 @@ public static class Frames
     /// <summary>
     /// The argument object, byte for byte as Python's
     /// <c>json.dumps(separators=(",", ":"))</c> writes it.
-    ///
-    /// System.Text.Json cannot be used here, and the reason is not obvious.
-    /// Its encoder escapes <c>&amp;</c>, <c>&lt;</c>, <c>&gt;</c>, <c>'</c>
-    /// and <c>+</c> as \uXXXX for HTML safety — six bytes where Python sends
-    /// one. The headset stores what it is given, so a preset named
-    /// "Bass &amp; Treble Boost" went out both longer than the report could
-    /// hold and spelled wrong. Nothing here is ever rendered as HTML.
-    ///
-    /// Anything outside printable ASCII still goes out as \uXXXX, which is
-    /// what ensure_ascii does and what keeps the frame ASCII-encodable.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// System.Text.Json cannot be used here. Its encoder escapes
+    /// <c>&amp;</c>, <c>&lt;</c>, <c>&gt;</c>, <c>'</c> and <c>+</c> as
+    /// \uXXXX for HTML safety, six bytes where one is expected. The headset
+    /// stores what it is given, so a preset named "Bass &amp; Treble Boost"
+    /// would go out longer than the report can hold and be stored spelled
+    /// wrong. Nothing here is ever rendered as HTML.
+    /// </para>
+    /// <para>
+    /// Anything outside printable ASCII still goes out as \uXXXX, as Python's
+    /// ensure_ascii does, which keeps the frame ASCII-encodable.
+    /// </para>
+    /// </remarks>
     private static string Encode(IReadOnlyDictionary<string, string> values)
     {
         var json = new StringBuilder("{");
@@ -145,13 +154,15 @@ public static class Frames
     }
 
     /// <summary>
-    /// Strip the report id and length from an inbound report.
-    ///
-    /// The inbound length is 16-bit little-endian, exactly like outbound.
-    /// Reading it as a single byte truncates every fragment by one, which
-    /// only shows up on replies long enough to span several reports — so it
-    /// looks like an intermittent parsing fault rather than an off-by-one.
+    /// Strips the report id and length from an inbound report, returning an
+    /// empty span when it is not one.
     /// </summary>
+    /// <remarks>
+    /// The inbound length is 16-bit little-endian, exactly like outbound.
+    /// Reading it as a single byte truncates every fragment by one, which only
+    /// shows up on replies long enough to span several reports, so it looks
+    /// like an intermittent parsing fault rather than an off-by-one.
+    /// </remarks>
     public static ReadOnlySpan<byte> PayloadOf(ReadOnlySpan<byte> report)
     {
         if (report.Length < 3 || report[0] != InReportId) return ReadOnlySpan<byte>.Empty;

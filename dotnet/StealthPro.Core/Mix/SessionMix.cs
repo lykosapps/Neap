@@ -15,46 +15,43 @@ public sealed record SessionMixStatus(
 public sealed record ChatElsewhere(string App, string Device);
 
 /// <summary>
-/// The game/chat crossfade, done with nothing in the audio path.
-///
-/// The chat application and the game both play natively to the headset, as
-/// they would with no software running at all. The mix is applied by setting
-/// the chat application's session volumes to the chat half of the crossfade
-/// and everything else on that endpoint to the game half.
-///
-/// <b>Why this replaced an audio engine.</b> The old design gave chat a
-/// device of its own — a virtual cable the person had to install and point
-/// their chat application at — captured that device by loopback, and
-/// rendered it into the headset as our own stream. It worked, and it cost:
-/// a driver install and a reboot, a licence that restricts redistribution,
-/// a real-time capture and render path, drift correction between two clocks,
-/// and a supervisor to restart the whole thing when it died.
-///
-/// None of that is needed. Session volume is already a working per-app gain
-/// — it is how the game side always worked — so naming the chat application
-/// does the whole job. Measured on hardware with a call and music playing at
-/// once: endpoint peak 1.0000 with both, 0.8529 with chat alone, 0.6876 with
-/// game alone. And it needs no configuration, because the chat application is
-/// already on its default output.
-///
-/// <b>The limit, stated plainly.</b> Routing by application means the chat
-/// application has to be its own process. Discord, Teams and Steam are; a
-/// call taken in a browser is not, because the browser also carries game and
-/// media audio. That case still wants a virtual cable.
-///
-/// <b>What did not go away.</b> This holds other applications' volumes down
-/// while it runs and it is the only thing that knows what they were. If it
-/// dies without putting them back, somebody is left with a quiet Spotify and
-/// no idea why. So every change is journalled first and replayed on the next
-/// launch. A prototype without that ratcheted an application to silence in
-/// three commands.
+/// The game/chat crossfade, applied through per-application session volumes
+/// with nothing in the audio path.
 /// </summary>
+/// <remarks>
+/// <para>
+/// The chat application and the game both play natively to the headset, as
+/// they would with no software running at all. The mix sets the chat
+/// application's session volumes to the chat half of the crossfade and every
+/// other session on that endpoint to the game half. Session volume is already
+/// a working per-application gain, so no virtual cable, driver or real-time
+/// capture and render path is needed, and there is nothing to configure,
+/// because the chat application is already on its default output. Measured on
+/// hardware with a call and music playing at once: endpoint peak 1.0000 with
+/// both, 0.8529 with chat alone, 0.6876 with game alone.
+/// </para>
+/// <para>
+/// Routing by application means the chat application has to be its own
+/// process. Discord, Teams and Steam are; a call taken in a browser is not,
+/// because the browser also carries game and media audio. That case still
+/// needs a virtual cable.
+/// </para>
+/// <para>
+/// This holds other applications' volumes down while it runs and is the only
+/// thing that knows what they were. If it dies without putting them back,
+/// somebody is left with a quiet Spotify and no idea why. So every change is
+/// journalled first and replayed on the next launch by <see cref="Recover"/>.
+/// Without the journal, three commands in a row are enough to ratchet an
+/// application to silence.
+/// </para>
+/// </remarks>
 public sealed class SessionMix : IDisposable
 {
     /// <summary>
     /// How often to look for applications that started playing since the mix
-    /// was set. They are invisible until the session list is asked for again.
+    /// was set.
     /// </summary>
+    /// <remarks>They are invisible until the session list is asked for again.</remarks>
     private const int SweepMs = 2000;
 
     private readonly object _gate = new();
@@ -109,7 +106,7 @@ public sealed class SessionMix : IDisposable
         }
     }
 
-    /// <summary>Begin applying the mix, and keep applying it as things start.</summary>
+    /// <summary>Begins applying the mix, and keeps applying it as applications start.</summary>
     public void Start()
     {
         lock (_gate)
@@ -122,10 +119,14 @@ public sealed class SessionMix : IDisposable
     }
 
     /// <summary>
-    /// 0 = all game, 50 = both, 100 = all chat. Applied a moment later, off
-    /// the caller's thread: a pass walks every session on the device, which
-    /// is too slow to do on every step of a slider drag.
+    /// Sets the mix: 0 = all game, 50 = both, 100 = all chat. Returns the
+    /// value clamped to that range.
     /// </summary>
+    /// <remarks>
+    /// Applied a moment later, off the caller's thread: a pass walks every
+    /// session on the device, which is too slow to do on every step of a
+    /// slider drag.
+    /// </remarks>
     public int SetMix(int percent)
     {
         int mix = Math.Clamp(percent, 0, 100);
@@ -134,7 +135,7 @@ public sealed class SessionMix : IDisposable
         return mix;
     }
 
-    /// <summary>Stop, and put every volume back.</summary>
+    /// <summary>Stops, and puts every volume back.</summary>
     public void Stop()
     {
         lock (_gate)
@@ -150,7 +151,7 @@ public sealed class SessionMix : IDisposable
         lock (_pass) RestoreDevices(_devices);
     }
 
-    /// <summary>Apply the mix soon. Asking again before it runs costs nothing.</summary>
+    /// <summary>Applies the mix soon. Asking again before it runs costs nothing.</summary>
     private void Poke()
     {
         if (Interlocked.Exchange(ref _passQueued, 1) == 1) return;
@@ -174,9 +175,8 @@ public sealed class SessionMix : IDisposable
         }
     }
 
-    // Equal-ish balance: centre leaves both untouched, moving off centre
-    // attenuates the side you are moving away from. Same curve the engine
-    // used, so the slider feels identical.
+    // Balance curve: the centre leaves both sides untouched, and moving off
+    // centre attenuates the side being moved away from.
     internal static float ChatScale(int mix) => MathF.Min(1f, 2f * (mix / 100f));
     internal static float GameScale(int mix) => MathF.Min(1f, 2f * (1f - mix / 100f));
 
@@ -215,11 +215,10 @@ public sealed class SessionMix : IDisposable
         int ours = Environment.ProcessId;
         int chatSeen = 0, gameSeen = 0;
 
-        // Refreshed every time, never cached. NAudio hands back the same
-        // collection until asked again, so an application that started
-        // playing after the mix was set stays invisible — which is exactly
-        // the bug that let one keep playing at full volume through a full
-        // chat mix.
+        // Refresh every time, never cache. NAudio hands back the same
+        // collection until asked again, so an application that starts playing
+        // after the mix is set stays invisible and plays at full volume
+        // through a full chat mix.
         headset.AudioSessionManager.RefreshSessions();
         var sessions = headset.AudioSessionManager.Sessions;
 
@@ -272,14 +271,13 @@ public sealed class SessionMix : IDisposable
                 + (trouble is null ? "" : $", first failure: {trouble}"));
     }
 
-    /// <summary>
-    /// Find where the chat application is playing instead.
-    ///
+    /// <summary>Finds where the chat application is playing instead.</summary>
+    /// <remarks>
     /// A session that exists at all is the signal, not one that is currently
     /// making noise: a voice application sits Inactive between sounds, so
     /// waiting for Active would report it as missing every time nobody is
     /// talking. Having opened a device is what matters.
-    /// </summary>
+    /// </remarks>
     private void LookElsewhere(List<string> chatApps, string headsetId)
     {
         long now = Stopwatch.GetTimestamp();
@@ -316,10 +314,10 @@ public sealed class SessionMix : IDisposable
     }
 
     /// <summary>
-    /// Put back what we turned down: on every device the journal holds
-    /// anything for, or only on <paramref name="only"/>. A device that is not
-    /// plugged in keeps its record for when it is.
+    /// Puts back what was turned down: on every device the journal holds
+    /// anything for, or only on <paramref name="only"/>.
     /// </summary>
+    /// <remarks>A device that is not plugged in keeps its record for when it is.</remarks>
     private static void RestoreDevices(MMDeviceEnumerator devices, string? only = null)
     {
         foreach (string id in only is null ? VolumeJournal.Shared.Devices : [only])
@@ -369,19 +367,23 @@ public sealed class SessionMix : IDisposable
     }
 
     /// <summary>
-    /// The headset endpoint the person is actually listening on.
-    ///
-    /// <b>Not the first one whose name matches.</b> Two transmitters plugged
-    /// in at once give two endpoints that both answer to "Stealth Pro" — the
-    /// charging hub's and the dongle's — and picking the first meant the mix
-    /// could be holding levels on one device while the person listened to the
-    /// other. Same fault as choosing a control device by product id, one
-    /// layer up, and just as quiet about it.
-    ///
-    /// The default output is the only endpoint the mix has any business
-    /// touching, so ask for that one and check it is the headset, rather than
-    /// finding a headset and then asking whether it is the default.
+    /// The headset endpoint the person is actually listening on: the default
+    /// output, when it is the headset; otherwise null.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Not the first endpoint whose name matches. Two transmitters plugged in
+    /// at once give two endpoints that both answer to "Stealth Pro", the
+    /// Charging Dock's and the USB Transmitter's, and the first match can
+    /// leave the mix holding levels on one device while the person listens to
+    /// the other, with nothing to show for it.
+    /// </para>
+    /// <para>
+    /// The default output is the only endpoint the mix has any business
+    /// touching, so this asks for that one and checks it is the headset,
+    /// rather than finding a headset and then asking whether it is the default.
+    /// </para>
+    /// </remarks>
     private MMDevice? FindHeadset()
     {
         try
@@ -397,7 +399,7 @@ public sealed class SessionMix : IDisposable
     }
 
     /// <summary>
-    /// Put back anything a previous run left turned down. Call this at
+    /// Puts back anything a previous run left turned down. Call this at
     /// launch, before anything else.
     /// </summary>
     public static void Recover()

@@ -4,17 +4,20 @@ namespace StealthPro.App.Services;
 
 /// <summary>
 /// The words for each state the headset can be in, kept in one place.
-///
-/// <b>Written once so they cannot drift.</b> Each state is explained in up to
-/// three places — Home, the line above the mix slider, and the header's
-/// tooltip — and the first versions said the same thing three ways: one
-/// surface named the keyboard, another did not, one said the mix "still
-/// works" without saying the wheel did not. Everything that explains a state
-/// takes its sentences from here.
-///
+/// </summary>
+/// <remarks>
+/// <para>
+/// Written once so they cannot drift. Each state is explained in up to three
+/// places (Home, the line above the mix slider, and the header's tooltip), and
+/// separately written copies disagree: one names the keyboard and another does
+/// not, or one says the mix "still works" without saying the wheel does not.
+/// Everything that explains a state takes its sentences from here.
+/// </para>
+/// <para>
 /// The shape is the same for every state: what is happening, what still
 /// works, the one thing to do, and a fallback in case that is not enough.
-/// </summary>
+/// </para>
+/// </remarks>
 public static class StateCopy
 {
     /// <summary>The few words for a state, in the header and on Home alike.</summary>
@@ -66,14 +69,13 @@ public static class StateCopy
 
     public static string WheelTitle => Strings.Get("State_WheelTitle");
 
-    /// <summary>
-    /// What still moves the mix when the wheel cannot.
-    ///
-    /// <b>The keyboard is named, and named precisely.</b> "Use your keyboard
-    /// shortcut" is no help to somebody who has never turned it on, which is
-    /// most people: it ships off. So it says the actual keys when they are
-    /// on, and where to turn them on when they are not.
-    /// </summary>
+    /// <summary>What still moves the mix when the wheel cannot.</summary>
+    /// <remarks>
+    /// The keyboard is named precisely. "Use your keyboard shortcut" is no help
+    /// to somebody who has never turned it on, which is most people: it ships
+    /// off. So this gives the actual keys when they are on, and where to turn
+    /// them on when they are not.
+    /// </remarks>
     public static string MixWithoutWheel(bool onAudioPage)
     {
         var keys = AppServices.Hotkeys;

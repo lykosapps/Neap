@@ -25,16 +25,21 @@ public sealed record RoutingVerdict(IReadOnlyList<Misrouted> Wrong, bool Cabled,
 /// <summary>
 /// Whether Windows is sending sound, calls or the microphone to one of the
 /// headset's devices that is not the one in use.
-///
+/// </summary>
+/// <remarks>
+/// <para>
 /// Two transmitters mean two sets of audio devices, and the headset uses one
 /// at a time. Windows keeps pointing wherever it was last told, and moves by
 /// itself when a transmitter is plugged in or pulled out, so a half can end
-/// up on the transmitter carrying nothing. With the cable in, the cable is
-/// the only right place for all of it: the headset plays one source at a
-/// time and sends the voice only over the cable. A device that is not one of
-/// the headset's at all — speakers, a webcam microphone — is a deliberate
-/// choice, and never counted.
-/// </summary>
+/// up on the transmitter carrying nothing.
+/// </para>
+/// <para>
+/// With the USB-C cable in, the cable is the only right place for all of it:
+/// the headset plays one source at a time and sends the voice only over the
+/// cable. A device that is not one of the headset's at all, such as speakers
+/// or a webcam microphone, is a deliberate choice and never counted.
+/// </para>
+/// </remarks>
 public static class RoutingCheck
 {
     /// <param name="belonging">

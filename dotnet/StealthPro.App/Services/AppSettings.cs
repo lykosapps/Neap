@@ -5,23 +5,28 @@ namespace StealthPro.App.Services;
 
 /// <summary>
 /// The handful of things the app has to remember between launches.
-///
+/// </summary>
+/// <remarks>
+/// <para>
 /// Deliberately small. Everything about the headset lives on the headset and
 /// is read back from it, so there is no local copy to drift out of date. Only
-/// choices Windows cannot answer for us are stored — which applications carry
-/// chat, and whether the mix was on.
-///
+/// choices neither the headset nor Windows can answer for us are stored: which
+/// applications carry chat, the keyboard shortcuts, and whether the tray
+/// notice has been shown.
+/// </para>
+/// <para>
 /// Kept separate from the mix's volume journal, which is recovery state
 /// rather than preference: losing this file costs a re-pick, losing that one
 /// leaves somebody's Spotify quiet.
-/// </summary>
+/// </para>
+/// </remarks>
 public sealed class AppSettings
 {
-    /// <summary>
-    /// Which applications carry chat. Having one at all is what "the mix is
-    /// on" means, so there is no separate enabled flag to fall out of step
-    /// with it.
-    /// </summary>
+    /// <summary>Which applications carry chat.</summary>
+    /// <remarks>
+    /// Having one at all is what "the mix is on" means, so there is no
+    /// separate enabled flag to fall out of step with it.
+    /// </remarks>
     [JsonPropertyName("chat_apps")] public List<string> ChatApps { get; set; } = new();
 
     /// <summary>
@@ -30,18 +35,19 @@ public sealed class AppSettings
     /// </summary>
     [JsonPropertyName("told_about_tray")] public bool ToldAboutTray { get; set; }
 
-    /// <summary>
-    /// Whether the mix can be moved by keyboard from inside a game. Off by
-    /// default: taking three key combinations away from everything else on
-    /// the machine is not something to do to someone without asking.
-    /// </summary>
+    /// <summary>Whether the mix can be moved by keyboard from inside a game.</summary>
+    /// <remarks>
+    /// Off by default: taking three key combinations away from everything else
+    /// on the machine is not something to do to someone without asking.
+    /// </remarks>
     [JsonPropertyName("mix_hotkeys")] public bool MixHotkeys { get; set; }
 
-    /// <summary>
-    /// Changed key combinations, by name. Only the ones actually changed are
-    /// written, so the defaults stay the defaults and can be improved later
-    /// without overriding a choice nobody made.
-    /// </summary>
+    /// <summary>Changed key combinations, by name.</summary>
+    /// <remarks>
+    /// Only the ones actually changed are written, so the defaults stay the
+    /// defaults and can be improved later without overriding a choice nobody
+    /// made.
+    /// </remarks>
     [JsonPropertyName("mix_hotkey_keys")]
     public Dictionary<string, int[]> MixHotkeyKeys { get; set; } = new();
 

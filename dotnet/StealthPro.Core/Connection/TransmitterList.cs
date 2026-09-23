@@ -21,14 +21,19 @@ public sealed record TransmitterRow(string Name, string Firmware, TransmitterSta
 /// <summary>
 /// Every transmitter worth listing, from what the headset reported and what
 /// is plugged in, each with one plain state.
-///
-/// Selected is not the same as here: unplug the transmitter carrying the
+/// </summary>
+/// <remarks>
+/// <para>
+/// Selected is not the same as plugged in: unplug the transmitter carrying the
 /// sound while the other carries the controls, and the headset goes on
 /// reporting the unplugged one as selected. Over the cable no transmitter
 /// carries the sound, so none is in use and none is offered to switch to.
-/// There is deliberately no "not paired": the slots list the transmitters the
-/// headset has seen lately, not everything it is paired with.
-/// </summary>
+/// </para>
+/// <para>
+/// There is deliberately no "not paired" state: the slots list the
+/// transmitters the headset has seen lately, not everything it is paired with.
+/// </para>
+/// </remarks>
 public static class TransmitterList
 {
     /// <param name="plugged">Product ids of every Turtle Beach device plugged in.</param>

@@ -11,7 +11,7 @@ public sealed class BankState
     public required BankSpec Spec { get; init; }
     public required IReadOnlyList<Preset> Presets { get; init; }
 
-    /// <summary>Which preset the live curve is a variation of. See the service remarks.</summary>
+    /// <summary>Which preset the live curve is a variation of. See <see cref="PresetService"/>.</summary>
     public Preset? Baseline { get; set; }
 
     public IEnumerable<Preset> Custom => Presets.Where(p => p.Custom);
@@ -20,26 +20,29 @@ public sealed class BankState
 
 /// <summary>
 /// The equaliser: the headset's presets, and the curve in front of them.
-///
-/// <b>The headset forgets which preset you were on the moment you touch a
-/// band.</b> Its selected-preset value goes to 0 on the first band write —
-/// measured, not assumed. That is a useful signal, because it is exactly how
-/// we know the curve has been edited, but it also destroys the one thing
-/// needed to offer a way back. So the baseline is remembered here and held
-/// until another preset is chosen. Without it, a curve you have changed is
+/// </summary>
+/// <remarks>
+/// <para>
+/// The headset forgets which preset you were on the moment you touch a band.
+/// Its selected-preset value goes to 0 on the first band write (measured).
+/// That is how we know the curve has been edited, but it also destroys the one
+/// thing needed to offer a way back, so the baseline is remembered here and
+/// held until another preset is chosen. Without it, a changed curve is
 /// indistinguishable from the preset it came from, and there is nothing to
 /// revert a single band to.
-///
-/// <b>Saving always creates a new preset.</b> The slot id in a save is only
-/// a hint: ask for an occupied slot and the headset makes a second preset
-/// rather than overwriting. So "save over this one" is a delete followed by
-/// a save, which is two operations with a gap in the middle and an
-/// irreversible one first. Everything that could refuse the save is checked
-/// before the delete happens.
-///
-/// <b>Band values are tenths of a decibel</b>, -90 to +90, matching the
-/// +9 dB..-9 dB scale printed in Swarm's own resources.
-/// </summary>
+/// </para>
+/// <para>
+/// Saving always creates a new preset. The slot id in a save is only a hint:
+/// ask for an occupied slot and the headset makes a second preset rather than
+/// overwriting. So "save over this one" is a delete followed by a save, two
+/// operations with a gap in the middle and the irreversible one first.
+/// Everything that could refuse the save is checked before the delete.
+/// </para>
+/// <para>
+/// Band values are tenths of a decibel, -90 to +90, matching the +9 dB..-9 dB
+/// scale printed in Swarm's own resources.
+/// </para>
+/// </remarks>
 public sealed class PresetService
 {
     public const int BandFloor = -90;
@@ -72,14 +75,13 @@ public sealed class PresetService
         return state;
     }
 
-    /// <summary>
-    /// Work out which preset the live curve came from, and keep it.
-    ///
+    /// <summary>Work out which preset the live curve came from, and keep it.</summary>
+    /// <remarks>
     /// Three ways in, in order of confidence: the headset still names a
     /// selected preset; we already knew and are mid-edit, so keep what we
     /// have; or the live curve matches some preset exactly, which is the
     /// only evidence available after a restart.
-    /// </summary>
+    /// </remarks>
     private void AdoptBaseline(BankState state)
     {
         if (_headset.TryGetNumberByKey(state.Spec.Select, out int selected))
@@ -128,7 +130,7 @@ public sealed class PresetService
     {
         if (!_banks.TryGetValue(bank, out var state)) return "";
         // The headset stops reporting a name the moment a band is touched,
-        // which emptied the label exactly when it was most wanted.
+        // which would empty the label exactly when it is most wanted.
         string? reported = _headset.Values.TryGetValue(state.Spec.NameKey.ToString("x", CultureInfo.InvariantCulture), out var raw)
             ? raw.ToString() : null;
         return string.IsNullOrWhiteSpace(reported) ? state.Baseline?.Name ?? "" : reported;
@@ -141,13 +143,13 @@ public sealed class PresetService
         _headset.SetKey(state.Spec.Bands[index], Math.Clamp(tenths, BandFloor, BandCeiling));
     }
 
-    /// <summary>
-    /// Select a preset. The headset reloads all ten bands itself, so this is
-    /// one write rather than ten — and the local store is moved at once
-    /// rather than waiting on a full read, because a full read costs about
-    /// 1.2 seconds and doing one after every action is what made switching
-    /// presets feel broken.
-    /// </summary>
+    /// <summary>Select a preset.</summary>
+    /// <remarks>
+    /// The headset reloads all ten bands itself, so this is one write rather
+    /// than ten, and the local store is moved at once rather than waiting on a
+    /// full read. A full read costs about 1.2 seconds, and doing one after
+    /// every action makes switching presets feel broken.
+    /// </remarks>
     public async Task Select(Bank bank, Preset preset)
     {
         if (!_banks.TryGetValue(bank, out var state)) return;
@@ -174,10 +176,12 @@ public sealed class PresetService
     /// <summary>
     /// Save the live curve into a custom slot, optionally over one that is
     /// already there.
-    ///
-    /// Returns null on success, or what went wrong. Everything that could
-    /// refuse is checked first, because replacing deletes before it writes.
     /// </summary>
+    /// <remarks>
+    /// Everything that could refuse is checked first, because replacing
+    /// deletes before it writes.
+    /// </remarks>
+    /// <returns>Null on success, or what went wrong.</returns>
     public async Task<string?> Save(Bank bank, string name, string? replacing)
     {
         if (!_banks.TryGetValue(bank, out var state)) return Strings.Get("Preset_NotRead");

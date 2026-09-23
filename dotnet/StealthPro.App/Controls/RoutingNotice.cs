@@ -7,34 +7,31 @@ using StealthPro.Core.Connection;
 namespace StealthPro.App.Controls;
 
 /// <summary>
-/// Windows is sending sound somewhere the headset is not.
-///
-/// <b>Two transmitters mean two sets of audio devices</b>, and the headset
-/// only uses one of them at a time. Windows keeps pointing at whichever it
-/// was last told to — and moves by itself when a transmitter is plugged in or
-/// pulled out — so the output, or the microphone separately, ends up aimed at
-/// the one that is carrying nothing. Nothing plays, or nobody hears you, and
-/// there is no clue anywhere: the device is present, enabled, and named
-/// almost identically to the right one.
-///
-/// This cost three separate goes at diagnosing silence in one session, and
-/// the third time it was already clear what class of problem it was and it
-/// still had to be worked out by hand.
-///
-/// <b>It sits beside what it is about</b>, not at the top of the page: in the
-/// Connections card on Home, under Volume on Audio, and under the microphone's
-/// own section. <see cref="Sound"/> and <see cref="Microphone"/> say which
-/// half a placement checks.
-///
-/// <b>Written as which transmitter, not which endpoint.</b> The first version
-/// quoted two endpoint names per device, in full, twice over, and read as a
-/// wall. People think in the hardware in front of them; the endpoint name
-/// only appears once, as the thing to pick.
-///
-/// Endpoints are matched to transmitters by the USB product id in the
-/// kernel filter path behind them, not by Windows' "2- " naming, which is
-/// positional. See <see cref="Routing"/>.
+/// A warning shown when Windows is sending sound to, or listening through, a
+/// transmitter the headset is not using.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Two transmitters mean two sets of audio devices, and the headset uses only
+/// one at a time. Windows keeps pointing at whichever it was last told to,
+/// and moves by itself when a transmitter is plugged in or pulled out, so the
+/// output or the microphone can end up aimed at the one carrying nothing.
+/// Nothing plays, or nobody hears you, with no clue anywhere: the device is
+/// present, enabled, and named almost identically to the right one.
+/// </para>
+/// <para>
+/// The notice sits beside what it is about rather than at the top of the
+/// page: in the Connections card on Home, under Volume on Audio, and under
+/// the microphone's own section. <see cref="Sound"/> and
+/// <see cref="Microphone"/> say which half a placement checks.
+/// </para>
+/// <para>
+/// The text names transmitters, not endpoints; the endpoint name appears
+/// once, as the thing to pick. Endpoints are matched to transmitters by the
+/// USB product id in the kernel filter path behind them, not by Windows'
+/// "2- " naming, which is positional. See <see cref="Routing"/>.
+/// </para>
+/// </remarks>
 public sealed class RoutingNotice : InfoBar
 {
     public RoutingNotice()
@@ -43,17 +40,16 @@ public sealed class RoutingNotice : InfoBar
         Severity = InfoBarSeverity.Warning;
         Margin = new Thickness(0);
 
-        // <b>Closed is not gone.</b> A closed InfoBar still counts as a child
-        // of the page's stack, so the stack's spacing is added around it:
-        // Home carried a blank band under its title wherever a notice was
-        // closed. Collapsing it with the bar takes the gap away too.
+        // A closed InfoBar still counts as a child of the page's stack, so the
+        // stack's spacing is added around it and leaves a blank band.
+        // Collapsing it with the bar removes the gap.
         Visibility = Visibility.Collapsed;
         RegisterPropertyChangedCallback(IsOpenProperty, (_, _) =>
             Visibility = IsOpen ? Visibility.Visible : Visibility.Collapsed);
 
-        // The one thing to do about it, one click away. Windows' own page,
-        // not a switch of ours: changing the default device from here was
-        // considered and dropped as too unreliable to do on anyone's behalf.
+        // Opens Windows' own Sound settings. The app does not change the
+        // default device itself: that is too unreliable to do on anyone's
+        // behalf.
         var open = new HyperlinkButton { Content = Strings.Get("Routing_OpenSoundSettings") };
         open.Click += async (_, _) =>
         {
@@ -64,9 +60,9 @@ public sealed class RoutingNotice : InfoBar
 
         Loaded += (_, _) =>
         {
-            // Where Windows points is watched by AudioRoute. Every change of
-            // a headset value used to repaint this instead, several times a
-            // second, each time asking Windows afresh.
+            // Repaint on connection status and on AudioRoute changes only, not
+            // on every headset value change: those arrive several times a
+            // second, and each repaint would ask Windows afresh.
             AppServices.Headset.StatusChanged += OnStatus;
             AppServices.AudioRoute.Changed += Paint;
             Paint();
@@ -113,9 +109,9 @@ public sealed class RoutingNotice : InfoBar
             return;
         }
 
-        // <b>Whole sentences, one for each combination</b>, rather than one
-        // sentence with the halves joined into it: "sending {sound and calls}
-        // to" only works in English. Only names and lists are put in.
+        // A whole sentence for each combination rather than one sentence with
+        // the halves joined into it: "sending {sound and calls} to" only works
+        // in English. Only names and lists are substituted.
         var wrong = verdict.Wrong;
         string here = status.Adapter;
         string there = wrong[0].OnName;
@@ -176,7 +172,10 @@ public sealed class RoutingNotice : InfoBar
         IsOpen = true;
     }
 
-    /// <summary>"Headset Earphone" for output and communications.</summary>
+    /// <summary>
+    /// Builds one instruction naming a device and what to choose it for, such
+    /// as "Headset Earphone" for output and communications.
+    /// </summary>
     private static string Pick(string device, IReadOnlyList<Misrouted> halves)
     {
         bool output = halves.Any(h => h.Role == AudioRole.Sound);

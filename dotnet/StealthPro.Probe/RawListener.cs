@@ -6,28 +6,33 @@ using StealthPro.Core.Hid;
 namespace StealthPro.Probe;
 
 /// <summary>
-/// Every report a collection produces, by both of the ways a report can arrive.
-///
-/// <b>Asking and listening are different paths, and each is blind to what the
-/// other sees.</b> The settings channel is read by asking — a GET_REPORT for
-/// report 0x07 — and that is how the rest of this project talks to it. The
-/// wheels do not answer questions at all: they push input reports down the
-/// interrupt pipe, and only a read on the handle receives those. The first
-/// version of this listener only asked, was pointed at the wheel collection,
-/// heard nothing while the wheel was being turned, and very nearly turned that
-/// into a finding.
-///
-/// So it does both at once and says which path saw each report. A path that
-/// cannot work on a collection says so, once, rather than falling quiet —
-/// quiet is exactly what it is here to tell apart from "nothing sent".
-///
-/// It does not ask the device to prove it has the headset first, unlike every
-/// other command in the probe. The state where you most want to know what is
-/// arriving is the state where nothing is answering.
-///
-/// Read-only: nothing is sent to the device except the GET_REPORT request
-/// itself.
+/// Prints every report a collection produces, by both of the ways a report can
+/// arrive.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Asking and listening are different paths, and each is blind to what the
+/// other sees. The settings channel is read by asking (a GET_REPORT for report
+/// 0x07), which is how the rest of the project talks to it. The wheels do not
+/// answer requests at all: they push input reports down the interrupt pipe,
+/// and only a read on the handle receives those. Asking alone on the wheel
+/// collection hears nothing while a wheel is turned.
+/// </para>
+/// <para>
+/// So both paths run at once and each report is labelled with the path that
+/// saw it. A path that cannot work on a collection says so once rather than
+/// falling quiet, because quiet is what this tool exists to tell apart from
+/// "nothing sent".
+/// </para>
+/// <para>
+/// Unlike the other probe commands, it does not first ask the device to prove
+/// it has the headset: the state where you most want to see what is arriving
+/// is the one where nothing is answering.
+/// </para>
+/// <para>
+/// Read-only: nothing is sent to the device except the GET_REPORT request.
+/// </para>
+/// </remarks>
 internal static class RawListener
 {
     private const uint GenericRead = 0x80000000;
@@ -75,7 +80,7 @@ internal static class RawListener
         return 0;
     }
 
-    /// <summary>What the device sends without being asked: reads on the handle.</summary>
+    /// <summary>Prints what the device sends unasked, by reading on the handle.</summary>
     private static void Listen(HidDeviceInfo device, Printer printer, CancellationToken stop)
     {
         using var handle = CreateFileW(device.Path, GenericRead, ShareReadWrite,
@@ -106,7 +111,7 @@ internal static class RawListener
         }
     }
 
-    /// <summary>What the device answers when asked: GET_REPORT, as the app does.</summary>
+    /// <summary>Prints what the device answers when asked with GET_REPORT, as the app does.</summary>
     private static void Ask(HidDeviceInfo device, Printer printer, CancellationToken stop)
     {
         HidTransport transport;
@@ -132,7 +137,7 @@ internal static class RawListener
                 catch (TransportException ex)
                 {
                     // The wheel collection has no report 0x07 to ask for. Say
-                    // that once and stop, rather than retrying into silence.
+                    // so once and stop rather than retrying silently.
                     if (++failures == 20)
                     {
                         printer.Note("asked", "this collection does not answer requests ("
@@ -147,7 +152,7 @@ internal static class RawListener
     }
 
     /// <summary>
-    /// Prints reports as they arrive, collapsing runs of identical ones — an
+    /// Prints reports as they arrive, collapsing runs of identical ones; an
     /// idle device repeats the same report thousands of times.
     /// </summary>
     private sealed class Printer(Stopwatch clock, object gate)

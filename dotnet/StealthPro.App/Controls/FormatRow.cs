@@ -7,18 +7,22 @@ using StealthPro.Core.Audio;
 namespace StealthPro.App.Controls;
 
 /// <summary>
-/// The endpoint's default format: the same setting as the Advanced tab of a
-/// device's properties in Sound settings, here so nobody has to go digging.
-///
-/// Two things this gets right that cost a round each to learn. The list is
-/// what the endpoint actually accepts, probed rather than assumed — an
-/// earlier version offered 24-bit formats the device would not open, because
-/// Windows stores 24-bit packed and we were building it padded. And applying
-/// a format tells Windows to reconfigure the device rather than only writing
-/// the stored value: without that, Sound settings showed the new format, the
-/// audio never dropped out, and the headset's high-bandwidth light stayed
-/// off, because nothing had actually changed.
+/// A settings row for the endpoint's default format: the same setting as the
+/// Advanced tab of a device's properties in Sound settings.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Only formats the endpoint accepts are offered, probed rather than assumed.
+/// Windows stores 24-bit as packed (block align 6 for stereo); a padded
+/// 24-bit format is rejected by the device.
+/// </para>
+/// <para>
+/// Applying a format tells Windows to reconfigure the device, not only to
+/// write the stored value. Writing the value alone makes Sound settings show
+/// the new format while nothing changes: the audio does not drop out and the
+/// headset's high-bandwidth light stays off.
+/// </para>
+/// </remarks>
 public sealed class FormatRow : SettingsCard
 {
     private ComboBox? _picker;
@@ -32,7 +36,7 @@ public sealed class FormatRow : SettingsCard
     public static readonly DependencyProperty CaptureProperty = DependencyProperty.Register(
         nameof(Capture), typeof(bool), typeof(FormatRow), new PropertyMetadata(false));
 
-    /// <summary>True for the microphone, false for the headset's output.</summary>
+    /// <summary>Gets or sets whether the row sets the microphone's format (true) or the headset output's (false).</summary>
     public bool Capture
     {
         get => (bool)GetValue(CaptureProperty);
@@ -94,8 +98,8 @@ public sealed class FormatRow : SettingsCard
         string? trouble = await WindowsAudio.ApplyFormat(wanted, Flow);
         _picker.IsEnabled = true;
         if (trouble is not null) await Complain(trouble);
-        // Re-read rather than assume: this is the setting where believing
-        // our own write was exactly the mistake.
+        // Re-read rather than assume the write took effect; for this setting
+        // the stored value can change while the device does not.
         await Load();
     }
 

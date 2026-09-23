@@ -19,10 +19,9 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!--  The title bar carries the headset's state, because it is the one
-              thing worth seeing from every tab: whether it is connected, how
-              the link is, and how much battery is left. Right-aligned, clear
-              of the window buttons.  -->
+        <!--  The title bar carries the headset's connection state, the one
+              thing worth seeing from every tab; the readings are on Home.
+              Right-aligned, clear of the window buttons.  -->
         <Grid x:Name="TitleBar" Background="Transparent">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -96,8 +95,7 @@
 
         <!--  Lives in the notification area so the chat wheel keeps working
               with no window open. Closing the window hides it here rather
-              than stopping the mix, which is the whole reason the app is
-              running in the first place.  -->
+              than stopping the mix.  -->
         <tray:TaskbarIcon
             x:Name="Tray"
             IconSource="ms-appx:///Assets/app.ico"

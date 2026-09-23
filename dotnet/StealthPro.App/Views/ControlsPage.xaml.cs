@@ -22,25 +22,31 @@ public sealed partial class ControlsPage : Page
     private void OnStatus(HeadsetStatus status) => PaintLights();
 
     /// <summary>
-    /// The lights of the transmitter the headset is on, and only ones that
-    /// have been seen to work.
-    ///
-    /// <b>This was one section called "Charging Dock", whatever was plugged
-    /// in.</b> The sliders go to the transmitter carrying the headset, so on
-    /// the USB Transmitter they drove its light under the dock's names — "the
-    /// ring around the battery slot" on a transmitter with no battery slot.
-    ///
-    /// Each case here was checked by eye, not by reading values back:
+    /// Shows the light controls for the transmitter the headset is on, and
+    /// only those that have been seen to work.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The sliders reach the transmitter carrying the headset, so the section
+    /// is named and laid out for that transmitter. Under the dock's names, the
+    /// USB Transmitter's light would be called "the ring around the battery
+    /// slot" on a transmitter with no battery slot.
+    /// </para>
+    /// <para>
+    /// Each case was checked by eye, not by reading values back:
     /// <list type="bullet">
     /// <item>Charging Dock: both rings change.</item>
     /// <item>USB Transmitter: its one light follows the first brightness; the
     /// second changes nothing, so it is not offered.</item>
     /// </list>
+    /// </para>
+    /// <para>
     /// When the headset's sound and controls are on different transmitters,
     /// nothing is shown. Which transmitter's lights a slider reaches in that
-    /// arrangement has never been watched, and a control that might do nothing
-    /// is not one to put on screen.
-    /// </summary>
+    /// arrangement has not been observed, and a control that might do nothing
+    /// is not put on screen.
+    /// </para>
+    /// </remarks>
     private void PaintLights()
     {
         var status = AppServices.Headset.Status;

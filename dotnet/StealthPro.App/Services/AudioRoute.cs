@@ -7,13 +7,14 @@ namespace StealthPro.App.Services;
 /// <summary>
 /// Where Windows is sending sound and taking the microphone from, kept
 /// current, with an event when either moves.
-///
-/// <b>Windows moves them by itself</b> — when a transmitter is plugged in or
-/// pulled out, and when the headset is plugged in with a USB-C cable, which
-/// took both the sound and the microphone with it the first time it was
-/// tried. What depends on where they are used to find out only when
-/// something else happened to make it look again.
 /// </summary>
+/// <remarks>
+/// Windows moves them by itself: when a transmitter is plugged in or pulled
+/// out, and when the headset is plugged in with a USB-C cable, which can take
+/// both the sound and the microphone with it. Anything that depends on where
+/// they are has to be told, not left to find out the next time something
+/// else makes it look.
+/// </remarks>
 public sealed class AudioRoute : IDisposable
 {
     private readonly DispatcherQueue _ui;
@@ -23,8 +24,8 @@ public sealed class AudioRoute : IDisposable
     private int _pending;
 
     /// <summary>
-    /// A look every few seconds as well, in case the notifications could not
-    /// be set up or one goes missing: a stale answer here is a wrong warning.
+    /// How often to look anyway, in case the notifications could not be set up
+    /// or one goes missing: a stale answer here is a wrong warning.
     /// </summary>
     private static readonly TimeSpan PollEvery = TimeSpan.FromSeconds(5);
 

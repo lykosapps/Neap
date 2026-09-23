@@ -6,28 +6,25 @@ using StealthPro.Core.Connection;
 namespace StealthPro.App.Controls;
 
 /// <summary>
-/// Why half this page is unavailable, said once, in words.
-///
-/// <b>A greyed-out control cannot explain itself.</b> Dimmed text is
-/// deliberately exempt from contrast rules, screen readers commonly skip it,
-/// and a disabled control does not raise a tooltip — so the one place people
-/// look for the reason is the one place that cannot hold it. The reason has
-/// to live somewhere fully legible, and this is it.
-///
-/// <b>Once per page, not once per row.</b> The reason is identical for every
-/// row on the page. Twelve copies of it is noise, and three — one per
-/// section — is not much better.
-///
-/// The rows themselves stay, dimmed, rather than the sections collapsing.
-/// Collapsing hides what the app is: opened for the first time with the
-/// headset off it would show a mix slider and two volume rows and look like
-/// it barely did anything, and sections appearing later does not undo that.
-/// So the dash marks that there is no reading and this says why; neither has
-/// to do the other's job.
-///
-/// Nothing here names a transmitter, a link or a hub. The header carries
-/// that detail for anyone who wants it.
+/// Says once per page, in words, that no headset is plugged in.
 /// </summary>
+/// <remarks>
+/// <para>
+/// A greyed-out control cannot explain itself: dimmed text is exempt from
+/// contrast rules, screen readers commonly skip it, and a disabled control
+/// raises no tooltip. The reason has to be somewhere fully legible.
+/// </para>
+/// <para>
+/// The reason is the same for every row, so it is said once per page, not
+/// per row or per section. With nothing plugged in, each
+/// <see cref="HeadsetSection"/> folds away without a card of its own and
+/// leaves the explanation to this notice.
+/// </para>
+/// <para>
+/// Nothing here names a transmitter, a link or a hub; the header carries
+/// that detail.
+/// </para>
+/// </remarks>
 public sealed class HeadsetNotice : InfoBar
 {
     public HeadsetNotice()
@@ -36,10 +33,9 @@ public sealed class HeadsetNotice : InfoBar
         Severity = InfoBarSeverity.Informational;
         Margin = new Thickness(0);
 
-        // <b>Closed is not gone.</b> A closed InfoBar still counts as a child
-        // of the page's stack, so the stack's spacing is added around it:
-        // Home carried a blank band under its title wherever a notice was
-        // closed. Collapsing it with the bar takes the gap away too.
+        // A closed InfoBar still counts as a child of the page's stack, so the
+        // stack's spacing is added around it and leaves a blank band.
+        // Collapsing it with the bar removes the gap.
         Visibility = Visibility.Collapsed;
         RegisterPropertyChangedCallback(IsOpenProperty, (_, _) =>
             Visibility = IsOpen ? Visibility.Visible : Visibility.Collapsed);
@@ -60,10 +56,10 @@ public sealed class HeadsetNotice : InfoBar
     private void Paint()
     {
         // Only for nothing plugged in. Every other state is explained where it
-        // matters: on Home, above the mix, and in the card each page folds
-        // into. A banner on every page for them read as doubt about a headset
-        // somebody was listening to, and one flashing up while connecting was
-        // worse than the second of quiet it replaced.
+        // matters: on Home, above the mix, and in the card each section folds
+        // into. A banner on every page for those reads as doubt about a
+        // headset somebody is listening to, and one flashing up while
+        // connecting is worse than a second of quiet.
         if (AppServices.Headset.Status.Link != Link.Absent)
         {
             IsOpen = false;

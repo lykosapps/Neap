@@ -12,15 +12,16 @@ public class WritesDisabledException : Exception
 }
 
 /// <summary>
-/// Reads and writes headset settings. Reads are free; writes are gated
-/// twice: the client must be made with writes allowed, and each write must be
-/// one the <see cref="Registry"/> confirms.
-///
-/// A note that matters in practice: Swarm II polls this same channel
-/// thousands of times a second and drains the notification queue, so with
-/// Swarm running the replies land in its process rather than ours. Only one
-/// of the two can usefully talk to the headset at a time.
+/// Reads and writes headset settings. Reads are always allowed; a write needs
+/// a client made with writes allowed and a key the <see cref="Registry"/>
+/// confirms as writable.
 /// </summary>
+/// <remarks>
+/// Swarm II polls the same channel thousands of times a second and drains the
+/// notification queue, so while it runs the replies land in its process
+/// rather than ours. Only one of the two can usefully talk to the headset at
+/// a time.
+/// </remarks>
 public sealed class HeadsetClient : IDisposable
 {
     private readonly IHidTransport _transport;
@@ -46,23 +47,28 @@ public sealed class HeadsetClient : IDisposable
     private static readonly TimeSpan AskWindow = TimeSpan.FromMilliseconds(900);
 
     /// <summary>
-    /// Open the device the headset is actually behind, by asking each one.
-    ///
-    /// <b>What is plugged in does not tell you where the headset is.</b> It
-    /// pairs with one transmitter at a time and the others sit there opening
-    /// cleanly and answering nothing. Measured with the dongle and the
-    /// charging hub both connected: the dongle returned no values at all
-    /// while the hub returned everything.
-    ///
-    /// This lives here rather than in the app because the probe needs it just
-    /// as much. It did not have it for one session, and read all four
-    /// transmitter slots as empty off a headset that was sitting there
-    /// connected — a harness quietly addressing the wrong device is the exact
-    /// failure this project keeps paying for.
-    ///
-    /// Returns null when devices are present but none has the headset;
-    /// throws <see cref="DeviceNotFoundException"/> when there are none.
+    /// Opens the device the headset is actually behind, by asking each
+    /// candidate in turn.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// What is plugged in does not tell you where the headset is. It pairs
+    /// with one transmitter at a time, and the others open cleanly and answer
+    /// nothing. Measured with the USB Transmitter and the Charging Dock both
+    /// connected: the USB Transmitter returned no values while the Charging
+    /// Dock returned everything.
+    /// </para>
+    /// <para>
+    /// This lives in Core rather than the app because the probe needs it too.
+    /// Without it, a harness can read an empty result off the wrong device
+    /// while the headset is connected elsewhere.
+    /// </para>
+    /// </remarks>
+    /// <returns>
+    /// The client for the device that answered, or null when devices are
+    /// present but none has the headset.
+    /// </returns>
+    /// <exception cref="DeviceNotFoundException">No candidate device is present.</exception>
     public static HeadsetClient? Behind(bool allowWrites, out int present)
     {
         var candidates = HidTransport.Candidates();
@@ -75,13 +81,10 @@ public sealed class HeadsetClient : IDisposable
             HeadsetClient? client = null;
             try
             {
-                // <b>The client owns the handle it is given here.</b> It
-                // used not to, and nothing else held it either: every device
-                // asked and turned down was left open, and so was the one
-                // kept, once the app let it go. Harmless once at startup;
-                // not once the app re-asks every device each time the
-                // headset goes quiet, which it does every few seconds for as
-                // long as the headset is off.
+                // The client owns this handle, so every device turned down is
+                // closed, and so is the one kept once the app lets it go. The
+                // app re-asks every device every few seconds while the
+                // headset is off, so an unowned handle leaks on each pass.
                 client = new HeadsetClient(allowWrites, new HidTransport(device.Path),
                     ownsTransport: true);
                 client.Drain();
@@ -89,8 +92,8 @@ public sealed class HeadsetClient : IDisposable
             }
             catch (Exception)
             {
-                // Will not open, or will not talk: not the one. Try the next
-                // rather than failing the whole connect.
+                // Cannot be opened or does not answer: try the next rather
+                // than failing the whole connect.
             }
             client?.Dispose();
         }
@@ -99,11 +102,12 @@ public sealed class HeadsetClient : IDisposable
 
     public string Device => _transport.Describe();
 
-    /// <summary>
-    /// Which Turtle Beach device this handle is on. The thing Windows shows
-    /// is a transmitter, not the headset, and which one it is changes what
-    /// the link means — so anything reporting a connection needs to know.
-    /// </summary>
+    /// <summary>The USB product ID of the Turtle Beach device this handle is on.</summary>
+    /// <remarks>
+    /// The device Windows sees is usually a transmitter, not the headset, and
+    /// which one it is changes what the link means, so anything reporting a
+    /// connection needs this.
+    /// </remarks>
     public ushort ProductId => _transport.ProductId;
 
     private int NextCounter() => _counter = (_counter + 1) & 0xFFFF;
@@ -111,11 +115,12 @@ public sealed class HeadsetClient : IDisposable
     // -- reading -----------------------------------------------------------
 
     /// <summary>
-    /// One read from the headset, returning any complete events found.
-    ///
+    /// Performs one read from the headset and returns any complete events found.
+    /// </summary>
+    /// <remarks>
     /// Long replies span several reports and an unrelated notification can
     /// land in the middle of one, so only the consumed prefix is dropped.
-    /// </summary>
+    /// </remarks>
     public IReadOnlyList<DeviceEvent> ReadOnce()
     {
         var payload = Frames.PayloadOf(_transport.GetInput());
@@ -131,9 +136,10 @@ public sealed class HeadsetClient : IDisposable
     }
 
     /// <summary>
-    /// Read one category. Returns as soon as that category's response
-    /// arrives rather than burning the whole window.
+    /// Reads one category, returning as soon as that category's response
+    /// completes rather than waiting out the whole window.
     /// </summary>
+    /// <exception cref="KeyNotFoundException">The category has no read verb.</exception>
     public Dictionary<string, JsonElement> ReadCategory(string category, TimeSpan wait)
     {
         if (!Verbs.Readers.TryGetValue(category, out var verb))
@@ -159,24 +165,26 @@ public sealed class HeadsetClient : IDisposable
     }
 
     /// <summary>
-    /// Read the settings categories into one dictionary.
-    ///
-    /// One category at a time, and that is deliberate. Asking for all twelve
-    /// up front and listening once was tried, to collapse twelve round trips
-    /// into one window: the headset drops requests sent back to back and the
-    /// read came home with half the values missing, so it was both wrong and
-    /// no faster. Measured, then reverted.
-    ///
-    /// Each category costs roughly 100ms of the device's own reply latency,
-    /// so a full read is about 1.2 seconds and there is no protocol trick to
-    /// shorten it. The answer is not to do full reads casually — keep a
-    /// standing reader for notifications and use this for startup and for an
-    /// explicit refresh.
-    ///
-    /// Not every readable category: the ten preset slots and four transmitter
-    /// slots are inventory rather than settings, and an empty slot answers
-    /// nothing at all so it costs the full window.
+    /// Reads the settings categories, one at a time, into one dictionary.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Categories are requested one at a time. The headset drops requests
+    /// sent back to back, so asking for all twelve up front loses about half
+    /// the values and is no faster.
+    /// </para>
+    /// <para>
+    /// Each category costs roughly 100 ms of the device's own reply latency,
+    /// so a full read takes about 1.2 seconds and the protocol offers no way
+    /// to shorten it. Use this for startup and explicit refresh, and keep a
+    /// standing reader for notifications.
+    /// </para>
+    /// <para>
+    /// The ten preset slots and four transmitter slots are not included by
+    /// default: they are inventory rather than settings, and an empty slot
+    /// answers nothing, so it costs the full window.
+    /// </para>
+    /// </remarks>
     public Dictionary<string, JsonElement> ReadAll(
         TimeSpan? wait = null, IEnumerable<string>? categories = null)
     {
@@ -189,15 +197,16 @@ public sealed class HeadsetClient : IDisposable
     }
 
     /// <summary>
-    /// Throw away anything already buffered or waiting on the wire.
-    ///
-    /// <see cref="ReadCategory"/> returns on the first matching response it
-    /// sees, which can be a leftover from a previous exchange. Harmless when
-    /// reads are seconds apart, actively wrong when they are not: writing a
-    /// setting and immediately reading it back would show the value from a
-    /// moment ago. Not safe to call from a background reader — anything
-    /// discarded is a notification nobody was waiting for.
+    /// Discards anything already buffered or waiting on the wire.
     /// </summary>
+    /// <remarks>
+    /// <see cref="ReadCategory"/> returns on the first matching response it
+    /// sees, which can be a leftover from a previous exchange; without a
+    /// drain, writing a setting and reading it straight back shows the old
+    /// value. Do not call this from a background reader: anything discarded
+    /// is a notification nobody else will see.
+    /// </remarks>
+    /// <returns>The number of reports discarded.</returns>
     public int Drain(int limit = 200)
     {
         _buffer.Clear();
@@ -222,7 +231,9 @@ public sealed class HeadsetClient : IDisposable
     // -- writing -----------------------------------------------------------
 
     /// <exception cref="WritesDisabledException">The client is read-only.</exception>
-    /// <exception cref="ArgumentException">The write is not a confirmed one.</exception>
+    /// <exception cref="ArgumentException">
+    /// The key is not confirmed as writable, or the value is not valid for it.
+    /// </exception>
     public void Set(int key, object value)
     {
         if (!AllowWrites)

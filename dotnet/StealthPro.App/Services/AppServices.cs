@@ -2,12 +2,13 @@ namespace StealthPro.App.Services;
 
 /// <summary>
 /// The app's long-lived services, in one place.
-///
+/// </summary>
+/// <remarks>
 /// There is exactly one of each and they outlive every page, because the
 /// headset connection does: navigating between tabs must not drop the link
 /// or re-do the 1.2-second full read. Created once on the UI thread when the
-/// window opens.
-/// </summary>
+/// main window is constructed.
+/// </remarks>
 public static class AppServices
 {
     public static HeadsetService Headset { get; private set; } = null!;
@@ -36,10 +37,10 @@ public static class AppServices
         Hotkeys = new HotkeyService(Mix);
         Hotkeys.Enable(AppSettings.Current.MixHotkeys);
 
-        // Pick up where the last run left off. Without this the mix only
-        // started when somebody opened the Audio page and chose an
-        // application again - so a login launch, which never shows a window
-        // at all, would sit there with the chat wheel doing nothing.
+        // Pick up where the last run left off. Otherwise the mix starts only
+        // when somebody opens the Audio page and chooses an application
+        // again, and a login launch, which never shows a window, sits there
+        // with the chat wheel doing nothing.
         if (Mix.ChatApps.Count > 0) Mix.Start();
     }
 

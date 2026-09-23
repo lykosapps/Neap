@@ -11,16 +11,19 @@ namespace StealthPro.App.Controls;
 /// <summary>
 /// One headset setting as a settings row: icon, name, explanation, and the
 /// right control for what it is.
-///
+/// </summary>
+/// <remarks>
+/// <para>
 /// The control comes from the registry rather than from the page, so a
 /// toggle is a toggle and a 0-100 value is a slider without each page
-/// restating it. The registry also knows which values the headset reports
-/// but will not accept, and those arrive here disabled rather than as a
-/// control that silently does nothing.
-///
+/// restating it. Values the headset reports but will not accept are shown
+/// disabled rather than as a control that silently does nothing.
+/// </para>
+/// <para>
 /// Pages say which setting and how to describe it:
 /// <code>&lt;c:SettingRow Setting="anc" Header="Active noise cancellation" /&gt;</code>
-/// </summary>
+/// </para>
+/// </remarks>
 public sealed class SettingRow : SettingsCard
 {
     private const int SliderWidth = 220;
@@ -43,7 +46,7 @@ public sealed class SettingRow : SettingsCard
     public static readonly DependencyProperty SettingProperty = DependencyProperty.Register(
         nameof(Setting), typeof(string), typeof(SettingRow), new PropertyMetadata(""));
 
-    /// <summary>The registry name, as in "anc" or "noise_gate_threshold".</summary>
+    /// <summary>Gets or sets the setting's registry name, such as "anc" or "noise_gate_threshold".</summary>
     public string Setting
     {
         get => (string)GetValue(SettingProperty);
@@ -59,7 +62,7 @@ public sealed class SettingRow : SettingsCard
         set => SetValue(GlyphProperty, value);
     }
 
-    /// <summary>Shown after the value, for the ones that have a unit worth saying.</summary>
+    /// <summary>Identifies the <see cref="Unit"/> property: text shown after the value, for settings with a unit worth saying.</summary>
     public static readonly DependencyProperty UnitProperty = DependencyProperty.Register(
         nameof(Unit), typeof(string), typeof(SettingRow), new PropertyMetadata(""));
 
@@ -91,10 +94,10 @@ public sealed class SettingRow : SettingsCard
             _ => BuildReadout(),
         };
 
-        // Stands in for the control when the headset has not said where this
-        // setting is. A toggle with nothing behind it sits at Off and a
-        // slider at zero, and both of those are readings — wrong ones. This
-        // is the difference between "it is off" and "we do not know".
+        // Stands in for the control when the headset has not reported this
+        // setting. A toggle with nothing behind it sits at Off and a slider at
+        // zero, and both read as values. The dash says "not known" rather
+        // than "off".
         _absent = new TextBlock
         {
             Text = "—",
@@ -111,12 +114,11 @@ public sealed class SettingRow : SettingsCard
             Children = { _control, _absent },
         };
 
-        // Named for screen readers, on the control rather than the card
-        // around it: the control is what takes focus, and a page of sliders
-        // that all announce as "slider" is the fault the equaliser bands had.
-        // A Range row wraps its slider in a panel with the readout, so name
-        // the controls themselves rather than whatever came back from the
-        // builder.
+        // Named for screen readers on the control rather than the card around
+        // it, since the control takes focus; otherwise every slider announces
+        // as "slider". A Range row wraps its slider in a panel with the
+        // readout, so name the controls themselves, not what the builder
+        // returned.
         string spoken = Header?.ToString() ?? _key.Name;
         foreach (UIElement? control in new UIElement?[] { _slider, _toggle, _choice })
             if (control is not null)
@@ -159,8 +161,8 @@ public sealed class SettingRow : SettingsCard
             Maximum = _key.Maximum ?? 100,
             Width = SliderWidth,
             VerticalAlignment = VerticalAlignment.Center,
-            // The number is in the row already; the floating one just
-            // covers the row above while you drag.
+            // No thumb tooltip: the number is in the row already, and the
+            // tooltip covers the row above while dragging.
             ThumbToolTipValueConverter = null,
         };
         _slider.ValueChanged += (_, args) =>
@@ -202,13 +204,13 @@ public sealed class SettingRow : SettingsCard
     }
 
     /// <summary>
-    /// Show the control, or the dash in its place.
-    ///
-    /// A setting the headset reports but will not take is still shown, just
-    /// not operable: pretending it is not there is worse than saying it is
-    /// not ours to change. A setting we have no reading for at all is a
-    /// different case, and gets the dash.
+    /// Shows the control, or the dash in its place when there is no reading.
     /// </summary>
+    /// <remarks>
+    /// A setting the headset reports but will not accept is still shown,
+    /// disabled: hiding it would be worse than saying it cannot be changed. A
+    /// setting with no reading at all gets the dash.
+    /// </remarks>
     private void Known(bool known)
     {
         if (_control is not null)

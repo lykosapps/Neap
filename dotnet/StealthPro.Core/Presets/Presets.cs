@@ -21,43 +21,44 @@ public sealed record BankSpec(
     IReadOnlyList<string> Frequencies);
 
 /// <summary>
-/// Equaliser presets stored on the headset.
-///
-/// Listing them takes ten reads and makes no sound: each custom slot is its
-/// own category — SCG1..SCG5 for the game bank, SCM1..SCM5 for the
-/// microphone — and each answers with that slot's name and all ten bands in
-/// one reply. This is exactly what Swarm II does; it keeps no list of its own.
-///
-/// Saving is three writes and no command: a slot id, then the ten bands,
-/// then the name. Writing the name commits it. Deleting is one write of the
-/// preset's *name* to the delete register.
-///
-/// Ported from stealthpro/presets.py.
+/// Lists, applies, saves and deletes the equaliser presets stored on the headset.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Listing takes ten reads and makes no sound. Each custom slot is its own
+/// category (CG1..CG5 for the game bank, CM1..CM5 for the microphone, read
+/// with SCG1..SCG5 and SCM1..SCM5), and each answers with the slot's name and
+/// all ten bands in one reply. Swarm II lists them the same way and keeps no
+/// list of its own.
+/// </para>
+/// <para>
+/// Saving is a sequence of writes with no save command: a slot id, then the
+/// ten bands, then the name. Writing the name commits it. Deleting is one
+/// write of the preset's name to the delete register.
+/// </para>
+/// </remarks>
 public static class PresetStore
 {
     /// <summary>Custom slot n is preset id 15 + n.</summary>
     public const int FirstCustomId = 16;
     public const int CustomSlots = 5;
 
-    /// <summary>
-    /// The longest name the headset will take.
-    ///
+    /// <summary>The longest preset name the headset will take, in plain ASCII characters.</summary>
+    /// <remarks>
     /// A name is written as a single set_kvp frame and the protocol has no
-    /// continuation, so the whole thing has to fit one 62-byte output
-    /// report. Everything wrapped around the name — report id, the two
-    /// lengths, the RACE header, the verb, and the JSON braces and quotes —
-    /// costs 43 bytes. Turtle Beach's own longest preset name, "Bass &amp;
-    /// Treble Boost", is exactly 19 characters, which is good evidence this
-    /// is the ceiling Swarm works to as well.
-    /// </summary>
+    /// continuation, so it must fit one 62-byte output report. Everything
+    /// around the name (report id, the two lengths, the RACE header, the verb,
+    /// and the JSON braces and quotes) costs 43 bytes. Turtle Beach's own
+    /// longest preset name, "Bass &amp; Treble Boost", is exactly 19
+    /// characters, which suggests Swarm II works to the same ceiling.
+    /// </remarks>
     public const int MaxNameLength = 19;
 
-    /// <summary>
-    /// Whether this particular name fits, escaping included. Counting
-    /// characters is not enough on its own: a quotation mark costs two and
+    /// <summary>Whether this name fits one output report once escaped.</summary>
+    /// <remarks>
+    /// Counting characters is not enough: a quotation mark costs two bytes and
     /// anything outside plain ASCII costs six.
-    /// </summary>
+    /// </remarks>
     public static bool NameFits(string name, Bank bank) =>
         Frames.SetKey(Spec(bank).NameKey, name.Trim()).Length <= Frames.ReportLength;
 
@@ -74,21 +75,22 @@ public static class PresetStore
         Enumerable.Range(0, 10).Select(i => 0x1320 + 0x10 * i).ToArray(),
         "AQM", Enumerable.Range(1, 5).Select(n => $"CM{n}").ToArray(),
         0x1630, 0x1620,
-        // Eight of these appear literally in Swarm's resources and the bank
-        // has ten bands. Qt pools identical string literals, so "250 Hz" and
-        // "1 kHz" — already in the game list — would appear only once for
-        // both banks. Those two placements are inferred, not read.
+        // Eight of these appear literally in Swarm II's resources. Qt pools
+        // identical string literals, so "250 Hz" and "1 kHz", already in the
+        // game list, appear only once for both banks; their placement here is
+        // inferred, not read.
         new[] { "100 Hz", "160 Hz", "250 Hz", "400 Hz", "630 Hz",
                 "1 kHz", "1.6 kHz", "2.5 kHz", "4 kHz", "6.3 kHz" });
 
     public static BankSpec Spec(Bank bank) => bank == Bank.Game ? Game : Microphone;
 
-    /// <summary>
-    /// The factory presets are fixed in firmware and are not in the custom
-    /// slots, so there is nothing to read them from — Swarm II has them built
-    /// in too. These were measured off the headset by selecting each one and
-    /// reading it back, not copied from anywhere.
-    /// </summary>
+    /// <summary>The headset's built-in presets for a bank.</summary>
+    /// <remarks>
+    /// Factory presets are fixed in firmware and are not in the custom slots,
+    /// so there is nothing to read them from; Swarm II has them built in too.
+    /// These values were measured off the headset by selecting each preset and
+    /// reading it back.
+    /// </remarks>
     public static IReadOnlyList<Preset> Factory(Bank bank) =>
         bank == Bank.Game ? GameFactory : MicFactory;
 
@@ -110,14 +112,12 @@ public static class PresetStore
 
     // -- reading -----------------------------------------------------------
 
-    /// <summary>
-    /// The custom slots, read straight off the headset. Silent.
-    ///
-    /// An empty slot answers with an empty name, which is how it is told
-    /// apart from a used one. A slot that does not answer <i>at all</i> is
-    /// skipped rather than reported as empty — those are different, and only
-    /// one of them means "you may write here".
-    /// </summary>
+    /// <summary>Reads the used custom slots straight off the headset, without changing what plays.</summary>
+    /// <remarks>
+    /// An empty slot answers with an empty name. A slot that does not answer
+    /// at all is also left out, but it is not known to be empty, so do not
+    /// treat it as free to write.
+    /// </remarks>
     public static List<Preset> ReadCustoms(
         HeadsetClient client, Bank bank, TimeSpan? wait = null)
     {
@@ -180,13 +180,12 @@ public static class PresetStore
         return Enumerable.Range(FirstCustomId, CustomSlots).Where(id => !used.Contains(id)).ToList();
     }
 
-    /// <summary>
-    /// How many custom presets the headset says it holds.
-    ///
-    /// Only a cross-check now that the slots can be read directly, but a
-    /// cheap one: if this disagrees with the number of named slots, the
-    /// fault is in our reading rather than in the headset.
-    /// </summary>
+    /// <summary>How many custom presets the headset says it holds.</summary>
+    /// <remarks>
+    /// A cheap cross-check on <see cref="ReadCustoms"/>: if this disagrees
+    /// with the number of named slots, the fault is in our reading rather than
+    /// in the headset.
+    /// </remarks>
     public static int? Count(HeadsetClient client, Bank bank, TimeSpan? wait = null)
     {
         var values = client.ReadCategory("CEC", wait ?? TimeSpan.FromMilliseconds(1200));
@@ -196,23 +195,28 @@ public static class PresetStore
 
     // -- writing -----------------------------------------------------------
 
-    /// <summary>Select a stored preset.</summary>
+    /// <summary>Selects a stored preset.</summary>
     public static void Apply(HeadsetClient client, int presetId, Bank bank) =>
         client.Set(Spec(bank).Select, presetId);
 
-    /// <summary>
-    /// Write a preset into the headset's custom slots.
-    ///
-    /// The order matters and it is Swarm II's order: write a slot id, fill in
-    /// the ten bands, then write the name. There is no save command — writing
-    /// the name is what commits it.
-    ///
-    /// <b>Saving always creates a new preset.</b> The slot id is only a hint:
-    /// ask for slot 19 and the headset puts it in the lowest free slot
-    /// instead, and asking for an occupied slot gets a second preset rather
-    /// than an overwrite. Measured, not assumed. Replacing therefore means
-    /// delete-then-save.
-    /// </summary>
+    /// <summary>Saves a new preset into the headset's custom slots.</summary>
+    /// <remarks>
+    /// <para>
+    /// The order is Swarm II's and it matters: write a slot id, fill in the
+    /// ten bands, then write the name. There is no save command; writing the
+    /// name commits it.
+    /// </para>
+    /// <para>
+    /// Saving always creates a new preset. The slot id is only a hint: asking
+    /// for slot 19 puts the preset in the lowest free slot instead (measured),
+    /// and asking for an occupied slot adds a second preset rather than
+    /// overwriting. To replace a preset, delete it and then save.
+    /// </para>
+    /// </remarks>
+    /// <param name="hint">The slot id to write first; the headset may ignore it.</param>
+    /// <exception cref="PresetException">
+    /// The band count is wrong, or the name is empty or does not fit.
+    /// </exception>
     public static void Save(HeadsetClient client, string name, IReadOnlyList<int> bands,
         Bank bank, int? hint = null)
     {
@@ -237,14 +241,14 @@ public static class PresetStore
         client.Set(spec.NameKey, name);
     }
 
-    /// <summary>
-    /// Remove a custom preset, by name.
-    ///
-    /// Works whatever preset is selected at the time, but if the one being
-    /// deleted is the one you are listening to we move to
-    /// <paramref name="fallback"/> first, so the headset is not left pointing
-    /// at a slot that no longer exists. Swarm II does the same.
-    /// </summary>
+    /// <summary>Deletes a custom preset by name.</summary>
+    /// <remarks>
+    /// Deleting works whatever preset is selected, but if the preset being
+    /// deleted is the selected one, <paramref name="fallback"/> is selected
+    /// first so the headset is not left pointing at a slot that no longer
+    /// exists. Swarm II does the same.
+    /// </remarks>
+    /// <exception cref="PresetException">The name is empty or names a factory preset.</exception>
     public static void Delete(HeadsetClient client, string name, Bank bank, int fallback = 1)
     {
         var spec = Spec(bank);

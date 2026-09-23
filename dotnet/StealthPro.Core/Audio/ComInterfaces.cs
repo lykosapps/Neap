@@ -16,20 +16,19 @@ internal static class Com
     internal const int SOk = 0;
     internal const int SFalse = 1;
 
-    /// <summary>
-    /// Only a negative HRESULT is an error.
-    ///
-    /// Core Audio answers S_FALSE (1) when a set would change nothing —
-    /// muting something already muted, or writing the level it is already
-    /// at. That is success, and treating any non-zero result as a failure
-    /// turns a harmless no-op into an error in front of the user.
-    /// </summary>
+    /// <summary>Whether an HRESULT is an error; only negative values are.</summary>
+    /// <remarks>
+    /// Core Audio returns S_FALSE (1) when a set would change nothing, such as
+    /// muting something already muted or writing the current level. That is
+    /// success; treating any non-zero result as failure shows the user an
+    /// error for a harmless no-op.
+    /// </remarks>
     internal static bool Failed(int hresult) => hresult < 0;
 
     internal static readonly Guid MMDeviceEnumeratorClsid =
         new("BCDE0395-E52F-467C-8E3D-C4579291692E");
 
-    /// PKEY_AudioEngine_DeviceFormat — what the Advanced tab writes.
+    /// <summary>PKEY_AudioEngine_DeviceFormat, the value the Advanced tab writes.</summary>
     internal static readonly PropertyKey DeviceFormatKey =
         new(new Guid("F19F064D-082C-4E27-BC73-6882A1BB8E4C"), 0);
 
@@ -41,12 +40,13 @@ internal static class Com
     [DllImport("ole32.dll")]
     internal static extern void CoTaskMemFree(IntPtr memory);
 
-    /// <summary>
-    /// Frees what a property store handed back. A PROPVARIANT holding a
-    /// string or a blob owns memory, and the caller owns it from the moment
-    /// GetValue returns. Both readers here used to walk away from it, once per
-    /// endpoint, about once a second while a volume row is on screen.
-    /// </summary>
+    /// <summary>Frees the memory a PROPVARIANT from a property store owns.</summary>
+    /// <remarks>
+    /// A PROPVARIANT holding a string or a blob owns memory, and the caller
+    /// owns it once GetValue returns. Every GetValue needs a matching clear:
+    /// the readers run once per endpoint about once a second while a volume
+    /// row is on screen, so a missed clear leaks steadily.
+    /// </remarks>
     [DllImport("ole32.dll")]
     internal static extern int PropVariantClear(ref PropVariant value);
 
@@ -71,15 +71,13 @@ internal struct PropertyKey
     }
 }
 
-/// <summary>
-/// A PROPVARIANT, only as far as the two members we take out of one.
-///
-/// The union starts at offset 8, and where the useful part sits depends on
-/// the type. A string (VT_LPWSTR) is a pointer <i>at</i> offset 8; a BLOB is
-/// a size at 8 and a pointer at 16. Reading a string from the blob's pointer
-/// gets you the length, which comes back as an empty device name and then as
-/// "no endpoint matching" somewhere else entirely.
-/// </summary>
+/// <summary>A PROPVARIANT, declared only as far as the string and blob members used here.</summary>
+/// <remarks>
+/// The union starts at offset 8, and where the value sits depends on the
+/// type. A string (VT_LPWSTR) is a pointer at offset 8; a BLOB is a size at 8
+/// and a pointer at 16. Reading a string through the blob's pointer gives an
+/// empty device name, which later surfaces as "no endpoint matching".
+/// </remarks>
 [StructLayout(LayoutKind.Explicit)]
 internal struct PropVariant
 {
@@ -178,13 +176,20 @@ internal interface IAudioMeterInformation
 }
 
 /// <summary>
-/// Undocumented, stable since Windows 7, and what every audio-switching tool
-/// on earth uses. It is also the only way to change a device's format for
-/// real: writing the property store persists the value and every dialog
-/// reads it back, while the endpoint carries on at the old rate.
-///
-/// Method order here <b>is</b> the vtable order — do not rearrange.
+/// The undocumented policy interface the Sound control panel uses to set
+/// default devices and formats.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Stable since Windows 7 and used by audio-switching tools generally. It is
+/// the only way to make a format change take effect: writing the property
+/// store persists the value and every dialog reads it back, while the
+/// endpoint carries on at the old rate.
+/// </para>
+/// <para>
+/// Method order is the vtable order. Do not rearrange.
+/// </para>
+/// </remarks>
 [ComImport, Guid("F8679F50-850A-41CF-9C72-430F290290C8"),
  InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 internal interface IPolicyConfig

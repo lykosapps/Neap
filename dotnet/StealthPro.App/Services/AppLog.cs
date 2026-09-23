@@ -3,16 +3,19 @@ namespace StealthPro.App.Services;
 /// <summary>
 /// A short record of what the app did and why: launches, connection changes,
 /// and mix changes with what caused them.
-///
-/// <b>Kept because two bugs could not be explained without it.</b> The app
-/// started with Windows for twelve logins in a row without once running, and
-/// a launch that never happened looked the same as one that died. And the mix
-/// moved to 76% game while nobody touched the wheel or the slider, and there
-/// was nothing to say what had moved it. A line per event separates those.
-///
-/// Small on purpose: plain lines, the most recent thousand, beside the app's
-/// settings. Nothing about the person — only the app's own states.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Some faults cannot be explained without it. A launch at sign-in that never
+/// happened looks the same as one that died, and a mix that moves with nobody
+/// touching the wheel or the slider leaves nothing to say what moved it. A
+/// line per event separates those.
+/// </para>
+/// <para>
+/// Small on purpose: plain lines, the most recent thousand, beside the app's
+/// settings. Nothing about the person, only the app's own states.
+/// </para>
+/// </remarks>
 public static class AppLog
 {
     private const int KeepLines = 1000;
@@ -24,14 +27,16 @@ public static class AppLog
 
     private static string File => Path.Combine(Folder, "app.log");
 
-    /// <summary>The time stamp that starts every line, "yyyy-MM-dd HH:mm:ss.f".</summary>
+    /// <summary>Length of the time stamp that starts every line, "yyyy-MM-dd HH:mm:ss.f".</summary>
     private const int StampLength = 21;
 
-    /// <summary>
-    /// Record a line. <paramref name="at"/> stamps it earlier than now — a
-    /// mix change is written when it finishes but stamped when it began — and
-    /// it goes where that time belongs, so the record still reads in order.
-    /// </summary>
+    /// <summary>Record a line.</summary>
+    /// <param name="what">The line, without its time stamp.</param>
+    /// <param name="at">
+    /// When it happened, if earlier than now: a mix change is written when it
+    /// finishes but stamped when it began. The line goes where that time
+    /// belongs, so the record still reads in order.
+    /// </param>
     public static void Write(string what, DateTime? at = null)
     {
         try

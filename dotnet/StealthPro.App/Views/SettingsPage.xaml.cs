@@ -19,7 +19,7 @@ public sealed partial class SettingsPage : Page
         {
             if (_painting) return;
             if (Startup.Set(StartWithWindows.IsOn)) return;
-            // Say so rather than leave a switch claiming something untrue.
+            // The change failed: put the switch back rather than leave it claiming something untrue.
             _painting = true;
             StartWithWindows.IsOn = Startup.Enabled;
             _painting = false;

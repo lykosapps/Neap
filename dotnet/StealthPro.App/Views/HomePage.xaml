@@ -7,9 +7,9 @@
     xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <Page.Resources>
-        <!--  One card treatment, used three times. The Gallery leans on a
-              single card shape repeated rather than a new frame per section,
-              and it is what stops a status page reading as a form.  -->
+        <!--  One card treatment, used three times. After the WinUI Gallery: a
+              single card shape repeated rather than a new frame per section
+              stops a status page reading as a form.  -->
         <Style x:Key="HomeCard" TargetType="Border">
             <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
             <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
@@ -30,7 +30,7 @@
 
             <TextBlock x:Uid="Home_Title" Style="{StaticResource PageTitleStyle}" />
 
-            <!--  Anything wrong comes first, and in words.  -->
+            <!--  Nothing plugged in is said first, in words.  -->
             <c:HeadsetNotice />
 
             <!--  The headset itself.  -->

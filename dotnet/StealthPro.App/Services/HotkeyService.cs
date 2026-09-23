@@ -14,12 +14,12 @@ public sealed record Shortcut(uint Modifiers, uint Key)
 {
     public const uint Alt = 0x0001, Control = 0x0002, Shift = 0x0004, Windows = 0x0008;
 
-    /// <summary>
-    /// <b>A shortcut without a modifier is not offered.</b> These are global:
-    /// binding a bare key takes it away from every other program on the
-    /// machine, and the person who did it would have no idea why their game
-    /// stopped responding to it.
-    /// </summary>
+    /// <summary>Whether the shortcut has at least one modifier. One without is not offered.</summary>
+    /// <remarks>
+    /// These are global: binding a bare key takes it away from every other
+    /// program on the machine, and the person who did it would have no idea
+    /// why their game stopped responding to it.
+    /// </remarks>
     public bool Sane => (Modifiers & (Alt | Control | Shift | Windows)) != 0;
 
     public override string ToString()
@@ -60,28 +60,33 @@ public sealed record Shortcut(uint Modifiers, uint Key)
 }
 
 /// <summary>
-/// Moving the mix from inside a game, without a window and without the wheel.
-///
-/// <b>Why this exists.</b> The headset's chat wheel only reaches the app
-/// through the transmitter dock. Plugged into the small USB transmitter it
-/// reports nothing at all — measured, with the volume wheel as a control — so
-/// the one thing you reach for mid-game is gone and the on-screen slider is no
-/// use with a game in front of it. This works on any transmitter, and
-/// alongside the wheel where the wheel works.
-///
-/// <b>Registered against the thread, not a window.</b> A hotkey bound to the
-/// main window would stop working the moment the window closed, which is most
-/// of the time — the app lives in the notification area. Passing a null window
-/// to RegisterHotKey binds to the calling thread instead and posts WM_HOTKEY to
-/// its queue, so this owns a thread and pumps it. Registration has to happen on
-/// that same thread, which is why the thread sets itself up rather than being
-/// told what to do.
-///
-/// <b>A refused key says so.</b> Another program holding a combination is the
-/// normal failure here and it is invisible — the keys simply do nothing. Every
-/// registration is checked and what failed is shown beside the key it failed
-/// for.
+/// Global keyboard shortcuts that move the mix from inside a game, without a
+/// window and without the wheel.
 /// </summary>
+/// <remarks>
+/// <para>
+/// The headset's chat wheel only reaches the app through the Charging Dock.
+/// Through the USB Transmitter it reports nothing at all (measured, with the
+/// volume wheel as a control), so the one thing you reach for mid-game is gone
+/// and the on-screen slider is no use with a game in front of it. Shortcuts
+/// work on any transmitter, and alongside the wheel where the wheel works.
+/// </para>
+/// <para>
+/// Keys are registered against a thread, not a window. A hotkey bound to the
+/// main window stops working the moment the window closes, which is most of
+/// the time: the app lives in the notification area. Passing a null window to
+/// RegisterHotKey binds to the calling thread and posts WM_HOTKEY to its queue,
+/// so this owns a thread and pumps it. Registration has to happen on that same
+/// thread, which is why the thread sets itself up rather than being told what
+/// to do.
+/// </para>
+/// <para>
+/// A refused key says so. Another program holding a combination is the normal
+/// failure here, and it is invisible: the keys simply do nothing. Every
+/// registration is checked, and what failed is shown beside the key it failed
+/// for.
+/// </para>
+/// </remarks>
 public sealed class HotkeyService : IDisposable
 {
     private const uint ModNoRepeat = 0x4000;
@@ -219,8 +224,9 @@ public sealed class HotkeyService : IDisposable
     }
 
     /// <summary>
-    /// Everything goes through the mix's one Apply, so a press lands in the
-    /// centre detent exactly as the wheel does — including its cue.
+    /// Move the mix one step. It goes through <see cref="MixService.Apply"/>,
+    /// so a press lands in the centre detent exactly as the wheel does,
+    /// including its cue.
     /// </summary>
     private void Move(MixKey which)
     {

@@ -5,10 +5,10 @@ namespace StealthPro.Core.Hid;
 /// <summary>
 /// The Win32 surface needed to talk to a vendor-defined HID collection:
 /// SetupAPI to enumerate, hid.dll to describe and exchange reports.
-///
-/// Ported from stealthpro/transport.py. Two details there were paid for in
-/// debugging and are carried over deliberately — see <see cref="HidTransport"/>.
 /// </summary>
+/// <remarks>
+/// <see cref="HidTransport"/> documents how these are used and why.
+/// </remarks>
 internal static class Native
 {
     internal const uint GenericRead = 0x80000000;
@@ -19,7 +19,7 @@ internal static class Native
     internal const uint DigcfPresent = 0x02;
     internal const uint DigcfDeviceInterface = 0x10;
 
-    /// HIDP_STATUS_SUCCESS. HidP_GetCaps does not return 0 on success.
+    /// <summary>HIDP_STATUS_SUCCESS. HidP_GetCaps does not return 0 on success.</summary>
     internal const int HidpStatusSuccess = 0x00110000;
 
     [StructLayout(LayoutKind.Sequential)]

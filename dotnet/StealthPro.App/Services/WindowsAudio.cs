@@ -13,15 +13,19 @@ public sealed record FormatPanel(
 
 /// <summary>
 /// Windows' own audio settings for the headset, off the UI thread.
-///
+/// </summary>
+/// <remarks>
+/// <para>
 /// Two of these are not headset settings at all, and the UI says so: master
 /// volume and microphone sensitivity belong to Windows, and the headset only
 /// mirrors them back. Writing the headset's copy changes the number it
 /// reports and nothing anybody can hear.
-///
+/// </para>
+/// <para>
 /// Every call here touches COM and several enumerate endpoints, so none of
 /// it runs on the UI thread.
-/// </summary>
+/// </para>
+/// </remarks>
 public static class WindowsAudio
 {
     public static Task<VolumeState> Read(Flow flow = Flow.Output) => Task.Run(() =>
@@ -47,14 +51,12 @@ public static class WindowsAudio
         try { AudioEndpoints.SetMuted(muted, AudioEndpoints.DefaultMatch, flow); } catch { }
     });
 
-    /// <summary>
-    /// What Windows will accept on this endpoint, and what it is on now.
-    ///
-    /// The list is probed rather than assumed. An earlier version offered
-    /// formats the device would not open, because 24-bit is stored packed
-    /// and was being built padded; only what the endpoint actually agrees to
-    /// is offered.
-    /// </summary>
+    /// <summary>What Windows will accept on this endpoint, and what it is on now.</summary>
+    /// <remarks>
+    /// The list is probed rather than assumed, and only what the endpoint
+    /// actually agrees to is offered. 24-bit is stored packed; a padded 24-bit
+    /// format is one the device will not open.
+    /// </remarks>
     public static Task<FormatPanel> Formats(Flow flow = Flow.Output) => Task.Run(() =>
     {
         try
@@ -67,10 +69,14 @@ public static class WindowsAudio
 
     /// <summary>
     /// Change the endpoint format for real: write the property store, then
-    /// tell Windows to reconfigure the device. Writing the store alone
-    /// changes what Sound settings displays and nothing else, which cost a
-    /// round of "it says 24-bit but the light has not gone purple".
+    /// tell Windows to reconfigure the device.
     /// </summary>
+    /// <remarks>
+    /// Writing the store alone changes what Sound settings displays and nothing
+    /// else: the endpoint stays at its old rate, so at 24-bit/96 kHz the
+    /// Charging Dock's status ring does not turn purple.
+    /// </remarks>
+    /// <returns>Null on success, or the reason it failed.</returns>
     public static Task<string?> ApplyFormat(AudioFormat format, Flow flow = Flow.Output) =>
         Task.Run<string?>(() =>
         {

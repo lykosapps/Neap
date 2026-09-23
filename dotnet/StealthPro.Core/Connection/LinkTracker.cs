@@ -1,12 +1,11 @@
 namespace StealthPro.Core.Connection;
 
-/// <summary>
-/// Where the link has got to.
-///
-/// What Windows shows us is a transmitter, never the headset, so "the device
-/// opened" and "the headset is talking" are separate facts. A charging dock
-/// plugged in with the headset switched off answers every read with nothing.
-/// </summary>
+/// <summary>How far the connection to the headset has got.</summary>
+/// <remarks>
+/// Windows sees a transmitter, never the headset, so "the device opened" and
+/// "the headset is answering" are separate facts. A Charging Dock plugged in
+/// with the headset switched off answers every read with nothing.
+/// </remarks>
 public enum Link
 {
     /// <summary>Nothing of Turtle Beach's is plugged in at all.</summary>
@@ -19,10 +18,10 @@ public enum Link
     /// </summary>
     Silent,
     /// <summary>
-    /// A transmitter is plugged in and the headset is not on it — switched
-    /// off or out of range, as far as anyone can tell. Or, over its cable,
-    /// known to be switched off. See <see cref="HeadsetStatus.NotConnected"/>
-    /// and <see cref="HeadsetStatus.SwitchedOff"/>.
+    /// A transmitter is plugged in and the headset is not on it: switched off
+    /// or out of range, which cannot be told apart. Over its USB-C cable, known
+    /// to be switched off. See <see cref="HeadsetStatus.NotConnected"/> and
+    /// <see cref="HeadsetStatus.SwitchedOff"/>.
     /// </summary>
     Quiet,
     /// <summary>The headset is answering.</summary>
@@ -34,11 +33,11 @@ public enum Route
 {
     /// <summary>Nothing open, or a product id we do not recognise.</summary>
     Unknown,
-    /// <summary>Over 2.4GHz, through the dock that also charges a battery.</summary>
+    /// <summary>Over 2.4GHz, through the Charging Dock, which also charges a battery.</summary>
     ChargingHub,
-    /// <summary>Over 2.4GHz, through the small USB-A dongle.</summary>
+    /// <summary>Over 2.4GHz, through the USB Transmitter, a small USB-A dongle.</summary>
     UsbTransmitter,
-    /// <summary>Straight to the headset chip over USB-C.</summary>
+    /// <summary>Straight to the headset chip over the USB-C cable.</summary>
     DirectUsb,
 }
 
@@ -64,27 +63,35 @@ public sealed record HeadsetStatus(
 {
     /// <summary>
     /// A transmitter is plugged in, and nothing answers for the headset's
-    /// settings: the transmitter they were on was unplugged, with another
-    /// still in. Either the settings alone went and the sound is still
-    /// playing through the one left, or both went; from here they look the
-    /// same. Not the same as the headset being switched off, which is told
-    /// apart by what happened just before — see <see cref="NotConnected"/>.
+    /// settings.
     /// </summary>
+    /// <remarks>
+    /// The transmitter carrying the settings was unplugged with another still
+    /// in. Either only the settings went and sound still plays through the one
+    /// left, or both went; from here the two look the same. The headset being
+    /// switched off is told apart by what happened just before; see
+    /// <see cref="NotConnected"/>.
+    /// </remarks>
     public bool SettingsUnreachable => Link == Link.Silent;
 
     /// <summary>
     /// The headset stopped answering on a transmitter that is still plugged
-    /// in, or never answered at all: switched off or out of range. With no
-    /// history — the app starting with the headset already off, which is
-    /// what a login usually is — this is the one assumed.
+    /// in, or never answered: switched off or out of range.
     /// </summary>
+    /// <remarks>
+    /// This is the state assumed when there is no history, such as the app
+    /// starting with the headset already off, which is the usual case at login.
+    /// </remarks>
     public bool NotConnected => Link == Link.Quiet;
 
     /// <summary>
-    /// Plugged in with its USB-C cable and switched off, which over the cable
-    /// can be seen for certain. It keeps a connection there for charging, so
-    /// the battery is a real reading.
+    /// Plugged in with its USB-C cable and switched off, which the cable shows
+    /// for certain.
     /// </summary>
+    /// <remarks>
+    /// The headset keeps a connection on the cable for charging, so the
+    /// battery reading is real.
+    /// </remarks>
     public bool SwitchedOff => Link == Link.Quiet && Route == Route.DirectUsb;
 }
 
@@ -94,13 +101,16 @@ public sealed record LinkWords(
     Func<Route, string> Adapter);
 
 /// <summary>
-/// Decides what state the headset is in, from what has been observed and
-/// when. The headset service does the talking and the waiting; this does the
-/// deciding, so that every rule can be tested without a headset. Each method
-/// returns the new status when it changed, and null when it did not.
-///
-/// Not thread-safe: the headset service calls it from its own thread only.
+/// Decides what state the headset is in, from what has been observed and when.
 /// </summary>
+/// <remarks>
+/// <para>
+/// The headset service does the talking and the waiting; this class does the
+/// deciding, so every rule can be tested without a headset. Each method
+/// returns the new status when it changed, and null when it did not.
+/// </para>
+/// <para>Not thread-safe: the headset service calls it from its own thread only.</para>
+/// </remarks>
 public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool> cabled)
 {
     /// <summary>
@@ -157,13 +167,15 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     // -- what was observed --------------------------------------------------
 
     /// <summary>
-    /// 0x230 changed: 2 while a transmitter is sending the headset sound, 0
-    /// while none is. It sits at 0 for about fifteen seconds after a
-    /// switch-on, drops to 0 when the transmitter carrying the sound is
-    /// unplugged, and has never dropped ahead of a real switch-off. It does
-    /// not catch every silent state, and over the cable it says nothing about
-    /// what is heard.
+    /// Records a change of 0x230: 2 while a transmitter is sending the headset
+    /// sound, 0 while none is.
     /// </summary>
+    /// <remarks>
+    /// It sits at 0 for about fifteen seconds after a switch-on, drops to 0
+    /// when the transmitter carrying the sound is unplugged, and has never been
+    /// seen to drop ahead of a real switch-off. It does not catch every silent
+    /// state, and over the cable it says nothing about what is heard.
+    /// </remarks>
     public void SoundLink(int? value)
     {
         _soundFlag = value;
@@ -172,7 +184,7 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
         else _soundDownAt = clock();
     }
 
-    /// <summary>Everything the headset told us has been thrown away.</summary>
+    /// <summary>Discards everything the headset has reported.</summary>
     public void Forget()
     {
         _soundFlag = null;
@@ -218,10 +230,13 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     }
 
     /// <summary>
-    /// Looked at each time round while the headset answers over its cable:
-    /// what decides it, Windows' view of the headset's sound device, changes
-    /// without the headset saying anything.
+    /// Re-checks the status each time round while the headset answers over its
+    /// cable.
     /// </summary>
+    /// <remarks>
+    /// What decides it, Windows' view of the headset's sound device, changes
+    /// without the headset reporting anything.
+    /// </remarks>
     public HeadsetStatus? Cable(bool elsewhere, Route route, string adapter,
         string carrying, string device, string product)
     {
@@ -242,9 +257,11 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
 
     /// <summary>
     /// Nothing answers for the headset, with these devices plugged in.
-    /// Whatever transmitter is plugged in is named when there is exactly one,
-    /// so the wrong-output check still has something to compare Windows with.
     /// </summary>
+    /// <remarks>
+    /// The transmitter is named when exactly one is plugged in, so the
+    /// wrong-output check still has something to compare Windows with.
+    /// </remarks>
     public HeadsetStatus? Unreachable(IEnumerable<ushort> plugged)
     {
         var link = _lostWithTransmitter ? Link.Silent : Link.Quiet;
@@ -262,14 +279,15 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     }
 
     /// <summary>
-    /// The device we were talking to — <paramref name="was"/>, if there was
-    /// one — has gone. <paramref name="plugged"/> is what is left, or null if
-    /// that could not be listed.
-    ///
+    /// The device we were talking to, <paramref name="was"/> if there was one,
+    /// has gone. <paramref name="plugged"/> is what is left, or null if that
+    /// could not be listed.
+    /// </summary>
+    /// <remarks>
     /// Losing one device does not mean losing them all, and gone for a moment
     /// is not gone: for <see cref="AbsentGrace"/> after losing a device, an
     /// empty machine still reads as looking.
-    /// </summary>
+    /// </remarks>
     public HeadsetStatus? Lost(ushort? was, IReadOnlyCollection<ushort>? plugged, string detail)
     {
         bool nothing = plugged is null || plugged.Count == 0;
@@ -289,10 +307,11 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
             absent ? detail : words.Looking);
     }
 
-    /// <summary>
-    /// Look again at whether sound is arriving. Called round the loop, because
-    /// the answer changes with time passing as well as with values arriving.
-    /// </summary>
+    /// <summary>Looks again at whether sound is arriving.</summary>
+    /// <remarks>
+    /// Called round the loop, because the answer changes with time passing as
+    /// well as with values arriving.
+    /// </remarks>
     public HeadsetStatus? Refresh()
     {
         var current = Status;
@@ -305,11 +324,13 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     // -- the rules -----------------------------------------------------------
 
     /// <summary>
-    /// Answering over its cable with its sound device gone for longer than
-    /// <see cref="OffGrace"/>: switched off. It keeps a control device on the
-    /// cable for charging, so the sound device going is what tells the two
-    /// apart.
+    /// Whether the headset, answering over its cable, has had no sound device
+    /// for longer than <see cref="OffGrace"/>, meaning it is switched off.
     /// </summary>
+    /// <remarks>
+    /// The headset keeps a control device on the cable for charging, so the
+    /// sound device going is what tells off from on.
+    /// </remarks>
     private bool OffOnCable()
     {
         if (cabled()) { _offSince = null; return false; }
@@ -319,11 +340,13 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     }
 
     /// <summary>
-    /// Connected, and no sound arriving after the grace periods. Only on the
-    /// 2.4GHz routes, and never while the cable is in: the flag is the
-    /// wireless link's, and it dropped to 0 when the Charging Dock was
-    /// unplugged while music played on over the cable.
+    /// Whether no sound is arriving once the grace periods have passed.
     /// </summary>
+    /// <remarks>
+    /// Only on the 2.4GHz routes, and never while the cable is in: the flag
+    /// belongs to the wireless link, and it drops to 0 when the Charging Dock
+    /// is unplugged even while sound plays on over the cable.
+    /// </remarks>
     private bool SoundLinkDown(Route route)
     {
         if (route is not (Route.ChargingHub or Route.UsbTransmitter)) return false;

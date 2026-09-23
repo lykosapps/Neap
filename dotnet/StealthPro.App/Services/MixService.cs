@@ -13,31 +13,38 @@ public sealed record ChatCandidate(string Process, string Display, bool Playing)
 
 /// <summary>
 /// The game/chat crossfade, and the chat wheel that drives it.
-///
+/// </summary>
+/// <remarks>
+/// <para>
 /// The mix itself is <see cref="SessionMix"/>: no audio engine, no virtual
 /// cable, just the chat application's session volume against everything
-/// else's. What lives here is everything between the hardware and that.
-///
-/// <b>The wheel is relative, not a position.</b> It is a free-spinning
-/// encoder and the headset reports an absolute 0-100 counter we cannot
-/// write. Set the mix to 70 on screen and the counter is still wherever the
-/// wheel physically sits, so treating its reading as the mix made the first
-/// notch snap the slider to the wheel's position — usually near zero — before
-/// climbing again. Only the movement between readings is applied.
-///
-/// <b>The ends are anchored.</b> The counter clamps at 0 and 100, so once it
-/// is pinned there it reports no further movement. Without anchoring, a mix
-/// that had drifted a few points short of an extreme could never reach it.
-///
-/// <b>The centre has a detent.</b> The wheel steps in fives and rarely lands
-/// on exactly 50. A plain snap window was not enough twice over: a fast turn
-/// straight through centre skipped it, and a value that snapped to 50 slid
-/// off it again on the next notch, so the beep and the number disagreed. It
-/// catches a crossing, and it holds.
-///
+/// else's. This class is everything between the hardware and that.
+/// </para>
+/// <para>
+/// The wheel is relative, not a position. It is a free-spinning encoder and
+/// the headset reports an absolute 0-100 counter we cannot write. With the mix
+/// set to 70 on screen the counter is still wherever the wheel physically
+/// sits, so treating its reading as the mix would snap the slider to the
+/// wheel's position (usually near zero) on the first notch. Only the movement
+/// between readings is applied.
+/// </para>
+/// <para>
+/// The ends are anchored. The counter clamps at 0 and 100, so once it is
+/// pinned there it reports no further movement. Without anchoring, a mix that
+/// had drifted a few points short of an extreme could never reach it.
+/// </para>
+/// <para>
+/// The centre has a detent. The wheel steps in fives and rarely lands on
+/// exactly 50. A plain snap window is not enough: a fast turn straight through
+/// centre skips it, and a value snapped to 50 slides off again on the next
+/// notch, so the beep and the number disagree. The detent catches a crossing,
+/// and it holds.
+/// </para>
+/// <para>
 /// Everything here runs on the UI thread: the slider and keyboard directly,
 /// the wheel and the link through the headset service's events.
-/// </summary>
+/// </para>
+/// </remarks>
 public sealed class MixService : IDisposable
 {
     /// <summary>Centre detent half-width, in mix points.</summary>
@@ -115,13 +122,15 @@ public sealed class MixService : IDisposable
     // -- setting the mix ---------------------------------------------------
 
     /// <summary>
-    /// The one path both the slider and the wheel take, so the detent
-    /// behaves identically whichever moved it.
-    ///
-    /// <paramref name="why"/> says what moved it, for the log: the mix once
-    /// moved to 76% game with nobody touching the wheel or the slider, and
-    /// there was nothing to say which of them had done it.
+    /// Set the mix. The one path both the slider and the wheel take, so the
+    /// detent behaves identically whichever moved it.
     /// </summary>
+    /// <param name="value">The mix wanted, 0 to 100.</param>
+    /// <param name="why">
+    /// What moved it, for the log, so a mix that moves with nobody touching
+    /// anything can be traced to its cause.
+    /// </param>
+    /// <returns>The mix applied, or null when the mix is not running.</returns>
     public int? Apply(int value, string why = "slider")
     {
         int want = Math.Clamp(value, 0, 100);
@@ -160,15 +169,16 @@ public sealed class MixService : IDisposable
     private long _noteAt;
 
     /// <summary>
-    /// One line per burst, not per step: a drag or a spin of the wheel is
+    /// Log one line per burst, not per step: a drag or a spin of the wheel is
     /// dozens of changes, and what matters is where it went and why.
-    ///
-    /// <b>Written when the burst ends, stamped when it began.</b> It used to
-    /// be written as the burst began, with its first step, so a drag out to
-    /// 62 and back to the centre read as a move to 62 that never finished.
-    /// The cause kept is the first step's; for the wheel that includes the
-    /// count's first jump, which is what gives a lurch away.
     /// </summary>
+    /// <remarks>
+    /// The line is written when the burst ends and stamped with when it began.
+    /// Written at the start, a drag out to 62 and back to centre would read as
+    /// a move to 62 that never finished. The cause kept is the first step's;
+    /// for the wheel that includes the count's first jump, which is what gives
+    /// a lurch away.
+    /// </remarks>
     private void Note(string why, int? from, int to)
     {
         string kind = why.Split(' ')[0];
@@ -206,15 +216,13 @@ public sealed class MixService : IDisposable
     {
         int? from = _wheelLast;
 
-        // <b>A reconnect is a starting point, never a movement.</b> The
-        // first reading after a connect used to be adopted as the mix, on
-        // the theory that the wheel is a physical control with a real
-        // position. It is not: it is a free-spinning encoder, and the
-        // headset's count behind it resets when the headset is switched
-        // on. Measured: 45 before an idle shut-off, 0 after switching back
-        // on, the wheel untouched throughout — and the app moved the mix
-        // to "Game only", silencing chat, while nobody touched anything.
-        // Only the wheel moving may move the mix.
+        // A reconnect is a starting point, never a movement. The wheel is a
+        // free-spinning encoder, not a control with a real position, and the
+        // headset's count behind it resets when the headset is switched on.
+        // Measured: 45 before an idle shut-off, 0 after switching back on,
+        // the wheel untouched throughout. Adopting that reading would move
+        // the mix to "Game only" and silence chat with nobody touching
+        // anything. Only the wheel moving may move the mix.
         if (from is null || _mix is null)
         {
             _wheelLast = position;
@@ -245,20 +253,23 @@ public sealed class MixService : IDisposable
     /// <summary>
     /// Where the mix goes when the wheel's count moves from one value to
     /// another.
-    ///
-    /// The count and the mix are two scales that drift apart — the slider and
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The count and the mix are two scales that drift apart: the slider and
     /// the keyboard move the mix without the wheel, and the count resets at
     /// power-on. Adding the difference keeps them apart for good, and then the
     /// wheel cannot reach an end: its count stops at 0 while the mix is still
-    /// at 20. The old answer was to snap to the end when the count got near
-    /// it, which is the lurch it was known for — Balanced to Game only in one
-    /// notch.
-    ///
-    /// <b>So each step covers the same share of what is left.</b> Turning
-    /// toward game moves the mix by the fraction of the remaining count just
-    /// travelled; the same toward chat. Both arrive at the end together, with
-    /// no jump, and once the two agree this is exactly the difference.
-    /// </summary>
+    /// at 20. Snapping to the end when the count gets near it is no answer; it
+    /// lurches from Balanced to Game only in one notch.
+    /// </para>
+    /// <para>
+    /// So each step covers the same share of what is left. Turning toward game
+    /// moves the mix by the fraction of the remaining count just travelled;
+    /// the same toward chat. Both arrive at the end together, with no jump, and
+    /// once the two agree this is exactly the difference.
+    /// </para>
+    /// </remarks>
     private static int Follow(int mix, int from, int to)
     {
         double next = to < from
@@ -270,21 +281,26 @@ public sealed class MixService : IDisposable
     /// <summary>
     /// Forget where the wheel was when the link goes, or when the wheel's
     /// clicks stop reaching the app.
-    ///
+    /// </summary>
+    /// <remarks>
+    /// <para>
     /// Otherwise the next reading is treated as a movement from a position
-    /// the wheel may have left long ago — the headset can be switched to
+    /// the wheel may have left long ago: the headset can be switched to
     /// another transmitter, or turned off and moved, entirely out of sight.
     /// Forgetting makes the first reading after a reconnect a starting point
     /// again, which is the only honest thing it can be.
-    ///
-    /// <b>No sound is the same, although the link stays up.</b> While no
+    /// </para>
+    /// <para>
+    /// No sound is treated the same, although the link stays up. While no
     /// transmitter is sending the headset sound, the wheel's clicks are lost
-    /// with it. When the sound came back, the first click jumped the mix from
-    /// 50 to 70 at once — most likely every turn made in the meantime,
-    /// arriving together. The app cannot tell a count left over from before
-    /// from a fresh one, so after no sound the first count that differs is
-    /// taken as the new starting point, and only turns after it move the mix.
-    /// </summary>
+    /// with it, and when the sound comes back the first click can jump the mix
+    /// (measured: 50 to 70 at once, most likely every turn made in the
+    /// meantime arriving together). The app cannot tell a count left over from
+    /// before from a fresh one, so after no sound the first count that differs
+    /// is taken as the new starting point, and only turns after it move the
+    /// mix.
+    /// </para>
+    /// </remarks>
     private void OnLink(HeadsetStatus status)
     {
         if (status.Link != Link.Connected)
@@ -360,12 +376,12 @@ public sealed class MixService : IDisposable
 
     // -- the centre cue ----------------------------------------------------
 
-    /// <summary>
-    /// A short, soft beep on reaching centre, played straight to the headset
-    /// rather than the default device — the mix is about the headset, and
-    /// the person may well be listening on it while Windows plays elsewhere.
-    /// Generated rather than shipped, so there is no audio asset to carry.
-    /// </summary>
+    /// <summary>A short, soft beep on reaching centre, played straight to the headset.</summary>
+    /// <remarks>
+    /// Not the default device: the mix is about the headset, and the person may
+    /// well be listening on it while Windows plays elsewhere. Generated rather
+    /// than shipped, so there is no audio asset to carry.
+    /// </remarks>
     private static void CentreCue() => Task.Run(() =>
     {
         try

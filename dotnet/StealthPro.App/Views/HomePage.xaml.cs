@@ -13,19 +13,15 @@ using StealthPro.Core.Settings;
 namespace StealthPro.App.Views;
 
 /// <summary>
-/// What the headset is doing, in one place, and the way out to everything
-/// else.
-///
-/// It used to be in three: a header carrying five readings it was never
-/// designed for, a transmitter list filed under Device as though it were a
-/// specification, and warnings on whichever page they happened to affect.
-///
-/// <b>Three cards and a row of tiles</b>, after the WinUI Gallery: one card
-/// shape repeated rather than a new frame per section, which is what stops a
-/// status page reading as a form. The tiles are the same idea as the
-/// Gallery's — icon, name, one line of what it is for — and they exist
-/// because a landing page that only reports is a dead end.
+/// The landing page: what the headset is doing, in one place, and tiles
+/// leading to everything else.
 /// </summary>
+/// <remarks>
+/// Three cards and a row of tiles, after the WinUI Gallery: one card shape
+/// repeated rather than a new frame per section, so a status page does not
+/// read as a form. The tiles (icon, name, one line of what it is for) keep a
+/// page that only reports from being a dead end.
+/// </remarks>
 public sealed partial class HomePage : Page
 {
     private const int NameKey = 0x220;
@@ -43,11 +39,13 @@ public sealed partial class HomePage : Page
     };
 
     /// <summary>
-    /// How often to look at what is plugged in. Enumerating devices opens
-    /// nothing for I/O, so it cannot disturb the connection; it only has to
-    /// be quick enough that a transmitter plugged in shows up while you are
-    /// still looking at it.
+    /// How often to look at what is plugged in.
     /// </summary>
+    /// <remarks>
+    /// Enumerating devices opens nothing for I/O, so it cannot disturb the
+    /// connection; it only has to be quick enough that a transmitter shows up
+    /// while you are still looking.
+    /// </remarks>
     private static readonly TimeSpan PluggedPoll = TimeSpan.FromSeconds(3);
 
     private Microsoft.UI.Dispatching.DispatcherQueueTimer? _pluggedTimer;
@@ -88,16 +86,16 @@ public sealed partial class HomePage : Page
     {
         Paint();
 
-        // Which transmitter is in use follows the status, so the list is
-        // repainted on every change. It used to be refreshed only in some
-        // states, and in sound-only it went on showing the Charging Dock as
-        // in use while the headset was on the USB Transmitter.
+        // Which transmitter is in use follows the status, so repaint the list
+        // on every change, in every state. Otherwise, with only sound
+        // reaching the headset, it can go on showing the Charging Dock as in
+        // use while the headset is on the USB Transmitter.
         PaintTransmitters();
     }
 
     /// <summary>
-    /// Where Windows sends sound decides what "connected through" says, and
-    /// whether any transmitter is carrying it at all.
+    /// Repaints when Windows' routing changes: it decides what "connected
+    /// through" says, and whether any transmitter is carrying sound at all.
     /// </summary>
     private void OnAudioRoute()
     {
@@ -113,19 +111,17 @@ public sealed partial class HomePage : Page
         var status = headset.Status;
         bool live = status.Link == Link.Connected;
 
-        // Sound only belongs on the working side of this line. The readings
-        // below still do not: battery and signal would be the dock's stored
-        // copy of a headset that has moved on, and a stale number is worse
-        // than no number.
-        //
-        // Settings out of reach is its own case, however it was reached. See
+        // With the settings out of reach, sound may still be working, but the
+        // readings below are not shown: battery and signal would be the dock's
+        // stored copy of a headset that has moved on, and a stale number is
+        // worse than none. It is one case however it was reached; see
         // HeadsetStatus.SettingsUnreachable.
         bool unseen = status.SettingsUnreachable;
         bool quiet = status.NotConnected;
         bool noSound = live && status.NoSound;
 
-        // The model is what the card is about; the name they gave it is
-        // theirs and goes underneath, where it does not compete.
+        // The model heads the card; the name the owner gave the headset goes
+        // underneath, where it does not compete.
         string? given = headset.Values.TryGetValue(NameKey.ToString("x", CultureInfo.InvariantCulture), out var raw)
             ? raw.ToString() : null;
         ModelName.Text = "Stealth Pro II";
@@ -138,8 +134,8 @@ public sealed partial class HomePage : Page
 
         // The transmitter list goes too. With nothing answering, the app knows
         // only what is plugged in, not which transmitter the headset is using,
-        // so every row could only say "Plugged in" — which in this list means
-        // "plugged in and not in use", and read as wrong over a Charging Dock
+        // so every row could only say "Plugged in". In this list that means
+        // "plugged in and not in use", which is wrong over a Charging Dock
         // playing the headset's sound.
         TransmittersCard.Visibility = unseen ? Visibility.Collapsed : Visibility.Visible;
 
@@ -154,8 +150,8 @@ public sealed partial class HomePage : Page
         ToolTipService.SetToolTip(StateText, status.Detail);
 
         Readings.Children.Clear();
-        // Switched off on its cable it still answers, for charging, so the
-        // battery is a real reading there too — and the one worth seeing.
+        // Switched off on its cable the headset still answers, for charging,
+        // so the battery is a real reading there too, and the one worth seeing.
         if ((live || status.SwitchedOff) && headset.TryGetNumberByKey(BatteryKey, out int battery))
         {
             bool charging = headset.TryGetNumberByKey(LinkState.ChargingKey, out int power)
@@ -173,10 +169,12 @@ public sealed partial class HomePage : Page
     }
 
     /// <summary>
-    /// The note under the model name, for the states that need one. Every
-    /// sentence comes from <see cref="StateCopy"/>, which the line above the
-    /// mix slider and the header's tooltip use too.
+    /// Shows the note under the model name, for the states that need one.
     /// </summary>
+    /// <remarks>
+    /// Every sentence comes from <see cref="StateCopy"/>, which the line above
+    /// the mix slider and the header's tooltip use too.
+    /// </remarks>
     private void PaintNote(bool unseen, bool quiet, bool noSound, bool offOnCable)
     {
         (string What, string Mix, string Fix, string Fallback)? note =
@@ -234,15 +232,12 @@ public sealed partial class HomePage : Page
             return;
         }
 
-        // <b>One row, where the sound is.</b> When the headset's settings come
-        // through a different transmitter from its sound, this used to say so
-        // in a second row. Everything works in that arrangement, and which
-        // transmitter carries the settings is decided by the one the headset
-        // was switched on with, not by anything a person chooses — so it was
-        // information with nothing to do about it. It only matters if that
-        // transmitter is unplugged, and the app says what to do when that
-        // happens. It is still tracked (HeadsetStatus.ControlVia); it is just
-        // not announced.
+        // One row, for the transmitter carrying the sound. The settings can
+        // come through a different one, decided by which the headset was
+        // switched on with, not by any choice a person makes. Everything
+        // works that way, so it is not shown; it matters only if that
+        // transmitter is unplugged, and the app says what to do then. It is
+        // still tracked in HeadsetStatus.ControlVia.
         Connections.Children.Add(Row("\uE704", Strings.Get("Home_ConnectedThrough"),
             OverCable(status) ? Strings.Get("Home_Cable")
             : status.NoSound ? Strings.Get("Home_NoTransmitter")
@@ -255,11 +250,14 @@ public sealed partial class HomePage : Page
     }
 
     /// <summary>
-    /// Where the headset's sound is, and whether that transmitter is even
-    /// here. It can be selected and unplugged at once — see the transmitter
-    /// list — and "connected through" something not plugged in is the one
-    /// thing this row must never say plainly.
+    /// Names the transmitter carrying the headset's sound, and says if it is
+    /// not plugged in.
     /// </summary>
+    /// <remarks>
+    /// A transmitter can be selected and unplugged at once (see the
+    /// transmitter list), and this row must never say plainly "connected
+    /// through" something not plugged in.
+    /// </remarks>
     private string Through(HeadsetStatus status)
     {
         // Not yet looked is not "not plugged in": the first paint comes
@@ -270,18 +268,18 @@ public sealed partial class HomePage : Page
     }
 
     /// <summary>
-    /// The headset is plugged in with its USB-C cable, which makes the cable
-    /// its connection: the app is talking to it over the cable, or its own
-    /// device is there for Windows to use.
-    ///
-    /// <b>Plugged in, not played to.</b> This first followed where Windows
-    /// was sending sound, so with the cable in and the output set back to the
-    /// Charging Dock, Home said "Connected through Charging Dock" over a
-    /// headset whose microphone and calls were on the cable. With the cable
-    /// in, the cable is the only right place for any of it (see
-    /// RoutingNotice); anything Windows sends elsewhere is the warning's to
-    /// say, beside this row.
+    /// Whether the headset is plugged in with its USB-C cable, which makes the
+    /// cable its connection: the app is talking to it over the cable, or its
+    /// own audio device is there for Windows to use.
     /// </summary>
+    /// <remarks>
+    /// This follows what is plugged in, not where Windows sends sound. With
+    /// the cable in, the cable is the only right place for sound, microphone
+    /// and calls; anything Windows sends elsewhere is for the
+    /// <see cref="RoutingNotice"/> beside this row to say. Following Windows
+    /// instead would show "Connected through Charging Dock" over a headset
+    /// whose microphone and calls are on the cable.
+    /// </remarks>
     private static bool OverCable(HeadsetStatus status) =>
         status.Route == Route.DirectUsb || AppServices.AudioRoute.Cable.Length > 0;
 
@@ -303,9 +301,13 @@ public sealed partial class HomePage : Page
     };
 
     /// <summary>
-    /// The link strength comes back signed in notifications and unsigned in a
-    /// full read. Normalise either way, or it swings on which arrived last.
+    /// Describes the wireless link strength in words.
     /// </summary>
+    /// <remarks>
+    /// The value arrives signed in notifications and unsigned in a full read,
+    /// so it is normalised to dBm either way; otherwise it swings on which
+    /// arrived last.
+    /// </remarks>
     private static string Strength(int raw)
     {
         int dbm = raw > 127 ? raw - 256 : raw;
@@ -321,8 +323,8 @@ public sealed partial class HomePage : Page
     // -- transmitters ------------------------------------------------------
 
     /// <summary>
-    /// Look at what is plugged in, off the UI thread, and repaint the list if
-    /// it changed.
+    /// Looks at what is plugged in, off the UI thread, and repaints if it
+    /// changed.
     /// </summary>
     private async Task LookAtWhatIsPlugged()
     {
@@ -343,9 +345,9 @@ public sealed partial class HomePage : Page
     }
 
     /// <summary>
-    /// Every transmitter worth mentioning, from what the headset reported and
-    /// what is plugged in. <see cref="TransmitterList"/> decides each one's
-    /// state; this says it.
+    /// Lists every transmitter worth mentioning, from what the headset
+    /// reported and what is plugged in. <see cref="TransmitterList"/> decides
+    /// each one's state; this shows it.
     /// </summary>
     private void PaintTransmitters()
     {
