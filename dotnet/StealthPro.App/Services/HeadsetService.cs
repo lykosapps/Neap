@@ -191,7 +191,8 @@ public sealed class HeadsetService : IDisposable
     private readonly ConcurrentDictionary<int, long> _lastWrite = new();
     private readonly Thread _worker;
 
-    private HeadsetStatus _status =
+    // Written on the headset thread and read on the UI thread.
+    private volatile HeadsetStatus _status =
         new(Link.Connecting, Route.Unknown, "", "Looking for the headset…");
     private long _lastRaise;
 
@@ -232,7 +233,7 @@ public sealed class HeadsetService : IDisposable
     /// </summary>
     public IReadOnlyList<Transmitter> KnownTransmitters => _known;
 
-    private IReadOnlyList<Transmitter> _known = Array.Empty<Transmitter>();
+    private volatile IReadOnlyList<Transmitter> _known = Array.Empty<Transmitter>();
 
     /// <summary>
     /// The chat wheel reported a position. Raised on the UI thread with the
@@ -927,12 +928,8 @@ public sealed class HeadsetService : IDisposable
     };
 
     /// <summary>
-    /// What the headset says is carrying it, which is not always what is
-    /// answering us. See <see cref="Transmitters.Active"/>.
-    /// </summary>
-    /// <summary>
     /// Which transmitter the headset has selected, and whether that is the one
-    /// we are talking through.
+    /// we are talking through. See <see cref="Transmitters.Active"/>.
     /// </summary>
     private (string Name, string Product, bool Here)? Carrying(HeadsetClient client)
     {
