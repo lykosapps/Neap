@@ -35,19 +35,25 @@ namespace StealthPro.App.Services;
 public static class Startup
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string RunName = "Stealth Pro II Control";
-    private const string ShortcutName = "Stealth Pro II Control.lnk";
     public const string Flag = "--startup";
 
-    private static string ShortcutPath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.Startup), ShortcutName);
+    /// <summary>The Run-key entry an early build wrote, converted to a shortcut on sight.</summary>
+    private const string RunName = "Stealth Pro II Control";
+
+    private static string StartupFolder => Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+
+    private static string ShortcutPath => Path.Combine(StartupFolder, AppInfo.Name + ".lnk");
+
+    /// <summary>The shortcut under the app's earlier name, replaced on sight.</summary>
+    private static string EarlierShortcutPath => Path.Combine(StartupFolder, "Stealth Pro II Control.lnk");
 
     /// <summary>True when this launch came from starting with Windows.</summary>
     public static bool LaunchedAtLogin =>
         Environment.GetCommandLineArgs().Any(a =>
             string.Equals(a, Flag, StringComparison.OrdinalIgnoreCase));
 
-    public static bool Enabled => File.Exists(ShortcutPath) || HasRunEntry();
+    public static bool Enabled =>
+        File.Exists(ShortcutPath) || File.Exists(EarlierShortcutPath) || HasRunEntry();
 
     /// <summary>
     /// Keep the setting pointing at this copy of the app, in the form that
@@ -65,7 +71,7 @@ public static class Startup
         {
             if (!Enabled) return;
             WriteShortcut();
-            RemoveRunEntry();
+            RemoveEarlier();
         }
         catch (Exception ex)
         {
@@ -82,13 +88,12 @@ public static class Startup
             if (enabled)
             {
                 WriteShortcut();
-                RemoveRunEntry();
             }
             else
             {
                 if (File.Exists(ShortcutPath)) File.Delete(ShortcutPath);
-                RemoveRunEntry();
             }
+            RemoveEarlier();
             return Enabled == enabled;
         }
         catch { return false; }
@@ -103,7 +108,7 @@ public static class Startup
         link.SetPath(exe);
         link.SetArguments(Flag);
         link.SetWorkingDirectory(Path.GetDirectoryName(exe) ?? "");
-        link.SetDescription("Starts Stealth Pro II Control in the notification area.");
+        link.SetDescription(Strings.Format("Startup_Description", AppInfo.Name));
         link.SetIconLocation(exe, 0);
         ((IPersistFile)link).Save(ShortcutPath, true);
         Marshal.FinalReleaseComObject(link);
@@ -117,6 +122,13 @@ public static class Startup
             return run?.GetValue(RunName) is string;
         }
         catch { return false; }
+    }
+
+    /// <summary>Removes what an earlier build left behind to start it.</summary>
+    private static void RemoveEarlier()
+    {
+        if (File.Exists(EarlierShortcutPath)) File.Delete(EarlierShortcutPath);
+        RemoveRunEntry();
     }
 
     private static void RemoveRunEntry()

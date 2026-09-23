@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using StealthPro.Core;
 
 namespace StealthPro.App.Services;
 
@@ -75,9 +76,7 @@ public sealed class AppSettings
 
     public void ClearShortcuts() => MixHotkeyKeys.Clear();
 
-    private static readonly string Path = System.IO.Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "StealthProIIControl", "app-settings.json");
+    private static readonly string Path = System.IO.Path.Combine(AppFolder.Path, "app-settings.json");
 
     private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
 

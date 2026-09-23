@@ -48,7 +48,7 @@ jobs:
           Copy-Item (Join-Path $source license.txt) publish/WindowsAppSDK-LICENSE.txt
           Copy-Item (Join-Path $source NOTICE.txt) publish/WindowsAppSDK-NOTICE.txt
 
-          $zip = "StealthProII-$version-win-x64.zip"
+          $zip = "Neap-$version-win-x64.zip"
           Compress-Archive -Path publish/* -DestinationPath $zip
           $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  $zip" | Out-File -Encoding ascii "$zip.sha256"

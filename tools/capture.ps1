@@ -5,7 +5,7 @@ decode command.
 
 .DESCRIPTION
 Runs USBPcapCMD against one USB device for a fixed time and writes a .pcap.
-Start Swarm II and close Stealth Pro II Control first: only one program can
+Start Swarm II and close Neap first: only one program can
 read the headset's replies at a time. Then operate the control you want to
 identify while the capture runs, and decode the result:
 

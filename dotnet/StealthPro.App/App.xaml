@@ -10,6 +10,19 @@
                 <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.SettingsControls/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <!--  Neap's twilight accent, in place of the Windows accent colour.
+                  Light theme fills with Dark1 and writes with Dark2, dark theme
+                  fills with Light2 and writes with Light3; each pairing is at
+                  least 4.5:1 against what sits on or behind it. High contrast
+                  themes use the system's own colours instead.  -->
+            <Color x:Key="SystemAccentColor">#9D8CFF</Color>
+            <Color x:Key="SystemAccentColorLight1">#B2A5FF</Color>
+            <Color x:Key="SystemAccentColorLight2">#C8BEFF</Color>
+            <Color x:Key="SystemAccentColorLight3">#E1DBFF</Color>
+            <Color x:Key="SystemAccentColorDark1">#6D5AD9</Color>
+            <Color x:Key="SystemAccentColorDark2">#5845BD</Color>
+            <Color x:Key="SystemAccentColorDark3">#40309A</Color>
+
             <!--  The page's own name, at the top of every page.  -->
             <Style
                 x:Key="PageTitleStyle"

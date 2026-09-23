@@ -855,4 +855,7 @@
   <data name="State_SoundElsewhere" xml:space="preserve">
     <value>Windows is sending sound to a device your headset isn't listening on. Home says which one to choose.</value>
   </data>
+  <data name="Startup_Description" xml:space="preserve">
+    <value>Starts {0} in the notification area.</value>
+  </data>
 </root>

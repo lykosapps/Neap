@@ -29,7 +29,7 @@
             <StackPanel Spacing="4">
                 <tk:SettingsCard x:Name="AboutCard">
                     <tk:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE7F6;" />
+                        <ImageIcon Source="ms-appx:///Assets/logo.png" />
                     </tk:SettingsCard.HeaderIcon>
                 </tk:SettingsCard>
             </StackPanel>

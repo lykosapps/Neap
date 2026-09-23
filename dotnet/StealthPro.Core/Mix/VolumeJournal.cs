@@ -88,9 +88,8 @@ internal sealed class VolumeJournal
     }
 
     /// <summary>The one the app uses, in the user's local app data.</summary>
-    internal static VolumeJournal Shared { get; } = new(System.IO.Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "StealthProIIControl", "session-mix-journal.json"));
+    internal static VolumeJournal Shared { get; } =
+        new(System.IO.Path.Combine(AppFolder.Path, "session-mix-journal.json"));
 
     private readonly string _path;
     private readonly object _gate = new();

@@ -8,7 +8,8 @@ structural decision in this project.
 - **`StealthPro.Core`** — the protocol, the settings registry, presets,
   Windows audio and the mix. No UI types at all, so the probe and the app get
   exactly the same behaviour.
-- **`StealthPro.App`** — the WinUI 3 application.
+- **`StealthPro.App`** — Neap itself, the WinUI 3 application. The other
+  projects keep the headset's name because they are about the headset.
 - **`StealthPro.Probe`** — a console harness over the same core. It is how
   the protocol was worked out and it is still the fastest way to ask the
   hardware a question.

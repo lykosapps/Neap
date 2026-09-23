@@ -1,7 +1,9 @@
-# stealth-pro-ii-control
+<img src="docs/neap.png" alt="" width="96" align="right">
 
-A third-party control app for the Turtle Beach Stealth Pro II on Windows,
-written to replace Swarm II.
+# Neap
+
+Quiet control for the Turtle Beach Stealth Pro II on Windows. A third-party
+app, written to replace Swarm II.
 
 Not affiliated with or endorsed by Turtle Beach. Turtle Beach, Stealth Pro II
 and Swarm II are trademarks of Turtle Beach Corporation.
@@ -71,7 +73,7 @@ cd dotnet/StealthPro.App
 dotnet publish -c Release -r win-x64
 ```
 
-Then run `StealthProII.exe` from the `publish` folder. You need the .NET 10
+Then run `Neap.exe` from the `publish` folder. You need the .NET 10
 SDK to build, but not to run the result.
 
 ## Living with Swarm II

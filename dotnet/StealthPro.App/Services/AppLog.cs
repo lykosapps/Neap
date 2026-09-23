@@ -1,4 +1,5 @@
 using System.Globalization;
+using StealthPro.Core;
 
 namespace StealthPro.App.Services;
 
@@ -23,9 +24,7 @@ public static class AppLog
     private const int KeepLines = 1000;
     private static readonly object Gate = new();
 
-    private static string Folder => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "StealthProIIControl");
+    private static string Folder => AppFolder.Path;
 
     private static string File => Path.Combine(Folder, "app.log");
 

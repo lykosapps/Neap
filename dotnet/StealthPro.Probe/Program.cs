@@ -105,7 +105,7 @@ catch (DeviceNotFoundException error)
 }
 catch (TransportException error)
 {
-    Console.Error.WriteLine($"{error.Message} — is Swarm II or Stealth Pro II Control running?");
+    Console.Error.WriteLine($"{error.Message} — is Swarm II or Neap running?");
     return 1;
 }
 

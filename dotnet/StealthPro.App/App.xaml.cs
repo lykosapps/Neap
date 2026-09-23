@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using StealthPro.Core;
 
 namespace StealthPro.App;
 
@@ -20,8 +21,8 @@ public partial class App : Application
     /// just quits, because there is nothing to show anyone.
     /// </para>
     /// </remarks>
-    private const string OneName = @"Local\StealthProIIControl";
-    private const string WakeName = @"Local\StealthProIIControl.Show";
+    private const string OneName = @"Local\Neap";
+    private const string WakeName = @"Local\Neap.Show";
 
     private static Mutex? _one;
     private static EventWaitHandle? _wake;
@@ -30,6 +31,7 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        AppFolder.MoveFromEarlierName();
         bool atLogin = Services.Startup.LaunchedAtLogin;
 
         _one = new Mutex(initiallyOwned: true, OneName, out bool first);

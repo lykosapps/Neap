@@ -9,7 +9,7 @@
     <Platforms>x64</Platforms>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <UseWinUI>true</UseWinUI>
-    <AssemblyName>StealthProII</AssemblyName>
+    <AssemblyName>Neap</AssemblyName>
     <AssemblyTitle>$(Product)</AssemblyTitle>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
 
@@ -45,6 +45,9 @@
 
   <ItemGroup>
     <Content Include="Assets\app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\logo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
