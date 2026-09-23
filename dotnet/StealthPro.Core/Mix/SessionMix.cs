@@ -97,7 +97,7 @@ public sealed class SessionMix : IDisposable
         {
             lock (_gate)
                 return new SessionMixStatus(_running, _mix, _chatCount, _gameCount,
-                    VolumeJournal.Count, _headsetIsOutput, string.Join(", ", _chatApps),
+                    VolumeJournal.Shared.Count, _headsetIsOutput, string.Join(", ", _chatApps),
                     _elsewhere);
         }
     }
@@ -189,7 +189,7 @@ public sealed class SessionMix : IDisposable
             bool isChat = IsChat(session.GetProcessID, chatApps);
             if (isChat) chatSeen++; else gameSeen++;
 
-            float original = VolumeJournal.Remember(id, session.SimpleAudioVolume.Volume);
+            float original = VolumeJournal.Shared.Remember(id, session.SimpleAudioVolume.Volume);
             float wanted = Math.Clamp(original * (isChat ? chatScale : gameScale), 0f, 1f);
             if (MathF.Abs(session.SimpleAudioVolume.Volume - wanted) > 0.001f)
                 pending.Add((session, id, wanted));
@@ -213,7 +213,7 @@ public sealed class SessionMix : IDisposable
         // Write down what we are about to do before doing it. A kill between
         // the two costs nothing; a kill the other way round loses the
         // originals and the person's other applications stay quiet for good.
-        VolumeJournal.Commit(headset.ID, pending.Select(p => (p.Id, p.Wanted)));
+        VolumeJournal.Shared.Commit(headset.ID, pending.Select(p => (p.Id, p.Wanted)));
         int set = 0; string? trouble = null;
         foreach (var (session, _, wanted) in pending)
         {
@@ -285,12 +285,28 @@ public sealed class SessionMix : IDisposable
                          DataFlow.Render, DeviceState.Active))
                 using (device)
                 {
-                    if (!VolumeJournal.Owns(device.ID)) continue;
+                    if (!VolumeJournal.Shared.Owns(device.ID)) continue;
                     device.AudioSessionManager.RefreshSessions();
-                    VolumeJournal.RestoreInto(device.AudioSessionManager.Sessions);
+                    VolumeJournal.Shared.RestoreInto(Volumes(device.AudioSessionManager.Sessions));
                 }
         }
         catch { /* devices come and go; never fail on the way out */ }
+    }
+
+    private static IEnumerable<ISessionVolume> Volumes(SessionCollection sessions)
+    {
+        for (int i = 0; i < sessions.Count; i++) yield return new SessionVolume(sessions[i]);
+    }
+
+    private sealed class SessionVolume(AudioSessionControl session) : ISessionVolume
+    {
+        public string? Id => session.GetSessionIdentifier;
+
+        public float Volume
+        {
+            get => session.SimpleAudioVolume.Volume;
+            set => session.SimpleAudioVolume.Volume = value;
+        }
     }
 
     private static bool IsChat(uint pid, List<string> chatApps)
@@ -351,9 +367,9 @@ public sealed class SessionMix : IDisposable
             {
                 using (device)
                 {
-                    if (!VolumeJournal.Owns(device.ID)) continue;
+                    if (!VolumeJournal.Shared.Owns(device.ID)) continue;
                     device.AudioSessionManager.RefreshSessions();
-                    VolumeJournal.RestoreInto(device.AudioSessionManager.Sessions);
+                    VolumeJournal.Shared.RestoreInto(Volumes(device.AudioSessionManager.Sessions));
                 }
             }
         }
