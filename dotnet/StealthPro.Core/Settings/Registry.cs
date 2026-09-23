@@ -79,6 +79,31 @@ public static class Registry
         throw new KeyNotFoundException($"unknown setting '{text}'");
     }
 
+    /// <summary>
+    /// The value to send for a write, checked against what is confirmed.
+    ///
+    /// Only a writable key in this registry, within its range, is sent. The
+    /// one addition is the lighting in the other transmitter slots: each
+    /// slot's two brightnesses sit at +1 and +2 in its own block, and only
+    /// slot one's are listed. A slot's base address is never written — doing
+    /// so once moved the headset onto a transmitter nobody had chosen.
+    /// </summary>
+    /// <exception cref="ArgumentException">The write is not a confirmed one.</exception>
+    public static string WireValue(int key, object value)
+    {
+        if (ByKey.TryGetValue(key, out var known) && known.Writable) return known.Validate(value);
+
+        int inSlot = (key - TransmitterBlock) % TransmitterStride;
+        if (key is >= TransmitterBlock and < TransmitterBlock + 4 * TransmitterStride
+            && inSlot is 1 or 2)
+            return ByKey[TransmitterBlock + inSlot].Validate(value);
+
+        throw new ArgumentException($"0x{key:x} is not a setting confirmed as safe to write");
+    }
+
+    private const int TransmitterBlock = 0x400;
+    private const int TransmitterStride = 0x20;
+
     private static SettingKey R(int key, string name, string category,
         int? min = null, int? max = null, bool writable = true, string note = "") =>
         new(key, name, category, SettingKind.Range, min, max, null, writable, note);

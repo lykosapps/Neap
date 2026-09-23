@@ -141,10 +141,11 @@ A few more matter when something is not behaving:
 
 ## Safety
 
-Read-first. The client writes nothing unless it is constructed with writes
-allowed, and a setting outside the confirmed registry needs unknown writes
-allowed as well. Nothing touches the firmware update path, which is signed
-and encrypted.
+Read-first. The client writes nothing unless it is made with writes allowed,
+and even then it sends only settings in the confirmed registry, within their
+confirmed ranges. The one write known to cause harm, a transmitter slot's
+base address, is refused outright. Nothing touches the firmware update path,
+which is signed and encrypted.
 
 One warning worth repeating from the findings: commands sent over HID reach
 the USB device you are plugged into, and do **not** pass through it to the

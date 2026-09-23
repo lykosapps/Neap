@@ -71,6 +71,46 @@ public class HeadsetClientTests
         Assert.Equal("{\"0x760\":\"55\"}", Assert.Single(device.Writes));
     }
 
+    [Theory]
+    [InlineData(0x999)]  // not in the registry
+    [InlineData(0x240)]  // battery: reported, not set
+    [InlineData(0x400)]  // a transmitter slot's base address
+    [InlineData(0x420)]
+    [InlineData(0x423)]  // inside a slot, but not a brightness
+    public void AWriteThatIsNotConfirmedIsRefused(int key)
+    {
+        var device = new FakeTransport();
+        using var client = new HeadsetClient(allowWrites: true, transport: device);
+
+        Assert.Throws<ArgumentException>(() => client.Set(key, 1));
+        Assert.Empty(device.Sent);
+    }
+
+    [Theory]
+    [InlineData(0x760, 101)]  // past its range
+    [InlineData(0x750, 2)]    // a toggle
+    [InlineData(0xA20, 0)]    // not one of the dial's options
+    public void AValueOutsideTheSettingIsRefused(int key, int value)
+    {
+        var device = new FakeTransport();
+        using var client = new HeadsetClient(allowWrites: true, transport: device);
+
+        Assert.Throws<ArgumentException>(() => client.Set(key, value));
+        Assert.Empty(device.Sent);
+    }
+
+    [Fact]
+    public void EachTransmitterSlotsLightingCanBeSet()
+    {
+        var device = new FakeTransport();
+        using var client = new HeadsetClient(allowWrites: true, transport: device);
+
+        client.Set(0x422, 60);
+        client.Set(0x461, 20);
+
+        Assert.Equal(["{\"0x422\":\"60\"}", "{\"0x461\":\"20\"}"], device.Writes);
+    }
+
     [Fact]
     public void DrainDiscardsWhatIsWaiting()
     {

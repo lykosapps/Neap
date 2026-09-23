@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using StealthPro.Core.Hid;
 using StealthPro.Core.Protocol;
+using StealthPro.Core.Settings;
 
 namespace StealthPro.Core;
 
@@ -11,9 +12,9 @@ public class WritesDisabledException : Exception
 }
 
 /// <summary>
-/// Reads and writes headset settings. Reads are free; writes are gated.
-///
-/// Ported from stealthpro/client.py.
+/// Reads and writes headset settings. Reads are free; writes are gated
+/// twice: the client must be made with writes allowed, and each write must be
+/// one the <see cref="Registry"/> confirms.
 ///
 /// A note that matters in practice: Swarm II polls this same channel
 /// thousands of times a second and drains the notification queue, so with
@@ -220,12 +221,14 @@ public sealed class HeadsetClient : IDisposable
 
     // -- writing -----------------------------------------------------------
 
+    /// <exception cref="WritesDisabledException">The client is read-only.</exception>
+    /// <exception cref="ArgumentException">The write is not a confirmed one.</exception>
     public void Set(int key, object value)
     {
         if (!AllowWrites)
             throw new WritesDisabledException(
                 $"refusing to set 0x{key:x}: this client is read-only");
-        _transport.SendOutput(Frames.SetKey(key, value, NextCounter()));
+        _transport.SendOutput(Frames.SetKey(key, Registry.WireValue(key, value), NextCounter()));
     }
 
     public void Dispose()
