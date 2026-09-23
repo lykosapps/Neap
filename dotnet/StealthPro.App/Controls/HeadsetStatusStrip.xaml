@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="StealthPro.App.Controls.HeadsetStatusStrip"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,10 +7,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <!--  A dot and a word, and nothing else. Link, route, Bluetooth, signal
-          and battery belong on Home: in a strip this size each added fact
-          makes the others harder to read. The title bar says only whether to
-          go and look.  -->
+    <!--
+        A dot and a word, and nothing else. Link, route, Bluetooth, signal
+        and battery belong on Home: in a strip this size each added fact
+        makes the others harder to read. The title bar says only whether to
+        go and look.
+    -->
     <StackPanel
         x:Name="ConnectionGroup"
         Orientation="Horizontal"

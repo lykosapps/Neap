@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="StealthPro.App.Controls.MixPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,9 +7,11 @@
 
     <StackPanel Spacing="4">
 
-        <!--  Nothing chosen yet: one card asking which application carries
-              chat. The rest of the mix means nothing until that is answered,
-              so none of it is shown.  -->
+        <!--
+            Nothing chosen yet: one card asking which application carries
+            chat. The rest of the mix means nothing until that is answered,
+            so none of it is shown.
+        -->
         <tk:SettingsCard
             x:Name="SetupCard"
             x:Uid="Mix_SetupCard"
@@ -28,11 +30,13 @@
             </StackPanel>
         </tk:SettingsCard>
 
-        <!--  Shown whenever the chat wheel cannot reach the app, with what
-              brings it back. Directly above the slider, where somebody who has
-              turned the wheel and seen nothing move is looking. The app cannot
-              fix this itself: the wheel arrives over the very link that is
-              missing.  -->
+        <!--
+            Shown whenever the chat wheel cannot reach the app, with what
+            brings it back. Directly above the slider, where somebody who has
+            turned the wheel and seen nothing move is looking. The app cannot
+            fix this itself: the wheel arrives over the very link that is
+            missing.
+        -->
         <InfoBar
             x:Name="WheelBar"
             x:Uid="Mix_WheelBar"
@@ -40,9 +44,11 @@
             IsOpen="False"
             Severity="Informational" />
 
-        <!--  The chat application is playing somewhere the mix cannot reach.
-              Without this the wheel stops affecting chat and nothing says
-              why.  -->
+        <!--
+            The chat application is playing somewhere the mix cannot reach.
+            Without this the wheel stops affecting chat and nothing says
+            why.
+        -->
         <InfoBar
             x:Name="ElsewhereBar"
             x:Uid="Mix_ElsewhereBar"
@@ -50,8 +56,10 @@
             IsOpen="False"
             Severity="Warning" />
 
-        <!--  Chosen: the crossfade itself, given room as the app's main
-              control.  -->
+        <!--
+            Chosen: the crossfade itself, given room as the app's main
+            control.
+        -->
         <Border
             x:Name="MixCard"
             Padding="20,18"
@@ -105,8 +113,10 @@
             </Grid>
         </Border>
 
-        <!--  The mix keys sit beside the crossfade they move, not in Settings:
-              that is where someone wanting to reach it mid-game is looking.  -->
+        <!--
+            The mix keys sit beside the crossfade they move, not in Settings:
+            that is where someone wanting to reach it mid-game is looking.
+        -->
         <tk:SettingsExpander
             x:Name="KeysCard"
             x:Uid="Mix_KeysCard"

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="StealthPro.App.Views.MicrophonePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -15,8 +15,10 @@
 
             <c:HeadsetNotice />
 
-            <!--  With the headset off, the whole page is one card, the level
-                  included: see HeadsetSection.WhenOff.  -->
+            <!--
+                With the headset off, the whole page is one card, the level
+                included: see HeadsetSection.WhenOff.
+            -->
             <c:HeadsetSection x:Uid="Microphone_Section" WhenOff="True">
                 <TextBlock x:Uid="Microphone_MicrophoneHeading" Style="{StaticResource SectionHeaderStyle}" />
                 <StackPanel>

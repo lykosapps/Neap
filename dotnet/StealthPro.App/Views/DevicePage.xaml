@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="StealthPro.App.Views.DevicePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -16,27 +16,35 @@
 
             <c:HeadsetNotice />
 
-            <!--  With the headset off, the whole page is one card, the audio
-                  format included: see HeadsetSection.WhenOff.  -->
+            <!--
+                With the headset off, the whole page is one card, the audio
+                format included: see HeadsetSection.WhenOff.
+            -->
             <c:HeadsetSection x:Uid="Device_Section" WhenOff="True">
                 <TextBlock x:Uid="Device_AudioFormatHeading" Style="{StaticResource SectionHeaderStyle}" />
                 <TextBlock x:Uid="Device_FormatNote" Style="{StaticResource SectionNoteStyle}" />
                 <StackPanel Spacing="4">
                     <c:FormatRow
                         x:Uid="Device_HeadsetOutput"
-                        Glyph="&#xE7F6;"
-                        Capture="False" />
+                        Capture="False"
+                        Glyph="&#xE7F6;" />
                     <c:FormatRow
                         x:Uid="Device_Microphone"
-                        Glyph="&#xE720;"
-                        Capture="True" />
+                        Capture="True"
+                        Glyph="&#xE720;" />
                 </StackPanel>
 
                 <c:HeadsetSection x:Uid="Device_DetailsSection">
                     <TextBlock x:Uid="Device_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
                     <StackPanel Spacing="4">
-                        <c:SettingRow x:Uid="Device_Firmware" Glyph="&#xE945;" Setting="firmware_version" />
-                        <c:SettingRow x:Uid="Device_SerialNumber" Glyph="&#xE8EC;" Setting="serial_number" />
+                        <c:SettingRow
+                            x:Uid="Device_Firmware"
+                            Glyph="&#xE945;"
+                            Setting="firmware_version" />
+                        <c:SettingRow
+                            x:Uid="Device_SerialNumber"
+                            Glyph="&#xE8EC;"
+                            Setting="serial_number" />
                     </StackPanel>
 
                     <TextBlock x:Uid="Device_ReportedHeading" Style="{StaticResource SectionHeaderStyle}" />
@@ -45,7 +53,10 @@
                             <FontIcon Glyph="&#xE9D9;" />
                         </tk:SettingsExpander.HeaderIcon>
                         <tk:SettingsExpander.ItemsHeader>
-                            <StackPanel x:Name="RawRows" Padding="16,8" Spacing="2" />
+                            <StackPanel
+                                x:Name="RawRows"
+                                Padding="16,8"
+                                Spacing="2" />
                         </tk:SettingsExpander.ItemsHeader>
                     </tk:SettingsExpander>
                 </c:HeadsetSection>

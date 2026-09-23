@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="StealthPro.App.Views.HomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,9 +7,11 @@
     xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <Page.Resources>
-        <!--  One card treatment, used three times. After the WinUI Gallery: a
-              single card shape repeated rather than a new frame per section
-              stops a status page reading as a form.  -->
+        <!--
+            One card treatment, used three times. After the WinUI Gallery: a
+            single card shape repeated rather than a new frame per section
+            stops a status page reading as a form.
+        -->
         <Style x:Key="HomeCard" TargetType="Border">
             <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
             <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
@@ -17,7 +19,10 @@
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="24,20" />
         </Style>
-        <Style x:Key="CardTitle" TargetType="TextBlock" BasedOn="{StaticResource BodyStrongTextBlockStyle}">
+        <Style
+            x:Key="CardTitle"
+            BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+            TargetType="TextBlock">
             <Setter Property="Margin" Value="0,0,0,14" />
         </Style>
     </Page.Resources>
@@ -65,11 +70,13 @@
                         Orientation="Horizontal"
                         Spacing="40" />
 
-                    <!--  One note for every state that needs explaining, filled from
-                          StateCopy: what is happening, what still works, the one
-                          thing to do, and a fallback last and smallest. One panel
-                          rather than one per state, so the states cannot be worded
-                          differently from each other.  -->
+                    <!--
+                        One note for every state that needs explaining, filled from
+                        StateCopy: what is happening, what still works, the one
+                        thing to do, and a fallback last and smallest. One panel
+                        rather than one per state, so the states cannot be worded
+                        differently from each other.
+                    -->
                     <StackPanel
                         x:Name="StateNote"
                         Spacing="6"
@@ -102,9 +109,11 @@
                 <StackPanel>
                     <TextBlock x:Uid="Home_Connections" Style="{StaticResource CardTitle}" />
                     <StackPanel x:Name="Connections" Spacing="4" />
-                    <!--  Beside the rows it contradicts: "connected through the
-                          USB Transmitter" and, right under it, Windows playing
-                          somewhere else.  -->
+                    <!--
+                        Beside the rows it contradicts: "connected through the
+                        USB Transmitter" and, right under it, Windows playing
+                        somewhere else.
+                    -->
                     <c:RoutingNotice Margin="0,8,0,0" />
                 </StackPanel>
             </Border>

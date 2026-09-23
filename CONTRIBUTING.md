@@ -14,8 +14,17 @@ dotnet test --project dotnet/StealthPro.Core.Tests -c Release
 dotnet format dotnet/StealthPro.sln --verify-no-changes
 ```
 
-Any warning fails the build. The same three commands run on every push and
-pull request.
+XAML is formatted by XAML Styler, installed as a tool of this repository. In
+PowerShell:
+
+```
+dotnet tool restore
+dotnet xstyler -f ((git ls-files '*.xaml') -join ',')
+```
+
+Add `-p` to check without changing anything. Any warning fails the build.
+The build, the tests and both formatting checks run on every push and pull
+request.
 
 The tests cover what needs no hardware: the frames sent to the headset, the
 parsing of its replies, which writes are allowed, the transmitter slots, the

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="StealthPro.App.Views.ControlsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -45,8 +45,10 @@
                         Unit="%" />
                 </StackPanel>
 
-                <!--  The lights of the transmitter carrying the headset, named for
-                      it; which rows show is decided in ControlsPage.xaml.cs.  -->
+                <!--
+                    The lights of the transmitter carrying the headset, named for
+                    it; which rows show is decided in ControlsPage.xaml.cs.
+                -->
                 <StackPanel>
                     <TextBlock
                         x:Name="LightsHeader"

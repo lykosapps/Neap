@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Application
     x:Class="StealthPro.App.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,11 +10,13 @@
                 <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.SettingsControls/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!--  Neap's twilight accent, in place of the Windows accent colour.
-                  Light theme fills with Dark1 and writes with Dark2, dark theme
-                  fills with Light2 and writes with Light3; each pairing is at
-                  least 4.5:1 against what sits on or behind it. High contrast
-                  themes use the system's own colours instead.  -->
+            <!--
+                Neap's twilight accent, in place of the Windows accent colour.
+                Light theme fills with Dark1 and writes with Dark2, dark theme
+                fills with Light2 and writes with Light3; each pairing is at
+                least 4.5:1 against what sits on or behind it. High contrast
+                themes use the system's own colours instead.
+            -->
             <Color x:Key="SystemAccentColor">#9D8CFF</Color>
             <Color x:Key="SystemAccentColorLight1">#B2A5FF</Color>
             <Color x:Key="SystemAccentColorLight2">#C8BEFF</Color>
@@ -40,10 +42,12 @@
                 <Setter Property="Margin" Value="0,16,0,4" />
             </Style>
 
-            <!--  A note under a section header, for the handful of places
-                  where what a control does is genuinely not obvious from
-                  its label: the settings that belong to Windows rather than
-                  to the headset.  -->
+            <!--
+                A note under a section header, for the handful of places
+                where what a control does is genuinely not obvious from
+                its label: the settings that belong to Windows rather than
+                to the headset.
+            -->
             <Style
                 x:Key="SectionNoteStyle"
                 BasedOn="{StaticResource CaptionTextBlockStyle}"
@@ -55,9 +59,11 @@
                 <Setter Property="HorizontalAlignment" Value="Left" />
             </Style>
 
-            <!--  Quieter text for what is built in code. Styles rather than
-                  brushes, so the colour follows a change of theme or contrast
-                  while the page is open.  -->
+            <!--
+                Quieter text for what is built in code. Styles rather than
+                brushes, so the colour follows a change of theme or contrast
+                while the page is open.
+            -->
             <Style
                 x:Key="SecondaryBodyTextStyle"
                 BasedOn="{StaticResource BodyTextBlockStyle}"

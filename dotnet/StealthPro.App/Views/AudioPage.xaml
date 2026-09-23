@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="StealthPro.App.Views.AudioPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -15,9 +15,11 @@
 
             <c:HeadsetNotice />
 
-            <!--  With the headset off, the whole page is one card: the mix and
-                  Windows' volume go on working without it, but on nothing the
-                  person can hear. See HeadsetSection.WhenOff.  -->
+            <!--
+                With the headset off, the whole page is one card: the mix and
+                Windows' volume go on working without it, but on nothing the
+                person can hear. See HeadsetSection.WhenOff.
+            -->
             <c:HeadsetSection x:Uid="Audio_Section" WhenOff="True">
                 <TextBlock x:Uid="Audio_GameAndChatHeading" Style="{StaticResource SectionHeaderStyle}" />
                 <c:MixPanel />

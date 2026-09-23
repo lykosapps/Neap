@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="StealthPro.App.Controls.EqualiserPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:c="using:StealthPro.App.Controls"
-    xmlns:tk="using:CommunityToolkit.WinUI.Controls"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <Border
         Padding="20,16,20,20"
@@ -62,8 +62,10 @@
                 </StackPanel>
             </Grid>
 
-            <!--  The slots, factory and custom, including the empty ones:
-                  how many you have left is part of the decision to save.  -->
+            <!--
+                The slots, factory and custom, including the empty ones:
+                how many you have left is part of the decision to save.
+            -->
             <ItemsControl x:Name="Slots">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -72,8 +74,10 @@
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
 
-            <!--  The curve and the readouts share one width and one set of
-                  columns, so every point sits over its own number.  -->
+            <!--
+                The curve and the readouts share one width and one set of
+                columns, so every point sits over its own number.
+            -->
             <StackPanel
                 x:Name="Curve"
                 MaxWidth="900"
@@ -82,10 +86,12 @@
                 <Grid x:Name="Bands" Margin="0,6,0,0" />
             </StackPanel>
 
-            <!--  Shown until the headset reports its bands. A flat line would
-                  read as an equaliser set flat. The same dash the settings
-                  rows use: the page's notice or the folded section's card
-                  says why, so this only has to say there is no reading.  -->
+            <!--
+                Shown until the headset reports its bands. A flat line would
+                read as an equaliser set flat. The same dash the settings
+                rows use: the page's notice or the folded section's card
+                says why, so this only has to say there is no reading.
+            -->
             <TextBlock
                 x:Name="Waiting"
                 Foreground="{ThemeResource TextFillColorTertiaryBrush}"

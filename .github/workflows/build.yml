@@ -32,5 +32,10 @@ jobs:
       - name: Check formatting
         run: dotnet format dotnet/StealthPro.sln --verify-no-changes --no-restore
 
+      - name: Check XAML formatting
+        run: |
+          dotnet tool restore
+          dotnet xstyler -p -f ((git ls-files '*.xaml') -join ',')
+
       - name: Test
         run: dotnet test --project dotnet/StealthPro.Core.Tests -c Release --no-build
