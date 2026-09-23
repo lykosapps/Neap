@@ -3,13 +3,14 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
     <RootNamespace>StealthPro.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <UseWinUI>true</UseWinUI>
     <AssemblyName>StealthProII</AssemblyName>
+    <AssemblyTitle>$(Product)</AssemblyTitle>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
 
     <!-- Sits in the notification area all day, so it is tuned for a small

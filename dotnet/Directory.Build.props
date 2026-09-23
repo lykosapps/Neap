@@ -1,5 +1,13 @@
 <Project>
   <PropertyGroup>
+    <Product>Stealth Pro II Control</Product>
+    <Company>lykosapps</Company>
+    <Authors>lykosapps</Authors>
+    <Copyright>Copyright (c) 2026 lykosapps</Copyright>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
