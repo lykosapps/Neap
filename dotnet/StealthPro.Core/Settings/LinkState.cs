@@ -85,9 +85,7 @@ public static class LinkState
     /// this, and read the slots only when it changes.
     /// </para>
     /// </remarks>
-    public const int OnThisTransmitterKey = 0x150;
-
-    public static bool OnThisTransmitter(int value) => value == 2;
+    public const int TransmitterFlagKey = 0x150;
 
     public static bool Bluetooth(int value) => (value & 1) != 0;
 

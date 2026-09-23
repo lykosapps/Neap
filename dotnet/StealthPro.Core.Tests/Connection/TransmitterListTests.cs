@@ -17,7 +17,7 @@ public class TransmitterListTests
     ];
 
     private static HeadsetStatus Connected(string product, bool noSound = false) =>
-        new(Link.Connected, Route.ChargingHub, "", "", product, NoSound: noSound);
+        new(Link.Connected, Route.ChargingDock, "", "", product, NoSound: noSound);
 
     private static TransmitterState StateOf(IReadOnlyList<TransmitterRow> rows, string name) =>
         rows.Single(r => r.Name == name).State;
@@ -69,7 +69,7 @@ public class TransmitterListTests
     [Fact]
     public void KnownButNotPluggedInIsSaidSo()
     {
-        var quiet = new HeadsetStatus(Link.Quiet, Route.ChargingHub, "", "");
+        var quiet = new HeadsetStatus(Link.Quiet, Route.ChargingDock, "", "");
 
         var rows = TransmitterList.Rows(quiet, Known, [Dock], cable: false);
 

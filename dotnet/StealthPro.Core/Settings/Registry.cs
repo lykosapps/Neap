@@ -138,11 +138,11 @@ public static class Registry
             // array, so they are readable; a parser that drops that reply makes
             // them look write-only.
             R(0x401, "led_brightness_1", "TX1", 0, 100,
-              note: "charging hub LED 1 (battery eject ring); reads back as control[1] "
-                  + "of the active transmitter"),
+              note: "light 1: on the Charging Dock, the battery slot ring. Slot one's; "
+                  + "reads back as control[1] of that slot"),
             R(0x402, "led_brightness_2", "TX1", 0, 100,
-              note: "charging hub LED 2 (dock status ring). This is the one that turns "
-                  + "purple when the link is running high bandwidth."),
+              note: "light 2: on the Charging Dock, the status ring, which turns purple "
+                  + "when the link is running high bandwidth. Slot one's"),
 
             R(0x510, "game_chat_mix", "3DT", 0, 100,
               note: "the chat wheel reports its position here. The headset cannot mix on "
@@ -255,15 +255,17 @@ public static class Registry
             Text(0x120, "serial_number", "Inf", writable: false),
             Text(0x130, "firmware_version", "Inf", writable: false),
             R(0x140, "inf_unknown_140", "Inf", writable: false),
-            // Identified by watching it while the headset was moved between
-            // transmitters; see LinkState for what it is and what it is not.
-            R(0x150, "on_this_transmitter", "Inf", writable: false,
-              note: "2 while the headset is using this transmitter, 1 while it "
-                  + "is on another one. Not a sign that audio is flowing"),
+            // Watched while the headset was moved between transmitters; see
+            // LinkState for what it is and what it is not.
+            R(0x150, "transmitter_flag", "Inf", writable: false,
+              note: "changes when the headset moves between transmitters. What the "
+                  + "value means is not known, possibly the slot in use; rely only on "
+                  + "the change. Not a sign that audio is flowing"),
             R(0x160, "inf_unknown_160", "Inf", writable: false),
 
-            R(0x230, "connection_state", "GSI", writable: false,
-              note: "went 2 -> 0 -> 2 across a headset power cycle"),
+            R(0x230, "sound_link", "GSI", writable: false,
+              note: "2 while a transmitter is sending the headset sound, 0 while none "
+                  + "is. Wireless only: it says nothing about the USB-C cable"),
 
             // Confirmed by driving the Swarm II MOBILE app and watching which
             // value moved. Neither of these exists in the desktop app.

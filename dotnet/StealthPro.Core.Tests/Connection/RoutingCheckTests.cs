@@ -18,7 +18,7 @@ public class RoutingCheckTests
         [$"{(output ? "Speakers" : "Microphone")} ({product})"];
 
     private static HeadsetStatus On(string product, Link link = Link.Connected, bool noSound = false) =>
-        new(link, Route.ChargingHub, "Charging Dock", "", product, NoSound: noSound);
+        new(link, Route.ChargingDock, "Charging Dock", "", product, NoSound: noSound);
 
     private static RoutingVerdict? Judge(HeadsetStatus status, Routed? output, Routed? calls = null,
         Routed? input = null, Routed? callsInput = null, string cable = "",

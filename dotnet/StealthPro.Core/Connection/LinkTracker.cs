@@ -34,7 +34,7 @@ public enum Route
     /// <summary>Nothing open, or a product id we do not recognise.</summary>
     Unknown,
     /// <summary>Over 2.4GHz, through the Charging Dock, which also charges a battery.</summary>
-    ChargingHub,
+    ChargingDock,
     /// <summary>Over 2.4GHz, through the USB Transmitter, a small USB-A dongle.</summary>
     UsbTransmitter,
     /// <summary>Straight to the headset chip over the USB-C cable.</summary>
@@ -158,7 +158,7 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     public static Route RouteOf(ushort productId) =>
         Transmitters.PieceOf(productId) switch
         {
-            Transmitters.Piece.Dock => Route.ChargingHub,
+            Transmitters.Piece.Dock => Route.ChargingDock,
             Transmitters.Piece.Transmitter => Route.UsbTransmitter,
             Transmitters.Piece.Headset => Route.DirectUsb,
             _ => Route.Unknown,
@@ -268,7 +268,7 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
         string detail = _lostWithTransmitter ? words.Unreachable : words.NotConnected;
 
         var here = plugged
-            .Where(id => RouteOf(id) is Route.ChargingHub or Route.UsbTransmitter)
+            .Where(id => RouteOf(id) is Route.ChargingDock or Route.UsbTransmitter)
             .Distinct()
             .ToList();
         if (here.Count != 1) return Set(link, Route.Unknown, "", detail);
@@ -349,7 +349,7 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     /// </remarks>
     private bool SoundLinkDown(Route route)
     {
-        if (route is not (Route.ChargingHub or Route.UsbTransmitter)) return false;
+        if (route is not (Route.ChargingDock or Route.UsbTransmitter)) return false;
         if (cabled()) return false;
         if (_soundFlag != 0) return false;
         var since = _soundSeenUp ? _soundDownAt : _connectedAt;

@@ -20,7 +20,7 @@ public class LinkTrackerTests
     private void After(double seconds) => _now += TimeSpan.FromSeconds(seconds);
 
     private HeadsetStatus? OnTheDock() =>
-        _link.Answering(false, Route.ChargingHub, "Charging Dock", "Charging Dock", "device", "229B");
+        _link.Answering(false, Route.ChargingDock, "Charging Dock", "Charging Dock", "device", "229B");
 
     private HeadsetStatus? OnTheCable() =>
         _link.Answering(false, Route.DirectUsb, "Headset", "Headset", "device", "229E");
@@ -39,7 +39,7 @@ public class LinkTrackerTests
 
         Assert.NotNull(status);
         Assert.Equal(Link.Connected, status.Link);
-        Assert.Equal(Route.ChargingHub, status.Route);
+        Assert.Equal(Route.ChargingDock, status.Route);
         Assert.Equal("Charging Dock", status.Adapter);
         Assert.False(status.NoSound);
     }
@@ -47,7 +47,7 @@ public class LinkTrackerTests
     [Fact]
     public void SoundAndSettingsCanBeOnDifferentTransmitters()
     {
-        var status = _link.Answering(true, Route.ChargingHub, "Charging Dock",
+        var status = _link.Answering(true, Route.ChargingDock, "Charging Dock",
             "USB Transmitter", "device", "229D");
 
         Assert.NotNull(status);
@@ -109,7 +109,7 @@ public class LinkTrackerTests
         Assert.NotNull(status);
         Assert.Equal(Link.Quiet, status.Link);
         Assert.True(status.NotConnected);
-        Assert.Equal(Route.ChargingHub, status.Route);
+        Assert.Equal(Route.ChargingDock, status.Route);
         Assert.Equal("off", status.Detail);
     }
 
@@ -199,7 +199,7 @@ public class LinkTrackerTests
     }
 
     [Theory]
-    [InlineData(Dock, Route.ChargingHub)]
+    [InlineData(Dock, Route.ChargingDock)]
     [InlineData(Transmitter, Route.UsbTransmitter)]
     [InlineData(Headset, Route.DirectUsb)]
     [InlineData((ushort)0x1234, Route.Unknown)]

@@ -641,7 +641,7 @@ public sealed class HeadsetService : IDisposable
 
     private static string AdapterName(Route route) => route switch
     {
-        Route.ChargingHub => Strings.Get("Adapter_ChargingDock"),
+        Route.ChargingDock => Strings.Get("Adapter_ChargingDock"),
         Route.UsbTransmitter => Strings.Get("Adapter_UsbTransmitter"),
         Route.DirectUsb => Strings.Get("Adapter_Cable"),
         _ => Strings.Get("Adapter_Transmitter"),
@@ -714,7 +714,7 @@ public sealed class HeadsetService : IDisposable
     /// </remarks>
     private bool LinkFlagMoved()
     {
-        if (!TryGetNumberByKey(LinkState.OnThisTransmitterKey, out int now)) return false;
+        if (!TryGetNumberByKey(LinkState.TransmitterFlagKey, out int now)) return false;
         if (now == _lastLinkFlag) return false;
         bool first = _lastLinkFlag is null;
         _lastLinkFlag = now;
