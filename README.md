@@ -158,6 +158,7 @@ Working and in daily use, but young, and honest about which is which:
   Pro II (Xbox edition) on **one** Windows machine. Other editions share the
   protocol and the product ids are known, but none has been tested.
 - There is no installer and no signed binary. You build it yourself.
+- It was written with AI assistance.
 - `tools/` is now just the two USBPcap capture scripts. The Python tools
   that used to live there have been removed; the two worth keeping are
   `decode` and `raw` in the probe.
