@@ -3,6 +3,9 @@
 A third-party control app for the Turtle Beach Stealth Pro II on Windows,
 written to replace Swarm II.
 
+Not affiliated with or endorsed by Turtle Beach. Turtle Beach, Stealth Pro II
+and Swarm II are trademarks of Turtle Beach Corporation.
+
 - [FINDINGS.md](FINDINGS.md) — how the headset works and how we know
 - [ARCHITECTURE.md](ARCHITECTURE.md) — the two halves, and why the audio one
   is the awkward part

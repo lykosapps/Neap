@@ -26,10 +26,11 @@ public sealed partial class SettingsPage : Page
             _painting = false;
         };
 
+        const string About =
+            "A replacement for Swarm II. Not affiliated with or endorsed by Turtle Beach.";
         var version = Assembly.GetExecutingAssembly().GetName().Version;
         AboutCard.Description = version is null
-            ? "A replacement for Swarm II."
-            : $"Version {version.Major}.{version.Minor}.{version.Build} · "
-            + "a replacement for Swarm II.";
+            ? About
+            : $"Version {version.Major}.{version.Minor}.{version.Build} · {About}";
     }
 }
