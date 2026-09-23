@@ -33,6 +33,16 @@ the routing warning, the mix and its volume journal, and the app's resource
 file. When you learn something
 new about the protocol, add a test that would have caught the old mistake.
 
+## Testing the screens without the headset
+
+`--pretend` runs the app against a pretend headset: nothing reaches the
+hardware, Windows' audio, the Startup folder or the real app's settings,
+and it can run beside the real app. Publish, then run
+`powershell -ExecutionPolicy Bypass -File tools\pretend.ps1`. It operates
+every screen through UI Automation, checks each command sent against the
+registry, and takes screenshots. It comes to the front as it changes page,
+so run it while nobody is using the machine.
+
 ## Working with the hardware
 
 - **One process at a time.** Only one program can usefully hold the
