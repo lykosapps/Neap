@@ -199,8 +199,7 @@ public sealed partial class EqualiserPanel : UserControl
             {
                 Text = spec.Frequencies[i],
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
             };
 
             int index = i;
@@ -324,15 +323,11 @@ public sealed partial class EqualiserPanel : UserControl
 
     private static UIElement EmptyChip() => new Border
     {
-        Padding = new Thickness(14, 8, 14, 8),
-        BorderBrush = (Brush)Application.Current.Resources["ControlStrokeColorDefaultBrush"],
-        BorderThickness = new Thickness(1),
-        CornerRadius = new CornerRadius(4),
+        Style = (Style)Application.Current.Resources["EmptySlotStyle"],
         Child = new TextBlock
         {
             Text = "Empty slot",
-            Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
-            Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+            Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
         },
     };
 
@@ -412,8 +407,7 @@ public sealed partial class EqualiserPanel : UserControl
 
         var note = new TextBlock
         {
-            Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
-            Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+            Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
             TextWrapping = TextWrapping.Wrap,
         };
 

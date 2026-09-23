@@ -99,8 +99,7 @@ public sealed class SettingRow : SettingsCard
         {
             Text = "—",
             VerticalAlignment = VerticalAlignment.Center,
-            Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
-            Foreground = (Brush)Application.Current.Resources["TextFillColorTertiaryBrush"],
+            Style = (Style)Application.Current.Resources["TertiaryBodyTextStyle"],
             Visibility = Visibility.Collapsed,
         };
 

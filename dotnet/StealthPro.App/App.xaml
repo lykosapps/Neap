@@ -42,6 +42,40 @@
                 <Setter Property="HorizontalAlignment" Value="Left" />
             </Style>
 
+            <!--  Quieter text for what is built in code. Styles rather than
+                  brushes, so the colour follows a change of theme or contrast
+                  while the page is open.  -->
+            <Style
+                x:Key="SecondaryBodyTextStyle"
+                BasedOn="{StaticResource BodyTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Style>
+            <Style
+                x:Key="TertiaryBodyTextStyle"
+                BasedOn="{StaticResource BodyTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorTertiaryBrush}" />
+            </Style>
+            <Style
+                x:Key="SecondaryCaptionTextStyle"
+                BasedOn="{StaticResource CaptionTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Style>
+            <Style
+                x:Key="DisabledCaptionTextStyle"
+                BasedOn="{StaticResource CaptionTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+            </Style>
+            <Style x:Key="EmptySlotStyle" TargetType="Border">
+                <Setter Property="Padding" Value="14,8,14,8" />
+                <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="4" />
+            </Style>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

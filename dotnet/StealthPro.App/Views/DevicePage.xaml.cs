@@ -46,9 +46,8 @@ public sealed partial class DevicePage : Page
                 {
                     Text = text,
                     FontFamily = new FontFamily("Consolas"),
-                    Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
-                    Foreground = (Brush)Application.Current.Resources[
-                        name is null ? "TextFillColorDisabledBrush" : "TextFillColorSecondaryBrush"],
+                    Style = (Style)Application.Current.Resources[
+                        name is null ? "DisabledCaptionTextStyle" : "SecondaryCaptionTextStyle"],
                 });
             row++;
         }

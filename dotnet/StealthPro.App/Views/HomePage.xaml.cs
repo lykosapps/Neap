@@ -57,6 +57,8 @@ public sealed partial class HomePage : Page
     {
         InitializeComponent();
         BuildTiles();
+        // The state dot is coloured in code, so it is repainted for a new theme.
+        ActualThemeChanged += (_, _) => Paint();
         Loaded += async (_, _) =>
         {
             AppServices.Headset.Changed += Paint;
@@ -206,8 +208,7 @@ public sealed partial class HomePage : Page
                 new TextBlock
                 {
                     Text = label,
-                    Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
-                    Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                    Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
                 },
                 new TextBlock
                 {
@@ -297,8 +298,7 @@ public sealed partial class HomePage : Page
     private static TextBlock Quiet(string text) => new()
     {
         Text = text,
-        Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
-        Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+        Style = (Style)Application.Current.Resources["SecondaryBodyTextStyle"],
     };
 
     /// <summary>
@@ -373,10 +373,9 @@ public sealed partial class HomePage : Page
                         TransmitterState.CanSwitchTo or TransmitterState.PluggedIn => "Plugged in",
                         _ => "Not plugged in",
                     },
-                    Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
-                    Foreground = (Brush)Application.Current.Resources[
+                    Style = (Style)Application.Current.Resources[
                         row.State == TransmitterState.InUse
-                            ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush"],
+                            ? "BodyTextBlockStyle" : "SecondaryBodyTextStyle"],
                 },
             };
             string detail = row.State switch
@@ -416,8 +415,7 @@ public sealed partial class HomePage : Page
             {
                 Text = place.What,
                 TextWrapping = TextWrapping.Wrap,
-                Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
             });
 
             var tile = new Button

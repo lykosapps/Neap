@@ -92,6 +92,14 @@ public sealed class EqualiserCurve : UserControl
         _ghost.StrokeThickness = 1;
         _ghost.StrokeDashArray = new DoubleCollection { 3, 3 };
 
+        // Its colours are set in code, so a new theme redraws it.
+        ActualThemeChanged += (_, _) =>
+        {
+            _handles.Clear();
+            Build(_live.Length);
+            Layout();
+        };
+
         _canvas.PointerMoved += OnPointerMoved;
         _canvas.PointerReleased += (_, args) => EndDrag(args);
         _canvas.PointerCaptureLost += (_, _) => _dragging = -1;
