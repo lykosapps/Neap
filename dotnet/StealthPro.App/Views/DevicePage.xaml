@@ -17,44 +17,44 @@
             <c:HeadsetNotice />
 
             <!--  With the headset off, the whole page is one card, the audio
-                  format included: see NeedsDock.WhenOff.  -->
-            <c:NeedsDock What="The audio format, firmware, serial number and everything the headset reports" WhenOff="True">
-            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Audio format" />
-            <TextBlock Style="{StaticResource SectionNoteStyle}" Text="Windows' setting rather than the headset's, and the same one as Sound settings. Only formats this device actually accepts are listed." />
-            <StackPanel Spacing="4">
-                <c:FormatRow
-                    Glyph="&#xE7F6;"
-                    Header="Headset output"
-                    Capture="False" />
-                <c:FormatRow
-                    Glyph="&#xE720;"
-                    Header="Microphone"
-                    Capture="True" />
-            </StackPanel>
+                  format included: see HeadsetSection.WhenOff.  -->
+            <c:HeadsetSection What="The audio format, firmware, serial number and everything the headset reports" WhenOff="True">
+                <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Audio format" />
+                <TextBlock Style="{StaticResource SectionNoteStyle}" Text="Windows' setting rather than the headset's, and the same one as Sound settings. Only formats this device actually accepts are listed." />
+                <StackPanel Spacing="4">
+                    <c:FormatRow
+                        Glyph="&#xE7F6;"
+                        Header="Headset output"
+                        Capture="False" />
+                    <c:FormatRow
+                        Glyph="&#xE720;"
+                        Header="Microphone"
+                        Capture="True" />
+                </StackPanel>
 
-            <c:NeedsDock
-                What="Firmware, serial number and everything the headset reports"
-                Why="These come from the headset. Switch it off and on again to see them here."
-                WhyOff="Switch your headset on to see these.">
-            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="About" />
-            <StackPanel Spacing="4">
-                <c:SettingRow Glyph="&#xE945;" Header="Firmware" Setting="firmware_version" />
-                <c:SettingRow Glyph="&#xE8EC;" Header="Serial number" Setting="serial_number" />
-            </StackPanel>
+                <c:HeadsetSection
+                    What="Firmware, serial number and everything the headset reports"
+                    Why="These come from the headset. Switch it off and on again to see them here."
+                    WhyOff="Switch your headset on to see these.">
+                    <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="About" />
+                    <StackPanel Spacing="4">
+                        <c:SettingRow Glyph="&#xE945;" Header="Firmware" Setting="firmware_version" />
+                        <c:SettingRow Glyph="&#xE8EC;" Header="Serial number" Setting="serial_number" />
+                    </StackPanel>
 
-            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Everything the headset reports" />
-            <tk:SettingsExpander
-                Description="Values without a confirmed meaning are shown greyed. They stay read-only until we know what they do."
-                Header="Raw values">
-                <tk:SettingsExpander.HeaderIcon>
-                    <FontIcon Glyph="&#xE9D9;" />
-                </tk:SettingsExpander.HeaderIcon>
-                <tk:SettingsExpander.ItemsHeader>
-                    <StackPanel x:Name="RawRows" Padding="16,8" Spacing="2" />
-                </tk:SettingsExpander.ItemsHeader>
-            </tk:SettingsExpander>
-            </c:NeedsDock>
-            </c:NeedsDock>
+                    <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Everything the headset reports" />
+                    <tk:SettingsExpander
+                        Description="Values without a confirmed meaning are shown greyed. They stay read-only until we know what they do."
+                        Header="Raw values">
+                        <tk:SettingsExpander.HeaderIcon>
+                            <FontIcon Glyph="&#xE9D9;" />
+                        </tk:SettingsExpander.HeaderIcon>
+                        <tk:SettingsExpander.ItemsHeader>
+                            <StackPanel x:Name="RawRows" Padding="16,8" Spacing="2" />
+                        </tk:SettingsExpander.ItemsHeader>
+                    </tk:SettingsExpander>
+                </c:HeadsetSection>
+            </c:HeadsetSection>
 
         </StackPanel>
     </ScrollViewer>

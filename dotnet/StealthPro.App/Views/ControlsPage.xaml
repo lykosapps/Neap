@@ -15,79 +15,77 @@
 
             <c:HeadsetNotice />
 
-            <c:NeedsDock What="The mode button, the dial, power and the lights">
-            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="On the headset" />
-            <StackPanel Spacing="4">
-                <c:SettingRow
-                    Description="What the button beside the power switch does when you press it."
-                    Glyph="&#xE7FC;"
-                    Header="Mode button"
-                    Setting="mode_button_function" />
-                <c:SettingRow
-                    Description="The smaller of the two wheels."
-                    Glyph="&#xE9E9;"
-                    Header="Lower dial"
-                    Setting="dial_function" />
-            </StackPanel>
-
-            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Power" />
-            <StackPanel Spacing="4">
-                <c:SettingRow
-                    Description="How long the headset waits before switching itself off."
-                    Glyph="&#xE7E8;"
-                    Header="Auto shut-off"
-                    Setting="auto_shutoff" />
-                <c:SettingRow
-                    Description="Picking the headset up brings it out of standby."
-                    Glyph="&#xE9D9;"
-                    Header="Wake on motion"
-                    Setting="wake_on_motion" />
-                <c:SettingRow
-                    Description="How loud the headset's own spoken announcements are."
-                    Glyph="&#xE767;"
-                    Header="Voice prompts"
-                    Setting="voice_prompt_volume"
-                    Unit="%" />
-            </StackPanel>
-
-            <!--  The lights of the transmitter carrying the headset, named for
-                  it; which rows show is decided in ControlsPage.xaml.cs. Its own
-                  container, so folding the page and choosing the lights never
-                  fight over the same element's visibility.  -->
-            <StackPanel>
-                <TextBlock
-                    x:Name="LightsHeader"
-                    Style="{StaticResource SectionHeaderStyle}"
-                    Text="Charging Dock lights"
-                    Visibility="Collapsed" />
+            <c:HeadsetSection What="The mode button, the dial, power and the lights">
+                <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="On the headset" />
                 <StackPanel Spacing="4">
                     <c:SettingRow
-                        x:Name="DockRing"
-                        Description="The ring around the spare battery slot."
-                        Glyph="&#xE706;"
-                        Header="Battery slot ring"
-                        Setting="led_brightness_1"
-                        Unit="%"
-                        Visibility="Collapsed" />
+                        Description="What the button beside the power switch does when you press it."
+                        Glyph="&#xE7FC;"
+                        Header="Mode button"
+                        Setting="mode_button_function" />
                     <c:SettingRow
-                        x:Name="DockStatus"
-                        Description="Turns purple when the link is running high bandwidth."
-                        Glyph="&#xE706;"
-                        Header="Status ring"
-                        Setting="led_brightness_2"
-                        Unit="%"
-                        Visibility="Collapsed" />
-                    <c:SettingRow
-                        x:Name="TransmitterLight"
-                        Description="The status light on the transmitter."
-                        Glyph="&#xE706;"
-                        Header="Light"
-                        Setting="led_brightness_1"
-                        Unit="%"
-                        Visibility="Collapsed" />
+                        Description="The smaller of the two wheels."
+                        Glyph="&#xE9E9;"
+                        Header="Lower dial"
+                        Setting="dial_function" />
                 </StackPanel>
-            </StackPanel>
-            </c:NeedsDock>
+
+                <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Power" />
+                <StackPanel Spacing="4">
+                    <c:SettingRow
+                        Description="How long the headset waits before switching itself off."
+                        Glyph="&#xE7E8;"
+                        Header="Auto shut-off"
+                        Setting="auto_shutoff" />
+                    <c:SettingRow
+                        Description="Picking the headset up brings it out of standby."
+                        Glyph="&#xE9D9;"
+                        Header="Wake on motion"
+                        Setting="wake_on_motion" />
+                    <c:SettingRow
+                        Description="How loud the headset's own spoken announcements are."
+                        Glyph="&#xE767;"
+                        Header="Voice prompts"
+                        Setting="voice_prompt_volume"
+                        Unit="%" />
+                </StackPanel>
+
+                <!--  The lights of the transmitter carrying the headset, named for
+                      it; which rows show is decided in ControlsPage.xaml.cs.  -->
+                <StackPanel>
+                    <TextBlock
+                        x:Name="LightsHeader"
+                        Style="{StaticResource SectionHeaderStyle}"
+                        Text="Charging Dock lights"
+                        Visibility="Collapsed" />
+                    <StackPanel Spacing="4">
+                        <c:SettingRow
+                            x:Name="DockRing"
+                            Description="The ring around the spare battery slot."
+                            Glyph="&#xE706;"
+                            Header="Battery slot ring"
+                            Setting="led_brightness_1"
+                            Unit="%"
+                            Visibility="Collapsed" />
+                        <c:SettingRow
+                            x:Name="DockStatus"
+                            Description="Turns purple when the link is running high bandwidth."
+                            Glyph="&#xE706;"
+                            Header="Status ring"
+                            Setting="led_brightness_2"
+                            Unit="%"
+                            Visibility="Collapsed" />
+                        <c:SettingRow
+                            x:Name="TransmitterLight"
+                            Description="The status light on the transmitter."
+                            Glyph="&#xE706;"
+                            Header="Light"
+                            Setting="led_brightness_1"
+                            Unit="%"
+                            Visibility="Collapsed" />
+                    </StackPanel>
+                </StackPanel>
+            </c:HeadsetSection>
 
         </StackPanel>
     </ScrollViewer>
