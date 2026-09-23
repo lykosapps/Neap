@@ -79,6 +79,26 @@ public class PretendControlTests
     }
 
     [Fact]
+    public async Task ASecondScriptCanConnectAfterTheFirstLeaves()
+    {
+        string pipe = $"Neap.Pretend.Test.{Guid.NewGuid():N}";
+        var logged = new List<string>();
+        using var control = new PretendControl(new PretendHeadset(), new PretendWindows(), logged.Add, pipe);
+        control.Start();
+
+        foreach (int _ in new[] { 1, 2 })
+        {
+            await using var client = new NamedPipeClientStream(".", pipe, PipeDirection.InOut);
+            await client.ConnectAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+            using var reader = new StreamReader(client);
+            await using var writer = new StreamWriter(client) { AutoFlush = true };
+            await writer.WriteLineAsync("sent");
+            Assert.Equal("{\"ok\":true,\"result\":0}", await reader.ReadLineAsync(TestContext.Current.CancellationToken));
+        }
+        Assert.Empty(logged);
+    }
+
+    [Fact]
     public async Task AnswersOverThePipe()
     {
         string pipe = $"Neap.Pretend.Test.{Guid.NewGuid():N}";
