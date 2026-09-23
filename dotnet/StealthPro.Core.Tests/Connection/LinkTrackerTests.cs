@@ -208,6 +208,21 @@ public class LinkTrackerTests
         Assert.Equal(route, LinkTracker.RouteOf(product));
     }
 
+    [Fact]
+    public void ATransmitterWindowsStillListsForAMomentIsStillTheOneThatWent()
+    {
+        OnTheTransmitter();
+
+        // Pulled out, but Windows lists it for a moment longer.
+        _link.Lost(Transmitter, [Dock, Transmitter], "lost");
+        _link.Unreachable([Dock, Transmitter]);
+
+        // Gone on the next look: the settings left with it.
+        var status = _link.Unreachable([Dock]);
+
+        Assert.Equal(Link.Silent, status?.Link ?? _link.Status.Link);
+    }
+
     private HeadsetStatus? OnTheTransmitter() =>
         _link.Answering(false, Route.UsbTransmitter, "USB Transmitter", "USB Transmitter", "device", "229D");
 

@@ -156,6 +156,7 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     private TimeSpan? _offSince;
     private bool _lostWithTransmitter;
     private TimeSpan? _lostAt;
+    private ushort? _lostDevice;
     private Route? _answeredOn;
     private (bool Elsewhere, Route Route, string Adapter, string Carrying, string Device, string Product)? _held;
     private TimeSpan? _heldSince;
@@ -295,10 +296,19 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     /// </remarks>
     public HeadsetStatus? Unreachable(IEnumerable<ushort> plugged)
     {
+        // Windows can go on listing a device for a moment after it is pulled
+        // out, so whether the one we lost has gone is asked again each time
+        // round, not only at the moment it went. Asked only then, the same
+        // unplugging read as "switched off" or "settings unavailable"
+        // depending on timing.
+        var present = plugged as IReadOnlyCollection<ushort> ?? plugged.ToList();
+        if (_lostDevice is ushort lost && present.Count > 0 && !present.Contains(lost))
+            _lostWithTransmitter = true;
+
         var link = _lostWithTransmitter ? Link.Silent : Link.Quiet;
         string detail = _lostWithTransmitter ? words.Unreachable : words.NotConnected;
 
-        var here = plugged
+        var here = present
             .Where(id => RouteOf(id) is Route.ChargingDock or Route.UsbTransmitter)
             .Distinct()
             .ToList();
@@ -328,6 +338,7 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
         // the headset going quiet. Remembered until it answers again.
         if (!nothing && was is ushort gone && !plugged!.Contains(gone))
             _lostWithTransmitter = true;
+        if (was is not null) _lostDevice = was;
 
         var now = clock();
         if (was is not null) _lostAt = now;
@@ -419,7 +430,11 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     {
         if (link == Link.Connected && Status.Link != Link.Connected) _connectedAt = clock();
         bool noSound = link == Link.Connected && SoundLinkDown(route);
-        if (link == Link.Connected) _lostWithTransmitter = false;
+        if (link == Link.Connected)
+        {
+            _lostWithTransmitter = false;
+            _lostDevice = null;
+        }
 
         var status = new HeadsetStatus(link, route, adapter, detail, product, controlVia, noSound);
         if (status == Status) return null;
