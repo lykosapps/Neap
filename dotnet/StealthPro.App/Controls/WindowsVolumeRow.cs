@@ -38,15 +38,37 @@ public sealed class WindowsVolumeRow : SettingsCard
     private TextBlock? _readout;
     private DispatcherQueueTimer? _poll;
     private bool _painting;
+    private bool _listening;
 
+    /// <remarks>
+    /// Listens and polls on every load, not only the first: a row is unloaded
+    /// and loaded again whenever it moves, as a HeadsetSection's rows are.
+    /// </remarks>
     public WindowsVolumeRow()
     {
-        Loaded += OnLoaded;
-        Unloaded += (_, _) =>
+        Loaded += (_, _) =>
+        {
+            Build();
+            Listen(true);
+        };
+        Unloaded += (_, _) => Listen(false);
+    }
+
+    private void Listen(bool on)
+    {
+        if (on == _listening) return;
+        _listening = on;
+        if (on)
+        {
+            if (_slider is not null) AppServices.Headset.Changed += Paint;
+            _poll!.Start();
+            _ = Refresh();
+        }
+        else
         {
             AppServices.Headset.Changed -= Paint;
             _poll?.Stop();
-        };
+        }
     }
 
     public static readonly DependencyProperty KindProperty = DependencyProperty.Register(
@@ -97,9 +119,10 @@ public sealed class WindowsVolumeRow : SettingsCard
                 Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(control, spoken);
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    /// <summary>Builds the row's control and its poll, once.</summary>
+    private void Build()
     {
-        Loaded -= OnLoaded;
+        if (_poll is not null) return;
         if (Glyph.Length > 0) HeaderIcon = new FontIcon { Glyph = Glyph };
 
         if (Kind == WindowsControl.Mute)
@@ -138,7 +161,6 @@ public sealed class WindowsVolumeRow : SettingsCard
                 Spacing = 12,
                 Children = { _slider, _readout },
             };
-            AppServices.Headset.Changed += Paint;
         }
 
         Speak();
@@ -146,8 +168,6 @@ public sealed class WindowsVolumeRow : SettingsCard
         _poll = DispatcherQueue.CreateTimer();
         _poll.Interval = PollInterval;
         _poll.Tick += (_, _) => _ = Refresh();
-        _poll.Start();
-        _ = Refresh();
     }
 
     /// <summary>

@@ -36,11 +36,31 @@ public sealed class SettingRow : SettingsCard
     private UIElement? _control;
     private TextBlock? _absent;
     private bool _painting;
+    private bool _listening;
 
+    /// <remarks>
+    /// Listens on every load, not only the first. A row is unloaded and
+    /// loaded again whenever it moves, and a HeadsetSection moves its rows
+    /// into one panel when it first paints; a row that listened only once
+    /// froze at whatever it showed then, a dash if the headset was off.
+    /// </remarks>
     public SettingRow()
     {
-        Loaded += OnLoaded;
-        Unloaded += (_, _) => AppServices.Headset.Changed -= Paint;
+        Loaded += (_, _) =>
+        {
+            if (!Build()) return;
+            Listen(true);
+            Paint();
+        };
+        Unloaded += (_, _) => Listen(false);
+    }
+
+    private void Listen(bool on)
+    {
+        if (on == _listening) return;
+        _listening = on;
+        if (on) AppServices.Headset.Changed += Paint;
+        else AppServices.Headset.Changed -= Paint;
     }
 
     public static readonly DependencyProperty SettingProperty = DependencyProperty.Register(
@@ -75,15 +95,16 @@ public sealed class SettingRow : SettingsCard
         set => SetValue(UnitProperty, value);
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    /// <summary>Builds the row's control, once. False for a setting the registry does not know.</summary>
+    private bool Build()
     {
-        Loaded -= OnLoaded;
+        if (_control is not null) return true;
 
         if (!Registry.ByName.TryGetValue(Setting, out _key))
         {
             Description = $"Unknown setting '{Setting}'";
             IsEnabled = false;
-            return;
+            return false;
         }
 
         if (Glyph.Length > 0) HeaderIcon = new FontIcon { Glyph = Glyph };
@@ -126,9 +147,7 @@ public sealed class SettingRow : SettingsCard
         foreach (UIElement? control in new UIElement?[] { _slider, _toggle, _choice })
             if (control is not null)
                 Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(control, spoken);
-
-        AppServices.Headset.Changed += Paint;
-        Paint();
+        return true;
     }
 
     private UIElement BuildToggle()
