@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using StealthPro.App.Services;
+using StealthPro.Core.Audio;
 using StealthPro.Core.Connection;
 using Windows.System;
 
@@ -143,7 +144,16 @@ public sealed partial class MixPanel : UserControl
         // The chat application is playing to another device. It keeps its own
         // output setting, so changing the headset in Windows does not move it;
         // name the app and the device so the person can.
+        //
+        // Not when that device is the transmitter the headset is on. Then chat
+        // is in the right place and Windows is not, which the routing warning
+        // says with the right fix; this one would say to move chat away from
+        // the headset.
         var elsewhere = AppServices.Mix.Status?.Elsewhere;
+        if (elsewhere is not null && status.Product.Length > 0
+            && Routing.Belonging(status.Product, output: true)
+                .Contains(elsewhere.Device, StringComparer.OrdinalIgnoreCase))
+            elsewhere = null;
         ElsewhereBar.IsOpen = elsewhere is not null;
         if (elsewhere is not null)
             ElsewhereBar.Message = Strings.Format("Mix_Elsewhere", elsewhere.App, elsewhere.Device);
