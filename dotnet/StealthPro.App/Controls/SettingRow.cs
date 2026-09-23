@@ -43,6 +43,9 @@ public sealed class SettingRow : SettingsCard
     /// loaded again whenever it moves, and a HeadsetSection moves its rows
     /// into one panel when it first paints; a row that listened only once
     /// froze at whatever it showed then, a dash if the headset was off.
+    /// A move can raise Loaded at the new place before Unloaded at the old
+    /// one, so an Unloaded while still loaded is ignored; otherwise the row
+    /// stops listening for good and misses the headset's own buttons.
     /// </remarks>
     public SettingRow()
     {
@@ -52,7 +55,10 @@ public sealed class SettingRow : SettingsCard
             Listen(true);
             Paint();
         };
-        Unloaded += (_, _) => Listen(false);
+        Unloaded += (_, _) =>
+        {
+            if (!IsLoaded) Listen(false);
+        };
     }
 
     private void Listen(bool on)

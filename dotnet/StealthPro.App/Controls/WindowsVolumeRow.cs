@@ -42,7 +42,9 @@ public sealed class WindowsVolumeRow : SettingsCard
 
     /// <remarks>
     /// Listens and polls on every load, not only the first: a row is unloaded
-    /// and loaded again whenever it moves, as a HeadsetSection's rows are.
+    /// and loaded again whenever it moves, as a HeadsetSection's rows are. An
+    /// Unloaded raised while still loaded, which a move can do after the new
+    /// Loaded, is ignored.
     /// </remarks>
     public WindowsVolumeRow()
     {
@@ -51,7 +53,10 @@ public sealed class WindowsVolumeRow : SettingsCard
             Build();
             Listen(true);
         };
-        Unloaded += (_, _) => Listen(false);
+        Unloaded += (_, _) =>
+        {
+            if (!IsLoaded) Listen(false);
+        };
     }
 
     private void Listen(bool on)
