@@ -395,6 +395,16 @@ public sealed class HeadsetService : IDisposable
                 // feels like lag, and there is never much of it.
                 while (_jobs.TryTake(out var job)) Serve(job, client);
                 Publish(_link.Refresh());
+
+                // An answer held back as possibly stale: ask the other devices
+                // first now and then, in case the headset came back on one of
+                // them while this one goes on answering from memory.
+                if (_link.TimeToAskOthers())
+                {
+                    _askLast = client.ProductId;
+                    LetGo(ref client);
+                    continue;
+                }
                 Publish(_link.Cable(elsewhere, route, adapter, carrying, client.Device, product));
 
                 var events = client.ReadOnce();
@@ -639,8 +649,15 @@ public sealed class HeadsetService : IDisposable
     /// headset.
     /// </returns>
     /// <exception cref="DeviceNotFoundException">Nothing is plugged in at all.</exception>
-    private static HeadsetClient? Open(out int present) =>
-        HeadsetClient.Behind(allowWrites: true, out present);
+    private HeadsetClient? Open(out int present)
+    {
+        var client = HeadsetClient.Behind(allowWrites: true, out present, _askLast);
+        _askLast = null;
+        return client;
+    }
+
+    /// <summary>A device whose answer is in doubt, to ask after the others next time.</summary>
+    private ushort? _askLast;
 
     private static string AdapterName(Route route) => route switch
     {

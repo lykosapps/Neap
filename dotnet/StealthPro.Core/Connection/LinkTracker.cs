@@ -140,6 +140,12 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     /// </summary>
     public static readonly TimeSpan AbsentGrace = TimeSpan.FromSeconds(6);
 
+    /// <summary>
+    /// How long an answer held back as possibly stale is kept before the
+    /// other devices are asked again. See <see cref="TimeToAskOthers"/>.
+    /// </summary>
+    public static readonly TimeSpan AskOthersAfter = TimeSpan.FromSeconds(10);
+
     /// <summary>The headset's sound link. See <see cref="SoundLink"/>.</summary>
     public const int SoundLinkKey = 0x230;
 
@@ -150,6 +156,9 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     private TimeSpan? _offSince;
     private bool _lostWithTransmitter;
     private TimeSpan? _lostAt;
+    private Route? _answeredOn;
+    private (bool Elsewhere, Route Route, string Adapter, string Carrying, string Device, string Product)? _held;
+    private TimeSpan? _heldSince;
 
     public HeadsetStatus Status { get; private set; } =
         new(Link.Connecting, Route.Unknown, "", words.Looking);
@@ -191,6 +200,8 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
         _soundSeenUp = false;
         _soundDownAt = null;
         _offSince = null;
+        _held = null;
+        _heldSince = null;
     }
 
     /// <summary>The device we were talking to answered and has gone again; look afresh.</summary>
@@ -217,6 +228,26 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
             return null;
         }
         _offSince = null;
+
+        // After the headset goes quiet, a different transmitter answering is
+        // not proof it is back: a transmitter answers from memory for a
+        // headset it can no longer reach. Measured: the Charging Dock went
+        // quiet as the headset was switched off, and three seconds later the
+        // USB Transmitter answered, with its sound link at 0. So the answer
+        // counts once the sound link is up, and until then the headset stays
+        // off. The same transmitter answering again is taken at once.
+        if (Status.Link is Link.Quiet or Link.Silent
+            && route is Route.ChargingDock or Route.UsbTransmitter
+            && _answeredOn is { } before && before != route
+            && _soundFlag is not > 0)
+        {
+            _held = (elsewhere, route, adapter, carrying, device, product);
+            _heldSince ??= clock();
+            return null;
+        }
+        _held = null;
+        _heldSince = null;
+        _answeredOn = route;
 
         if (!elsewhere) return Set(Link.Connected, route, carrying, device, product);
 
@@ -314,11 +345,32 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     /// </remarks>
     public HeadsetStatus? Refresh()
     {
+        // A held-back answer is proved by its sound link coming up.
+        if (_held is { } held && _soundFlag > 0)
+            return Answering(held.Elsewhere, held.Route, held.Adapter, held.Carrying,
+                held.Device, held.Product);
+
         var current = Status;
         if (current.Link != Link.Connected) return null;
         if (SoundLinkDown(current.Route) == current.NoSound) return null;
         return Set(current.Link, current.Route, current.Adapter, current.Detail,
             current.Product, current.ControlVia);
+    }
+
+    /// <summary>
+    /// Whether to let go of a device whose answer has been held back for
+    /// <see cref="AskOthersAfter"/>, and ask the others first.
+    /// </summary>
+    /// <remarks>
+    /// The headset may have come back on the transmitter that went quiet,
+    /// while the one answering from memory goes on answering. True once per
+    /// period.
+    /// </remarks>
+    public bool TimeToAskOthers()
+    {
+        if (_heldSince is not { } since || clock() - since < AskOthersAfter) return false;
+        _heldSince = clock();
+        return true;
     }
 
     // -- the rules -----------------------------------------------------------

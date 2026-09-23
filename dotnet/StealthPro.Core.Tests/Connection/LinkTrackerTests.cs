@@ -207,4 +207,64 @@ public class LinkTrackerTests
     {
         Assert.Equal(route, LinkTracker.RouteOf(product));
     }
+
+    private HeadsetStatus? OnTheTransmitter() =>
+        _link.Answering(false, Route.UsbTransmitter, "USB Transmitter", "USB Transmitter", "device", "229D");
+
+    /// <summary>Connected on the Dock, then switched off.</summary>
+    private void SwitchedOffOnTheDock()
+    {
+        OnTheDock();
+        _link.SoundLink(2);
+        _link.Forget();
+        _link.Unreachable([Dock, Transmitter]);
+        Assert.Equal(Link.Quiet, _link.Status.Link);
+    }
+
+    [Fact]
+    public void AnotherTransmitterAnsweringFromMemoryDoesNotBringTheHeadsetBack()
+    {
+        SwitchedOffOnTheDock();
+        _link.SoundLink(0);
+
+        Assert.Null(OnTheTransmitter());
+        Assert.Null(_link.Refresh());
+        Assert.Equal(Link.Quiet, _link.Status.Link);
+    }
+
+    [Fact]
+    public void AnotherTransmitterCountsOnceItsSoundLinkIsUp()
+    {
+        SwitchedOffOnTheDock();
+        _link.SoundLink(0);
+        OnTheTransmitter();
+
+        _link.SoundLink(2);
+        var status = _link.Refresh();
+
+        Assert.Equal(Link.Connected, status?.Link);
+        Assert.Equal(Route.UsbTransmitter, status?.Route);
+    }
+
+    [Fact]
+    public void TheSameTransmitterAnsweringAgainIsTakenAtOnce()
+    {
+        SwitchedOffOnTheDock();
+        _link.SoundLink(0);
+
+        Assert.Equal(Link.Connected, OnTheDock()?.Link);
+    }
+
+    [Fact]
+    public void AHeldAnswerAsksTheOtherDevicesAgainNowAndThen()
+    {
+        SwitchedOffOnTheDock();
+        _link.SoundLink(0);
+        OnTheTransmitter();
+
+        Assert.False(_link.TimeToAskOthers());
+        After(LinkTracker.AskOthersAfter.TotalSeconds);
+        Assert.True(_link.TimeToAskOthers());
+        Assert.False(_link.TimeToAskOthers());
+    }
 }

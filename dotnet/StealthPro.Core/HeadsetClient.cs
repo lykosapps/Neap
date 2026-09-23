@@ -64,14 +64,15 @@ public sealed class HeadsetClient : IDisposable
     /// while the headset is connected elsewhere.
     /// </para>
     /// </remarks>
+    /// <param name="askLast">A product id to ask after the others, when its answer is in doubt.</param>
     /// <returns>
     /// The client for the device that answered, or null when devices are
     /// present but none has the headset.
     /// </returns>
     /// <exception cref="DeviceNotFoundException">No candidate device is present.</exception>
-    public static HeadsetClient? Behind(bool allowWrites, out int present)
+    public static HeadsetClient? Behind(bool allowWrites, out int present, ushort? askLast = null)
     {
-        var candidates = HidTransport.Candidates();
+        var candidates = HidTransport.Candidates().OrderBy(d => d.ProductId == askLast).ToList();
         present = candidates.Count;
         if (present == 0)
             throw new DeviceNotFoundException("no Turtle Beach control collection is present");
