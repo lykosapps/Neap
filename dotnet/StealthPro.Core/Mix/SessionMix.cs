@@ -71,6 +71,9 @@ public sealed class SessionMix : IDisposable
     private int _mix = 50;
     private bool _running;
     private Timer? _sweep;
+
+    /// <summary>The device the last pass held volumes down on.</summary>
+    private string? _lastDevice;
     private int _chatCount, _gameCount;
     private bool _headsetIsOutput = true;
     private ChatElsewhere? _elsewhere;
@@ -132,7 +135,7 @@ public sealed class SessionMix : IDisposable
         }
         _sweep?.Dispose();
         _sweep = null;
-        Restore();
+        RestoreDevices(_devices);
     }
 
     // Equal-ish balance: centre leaves both untouched, moving off centre
@@ -157,12 +160,20 @@ public sealed class SessionMix : IDisposable
         if (headset is null)
         {
             lock (_gate) _headsetIsOutput = false;
-            Restore();
+            RestoreDevices(_devices);
+            _lastDevice = null;
             return;
         }
         // FindHeadset only returns the default output, so reaching here
         // means the person is listening on the headset.
         lock (_gate) _headsetIsOutput = true;
+
+        // Moved from one of the headset's devices to another, the Charging
+        // Dock to the USB Transmitter say. What was held down on the one left
+        // behind goes back now, not whenever the mix next runs there.
+        if (_lastDevice is { } previous && previous != headset.ID)
+            RestoreDevices(_devices, previous);
+        _lastDevice = headset.ID;
 
         float chatScale = ChatScale(mix), gameScale = GameScale(mix);
         int ours = Environment.ProcessId;
@@ -176,7 +187,7 @@ public sealed class SessionMix : IDisposable
         headset.AudioSessionManager.RefreshSessions();
         var sessions = headset.AudioSessionManager.Sessions;
 
-        var pending = new List<(AudioSessionControl Session, string Id, float Wanted)>();
+        var pending = new List<(AudioSessionControl Session, string Id, float Wanted, float Scale)>();
         for (int i = 0; i < sessions.Count; i++)
         {
             var session = sessions[i];
@@ -189,10 +200,10 @@ public sealed class SessionMix : IDisposable
             bool isChat = IsChat(session.GetProcessID, chatApps);
             if (isChat) chatSeen++; else gameSeen++;
 
-            float original = VolumeJournal.Shared.Remember(id, session.SimpleAudioVolume.Volume);
-            float wanted = Math.Clamp(original * (isChat ? chatScale : gameScale), 0f, 1f);
-            if (MathF.Abs(session.SimpleAudioVolume.Volume - wanted) > 0.001f)
-                pending.Add((session, id, wanted));
+            float scale = isChat ? chatScale : gameScale;
+            if (VolumeJournal.Shared.Wanted(headset.ID, id, session.SimpleAudioVolume.Volume, scale)
+                is float wanted)
+                pending.Add((session, id, wanted, scale));
         }
 
         lock (_gate) { _chatCount = chatSeen; _gameCount = gameSeen; }
@@ -213,9 +224,9 @@ public sealed class SessionMix : IDisposable
         // Write down what we are about to do before doing it. A kill between
         // the two costs nothing; a kill the other way round loses the
         // originals and the person's other applications stay quiet for good.
-        VolumeJournal.Shared.Commit(headset.ID, pending.Select(p => (p.Id, p.Wanted)));
+        VolumeJournal.Shared.Commit(headset.ID, pending.Select(p => (p.Id, p.Wanted, p.Scale)));
         int set = 0; string? trouble = null;
-        foreach (var (session, _, wanted) in pending)
+        foreach (var (session, _, wanted, _) in pending)
         {
             try { session.SimpleAudioVolume.Volume = wanted; set++; }
             catch (Exception ex) { trouble ??= ex.Message; }
@@ -269,28 +280,23 @@ public sealed class SessionMix : IDisposable
     }
 
     /// <summary>
-    /// Put back everything we turned down, wherever we turned it down.
-    ///
-    /// Every device the journal owns, not just the one we are on now: the
-    /// reason there is anything to put back is usually that the output
-    /// changed, and looking only at the current device leaves the old one
-    /// pinned. That is the same shape as the bug this used to have when the
-    /// person switched to speakers.
+    /// Put back what we turned down: on every device the journal holds
+    /// anything for, or only on <paramref name="only"/>. A device that is not
+    /// plugged in keeps its record for when it is.
     /// </summary>
-    private void Restore()
+    private static void RestoreDevices(MMDeviceEnumerator devices, string? only = null)
     {
-        try
+        foreach (string id in only is null ? VolumeJournal.Shared.Devices : [only])
         {
-            foreach (var device in _devices.EnumerateAudioEndPoints(
-                         DataFlow.Render, DeviceState.Active))
-                using (device)
-                {
-                    if (!VolumeJournal.Shared.Owns(device.ID)) continue;
-                    device.AudioSessionManager.RefreshSessions();
-                    VolumeJournal.Shared.RestoreInto(Volumes(device.AudioSessionManager.Sessions));
-                }
+            try
+            {
+                using var device = devices.GetDevice(id);
+                if (device.State != DeviceState.Active) continue;
+                device.AudioSessionManager.RefreshSessions();
+                VolumeJournal.Shared.RestoreInto(id, Volumes(device.AudioSessionManager.Sessions));
+            }
+            catch { /* devices come and go; never fail on the way out */ }
         }
-        catch { /* devices come and go; never fail on the way out */ }
     }
 
     private static IEnumerable<ISessionVolume> Volumes(SessionCollection sessions)
@@ -358,22 +364,14 @@ public sealed class SessionMix : IDisposable
     /// Put back anything a previous run left turned down. Call this at
     /// launch, before anything else.
     /// </summary>
-    public static void Recover(string headsetMatch = "Stealth Pro")
+    public static void Recover()
     {
         try
         {
             using var devices = new MMDeviceEnumerator();
-            foreach (var device in devices.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
-            {
-                using (device)
-                {
-                    if (!VolumeJournal.Shared.Owns(device.ID)) continue;
-                    device.AudioSessionManager.RefreshSessions();
-                    VolumeJournal.Shared.RestoreInto(Volumes(device.AudioSessionManager.Sessions));
-                }
-            }
+            RestoreDevices(devices);
         }
-        catch { }
+        catch { /* no audio system to ask; the journal keeps it for next time */ }
     }
 
     public void Dispose()
