@@ -171,7 +171,7 @@ matched to anything. Key numbers are hex; values travel as decimal strings.
 | `0x110` | USB product id: `229E`, the headset's own, whichever transmitter answers |
 | `0x120` | serial number |
 | `0x130` | firmware version |
-| `0x150` | 2 while the headset is on **this** transmitter, 1 while it is on another *(measured)* |
+| `0x150` | changes when the headset moves between transmitters; its value is not understood. See [Connection state](#connection-state) |
 
 ### General state (`GSI`)
 
@@ -338,14 +338,19 @@ back. While it reads 0 the chat wheel's changes do not arrive, though
 settings still answer; the turns made meanwhile arrive together when sound
 returns.
 
-### "This transmitter", `0x150`
+### A change of transmitter, `0x150`
 
-2 while the headset is using the transmitter being asked, 1 while it is on
-another *(measured both directions, at ten samples a second, with sound
-playing through the other transmitter throughout)*. It agrees with the
-transmitter slots' selected flag and changes about three seconds before they
-do, so it is a cheap trigger for re-reading the slots. It does not mean sound
-is flowing.
+With both transmitters plugged in, asked of the Charging Dock, it went 2 to 1
+as the headset CrossPlayed away and 1 to 2 as it came back, in both
+directions, with sound playing through the other transmitter throughout
+*(measured at ten samples a second)*. It changed about three seconds before
+the transmitter slots did, so it is a cheap trigger for re-reading them.
+
+Its value is not "on this transmitter": with the Dock the only transmitter
+plugged in, paired and in use, it read 1 *(measured)*. That fits it being the
+number of the slot in use, but that is one data point *(inferred)*. Use only
+the fact that it changed; which transmitter is selected comes from the slots.
+It does not mean sound is flowing.
 
 ### Over the USB-C cable
 
