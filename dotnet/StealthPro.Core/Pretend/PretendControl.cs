@@ -29,7 +29,7 @@ namespace StealthPro.Core.Pretend;
 ///   volume output|input     Windows' volume and mute for the headset
 ///   format output|input     the headset's format in Windows
 ///   mix                     the mix being applied, or null
-///   registry                every confirmed setting and its limits
+///   registry                every confirmed setting, its limits and its options' labels
 /// </code>
 /// <para>
 /// The pipe is open to the current user only.
@@ -149,7 +149,8 @@ public sealed class PretendControl : IDisposable
         ["min"] = key.Minimum,
         ["max"] = key.Maximum,
         ["options"] = key.Options is null ? null
-            : new JsonArray(key.Options.Keys.Order().Select(o => (JsonNode)o).ToArray()),
+            : new JsonObject(key.Options.OrderBy(o => o.Key).Select(o =>
+                KeyValuePair.Create(o.Key.ToString(CultureInfo.InvariantCulture), (JsonNode?)o.Value))),
     };
 
     private static int Key(string text) => Registry.Resolve(text).Key;

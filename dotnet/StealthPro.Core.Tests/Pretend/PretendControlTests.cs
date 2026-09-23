@@ -68,6 +68,17 @@ public class PretendControlTests
     }
 
     [Fact]
+    public void TheRegistryNamesEachOption()
+    {
+        var (_, control) = Make();
+
+        var dial = Reply(control, "registry").GetProperty("result").EnumerateArray()
+            .Single(k => k.GetProperty("name").GetString() == "dial_function");
+
+        Assert.Equal("Game and chat mix", dial.GetProperty("options").GetProperty("2").GetString());
+    }
+
+    [Fact]
     public async Task AnswersOverThePipe()
     {
         string pipe = $"Neap.Pretend.Test.{Guid.NewGuid():N}";
