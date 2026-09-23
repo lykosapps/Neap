@@ -240,6 +240,34 @@ public class LinkTrackerTests
         Assert.Equal(Link.Silent, status?.Link ?? _link.Status.Link);
     }
 
+    [Fact]
+    public void AnEarlierRunsKnowledgeThatTheSettingsLeftSurvivesARestart()
+    {
+        _link.SettingsLeftEarlierWith(Transmitter);
+
+        Assert.Equal(Link.Silent, _link.Unreachable([Dock])?.Link);
+        Assert.Equal(Transmitter, _link.SettingsLeftWith);
+    }
+
+    [Fact]
+    public void AnEarlierRunsKnowledgeIsDroppedOnceThatTransmitterIsBack()
+    {
+        _link.SettingsLeftEarlierWith(Transmitter);
+
+        Assert.Equal(Link.Quiet, _link.Unreachable([Dock, Transmitter])?.Link);
+    }
+
+    [Fact]
+    public void TheHeadsetAnsweringForgetsWhereTheSettingsWent()
+    {
+        _link.SettingsLeftEarlierWith(Transmitter);
+        _link.Unreachable([Dock]);
+
+        OnTheDock();
+
+        Assert.Null(_link.SettingsLeftWith);
+    }
+
     private HeadsetStatus? OnTheTransmitter() =>
         _link.Answering(false, Route.UsbTransmitter, "USB Transmitter", "USB Transmitter", "device", "229D");
 

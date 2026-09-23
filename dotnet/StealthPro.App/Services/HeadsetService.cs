@@ -110,6 +110,7 @@ public sealed class HeadsetService : IDisposable
     {
         var running = Stopwatch.StartNew();
         _link = new LinkTracker(Words, () => running.Elapsed, cabled ?? (() => false));
+        if (AppSettings.Current.SettingsLeftWith is ushort left) _link.SettingsLeftEarlierWith(left);
         _status = _link.Status;
         _ui = DispatcherQueue.GetForCurrentThread();
         _worker = new Thread(Run) { IsBackground = true, Name = "headset" };
@@ -793,6 +794,11 @@ public sealed class HeadsetService : IDisposable
     {
         if (next is null) return;
         var was = _status;
+
+        // Kept across restarts; see LinkTracker.SettingsLeftEarlierWith.
+        ushort? left = _link.SettingsLeftWith;
+        if (AppSettings.Current.SettingsLeftWith != left)
+            AppSettings.Update(s => s.SettingsLeftWith = left);
 
         // The detail is wording and changes without the state changing, so
         // only a change of state is recorded.

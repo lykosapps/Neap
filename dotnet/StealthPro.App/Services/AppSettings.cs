@@ -35,6 +35,12 @@ public sealed class AppSettings
     /// </summary>
     [JsonPropertyName("told_about_tray")] public bool ToldAboutTray { get; set; }
 
+    /// <summary>
+    /// The product id of the transmitter the headset's settings left with,
+    /// while it is unplugged, so that a restart still says so.
+    /// </summary>
+    [JsonPropertyName("settings_left_with")] public ushort? SettingsLeftWith { get; set; }
+
     /// <summary>Whether the mix can be moved by keyboard from inside a game.</summary>
     /// <remarks>
     /// Off by default: taking three key combinations away from everything else

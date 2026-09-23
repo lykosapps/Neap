@@ -194,6 +194,24 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
         else _soundDownAt = clock();
     }
 
+    /// <summary>
+    /// The transmitter the headset's settings left with, while it is gone.
+    /// Null once the headset answers again.
+    /// </summary>
+    public ushort? SettingsLeftWith => _lostWithTransmitter ? _lostDevice : null;
+
+    /// <summary>
+    /// Starts from an earlier run's knowledge that the settings left with
+    /// <paramref name="device"/>.
+    /// </summary>
+    /// <remarks>
+    /// A fresh start cannot see that: nothing answers either way, and without
+    /// it the headset reads as switched off, with advice to switch it on,
+    /// while it plays on. Taken only while that transmitter is still gone;
+    /// see <see cref="Unreachable"/>.
+    /// </remarks>
+    public void SettingsLeftEarlierWith(ushort device) => _lostDevice = device;
+
     /// <summary>Discards everything the headset has reported.</summary>
     public void Forget()
     {
