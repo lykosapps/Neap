@@ -68,7 +68,7 @@ cd dotnet/StealthPro.App
 dotnet publish -c Release -r win-x64
 ```
 
-Then run `StealthProII.exe` from the `publish` folder. You need the .NET 9
+Then run `StealthProII.exe` from the `publish` folder. You need the .NET 10
 SDK to build, but not to run the result.
 
 ## Living with Swarm II
@@ -108,7 +108,7 @@ see what the hardware is actually saying:
 ```
 cd dotnet
 dotnet build StealthPro.Probe -c Release
-StealthPro.Probe/bin/Release/net9.0-windows/StealthPro.Probe.exe read
+StealthPro.Probe/bin/Release/net10.0-windows/StealthPro.Probe.exe read
 ```
 
 `devices`, `read`, `named`, `registry`, `presets`, `transmitters`, `json`,
