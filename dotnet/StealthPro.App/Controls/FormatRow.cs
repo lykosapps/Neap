@@ -36,7 +36,10 @@ public sealed class FormatRow : SettingsCard
     public static readonly DependencyProperty CaptureProperty = DependencyProperty.Register(
         nameof(Capture), typeof(bool), typeof(FormatRow), new PropertyMetadata(false));
 
-    /// <summary>Gets or sets whether the row sets the microphone's format (true) or the headset output's (false).</summary>
+    /// <summary>
+    /// Gets or sets whether the row sets the microphone's format (true) or
+    /// the headset output's (false).
+    /// </summary>
     public bool Capture
     {
         get => (bool)GetValue(CaptureProperty);

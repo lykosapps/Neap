@@ -62,7 +62,10 @@ public sealed class SettingRow : SettingsCard
         set => SetValue(GlyphProperty, value);
     }
 
-    /// <summary>Identifies the <see cref="Unit"/> property: text shown after the value, for settings with a unit worth saying.</summary>
+    /// <summary>
+    /// Identifies the <see cref="Unit"/> property: text shown after the
+    /// value, for settings with a unit worth saying.
+    /// </summary>
     public static readonly DependencyProperty UnitProperty = DependencyProperty.Register(
         nameof(Unit), typeof(string), typeof(SettingRow), new PropertyMetadata(""));
 
@@ -200,7 +203,8 @@ public sealed class SettingRow : SettingsCard
 
     private void ShowValue(int value)
     {
-        if (_readout is not null) _readout.Text = Unit.Length > 0 ? $"{value}{Unit}" : value.ToString(CultureInfo.CurrentCulture);
+        if (_readout is not null)
+            _readout.Text = Unit.Length > 0 ? $"{value}{Unit}" : value.ToString(CultureInfo.CurrentCulture);
     }
 
     /// <summary>

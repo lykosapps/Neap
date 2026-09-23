@@ -60,9 +60,12 @@ public sealed partial class AppStringsTests
 
     private static IEnumerable<string> Sources(string pattern) =>
         Directory.EnumerateFiles(App, pattern, SearchOption.AllDirectories)
-            .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-                        && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+            .Where(f => !Under(f, "obj") && !Under(f, "bin"))
             .Select(File.ReadAllText);
+
+    private static bool Under(string file, string folder) =>
+        file.Contains($"{Path.DirectorySeparatorChar}{folder}{Path.DirectorySeparatorChar}",
+            StringComparison.Ordinal);
 
     private static string RepoRoot()
     {

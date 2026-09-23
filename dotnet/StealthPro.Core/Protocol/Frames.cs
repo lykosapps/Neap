@@ -100,8 +100,8 @@ public static class Frames
               counter);
 
     /// <summary>
-    /// The argument object, byte for byte as Python's
-    /// <c>json.dumps(separators=(",", ":"))</c> writes it.
+    /// The argument object as compact JSON: no spaces, and strings escaped
+    /// only where JSON requires it.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -113,8 +113,8 @@ public static class Frames
     /// wrong. Nothing here is ever rendered as HTML.
     /// </para>
     /// <para>
-    /// Anything outside printable ASCII still goes out as \uXXXX, as Python's
-    /// ensure_ascii does, which keeps the frame ASCII-encodable.
+    /// Anything outside printable ASCII goes out as \uXXXX, which keeps the
+    /// frame ASCII-encodable.
     /// </para>
     /// </remarks>
     private static string Encode(IReadOnlyDictionary<string, string> values)
@@ -146,7 +146,8 @@ public static class Frames
                 case '\b': json.Append("\\b"); break;
                 case '\f': json.Append("\\f"); break;
                 default:
-                    if (c is < ' ' or > '~') json.Append("\\u").Append(((int)c).ToString("x4", CultureInfo.InvariantCulture));
+                    if (c is < ' ' or > '~')
+                        json.Append("\\u").Append(((int)c).ToString("x4", CultureInfo.InvariantCulture));
                     else json.Append(c);
                     break;
             }

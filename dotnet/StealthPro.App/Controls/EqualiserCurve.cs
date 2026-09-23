@@ -70,7 +70,10 @@ public sealed class EqualiserCurve : UserControl
     /// <summary>Raised when a band is dragged, with its index and new value in tenths of a dB.</summary>
     public event Action<int, int>? BandChanged;
 
-    /// <summary>Raised when a band's ring is clicked, asking for that band to be put back where the preset has it.</summary>
+    /// <summary>
+    /// Raised when a band's ring is clicked, asking for that band to be put
+    /// back where the preset has it.
+    /// </summary>
     public event Action<int>? BandReverted;
 
     public EqualiserCurve()

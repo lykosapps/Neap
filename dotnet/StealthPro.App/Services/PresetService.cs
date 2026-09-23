@@ -131,7 +131,8 @@ public sealed class PresetService
         if (!_banks.TryGetValue(bank, out var state)) return "";
         // The headset stops reporting a name the moment a band is touched,
         // which would empty the label exactly when it is most wanted.
-        string? reported = _headset.Values.TryGetValue(state.Spec.NameKey.ToString("x", CultureInfo.InvariantCulture), out var raw)
+        string nameKey = state.Spec.NameKey.ToString("x", CultureInfo.InvariantCulture);
+        string? reported = _headset.Values.TryGetValue(nameKey, out var raw)
             ? raw.ToString() : null;
         return string.IsNullOrWhiteSpace(reported) ? state.Baseline?.Name ?? "" : reported;
     }

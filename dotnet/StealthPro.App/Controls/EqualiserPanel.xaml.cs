@@ -302,7 +302,11 @@ public sealed partial class EqualiserPanel : UserControl
     private UIElement ConfirmChip(Preset preset)
     {
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
-        var delete = new Button { Content = Strings.Get("Equaliser_Delete"), Style = (Style)Application.Current.Resources["AccentButtonStyle"] };
+        var delete = new Button
+        {
+            Content = Strings.Get("Equaliser_Delete"),
+            Style = (Style)Application.Current.Resources["AccentButtonStyle"],
+        };
         var cancel = new Button { Content = Strings.Get("Dialog_Cancel") };
         // "Delete" and "Cancel" on their own do not say what of.
         AutomationProperties.SetName(delete, Strings.Format("Equaliser_DeleteNamed", preset.Name));

@@ -263,7 +263,8 @@ public sealed partial class HomePage : Page
         // Not yet looked is not "not plugged in": the first paint comes
         // before the first look, and would flash the wrong answer.
         bool here = _plugged.Count == 0
-                    || _plugged.Any(d => Same(d.ProductId.ToString("X4", CultureInfo.InvariantCulture), status.Product));
+                    || _plugged.Any(d =>
+                        Same(d.ProductId.ToString("X4", CultureInfo.InvariantCulture), status.Product));
         return Strings.Format(here ? "Home_Wireless" : "Home_Unplugged", status.Adapter);
     }
 

@@ -102,7 +102,7 @@ FF                      separator
 ```
 
 Total length is the argument's length plus 27; inner length is plus 23. The
-tag byte is `0xB7` before `set_kvp` and `0x61` before a read verb; what it
+tag is `B7` before `set_kvp` and `61 00` before a read verb; what it
 encodes is not known.
 
 ### Replies
