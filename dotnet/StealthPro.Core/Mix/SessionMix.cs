@@ -72,7 +72,11 @@ public sealed class SessionMix : IDisposable
     private bool _running;
     private Timer? _sweep;
 
-    /// <summary>The device the last pass held volumes down on.</summary>
+    /// <summary>Held for the whole of a pass, so no two passes ever overlap.</summary>
+    private readonly object _pass = new();
+    private int _passQueued;
+
+    /// <summary>The device the last pass held volumes down on. Only touched inside a pass.</summary>
     private string? _lastDevice;
     private int _chatCount, _gameCount;
     private bool _headsetIsOutput = true;
@@ -91,7 +95,7 @@ public sealed class SessionMix : IDisposable
     public IReadOnlyList<string> ChatApps
     {
         get { lock (_gate) return _chatApps.ToList(); }
-        set { lock (_gate) _chatApps = value.ToList(); Apply(); }
+        set { lock (_gate) _chatApps = value.ToList(); Poke(); }
     }
 
     public SessionMixStatus Status
@@ -113,16 +117,21 @@ public sealed class SessionMix : IDisposable
             if (_running) return;
             _running = true;
         }
-        Apply();
-        _sweep = new Timer(_ => { try { Apply(); } catch { } }, null, SweepMs, SweepMs);
+        Poke();
+        _sweep = new Timer(_ => Pass(), null, SweepMs, SweepMs);
     }
 
-    /// <summary>0 = all game, 50 = both, 100 = all chat.</summary>
+    /// <summary>
+    /// 0 = all game, 50 = both, 100 = all chat. Applied a moment later, off
+    /// the caller's thread: a pass walks every session on the device, which
+    /// is too slow to do on every step of a slider drag.
+    /// </summary>
     public int SetMix(int percent)
     {
-        lock (_gate) _mix = Math.Clamp(percent, 0, 100);
-        Apply();
-        return _mix;
+        int mix = Math.Clamp(percent, 0, 100);
+        lock (_gate) _mix = mix;
+        Poke();
+        return mix;
     }
 
     /// <summary>Stop, and put every volume back.</summary>
@@ -135,7 +144,34 @@ public sealed class SessionMix : IDisposable
         }
         _sweep?.Dispose();
         _sweep = null;
-        RestoreDevices(_devices);
+
+        // Wait out a pass already under way. Otherwise it could hold volumes
+        // down again just after they were put back.
+        lock (_pass) RestoreDevices(_devices);
+    }
+
+    /// <summary>Apply the mix soon. Asking again before it runs costs nothing.</summary>
+    private void Poke()
+    {
+        if (Interlocked.Exchange(ref _passQueued, 1) == 1) return;
+        ThreadPool.QueueUserWorkItem(_ =>
+        {
+            Interlocked.Exchange(ref _passQueued, 0);
+            Pass();
+        });
+    }
+
+    private void Pass()
+    {
+        lock (_pass)
+        {
+            try { Apply(); }
+            catch (Exception ex)
+            {
+                // Raised on a pool thread, where anything thrown ends the process.
+                if (Diagnostics) Console.Error.WriteLine($"[mix] pass failed: {ex}");
+            }
+        }
     }
 
     // Equal-ish balance: centre leaves both untouched, moving off centre
