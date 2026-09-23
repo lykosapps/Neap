@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    # WinUI and the Windows audio and HID APIs only build on Windows.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore dotnet/StealthPro.sln
+
+      - name: Build
+        run: dotnet build dotnet/StealthPro.sln -c Release --no-restore -p:ContinuousIntegrationBuild=true
+
+      - name: Check formatting
+        run: dotnet format dotnet/StealthPro.sln --verify-no-changes --no-restore
+
+      - name: Test
+        run: dotnet test --project dotnet/StealthPro.Core.Tests -c Release --no-build
