@@ -137,7 +137,7 @@ A few more matter when something is not behaving:
 - `decode <file.pcap>` reads a USBPcap recording of Swarm II driving the
   headset and prints every command and reply, naming the ones in the
   registry. This is how anything new gets learned — the registry was built
-  by watching the vendor's app. Capture with `tools/capture5.ps1`.
+  by watching the vendor's app. Capture with `tools/capture.ps1`.
 
 ## Safety
 

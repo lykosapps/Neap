@@ -611,7 +611,8 @@ while capturing its USB traffic.
 2. Capture the headset's device, as administrator, to a short path (USBPcap
    fails silently past the Windows path limit):
    `USBPcapCMD.exe -d \\.\USBPcap<n> -o out.pcap --devices <address> --inject-descriptors`.
-   `tools/capture5.ps1` wraps this.
+   `tools/capture.ps1 -Interface <n> -Device <address>` wraps this, and its
+   help says how to find both.
 3. Decode it with the probe: `StealthPro.Probe decode out.pcap` prints every
    command and reply, naming the keys already in the registry.
 
