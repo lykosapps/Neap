@@ -32,7 +32,7 @@ public readonly record struct HidDeviceInfo(
 ///   speak the same protocol but they are different devices with different
 ///   storage, so anything that writes must know which one it has.
 /// </summary>
-public sealed class HidTransport : IDisposable
+public sealed class HidTransport : IHidTransport
 {
     public const ushort DefaultVendorId = 0x10F5;
     public const ushort VendorUsagePage = 0xFF13;

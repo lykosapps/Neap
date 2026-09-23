@@ -22,7 +22,7 @@ public class WritesDisabledException : Exception
 /// </summary>
 public sealed class HeadsetClient : IDisposable
 {
-    private readonly HidTransport _transport;
+    private readonly IHidTransport _transport;
     private readonly bool _ownsTransport;
     private readonly List<byte> _buffer = new();
     private int _counter;
@@ -33,7 +33,7 @@ public sealed class HeadsetClient : IDisposable
     /// Close <paramref name="transport"/> when this client is disposed. A
     /// transport handed in is otherwise the caller's to close.
     /// </param>
-    public HeadsetClient(bool allowWrites = false, HidTransport? transport = null,
+    public HeadsetClient(bool allowWrites = false, IHidTransport? transport = null,
         bool ownsTransport = false)
     {
         AllowWrites = allowWrites;
