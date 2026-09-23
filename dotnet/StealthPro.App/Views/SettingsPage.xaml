@@ -29,7 +29,7 @@
 
             <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="About" />
             <StackPanel Spacing="4">
-                <tk:SettingsCard x:Name="AboutCard" Header="Stealth Pro II Control">
+                <tk:SettingsCard x:Name="AboutCard">
                     <tk:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE7F6;" />
                     </tk:SettingsCard.HeaderIcon>

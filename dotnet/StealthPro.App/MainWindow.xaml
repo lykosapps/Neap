@@ -31,16 +31,15 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock
+                x:Name="TitleText"
                 Grid.Column="0"
                 Margin="16,0,0,0"
                 VerticalAlignment="Center"
-                Style="{StaticResource CaptionTextBlockStyle}"
-                Text="Stealth Pro II" />
+                Style="{StaticResource CaptionTextBlockStyle}" />
 
             <controls:HeadsetStatusStrip
                 x:Name="Status"
                 Grid.Column="2"
-                Margin="0,0,152,0"
                 VerticalAlignment="Center" />
         </Grid>
 
@@ -102,8 +101,7 @@
         <tray:TaskbarIcon
             x:Name="Tray"
             IconSource="ms-appx:///Assets/app.ico"
-            NoLeftClickDelay="True"
-            ToolTipText="Stealth Pro II">
+            NoLeftClickDelay="True">
             <tray:TaskbarIcon.ContextFlyout>
                 <MenuFlyout>
                     <MenuFlyoutItem Click="OnShowRequested" Text="Open" />

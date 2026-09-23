@@ -32,9 +32,15 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         AppServices.Start();
 
-        Title = "Stealth Pro II";
+        Title = AppInfo.Name;
+        TitleText.Text = AppInfo.Name;
+        Tray.ToolTipText = AppInfo.Name;
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(TitleBar);
+
+        // Clear of the window's own buttons, however wide Windows draws them.
+        AppWindow.Changed += (_, _) => FitTitleBar();
+        FitTitleBar();
 
         // Big enough for the equaliser's ten bands side by side, which is the
         // widest thing in the app and the one that reads badly when it is
@@ -94,9 +100,19 @@ public sealed partial class MainWindow : Window
     /// pages we are no longer drawing get pushed out of the working set. They
     /// come back on their own when the window is shown again.
     /// </summary>
+    private void FitTitleBar()
+    {
+        double inset = AppWindow.TitleBar.RightInset / (Dpi() / 96.0);
+        Status.Margin = new Thickness(0, 0, inset + 8, 0);
+    }
+
     private void Hide()
     {
         AppWindow.Hide();
+
+        // Unload the page, so what it watches and polls stops while nobody
+        // is looking. Showing the window loads it again.
+        Body.Content = null;
         TrimWorkingSet();
         TellThemOnce();
 
@@ -127,7 +143,7 @@ public sealed partial class MainWindow : Window
         {
             Tray.ShowNotification(
                 "Still running",
-                "Stealth Pro II is in the notification area, keeping the mix and "
+                $"{AppInfo.Name} is in the notification area, keeping the mix and "
                 + "the chat wheel working. Open or quit it from there.");
         }
         catch { /* notifications can be off; the setting is still recorded */ }
@@ -136,6 +152,8 @@ public sealed partial class MainWindow : Window
     private void Show()
     {
         _trim?.Stop();
+        if (Body.Content is null && Nav.SelectedItem is NavigationViewItem item)
+            Body.Navigate(PageFor(item.Tag as string), null, new SuppressNavigationTransitionInfo());
         AppWindow.Show();
         SetForegroundWindow(Handle);
     }
@@ -153,18 +171,20 @@ public sealed partial class MainWindow : Window
     private void OnNavigate(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         if (args.SelectedItem is not NavigationViewItem item) return;
-        Type page = item.Tag switch
-        {
-            "audio" => typeof(AudioPage),
-            "mic" => typeof(MicrophonePage),
-            "controls" => typeof(ControlsPage),
-            "device" => typeof(DevicePage),
-            "settings" => typeof(SettingsPage),
-            _ => typeof(HomePage),
-        };
-        if (Body.CurrentSourcePageType != page)
+        Type page = PageFor(item.Tag as string);
+        if (Body.Content is null || Body.CurrentSourcePageType != page)
             Body.Navigate(page, null, new EntranceNavigationTransitionInfo());
     }
+
+    private static Type PageFor(string? tag) => tag switch
+    {
+        "audio" => typeof(AudioPage),
+        "mic" => typeof(MicrophonePage),
+        "controls" => typeof(ControlsPage),
+        "device" => typeof(DevicePage),
+        "settings" => typeof(SettingsPage),
+        _ => typeof(HomePage),
+    };
 
     private IntPtr Handle => WinRT.Interop.WindowNative.GetWindowHandle(this);
 

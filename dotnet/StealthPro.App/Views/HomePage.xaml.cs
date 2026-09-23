@@ -39,7 +39,7 @@ public sealed partial class HomePage : Page
         new("audio", "\uE7F6", "Audio", "The game and chat mix, noise cancellation and the equaliser."),
         new("mic", "\uE720", "Microphone", "Level, monitoring, the noise gate and its own equaliser."),
         new("controls", "\uE7FC", "Controls", "What the dial and the mode button do on the headset."),
-        new("device", "", "Device", "Windows audio format, firmware, and everything it reports."),
+        new("device", "\uE950", "Device", "Windows audio format, firmware, and everything it reports."),
     };
 
     /// <summary>
@@ -409,6 +409,7 @@ public sealed partial class HomePage : Page
             face.Children.Add(new TextBlock
             {
                 Text = place.Name,
+                TextWrapping = TextWrapping.Wrap,
                 Style = (Style)Application.Current.Resources["BodyStrongTextBlockStyle"],
             });
             face.Children.Add(new TextBlock

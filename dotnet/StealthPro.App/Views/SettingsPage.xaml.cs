@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.UI.Xaml.Controls;
 using StealthPro.App.Services;
 
@@ -28,7 +27,8 @@ public sealed partial class SettingsPage : Page
 
         const string About =
             "A replacement for Swarm II. Not affiliated with or endorsed by Turtle Beach.";
-        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        var version = AppInfo.Version;
+        AboutCard.Header = AppInfo.Name;
         AboutCard.Description = version is null
             ? About
             : $"Version {version.Major}.{version.Minor}.{version.Build} · {About}";
