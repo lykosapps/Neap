@@ -62,3 +62,7 @@ Run through this with the release build, not a debug one:
 
 Keep each one to a single change, with a commit message that says what
 changed and why. Run the formatter before pushing.
+
+By opening a pull request you agree that your contribution is licensed under
+the same terms as the project: the GNU General Public License, version 3 or
+later.
