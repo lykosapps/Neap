@@ -40,22 +40,37 @@ new about the protocol, add a test that would have caught the old mistake.
 
 Run through this with the release build, not a debug one:
 
-1. **Each way of connecting.** With the Charging Dock alone, the USB
-   Transmitter alone, and both, check the header reads *Headset connected*.
-   Switch the headset off: *Not connected*. With both plugged in, unplug the
-   one carrying the sound while the other carries the settings: *No sound*.
-   Unplug the one carrying the settings while the other stays in: *Settings
-   unavailable*. With nothing plugged in: *Nothing plugged in*.
-2. **The USB-C cable.** Plug it in with the headset on: sound and microphone
-   move to the cable. Switch the headset off on the cable: *Headset off*.
-3. **The mix.** Turn the chat wheel through its range and back; the mix
+1. **Every connection state.** One row per arrangement, the same rows as
+   `ConnectionMatrixTests`. Start each from a working headset. The headset
+   keeps its settings on the transmitter it was switched on with and
+   CrossPlay moves only its sound, so to put the settings on one transmitter,
+   unplug the other before switching the headset on.
+
+   | Do this | The header says | The one thing Home tells you to do |
+   |---|---|---|
+   | Sound and settings on one transmitter | *Headset connected* | |
+   | Settings on one, CrossPlay the sound to the other | *Headset connected* | |
+   | Then point Windows at the wrong transmitter | *No sound* | choose the right one in Sound settings |
+   | Settings on one, sound on the other; unplug the sound one | *No sound* | press CrossPlay |
+   | Settings on one, sound on the other; unplug the settings one | *Settings unavailable* | switch off and on |
+   | Both on one transmitter; unplug it, the other stays in | *Settings unavailable*, says no sound reaches the headset | switch off and on |
+   | Switch the headset off | *Not connected* for as long as it is off, including when the other transmitter was used earlier | switch it on |
+   | Switch it on | *Headset connected* | |
+   | Unplug everything | *Nothing plugged in* | |
+   | Plug in the USB-C cable, headset on | *Headset connected*; sound and microphone move to the cable | |
+   | Switch it off on the cable | *Not connected*, then *Headset off*, with nothing in between | |
+   | With the settings unavailable, restart the app | still *Settings unavailable* | switch off and on |
+
+   A state that no row covers is a bug, and gets a row here and a test.
+
+2. **The mix.** Turn the chat wheel through its range and back; the mix
    follows it and beeps once at the centre.
-4. **Recovery.** Move the mix fully to chat, end the app from Task Manager,
+3. **Recovery.** Move the mix fully to chat, end the app from Task Manager,
    and start it again. Every other app's volume comes back.
-5. **Presets.** Save a preset named with an ampersand and 19 characters,
+4. **Presets.** Save a preset named with an ampersand and 19 characters,
    overwrite it, then delete it. The probe's `presets` command agrees at
    each step.
-6. **Audio format.** Change the headset's format on the Device page and
+5. **Audio format.** Change the headset's format on the Device page and
    check Windows Sound settings shows the same.
 
 ## Pull requests

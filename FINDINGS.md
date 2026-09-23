@@ -351,6 +351,12 @@ healthy connection, `0x150` and `0x230` included. CrossPlay moved the sound
 to the Dock and brought it back; only the slots' selection changed
 *(measured)*.
 
+Unplugging the one transmitter that carried both the sound and the settings
+leaves the other amber: no sound, no microphone, and nothing answers for the
+settings. The headset's volume wheel still reaches Windows through that other
+transmitter, so some link remains. Switching the headset off and on brings
+everything back on it; CrossPlay brings back only the sound *(measured)*.
+
 ### The sound link, `0x230`
 
 | What happened | `0x230` | Sound |
