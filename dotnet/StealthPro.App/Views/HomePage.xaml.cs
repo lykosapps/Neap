@@ -342,76 +342,16 @@ public sealed partial class HomePage : Page
     }
 
     /// <summary>
-    /// Every transmitter worth mentioning, from two sources, each with one
-    /// plain state.
-    ///
-    /// <b>The list used to be only what the headset reported.</b> That made a
-    /// transmitter plugged in beside it invisible until the headset had used
-    /// it, and it kept a transmitter that had been unplugged listed as in use.
-    /// What is plugged in is a separate question with its own answer, and the
-    /// app had it all along.
-    ///
-    /// <b>No "not paired" state, deliberately.</b> A USB Transmitter was
-    /// plugged in, missing from the headset's list, and one press of
-    /// CrossPlay connected to it — it had been paired all along. The slots
-    /// report the transmitters the headset has seen lately, not everything it
-    /// is paired with, so absence from them does not mean what it looks like.
+    /// Every transmitter worth mentioning, from what the headset reported and
+    /// what is plugged in. <see cref="TransmitterList"/> decides each one's
+    /// state; this says it.
     /// </summary>
     private void PaintTransmitters()
     {
-        var status = AppServices.Headset.Status;
-        var known = AppServices.Headset.KnownTransmitters;
-
-        var plugged = _plugged
-            .Select(d => d.ProductId.ToString("X4", CultureInfo.InvariantCulture))
-            .Where(IsTransmitter)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        // In use only when it was seen to be. With the settings out of reach
-        // a transmitter is plugged in, and that is all anyone knows.
-        //
-        // Over a cable no transmitter carries the sound, whichever one the
-        // headset is paired to, and CrossPlay would not change what is heard,
-        // so none is in use and none is offered.
-        bool cable = OverCable(status);
-        string inUse = status.Link == Link.Connected && !status.NoSound && !cable
-            ? status.Product : "";
-
-        var rows = new List<(int Order, string Name, string Detail, string State)>();
-        var listed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        void Add(string product, Transmitter? slot)
-        {
-            if (!listed.Add(product)) return;
-            string name = slot?.Kind is { Length: > 0 } kind ? kind
-                : StealthPro.Core.Transmitters.Hardware.TryGetValue(product, out var called) ? called
-                : "Transmitter";
-            string firmware = slot is null ? "" : $"Firmware {slot.Firmware}";
-            bool here = plugged.Contains(product);
-
-            // <b>Selected is not the same as here.</b> Unplug the transmitter
-            // carrying the sound while the other carries the controls, and
-            // the headset goes on reporting the unplugged one as selected.
-            // "In use" on a transmitter that is not plugged in was the list
-            // agreeing with the headset instead of with what is on the desk.
-            if (Same(product, inUse) && !here)
-                rows.Add((2, name, "Your headset's sound is set to this one.", "Not plugged in"));
-            else if (Same(product, inUse))
-                rows.Add((0, name, firmware, "In use"));
-            // "Press CrossPlay to switch to it" only when the app knows the
-            // sound is somewhere else. With nothing answering it does not
-            // know, and the hint sat on the Charging Dock while the headset's
-            // sound was already playing through it.
-            else if (here && status.Link == Link.Connected && !cable)
-                rows.Add((1, name, "Press CrossPlay on the headset to switch to it.", "Plugged in"));
-            else if (here)
-                rows.Add((1, name, "", "Plugged in"));
-            else
-                rows.Add((2, name, firmware, "Not plugged in"));
-        }
-
-        foreach (var slot in known) Add(slot.ProductId, slot);
-        foreach (var product in plugged) Add(product, null);
+        var rows = TransmitterList.Rows(AppServices.Headset.Status,
+            AppServices.Headset.KnownTransmitters,
+            _plugged.Select(d => d.ProductId.ToString("X4", CultureInfo.InvariantCulture)),
+            OverCable(AppServices.Headset.Status));
 
         Transmitters.Children.Clear();
         if (rows.Count == 0)
@@ -420,27 +360,36 @@ public sealed partial class HomePage : Page
             return;
         }
 
-        foreach (var row in rows.OrderBy(r => r.Order))
+        foreach (var row in rows)
         {
             var card = new SettingsCard
             {
                 Header = row.Name,
                 Content = new TextBlock
                 {
-                    Text = row.State,
+                    Text = row.State switch
+                    {
+                        TransmitterState.InUse => "In use",
+                        TransmitterState.CanSwitchTo or TransmitterState.PluggedIn => "Plugged in",
+                        _ => "Not plugged in",
+                    },
                     Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
                     Foreground = (Brush)Application.Current.Resources[
-                        row.Order == 0 ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush"],
+                        row.State == TransmitterState.InUse
+                            ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush"],
                 },
             };
-            if (row.Detail.Length > 0) card.Description = row.Detail;
+            string detail = row.State switch
+            {
+                TransmitterState.SelectedButUnplugged => "Your headset's sound is set to this one.",
+                TransmitterState.CanSwitchTo => "Press CrossPlay on the headset to switch to it.",
+                TransmitterState.PluggedIn => "",
+                _ => row.Firmware.Length > 0 ? $"Firmware {row.Firmware}" : "",
+            };
+            if (detail.Length > 0) card.Description = detail;
             Transmitters.Children.Add(card);
         }
     }
-
-    private static bool IsTransmitter(string product) =>
-        StealthPro.Core.Transmitters.PieceOf(product)
-            is StealthPro.Core.Transmitters.Piece.Dock or StealthPro.Core.Transmitters.Piece.Transmitter;
 
     private static bool Same(string a, string b) =>
         a.Length > 0 && string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
