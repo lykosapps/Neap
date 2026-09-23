@@ -388,10 +388,10 @@
     <value>The app can't reach your headset's settings or its chat wheel right now. Windows volume, your microphone level and the headset's own buttons still work, and it keeps using the settings it has.</value>
   </data>
   <data name="State_FixUnreachable" xml:space="preserve">
-    <value>Switch the headset off and on again to bring the chat wheel and settings back.</value>
+    <value>Switch the headset off and on again to bring everything back.</value>
   </data>
-  <data name="State_FallbackUnreachable" xml:space="preserve">
-    <value>No sound? Press the CrossPlay button on the headset.</value>
+  <data name="State_WhatUnreachableNoSound" xml:space="preserve">
+    <value>Your headset lost the transmitter it was using, so no sound reaches it, your microphone isn't heard, and the app can't reach its settings or chat wheel.</value>
   </data>
   <data name="State_WhatNoSound" xml:space="preserve">
     <value>Your headset is connected, but no transmitter is sending it sound, and its chat wheel isn't reaching the app.</value>

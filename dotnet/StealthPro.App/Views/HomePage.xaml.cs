@@ -126,7 +126,7 @@ public sealed partial class HomePage : Page
             ? raw.ToString() : null;
         ModelName.Text = "Stealth Pro II";
 
-        PaintNote(unseen, quiet, noSound, status.SwitchedOff);
+        PaintNote(unseen, quiet, noSound, status.SwitchedOff, soundGone: status.NoSound);
 
         // A card that can only say it has nothing to say is not worth its
         // space. With the settings out of reach it goes.
@@ -175,11 +175,12 @@ public sealed partial class HomePage : Page
     /// Every sentence comes from <see cref="StateCopy"/>, which the line above
     /// the mix slider and the header's tooltip use too.
     /// </remarks>
-    private void PaintNote(bool unseen, bool quiet, bool noSound, bool offOnCable)
+    private void PaintNote(bool unseen, bool quiet, bool noSound, bool offOnCable, bool soundGone)
     {
         (string What, string Mix, string Fix, string Fallback)? note =
-            unseen ? (StateCopy.WhatUnreachable, StateCopy.MixWithoutWheel(onAudioPage: false),
-                      StateCopy.FixUnreachable, StateCopy.FallbackUnreachable)
+            unseen && soundGone ? (StateCopy.WhatUnreachableNoSound, "", StateCopy.FixUnreachable, "")
+            : unseen ? (StateCopy.WhatUnreachable, StateCopy.MixWithoutWheel(onAudioPage: false),
+                        StateCopy.FixUnreachable, "")
             : noSound ? (StateCopy.WhatNoSound, StateCopy.MixWithoutWheel(onAudioPage: false),
                          StateCopy.FixNoSound, StateCopy.FallbackNoSound)
             // No fallback: a cable has no out of range, and nothing to press.

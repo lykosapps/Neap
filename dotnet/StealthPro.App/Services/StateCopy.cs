@@ -38,7 +38,16 @@ public static class StateCopy
 
     public static string FixUnreachable => Strings.Get("State_FixUnreachable");
 
-    public static string FallbackUnreachable => Strings.Get("State_FallbackUnreachable");
+    /// <summary>
+    /// Settings out of reach, with the transmitter that carried the sound gone
+    /// too.
+    /// </summary>
+    /// <remarks>
+    /// One fix is offered, and it is the whole one: switching off and on
+    /// brings back sound, microphone, settings and the chat wheel together.
+    /// CrossPlay would bring back only the sound.
+    /// </remarks>
+    public static string WhatUnreachableNoSound => Strings.Get("State_WhatUnreachableNoSound");
 
     // -- connected, no sound -----------------------------------------------
 

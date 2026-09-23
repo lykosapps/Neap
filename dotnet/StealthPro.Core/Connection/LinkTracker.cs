@@ -54,8 +54,9 @@ public enum Route
 /// from the device that actually answered, never inferred.
 /// </param>
 /// <param name="NoSound">
-/// Connected — the settings answer — but no transmitter is sending the
-/// headset sound. Only ever set alongside <see cref="Link.Connected"/>.
+/// No transmitter is sending the headset sound: while connected, the
+/// settings answer and the sound link is down; while the settings are out of
+/// reach, the transmitter that was carrying the sound has gone too.
 /// </param>
 public sealed record HeadsetStatus(
     Link Link, Route Route, string Adapter, string Detail, string Product = "",
@@ -68,9 +69,9 @@ public sealed record HeadsetStatus(
     /// <remarks>
     /// The transmitter carrying the settings was unplugged with another still
     /// in. Either only the settings went and sound still plays through the one
-    /// left, or both went; from here the two look the same. The headset being
-    /// switched off is told apart by what happened just before; see
-    /// <see cref="NotConnected"/>.
+    /// left, or the sound went with them, which <see cref="NoSound"/> says.
+    /// The headset being switched off is told apart by what happened just
+    /// before; see <see cref="NotConnected"/>.
     /// </remarks>
     public bool SettingsUnreachable => Link == Link.Silent;
 
@@ -97,8 +98,8 @@ public sealed record HeadsetStatus(
 
 /// <summary>The sentences a status carries. They belong to the interface, not here.</summary>
 public sealed record LinkWords(
-    string Looking, string NotConnected, string Unreachable, string OffOnCable,
-    Func<Route, string> Adapter);
+    string Looking, string NotConnected, string Unreachable, string UnreachableNoSound,
+    string OffOnCable, Func<Route, string> Adapter);
 
 /// <summary>
 /// Decides what state the headset is in, from what has been observed and when.
@@ -157,6 +158,7 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
     private bool _lostWithTransmitter;
     private TimeSpan? _lostAt;
     private ushort? _lostDevice;
+    private string _soundOn = "";
     private Route? _answeredOn;
     private (bool Elsewhere, Route Route, string Adapter, string Carrying, string Device, string Product)? _held;
     private TimeSpan? _heldSince;
@@ -328,17 +330,27 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
             _lostWithTransmitter = true;
 
         var link = _lostWithTransmitter ? Link.Silent : Link.Quiet;
-        string detail = _lostWithTransmitter ? words.Unreachable : words.NotConnected;
+
+        // Whether the sound went too: the transmitter that was carrying it is
+        // no longer plugged in. Then nothing reaches the headset at all.
+        bool soundGone = _lostWithTransmitter
+            && ushort.TryParse(_soundOn, System.Globalization.NumberStyles.HexNumber,
+                System.Globalization.CultureInfo.InvariantCulture, out ushort soundOn)
+            && !present.Contains(soundOn);
+        string detail = !_lostWithTransmitter ? words.NotConnected
+            : soundGone ? words.UnreachableNoSound
+            : words.Unreachable;
 
         var here = present
             .Where(id => RouteOf(id) is Route.ChargingDock or Route.UsbTransmitter)
             .Distinct()
             .ToList();
-        if (here.Count != 1) return Set(link, Route.Unknown, "", detail);
+        if (here.Count != 1) return Set(link, Route.Unknown, "", detail, soundGone: soundGone);
 
         var route = RouteOf(here[0]);
         return Set(link, route, words.Adapter(route), detail,
-            here[0].ToString("X4", System.Globalization.CultureInfo.InvariantCulture));
+            here[0].ToString("X4", System.Globalization.CultureInfo.InvariantCulture),
+            soundGone: soundGone);
     }
 
     /// <summary>
@@ -448,10 +460,11 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
             ? RouteOf(id) : Route.Unknown;
 
     private HeadsetStatus? Set(Link link, Route route, string adapter, string detail,
-        string product = "", string controlVia = "")
+        string product = "", string controlVia = "", bool soundGone = false)
     {
         if (link == Link.Connected && Status.Link != Link.Connected) _connectedAt = clock();
-        bool noSound = link == Link.Connected && SoundLinkDown(route);
+        if (link == Link.Connected && product.Length > 0) _soundOn = product;
+        bool noSound = (link == Link.Connected && SoundLinkDown(route)) || soundGone;
         if (link == Link.Connected)
         {
             _lostWithTransmitter = false;

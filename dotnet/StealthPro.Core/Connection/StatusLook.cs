@@ -21,7 +21,8 @@ public enum Tone { Good, Caution, Neutral, Critical }
 /// <remarks>
 /// Settings out of reach and switched off are neutral rather than cautions:
 /// sound usually still plays in the first, and the second is somebody's
-/// choice. Only "nothing plugged in" is critical.
+/// choice. Settings out of reach with the sound gone too is a caution. Only
+/// "nothing plugged in" is critical.
 /// </remarks>
 public readonly record struct StatusLook(Headline Headline, Tone Tone)
 {
@@ -35,6 +36,7 @@ public readonly record struct StatusLook(Headline Headline, Tone Tone)
     {
         Link.Connected when status.NoSound || soundElsewhere => new(Headline.NoSound, Tone.Caution),
         Link.Connected => new(Headline.Connected, Tone.Good),
+        Link.Silent when status.NoSound => new(Headline.SettingsUnavailable, Tone.Caution),
         Link.Silent => new(Headline.SettingsUnavailable, Tone.Neutral),
         Link.Quiet when status.SwitchedOff => new(Headline.HeadsetOff, Tone.Neutral),
         Link.Quiet => new(Headline.NotConnected, Tone.Caution),

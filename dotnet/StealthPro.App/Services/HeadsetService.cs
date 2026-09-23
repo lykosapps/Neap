@@ -84,7 +84,7 @@ public sealed class HeadsetService : IDisposable
     private static string Looking => Strings.Get("Headset_Looking");
 
     private static readonly LinkWords Words = new(
-        Looking, QuietDetail, UnreachableDetail, OffDetail, AdapterName);
+        Looking, QuietDetail, UnreachableDetail, UnreachableNoSoundDetail, OffDetail, AdapterName);
 
     /// <summary>Decides the state. Only touched on the headset thread.</summary>
     private readonly LinkTracker _link;
@@ -786,8 +786,10 @@ public sealed class HeadsetService : IDisposable
     /// </para>
     /// </remarks>
     private static string UnreachableDetail =>
-        StateCopy.WhatUnreachable + " " + StateCopy.FixUnreachable + " "
-        + StateCopy.FallbackUnreachable;
+        StateCopy.WhatUnreachable + " " + StateCopy.FixUnreachable;
+
+    private static string UnreachableNoSoundDetail =>
+        StateCopy.WhatUnreachableNoSound + " " + StateCopy.FixUnreachable;
 
     /// <summary>Show a new status, when the tracker decided one.</summary>
     private void Publish(HeadsetStatus? next)

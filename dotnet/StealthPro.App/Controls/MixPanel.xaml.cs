@@ -139,7 +139,7 @@ public sealed partial class MixPanel : UserControl
         WheelBar.IsOpen = status.SettingsUnreachable || status.NoSound;
         WheelBar.Title = StateCopy.WheelTitle;
         WheelBar.Message = StateCopy.MixWithoutWheel(onAudioPage: true) + " "
-            + (status.NoSound ? StateCopy.FixNoSound : StateCopy.FixUnreachable);
+            + (status.SettingsUnreachable ? StateCopy.FixUnreachable : StateCopy.FixNoSound);
 
         // The chat application is playing to another device. It keeps its own
         // output setting, so changing the headset in Windows does not move it;

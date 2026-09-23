@@ -9,7 +9,8 @@ public class LinkTrackerTests
     private const ushort Headset = 0x229E;
 
     private static readonly LinkWords Words = new(
-        "looking", "off", "unreachable", "off on cable", route => route.ToString());
+        "looking", "off", "unreachable", "unreachable, no sound", "off on cable",
+        route => route.ToString());
 
     private TimeSpan _now;
     private bool _cabled;
@@ -124,7 +125,10 @@ public class LinkTrackerTests
         Assert.NotNull(status);
         Assert.True(status.SettingsUnreachable);
         Assert.Equal(Route.UsbTransmitter, status.Route);
-        Assert.Equal("unreachable", status.Detail);
+
+        // The Dock carried the sound as well, so that went too.
+        Assert.True(status.NoSound);
+        Assert.Equal("unreachable, no sound", status.Detail);
     }
 
     [Fact]
