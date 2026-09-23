@@ -22,8 +22,12 @@
                 <ComboBox
                     x:Name="SetupPicker"
                     MinWidth="200"
+                    AutomationProperties.Name="Choose your chat app"
                     PlaceholderText="Choose an app" />
-                <Button x:Name="SetupRefresh" ToolTipService.ToolTip="Look again">
+                <Button
+                    x:Name="SetupRefresh"
+                    AutomationProperties.Name="Look for chat apps again"
+                    ToolTipService.ToolTip="Look again">
                     <FontIcon FontSize="14" Glyph="&#xE72C;" />
                 </Button>
             </StackPanel>
@@ -131,7 +135,10 @@
                     <Button x:Name="CentreKey" MinWidth="190" />
                 </tk:SettingsCard>
                 <tk:SettingsCard Description="Ctrl + Alt + Page Down, Page Up and Home." Header="Put the keys back">
-                    <Button x:Name="KeysReset" Content="Reset" />
+                    <Button
+                        x:Name="KeysReset"
+                        AutomationProperties.Name="Put the keyboard shortcuts back"
+                        Content="Reset" />
                 </tk:SettingsCard>
             </tk:SettingsExpander.Items>
         </tk:SettingsExpander>

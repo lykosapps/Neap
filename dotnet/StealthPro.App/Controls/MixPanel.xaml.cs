@@ -269,6 +269,11 @@ public sealed partial class MixPanel : UserControl
     {
         button.Content = AppServices.Hotkeys.Key(which).ToString();
 
+        // The keys alone do not say what they do: "Toward game: Ctrl + Alt +
+        // Page Down", not just the keys.
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
+            button, $"{row.Header}: {button.Content}");
+
         // A combination another program already holds does nothing at all
         // when pressed, and there is nowhere else this could be said.
         string? trouble = AppServices.Hotkeys.Trouble(which);

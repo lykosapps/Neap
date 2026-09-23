@@ -80,7 +80,7 @@ public sealed partial class EqualiserPanel : UserControl
     private bool _painting;
     private string? _confirmingDelete;
 
-    private sealed record BandCell(NumberBox Field);
+    private sealed record BandCell(NumberBox Field, MenuFlyoutItem Revert);
 
     public EqualiserPanel()
     {
@@ -204,6 +204,17 @@ public sealed partial class EqualiserPanel : UserControl
             };
 
             int index = i;
+
+            // The ring on the curve puts a band back for a mouse. This is the
+            // same for the keyboard and screen readers: the field's own menu.
+            var revert = new MenuFlyoutItem { Icon = new FontIcon { Glyph = "\uE7A7" } };
+            revert.Click += (_, _) =>
+            {
+                AppServices.Presets.RevertBand(Bank, index);
+                Paint();
+            };
+            field.ContextFlyout = new MenuFlyout { Items = { revert } };
+
             field.ValueChanged += (sender, args) =>
             {
                 if (_painting) return;
@@ -222,7 +233,7 @@ public sealed partial class EqualiserPanel : UserControl
             column.Children.Add(hz);
             Grid.SetColumn(column, i);
             Bands.Children.Add(column);
-            _cells.Add(new BandCell(field));
+            _cells.Add(new BandCell(field, revert));
         }
     }
 
@@ -240,20 +251,20 @@ public sealed partial class EqualiserPanel : UserControl
             Slots.Items.Add(EmptyChip());
     }
 
+    /// <summary>
+    /// A preset's button, and beside it — not inside it, where a button in a
+    /// button confuses keyboard and screen-reader navigation — the way to
+    /// delete it.
+    /// </summary>
     private UIElement SlotChip(Preset preset)
     {
-        var face = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        face.Children.Add(new TextBlock { Text = preset.Name, VerticalAlignment = VerticalAlignment.Center });
-
+        var slot = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, Tag = preset };
         var chip = new Button
         {
-            Content = face,
+            Content = preset.Name,
             Padding = new Thickness(14, 8, 14, 8),
-            Tag = preset,
         };
-        // A chip's content is a panel rather than a string, so it has no name
-        // of its own — every preset announced as an unlabelled button.
-        AutomationProperties.SetName(chip, preset.Name);
+        slot.Children.Add(chip);
         chip.Click += async (_, _) =>
         {
             if (_confirmingDelete is not null) return;
@@ -269,11 +280,9 @@ public sealed partial class EqualiserPanel : UserControl
             var remove = new Button
             {
                 Content = new FontIcon { Glyph = "\uE711", FontSize = 11 },
-                Padding = new Thickness(4, 0, 4, 0),
-                Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
-                BorderThickness = new Thickness(0),
+                Padding = new Thickness(8),
+                VerticalAlignment = VerticalAlignment.Stretch,
                 Visibility = Visibility.Collapsed,
-                Tag = "remove",
             };
             AutomationProperties.SetName(remove, $"Delete {preset.Name}");
             remove.Click += (_, args) =>
@@ -281,10 +290,10 @@ public sealed partial class EqualiserPanel : UserControl
                 _confirmingDelete = preset.Name;
                 Paint();
             };
-            face.Children.Add(remove);
+            slot.Children.Add(remove);
         }
 
-        return chip;
+        return slot;
     }
 
     /// <summary>
@@ -492,7 +501,18 @@ public sealed partial class EqualiserPanel : UserControl
         try
         {
             for (int i = 0; i < _cells.Count && i < live.Length; i++)
-                _cells[i].Field.Value = live[i] / 10.0;
+            {
+                var cell = _cells[i];
+                cell.Field.Value = live[i] / 10.0;
+
+                // Said as well as drawn: a band moved from its preset says so,
+                // and its menu offers the way back.
+                bool moved = AppServices.Presets.StoredBand(Bank, i) is int stored && stored != live[i];
+                string was = moved ? Db.Text(AppServices.Presets.StoredBand(Bank, i)!.Value) : "";
+                cell.Revert.IsEnabled = moved;
+                cell.Revert.Text = moved ? $"Put back to {was} dB" : "Not changed from the preset";
+                AutomationProperties.SetHelpText(cell.Field, moved ? $"Changed from {was} dB" : "");
+            }
 
             // The curve is given the preset behind it as well, so it can
             // draw where each band was before it was moved.
@@ -546,17 +566,17 @@ public sealed partial class EqualiserPanel : UserControl
             }
             else
             {
-                if (Slots.Items[index] is not Button chip || chip.Tag is not Preset held || held.Id != preset.Id)
+                if (Slots.Items[index] is not StackPanel { Tag: Preset held } || held.Id != preset.Id)
                     Slots.Items[index] = SlotChip(preset);
 
-                if (Slots.Items[index] is Button button)
+                if (Slots.Items[index] is StackPanel { Children: [Button chip, ..] } slot)
                 {
-                    button.Style = (Style)Application.Current.Resources[
+                    chip.Style = (Style)Application.Current.Resources[
                         selected ? "AccentButtonStyle" : "DefaultButtonStyle"];
-                    if (button.Content is StackPanel face)
-                        foreach (var child in face.Children)
-                            if (child is Button { Tag: "remove" } remove)
-                                remove.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
+                    // The accent says it to the eye; this says it to a screen reader.
+                    AutomationProperties.SetItemStatus(chip, selected ? "Selected" : "");
+                    if (slot.Children.Count > 1)
+                        slot.Children[1].Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
                 }
             }
             index++;
