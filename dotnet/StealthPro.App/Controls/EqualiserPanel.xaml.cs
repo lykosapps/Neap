@@ -303,7 +303,8 @@ public sealed partial class EqualiserPanel : UserControl
         delete.Click += async (_, _) =>
         {
             _confirmingDelete = null;
-            await AppServices.Presets.Delete(Bank, preset.Name);
+            string? trouble = await AppServices.Presets.Delete(Bank, preset.Name);
+            if (trouble is not null) await Complain("Could not delete", trouble);
             await Reload();
         };
         cancel.Click += (_, _) => { _confirmingDelete = null; Paint(); };
@@ -358,7 +359,7 @@ public sealed partial class EqualiserPanel : UserControl
         if (name.Length == 0) return;
 
         string? trouble = await AppServices.Presets.Save(Bank, name, null);
-        if (trouble is not null) { await Complain(trouble); return; }
+        if (trouble is not null) { await Complain("Could not save", trouble); return; }
         await Reload();
     }
 
@@ -377,7 +378,7 @@ public sealed partial class EqualiserPanel : UserControl
         if (_state?.Baseline is not { Custom: true } baseline) return;
 
         string? trouble = await AppServices.Presets.Save(Bank, baseline.Name, baseline.Name);
-        if (trouble is not null) { await Complain(trouble); return; }
+        if (trouble is not null) { await Complain("Could not save", trouble); return; }
         await Reload();
     }
 
@@ -464,10 +465,10 @@ public sealed partial class EqualiserPanel : UserControl
         return answer == ContentDialogResult.Primary ? field.Text.Trim() : "";
     }
 
-    private async Task Complain(string trouble) => await new ContentDialog
+    private async Task Complain(string title, string trouble) => await new ContentDialog
     {
         XamlRoot = XamlRoot,
-        Title = "Could not save",
+        Title = title,
         Content = trouble,
         CloseButtonText = "OK",
     }.ShowAsync();
