@@ -9,8 +9,6 @@
     <Platforms>x64</Platforms>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <UseWinUI>true</UseWinUI>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>StealthProII</AssemblyName>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
 
