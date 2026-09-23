@@ -20,49 +20,38 @@ public static class StateCopy
     /// <summary>The few words for a state, in the header and on Home alike.</summary>
     public static string Label(Headline headline) => headline switch
     {
-        Headline.Connected => "Headset connected",
-        Headline.NoSound => "No sound",
-        Headline.SettingsUnavailable => "Settings unavailable",
-        Headline.HeadsetOff => "Headset off",
-        Headline.NotConnected => "Not connected",
-        Headline.Connecting => "Connecting",
-        _ => "Nothing plugged in",
+        Headline.Connected => Strings.Get("State_Connected"),
+        Headline.NoSound => Strings.Get("State_NoSound"),
+        Headline.SettingsUnavailable => Strings.Get("State_SettingsUnavailable"),
+        Headline.HeadsetOff => Strings.Get("State_HeadsetOff"),
+        Headline.NotConnected => Strings.Get("State_NotConnected"),
+        Headline.Connecting => Strings.Get("State_Connecting"),
+        _ => Strings.Get("State_NothingPluggedIn"),
     };
 
     // -- settings out of reach ---------------------------------------------
 
-    public const string WhatUnreachable =
-        "The app can't reach your headset's settings or its chat wheel right now. "
-        + "Windows volume, your microphone level and the headset's own buttons still "
-        + "work, and it keeps using the settings it has.";
+    public static string WhatUnreachable => Strings.Get("State_WhatUnreachable");
 
-    public const string FixUnreachable =
-        "Switch the headset off and on again to bring the chat wheel and settings back.";
+    public static string FixUnreachable => Strings.Get("State_FixUnreachable");
 
-    public const string FallbackUnreachable =
-        "No sound? Press the CrossPlay button on the headset.";
+    public static string FallbackUnreachable => Strings.Get("State_FallbackUnreachable");
 
     // -- connected, no sound -----------------------------------------------
 
-    public const string WhatNoSound =
-        "Your headset is connected, but no transmitter is sending it sound, and its "
-        + "chat wheel isn't reaching the app.";
+    public static string WhatNoSound => Strings.Get("State_WhatNoSound");
 
-    public const string FixNoSound =
-        "Press the CrossPlay button on the headset to bring the sound and the chat "
-        + "wheel back.";
+    public static string FixNoSound => Strings.Get("State_FixNoSound");
 
-    public const string FallbackNoSound =
-        "Still nothing? Switch the headset off and on again.";
+    public static string FallbackNoSound => Strings.Get("State_FallbackNoSound");
 
     // -- switched off or out of range ----------------------------------------
 
-    public const string WhatOff = "Your headset is switched off or out of range.";
+    public static string WhatOff => Strings.Get("State_WhatOff");
 
-    public const string FixOff = "Switch it on and it connects by itself.";
+    public static string FixOff => Strings.Get("State_FixOff");
 
-    public const string FallbackOff =
-        "On, but still not connecting? Press the CrossPlay button on the headset.";
+    public static string FallbackOff => Strings.Get("State_FallbackOff");
 
     // -- switched off, on its cable -------------------------------------------
 
@@ -71,11 +60,11 @@ public static class StateCopy
     /// see the headset is off, because its sound device goes, and a cable has
     /// no out of range.
     /// </summary>
-    public const string WhatOffOnCable = "Your headset is switched off.";
+    public static string WhatOffOnCable => Strings.Get("State_WhatOffOnCable");
 
     // -- the mix, without the wheel ------------------------------------------
 
-    public const string WheelTitle = "The chat wheel isn't reaching the app";
+    public static string WheelTitle => Strings.Get("State_WheelTitle");
 
     /// <summary>
     /// What still moves the mix when the wheel cannot.
@@ -89,12 +78,10 @@ public static class StateCopy
     {
         var keys = AppServices.Hotkeys;
         if (keys.Enabled)
-            return "You can still move the mix with the slider, or from the keyboard with "
-                   + $"{keys.Key(MixKey.TowardGame)} and {keys.Key(MixKey.TowardChat)}.";
+            return Strings.Format("State_MixWithKeys",
+                keys.Key(MixKey.TowardGame), keys.Key(MixKey.TowardChat));
         return onAudioPage
-            ? "You can still move the mix with the slider, or turn on the keyboard "
-              + "shortcut below to move it from inside a game."
-            : "You can still move the mix with the slider on Audio, or turn on its "
-              + "keyboard shortcut there to move it from inside a game.";
+            ? Strings.Get("State_MixKeysBelow")
+            : Strings.Get("State_MixKeysOnAudio");
     }
 }

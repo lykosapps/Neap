@@ -70,9 +70,8 @@ public sealed class HeadsetNotice : InfoBar
             return;
         }
 
-        Title = "No headset connected";
-        Message = "Plug in its Charging Dock, its USB Transmitter or its USB-C cable, "
-                  + "then switch the headset on.";
+        Title = Strings.Get("Notice_NoHeadsetTitle");
+        Message = Strings.Get("Notice_NoHeadset");
         IsOpen = true;
     }
 }

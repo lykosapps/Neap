@@ -283,7 +283,7 @@ public sealed partial class EqualiserPanel : UserControl
                 VerticalAlignment = VerticalAlignment.Stretch,
                 Visibility = Visibility.Collapsed,
             };
-            AutomationProperties.SetName(remove, $"Delete {preset.Name}");
+            AutomationProperties.SetName(remove, Strings.Format("Equaliser_DeleteNamed", preset.Name));
             remove.Click += (_, args) =>
             {
                 _confirmingDelete = preset.Name;
@@ -303,16 +303,16 @@ public sealed partial class EqualiserPanel : UserControl
     private UIElement ConfirmChip(Preset preset)
     {
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
-        var delete = new Button { Content = "Delete", Style = (Style)Application.Current.Resources["AccentButtonStyle"] };
-        var cancel = new Button { Content = "Cancel" };
+        var delete = new Button { Content = Strings.Get("Equaliser_Delete"), Style = (Style)Application.Current.Resources["AccentButtonStyle"] };
+        var cancel = new Button { Content = Strings.Get("Dialog_Cancel") };
         // "Delete" and "Cancel" on their own do not say what of.
-        AutomationProperties.SetName(delete, $"Delete {preset.Name}");
-        AutomationProperties.SetName(cancel, $"Keep {preset.Name}");
+        AutomationProperties.SetName(delete, Strings.Format("Equaliser_DeleteNamed", preset.Name));
+        AutomationProperties.SetName(cancel, Strings.Format("Equaliser_KeepNamed", preset.Name));
         delete.Click += async (_, _) =>
         {
             _confirmingDelete = null;
             string? trouble = await AppServices.Presets.Delete(Bank, preset.Name);
-            if (trouble is not null) await Complain("Could not delete", trouble);
+            if (trouble is not null) await Complain(Strings.Get("Equaliser_CouldNotDelete"), trouble);
             await Reload();
         };
         cancel.Click += (_, _) => { _confirmingDelete = null; Paint(); };
@@ -326,7 +326,7 @@ public sealed partial class EqualiserPanel : UserControl
         Style = (Style)Application.Current.Resources["EmptySlotStyle"],
         Child = new TextBlock
         {
-            Text = "Empty slot",
+            Text = Strings.Get("Equaliser_EmptySlot"),
             Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
         },
     };
@@ -363,7 +363,7 @@ public sealed partial class EqualiserPanel : UserControl
         if (name.Length == 0) return;
 
         string? trouble = await AppServices.Presets.Save(Bank, name, null);
-        if (trouble is not null) { await Complain("Could not save", trouble); return; }
+        if (trouble is not null) { await Complain(Strings.Get("Equaliser_CouldNotSave"), trouble); return; }
         await Reload();
     }
 
@@ -382,7 +382,7 @@ public sealed partial class EqualiserPanel : UserControl
         if (_state?.Baseline is not { Custom: true } baseline) return;
 
         string? trouble = await AppServices.Presets.Save(Bank, baseline.Name, baseline.Name);
-        if (trouble is not null) { await Complain("Could not save", trouble); return; }
+        if (trouble is not null) { await Complain(Strings.Get("Equaliser_CouldNotSave"), trouble); return; }
         await Reload();
     }
 
@@ -401,7 +401,7 @@ public sealed partial class EqualiserPanel : UserControl
     {
         var field = new TextBox
         {
-            PlaceholderText = "Name",
+            PlaceholderText = Strings.Get("Equaliser_NamePlaceholder"),
             MaxLength = PresetStore.MaxNameLength,
         };
 
@@ -414,10 +414,10 @@ public sealed partial class EqualiserPanel : UserControl
         var dialog = new ContentDialog
         {
             XamlRoot = XamlRoot,
-            Title = "Save as a new preset",
+            Title = Strings.Get("Equaliser_SaveTitle"),
             Content = new StackPanel { Spacing = 8, Children = { field, note } },
-            PrimaryButtonText = "Save",
-            CloseButtonText = "Cancel",
+            PrimaryButtonText = Strings.Get("Dialog_Save"),
+            CloseButtonText = Strings.Get("Dialog_Cancel"),
             DefaultButton = ContentDialogButton.Primary,
         };
 
@@ -431,31 +431,29 @@ public sealed partial class EqualiserPanel : UserControl
 
             if (typed.Length == 0)
             {
-                note.Text = "Give it a name.";
+                note.Text = Strings.Get("Equaliser_GiveName");
                 dialog.IsPrimaryButtonEnabled = false;
             }
             else if (factory)
             {
-                note.Text = $"{typed} is one of the headset's own presets.";
+                note.Text = Strings.Format("Equaliser_FactoryName", typed);
                 dialog.IsPrimaryButtonEnabled = false;
             }
             else if (taken is not null)
             {
-                note.Text = $"You already have a preset called {taken.Name}. "
-                          + "To replace it, close this and use Overwrite.";
+                note.Text = Strings.Format("Equaliser_NameTaken", taken.Name);
                 dialog.IsPrimaryButtonEnabled = false;
             }
             else if (free == 0)
             {
-                note.Text = "All five slots are full. Delete one first, or overwrite "
-                          + "the preset this came from.";
+                note.Text = Strings.Get("Equaliser_SlotsFull");
                 dialog.IsPrimaryButtonEnabled = false;
             }
             else
             {
-                note.Text = $"{free} of 5 slots free."
+                note.Text = Strings.Format("Equaliser_SlotsFree", free)
                           + (field.Text.Length >= PresetStore.MaxNameLength
-                             ? " That is as long as a name can be." : "");
+                             ? " " + Strings.Get("Equaliser_NameAtLimit") : "");
                 dialog.IsPrimaryButtonEnabled = true;
             }
         }
@@ -473,7 +471,7 @@ public sealed partial class EqualiserPanel : UserControl
         XamlRoot = XamlRoot,
         Title = title,
         Content = trouble,
-        CloseButtonText = "OK",
+        CloseButtonText = Strings.Get("Dialog_OK"),
     }.ShowAsync();
 
     // -- painting ----------------------------------------------------------
@@ -504,8 +502,10 @@ public sealed partial class EqualiserPanel : UserControl
                 bool moved = AppServices.Presets.StoredBand(Bank, i) is int stored && stored != live[i];
                 string was = moved ? Db.Text(AppServices.Presets.StoredBand(Bank, i)!.Value) : "";
                 cell.Revert.IsEnabled = moved;
-                cell.Revert.Text = moved ? $"Put back to {was} dB" : "Not changed from the preset";
-                AutomationProperties.SetHelpText(cell.Field, moved ? $"Changed from {was} dB" : "");
+                cell.Revert.Text = moved
+                    ? Strings.Format("Equaliser_PutBack", was)
+                    : Strings.Get("Equaliser_NotChanged");
+                AutomationProperties.SetHelpText(cell.Field, moved ? Strings.Format("Equaliser_ChangedFrom", was) : "");
             }
 
             // The curve is given the preset behind it as well, so it can
@@ -530,7 +530,7 @@ public sealed partial class EqualiserPanel : UserControl
             var over = _state.Baseline;
             bool canOverwrite = edited && over is { Custom: true };
             OverwriteButton.Visibility = canOverwrite ? Visibility.Visible : Visibility.Collapsed;
-            if (canOverwrite) OverwriteButton.Content = $"Overwrite {over!.Name}";
+            if (canOverwrite) OverwriteButton.Content = Strings.Format("Equaliser_Overwrite", over!.Name);
 
             // The accent marks the likely intent, which moves: refining a
             // preset of your own usually means keeping it, and on one of the
@@ -568,7 +568,7 @@ public sealed partial class EqualiserPanel : UserControl
                     chip.Style = (Style)Application.Current.Resources[
                         selected ? "AccentButtonStyle" : "DefaultButtonStyle"];
                     // The accent says it to the eye; this says it to a screen reader.
-                    AutomationProperties.SetItemStatus(chip, selected ? "Selected" : "");
+                    AutomationProperties.SetItemStatus(chip, selected ? Strings.Get("Equaliser_Selected") : "");
                     if (slot.Children.Count > 1)
                         slot.Children[1].Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
                 }

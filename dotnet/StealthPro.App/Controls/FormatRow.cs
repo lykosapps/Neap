@@ -57,7 +57,7 @@ public sealed class FormatRow : SettingsCard
             if (Glyph.Length > 0) HeaderIcon = new FontIcon { Glyph = Glyph };
             _picker = new ComboBox { MinWidth = 240 };
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
-                _picker, Header?.ToString() ?? "Audio format");
+                _picker, Header?.ToString() ?? Strings.Get("Format_Name"));
             _picker.SelectionChanged += async (_, _) => await Apply();
             Content = _picker;
         }
@@ -81,7 +81,7 @@ public sealed class FormatRow : SettingsCard
             }
             _picker.IsEnabled = panel.Options.Count > 0;
             Description = panel.Trouble ?? (panel.Options.Count == 0
-                ? "Windows is not offering any formats for this device."
+                ? Strings.Get("Format_NoneOffered")
                 : Description);
         }
         finally { _painting = false; }
@@ -102,8 +102,8 @@ public sealed class FormatRow : SettingsCard
     private async Task Complain(string trouble) => await new ContentDialog
     {
         XamlRoot = XamlRoot,
-        Title = "Could not change the format",
+        Title = Strings.Get("Format_CouldNotChange"),
         Content = trouble,
-        CloseButtonText = "OK",
+        CloseButtonText = Strings.Get("Dialog_OK"),
     }.ShowAsync();
 }

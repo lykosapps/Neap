@@ -1,0 +1,855 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Main_NavHome.Content" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Main_NavAudio.Content" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Main_NavMicrophone.Content" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="Main_NavControls.Content" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="Main_NavDevice.Content" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="Main_NavSettings.Content" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Main_TrayOpen.Text" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Main_TrayQuit.Text" xml:space="preserve">
+    <value>Quit</value>
+  </data>
+  <data name="Equaliser_Edited.Text" xml:space="preserve">
+    <value>Edited</value>
+  </data>
+  <data name="Equaliser_DiscardButton.Content" xml:space="preserve">
+    <value>Discard changes</value>
+  </data>
+  <data name="Equaliser_SaveButton.Content" xml:space="preserve">
+    <value>Save as new preset</value>
+  </data>
+  <data name="Mix_SetupCard.Description" xml:space="preserve">
+    <value>Pick the app your voice chat comes out of. Everything else on the headset becomes the game side.</value>
+  </data>
+  <data name="Mix_SetupCard.Header" xml:space="preserve">
+    <value>Choose your chat app</value>
+  </data>
+  <data name="Mix_SetupPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Choose your chat app</value>
+  </data>
+  <data name="Mix_SetupPicker.PlaceholderText" xml:space="preserve">
+    <value>Choose an app</value>
+  </data>
+  <data name="Mix_Refresh.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Look for chat apps again</value>
+  </data>
+  <data name="Mix_Refresh.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Look again</value>
+  </data>
+  <data name="Mix_WheelBar.Title" xml:space="preserve">
+    <value>The chat wheel isn't reaching the app</value>
+  </data>
+  <data name="Mix_ElsewhereBar.Title" xml:space="preserve">
+    <value>Chat is going to another device</value>
+  </data>
+  <data name="Mix_Game.Text" xml:space="preserve">
+    <value>Game</value>
+  </data>
+  <data name="Mix_MixSlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Game and chat mix</value>
+  </data>
+  <data name="Mix_Chat.Text" xml:space="preserve">
+    <value>Chat</value>
+  </data>
+  <data name="Mix_KeysCard.Description" xml:space="preserve">
+    <value>Works from inside a game, on either transmitter, and alongside the wheel.</value>
+  </data>
+  <data name="Mix_KeysCard.Header" xml:space="preserve">
+    <value>Move the mix with the keyboard</value>
+  </data>
+  <data name="Mix_GameRow.Header" xml:space="preserve">
+    <value>Toward game</value>
+  </data>
+  <data name="Mix_ChatRow.Header" xml:space="preserve">
+    <value>Toward chat</value>
+  </data>
+  <data name="Mix_CentreRow.Header" xml:space="preserve">
+    <value>Back to balanced</value>
+  </data>
+  <data name="Mix_KeysResetRow.Description" xml:space="preserve">
+    <value>Ctrl + Alt + Page Down, Page Up and Home.</value>
+  </data>
+  <data name="Mix_KeysResetRow.Header" xml:space="preserve">
+    <value>Put the keys back</value>
+  </data>
+  <data name="Mix_KeysReset.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Put the keyboard shortcuts back</value>
+  </data>
+  <data name="Mix_KeysReset.Content" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Mix_ChosenCard.Description" xml:space="preserve">
+    <value>Everything else playing on the headset is treated as game audio.</value>
+  </data>
+  <data name="Mix_ChosenCard.Header" xml:space="preserve">
+    <value>Chat comes from</value>
+  </data>
+  <data name="Mix_ChosenPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Chat comes from</value>
+  </data>
+  <data name="Audio_Title.Text" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Audio_Section.What" xml:space="preserve">
+    <value>The game and chat mix, volume, noise cancellation and the equaliser</value>
+  </data>
+  <data name="Audio_GameAndChatHeading.Text" xml:space="preserve">
+    <value>Game and chat</value>
+  </data>
+  <data name="Audio_VolumeHeading.Text" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="Audio_VolumeNote.Text" xml:space="preserve">
+    <value>Both of these belong to Windows. The headset reports them but cannot change them, so these set them where they actually live.</value>
+  </data>
+  <data name="Audio_Mute.Description" xml:space="preserve">
+    <value>What Swarm's Audio Master Volume switch does. Turning the headset's volume wheel unmutes it, which is Windows behaving normally.</value>
+  </data>
+  <data name="Audio_Mute.Header" xml:space="preserve">
+    <value>Mute</value>
+  </data>
+  <data name="Audio_MasterVolume.Header" xml:space="preserve">
+    <value>Master volume</value>
+  </data>
+  <data name="Audio_HeadsetSection.What" xml:space="preserve">
+    <value>Noise cancellation, Superhuman Hearing and the equaliser</value>
+  </data>
+  <data name="Audio_NoiseCancellationHeading.Text" xml:space="preserve">
+    <value>Noise cancellation</value>
+  </data>
+  <data name="Audio_ActiveNoiseCancellation.Header" xml:space="preserve">
+    <value>Active noise cancellation</value>
+  </data>
+  <data name="Audio_AncIntensity.Description" xml:space="preserve">
+    <value>How hard it works.</value>
+  </data>
+  <data name="Audio_AncIntensity.Header" xml:space="preserve">
+    <value>Intensity</value>
+  </data>
+  <data name="Audio_SuperhumanHearingHeading.Text" xml:space="preserve">
+    <value>Superhuman Hearing</value>
+  </data>
+  <data name="Audio_SuperhumanHearing.Description" xml:space="preserve">
+    <value>Lifts quiet detail so footsteps and reloads carry.</value>
+  </data>
+  <data name="Audio_SuperhumanHearing.Header" xml:space="preserve">
+    <value>Superhuman Hearing</value>
+  </data>
+  <data name="Audio_Type.Header" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Audio_Intensity.Header" xml:space="preserve">
+    <value>Intensity</value>
+  </data>
+  <data name="Audio_EqualiserHeading.Text" xml:space="preserve">
+    <value>Equaliser</value>
+  </data>
+  <data name="Controls_Title.Text" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="Controls_Section.What" xml:space="preserve">
+    <value>The mode button, the dial, power and the lights</value>
+  </data>
+  <data name="Controls_OnHeadsetHeading.Text" xml:space="preserve">
+    <value>On the headset</value>
+  </data>
+  <data name="Controls_ModeButton.Description" xml:space="preserve">
+    <value>What the button beside the power switch does when you press it.</value>
+  </data>
+  <data name="Controls_ModeButton.Header" xml:space="preserve">
+    <value>Mode button</value>
+  </data>
+  <data name="Controls_LowerDial.Description" xml:space="preserve">
+    <value>The smaller of the two wheels.</value>
+  </data>
+  <data name="Controls_LowerDial.Header" xml:space="preserve">
+    <value>Lower dial</value>
+  </data>
+  <data name="Controls_PowerHeading.Text" xml:space="preserve">
+    <value>Power</value>
+  </data>
+  <data name="Controls_AutoShutOff.Description" xml:space="preserve">
+    <value>How long the headset waits before switching itself off.</value>
+  </data>
+  <data name="Controls_AutoShutOff.Header" xml:space="preserve">
+    <value>Auto shut-off</value>
+  </data>
+  <data name="Controls_WakeOnMotion.Description" xml:space="preserve">
+    <value>Picking the headset up brings it out of standby.</value>
+  </data>
+  <data name="Controls_WakeOnMotion.Header" xml:space="preserve">
+    <value>Wake on motion</value>
+  </data>
+  <data name="Controls_VoicePrompts.Description" xml:space="preserve">
+    <value>How loud the headset's own spoken announcements are.</value>
+  </data>
+  <data name="Controls_VoicePrompts.Header" xml:space="preserve">
+    <value>Voice prompts</value>
+  </data>
+  <data name="Controls_LightsHeader.Text" xml:space="preserve">
+    <value>Charging Dock lights</value>
+  </data>
+  <data name="Controls_DockRing.Description" xml:space="preserve">
+    <value>The ring around the spare battery slot.</value>
+  </data>
+  <data name="Controls_DockRing.Header" xml:space="preserve">
+    <value>Battery slot ring</value>
+  </data>
+  <data name="Controls_DockStatus.Description" xml:space="preserve">
+    <value>Turns purple when the link is running high bandwidth.</value>
+  </data>
+  <data name="Controls_DockStatus.Header" xml:space="preserve">
+    <value>Status ring</value>
+  </data>
+  <data name="Controls_TransmitterLight.Description" xml:space="preserve">
+    <value>The status light on the transmitter.</value>
+  </data>
+  <data name="Controls_TransmitterLight.Header" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Device_Title.Text" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="Device_Section.What" xml:space="preserve">
+    <value>The audio format, firmware, serial number and everything the headset reports</value>
+  </data>
+  <data name="Device_AudioFormatHeading.Text" xml:space="preserve">
+    <value>Audio format</value>
+  </data>
+  <data name="Device_FormatNote.Text" xml:space="preserve">
+    <value>Windows' setting rather than the headset's, and the same one as Sound settings. Only formats this device actually accepts are listed.</value>
+  </data>
+  <data name="Device_HeadsetOutput.Header" xml:space="preserve">
+    <value>Headset output</value>
+  </data>
+  <data name="Device_Microphone.Header" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="Device_DetailsSection.What" xml:space="preserve">
+    <value>Firmware, serial number and everything the headset reports</value>
+  </data>
+  <data name="Device_DetailsSection.Why" xml:space="preserve">
+    <value>These come from the headset. Switch it off and on again to see them here.</value>
+  </data>
+  <data name="Device_DetailsSection.WhyOff" xml:space="preserve">
+    <value>Switch your headset on to see these.</value>
+  </data>
+  <data name="Device_AboutHeading.Text" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Device_Firmware.Header" xml:space="preserve">
+    <value>Firmware</value>
+  </data>
+  <data name="Device_SerialNumber.Header" xml:space="preserve">
+    <value>Serial number</value>
+  </data>
+  <data name="Device_ReportedHeading.Text" xml:space="preserve">
+    <value>Everything the headset reports</value>
+  </data>
+  <data name="Device_RawValues.Description" xml:space="preserve">
+    <value>Values without a confirmed meaning are shown greyed. They stay read-only until we know what they do.</value>
+  </data>
+  <data name="Device_RawValues.Header" xml:space="preserve">
+    <value>Raw values</value>
+  </data>
+  <data name="Home_Title.Text" xml:space="preserve">
+    <value>Your headset</value>
+  </data>
+  <data name="Home_Connections.Text" xml:space="preserve">
+    <value>Connections</value>
+  </data>
+  <data name="Home_Transmitters.Text" xml:space="preserve">
+    <value>Transmitters</value>
+  </data>
+  <data name="Home_TransmittersNote.Text" xml:space="preserve">
+    <value>Your headset uses one at a time. Press CrossPlay on the headset to switch between them.</value>
+  </data>
+  <data name="Microphone_Title.Text" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="Microphone_Section.What" xml:space="preserve">
+    <value>Mute, level, monitoring, noise reduction, the noise gate and the equaliser</value>
+  </data>
+  <data name="Microphone_MicrophoneHeading.Text" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="Microphone_Muted.Description" xml:space="preserve">
+    <value>Flipping the boom arm up does this too.</value>
+  </data>
+  <data name="Microphone_Muted.Header" xml:space="preserve">
+    <value>Muted</value>
+  </data>
+  <data name="Microphone_Sensitivity.Description" xml:space="preserve">
+    <value>Windows' recording level for this microphone. The headset reports it back but cannot change it, so this sets it where it actually lives.</value>
+  </data>
+  <data name="Microphone_Sensitivity.Header" xml:space="preserve">
+    <value>Sensitivity</value>
+  </data>
+  <data name="Microphone_MicMonitoring.Description" xml:space="preserve">
+    <value>Hear your own voice in the headset.</value>
+  </data>
+  <data name="Microphone_MicMonitoring.Header" xml:space="preserve">
+    <value>Mic monitoring</value>
+  </data>
+  <data name="Microphone_HeadsetSection.What" xml:space="preserve">
+    <value>Mute, monitoring, noise reduction, the noise gate and the equaliser</value>
+  </data>
+  <data name="Microphone_NoiseHandlingHeading.Text" xml:space="preserve">
+    <value>Noise handling</value>
+  </data>
+  <data name="Microphone_AINoiseReduction.Description" xml:space="preserve">
+    <value>Strips background noise out of what people hear.</value>
+  </data>
+  <data name="Microphone_AINoiseReduction.Header" xml:space="preserve">
+    <value>AI noise reduction</value>
+  </data>
+  <data name="Microphone_NoiseGate.Description" xml:space="preserve">
+    <value>Stays silent until you speak.</value>
+  </data>
+  <data name="Microphone_NoiseGate.Header" xml:space="preserve">
+    <value>Noise gate</value>
+  </data>
+  <data name="Microphone_Threshold.Description" xml:space="preserve">
+    <value>How loud you have to be before the gate opens.</value>
+  </data>
+  <data name="Microphone_Threshold.Header" xml:space="preserve">
+    <value>Threshold</value>
+  </data>
+  <data name="Microphone_EqualiserHeading.Text" xml:space="preserve">
+    <value>Equaliser</value>
+  </data>
+  <data name="Settings_Title.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings_RunningHeading.Text" xml:space="preserve">
+    <value>Running</value>
+  </data>
+  <data name="Settings_RunningNote.Text" xml:space="preserve">
+    <value>Closing the window leaves the app running in the notification area, so the chat wheel and the mix keep working. Quit from its menu there to stop it altogether.</value>
+  </data>
+  <data name="Settings_StartWithWindows.Description" xml:space="preserve">
+    <value>Starts quietly in the notification area, so the chat wheel and the mix work from the moment you log in.</value>
+  </data>
+  <data name="Settings_StartWithWindows.Header" xml:space="preserve">
+    <value>Start with Windows</value>
+  </data>
+  <data name="Settings_AboutHeading.Text" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="State_Connected" xml:space="preserve">
+    <value>Headset connected</value>
+  </data>
+  <data name="State_NoSound" xml:space="preserve">
+    <value>No sound</value>
+  </data>
+  <data name="State_SettingsUnavailable" xml:space="preserve">
+    <value>Settings unavailable</value>
+  </data>
+  <data name="State_HeadsetOff" xml:space="preserve">
+    <value>Headset off</value>
+  </data>
+  <data name="State_NotConnected" xml:space="preserve">
+    <value>Not connected</value>
+  </data>
+  <data name="State_Connecting" xml:space="preserve">
+    <value>Connecting</value>
+  </data>
+  <data name="State_NothingPluggedIn" xml:space="preserve">
+    <value>Nothing plugged in</value>
+  </data>
+  <data name="State_WhatUnreachable" xml:space="preserve">
+    <value>The app can't reach your headset's settings or its chat wheel right now. Windows volume, your microphone level and the headset's own buttons still work, and it keeps using the settings it has.</value>
+  </data>
+  <data name="State_FixUnreachable" xml:space="preserve">
+    <value>Switch the headset off and on again to bring the chat wheel and settings back.</value>
+  </data>
+  <data name="State_FallbackUnreachable" xml:space="preserve">
+    <value>No sound? Press the CrossPlay button on the headset.</value>
+  </data>
+  <data name="State_WhatNoSound" xml:space="preserve">
+    <value>Your headset is connected, but no transmitter is sending it sound, and its chat wheel isn't reaching the app.</value>
+  </data>
+  <data name="State_FixNoSound" xml:space="preserve">
+    <value>Press the CrossPlay button on the headset to bring the sound and the chat wheel back.</value>
+  </data>
+  <data name="State_FallbackNoSound" xml:space="preserve">
+    <value>Still nothing? Switch the headset off and on again.</value>
+  </data>
+  <data name="State_WhatOff" xml:space="preserve">
+    <value>Your headset is switched off or out of range.</value>
+  </data>
+  <data name="State_FixOff" xml:space="preserve">
+    <value>Switch it on and it connects by itself.</value>
+  </data>
+  <data name="State_FallbackOff" xml:space="preserve">
+    <value>On, but still not connecting? Press the CrossPlay button on the headset.</value>
+  </data>
+  <data name="State_WhatOffOnCable" xml:space="preserve">
+    <value>Your headset is switched off.</value>
+  </data>
+  <data name="State_WheelTitle" xml:space="preserve">
+    <value>The chat wheel isn't reaching the app</value>
+  </data>
+  <data name="State_MixWithKeys" xml:space="preserve">
+    <value>You can still move the mix with the slider, or from the keyboard with {0} and {1}.</value>
+  </data>
+  <data name="State_MixKeysBelow" xml:space="preserve">
+    <value>You can still move the mix with the slider, or turn on the keyboard shortcut below to move it from inside a game.</value>
+  </data>
+  <data name="State_MixKeysOnAudio" xml:space="preserve">
+    <value>You can still move the mix with the slider on Audio, or turn on its keyboard shortcut there to move it from inside a game.</value>
+  </data>
+  <data name="Routing_OpenSoundSettings" xml:space="preserve">
+    <value>Open Sound settings</value>
+  </data>
+  <data name="Routing_TitleSound" xml:space="preserve">
+    <value>Windows is playing to the {0}</value>
+  </data>
+  <data name="Routing_TitleCalls" xml:space="preserve">
+    <value>Windows is sending calls to the {0}</value>
+  </data>
+  <data name="Routing_TitleMicrophone" xml:space="preserve">
+    <value>Windows is using the {0}'s microphone</value>
+  </data>
+  <data name="Routing_TitleSoundCalls" xml:space="preserve">
+    <value>Windows is sending sound and calls to the {0}</value>
+  </data>
+  <data name="Routing_TitleSoundMicrophone" xml:space="preserve">
+    <value>Windows is sending sound and the microphone to the {0}</value>
+  </data>
+  <data name="Routing_TitleCallsMicrophone" xml:space="preserve">
+    <value>Windows is sending calls and the microphone to the {0}</value>
+  </data>
+  <data name="Routing_TitleAll" xml:space="preserve">
+    <value>Windows is sending sound, calls and the microphone to the {0}</value>
+  </data>
+  <data name="Routing_Choose" xml:space="preserve">
+    <value>In Sound settings, choose {0}.</value>
+  </data>
+  <data name="Routing_PickOutput" xml:space="preserve">
+    <value>"{0}" for output</value>
+  </data>
+  <data name="Routing_PickOutputCalls" xml:space="preserve">
+    <value>"{0}" for output and communications</value>
+  </data>
+  <data name="Routing_PickInput" xml:space="preserve">
+    <value>"{0}" for input</value>
+  </data>
+  <data name="Routing_PickInputCalls" xml:space="preserve">
+    <value>"{0}" for input and communications</value>
+  </data>
+  <data name="Routing_PickCalls" xml:space="preserve">
+    <value>"{0}" for communications</value>
+  </data>
+  <data name="Routing_CableBoth" xml:space="preserve">
+    <value>Your headset is plugged in with its cable. It plays one source at a time, and sends your voice only over the cable.</value>
+  </data>
+  <data name="Routing_CableSound" xml:space="preserve">
+    <value>Your headset is plugged in with its cable and plays one source at a time, so sound sent to the {0} and to the cable won't play together.</value>
+  </data>
+  <data name="Routing_CableMicrophone" xml:space="preserve">
+    <value>Your headset is plugged in with its cable and sends your voice only over it, so nobody will hear you.</value>
+  </data>
+  <data name="Routing_On" xml:space="preserve">
+    <value>Your headset is on the {0}.</value>
+  </data>
+  <data name="Routing_OnSilent" xml:space="preserve">
+    <value>Your headset is on the {0}, so you will not hear anything.</value>
+  </data>
+  <data name="Routing_OnNoCalls" xml:space="preserve">
+    <value>Your headset is on the {0}, so you will not hear calls.</value>
+  </data>
+  <data name="Routing_OnUnheard" xml:space="preserve">
+    <value>Your headset is on the {0}, so nobody will hear you.</value>
+  </data>
+  <data name="Routing_OnUnplugged" xml:space="preserve">
+    <value>Your headset is on the {0}, which is not plugged in. Press CrossPlay on the headset to switch it to the {1}.</value>
+  </data>
+  <data name="Routing_PressOrChoose" xml:space="preserve">
+    <value>Press CrossPlay on the headset to switch it to the {0}, or to stay on the {1}, choose {2} in Sound settings.</value>
+  </data>
+  <data name="List_Separator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="List_Last" xml:space="preserve">
+    <value>{0} and {1}</value>
+  </data>
+  <data name="Headset_Looking" xml:space="preserve">
+    <value>Looking for the headset…</value>
+  </data>
+  <data name="Headset_NothingPluggedIn" xml:space="preserve">
+    <value>Nothing of the headset's is plugged in.</value>
+  </data>
+  <data name="Headset_LostContact" xml:space="preserve">
+    <value>Lost contact with the headset.</value>
+  </data>
+  <data name="Adapter_ChargingDock" xml:space="preserve">
+    <value>Charging Dock</value>
+  </data>
+  <data name="Adapter_UsbTransmitter" xml:space="preserve">
+    <value>USB Transmitter</value>
+  </data>
+  <data name="Adapter_Cable" xml:space="preserve">
+    <value>Headset, over USB-C</value>
+  </data>
+  <data name="Adapter_Transmitter" xml:space="preserve">
+    <value>Transmitter</value>
+  </data>
+  <data name="Key_Ctrl" xml:space="preserve">
+    <value>Ctrl</value>
+  </data>
+  <data name="Key_Alt" xml:space="preserve">
+    <value>Alt</value>
+  </data>
+  <data name="Key_Shift" xml:space="preserve">
+    <value>Shift</value>
+  </data>
+  <data name="Key_Win" xml:space="preserve">
+    <value>Win</value>
+  </data>
+  <data name="Key_PageUp" xml:space="preserve">
+    <value>Page Up</value>
+  </data>
+  <data name="Key_PageDown" xml:space="preserve">
+    <value>Page Down</value>
+  </data>
+  <data name="Key_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Key_End" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="Key_Left" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="Key_Up" xml:space="preserve">
+    <value>Up</value>
+  </data>
+  <data name="Key_Right" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="Key_Down" xml:space="preserve">
+    <value>Down</value>
+  </data>
+  <data name="Key_Insert" xml:space="preserve">
+    <value>Insert</value>
+  </data>
+  <data name="Key_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Key_Space" xml:space="preserve">
+    <value>Space</value>
+  </data>
+  <data name="Key_Other" xml:space="preserve">
+    <value>key {0}</value>
+  </data>
+  <data name="Key_Taken" xml:space="preserve">
+    <value>Another program already uses this. Pick another.</value>
+  </data>
+  <data name="Key_Refused" xml:space="preserve">
+    <value>Windows would not allow this one. Pick another.</value>
+  </data>
+  <data name="Preset_NotRead" xml:space="preserve">
+    <value>The presets have not been read yet.</value>
+  </data>
+  <data name="Preset_NeedsName" xml:space="preserve">
+    <value>A preset needs a name.</value>
+  </data>
+  <data name="Preset_TooLong" xml:space="preserve">
+    <value>{0} characters is as long as a preset name can be.</value>
+  </data>
+  <data name="Preset_Full" xml:space="preserve">
+    <value>All five custom slots are full. Replace one, or delete one first.</value>
+  </data>
+  <data name="Preset_Missing" xml:space="preserve">
+    <value>There is no custom preset called {0}.</value>
+  </data>
+  <data name="Preset_Unreadable" xml:space="preserve">
+    <value>Could not read the current equaliser.</value>
+  </data>
+  <data name="Audio_NoDevice" xml:space="preserve">
+    <value>No audio device</value>
+  </data>
+  <data name="Equaliser_BackTo" xml:space="preserve">
+    <value>Back to {0} dB</value>
+  </data>
+  <data name="Equaliser_Band" xml:space="preserve">
+    <value>{0}   {1} dB</value>
+  </data>
+  <data name="Equaliser_DeleteNamed" xml:space="preserve">
+    <value>Delete {0}</value>
+  </data>
+  <data name="Equaliser_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Equaliser_KeepNamed" xml:space="preserve">
+    <value>Keep {0}</value>
+  </data>
+  <data name="Equaliser_CouldNotDelete" xml:space="preserve">
+    <value>Could not delete</value>
+  </data>
+  <data name="Equaliser_CouldNotSave" xml:space="preserve">
+    <value>Could not save</value>
+  </data>
+  <data name="Equaliser_EmptySlot" xml:space="preserve">
+    <value>Empty slot</value>
+  </data>
+  <data name="Equaliser_NamePlaceholder" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Equaliser_SaveTitle" xml:space="preserve">
+    <value>Save as a new preset</value>
+  </data>
+  <data name="Equaliser_GiveName" xml:space="preserve">
+    <value>Give it a name.</value>
+  </data>
+  <data name="Equaliser_FactoryName" xml:space="preserve">
+    <value>{0} is one of the headset's own presets.</value>
+  </data>
+  <data name="Equaliser_NameTaken" xml:space="preserve">
+    <value>You already have a preset called {0}. To replace it, close this and use Overwrite.</value>
+  </data>
+  <data name="Equaliser_SlotsFull" xml:space="preserve">
+    <value>All five slots are full. Delete one first, or overwrite the preset this came from.</value>
+  </data>
+  <data name="Equaliser_SlotsFree" xml:space="preserve">
+    <value>{0} of 5 slots free.</value>
+  </data>
+  <data name="Equaliser_NameAtLimit" xml:space="preserve">
+    <value>That is as long as a name can be.</value>
+  </data>
+  <data name="Equaliser_PutBack" xml:space="preserve">
+    <value>Put back to {0} dB</value>
+  </data>
+  <data name="Equaliser_NotChanged" xml:space="preserve">
+    <value>Not changed from the preset</value>
+  </data>
+  <data name="Equaliser_ChangedFrom" xml:space="preserve">
+    <value>Changed from {0} dB</value>
+  </data>
+  <data name="Equaliser_Overwrite" xml:space="preserve">
+    <value>Overwrite {0}</value>
+  </data>
+  <data name="Equaliser_Selected" xml:space="preserve">
+    <value>Selected</value>
+  </data>
+  <data name="Dialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Dialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Dialog_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Format_Name" xml:space="preserve">
+    <value>Audio format</value>
+  </data>
+  <data name="Format_NoneOffered" xml:space="preserve">
+    <value>Windows is not offering any formats for this device.</value>
+  </data>
+  <data name="Format_CouldNotChange" xml:space="preserve">
+    <value>Could not change the format</value>
+  </data>
+  <data name="Notice_NoHeadsetTitle" xml:space="preserve">
+    <value>No headset connected</value>
+  </data>
+  <data name="Notice_NoHeadset" xml:space="preserve">
+    <value>Plug in its Charging Dock, its USB Transmitter or its USB-C cable, then switch the headset on.</value>
+  </data>
+  <data name="Section_WhyOff" xml:space="preserve">
+    <value>Switch your headset on to see and change these.</value>
+  </data>
+  <data name="Section_Why" xml:space="preserve">
+    <value>These are set on the headset itself, which keeps using them. Switch the headset off and on again to change them here.</value>
+  </data>
+  <data name="Mix_Playing" xml:space="preserve">
+    <value>{0}  ·  playing</value>
+  </data>
+  <data name="Mix_NothingPlayingTitle" xml:space="preserve">
+    <value>Nothing is playing to the headset yet</value>
+  </data>
+  <data name="Mix_NothingPlaying" xml:space="preserve">
+    <value>Start your chat app, then look again.</value>
+  </data>
+  <data name="Mix_Elsewhere" xml:space="preserve">
+    <value>{0} is playing to {1}, not your headset, so the mix cannot reach it. Change its output device in its own audio settings.</value>
+  </data>
+  <data name="Mix_Balanced" xml:space="preserve">
+    <value>Balanced</value>
+  </data>
+  <data name="Mix_GameOnly" xml:space="preserve">
+    <value>Game only</value>
+  </data>
+  <data name="Mix_ChatOnly" xml:space="preserve">
+    <value>Chat only</value>
+  </data>
+  <data name="Mix_TowardGame" xml:space="preserve">
+    <value>{0}% toward game</value>
+  </data>
+  <data name="Mix_TowardChat" xml:space="preserve">
+    <value>{0}% toward chat</value>
+  </data>
+  <data name="Mix_PressKeys" xml:space="preserve">
+    <value>Press the keys…</value>
+  </data>
+  <data name="Mix_NeedsModifierTitle" xml:space="preserve">
+    <value>That needs a modifier</value>
+  </data>
+  <data name="Mix_NeedsModifier" xml:space="preserve">
+    <value>Hold Ctrl, Alt or Shift as well, so the key still works everywhere else.</value>
+  </data>
+  <data name="Mix_KeyName" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Volume_Name" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="Tray_StillRunningTitle" xml:space="preserve">
+    <value>Still running</value>
+  </data>
+  <data name="Tray_StillRunning" xml:space="preserve">
+    <value>{0} is in the notification area, keeping the mix and the chat wheel working. Open or quit it from there.</value>
+  </data>
+  <data name="Controls_DockLightsHeading" xml:space="preserve">
+    <value>Charging Dock lights</value>
+  </data>
+  <data name="Controls_TransmitterLightHeading" xml:space="preserve">
+    <value>USB Transmitter light</value>
+  </data>
+  <data name="Device_Unidentified" xml:space="preserve">
+    <value>not yet identified</value>
+  </data>
+  <data name="Home_TileAudio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Home_TileAudioWhat" xml:space="preserve">
+    <value>The game and chat mix, noise cancellation and the equaliser.</value>
+  </data>
+  <data name="Home_TileMicrophone" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="Home_TileMicrophoneWhat" xml:space="preserve">
+    <value>Level, monitoring, the noise gate and its own equaliser.</value>
+  </data>
+  <data name="Home_TileControls" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="Home_TileControlsWhat" xml:space="preserve">
+    <value>What the dial and the mode button do on the headset.</value>
+  </data>
+  <data name="Home_TileDevice" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="Home_TileDeviceWhat" xml:space="preserve">
+    <value>Windows audio format, firmware, and everything it reports.</value>
+  </data>
+  <data name="Home_Battery" xml:space="preserve">
+    <value>Battery</value>
+  </data>
+  <data name="Home_BatteryLevel" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+  <data name="Home_BatteryCharging" xml:space="preserve">
+    <value>{0}%, charging</value>
+  </data>
+  <data name="Home_Signal" xml:space="preserve">
+    <value>Signal</value>
+  </data>
+  <data name="Home_NotReported" xml:space="preserve">
+    <value>Not reported by the USB Transmitter.</value>
+  </data>
+  <data name="Home_NothingYet" xml:space="preserve">
+    <value>Nothing to report until the headset answers.</value>
+  </data>
+  <data name="Home_ConnectedThrough" xml:space="preserve">
+    <value>Connected through</value>
+  </data>
+  <data name="Home_Cable" xml:space="preserve">
+    <value>USB-C cable</value>
+  </data>
+  <data name="Home_NoTransmitter" xml:space="preserve">
+    <value>No transmitter</value>
+  </data>
+  <data name="Home_Bluetooth" xml:space="preserve">
+    <value>Bluetooth</value>
+  </data>
+  <data name="Home_BluetoothOn" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="Home_BluetoothOff" xml:space="preserve">
+    <value>Not connected</value>
+  </data>
+  <data name="Home_Wireless" xml:space="preserve">
+    <value>2.4 GHz · {0}</value>
+  </data>
+  <data name="Home_Unplugged" xml:space="preserve">
+    <value>{0}, not plugged in</value>
+  </data>
+  <data name="Home_SignalStrong" xml:space="preserve">
+    <value>Strong</value>
+  </data>
+  <data name="Home_SignalGood" xml:space="preserve">
+    <value>Good</value>
+  </data>
+  <data name="Home_SignalOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Home_SignalWeak" xml:space="preserve">
+    <value>Weak</value>
+  </data>
+  <data name="Home_NoTransmitters" xml:space="preserve">
+    <value>No transmitter plugged in.</value>
+  </data>
+  <data name="Home_InUse" xml:space="preserve">
+    <value>In use</value>
+  </data>
+  <data name="Home_PluggedIn" xml:space="preserve">
+    <value>Plugged in</value>
+  </data>
+  <data name="Home_NotPluggedIn" xml:space="preserve">
+    <value>Not plugged in</value>
+  </data>
+  <data name="Home_SetToThis" xml:space="preserve">
+    <value>Your headset's sound is set to this one.</value>
+  </data>
+  <data name="Home_SwitchToThis" xml:space="preserve">
+    <value>Press CrossPlay on the headset to switch to it.</value>
+  </data>
+  <data name="Home_Firmware" xml:space="preserve">
+    <value>Firmware {0}</value>
+  </data>
+  <data name="Settings_About" xml:space="preserve">
+    <value>A replacement for Swarm II. Not affiliated with or endorsed by Turtle Beach.</value>
+  </data>
+  <data name="Settings_AboutVersion" xml:space="preserve">
+    <value>Version {0} · {1}</value>
+  </data>
+</root>

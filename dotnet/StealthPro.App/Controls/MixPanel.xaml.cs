@@ -96,7 +96,7 @@ public sealed partial class MixPanel : UserControl
                     var item = new ComboBoxItem
                     {
                         Content = candidate.Playing
-                            ? $"{candidate.Display}  ·  playing"
+                            ? Strings.Format("Mix_Playing", candidate.Display)
                             : candidate.Display,
                         Tag = candidate.Process,
                     };
@@ -110,8 +110,8 @@ public sealed partial class MixPanel : UserControl
             if (candidates.Count == 0)
             {
                 Notice.Severity = InfoBarSeverity.Informational;
-                Notice.Title = "Nothing is playing to the headset yet";
-                Notice.Message = "Start your chat app, then look again.";
+                Notice.Title = Strings.Get("Mix_NothingPlayingTitle");
+                Notice.Message = Strings.Get("Mix_NothingPlaying");
             }
         }
         finally { _painting = false; }
@@ -149,10 +149,7 @@ public sealed partial class MixPanel : UserControl
         var elsewhere = AppServices.Mix.Status?.Elsewhere;
         ElsewhereBar.IsOpen = elsewhere is not null;
         if (elsewhere is not null)
-            ElsewhereBar.Message =
-                $"{elsewhere.App} is playing to {elsewhere.Device}, not your headset, "
-                + "so the mix cannot reach it. Change its output device in its own "
-                + "audio settings.";
+            ElsewhereBar.Message = Strings.Format("Mix_Elsewhere", elsewhere.App, elsewhere.Device);
 
         _painting = true;
         try
@@ -161,11 +158,11 @@ public sealed partial class MixPanel : UserControl
             MixSlider.Value = mix;
             MixCaption.Text = mix switch
             {
-                50 => "Balanced",
-                0 => "Game only",
-                100 => "Chat only",
-                < 50 => $"{100 - mix}% toward game",
-                _ => $"{mix}% toward chat",
+                50 => Strings.Get("Mix_Balanced"),
+                0 => Strings.Get("Mix_GameOnly"),
+                100 => Strings.Get("Mix_ChatOnly"),
+                < 50 => Strings.Format("Mix_TowardGame", 100 - mix),
+                _ => Strings.Format("Mix_TowardChat", mix),
             };
         }
         finally { _painting = false; }
@@ -206,7 +203,7 @@ public sealed partial class MixPanel : UserControl
         button.Click += (_, _) =>
         {
             _capturing = which;
-            button.Content = "Press the keys…";
+            button.Content = Strings.Get("Mix_PressKeys");
             button.Focus(FocusState.Programmatic);
         };
 
@@ -237,9 +234,8 @@ public sealed partial class MixPanel : UserControl
                 // Refused rather than accepted quietly: a bare key here is
                 // taken from every other program on the machine.
                 PaintKeys();
-                Notice.Title = "That needs a modifier";
-                Notice.Message = "Hold Ctrl, Alt or Shift as well, so the key still "
-                               + "works everywhere else.";
+                Notice.Title = Strings.Get("Mix_NeedsModifierTitle");
+                Notice.Message = Strings.Get("Mix_NeedsModifier");
                 Notice.IsOpen = true;
                 return;
             }
@@ -272,12 +268,12 @@ public sealed partial class MixPanel : UserControl
         // The keys alone do not say what they do: "Toward game: Ctrl + Alt +
         // Page Down", not just the keys.
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
-            button, $"{row.Header}: {button.Content}");
+            button, Strings.Format("Mix_KeyName", row.Header, button.Content));
 
         // A combination another program already holds does nothing at all
         // when pressed, and there is nowhere else this could be said.
         string? trouble = AppServices.Hotkeys.Trouble(which);
-        row.Description = trouble is null ? "" : trouble + " — pick another.";
+        row.Description = trouble ?? "";
     }
 }
 

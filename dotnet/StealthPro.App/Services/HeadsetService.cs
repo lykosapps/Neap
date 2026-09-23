@@ -79,7 +79,7 @@ public sealed class HeadsetService : IDisposable
     private readonly ConcurrentDictionary<int, long> _lastWrite = new();
     private readonly Thread _worker;
 
-    private const string Looking = "Looking for the headset…";
+    private static string Looking => Strings.Get("Headset_Looking");
 
     private static readonly LinkWords Words = new(
         Looking, QuietDetail, UnreachableDetail, OffDetail, AdapterName);
@@ -198,7 +198,7 @@ public sealed class HeadsetService : IDisposable
 
     private static readonly string SoundLinkHex = Hex(LinkTracker.SoundLinkKey);
 
-    private const string OffDetail = StateCopy.WhatOffOnCable + " " + StateCopy.FixOff;
+    private static string OffDetail => StateCopy.WhatOffOnCable + " " + StateCopy.FixOff;
 
     private void NoteSoundLink(JsonElement? was, JsonElement now)
     {
@@ -475,12 +475,11 @@ public sealed class HeadsetService : IDisposable
             }
             catch (DeviceNotFoundException)
             {
-                Drop(ref client, ref primed,
-                    "Nothing of the headset's is plugged in.");
+                Drop(ref client, ref primed, Strings.Get("Headset_NothingPluggedIn"));
             }
             catch (TransportException)
             {
-                Drop(ref client, ref primed, "Lost contact with the headset.");
+                Drop(ref client, ref primed, Strings.Get("Headset_LostContact"));
             }
             catch (Exception ex)
             {
@@ -643,10 +642,10 @@ public sealed class HeadsetService : IDisposable
 
     private static string AdapterName(Route route) => route switch
     {
-        Route.ChargingHub => "Charging Dock",
-        Route.UsbTransmitter => "USB Transmitter",
-        Route.DirectUsb => "Headset, over USB-C",
-        _ => "Transmitter",
+        Route.ChargingHub => Strings.Get("Adapter_ChargingDock"),
+        Route.UsbTransmitter => Strings.Get("Adapter_UsbTransmitter"),
+        Route.DirectUsb => Strings.Get("Adapter_Cable"),
+        _ => Strings.Get("Adapter_Transmitter"),
     };
 
     /// <summary>
@@ -748,7 +747,7 @@ public sealed class HeadsetService : IDisposable
         }
     }
 
-    private const string QuietDetail =
+    private static string QuietDetail =>
         StateCopy.WhatOff + " " + StateCopy.FixOff + " " + StateCopy.FallbackOff;
 
     /// <summary>
@@ -763,7 +762,7 @@ public sealed class HeadsetService : IDisposable
     /// switched on with, and when that one has gone, only switching it off and
     /// on brings them to one that is here.
     /// </summary>
-    private const string UnreachableDetail =
+    private static string UnreachableDetail =>
         StateCopy.WhatUnreachable + " " + StateCopy.FixUnreachable + " "
         + StateCopy.FallbackUnreachable;
 

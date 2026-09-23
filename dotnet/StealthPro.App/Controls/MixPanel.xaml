@@ -12,8 +12,7 @@
               meaningless until that is answered, so none of it is shown.  -->
         <tk:SettingsCard
             x:Name="SetupCard"
-            Description="Pick the app your voice chat comes out of. Everything else on the headset becomes the game side."
-            Header="Choose your chat app"
+            x:Uid="Mix_SetupCard"
             Visibility="Collapsed">
             <tk:SettingsCard.HeaderIcon>
                 <FontIcon Glyph="&#xE8BD;" />
@@ -21,13 +20,9 @@
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <ComboBox
                     x:Name="SetupPicker"
-                    MinWidth="200"
-                    AutomationProperties.Name="Choose your chat app"
-                    PlaceholderText="Choose an app" />
-                <Button
-                    x:Name="SetupRefresh"
-                    AutomationProperties.Name="Look for chat apps again"
-                    ToolTipService.ToolTip="Look again">
+                    x:Uid="Mix_SetupPicker"
+                    MinWidth="200" />
+                <Button x:Name="SetupRefresh" x:Uid="Mix_Refresh">
                     <FontIcon FontSize="14" Glyph="&#xE72C;" />
                 </Button>
             </StackPanel>
@@ -44,14 +39,14 @@
               arrives over the very link that is missing.  -->
         <InfoBar
             x:Name="WheelBar"
-            Title="The chat wheel isn't reaching the app"
+            x:Uid="Mix_WheelBar"
             IsClosable="False"
             IsOpen="False"
             Severity="Informational" />
 
         <InfoBar
             x:Name="ElsewhereBar"
-            Title="Chat is going to another device"
+            x:Uid="Mix_ElsewhereBar"
             IsClosable="False"
             IsOpen="False"
             Severity="Warning" />
@@ -78,28 +73,28 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock
+                    x:Uid="Mix_Game"
                     Grid.Row="0"
                     Grid.Column="0"
                     VerticalAlignment="Center"
-                    Style="{StaticResource BodyStrongTextBlockStyle}"
-                    Text="Game" />
+                    Style="{StaticResource BodyStrongTextBlockStyle}" />
 
                 <Slider
                     x:Name="MixSlider"
+                    x:Uid="Mix_MixSlider"
                     Grid.Row="0"
                     Grid.Column="1"
-                    AutomationProperties.Name="Game and chat mix"
                     Maximum="100"
                     Minimum="0"
                     TickFrequency="50"
                     TickPlacement="Outside" />
 
                 <TextBlock
+                    x:Uid="Mix_Chat"
                     Grid.Row="0"
                     Grid.Column="2"
                     VerticalAlignment="Center"
-                    Style="{StaticResource BodyStrongTextBlockStyle}"
-                    Text="Chat" />
+                    Style="{StaticResource BodyStrongTextBlockStyle}" />
 
                 <TextBlock
                     x:Name="MixCaption"
@@ -117,36 +112,31 @@
               can.  -->
         <tk:SettingsExpander
             x:Name="KeysCard"
-            Description="Works from inside a game, on either transmitter, and alongside the wheel."
-            Header="Move the mix with the keyboard"
+            x:Uid="Mix_KeysCard"
             Visibility="Collapsed">
             <tk:SettingsExpander.HeaderIcon>
                 <FontIcon Glyph="&#xE765;" />
             </tk:SettingsExpander.HeaderIcon>
             <ToggleSwitch x:Name="KeysOn" />
             <tk:SettingsExpander.Items>
-                <tk:SettingsCard x:Name="GameRow" Header="Toward game">
+                <tk:SettingsCard x:Name="GameRow" x:Uid="Mix_GameRow">
                     <Button x:Name="GameKey" MinWidth="190" />
                 </tk:SettingsCard>
-                <tk:SettingsCard x:Name="ChatRow" Header="Toward chat">
+                <tk:SettingsCard x:Name="ChatRow" x:Uid="Mix_ChatRow">
                     <Button x:Name="ChatKey" MinWidth="190" />
                 </tk:SettingsCard>
-                <tk:SettingsCard x:Name="CentreRow" Header="Back to balanced">
+                <tk:SettingsCard x:Name="CentreRow" x:Uid="Mix_CentreRow">
                     <Button x:Name="CentreKey" MinWidth="190" />
                 </tk:SettingsCard>
-                <tk:SettingsCard Description="Ctrl + Alt + Page Down, Page Up and Home." Header="Put the keys back">
-                    <Button
-                        x:Name="KeysReset"
-                        AutomationProperties.Name="Put the keyboard shortcuts back"
-                        Content="Reset" />
+                <tk:SettingsCard x:Uid="Mix_KeysResetRow">
+                    <Button x:Name="KeysReset" x:Uid="Mix_KeysReset" />
                 </tk:SettingsCard>
             </tk:SettingsExpander.Items>
         </tk:SettingsExpander>
 
         <tk:SettingsCard
             x:Name="ChosenCard"
-            Description="Everything else playing on the headset is treated as game audio."
-            Header="Chat comes from"
+            x:Uid="Mix_ChosenCard"
             Visibility="Collapsed">
             <tk:SettingsCard.HeaderIcon>
                 <FontIcon Glyph="&#xE8BD;" />
@@ -154,12 +144,9 @@
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <ComboBox
                     x:Name="ChosenPicker"
-                    AutomationProperties.Name="Chat comes from"
+                    x:Uid="Mix_ChosenPicker"
                     MinWidth="200" />
-                <Button
-                    x:Name="ChosenRefresh"
-                    AutomationProperties.Name="Look for chat apps again"
-                    ToolTipService.ToolTip="Look again">
+                <Button x:Name="ChosenRefresh" x:Uid="Mix_Refresh">
                     <FontIcon FontSize="14" Glyph="&#xE72C;" />
                 </Button>
             </StackPanel>

@@ -25,10 +25,10 @@ public sealed record Shortcut(uint Modifiers, uint Key)
     public override string ToString()
     {
         var parts = new List<string>();
-        if ((Modifiers & Control) != 0) parts.Add("Ctrl");
-        if ((Modifiers & Alt) != 0) parts.Add("Alt");
-        if ((Modifiers & Shift) != 0) parts.Add("Shift");
-        if ((Modifiers & Windows) != 0) parts.Add("Win");
+        if ((Modifiers & Control) != 0) parts.Add(Strings.Get("Key_Ctrl"));
+        if ((Modifiers & Alt) != 0) parts.Add(Strings.Get("Key_Alt"));
+        if ((Modifiers & Shift) != 0) parts.Add(Strings.Get("Key_Shift"));
+        if ((Modifiers & Windows) != 0) parts.Add(Strings.Get("Key_Win"));
         parts.Add(Name(Key));
         return string.Join(" + ", parts);
     }
@@ -36,17 +36,17 @@ public sealed record Shortcut(uint Modifiers, uint Key)
     /// <summary>Readable names for the keys people actually pick.</summary>
     private static string Name(uint key) => key switch
     {
-        0x21 => "Page Up",
-        0x22 => "Page Down",
-        0x24 => "Home",
-        0x23 => "End",
-        0x25 => "Left",
-        0x26 => "Up",
-        0x27 => "Right",
-        0x28 => "Down",
-        0x2D => "Insert",
-        0x2E => "Delete",
-        0x20 => "Space",
+        0x21 => Strings.Get("Key_PageUp"),
+        0x22 => Strings.Get("Key_PageDown"),
+        0x24 => Strings.Get("Key_Home"),
+        0x23 => Strings.Get("Key_End"),
+        0x25 => Strings.Get("Key_Left"),
+        0x26 => Strings.Get("Key_Up"),
+        0x27 => Strings.Get("Key_Right"),
+        0x28 => Strings.Get("Key_Down"),
+        0x2D => Strings.Get("Key_Insert"),
+        0x2E => Strings.Get("Key_Delete"),
+        0x20 => Strings.Get("Key_Space"),
         0xBC => ",",
         0xBE => ".",
         0xBF => "/",
@@ -55,7 +55,7 @@ public sealed record Shortcut(uint Modifiers, uint Key)
         >= 0x30 and <= 0x39 => ((char)key).ToString(),
         >= 0x41 and <= 0x5A => ((char)key).ToString(),
         >= 0x70 and <= 0x87 => $"F{key - 0x6F}",
-        _ => $"key {key}",
+        _ => Strings.Format("Key_Other", key),
     };
 }
 
@@ -98,13 +98,6 @@ public sealed class HotkeyService : IDisposable
             [MixKey.TowardChat] = new(Shortcut.Control | Shortcut.Alt, 0x21),   // Page Up
             [MixKey.Balanced] = new(Shortcut.Control | Shortcut.Alt, 0x24),     // Home
         };
-
-    public static string Describe(MixKey which) => which switch
-    {
-        MixKey.TowardGame => "Toward game",
-        MixKey.TowardChat => "Toward chat",
-        _ => "Back to balanced",
-    };
 
     private readonly MixService _mix;
     private readonly DispatcherQueue _ui;
@@ -187,8 +180,8 @@ public sealed class HotkeyService : IDisposable
                 if (!RegisterHotKey(IntPtr.Zero, (int)which + 1,
                         shortcut.Modifiers | ModNoRepeat, shortcut.Key))
                     refused[which] = Marshal.GetLastWin32Error() == AlreadyRegistered
-                        ? "another program already uses this"
-                        : "Windows would not allow this one";
+                        ? Strings.Get("Key_Taken")
+                        : Strings.Get("Key_Refused");
 
             lock (_gate)
             {

@@ -180,27 +180,27 @@ public sealed class PresetService
     /// </summary>
     public async Task<string?> Save(Bank bank, string name, string? replacing)
     {
-        if (!_banks.TryGetValue(bank, out var state)) return "the presets have not been read yet";
+        if (!_banks.TryGetValue(bank, out var state)) return Strings.Get("Preset_NotRead");
         name = name.Trim();
-        if (name.Length == 0) return "a preset needs a name";
+        if (name.Length == 0) return Strings.Get("Preset_NeedsName");
         // Checked here and not only in the store: replacing deletes the old
         // preset first, and a name that cannot be written would throw after
         // that, losing the preset it was meant to replace.
         if (!PresetStore.NameFits(name, bank))
-            return $"{PresetStore.MaxNameLength} characters is as long as a preset name can be";
+            return Strings.Format("Preset_TooLong", PresetStore.MaxNameLength);
 
         var free = state.FreeSlots;
         if (replacing is null && free.Count == 0)
-            return "all five custom slots are full — replace one, or delete one first";
+            return Strings.Get("Preset_Full");
 
         var over = replacing is null
             ? null
             : state.Custom.FirstOrDefault(p => p.Name == replacing);
         if (replacing is not null && over is null)
-            return $"there is no custom preset called {replacing}";
+            return Strings.Format("Preset_Missing", replacing);
 
         var bands = LiveBands(state);
-        if (bands is null) return "could not read the current equaliser";
+        if (bands is null) return Strings.Get("Preset_Unreadable");
 
         try
         {

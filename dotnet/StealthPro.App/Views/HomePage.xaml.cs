@@ -36,10 +36,10 @@ public sealed partial class HomePage : Page
 
     private static readonly Tile[] Places =
     {
-        new("audio", "\uE7F6", "Audio", "The game and chat mix, noise cancellation and the equaliser."),
-        new("mic", "\uE720", "Microphone", "Level, monitoring, the noise gate and its own equaliser."),
-        new("controls", "\uE7FC", "Controls", "What the dial and the mode button do on the headset."),
-        new("device", "\uE950", "Device", "Windows audio format, firmware, and everything it reports."),
+        new("audio", "\uE7F6", Strings.Get("Home_TileAudio"), Strings.Get("Home_TileAudioWhat")),
+        new("mic", "\uE720", Strings.Get("Home_TileMicrophone"), Strings.Get("Home_TileMicrophoneWhat")),
+        new("controls", "\uE7FC", Strings.Get("Home_TileControls"), Strings.Get("Home_TileControlsWhat")),
+        new("device", "\uE950", Strings.Get("Home_TileDevice"), Strings.Get("Home_TileDeviceWhat")),
     };
 
     /// <summary>
@@ -160,13 +160,14 @@ public sealed partial class HomePage : Page
         {
             bool charging = headset.TryGetNumberByKey(LinkState.ChargingKey, out int power)
                             && power == 1;
-            Add("Battery", charging ? $"{battery}%, charging" : $"{battery}%");
+            Add(Strings.Get("Home_Battery"),
+                Strings.Format(charging ? "Home_BatteryCharging" : "Home_BatteryLevel", battery));
         }
         // Signal is the wireless link's, and says nothing about sound that
         // goes over a cable.
         if (live && !OverCable(status)
             && headset.TryGetNumberByKey(SignalKey, out int signal))
-            Add("Signal", Strength(signal));
+            Add(Strings.Get("Home_Signal"), Strength(signal));
 
         PaintConnections(headset, status, live, unseen);
     }
@@ -224,12 +225,12 @@ public sealed partial class HomePage : Page
         Connections.Children.Clear();
         if (unseen)
         {
-            Connections.Children.Add(Quiet("Not reported by the USB Transmitter."));
+            Connections.Children.Add(Quiet(Strings.Get("Home_NotReported")));
             return;
         }
         if (!live)
         {
-            Connections.Children.Add(Quiet("Nothing to report until the headset answers."));
+            Connections.Children.Add(Quiet(Strings.Get("Home_NothingYet")));
             return;
         }
 
@@ -242,15 +243,15 @@ public sealed partial class HomePage : Page
         // transmitter is unplugged, and the app says what to do when that
         // happens. It is still tracked (HeadsetStatus.ControlVia); it is just
         // not announced.
-        Connections.Children.Add(Row("\uE704", "Connected through",
-            OverCable(status) ? "USB-C cable"
-            : status.NoSound ? "No transmitter"
+        Connections.Children.Add(Row("\uE704", Strings.Get("Home_ConnectedThrough"),
+            OverCable(status) ? Strings.Get("Home_Cable")
+            : status.NoSound ? Strings.Get("Home_NoTransmitter")
             : Through(status)));
 
         bool bluetooth = headset.TryGetNumberByKey(LinkState.Key, out int link)
                          && LinkState.Bluetooth(link);
-        Connections.Children.Add(Row("\uE702", "Bluetooth",
-            bluetooth ? "Connected" : "Not connected"));
+        Connections.Children.Add(Row("\uE702", Strings.Get("Home_Bluetooth"),
+            Strings.Get(bluetooth ? "Home_BluetoothOn" : "Home_BluetoothOff")));
     }
 
     /// <summary>
@@ -265,7 +266,7 @@ public sealed partial class HomePage : Page
         // before the first look, and would flash the wrong answer.
         bool here = _plugged.Count == 0
                     || _plugged.Any(d => Same(d.ProductId.ToString("X4", CultureInfo.InvariantCulture), status.Product));
-        return here ? $"2.4 GHz · {status.Adapter}" : $"{status.Adapter}, not plugged in";
+        return Strings.Format(here ? "Home_Wireless" : "Home_Unplugged", status.Adapter);
     }
 
     /// <summary>
@@ -310,10 +311,10 @@ public sealed partial class HomePage : Page
         int dbm = raw > 127 ? raw - 256 : raw;
         return dbm switch
         {
-            >= -55 => "Strong",
-            >= -65 => "Good",
-            >= -73 => "OK",
-            _ => "Weak",
+            >= -55 => Strings.Get("Home_SignalStrong"),
+            >= -65 => Strings.Get("Home_SignalGood"),
+            >= -73 => Strings.Get("Home_SignalOK"),
+            _ => Strings.Get("Home_SignalWeak"),
         };
     }
 
@@ -356,7 +357,7 @@ public sealed partial class HomePage : Page
         Transmitters.Children.Clear();
         if (rows.Count == 0)
         {
-            Transmitters.Children.Add(Quiet("No transmitter plugged in."));
+            Transmitters.Children.Add(Quiet(Strings.Get("Home_NoTransmitters")));
             return;
         }
 
@@ -369,9 +370,9 @@ public sealed partial class HomePage : Page
                 {
                     Text = row.State switch
                     {
-                        TransmitterState.InUse => "In use",
-                        TransmitterState.CanSwitchTo or TransmitterState.PluggedIn => "Plugged in",
-                        _ => "Not plugged in",
+                        TransmitterState.InUse => Strings.Get("Home_InUse"),
+                        TransmitterState.CanSwitchTo or TransmitterState.PluggedIn => Strings.Get("Home_PluggedIn"),
+                        _ => Strings.Get("Home_NotPluggedIn"),
                     },
                     Style = (Style)Application.Current.Resources[
                         row.State == TransmitterState.InUse
@@ -380,10 +381,10 @@ public sealed partial class HomePage : Page
             };
             string detail = row.State switch
             {
-                TransmitterState.SelectedButUnplugged => "Your headset's sound is set to this one.",
-                TransmitterState.CanSwitchTo => "Press CrossPlay on the headset to switch to it.",
+                TransmitterState.SelectedButUnplugged => Strings.Get("Home_SetToThis"),
+                TransmitterState.CanSwitchTo => Strings.Get("Home_SwitchToThis"),
                 TransmitterState.PluggedIn => "",
-                _ => row.Firmware.Length > 0 ? $"Firmware {row.Firmware}" : "",
+                _ => row.Firmware.Length > 0 ? Strings.Format("Home_Firmware", row.Firmware) : "",
             };
             if (detail.Length > 0) card.Description = detail;
             Transmitters.Children.Add(card);

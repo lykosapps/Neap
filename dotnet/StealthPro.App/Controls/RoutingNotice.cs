@@ -54,7 +54,7 @@ public sealed class RoutingNotice : InfoBar
         // The one thing to do about it, one click away. Windows' own page,
         // not a switch of ours: changing the default device from here was
         // considered and dropped as too unreliable to do on anyone's behalf.
-        var open = new HyperlinkButton { Content = "Open Sound settings" };
+        var open = new HyperlinkButton { Content = Strings.Get("Routing_OpenSoundSettings") };
         open.Click += async (_, _) =>
         {
             try { await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:sound")); }
@@ -100,17 +100,6 @@ public sealed class RoutingNotice : InfoBar
 
     private void OnStatus(HeadsetStatus status) => Paint();
 
-    /// <summary>A half pointed at the wrong device, in the words the notice uses.</summary>
-    private sealed record Wrong(string What, bool Output, string For, string OnName, string Pick);
-
-    private static Wrong Words(Misrouted half) => half.Role switch
-    {
-        AudioRole.Sound => new("sound", true, "output", half.OnName, half.Pick),
-        AudioRole.Calls => new("calls", true, "communications", half.OnName, half.Pick),
-        AudioRole.Microphone => new("the microphone", false, "input", half.OnName, half.Pick),
-        _ => new("the microphone", false, "communications", half.OnName, half.Pick),
-    };
-
     private void Paint()
     {
         var status = AppServices.Headset.Status;
@@ -124,36 +113,45 @@ public sealed class RoutingNotice : InfoBar
             return;
         }
 
-        var shown = verdict.Wrong.Select(Words).ToList();
+        // <b>Whole sentences, one for each combination</b>, rather than one
+        // sentence with the halves joined into it: "sending {sound and calls}
+        // to" only works in English. Only names and lists are put in.
+        var wrong = verdict.Wrong;
         string here = status.Adapter;
-        string there = shown[0].OnName;
-        var what = shown.Select(w => w.What).Distinct().ToList();
+        string there = wrong[0].OnName;
+        bool sound = wrong.Any(w => w.Role == AudioRole.Sound);
+        bool calls = wrong.Any(w => w.Role == AudioRole.Calls);
+        bool mic = wrong.Any(w => !w.Output);
 
         // Not "Windows is using the Charging Dock": on Home that sits right
         // under "Connected through", and the two read as the same good news.
-        Title = what is ["sound"] ? $"Windows is playing to the {there}"
-            : what is ["the microphone"] ? $"Windows is using the {there}'s microphone"
-            : $"Windows is sending {Join(what)} to the {there}";
+        Title = Strings.Format((sound, calls, mic) switch
+        {
+            (true, false, false) => "Routing_TitleSound",
+            (false, true, false) => "Routing_TitleCalls",
+            (false, false, true) => "Routing_TitleMicrophone",
+            (true, true, false) => "Routing_TitleSoundCalls",
+            (true, false, true) => "Routing_TitleSoundMicrophone",
+            (false, true, true) => "Routing_TitleCallsMicrophone",
+            _ => "Routing_TitleAll",
+        }, there);
 
         // One instruction per device to choose, saying what for, because the
         // communications default is set apart from the rest in Sound settings.
-        var picks = shown.Where(w => w.Pick.Length > 0)
+        var picks = wrong.Where(w => w.Pick.Length > 0)
             .GroupBy(w => w.Pick)
-            .Select(g => $"\"{g.Key}\" for {Join(g.Select(w => w.For).Distinct().ToList())}")
+            .Select(g => Pick(g.Key, g.ToList()))
             .ToList();
-        string choose = picks.Count > 0 ? $" In Sound settings, choose {Join(picks)}." : "";
+        string choose = picks.Count > 0
+            ? " " + Strings.Format("Routing_Choose", Strings.List(picks))
+            : "";
 
         if (verdict.Cabled)
         {
-            bool outs = shown.Any(w => w.Output), ins = shown.Any(w => !w.Output);
-            Message = (outs && ins
-                    ? "Your headset is plugged in with its cable. It plays one source at a time, "
-                      + "and sends your voice only over the cable."
-                    : outs
-                        ? "Your headset is plugged in with its cable and plays one source at a "
-                          + $"time, so sound sent to the {there} and to the cable won't play together."
-                        : "Your headset is plugged in with its cable and sends your voice only "
-                          + "over it, so nobody will hear you.")
+            bool outs = wrong.Any(w => w.Output);
+            Message = (outs && mic ? Strings.Get("Routing_CableBoth")
+                    : outs ? Strings.Format("Routing_CableSound", there)
+                    : Strings.Get("Routing_CableMicrophone"))
                 + choose;
             IsOpen = true;
             return;
@@ -162,26 +160,35 @@ public sealed class RoutingNotice : InfoBar
         // Two ways out, when there are two: CrossPlay moves the headset to the
         // transmitter Windows is already using, which is often quicker than
         // changing Windows back.
-        string press = $"Press CrossPlay on the headset to switch it to the {there}";
-        string so = what is ["sound"] ? ", so you will not hear anything"
-            : what is ["calls"] ? ", so you will not hear calls"
-            : what is ["the microphone"] ? ", so nobody will hear you"
-            : "";
+        string on = Strings.Format((sound, calls, mic) switch
+        {
+            (true, false, false) => "Routing_OnSilent",
+            (false, true, false) => "Routing_OnNoCalls",
+            (false, false, true) => "Routing_OnUnheard",
+            _ => "Routing_On",
+        }, here);
 
-        Message = shown.Any(w => w.Pick.Length == 0)
-            ? $"Your headset is on the {here}, which is not plugged in. {press}."
+        Message = wrong.Any(w => w.Pick.Length == 0)
+            ? Strings.Format("Routing_OnUnplugged", here, there)
             : verdict.CrossPlayFixes && picks.Count > 0
-                ? $"Your headset is on the {here}{so}. {press}, or to stay on the {here}, "
-                  + $"choose {Join(picks)} in Sound settings."
-                : $"Your headset is on the {here}{so}.{choose}";
+                ? on + " " + Strings.Format("Routing_PressOrChoose", there, here, Strings.List(picks))
+                : on + choose;
         IsOpen = true;
     }
 
-    /// <summary>"a", "a and b", "a, b and c".</summary>
-    private static string Join(IReadOnlyList<string> items) => items.Count switch
+    /// <summary>"Headset Earphone" for output and communications.</summary>
+    private static string Pick(string device, IReadOnlyList<Misrouted> halves)
     {
-        0 => "",
-        1 => items[0],
-        _ => string.Join(", ", items.Take(items.Count - 1)) + " and " + items[^1],
-    };
+        bool output = halves.Any(h => h.Role == AudioRole.Sound);
+        bool input = halves.Any(h => h.Role == AudioRole.Microphone);
+        bool calls = halves.Any(h => h.Role is AudioRole.Calls or AudioRole.CallsMicrophone);
+        return Strings.Format((output, input, calls) switch
+        {
+            (true, _, true) => "Routing_PickOutputCalls",
+            (true, _, false) => "Routing_PickOutput",
+            (false, true, true) => "Routing_PickInputCalls",
+            (false, true, false) => "Routing_PickInput",
+            _ => "Routing_PickCalls",
+        }, device);
+    }
 }

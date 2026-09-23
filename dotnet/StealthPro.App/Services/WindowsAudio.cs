@@ -33,7 +33,7 @@ public static class WindowsAudio
         }
         catch (Exception)
         {
-            return new VolumeState(0, false, "No audio device", false);
+            return new VolumeState(0, false, Strings.Get("Audio_NoDevice"), false);
         }
     });
 

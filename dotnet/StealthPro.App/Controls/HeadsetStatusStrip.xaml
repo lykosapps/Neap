@@ -25,7 +25,6 @@
         <TextBlock
             x:Name="ConnectionText"
             VerticalAlignment="Center"
-            Style="{StaticResource CaptionTextBlockStyle}"
-            Text="Connecting" />
+            Style="{StaticResource CaptionTextBlockStyle}" />
     </StackPanel>
 </UserControl>

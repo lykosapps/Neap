@@ -56,27 +56,27 @@
             PaneDisplayMode="Auto"
             SelectionChanged="OnNavigate">
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="Home" Tag="home">
+                <NavigationViewItem x:Uid="Main_NavHome" Tag="home">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE80F;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Audio" Tag="audio">
+                <NavigationViewItem x:Uid="Main_NavAudio" Tag="audio">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE7F6;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Microphone" Tag="mic">
+                <NavigationViewItem x:Uid="Main_NavMicrophone" Tag="mic">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE720;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Controls" Tag="controls">
+                <NavigationViewItem x:Uid="Main_NavControls" Tag="controls">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE7FC;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Device" Tag="device">
+                <NavigationViewItem x:Uid="Main_NavDevice" Tag="device">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE950;" />
                     </NavigationViewItem.Icon>
@@ -84,7 +84,7 @@
             </NavigationView.MenuItems>
 
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Content="Settings" Tag="settings">
+                <NavigationViewItem x:Uid="Main_NavSettings" Tag="settings">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE713;" />
                     </NavigationViewItem.Icon>
@@ -104,9 +104,9 @@
             NoLeftClickDelay="True">
             <tray:TaskbarIcon.ContextFlyout>
                 <MenuFlyout>
-                    <MenuFlyoutItem Click="OnShowRequested" Text="Open" />
+                    <MenuFlyoutItem x:Uid="Main_TrayOpen" Click="OnShowRequested" />
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Click="OnQuitRequested" Text="Quit" />
+                    <MenuFlyoutItem x:Uid="Main_TrayQuit" Click="OnQuitRequested" />
                 </MenuFlyout>
             </tray:TaskbarIcon.ContextFlyout>
         </tray:TaskbarIcon>

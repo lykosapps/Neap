@@ -11,61 +11,55 @@
         HorizontalScrollMode="Disabled">
         <StackPanel>
 
-            <TextBlock Style="{StaticResource PageTitleStyle}" Text="Microphone" />
+            <TextBlock x:Uid="Microphone_Title" Style="{StaticResource PageTitleStyle}" />
 
             <c:HeadsetNotice />
 
             <!--  With the headset off, the whole page is one card, the level
                   included: see HeadsetSection.WhenOff.  -->
-            <c:HeadsetSection What="Mute, level, monitoring, noise reduction, the noise gate and the equaliser" WhenOff="True">
-                <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Microphone" />
+            <c:HeadsetSection x:Uid="Microphone_Section" WhenOff="True">
+                <TextBlock x:Uid="Microphone_MicrophoneHeading" Style="{StaticResource SectionHeaderStyle}" />
                 <StackPanel>
                     <c:RoutingNotice Margin="0,0,0,8" Sound="False" />
                     <StackPanel Spacing="4">
                         <c:HeadsetSection Explain="False">
                             <c:SettingRow
-                                Description="Flipping the boom arm up does this too."
+                                x:Uid="Microphone_Muted"
                                 Glyph="&#xE720;"
-                                Header="Muted"
                                 Setting="mic_muted" />
                         </c:HeadsetSection>
                         <c:WindowsVolumeRow
+                            x:Uid="Microphone_Sensitivity"
                             Capture="True"
-                            Description="Windows' recording level for this microphone. The headset reports it back but cannot change it, so this sets it where it actually lives."
                             Glyph="&#xE9A9;"
-                            Header="Sensitivity"
                             Kind="Volume" />
                         <c:HeadsetSection Explain="False">
                             <c:SettingRow
-                                Description="Hear your own voice in the headset."
+                                x:Uid="Microphone_MicMonitoring"
                                 Glyph="&#xE767;"
-                                Header="Mic monitoring"
                                 Setting="mic_monitoring" />
                         </c:HeadsetSection>
                     </StackPanel>
                 </StackPanel>
 
-                <c:HeadsetSection What="Mute, monitoring, noise reduction, the noise gate and the equaliser">
-                    <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Noise handling" />
+                <c:HeadsetSection x:Uid="Microphone_HeadsetSection">
+                    <TextBlock x:Uid="Microphone_NoiseHandlingHeading" Style="{StaticResource SectionHeaderStyle}" />
                     <StackPanel Spacing="4">
                         <c:SettingRow
-                            Description="Strips background noise out of what people hear."
+                            x:Uid="Microphone_AINoiseReduction"
                             Glyph="&#xE945;"
-                            Header="AI noise reduction"
                             Setting="ai_noise_reduction" />
                         <c:SettingRow
-                            Description="Stays silent until you speak."
+                            x:Uid="Microphone_NoiseGate"
                             Glyph="&#xE71C;"
-                            Header="Noise gate"
                             Setting="noise_gate" />
                         <c:SettingRow
-                            Description="How loud you have to be before the gate opens."
+                            x:Uid="Microphone_Threshold"
                             Glyph="&#xE9E9;"
-                            Header="Threshold"
                             Setting="noise_gate_threshold" />
                     </StackPanel>
 
-                    <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Equaliser" />
+                    <TextBlock x:Uid="Microphone_EqualiserHeading" Style="{StaticResource SectionHeaderStyle}" />
                     <c:EqualiserPanel Bank="Mic" />
                 </c:HeadsetSection>
             </c:HeadsetSection>

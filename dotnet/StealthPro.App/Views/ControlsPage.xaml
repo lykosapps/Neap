@@ -11,41 +11,36 @@
         HorizontalScrollMode="Disabled">
         <StackPanel>
 
-            <TextBlock Style="{StaticResource PageTitleStyle}" Text="Controls" />
+            <TextBlock x:Uid="Controls_Title" Style="{StaticResource PageTitleStyle}" />
 
             <c:HeadsetNotice />
 
-            <c:HeadsetSection What="The mode button, the dial, power and the lights">
-                <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="On the headset" />
+            <c:HeadsetSection x:Uid="Controls_Section">
+                <TextBlock x:Uid="Controls_OnHeadsetHeading" Style="{StaticResource SectionHeaderStyle}" />
                 <StackPanel Spacing="4">
                     <c:SettingRow
-                        Description="What the button beside the power switch does when you press it."
+                        x:Uid="Controls_ModeButton"
                         Glyph="&#xE7FC;"
-                        Header="Mode button"
                         Setting="mode_button_function" />
                     <c:SettingRow
-                        Description="The smaller of the two wheels."
+                        x:Uid="Controls_LowerDial"
                         Glyph="&#xE9E9;"
-                        Header="Lower dial"
                         Setting="dial_function" />
                 </StackPanel>
 
-                <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Power" />
+                <TextBlock x:Uid="Controls_PowerHeading" Style="{StaticResource SectionHeaderStyle}" />
                 <StackPanel Spacing="4">
                     <c:SettingRow
-                        Description="How long the headset waits before switching itself off."
+                        x:Uid="Controls_AutoShutOff"
                         Glyph="&#xE7E8;"
-                        Header="Auto shut-off"
                         Setting="auto_shutoff" />
                     <c:SettingRow
-                        Description="Picking the headset up brings it out of standby."
+                        x:Uid="Controls_WakeOnMotion"
                         Glyph="&#xE9D9;"
-                        Header="Wake on motion"
                         Setting="wake_on_motion" />
                     <c:SettingRow
-                        Description="How loud the headset's own spoken announcements are."
+                        x:Uid="Controls_VoicePrompts"
                         Glyph="&#xE767;"
-                        Header="Voice prompts"
                         Setting="voice_prompt_volume"
                         Unit="%" />
                 </StackPanel>
@@ -55,31 +50,28 @@
                 <StackPanel>
                     <TextBlock
                         x:Name="LightsHeader"
+                        x:Uid="Controls_LightsHeader"
                         Style="{StaticResource SectionHeaderStyle}"
-                        Text="Charging Dock lights"
                         Visibility="Collapsed" />
                     <StackPanel Spacing="4">
                         <c:SettingRow
                             x:Name="DockRing"
-                            Description="The ring around the spare battery slot."
+                            x:Uid="Controls_DockRing"
                             Glyph="&#xE706;"
-                            Header="Battery slot ring"
                             Setting="led_brightness_1"
                             Unit="%"
                             Visibility="Collapsed" />
                         <c:SettingRow
                             x:Name="DockStatus"
-                            Description="Turns purple when the link is running high bandwidth."
+                            x:Uid="Controls_DockStatus"
                             Glyph="&#xE706;"
-                            Header="Status ring"
                             Setting="led_brightness_2"
                             Unit="%"
                             Visibility="Collapsed" />
                         <c:SettingRow
                             x:Name="TransmitterLight"
-                            Description="The status light on the transmitter."
+                            x:Uid="Controls_TransmitterLight"
                             Glyph="&#xE706;"
-                            Header="Light"
                             Setting="led_brightness_1"
                             Unit="%"
                             Visibility="Collapsed" />

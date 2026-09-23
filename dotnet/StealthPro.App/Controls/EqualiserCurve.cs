@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using StealthPro.App.Services;
 using Windows.Foundation;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
 
@@ -258,7 +259,7 @@ public sealed class EqualiserCurve : UserControl
             Canvas.SetLeft(_grabs[i], i * column);
             Canvas.SetTop(_grabs[i], 0);
             ToolTipService.SetToolTip(_grabs[i],
-                i < Frequencies.Count ? $"{Frequencies[i]}   {Db.Text(_live[i])} dB" : null);
+                i < Frequencies.Count ? Strings.Format("Equaliser_Band", Frequencies[i], Db.Text(_live[i])) : null);
 
             Canvas.SetLeft(_handles[i], points[i].X - HandleRadius);
             Canvas.SetTop(_handles[i], points[i].Y - HandleRadius);
@@ -269,7 +270,7 @@ public sealed class EqualiserCurve : UserControl
             double ringY = Y(_stored![i]);
             Canvas.SetLeft(_rings[i], points[i].X - GhostRadius);
             Canvas.SetTop(_rings[i], ringY - GhostRadius);
-            ToolTipService.SetToolTip(_rings[i], $"Back to {Db.Text(_stored[i])} dB");
+            ToolTipService.SetToolTip(_rings[i], Strings.Format("Equaliser_BackTo", Db.Text(_stored[i])));
         }
     }
 

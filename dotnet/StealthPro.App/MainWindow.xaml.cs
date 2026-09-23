@@ -142,9 +142,8 @@ public sealed partial class MainWindow : Window
         try
         {
             Tray.ShowNotification(
-                "Still running",
-                $"{AppInfo.Name} is in the notification area, keeping the mix and "
-                + "the chat wheel working. Open or quit it from there.");
+                Strings.Get("Tray_StillRunningTitle"),
+                Strings.Format("Tray_StillRunning", AppInfo.Name));
         }
         catch { /* notifications can be off; the setting is still recorded */ }
     }

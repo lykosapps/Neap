@@ -28,7 +28,7 @@
         HorizontalScrollMode="Disabled">
         <StackPanel Spacing="20">
 
-            <TextBlock Style="{StaticResource PageTitleStyle}" Text="Your headset" />
+            <TextBlock x:Uid="Home_Title" Style="{StaticResource PageTitleStyle}" />
 
             <!--  Anything wrong comes first, and in words.  -->
             <c:HeadsetNotice />
@@ -100,7 +100,7 @@
             <!--  How it is reached.  -->
             <Border x:Name="ConnectionsCard" Style="{StaticResource HomeCard}">
                 <StackPanel>
-                    <TextBlock Style="{StaticResource CardTitle}" Text="Connections" />
+                    <TextBlock x:Uid="Home_Connections" Style="{StaticResource CardTitle}" />
                     <StackPanel x:Name="Connections" Spacing="4" />
                     <!--  Beside the rows it contradicts: "connected through the
                           USB Transmitter" and, right under it, Windows playing
@@ -112,12 +112,12 @@
             <!--  What it is paired with.  -->
             <Border x:Name="TransmittersCard" Style="{StaticResource HomeCard}">
                 <StackPanel>
-                    <TextBlock Style="{StaticResource CardTitle}" Text="Transmitters" />
+                    <TextBlock x:Uid="Home_Transmitters" Style="{StaticResource CardTitle}" />
                     <TextBlock
+                        x:Uid="Home_TransmittersNote"
                         Margin="0,-10,0,12"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Style="{StaticResource CaptionTextBlockStyle}"
-                        Text="Your headset uses one at a time. Press CrossPlay on the headset to switch between them."
                         TextWrapping="Wrap" />
                     <StackPanel x:Name="Transmitters" Spacing="4" />
                 </StackPanel>

@@ -25,12 +25,11 @@ public sealed partial class SettingsPage : Page
             _painting = false;
         };
 
-        const string About =
-            "A replacement for Swarm II. Not affiliated with or endorsed by Turtle Beach.";
         var version = AppInfo.Version;
         AboutCard.Header = AppInfo.Name;
         AboutCard.Description = version is null
-            ? About
-            : $"Version {version.Major}.{version.Minor}.{version.Build} · {About}";
+            ? Strings.Get("Settings_About")
+            : Strings.Format("Settings_AboutVersion",
+                $"{version.Major}.{version.Minor}.{version.Build}", Strings.Get("Settings_About"));
     }
 }

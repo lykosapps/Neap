@@ -85,7 +85,7 @@ public sealed class WindowsVolumeRow : SettingsCard
     /// </summary>
     private void Speak()
     {
-        string spoken = Header?.ToString() ?? "Volume";
+        string spoken = Header?.ToString() ?? Strings.Get("Volume_Name");
         foreach (UIElement? control in new UIElement?[] { _slider, _toggle })
             if (control is not null)
                 Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(control, spoken);

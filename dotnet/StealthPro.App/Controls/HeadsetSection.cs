@@ -142,11 +142,8 @@ public sealed class HeadsetSection : StackPanel
         // Worded for which it is: "switch it off and on" means nothing to a
         // headset that is already off.
         _card.Description = status.NotConnected
-            ? (WhyOff.Length > 0 ? WhyOff : "Switch your headset on to see and change these.")
-            : (Why.Length > 0
-                ? Why
-                : "These are set on the headset itself, which keeps using them. Switch "
-                  + "the headset off and on again to change them here.");
+            ? (WhyOff.Length > 0 ? WhyOff : Strings.Get("Section_WhyOff"))
+            : (Why.Length > 0 ? Why : Strings.Get("Section_Why"));
 
         // Nothing plugged in is said once, at the top of the page; a card
         // here as well would say it twice.

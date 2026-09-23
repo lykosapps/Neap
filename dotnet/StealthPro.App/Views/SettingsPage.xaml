@@ -11,14 +11,12 @@
         HorizontalScrollMode="Disabled">
         <StackPanel>
 
-            <TextBlock Style="{StaticResource PageTitleStyle}" Text="Settings" />
+            <TextBlock x:Uid="Settings_Title" Style="{StaticResource PageTitleStyle}" />
 
-            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Running" />
-            <TextBlock Style="{StaticResource SectionNoteStyle}" Text="Closing the window leaves the app running in the notification area, so the chat wheel and the mix keep working. Quit from its menu there to stop it altogether." />
+            <TextBlock x:Uid="Settings_RunningHeading" Style="{StaticResource SectionHeaderStyle}" />
+            <TextBlock x:Uid="Settings_RunningNote" Style="{StaticResource SectionNoteStyle}" />
             <StackPanel Spacing="4">
-                <tk:SettingsCard
-                    Description="Starts quietly in the notification area, so the chat wheel and the mix work from the moment you log in."
-                    Header="Start with Windows">
+                <tk:SettingsCard x:Uid="Settings_StartWithWindows">
                     <tk:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE7E8;" />
                     </tk:SettingsCard.HeaderIcon>
@@ -27,7 +25,7 @@
 
             </StackPanel>
 
-            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="About" />
+            <TextBlock x:Uid="Settings_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
             <StackPanel Spacing="4">
                 <tk:SettingsCard x:Name="AboutCard">
                     <tk:SettingsCard.HeaderIcon>

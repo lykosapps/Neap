@@ -37,9 +37,9 @@
                         CornerRadius="10"
                         Visibility="Collapsed">
                         <TextBlock
+                            x:Uid="Equaliser_Edited"
                             Foreground="{ThemeResource SystemFillColorCautionBrush}"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            Text="Edited" />
+                            Style="{StaticResource CaptionTextBlockStyle}" />
                     </Border>
                 </StackPanel>
 
@@ -49,11 +49,11 @@
                     Spacing="8">
                     <Button
                         x:Name="DiscardButton"
-                        Content="Discard changes"
+                        x:Uid="Equaliser_DiscardButton"
                         Visibility="Collapsed" />
                     <Button
                         x:Name="SaveButton"
-                        Content="Save as new preset"
+                        x:Uid="Equaliser_SaveButton"
                         IsEnabled="False" />
                     <Button
                         x:Name="OverwriteButton"

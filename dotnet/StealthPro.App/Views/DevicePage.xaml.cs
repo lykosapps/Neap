@@ -36,7 +36,7 @@ public sealed partial class DevicePage : Page
         {
             string? name = Registry.ByKey.TryGetValue(Convert.ToInt32(pair.Key, 16), out var key)
                 ? key.Name : null;
-            string text = $"0x{pair.Key,-5}  {name ?? "not yet identified",-26}  "
+            string text = $"0x{pair.Key,-5}  {name ?? Strings.Get("Device_Unidentified"),-26}  "
                 + DeviceEvent.Render(pair.Value);
 
             if (row < RawRows.Children.Count && RawRows.Children[row] is TextBlock existing)

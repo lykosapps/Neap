@@ -51,7 +51,7 @@ public sealed partial class ControlsPage : Page
         bool dock = piece == Transmitters.Piece.Dock;
         bool usb = piece == Transmitters.Piece.Transmitter;
 
-        LightsHeader.Text = dock ? "Charging Dock lights" : "USB Transmitter light";
+        LightsHeader.Text = Strings.Get(dock ? "Controls_DockLightsHeading" : "Controls_TransmitterLightHeading");
         LightsHeader.Visibility = dock || usb ? Visibility.Visible : Visibility.Collapsed;
         DockRing.Visibility = dock ? Visibility.Visible : Visibility.Collapsed;
         DockStatus.Visibility = dock ? Visibility.Visible : Visibility.Collapsed;
