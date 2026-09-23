@@ -3,6 +3,7 @@ using System.Globalization;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
+using StealthPro.Core.Connection;
 using StealthPro.Core.Mix;
 
 namespace StealthPro.App.Services;

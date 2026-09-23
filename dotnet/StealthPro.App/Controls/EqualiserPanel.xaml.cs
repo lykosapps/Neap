@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using StealthPro.App.Services;
+using StealthPro.Core.Connection;
 using StealthPro.Core.Presets;
 using Windows.Globalization.NumberFormatting;
 

@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using StealthPro.App.Services;
+using StealthPro.Core.Connection;
 
 namespace StealthPro.App.Controls;
 

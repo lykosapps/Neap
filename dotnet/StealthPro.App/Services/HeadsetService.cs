@@ -5,126 +5,14 @@ using System.Text.Json;
 using Microsoft.UI.Dispatching;
 using StealthPro.Core;
 using StealthPro.Core.Audio;
+using StealthPro.Core.Connection;
 using StealthPro.Core.Hid;
 using StealthPro.Core.Settings;
 
 namespace StealthPro.App.Services;
 
-/// <summary>
-/// Where the link has got to.
-///
-/// <b>These are four different things and they used to be two.</b> What
-/// Windows shows us is a transmitter, never the headset, so "the device
-/// opened" and "the headset is talking" are separate facts — and the app
-/// reported the first as though it were the second. A charging hub plugged
-/// in with the headset switched off answered every read with nothing, every
-/// control on every page sat blank or at zero, and the header said Connected
-/// in green. Everything looked like our bug.
-/// </summary>
-public enum Link
-{
-    /// <summary>Nothing of Turtle Beach's is plugged in at all.</summary>
-    Absent,
-    /// <summary>Something is plugged in and we are asking it.</summary>
-    Connecting,
-    /// <summary>
-    /// A transmitter is plugged in, and the headset's settings cannot be
-    /// reached through it. See <see cref="HeadsetStatus.SettingsUnreachable"/>.
-    /// </summary>
-    Silent,
-    /// <summary>
-    /// A transmitter is plugged in and the headset is not on it — switched
-    /// off or out of range, as far as anyone can tell. Or, over its cable,
-    /// known to be switched off. See <see cref="HeadsetStatus.NotConnected"/>
-    /// and <see cref="HeadsetStatus.SwitchedOff"/>.
-    /// </summary>
-    Quiet,
-    /// <summary>The headset is answering.</summary>
-    Connected,
-}
-
 /// <summary>Work asked of the headset while nothing is answering for it.</summary>
 public sealed class HeadsetUnavailableException(string message) : Exception(message);
-
-/// <summary>How the headset is being reached.</summary>
-public enum Route
-{
-    /// <summary>Nothing open, or a product id we do not recognise.</summary>
-    Unknown,
-    /// <summary>Over 2.4GHz, through the dock that also charges a battery.</summary>
-    ChargingHub,
-    /// <summary>Over 2.4GHz, through the small USB-A dongle.</summary>
-    UsbTransmitter,
-    /// <summary>Straight to the headset chip over USB-C.</summary>
-    DirectUsb,
-}
-
-/// <summary>
-/// What is plugged in, and whether the headset behind it is talking.
-/// <paramref name="Adapter"/> is what to call the thing Windows has, which
-/// is not the headset: "Charging Dock", "USB Transmitter", or the headset
-/// itself when it is cabled up directly.
-/// </summary>
-public sealed record HeadsetStatus(
-    Link Link, Route Route, string Adapter, string Detail, string Product = "",
-    string ControlVia = "", bool NoSound = false)
-{
-    // NoSound: connected — the settings answer — but no transmitter is sending
-    // the headset sound. Only ever set alongside Link.Connected. See
-    // HeadsetService.SoundLinkDown for how it is read and why it waits.
-
-    // ControlVia names the transmitter carrying the headset's settings and
-    // chat wheel when it is not the one carrying its sound — the Charging
-    // Dock, with the headset's sound on the USB Transmitter. Empty when one
-    // transmitter carries everything. It is named from the device that
-    // actually answered, never inferred: the USB Transmitter answered for
-    // itself too, once, with the headset switched on straight onto it.
-
-    /// <summary>
-    /// A transmitter is plugged in, and nothing answers for the headset's
-    /// settings.
-    ///
-    /// <b>Reached by unplugging the transmitter the headset's settings were
-    /// on</b>, with another still plugged in: either the settings alone went,
-    /// and the sound is still playing through the one that is left, or both
-    /// went with it. The two look the same from here, so they are one state,
-    /// and everything that treats it specially asks this.
-    ///
-    /// <b>Not the same as the headset being switched off</b>, although that
-    /// is the same silence too. It was folded in here at first, and told
-    /// somebody whose headset had just gone off that its buttons "work as
-    /// normal" and its settings were merely out of reach. What tells the two
-    /// apart is what happened just before — see <see cref="NotConnected"/>.
-    ///
-    /// It used to be two — a calm mode for the USB Transmitter on its own and
-    /// an amber "settings unavailable" for the dock — on the belief that the
-    /// USB Transmitter could never carry settings. It can: the headset keeps
-    /// its controls on whichever transmitter it was switched on with. Which
-    /// one is left over says nothing about which of these happened.
-    /// </summary>
-    public bool SettingsUnreachable => Link == Link.Silent;
-
-    /// <summary>
-    /// The headset stopped answering on a transmitter that is still plugged
-    /// in, or never answered at all: switched off or out of range.
-    ///
-    /// Told apart from <see cref="SettingsUnreachable"/> by what came first.
-    /// A transmitter that goes quiet while it stays plugged in has lost its
-    /// headset; one that is unplugged took the settings with it. With no
-    /// history — the app starting with the headset already off, which is
-    /// what a login usually is — this is the likelier of the two, and the
-    /// one assumed.
-    /// </summary>
-    public bool NotConnected => Link == Link.Quiet;
-
-    /// <summary>
-    /// Plugged in with its USB-C cable and switched off, which over the cable
-    /// can be seen for certain. It still answers there — it keeps a
-    /// connection for charging — so the battery is a real reading. See
-    /// HeadsetService.OffOnCable.
-    /// </summary>
-    public bool SwitchedOff => Link == Link.Quiet && Route == Route.DirectUsb;
-}
 
 /// <summary>
 /// The one thing in the app that talks to the headset.
@@ -191,9 +79,16 @@ public sealed class HeadsetService : IDisposable
     private readonly ConcurrentDictionary<int, long> _lastWrite = new();
     private readonly Thread _worker;
 
+    private const string Looking = "Looking for the headset…";
+
+    private static readonly LinkWords Words = new(
+        Looking, QuietDetail, UnreachableDetail, OffDetail, AdapterName);
+
+    /// <summary>Decides the state. Only touched on the headset thread.</summary>
+    private readonly LinkTracker _link;
+
     // Written on the headset thread and read on the UI thread.
-    private volatile HeadsetStatus _status =
-        new(Link.Connecting, Route.Unknown, "", "Looking for the headset…");
+    private volatile HeadsetStatus _status;
     private long _lastRaise;
 
     /// <summary>Which slot's block the lighting writes belong in. See OnTheWire.</summary>
@@ -206,12 +101,14 @@ public sealed class HeadsetService : IDisposable
     private sealed record Job(Func<HeadsetClient, object?> Work, TaskCompletionSource<object?> Done);
 
     /// <param name="cabled">
-    /// Whether the headset is connected by its USB-C cable, which decides
-    /// whether its wireless sound link means anything; see SoundLinkDown.
+    /// Whether the headset's own sound device is in Windows, which it is only
+    /// while connected by its USB-C cable. See <see cref="LinkTracker"/>.
     /// </param>
     public HeadsetService(Func<bool>? cabled = null)
     {
-        _cabled = cabled ?? (() => false);
+        var running = Stopwatch.StartNew();
+        _link = new LinkTracker(Words, () => running.Elapsed, cabled ?? (() => false));
+        _status = _link.Status;
         _ui = DispatcherQueue.GetForCurrentThread();
         _worker = new Thread(Run) { IsBackground = true, Name = "headset" };
         _worker.Start();
@@ -299,120 +196,18 @@ public sealed class HeadsetService : IDisposable
 
     private static string Hex(int key) => key.ToString("x", CultureInfo.InvariantCulture);
 
-    /// <summary>
-    /// 0x230, the headset's sound link: 2 while a transmitter is sending it
-    /// sound, 0 while none is.
-    ///
-    /// <b>It was read as "switching off", and it is not.</b> It was taken to
-    /// be a flag that drops as the headset powers down, and drove "Headset
-    /// off" in the header. Watched through a day of changes: it sits at 0 for
-    /// about fifteen seconds after the headset is switched on, while the sound
-    /// comes up; it drops to 0 when the transmitter carrying the sound is
-    /// unplugged, with the headset on, its settings answering through the
-    /// other transmitter, no sound, and that transmitter's light amber; and it
-    /// never dropped ahead of a real switch-off. So it says whether sound is
-    /// arriving over the wireless link.
-    ///
-    /// <b>Not every silent state.</b> Through the one earlier episode with
-    /// both transmitter lights amber and no sound anywhere, it read 2; that
-    /// state is still invisible to the app. And over the cable it says
-    /// nothing about what is heard — see SoundLinkDown.
-    /// </summary>
-    private static readonly string SoundLinkKey = Hex(0x230);
-
-    private bool _soundSeenUp;
-    private long _soundDownAt;
-    private long _connectedAt;
-    private readonly Func<bool> _cabled;
-
-    /// <summary>When the headset was first seen answering over its cable with no sound device.</summary>
-    private long _offSince;
-
-    /// <summary>
-    /// How long that has to last before it counts as off: switching on brings
-    /// the charging connection back a moment before the sound device.
-    /// </summary>
-    private static readonly TimeSpan OffGrace = TimeSpan.FromSeconds(5);
-
-    /// <summary>
-    /// The headset is answering over its cable, and its sound device has been
-    /// gone for longer than <see cref="OffGrace"/>: it is switched off.
-    ///
-    /// <b>Switched off, it keeps a connection for charging.</b> With the cable
-    /// in, switching the headset off took its speakers and microphone out of
-    /// Windows and left a control device behind that went on answering, and
-    /// the header said "Headset connected" over a headset that was off. The
-    /// sound device going is what tells the two apart. Only asked when the
-    /// device answering is the headset's own.
-    /// </summary>
-    private bool OffOnCable()
-    {
-        if (_cabled()) { _offSince = 0; return false; }
-        long now = Stopwatch.GetTimestamp();
-        if (_offSince == 0) _offSince = now;
-        return now - _offSince >= (long)(OffGrace.TotalSeconds * Stopwatch.Frequency);
-    }
+    private static readonly string SoundLinkHex = Hex(LinkTracker.SoundLinkKey);
 
     private const string OffDetail = StateCopy.WhatOffOnCable + " " + StateCopy.FixOff;
-
-    /// <summary>
-    /// How long it may take for sound to arrive after connecting — it took
-    /// about fifteen seconds after a switch-on — before its absence counts.
-    /// </summary>
-    private static readonly TimeSpan SoundStartGrace = TimeSpan.FromSeconds(30);
-
-    /// <summary>
-    /// How long a drop may last before it counts: long enough for CrossPlay
-    /// to hand the sound between transmitters without a flash of "No sound".
-    /// </summary>
-    private static readonly TimeSpan SoundDropGrace = TimeSpan.FromSeconds(5);
-
-    /// <summary>
-    /// Connected, and no sound is arriving — after the grace periods above.
-    /// Only on the 2.4GHz routes.
-    ///
-    /// <b>Never while the headset is connected by its cable.</b> The flag is
-    /// the wireless link's: with the cable in, it dropped to 0 when the
-    /// Charging Dock was unplugged, and the header said "No sound" for four
-    /// seconds over music playing through the cable. Over the cable the sound
-    /// does not depend on it, and anywhere else Windows sends it is the
-    /// routing warning's to say.
-    /// </summary>
-    private bool SoundLinkDown(Route route)
-    {
-        if (route is not (Route.ChargingHub or Route.UsbTransmitter)) return false;
-        if (_cabled()) return false;
-        if (!TryGetNumberByKey(0x230, out int flag) || flag != 0) return false;
-        long since = _soundSeenUp ? _soundDownAt : _connectedAt;
-        var grace = _soundSeenUp ? SoundDropGrace : SoundStartGrace;
-        return since != 0
-               && Stopwatch.GetTimestamp() - since >= (long)(grace.TotalSeconds * Stopwatch.Frequency);
-    }
 
     private void NoteSoundLink(JsonElement? was, JsonElement now)
     {
         string before = was is JsonElement e ? StealthPro.Core.Protocol.DeviceEvent.Render(e) : "-";
         string after = StealthPro.Core.Protocol.DeviceEvent.Render(now);
         if (before == after) return;
-        if (int.TryParse(after, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value))
-        {
-            if (value > 0) _soundSeenUp = true;
-            else _soundDownAt = Stopwatch.GetTimestamp();
-        }
+        _link.SoundLink(int.TryParse(after, NumberStyles.Integer, CultureInfo.InvariantCulture,
+            out int value) ? value : null);
         AppLog.Write($"headset sound link (0x230): {before} -> {after}");
-    }
-
-    /// <summary>
-    /// Look again at whether sound is arriving. Called round the loop, because
-    /// the answer changes with time passing as well as with values arriving.
-    /// </summary>
-    private void RefreshSound()
-    {
-        var current = _status;
-        if (current.Link != Link.Connected) return;
-        if (SoundLinkDown(current.Route) == current.NoSound) return;
-        SetStatus(current.Link, current.Route, current.Adapter, current.Detail,
-            current.Product, current.ControlVia);
     }
 
     // -- writing -----------------------------------------------------------
@@ -533,9 +328,7 @@ public sealed class HeadsetService : IDisposable
                     // "Connecting" and whatever was actually wrong, three
                     // seconds apart, so the real state was never on screen
                     // long enough to read.
-                    if (_status.Link == Link.Connected)
-                        SetStatus(Link.Connecting, Route.Unknown, "",
-                            "Looking for the headset…");
+                    Publish(_link.Reconnecting());
                     client = Open(out int present);
                     if (client is null)
                     {
@@ -547,7 +340,7 @@ public sealed class HeadsetService : IDisposable
                     primed = false;
                 }
 
-                var route = RouteOf(client.ProductId);
+                var route = LinkTracker.RouteOf(client.ProductId);
                 string adapter = AdapterName(route);
 
                 if (!primed)
@@ -587,32 +380,14 @@ public sealed class HeadsetService : IDisposable
                     // this catches is one the app can start up already in.
                     _lastLinkFlag = null;
                     LinkFlagMoved();
-                    Announce(elsewhere, route, adapter, carrying, client.Device, product);
+                    Publish(_link.Answering(elsewhere, route, adapter, carrying, client.Device, product));
                 }
 
                 // Queued work first: a slider write waiting behind a poll
                 // feels like lag, and there is never much of it.
                 while (_jobs.TryTake(out var job)) Serve(job, client);
-                RefreshSound();
-
-                // Over its cable, looked at each time round: what decides it,
-                // Windows' view of the headset's sound device, changes
-                // without the headset saying anything. See OffOnCable.
-                if (route == Route.DirectUsb)
-                {
-                    if (!_cabled())
-                    {
-                        if (OffOnCable() && !_status.SwitchedOff)
-                            SetStatus(Link.Quiet, route, adapter, OffDetail, product);
-                    }
-                    else if (_status.Link != Link.Connected)
-                    {
-                        // The sound device came back, after Announce held off
-                        // for it or the headset was off: now it is connected.
-                        _offSince = 0;
-                        Announce(elsewhere, route, adapter, carrying, client.Device, product);
-                    }
-                }
+                Publish(_link.Refresh());
+                Publish(_link.Cable(elsewhere, route, adapter, carrying, client.Device, product));
 
                 var events = client.ReadOnce();
                 if (events.Count > 0)
@@ -694,7 +469,7 @@ public sealed class HeadsetService : IDisposable
                         // device answering went on answering, every time it was
                         // measured, and the reopen only ever found it again
                         // after four seconds of "Connecting" on screen.
-                        Announce(elsewhere, route, adapter, carrying, client.Device, product);
+                        Publish(_link.Answering(elsewhere, route, adapter, carrying, client.Device, product));
                     }
                 }
             }
@@ -760,46 +535,9 @@ public sealed class HeadsetService : IDisposable
         primed = false;
         Forget();
 
-        // <b>Losing one device does not mean losing them all.</b> This used to
-        // report "nothing plugged in" whenever the handle went away, so
-        // unplugging the dock while the USB transmitter stayed in said the
-        // machine was empty — measured, three seconds of it, before the retry
-        // found the transmitter and corrected itself. What is actually
-        // plugged in is a question with an answer; ask it.
-        bool nothing = false;
-        try
-        {
-            var plugged = HidTransport.Candidates();
-            nothing = plugged.Count == 0;
-
-            // The device we were talking to has gone, and something else is
-            // still here: the headset's settings left with a transmitter,
-            // rather than the headset going quiet. Remembered until it answers
-            // again. See HeadsetStatus.SettingsUnreachable.
-            if (!nothing && was is ushort gone && plugged.All(d => d.ProductId != gone))
-                _lostWithTransmitter = true;
-        }
-        catch (Exception ex)
-        {
-            NoteFault("listing devices", ex);
-            nothing = true;
-        }
-
-        // <b>Gone for a moment is not gone.</b> Switching the headset on or
-        // off over its cable restarts its USB connection: the device goes,
-        // and comes back about three seconds later. The header said "Nothing
-        // plugged in", in red, for all of it. So for a few seconds after
-        // losing a device it was talking to, the app is still looking.
-        long now = Stopwatch.GetTimestamp();
-        if (was is not null) _lostAt = now;
-        bool settling = _lostAt != 0
-            && now - _lostAt < (long)(AbsentGrace.TotalSeconds * Stopwatch.Frequency);
-        bool absent = nothing && !settling;
-
-        SetStatus(
-            absent ? Link.Absent : Link.Connecting,
-            Route.Unknown, "",
-            absent ? detail : "Looking for the headset…");
+        // What is actually plugged in is a question with an answer: ask it,
+        // rather than taking one device going for all of them going.
+        Publish(_link.Lost(was, Plugged(), detail));
         FailWaiting(detail);
         _stopping.Token.WaitHandle.WaitOne(1500);
     }
@@ -840,7 +578,7 @@ public sealed class HeadsetService : IDisposable
             if (had
                 && existing.ValueKind == pair.Value.ValueKind
                 && existing.ToString() == pair.Value.ToString()) continue;
-            if (pair.Key == SoundLinkKey) NoteSoundLink(had ? existing : null, pair.Value);
+            if (pair.Key == SoundLinkHex) NoteSoundLink(had ? existing : null, pair.Value);
             _values[pair.Key] = pair.Value.Clone();
             moved = true;
         }
@@ -878,9 +616,7 @@ public sealed class HeadsetService : IDisposable
     /// </summary>
     private void Forget()
     {
-        _soundSeenUp = false;
-        _soundDownAt = 0;
-        _offSince = 0;
+        _link.Forget();
         if (_values.IsEmpty && _owned.IsEmpty) return;
         _values.Clear();
         _owned.Clear();
@@ -904,20 +640,6 @@ public sealed class HeadsetService : IDisposable
     /// </summary>
     private static HeadsetClient? Open(out int present) =>
         HeadsetClient.Behind(allowWrites: true, out present);
-
-    /// <summary>
-    /// Which product id is which was recorded the wrong way round for most of
-    /// this project; see <see cref="Transmitters.Hardware"/> for how it was
-    /// settled. 0x229B is the charging hub, not the dongle.
-    /// </summary>
-    private static Route RouteOf(ushort productId) =>
-        Transmitters.PieceOf(productId) switch
-        {
-            Transmitters.Piece.Dock => Route.ChargingHub,
-            Transmitters.Piece.Transmitter => Route.UsbTransmitter,
-            Transmitters.Piece.Headset => Route.DirectUsb,
-            _ => Route.Unknown,
-        };
 
     private static string AdapterName(Route route) => route switch
     {
@@ -1003,115 +725,31 @@ public sealed class HeadsetService : IDisposable
     }
 
     /// <summary>
-    /// Connected, or connected to something that is not listening. Both
-    /// answers come from the same read, so they are announced together rather
-    /// than left to whichever caller remembers to check.
-    /// </summary>
-    private void Announce(bool elsewhere, Route route, string adapter,
-        string carrying, string device, string product)
-    {
-        // Answering over its cable with no sound device: switched off, or
-        // switching on and not finished. Neither is connected, so hold off
-        // until one or the other is certain. See OffOnCable.
-        if (route == Route.DirectUsb && !_cabled())
-        {
-            if (OffOnCable())
-                SetStatus(Link.Quiet, route, adapter, OffDetail, product);
-            else if (_status.Link != Link.Connecting && !_status.SwitchedOff)
-                SetStatus(Link.Connecting, Route.Unknown, "", "Looking for the headset…");
-            return;
-        }
-        _offSince = 0;
-
-        if (!elsewhere)
-        {
-            SetStatus(Link.Connected, route, carrying, device, product);
-            return;
-        }
-
-        // <b>Sound on one transmitter, controls through another — and all of
-        // it working, in either direction.</b> The headset keeps its controls
-        // on the transmitter it was switched on with, and CrossPlay moves only
-        // its sound. Measured both ways round: switched on with the Charging
-        // Dock and moved to the USB Transmitter, the dock carried the chat
-        // wheel and noise cancellation; switched on with the USB Transmitter
-        // and moved to the dock, the USB Transmitter did — asked one device at
-        // a time, the dock answered nothing and the USB Transmitter answered
-        // for everything.
-        //
-        // Each direction had been reported as a fault. The first as
-        // sound-only, the second as "not connected, nothing changed here will
-        // reach it", over a headset carrying a Teams meeting whose noise
-        // cancellation switched audibly from this very screen.
-        //
-        // So the device answering is the headset, connected. Its sound is
-        // wherever it selected, which is what Windows has to be pointed at.
-        SetStatus(Link.Connected, RouteOfProduct(product), carrying, device, product,
-            controlVia: adapter);
-    }
-
-    /// <summary>What sort of thing a slot's product id is, if it parses.</summary>
-    private static Route RouteOfProduct(string product) =>
-        ushort.TryParse(product, System.Globalization.NumberStyles.HexNumber,
-            System.Globalization.CultureInfo.InvariantCulture, out ushort id)
-            ? RouteOf(id) : Route.Unknown;
-
-    /// <summary>
-    /// Say that the headset's settings cannot be reached, the same way every
-    /// time, whichever way it happened.
-    ///
-    /// The transmitter plugged in is named when there is exactly one, so the
-    /// wrong-output check still has something to compare Windows with.
+    /// Say that the headset's settings cannot be reached, and fail whatever
+    /// was waiting for them.
     /// </summary>
     private void Unreachable()
     {
-        var link = _lostWithTransmitter ? Link.Silent : Link.Quiet;
-        string detail = _lostWithTransmitter ? UnreachableDetail : QuietDetail;
-
-        var here = TransmittersPlugged();
-        if (here.Count == 1)
-        {
-            var route = RouteOf(here[0]);
-            SetStatus(link, route, AdapterName(route), detail, here[0].ToString("X4", CultureInfo.InvariantCulture));
-        }
-        else
-        {
-            SetStatus(link, Route.Unknown, "", detail);
-        }
-        FailWaiting(detail);
+        Publish(_link.Unreachable(Plugged() ?? []));
+        FailWaiting(_link.Status.Detail);
     }
 
-    /// <summary>
-    /// Set when the device the app was talking to is unplugged while another
-    /// stays; cleared the moment the headset answers again.
-    /// </summary>
-    private bool _lostWithTransmitter;
-
-    /// <summary>When the device the app was talking to last went away.</summary>
-    private long _lostAt;
-
-    /// <summary>How long "Nothing plugged in" waits after losing a device. See Drop.</summary>
-    private static readonly TimeSpan AbsentGrace = TimeSpan.FromSeconds(6);
-
-    private const string QuietDetail =
-        StateCopy.WhatOff + " " + StateCopy.FixOff + " " + StateCopy.FallbackOff;
-
-    private List<ushort> TransmittersPlugged()
+    /// <summary>The product ids of everything plugged in, or null if they could not be listed.</summary>
+    private List<ushort>? Plugged()
     {
         try
         {
-            return HidTransport.Candidates()
-                .Select(device => device.ProductId)
-                .Where(id => RouteOf(id) is Route.ChargingHub or Route.UsbTransmitter)
-                .Distinct()
-                .ToList();
+            return HidTransport.Candidates().Select(device => device.ProductId).ToList();
         }
         catch (Exception ex)
         {
-            NoteFault("listing transmitters", ex);
-            return new List<ushort>();
+            NoteFault("listing devices", ex);
+            return null;
         }
     }
+
+    private const string QuietDetail =
+        StateCopy.WhatOff + " " + StateCopy.FixOff + " " + StateCopy.FallbackOff;
 
     /// <summary>
     /// <b>Only what is true in every way into this state.</b> The first
@@ -1129,29 +767,24 @@ public sealed class HeadsetService : IDisposable
         StateCopy.WhatUnreachable + " " + StateCopy.FixUnreachable + " "
         + StateCopy.FallbackUnreachable;
 
-    private void SetStatus(Link link, Route route, string adapter, string detail,
-        string product = "", string controlVia = "")
+    /// <summary>Show a new status, when the tracker decided one.</summary>
+    private void Publish(HeadsetStatus? next)
     {
-        if (link == Link.Connected && _status.Link != Link.Connected)
-            _connectedAt = Stopwatch.GetTimestamp();
-        bool noSound = link == Link.Connected && SoundLinkDown(route);
-
-        var status = new HeadsetStatus(link, route, adapter, detail, product, controlVia, noSound);
-        if (link == Link.Connected) _lostWithTransmitter = false;
-        if (_status == status) return;
+        if (next is null) return;
+        var was = _status;
 
         // The detail is wording and changes without the state changing, so
         // only a change of state is recorded.
-        if (_status.Link != link || _status.Route != route || _status.Adapter != adapter
-            || _status.Product != product || _status.ControlVia != controlVia
-            || _status.NoSound != noSound)
-            AppLog.Write("headset: " + link
-                + (adapter.Length > 0 ? $" via {adapter}" : "")
-                + (controlVia.Length > 0 ? $", settings via {controlVia}" : "")
-                + (noSound ? ", no sound" : ""));
+        if (was.Link != next.Link || was.Route != next.Route || was.Adapter != next.Adapter
+            || was.Product != next.Product || was.ControlVia != next.ControlVia
+            || was.NoSound != next.NoSound)
+            AppLog.Write("headset: " + next.Link
+                + (next.Adapter.Length > 0 ? $" via {next.Adapter}" : "")
+                + (next.ControlVia.Length > 0 ? $", settings via {next.ControlVia}" : "")
+                + (next.NoSound ? ", no sound" : ""));
 
-        _status = status;
-        _ui.TryEnqueue(() => StatusChanged?.Invoke(status));
+        _status = next;
+        _ui.TryEnqueue(() => StatusChanged?.Invoke(next));
     }
 
     /// <summary>Tell the UI, at most once per coalesce window.</summary>

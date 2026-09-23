@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using StealthPro.App.Services;
 using StealthPro.Core;
+using StealthPro.Core.Connection;
 using StealthPro.Core.Hid;
 using StealthPro.Core.Settings;
 
