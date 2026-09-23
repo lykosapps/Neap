@@ -14,15 +14,11 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
 
     <!-- Sits in the notification area all day, so it is tuned for a small
-         resident footprint rather than for throughput. Workstation,
-         non-concurrent GC keeps one small heap instead of a background one
-         per core; this app allocates almost nothing once it is running. -->
-    <ServerGarbageCollection>false</ServerGarbageCollection>
+         resident footprint rather than for throughput: no background GC
+         thread, since the app allocates almost nothing once it is running. -->
     <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
-    <TieredPGO>true</TieredPGO>
-    <AutoreleasePoolSupport>false</AutoreleasePoolSupport>
     <EventSourceSupport>false</EventSourceSupport>
-    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+    <MetadataUpdaterSupport Condition="'$(Configuration)' == 'Release'">false</MetadataUpdaterSupport>
 
     <!-- A downloadable exe, not a Store package. Unpackaged plus both
          self-contained switches means somebody can run this without first
