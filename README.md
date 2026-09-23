@@ -6,7 +6,7 @@ written to replace Swarm II.
 Not affiliated with or endorsed by Turtle Beach. Turtle Beach, Stealth Pro II
 and Swarm II are trademarks of Turtle Beach Corporation.
 
-- [FINDINGS.md](FINDINGS.md) — how the headset works and how we know
+- [FINDINGS.md](FINDINGS.md) — the headset's protocol and behaviour, as measured
 - [ARCHITECTURE.md](ARCHITECTURE.md) — the two halves, and why the audio one
   is the awkward part
 - [CONTRIBUTING.md](CONTRIBUTING.md) — building, testing, and the checks
@@ -14,8 +14,8 @@ and Swarm II are trademarks of Turtle Beach Corporation.
 
 ## What it does
 
-**The headset, with nothing installed.** 89 settings over the headset's own
-HID protocol: noise cancellation, both ten-band equalisers, microphone,
+**The headset, with nothing installed.** Every setting it exposes, over its
+own HID protocol: noise cancellation, both ten-band equalisers, microphone,
 noise gate, Superhuman Hearing, button and dial assignment, transmitter
 lighting, battery, power, wake on motion, voice prompts. No driver, no
 Turtle Beach software, no admin rights. Two of those — wake on motion and
@@ -41,8 +41,8 @@ survive uninstalling everything.
 
 **The transmitters.** The headset pairs with up to four and reports each
 slot: which piece of hardware, its firmware, its address, and which one it is
-using. The LED brightnesses live in there too, which is how they turned out
-to be readable and writable rather than write-only.
+using. Each transmitter's light brightnesses live in its slot, readable and
+writable.
 
 **It says what is actually happening.** Connected, no sound, settings out of
 reach, switched off, out of range — each is its own state with its own words,
@@ -60,7 +60,7 @@ without ever opening a window.
 
 **Windows 10 version 2004 (build 19041) or later, 64-bit.** Nothing else.
 No .NET runtime, no Windows App SDK, no driver — it publishes self-contained,
-which costs about 255 MB on disk and saves a stranger from installing
+which costs about 260 MB on disk and saves a stranger from installing
 anything.
 
 There are no downloadable builds yet. To build one:
@@ -147,11 +147,11 @@ confirmed ranges. The one write known to cause harm, a transmitter slot's
 base address, is refused outright. Nothing touches the firmware update path,
 which is signed and encrypted.
 
-One warning worth repeating from the findings: commands sent over HID reach
-the USB device you are plugged into, and do **not** pass through it to the
-headset. A transmitter will answer questions about a headset it can no longer
-reach, cheerfully and with stale values. Confirming which device answered is
-not paranoia here; it has produced wrong conclusions more than once.
+One warning worth repeating from the findings: a transmitter will answer
+questions about a headset it can no longer reach, with stale values, and the
+chip vendor's own firmware commands reach only the USB device you are plugged
+into, never the headset behind it. Confirm which device answered before
+trusting a result.
 
 ## Status
 
@@ -162,9 +162,6 @@ Working and in daily use, but young, and honest about which is which:
   protocol and the product ids are known, but none has been tested.
 - There is no installer and no signed binary. You build it yourself.
 - It was written with AI assistance.
-- `tools/` is now just the two USBPcap capture scripts. The Python tools
-  that used to live there have been removed; the two worth keeping are
-  `decode` and `raw` in the probe.
 
 ## Licence
 

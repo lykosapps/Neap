@@ -12,6 +12,8 @@ structural decision in this project.
 - **`StealthPro.Probe`** — a console harness over the same core. It is how
   the protocol was worked out and it is still the fastest way to ask the
   hardware a question.
+- **`StealthPro.Core.Tests`** — everything that can be checked without a
+  headset, against a scripted one.
 
 Both applications publish self-contained, so nothing has to be installed on
 the machine that runs them.
@@ -21,7 +23,8 @@ the machine that runs them.
 Everything the headset itself does is reached over its own HID protocol:
 noise cancellation, both equalisers, microphone, noise gate, Superhuman
 Hearing, button and dial assignment, transmitter lighting, battery, power,
-wake on motion, voice prompts. 89 settings, confirmed by capture.
+wake on motion, voice prompts. Every setting is in the registry,
+`Settings/Registry.cs`, and every write is checked against it.
 
 This needs **nothing installed** — no driver, no Turtle Beach software, no
 admin rights.
@@ -50,9 +53,10 @@ as carrying its sound, whether `0x230` says any sound is arriving, and — over
 the USB-C cable — whether the headset's own sound device is present in
 Windows. What came just before matters too: silence after a transmitter was
 unplugged means the settings left with it, and silence in place means the
-headset went. `Services/HeadsetService.cs` keeps each rule beside the
-observation that forced it, and `Services/StateCopy.cs` holds every sentence
-that explains a state, so no two places can word one differently.
+headset went. `Connection/LinkTracker.cs` holds those rules, each beside the
+observation that forced it, and is tested without hardware. The app's
+`Services/StateCopy.cs` explains each state, with its sentences in the
+resource file, so no two places can word one differently.
 
 The headset keeps its controls on the transmitter it was switched on with,
 and CrossPlay moves only its sound, so the device answering and the
@@ -118,9 +122,9 @@ without this ratcheted an application to silence in three commands.
 
 Two rules fall out of that and are easy to get wrong:
 
-- **Never clear a journal you do not own.** An early version cleared it on
-  exit whether or not it had written anything, so a throwaway launch that
-  only listed devices wiped the record of a crashed run.
+- **Never clear a journal you do not own.** Clearing it on exit without
+  having written anything lets a throwaway launch that only lists devices
+  wipe the record of a crashed run.
 - **Never fail recovery silently.** If the endpoint is missing the journal is
   kept, not deleted.
 

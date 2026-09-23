@@ -18,8 +18,10 @@ Any warning fails the build. The same three commands run on every push and
 pull request.
 
 The tests cover what needs no hardware: the frames sent to the headset, the
-parsing of its replies, the transmitter slots, the settings registry, presets
-against a scripted headset, and the volume journal. When you learn something
+parsing of its replies, which writes are allowed, the transmitter slots, the
+settings registry, presets against a scripted headset, the connection states,
+the routing warning, the mix and its volume journal, and the app's resource
+file. When you learn something
 new about the protocol, add a test that would have caught the old mistake.
 
 ## Working with the hardware
