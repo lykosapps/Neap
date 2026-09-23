@@ -45,7 +45,7 @@ public sealed record ChatElsewhere(string App, string Device);
 /// application to silence.
 /// </para>
 /// </remarks>
-public sealed class SessionMix : IDisposable
+public sealed class SessionMix : IMixEngine
 {
     /// <summary>
     /// How often to look for applications that started playing since the mix
