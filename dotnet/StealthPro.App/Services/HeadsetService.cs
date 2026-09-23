@@ -1181,7 +1181,13 @@ public sealed class HeadsetService : IDisposable
     {
         _stopping.Cancel();
         _jobs.CompleteAdding();
-        _worker.Join(TimeSpan.FromSeconds(2));
+
+        // Only once the thread has stopped using them. It can be in the
+        // middle of a full read, which takes over a second; disposing under
+        // it made its next step throw, and its error handling throw again,
+        // which ends the process with a crash on the way out. If it is still
+        // busy, the process exit takes it and them together.
+        if (!_worker.Join(TimeSpan.FromSeconds(2))) return;
         _stopping.Dispose();
         _jobs.Dispose();
     }
