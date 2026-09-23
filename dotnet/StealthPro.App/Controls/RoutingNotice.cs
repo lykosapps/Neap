@@ -100,64 +100,31 @@ public sealed class RoutingNotice : InfoBar
 
     private void OnStatus(HeadsetStatus status) => Paint();
 
-    /// <summary>
-    /// One half that is pointed at the wrong device: sound, calls or the
-    /// microphone, what it is on, and what to choose instead.
-    /// </summary>
-    private sealed record Wrong(
-        string What, bool Output, string For, string OnName, string OnProduct, string Pick);
+    /// <summary>A half pointed at the wrong device, in the words the notice uses.</summary>
+    private sealed record Wrong(string What, bool Output, string For, string OnName, string Pick);
+
+    private static Wrong Words(Misrouted half) => half.Role switch
+    {
+        AudioRole.Sound => new("sound", true, "output", half.OnName, half.Pick),
+        AudioRole.Calls => new("calls", true, "communications", half.OnName, half.Pick),
+        AudioRole.Microphone => new("the microphone", false, "input", half.OnName, half.Pick),
+        _ => new("the microphone", false, "communications", half.OnName, half.Pick),
+    };
 
     private void Paint()
     {
         var status = AppServices.Headset.Status;
         var route = AppServices.AudioRoute;
-
-        // Answerable whenever there is a transmitter the headset is on, or
-        // the only one it could be on. Sound-only used to be left out, and
-        // that was the one state where this mattered most: the headset on
-        // the USB Transmitter, Windows still playing to the Charging Dock, no
-        // sound at all, and the only notice on screen saying sound was fine.
-        // With no sound arriving at all, where Windows points is not the
-        // problem, and saying so would send somebody to the wrong fix.
-        if (status.Link is not (Link.Connected or Link.Silent)
-            || status.Product.Length == 0 || status.NoSound)
+        var verdict = RoutingCheck.Judge(status, route.Output, route.Calls, route.Input,
+            route.CallsInput, route.Cable, (product, output) => Routing.Belonging(product, output),
+            Sound, Microphone);
+        if (verdict is not { Wrong.Count: > 0 })
         {
             IsOpen = false;
             return;
         }
 
-        // <b>With the cable in, the cable is the only right place.</b>
-        // Plugged in with a USB-C cable, the headset plays one source at a
-        // time — a beep sent to the cable cut out the music playing through
-        // the Charging Dock — and sends the voice only over the cable: the
-        // dock's microphone gave silence while it was spoken into. So sound,
-        // calls and the microphone all belong on the cable, whichever
-        // transmitter the headset is on, and CrossPlay cannot help.
-        bool cabled = route.Cable.Length > 0;
-        string right = cabled ? route.Cable : status.Product;
-
-        // <b>Calls are a half of their own.</b> Windows keeps a separate
-        // default for communications, and changing the output in Sound
-        // settings leaves it where it was: set back to the dock with the cable
-        // in, calls and the microphone stayed on the cable, where a chat app
-        // using them would cut out the game instead of mixing with it.
-        //
-        // Every half is always worked out, whichever this placement shows:
-        // whether CrossPlay is a fix depends on all of them.
-        var halves = new[]
-        {
-            Check(route.Output, right, "sound", output: true, "output"),
-            Check(route.Calls, right, "calls", output: true, "communications"),
-            Check(route.Input, right, "the microphone", output: false, "input"),
-            Check(route.CallsInput, right, "the microphone", output: false, "communications"),
-        };
-        var shown = halves.OfType<Wrong>().Where(w => w.Output ? Sound : Microphone).ToList();
-        if (shown.Count == 0)
-        {
-            IsOpen = false;
-            return;
-        }
-
+        var shown = verdict.Wrong.Select(Words).ToList();
         string here = status.Adapter;
         string there = shown[0].OnName;
         var what = shown.Select(w => w.What).Distinct().ToList();
@@ -176,7 +143,7 @@ public sealed class RoutingNotice : InfoBar
             .ToList();
         string choose = picks.Count > 0 ? $" In Sound settings, choose {Join(picks)}." : "";
 
-        if (cabled)
+        if (verdict.Cabled)
         {
             bool outs = shown.Any(w => w.Output), ins = shown.Any(w => !w.Output);
             Message = (outs && ins
@@ -192,22 +159,10 @@ public sealed class RoutingNotice : InfoBar
             return;
         }
 
-        // <b>Two ways out, when there are two.</b> Windows jumps to a
-        // transmitter by itself when it is plugged in, so the quickest fix is
-        // often to follow it: CrossPlay moves the headset to the transmitter
-        // Windows is already using. The first version only ever said "change
-        // Windows back", which is the long way round when the headset has a
-        // button for it.
-        //
-        // But CrossPlay moves everything together. When only some halves are
-        // on the other transmitter, pressing it just moves the problem to the
-        // rest, so it is offered only when every half Windows is using a
-        // headset device for is on the transmitter CrossPlay would go to.
-        string to = shown[0].OnProduct;
-        bool crossPlayFixes = new[] { route.Output, route.Calls, route.Input, route.CallsInput }
-            .All(r => r is null || r.Product.Length == 0 || Same(r.Product, to));
+        // Two ways out, when there are two: CrossPlay moves the headset to the
+        // transmitter Windows is already using, which is often quicker than
+        // changing Windows back.
         string press = $"Press CrossPlay on the headset to switch it to the {there}";
-
         string so = what is ["sound"] ? ", so you will not hear anything"
             : what is ["calls"] ? ", so you will not hear calls"
             : what is ["the microphone"] ? ", so nobody will hear you"
@@ -215,28 +170,12 @@ public sealed class RoutingNotice : InfoBar
 
         Message = shown.Any(w => w.Pick.Length == 0)
             ? $"Your headset is on the {here}, which is not plugged in. {press}."
-            : crossPlayFixes && picks.Count > 0
+            : verdict.CrossPlayFixes && picks.Count > 0
                 ? $"Your headset is on the {here}{so}. {press}, or to stay on the {here}, "
                   + $"choose {Join(picks)} in Sound settings."
                 : $"Your headset is on the {here}{so}.{choose}";
         IsOpen = true;
     }
-
-    /// <summary>Null when this half is fine, or not ours to judge.</summary>
-    private static Wrong? Check(Routed? current, string right, string what, bool output, string purpose)
-    {
-        // An endpoint that is not one of the headset's at all is a deliberate
-        // choice — speakers, a webcam microphone — and none of our business.
-        if (current is null || current.Product.Length == 0) return null;
-        if (Same(current.Product, right)) return null;
-
-        string onName = StealthPro.Core.Transmitters.Hardware.TryGetValue(current.Product, out var called)
-            ? called : "other transmitter";
-        var picks = Routing.Belonging(right, output);
-        return new Wrong(what, output, purpose, onName, current.Product, picks.Count > 0 ? picks[0] : "");
-    }
-
-    private static bool Same(string a, string b) => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>"a", "a and b", "a, b and c".</summary>
     private static string Join(IReadOnlyList<string> items) => items.Count switch
