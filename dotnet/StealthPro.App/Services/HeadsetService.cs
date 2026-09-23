@@ -293,7 +293,7 @@ public sealed class HeadsetService : IDisposable
         }
     }
 
-    private static string Hex(int key) => key.ToString("x");
+    private static string Hex(int key) => key.ToString("x", CultureInfo.InvariantCulture);
 
     /// <summary>
     /// 0x230, the headset's sound link: 2 while a transmitter is sending it
@@ -567,7 +567,7 @@ public sealed class HeadsetService : IDisposable
                     nextBeat = Stopwatch.GetTimestamp() + BeatTicks;
                     var held = Carrying(client);
                     carrying = held?.Name ?? adapter;
-                    product = held?.Product ?? client.ProductId.ToString("X4");
+                    product = held?.Product ?? client.ProductId.ToString("X4", CultureInfo.InvariantCulture);
                     elsewhere = held is not null && !held.Value.Here;
 
                     // Ask on the way in, not only when it changes. The state
@@ -672,7 +672,7 @@ public sealed class HeadsetService : IDisposable
                     {
                         var held = Carrying(client);
                         carrying = held?.Name ?? adapter;
-                        product = held?.Product ?? client.ProductId.ToString("X4");
+                        product = held?.Product ?? client.ProductId.ToString("X4", CultureInfo.InvariantCulture);
                         elsewhere = held is not null && !held.Value.Here;
                         // <b>No following.</b> This used to close the device
                         // and ask every transmitter again whenever the headset
@@ -1037,7 +1037,7 @@ public sealed class HeadsetService : IDisposable
         if (here.Count == 1)
         {
             var route = RouteOf(here[0]);
-            SetStatus(link, route, AdapterName(route), detail, here[0].ToString("X4"));
+            SetStatus(link, route, AdapterName(route), detail, here[0].ToString("X4", CultureInfo.InvariantCulture));
         }
         else
         {

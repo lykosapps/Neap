@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using StealthPro.Core.Protocol;
 
@@ -62,7 +63,7 @@ public static class Transmitters
     public static Piece PieceOf(string product) =>
         Family.TryGetValue(product, out var piece) ? piece : Piece.Unknown;
 
-    public static Piece PieceOf(ushort product) => PieceOf(product.ToString("X4"));
+    public static Piece PieceOf(ushort product) => PieceOf(product.ToString("X4", CultureInfo.InvariantCulture));
 
     /// <summary>What to call it on screen.</summary>
     public static readonly IReadOnlyDictionary<string, string> Hardware =

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
@@ -197,7 +198,7 @@ public sealed class MixService : IDisposable
     {
         if (_noteKind is null) return;
         _noteKind = null;
-        AppLog.Write($"mix: {(_noteFrom is int f ? f.ToString() : "-")} -> {_noteTo} ({_noteWhy}"
+        AppLog.Write($"mix: {(_noteFrom is int f ? f.ToString(CultureInfo.InvariantCulture) : "-")} -> {_noteTo} ({_noteWhy}"
             + (_noteSteps > 1 ? $", {_noteSteps} steps)" : ")"), _noteStarted);
     }
 

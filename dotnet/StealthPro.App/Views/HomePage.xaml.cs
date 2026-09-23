@@ -1,3 +1,4 @@
+using System.Globalization;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -122,7 +123,7 @@ public sealed partial class HomePage : Page
 
         // The model is what the card is about; the name they gave it is
         // theirs and goes underneath, where it does not compete.
-        string? given = headset.Values.TryGetValue(NameKey.ToString("x"), out var raw)
+        string? given = headset.Values.TryGetValue(NameKey.ToString("x", CultureInfo.InvariantCulture), out var raw)
             ? raw.ToString() : null;
         ModelName.Text = "Stealth Pro II";
 
@@ -286,7 +287,7 @@ public sealed partial class HomePage : Page
         // Not yet looked is not "not plugged in": the first paint comes
         // before the first look, and would flash the wrong answer.
         bool here = _plugged.Count == 0
-                    || _plugged.Any(d => Same(d.ProductId.ToString("X4"), status.Product));
+                    || _plugged.Any(d => Same(d.ProductId.ToString("X4", CultureInfo.InvariantCulture), status.Product));
         return here ? $"2.4 GHz · {status.Adapter}" : $"{status.Adapter}, not plugged in";
     }
 
@@ -391,7 +392,7 @@ public sealed partial class HomePage : Page
         var known = AppServices.Headset.KnownTransmitters;
 
         var plugged = _plugged
-            .Select(d => d.ProductId.ToString("X4"))
+            .Select(d => d.ProductId.ToString("X4", CultureInfo.InvariantCulture))
             .Where(IsTransmitter)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
@@ -73,23 +74,23 @@ try
         case "slots": return Group(Verbs.PresetSlotCategories);
         case "transmitters": return Group(Verbs.TransmitterCategories);
         case "json": return Json();
-        case "watch": return Watch(args.Length > 1 ? double.Parse(args[1]) : 10);
+        case "watch": return Watch(args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 10);
         case "raw":
             return Raw(
-            args.Length > 1 ? double.Parse(args[1]) : 20,
+            args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 20,
             args.Length > 2 ? Convert.ToUInt16(args[2], 16) : HidTransport.VendorUsagePage);
         case "decode":
             return StealthPro.Probe.Capture.Decode(
-            args[1], args.Length > 2 ? int.Parse(args[2]) : 1);
-        case "diff": return Diff(args.Length > 1 ? double.Parse(args[1]) : 180);
+            args[1], args.Length > 2 ? int.Parse(args[2], CultureInfo.InvariantCulture) : 1);
+        case "diff": return Diff(args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 180);
         case "audio": return Audio();
         case "route": return Route();
-        case "hear": return Hear(args[1], args.Length > 2 ? double.Parse(args[2]) : 60);
-        case "loopback": return Loopback(uint.Parse(args[1]));
+        case "hear": return Hear(args[1], args.Length > 2 ? double.Parse(args[2], CultureInfo.InvariantCulture) : 60);
+        case "loopback": return Loopback(uint.Parse(args[1], CultureInfo.InvariantCulture));
         case "mixapp": return MixApp(args[1], args.Length > 2 ? args[2] : "demo");
         case "recover": return RecoverMix();
         case "sessionmix": return SessionMix(args[1], args.Length > 2 ? args[2] : "demo");
-        case "setformat": return SetFormat(int.Parse(args[1]), int.Parse(args[2]));
+        case "setformat": return SetFormat(int.Parse(args[1], CultureInfo.InvariantCulture), int.Parse(args[2], CultureInfo.InvariantCulture));
         case "formats":
             return Formats(
             args.Length > 1 && args[1].StartsWith("mic") ? Flow.Input : Flow.Output);
@@ -143,7 +144,7 @@ static int Who()
 
     foreach (var device in candidates)
     {
-        string name = Transmitters.Hardware.TryGetValue(device.ProductId.ToString("X4"), out var called)
+        string name = Transmitters.Hardware.TryGetValue(device.ProductId.ToString("X4", CultureInfo.InvariantCulture), out var called)
             ? called : $"0x{device.ProductId:x4}";
         try
         {
@@ -695,7 +696,7 @@ static int SessionMix(string chatApp, string what)
         SaveMixJournal(new());
         Console.WriteLine("restored, journal cleared");
     }
-    else Apply(int.Parse(what));
+    else Apply(int.Parse(what, CultureInfo.InvariantCulture));
     return 0;
 }
 

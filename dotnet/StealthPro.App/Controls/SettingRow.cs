@@ -1,3 +1,4 @@
+using System.Globalization;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -198,7 +199,7 @@ public sealed class SettingRow : SettingsCard
 
     private void ShowValue(int value)
     {
-        if (_readout is not null) _readout.Text = Unit.Length > 0 ? $"{value}{Unit}" : value.ToString();
+        if (_readout is not null) _readout.Text = Unit.Length > 0 ? $"{value}{Unit}" : value.ToString(CultureInfo.CurrentCulture);
     }
 
     /// <summary>

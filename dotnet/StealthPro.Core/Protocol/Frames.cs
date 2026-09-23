@@ -137,7 +137,7 @@ public static class Frames
                 case '\b': json.Append("\\b"); break;
                 case '\f': json.Append("\\f"); break;
                 default:
-                    if (c is < ' ' or > '~') json.Append("\\u").Append(((int)c).ToString("x4"));
+                    if (c is < ' ' or > '~') json.Append("\\u").Append(((int)c).ToString("x4", CultureInfo.InvariantCulture));
                     else json.Append(c);
                     break;
             }

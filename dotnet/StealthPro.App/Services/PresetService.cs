@@ -1,3 +1,4 @@
+using System.Globalization;
 using StealthPro.Core;
 using StealthPro.Core.Presets;
 
@@ -128,7 +129,7 @@ public sealed class PresetService
         if (!_banks.TryGetValue(bank, out var state)) return "";
         // The headset stops reporting a name the moment a band is touched,
         // which emptied the label exactly when it was most wanted.
-        string? reported = _headset.Values.TryGetValue(state.Spec.NameKey.ToString("x"), out var raw)
+        string? reported = _headset.Values.TryGetValue(state.Spec.NameKey.ToString("x", CultureInfo.InvariantCulture), out var raw)
             ? raw.ToString() : null;
         return string.IsNullOrWhiteSpace(reported) ? state.Baseline?.Name ?? "" : reported;
     }

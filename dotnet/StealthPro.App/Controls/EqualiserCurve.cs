@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -14,7 +15,7 @@ internal static class Db
     public static string Text(int tenths)
     {
         string sign = tenths > 0 ? "+" : tenths < 0 ? "−" : "";
-        return $"{sign}{Math.Abs(tenths / 10.0).ToString("0.0")}";
+        return $"{sign}{Math.Abs(tenths / 10.0).ToString("0.0", CultureInfo.InvariantCulture)}";
     }
 }
 
