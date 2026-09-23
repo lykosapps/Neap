@@ -258,10 +258,13 @@ public sealed class HeadsetService : IDisposable
 
         // A write that fails before it runs never clears its own in-flight
         // mark, which would block that key until restart. Clear it here; the
-        // latest value stays pending for the next write.
+        // latest value stays pending for the next write. A write the registry
+        // refuses is a bug in the caller, so it is logged; a headset that is
+        // not there is already on screen.
         write.ContinueWith(failed =>
         {
-            _ = failed.Exception;
+            if (failed.Exception?.GetBaseException() is ArgumentException refused)
+                NoteFault($"write 0x{key:x}", refused);
             _inFlight.TryRemove(key, out _);
         }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
     }
