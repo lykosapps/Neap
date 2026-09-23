@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="StealthPro.App.Controls.MixPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls">
+
+    <StackPanel Spacing="4">
+
+        <!--  Nothing chosen yet. One card, one question, one next step: which
+              application carries chat. Everything else about the mix is
+              meaningless until that is answered, so none of it is shown.  -->
+        <tk:SettingsCard
+            x:Name="SetupCard"
+            Description="Pick the app your voice chat comes out of. Everything else on the headset becomes the game side."
+            Header="Choose your chat app"
+            Visibility="Collapsed">
+            <tk:SettingsCard.HeaderIcon>
+                <FontIcon Glyph="&#xE8BD;" />
+            </tk:SettingsCard.HeaderIcon>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <ComboBox
+                    x:Name="SetupPicker"
+                    MinWidth="200"
+                    PlaceholderText="Choose an app" />
+                <Button x:Name="SetupRefresh" ToolTipService.ToolTip="Look again">
+                    <FontIcon FontSize="14" Glyph="&#xE72C;" />
+                </Button>
+            </StackPanel>
+        </tk:SettingsCard>
+
+        <!--  The chat application is playing somewhere the mix cannot reach.
+              Without this the wheel simply stops affecting chat and nothing
+              anywhere says why — the failure the mix cannot see is the one
+              worth spelling out.  -->
+        <!--  Directly above the slider, because this is where somebody who has
+              just turned the wheel and seen nothing move is looking. Shown
+              whenever the wheel cannot reach the app, with what brings it
+              back; the app has no way to switch it on itself, since the wheel
+              arrives over the very link that is missing.  -->
+        <InfoBar
+            x:Name="WheelBar"
+            Title="The chat wheel isn't reaching the app"
+            IsClosable="False"
+            IsOpen="False"
+            Severity="Informational" />
+
+        <InfoBar
+            x:Name="ElsewhereBar"
+            Title="Chat is going to another device"
+            IsClosable="False"
+            IsOpen="False"
+            Severity="Warning" />
+
+        <!--  Chosen. The crossfade itself, given the room it deserves: this
+              is the control the whole app exists for.  -->
+        <Border
+            x:Name="MixCard"
+            Padding="20,18"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="{ThemeResource ControlCornerRadius}"
+            Visibility="Collapsed">
+            <Grid ColumnSpacing="16" RowSpacing="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="Game" />
+
+                <Slider
+                    x:Name="MixSlider"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    AutomationProperties.Name="Game and chat mix"
+                    Maximum="100"
+                    Minimum="0"
+                    TickFrequency="50"
+                    TickPlacement="Outside" />
+
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="Chat" />
+
+                <TextBlock
+                    x:Name="MixCaption"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}" />
+            </Grid>
+        </Border>
+
+        <!--  Beside the thing it moves, not in a settings drawer. Someone
+              looking at the crossfade and wishing they could reach it
+              mid-game is looking at exactly the right place to be told they
+              can.  -->
+        <tk:SettingsExpander
+            x:Name="KeysCard"
+            Description="Works from inside a game, on either transmitter, and alongside the wheel."
+            Header="Move the mix with the keyboard"
+            Visibility="Collapsed">
+            <tk:SettingsExpander.HeaderIcon>
+                <FontIcon Glyph="&#xE765;" />
+            </tk:SettingsExpander.HeaderIcon>
+            <ToggleSwitch x:Name="KeysOn" />
+            <tk:SettingsExpander.Items>
+                <tk:SettingsCard x:Name="GameRow" Header="Toward game">
+                    <Button x:Name="GameKey" MinWidth="190" />
+                </tk:SettingsCard>
+                <tk:SettingsCard x:Name="ChatRow" Header="Toward chat">
+                    <Button x:Name="ChatKey" MinWidth="190" />
+                </tk:SettingsCard>
+                <tk:SettingsCard x:Name="CentreRow" Header="Back to balanced">
+                    <Button x:Name="CentreKey" MinWidth="190" />
+                </tk:SettingsCard>
+                <tk:SettingsCard Description="Ctrl + Alt + Page Down, Page Up and Home." Header="Put the keys back">
+                    <Button x:Name="KeysReset" Content="Reset" />
+                </tk:SettingsCard>
+            </tk:SettingsExpander.Items>
+        </tk:SettingsExpander>
+
+        <tk:SettingsCard
+            x:Name="ChosenCard"
+            Description="Everything else playing on the headset is treated as game audio."
+            Header="Chat comes from"
+            Visibility="Collapsed">
+            <tk:SettingsCard.HeaderIcon>
+                <FontIcon Glyph="&#xE8BD;" />
+            </tk:SettingsCard.HeaderIcon>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <ComboBox
+                    x:Name="ChosenPicker"
+                    AutomationProperties.Name="Chat comes from"
+                    MinWidth="200" />
+                <Button
+                    x:Name="ChosenRefresh"
+                    AutomationProperties.Name="Look for chat apps again"
+                    ToolTipService.ToolTip="Look again">
+                    <FontIcon FontSize="14" Glyph="&#xE72C;" />
+                </Button>
+            </StackPanel>
+        </tk:SettingsCard>
+
+        <InfoBar
+            x:Name="Notice"
+            IsClosable="False"
+            IsOpen="False"
+            Severity="Informational" />
+
+    </StackPanel>
+</UserControl>

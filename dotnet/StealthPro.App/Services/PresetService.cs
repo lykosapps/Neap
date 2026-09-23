@@ -1,0 +1,235 @@
+using StealthPro.Core;
+using StealthPro.Core.Presets;
+
+namespace StealthPro.App.Services;
+
+/// <summary>One equaliser bank as the UI needs it.</summary>
+public sealed class BankState
+{
+    public required Bank Bank { get; init; }
+    public required BankSpec Spec { get; init; }
+    public required IReadOnlyList<Preset> Presets { get; init; }
+
+    /// <summary>Which preset the live curve is a variation of. See the service remarks.</summary>
+    public Preset? Baseline { get; set; }
+
+    public IEnumerable<Preset> Custom => Presets.Where(p => p.Custom);
+    public IReadOnlyList<int> FreeSlots => PresetStore.FreeSlots(Presets);
+}
+
+/// <summary>
+/// The equaliser: the headset's presets, and the curve in front of them.
+///
+/// <b>The headset forgets which preset you were on the moment you touch a
+/// band.</b> Its selected-preset value goes to 0 on the first band write —
+/// measured, not assumed. That is a useful signal, because it is exactly how
+/// we know the curve has been edited, but it also destroys the one thing
+/// needed to offer a way back. So the baseline is remembered here and held
+/// until another preset is chosen. Without it, a curve you have changed is
+/// indistinguishable from the preset it came from, and there is nothing to
+/// revert a single band to.
+///
+/// <b>Saving always creates a new preset.</b> The slot id in a save is only
+/// a hint: ask for an occupied slot and the headset makes a second preset
+/// rather than overwriting. So "save over this one" is a delete followed by
+/// a save, which is two operations with a gap in the middle and an
+/// irreversible one first. Everything that could refuse the save is checked
+/// before the delete happens.
+///
+/// <b>Band values are tenths of a decibel</b>, -90 to +90, matching the
+/// +9 dB..-9 dB scale printed in Swarm's own resources.
+/// </summary>
+public sealed class PresetService
+{
+    public const int BandFloor = -90;
+    public const int BandCeiling = 90;
+
+    private readonly HeadsetService _headset;
+    private readonly Dictionary<Bank, BankState> _banks = new();
+
+    public PresetService(HeadsetService headset) => _headset = headset;
+
+    public BankState? State(Bank bank) => _banks.GetValueOrDefault(bank);
+
+    /// <summary>
+    /// Read a bank's presets off the headset. Ten reads, one per custom
+    /// slot, so this is a deliberate action rather than something to do on
+    /// every repaint.
+    /// </summary>
+    public async Task<BankState> Load(Bank bank)
+    {
+        var presets = await _headset.Post(client => PresetStore.ReadBank(client, bank));
+        var state = new BankState
+        {
+            Bank = bank,
+            Spec = PresetStore.Spec(bank),
+            Presets = presets,
+            Baseline = _banks.GetValueOrDefault(bank)?.Baseline,
+        };
+        _banks[bank] = state;
+        AdoptBaseline(state);
+        return state;
+    }
+
+    /// <summary>
+    /// Work out which preset the live curve came from, and keep it.
+    ///
+    /// Three ways in, in order of confidence: the headset still names a
+    /// selected preset; we already knew and are mid-edit, so keep what we
+    /// have; or the live curve matches some preset exactly, which is the
+    /// only evidence available after a restart.
+    /// </summary>
+    private void AdoptBaseline(BankState state)
+    {
+        if (_headset.TryGetNumberByKey(state.Spec.Select, out int selected))
+        {
+            var chosen = state.Presets.FirstOrDefault(p => p.Id == selected);
+            if (chosen is not null) { state.Baseline = chosen; return; }
+        }
+        if (state.Baseline is not null) return;
+
+        var live = LiveBands(state);
+        if (live is null) return;
+        state.Baseline = state.Presets.FirstOrDefault(
+            p => p.Bands.Count == live.Length && p.Bands.SequenceEqual(live));
+    }
+
+    /// <summary>The curve the headset is on right now, or null if not read yet.</summary>
+    public int[]? LiveBands(Bank bank) =>
+        _banks.TryGetValue(bank, out var state) ? LiveBands(state) : null;
+
+    private int[]? LiveBands(BankState state)
+    {
+        var bands = new int[state.Spec.Bands.Count];
+        for (int i = 0; i < bands.Length; i++)
+            if (!_headset.TryGetNumberByKey(state.Spec.Bands[i], out bands[i])) return null;
+        return bands;
+    }
+
+    /// <summary>Where a band sits in its baseline, for the revert affordance.</summary>
+    public int? StoredBand(Bank bank, int index)
+    {
+        var baseline = _banks.GetValueOrDefault(bank)?.Baseline;
+        return baseline is not null && index < baseline.Bands.Count
+            ? baseline.Bands[index] : null;
+    }
+
+    public bool IsEdited(Bank bank)
+    {
+        if (!_banks.TryGetValue(bank, out var state) || state.Baseline is null) return false;
+        var live = LiveBands(state);
+        if (live is null) return false;
+        return !state.Baseline.Bands.SequenceEqual(live);
+    }
+
+    /// <summary>The name to show beside the equaliser, including mid-edit.</summary>
+    public string CurrentName(Bank bank)
+    {
+        if (!_banks.TryGetValue(bank, out var state)) return "";
+        // The headset stops reporting a name the moment a band is touched,
+        // which emptied the label exactly when it was most wanted.
+        string? reported = _headset.Values.TryGetValue(state.Spec.NameKey.ToString("x"), out var raw)
+            ? raw.ToString() : null;
+        return string.IsNullOrWhiteSpace(reported) ? state.Baseline?.Name ?? "" : reported;
+    }
+
+    public void SetBand(Bank bank, int index, int tenths)
+    {
+        if (!_banks.TryGetValue(bank, out var state)) return;
+        if (index < 0 || index >= state.Spec.Bands.Count) return;
+        _headset.SetKey(state.Spec.Bands[index], Math.Clamp(tenths, BandFloor, BandCeiling));
+    }
+
+    /// <summary>
+    /// Select a preset. The headset reloads all ten bands itself, so this is
+    /// one write rather than ten — and the local store is moved at once
+    /// rather than waiting on a full read, because a full read costs about
+    /// 1.2 seconds and doing one after every action is what made switching
+    /// presets feel broken.
+    /// </summary>
+    public async Task Select(Bank bank, Preset preset)
+    {
+        if (!_banks.TryGetValue(bank, out var state)) return;
+        state.Baseline = preset;
+        _headset.SetKey(state.Spec.Select, preset.Id);
+        for (int i = 0; i < preset.Bands.Count && i < state.Spec.Bands.Count; i++)
+            _headset.SetKeyLocally(state.Spec.Bands[i], preset.Bands[i]);
+        await Task.CompletedTask;
+    }
+
+    /// <summary>Throw away unsaved edits and go back to the stored curve.</summary>
+    public Task Discard(Bank bank)
+    {
+        var baseline = _banks.GetValueOrDefault(bank)?.Baseline;
+        return baseline is null ? Task.CompletedTask : Select(bank, baseline);
+    }
+
+    /// <summary>Put one band back where its baseline has it.</summary>
+    public void RevertBand(Bank bank, int index)
+    {
+        if (StoredBand(bank, index) is int stored) SetBand(bank, index, stored);
+    }
+
+    /// <summary>
+    /// Save the live curve into a custom slot, optionally over one that is
+    /// already there.
+    ///
+    /// Returns null on success, or what went wrong. Everything that could
+    /// refuse is checked first, because replacing deletes before it writes.
+    /// </summary>
+    public async Task<string?> Save(Bank bank, string name, string? replacing)
+    {
+        if (!_banks.TryGetValue(bank, out var state)) return "the presets have not been read yet";
+        name = name.Trim();
+        if (name.Length == 0) return "a preset needs a name";
+        // Checked here and not only in the store: replacing deletes the old
+        // preset first, and a name that cannot be written would throw after
+        // that, losing the preset it was meant to replace.
+        if (!PresetStore.NameFits(name, bank))
+            return $"{PresetStore.MaxNameLength} characters is as long as a preset name can be";
+
+        var free = state.FreeSlots;
+        if (replacing is null && free.Count == 0)
+            return "all five custom slots are full — replace one, or delete one first";
+
+        var over = replacing is null
+            ? null
+            : state.Custom.FirstOrDefault(p => p.Name == replacing);
+        if (replacing is not null && over is null)
+            return $"there is no custom preset called {replacing}";
+
+        var bands = LiveBands(state);
+        if (bands is null) return "could not read the current equaliser";
+
+        try
+        {
+            await _headset.Post(client =>
+            {
+                int? slot = free.Count > 0 ? free[0] : null;
+                if (over is not null)
+                {
+                    PresetStore.Delete(client, over.Name, bank);
+                    Thread.Sleep(400);
+                    // The slot just freed is the lowest one available, so
+                    // the replacement lands where the original was.
+                    slot = free.Append(over.Id).Min();
+                }
+                PresetStore.Save(client, name, bands, bank, slot);
+                return true;
+            });
+        }
+        catch (Exception ex) { return ex.Message; }
+
+        await Load(bank);
+        _banks[bank].Baseline = _banks[bank].Custom.FirstOrDefault(p => p.Name == name);
+        return null;
+    }
+
+    public async Task<string?> Delete(Bank bank, string name)
+    {
+        try { await _headset.Post(client => { PresetStore.Delete(client, name, bank); return true; }); }
+        catch (Exception ex) { return ex.Message; }
+        await Load(bank);
+        return null;
+    }
+}

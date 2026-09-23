@@ -1,0 +1,18 @@
+# Build output
+bin/
+obj/
+__pycache__/
+*.pyc
+
+# USB captures; they carry device serials
+evidence/
+
+# Runtime state and logs
+*.log
+*.log.prev
+mixer-state.json
+last-set.json
+chatmix-config.json
+
+# Local tool settings
+.claude/

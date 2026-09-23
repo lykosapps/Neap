@@ -1,0 +1,53 @@
+namespace StealthPro.App.Services;
+
+/// <summary>
+/// The app's long-lived services, in one place.
+///
+/// There is exactly one of each and they outlive every page, because the
+/// headset connection does: navigating between tabs must not drop the link
+/// or re-do the 1.2-second full read. Created once on the UI thread when the
+/// window opens.
+/// </summary>
+public static class AppServices
+{
+    public static HeadsetService Headset { get; private set; } = null!;
+    public static MixService Mix { get; private set; } = null!;
+    public static PresetService Presets { get; private set; } = null!;
+    public static HotkeyService Hotkeys { get; private set; } = null!;
+    public static AudioRoute AudioRoute { get; private set; } = null!;
+
+    public static void Start()
+    {
+        if (Headset is not null) return;
+
+        // Before anything else: put back volumes a previous run left turned
+        // down. An unclean exit is the one case where somebody is left with
+        // a quiet application and no idea why.
+        _ = MixService.Recover();
+
+        // If the app has been moved since "start with Windows" was switched
+        // on, point the entry at where it is now.
+        Startup.Refresh();
+
+        AudioRoute = new AudioRoute();
+        Headset = new HeadsetService(cabled: () => AudioRoute.Cable.Length > 0);
+        Mix = new MixService(Headset);
+        Presets = new PresetService(Headset);
+        Hotkeys = new HotkeyService(Mix);
+        Hotkeys.Enable(AppSettings.Current.MixHotkeys);
+
+        // Pick up where the last run left off. Without this the mix only
+        // started when somebody opened the Audio page and chose an
+        // application again - so a login launch, which never shows a window
+        // at all, would sit there with the chat wheel doing nothing.
+        if (Mix.ChatApps.Count > 0) Mix.Start();
+    }
+
+    public static void Stop()
+    {
+        Hotkeys?.Dispose();
+        Mix?.Dispose();
+        Headset?.Dispose();
+        AudioRoute?.Dispose();
+    }
+}

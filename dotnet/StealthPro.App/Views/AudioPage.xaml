@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="StealthPro.App.Views.AudioPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:StealthPro.App.Controls">
+
+    <ScrollViewer
+        Padding="32,0,32,32"
+        HorizontalScrollBarVisibility="Disabled"
+        HorizontalScrollMode="Disabled">
+        <StackPanel>
+
+            <TextBlock Style="{StaticResource PageTitleStyle}" Text="Audio" />
+
+            <c:HeadsetNotice />
+
+            <!--  With the headset off, the whole page is one card: the mix and
+                  Windows' volume go on working without it, but on nothing the
+                  person can hear. See NeedsDock.WhenOff.  -->
+            <c:NeedsDock What="The game and chat mix, volume, noise cancellation and the equaliser" WhenOff="True">
+            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Game and chat" />
+            <c:MixPanel />
+
+            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Volume" />
+            <TextBlock Style="{StaticResource SectionNoteStyle}" Text="Both of these belong to Windows. The headset reports them but cannot change them, so these set them where they actually live." />
+            <StackPanel>
+            <c:RoutingNotice Margin="0,0,0,8" Microphone="False" />
+            <StackPanel Spacing="4">
+                <c:WindowsVolumeRow
+                    Description="What Swarm's Audio Master Volume switch does. Turning the headset's volume wheel unmutes it, which is Windows behaving normally."
+                    Glyph="&#xE74F;"
+                    Header="Mute"
+                    Kind="Mute" />
+                <c:WindowsVolumeRow
+                    Glyph="&#xE767;"
+                    Header="Master volume"
+                    Kind="Volume" />
+            </StackPanel>
+            </StackPanel>
+
+            <c:NeedsDock What="Noise cancellation, Superhuman Hearing and the equaliser">
+            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Noise cancellation" />
+            <StackPanel Spacing="4">
+                <c:SettingRow
+                    Glyph="&#xE767;"
+                    Header="Active noise cancellation"
+                    Setting="anc" />
+                <c:SettingRow
+                    Description="How hard it works."
+                    Glyph="&#xE9E9;"
+                    Header="Intensity"
+                    Setting="anc_level" />
+            </StackPanel>
+
+            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Superhuman Hearing" />
+            <StackPanel Spacing="4">
+                <c:SettingRow
+                    Description="Lifts quiet detail so footsteps and reloads carry."
+                    Glyph="&#xE9D9;"
+                    Header="Superhuman Hearing"
+                    Setting="superhuman_hearing" />
+                <c:SettingRow
+                    Glyph="&#xE8FD;"
+                    Header="Type"
+                    Setting="shh_preset" />
+                <c:SettingRow
+                    Glyph="&#xE9E9;"
+                    Header="Intensity"
+                    Setting="shh_level" />
+            </StackPanel>
+
+            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Equaliser" />
+            <c:EqualiserPanel Bank="Game" />
+            </c:NeedsDock>
+            </c:NeedsDock>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
+

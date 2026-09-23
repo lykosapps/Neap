@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="StealthPro.App.Views.MicrophonePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:StealthPro.App.Controls">
+
+    <ScrollViewer
+        Padding="32,0,32,32"
+        HorizontalScrollBarVisibility="Disabled"
+        HorizontalScrollMode="Disabled">
+        <StackPanel>
+
+            <TextBlock Style="{StaticResource PageTitleStyle}" Text="Microphone" />
+
+            <c:HeadsetNotice />
+
+            <!--  With the headset off, the whole page is one card, the level
+                  included: see NeedsDock.WhenOff.  -->
+            <c:NeedsDock What="Mute, level, monitoring, noise reduction, the noise gate and the equaliser" WhenOff="True">
+            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Microphone" />
+            <StackPanel>
+            <c:RoutingNotice Margin="0,0,0,8" Sound="False" />
+            <StackPanel Spacing="4">
+                <c:NeedsDock Explain="False">
+                    <c:SettingRow
+                        Description="Flipping the boom arm up does this too."
+                        Glyph="&#xE720;"
+                        Header="Muted"
+                        Setting="mic_muted" />
+                </c:NeedsDock>
+                <c:WindowsVolumeRow
+                    Capture="True"
+                    Description="Windows' recording level for this microphone. The headset reports it back but cannot change it, so this sets it where it actually lives."
+                    Glyph="&#xE9A9;"
+                    Header="Sensitivity"
+                    Kind="Volume" />
+                <c:NeedsDock Explain="False">
+                    <c:SettingRow
+                        Description="Hear your own voice in the headset."
+                        Glyph="&#xE767;"
+                        Header="Mic monitoring"
+                        Setting="mic_monitoring" />
+                </c:NeedsDock>
+            </StackPanel>
+            </StackPanel>
+
+            <c:NeedsDock What="Mute, monitoring, noise reduction, the noise gate and the equaliser">
+            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Noise handling" />
+            <StackPanel Spacing="4">
+                <c:SettingRow
+                    Description="Strips background noise out of what people hear."
+                    Glyph="&#xE945;"
+                    Header="AI noise reduction"
+                    Setting="ai_noise_reduction" />
+                <c:SettingRow
+                    Description="Stays silent until you speak."
+                    Glyph="&#xE71C;"
+                    Header="Noise gate"
+                    Setting="noise_gate" />
+                <c:SettingRow
+                    Description="How loud you have to be before the gate opens."
+                    Glyph="&#xE9E9;"
+                    Header="Threshold"
+                    Setting="noise_gate_threshold" />
+            </StackPanel>
+
+            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Equaliser" />
+            <c:EqualiserPanel Bank="Mic" />
+            </c:NeedsDock>
+            </c:NeedsDock>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

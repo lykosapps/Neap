@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="StealthPro.App.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.SettingsControls/Themes/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!--  The page's own name, at the top of every page.  -->
+            <Style
+                x:Key="PageTitleStyle"
+                BasedOn="{StaticResource TitleTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="FontSize" Value="32" />
+                <Setter Property="Margin" Value="0,8,0,16" />
+            </Style>
+
+            <!--  Groups the cards below it. Quiet: the cards are the content.  -->
+            <Style
+                x:Key="SectionHeaderStyle"
+                BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="Margin" Value="0,16,0,4" />
+            </Style>
+
+            <!--  A note under a section header, for the handful of places
+                  where what a control does is genuinely not obvious from
+                  its label: the settings that belong to Windows rather than
+                  to the headset.  -->
+            <Style
+                x:Key="SectionNoteStyle"
+                BasedOn="{StaticResource CaptionTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="MaxWidth" Value="620" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

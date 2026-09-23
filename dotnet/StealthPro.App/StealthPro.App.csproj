@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>StealthPro.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <UseWinUI>true</UseWinUI>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>StealthProII</AssemblyName>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+
+    <!-- Sits in the notification area all day, so it is tuned for a small
+         resident footprint rather than for throughput. Workstation,
+         non-concurrent GC keeps one small heap instead of a background one
+         per core; this app allocates almost nothing once it is running. -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <TieredPGO>true</TieredPGO>
+    <AutoreleasePoolSupport>false</AutoreleasePoolSupport>
+    <EventSourceSupport>false</EventSourceSupport>
+    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+
+    <!-- A downloadable exe, not a Store package. Unpackaged plus both
+         self-contained switches means somebody can run this without first
+         installing the .NET runtime or the Windows App SDK runtime, which
+         is the whole point of shipping it this way. -->
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <EnableMsixTooling>false</EnableMsixTooling>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
+    <PackageReference Include="H.NotifyIcon.WinUI" Version="2.3.0" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.*" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StealthPro.Core\StealthPro.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!--
+    Publish the app's own resource index.
+
+    An unpackaged WinUI publish leaves <AssemblyName>.pri behind: the
+    framework's .pri files are copied but ours is not. Without it every
+    ms-appx:/// lookup fails, and the first one happens while XAML is still
+    parsing the window, so the app dies on launch with a stowed exception and
+    no message. Debug builds run fine, which is the trap - this only shows up
+    in the thing you actually ship.
+  -->
+  <Target Name="PublishProjectPri" AfterTargets="ComputeFilesToPublish">
+    <PropertyGroup>
+      <_AppPri Condition="'$(ProjectPriFullPath)' != ''">$(ProjectPriFullPath)</_AppPri>
+      <_AppPri Condition="'$(_AppPri)' == ''">$(OutDir)$(AssemblyName).pri</_AppPri>
+    </PropertyGroup>
+    <ItemGroup Condition="Exists('$(_AppPri)')">
+      <ResolvedFileToPublish Include="$(_AppPri)">
+        <RelativePath>$(AssemblyName).pri</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+
+</Project>
