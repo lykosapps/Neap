@@ -9,6 +9,8 @@ and Swarm II are trademarks of Turtle Beach Corporation.
 - [FINDINGS.md](FINDINGS.md) — how the headset works and how we know
 - [ARCHITECTURE.md](ARCHITECTURE.md) — the two halves, and why the audio one
   is the awkward part
+- [CONTRIBUTING.md](CONTRIBUTING.md) — building, testing, and the checks
+  that need a headset
 
 ## What it does
 
