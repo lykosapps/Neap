@@ -131,8 +131,8 @@ public sealed class HidTransport : IHidTransport
     }
 
     /// <summary>
-    /// The order in which devices are asked: the headset itself (229E), the
-    /// USB Transmitter (229D), 2235, then the Charging Dock (229B).
+    /// The order in which devices are asked: the headset itself, then a USB
+    /// Transmitter, then a Charging Dock, then anything unrecognised.
     /// </summary>
     /// <remarks>
     /// This is a tie-break, not a decision. Which devices are present says
@@ -141,17 +141,19 @@ public sealed class HidTransport : IHidTransport
     /// opens cleanly and answers nothing. A caller must ask each one, as
     /// <see cref="HeadsetClient.Behind"/> does.
     /// </remarks>
-    private static readonly ushort[] Preference = { 0x229E, 0x229D, 0x2235, 0x229B };
+    private static int Rank(HidDeviceInfo device) => Transmitters.PieceOf(device.ProductId) switch
+    {
+        Transmitters.Piece.Headset => 0,
+        Transmitters.Piece.Transmitter => 1,
+        Transmitters.Piece.Dock => 2,
+        _ => 3,
+    };
 
     /// <summary>Every matching control collection present, in the order to ask them.</summary>
     public static IReadOnlyList<HidDeviceInfo> Candidates(
         ushort vendorId = DefaultVendorId, ushort usagePage = VendorUsagePage)
     {
-        var found = ListDevices(vendorId, usagePage).ToList();
-        return found
-            .OrderBy(d => Array.IndexOf(Preference, d.ProductId) is int at && at >= 0
-                          ? at : Preference.Length)
-            .ToList();
+        return ListDevices(vendorId, usagePage).OrderBy(Rank).ToList();
     }
 
     public static HidDeviceInfo FindDevice(
@@ -164,12 +166,9 @@ public sealed class HidTransport : IHidTransport
             foreach (var info in found)
                 if (info.ProductId == productId) return info;
         }
-        else
+        else if (found.Count > 0)
         {
-            foreach (ushort wanted in Preference)
-                foreach (var info in found)
-                    if (info.ProductId == wanted) return info;
-            foreach (var info in found) return info;
+            return found.OrderBy(Rank).First();
         }
 
         var want = productId is null ? "" : $", product 0x{productId:x4}";
