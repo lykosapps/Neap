@@ -1,0 +1,49 @@
+Stealth Pro II Control includes the following third-party software.
+
+Not affiliated with or endorsed by Turtle Beach. Turtle Beach, Stealth Pro II
+and Swarm II are trademarks of Turtle Beach Corporation.
+
+
+MIT-licensed components
+-----------------------
+
+NAudio                      https://github.com/naudio/NAudio
+    Copyright 2020 Mark Heath
+
+H.NotifyIcon                https://github.com/HavenDV/H.NotifyIcon
+    Copyright (c) 2020 havendv
+
+Windows Community Toolkit   https://github.com/CommunityToolkit/Windows
+    Copyright (c) .NET Foundation and Contributors
+
+.NET runtime                https://github.com/dotnet/runtime
+    Copyright (c) .NET Foundation and Contributors
+
+Each of the above is provided under the MIT License:
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to permit
+    persons to whom the Software is furnished to do so, subject to the
+    following conditions:
+
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+    NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+    DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+    OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+    USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+Microsoft Windows App SDK
+-------------------------
+
+The Windows App SDK runtime is included under Microsoft's own license terms.
+Release downloads carry them in full as WindowsAppSDK-LICENSE.txt and
+WindowsAppSDK-NOTICE.txt, copied from the package the app was built with.
