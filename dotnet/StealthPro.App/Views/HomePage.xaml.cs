@@ -142,7 +142,7 @@ public sealed partial class HomePage : Page
         // A label, the same as the header's. The explanation is in the note
         // below and in the tooltip. Connected, the name they gave the headset
         // says more than the label does.
-        var look = StatusLook.Of(status);
+        var look = StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status));
         StateDot.Fill = Tones.Brush(look.Tone);
         StateText.Text = look.Headline == Headline.Connected && !string.IsNullOrWhiteSpace(given)
             ? given!

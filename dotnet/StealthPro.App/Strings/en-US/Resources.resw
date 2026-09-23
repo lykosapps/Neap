@@ -852,4 +852,7 @@
   <data name="Settings_AboutVersion" xml:space="preserve">
     <value>Version {0} · {1}</value>
   </data>
+  <data name="State_SoundElsewhere" xml:space="preserve">
+    <value>Windows is sending sound to a device your headset isn't listening on. Home says which one to choose.</value>
+  </data>
 </root>

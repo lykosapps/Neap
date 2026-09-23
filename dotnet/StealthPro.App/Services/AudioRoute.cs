@@ -1,6 +1,7 @@
 using Microsoft.UI.Dispatching;
 using NAudio.CoreAudioApi;
 using StealthPro.Core.Audio;
+using StealthPro.Core.Connection;
 
 namespace StealthPro.App.Services;
 
@@ -76,6 +77,27 @@ public sealed class AudioRoute : IDisposable
     public event Action? Changed;
 
     /// <summary>
+    /// Whether Windows sends sound to a device the headset is not listening
+    /// on, by the same rules as the routing warning.
+    /// </summary>
+    /// <remarks>
+    /// Kept until the route or the status changes: Home asks on every headset
+    /// reading, several a second while the wheel turns, and answering means
+    /// asking Windows for its devices.
+    /// </remarks>
+    public bool SoundElsewhere(HeadsetStatus status)
+    {
+        if (_elsewhere is { } known && known.Status == status) return known.Result;
+        bool result = RoutingCheck.Judge(status, Output, Calls, Input, CallsInput, Cable,
+                (product, output) => Routing.Belonging(product, output), microphone: false)
+            is { } verdict && verdict.Wrong.Any(w => w.Role == AudioRole.Sound);
+        _elsewhere = (status, result);
+        return result;
+    }
+
+    private (HeadsetStatus Status, bool Result)? _elsewhere;
+
+    /// <summary>
     /// Look again in a moment. Windows sends a burst of these for one change —
     /// a notice per role, per flow — and one look covers them all.
     /// </summary>
@@ -90,6 +112,7 @@ public sealed class AudioRoute : IDisposable
             {
                 if (seen == (Output, Calls, Input, CallsInput, Cable)) return;
                 (Output, Calls, Input, CallsInput, Cable) = seen;
+                _elsewhere = null;
                 Changed?.Invoke();
             });
         }, TaskScheduler.Default);

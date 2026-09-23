@@ -69,6 +69,9 @@ public static class StateCopy
 
     public static string WheelTitle => Strings.Get("State_WheelTitle");
 
+    /// <summary>Windows is sending sound to a device the headset is not listening on.</summary>
+    public static string SoundElsewhere => Strings.Get("State_SoundElsewhere");
+
     /// <summary>What still moves the mix when the wheel cannot.</summary>
     /// <remarks>
     /// The keyboard is named precisely. "Use your keyboard shortcut" is no help

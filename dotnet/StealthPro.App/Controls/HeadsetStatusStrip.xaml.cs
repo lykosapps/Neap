@@ -22,12 +22,14 @@ public sealed partial class HeadsetStatusStrip : UserControl
         Loaded += (_, _) =>
         {
             AppServices.Headset.StatusChanged += OnStatus;
+            AppServices.AudioRoute.Changed += Paint;
             ActualThemeChanged += OnTheme;
             Paint();
         };
         Unloaded += (_, _) =>
         {
             AppServices.Headset.StatusChanged -= OnStatus;
+            AppServices.AudioRoute.Changed -= Paint;
             ActualThemeChanged -= OnTheme;
         };
     }
@@ -39,16 +41,19 @@ public sealed partial class HeadsetStatusStrip : UserControl
     private void Paint()
     {
         var status = AppServices.Headset.Status;
-        var look = StatusLook.Of(status);
+        bool elsewhere = AppServices.AudioRoute.SoundElsewhere(status);
+        var look = StatusLook.Of(status, elsewhere);
 
         ConnectionDot.Fill = Tones.Brush(look.Tone);
         ConnectionText.Text = StateCopy.Label(look.Headline);
 
         // No sound happens while connected, where Detail names the device, so
         // the tooltip explains the state instead, in the same words as Home.
-        ToolTipService.SetToolTip(ConnectionGroup, look.Headline == Headline.NoSound
-            ? StateCopy.WhatNoSound + " " + StateCopy.FixNoSound
-            : status.Detail);
+        ToolTipService.SetToolTip(ConnectionGroup, look.Headline != Headline.NoSound
+            ? status.Detail
+            : status.NoSound
+                ? StateCopy.WhatNoSound + " " + StateCopy.FixNoSound
+                : StateCopy.SoundElsewhere);
     }
 }
 

@@ -19,4 +19,22 @@ public class StatusLookTests
         Assert.Equal(headline, look.Headline);
         Assert.Equal(tone, look.Tone);
     }
+
+    [Fact]
+    public void SoundSentElsewhereReadsAsNoSound()
+    {
+        var look = StatusLook.Of(new HeadsetStatus(Link.Connected, Route.UsbTransmitter, "", ""),
+            soundElsewhere: true);
+
+        Assert.Equal(new StatusLook(Headline.NoSound, Tone.Caution), look);
+    }
+
+    [Fact]
+    public void SoundSentElsewhereDoesNotHideAHeadsetThatIsOff()
+    {
+        var look = StatusLook.Of(new HeadsetStatus(Link.Quiet, Route.ChargingDock, "", ""),
+            soundElsewhere: true);
+
+        Assert.Equal(Headline.NotConnected, look.Headline);
+    }
 }

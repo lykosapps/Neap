@@ -25,9 +25,15 @@ public enum Tone { Good, Caution, Neutral, Critical }
 /// </remarks>
 public readonly record struct StatusLook(Headline Headline, Tone Tone)
 {
-    public static StatusLook Of(HeadsetStatus status) => status.Link switch
+    /// <param name="status">The headset's state.</param>
+    /// <param name="soundElsewhere">
+    /// Windows is sending sound to a device the headset is not listening on.
+    /// Nothing is heard, whatever the headset says, so a connected headset
+    /// reads as no sound rather than as all well.
+    /// </param>
+    public static StatusLook Of(HeadsetStatus status, bool soundElsewhere = false) => status.Link switch
     {
-        Link.Connected when status.NoSound => new(Headline.NoSound, Tone.Caution),
+        Link.Connected when status.NoSound || soundElsewhere => new(Headline.NoSound, Tone.Caution),
         Link.Connected => new(Headline.Connected, Tone.Good),
         Link.Silent => new(Headline.SettingsUnavailable, Tone.Neutral),
         Link.Quiet when status.SwitchedOff => new(Headline.HeadsetOff, Tone.Neutral),
