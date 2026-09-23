@@ -1,18 +1,16 @@
 # Build output
 bin/
 obj/
-__pycache__/
-*.pyc
+TestResults/
 
 # USB captures; they carry device serials
 evidence/
+*.pcap
+*.pcapng
 
-# Runtime state and logs
+# Logs
 *.log
 *.log.prev
-mixer-state.json
-last-set.json
-chatmix-config.json
 
 # Local tool settings
 .claude/

@@ -11,6 +11,7 @@ and Swarm II are trademarks of Turtle Beach Corporation.
   is the awkward part
 - [CONTRIBUTING.md](CONTRIBUTING.md) — building, testing, and the checks
   that need a headset
+- [SECURITY.md](SECURITY.md) — reporting a security problem
 
 ## What it does
 
