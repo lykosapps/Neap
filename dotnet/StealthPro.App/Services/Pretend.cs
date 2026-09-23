@@ -31,8 +31,19 @@ public static class Pretend
 {
     public const string Flag = "--pretend";
 
-    public static bool Active { get; } = Environment.GetCommandLineArgs().Skip(1)
-        .Any(a => string.Equals(a, Flag, StringComparison.OrdinalIgnoreCase));
+    /// <summary>With <see cref="Flag"/>, opens the window behind every other one and never activates it.</summary>
+    public const string BehindFlag = "--behind";
+
+    public static bool Active { get; } = Given(Flag);
+
+    /// <summary>
+    /// Whether the window stays behind everything else, for a script driving
+    /// the app while somebody works at the same machine.
+    /// </summary>
+    public static bool Behind { get; } = Active && Given(BehindFlag);
+
+    private static bool Given(string flag) => Environment.GetCommandLineArgs().Skip(1)
+        .Any(a => string.Equals(a, flag, StringComparison.OrdinalIgnoreCase));
 
     public static PretendHeadset? Headset { get; } = Active ? new PretendHeadset() : null;
 

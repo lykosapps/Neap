@@ -89,6 +89,23 @@ public sealed partial class MainWindow : Window
     public void HideToTray() => Hide();
 
     /// <summary>
+    /// Shows the window beneath every other one without activating it, for a
+    /// pretend run a script drives while somebody works.
+    /// </summary>
+    /// <remarks>
+    /// It stays drawn, so the script can still read it and take screenshots,
+    /// but it never covers anything, and it is made a window Windows does not
+    /// activate: moving between pages through UI Automation otherwise brings
+    /// it to the front, and the keys somebody is typing go to it.
+    /// </remarks>
+    public void ShowBehind()
+    {
+        SetWindowLongPtr(Handle, ExtendedStyle, GetWindowLongPtr(Handle, ExtendedStyle) | NoActivate);
+        AppWindow.Show(activateWindow: false);
+        SetWindowPos(Handle, HwndBottom, 0, 0, 0, 0, SwpNoSize | SwpNoMove | SwpNoActivate);
+    }
+
+    /// <summary>
     /// Brings the window forward, for a second launch of the app: someone
     /// opening it from the Start menu while it sits in the notification area
     /// wants the window, not a second copy.
@@ -222,6 +239,21 @@ public sealed partial class MainWindow : Window
 
     [DllImport("user32.dll")]
     private static extern bool SetForegroundWindow(IntPtr window);
+
+    private static readonly IntPtr HwndBottom = new(1);
+    private const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
+
+    private const int ExtendedStyle = -20;
+    private const nint NoActivate = 0x08000000;
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
+    private static extern nint GetWindowLongPtr(IntPtr window, int index);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
+    private static extern nint SetWindowLongPtr(IntPtr window, int index, nint value);
+
+    [DllImport("user32.dll")]
+    private static extern bool SetWindowPos(IntPtr window, IntPtr after, int x, int y, int width, int height, uint flags);
 
     [DllImport("kernel32.dll")]
     private static extern IntPtr GetCurrentProcess();

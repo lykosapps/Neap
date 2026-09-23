@@ -60,7 +60,8 @@ public partial class App : Application
 
         _wake = new EventWaitHandle(false, EventResetMode.AutoReset, wakeName);
         Window = new MainWindow();
-        Window.Activate();
+        if (Services.Pretend.Behind) Window.ShowBehind();
+        else Window.Activate();
         if (atLogin) Window.HideToTray();
 
         var ui = Window.DispatcherQueue;
