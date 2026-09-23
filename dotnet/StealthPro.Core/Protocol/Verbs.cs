@@ -6,9 +6,9 @@ namespace StealthPro.Core.Protocol;
 /// Every one is confirmed: either captured from Swarm II or probed and
 /// answered. Two things here cost a day each and are worth stating plainly.
 ///
-/// A request verb is always <b>four characters</b>. SBT, SEQ and other
-/// three-letter forms get no reply at all. And the prefix is not always "S"
-/// — Bluetooth is <c>RBT</c>, which is why every SBT* guess drew a blank.
+/// A request verb is <b>"S" plus a three-character category</b>. SBT, SEQ
+/// and other three-letter forms get no reply at all. Bluetooth is the one
+/// exception: <c>RBT</c>, which is why every SBT* guess drew a blank.
 /// </summary>
 public static class Verbs
 {
