@@ -70,18 +70,18 @@ try
         case "registry": return PrintRegistry();
         case "presets":
             return ShowPresets(
-            args.Length > 1 && args[1].StartsWith("mic", StringComparison.Ordinal) ? Bank.Mic : Bank.Game);
+                args.Length > 1 && args[1].StartsWith("mic", StringComparison.Ordinal) ? Bank.Mic : Bank.Game);
         case "slots": return Group(Verbs.PresetSlotCategories);
         case "transmitters": return Group(Verbs.TransmitterCategories);
         case "json": return Json();
         case "watch": return Watch(args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 10);
         case "raw":
             return Raw(
-            args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 20,
-            args.Length > 2 ? Convert.ToUInt16(args[2], 16) : HidTransport.VendorUsagePage);
+                args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 20,
+                args.Length > 2 ? Convert.ToUInt16(args[2], 16) : HidTransport.VendorUsagePage);
         case "decode":
             return StealthPro.Probe.Capture.Decode(
-            args[1], args.Length > 2 ? int.Parse(args[2], CultureInfo.InvariantCulture) : 1);
+                args[1], args.Length > 2 ? int.Parse(args[2], CultureInfo.InvariantCulture) : 1);
         case "diff": return Diff(args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 180);
         case "audio": return Audio();
         case "route": return Route();
@@ -93,7 +93,7 @@ try
         case "setformat": return SetFormat(int.Parse(args[1], CultureInfo.InvariantCulture), int.Parse(args[2], CultureInfo.InvariantCulture));
         case "formats":
             return Formats(
-            args.Length > 1 && args[1].StartsWith("mic", StringComparison.Ordinal) ? Flow.Input : Flow.Output);
+                args.Length > 1 && args[1].StartsWith("mic", StringComparison.Ordinal) ? Flow.Input : Flow.Output);
         default:
             Console.Error.WriteLine($"unknown command '{args[0]}'");
             return 2;
