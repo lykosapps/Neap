@@ -49,8 +49,13 @@ public static class EventParser
         new(@"\{""[^{}]{0,40}""\s*:.{0,400}?\}\}", RegexOptions.Compiled | RegexOptions.Singleline);
 
     private static readonly List<string> UnrecognisedFragments = new();
+    private static readonly object UnrecognisedGate = new();
 
-    public static IReadOnlyList<string> Unrecognised => UnrecognisedFragments;
+    /// <summary>A copy, so it can be read while another thread is parsing.</summary>
+    public static IReadOnlyList<string> Unrecognised
+    {
+        get { lock (UnrecognisedGate) return UnrecognisedFragments.ToArray(); }
+    }
 
     /// <summary>
     /// Parse complete events and hand back whatever was not consumed.
@@ -139,9 +144,12 @@ public static class EventParser
             int start = loose.Index, end = loose.Index + loose.Length;
             if (parsed.Any(s => s.Start <= start && end <= s.End)) continue;
             string fragment = loose.Value.Length > 200 ? loose.Value[..200] : loose.Value;
-            if (UnrecognisedFragments.Contains(fragment)) continue;
-            UnrecognisedFragments.Add(fragment);
-            if (UnrecognisedFragments.Count > 50) UnrecognisedFragments.RemoveAt(0);
+            lock (UnrecognisedGate)
+            {
+                if (UnrecognisedFragments.Contains(fragment)) continue;
+                UnrecognisedFragments.Add(fragment);
+                if (UnrecognisedFragments.Count > 50) UnrecognisedFragments.RemoveAt(0);
+            }
         }
     }
 }
