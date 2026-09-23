@@ -1,3 +1,5 @@
+using StealthPro.Core.Connection;
+
 namespace StealthPro.App.Services;
 
 /// <summary>
@@ -15,6 +17,18 @@ namespace StealthPro.App.Services;
 /// </summary>
 public static class StateCopy
 {
+    /// <summary>The few words for a state, in the header and on Home alike.</summary>
+    public static string Label(Headline headline) => headline switch
+    {
+        Headline.Connected => "Headset connected",
+        Headline.NoSound => "No sound",
+        Headline.SettingsUnavailable => "Settings unavailable",
+        Headline.HeadsetOff => "Headset off",
+        Headline.NotConnected => "Not connected",
+        Headline.Connecting => "Connecting",
+        _ => "Nothing plugged in",
+    };
+
     // -- settings out of reach ---------------------------------------------
 
     public const string WhatUnreachable =

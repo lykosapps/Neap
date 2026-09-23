@@ -145,8 +145,6 @@ public sealed partial class MixPanel : UserControl
         WheelBar.Title = StateCopy.WheelTitle;
         WheelBar.Message = StateCopy.MixWithoutWheel(onAudioPage: true) + " "
             + (status.NoSound ? StateCopy.FixNoSound : StateCopy.FixUnreachable);
-        KeysCard.Description =
-            "Works from inside a game, on either transmitter, and alongside the wheel.";
 
         var elsewhere = AppServices.Mix.Status?.Elsewhere;
         ElsewhereBar.IsOpen = elsewhere is not null;

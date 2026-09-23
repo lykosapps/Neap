@@ -3,6 +3,7 @@ using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using StealthPro.App.Controls;
 using StealthPro.App.Services;
 using StealthPro.Core;
 using StealthPro.Core.Connection;
@@ -120,7 +121,6 @@ public sealed partial class HomePage : Page
         bool unseen = status.SettingsUnreachable;
         bool quiet = status.NotConnected;
         bool noSound = live && status.NoSound;
-        bool working = live;
 
         // The model is what the card is about; the name they gave it is
         // theirs and goes underneath, where it does not compete.
@@ -141,20 +141,14 @@ public sealed partial class HomePage : Page
         // playing the headset's sound.
         TransmittersCard.Visibility = unseen ? Visibility.Collapsed : Visibility.Visible;
 
-        StateDot.Fill = (Brush)Application.Current.Resources[
-            noSound ? "SystemFillColorCautionBrush"
-            : working ? "SystemFillColorSuccessBrush"
-            : unseen || status.SwitchedOff ? "SystemFillColorNeutralBrush"
-            : status.Link == Link.Absent ? "SystemFillColorCriticalBrush"
-            : "SystemFillColorCautionBrush"];
-
-        // <b>Short here, because the notice above is already explaining it.</b>
-        // This line used to carry the whole of Detail, which put the same two
-        // sentences on the page twice, stacked, in slightly different words.
-        // The banner is where an explanation belongs; this is a label.
-        StateText.Text = noSound ? "No sound"
-            : live ? string.IsNullOrWhiteSpace(given) ? "Connected and ready" : given!
-            : ShortState(status);
+        // A label, the same as the header's. The explanation is in the note
+        // below and in the tooltip. Connected, the name they gave the headset
+        // says more than the label does.
+        var look = StatusLook.Of(status);
+        StateDot.Fill = Tones.Brush(look.Tone);
+        StateText.Text = look.Headline == Headline.Connected && !string.IsNullOrWhiteSpace(given)
+            ? given!
+            : StateCopy.Label(look.Headline);
         ToolTipService.SetToolTip(StateText, status.Detail);
 
         Readings.Children.Clear();
@@ -172,7 +166,7 @@ public sealed partial class HomePage : Page
             && headset.TryGetNumberByKey(SignalKey, out int signal))
             Add("Signal", Strength(signal));
 
-        PaintConnections(headset, status, live, working, unseen);
+        PaintConnections(headset, status, live, unseen);
     }
 
     /// <summary>
@@ -203,19 +197,6 @@ public sealed partial class HomePage : Page
         NoteFallback.Visibility = n.Fallback.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    /// <summary>
-    /// A few words for the state, not the reason for it. The reason is in the
-    /// notice at the top of the page and in this line's tooltip.
-    /// </summary>
-    private static string ShortState(HeadsetStatus status) => status.Link switch
-    {
-        Link.Silent => "Settings unavailable",
-        Link.Quiet => status.SwitchedOff ? "Headset off" : "Not connected",
-        Link.Absent => "Nothing plugged in",
-        Link.Connecting => "Looking for your headset",
-        _ => status.Detail,
-    };
-
     private void Add(string label, string value) =>
         Readings.Children.Add(new StackPanel
         {
@@ -237,7 +218,7 @@ public sealed partial class HomePage : Page
         });
 
     private void PaintConnections(HeadsetService headset, HeadsetStatus status,
-        bool live, bool working, bool unseen)
+        bool live, bool unseen)
     {
         Connections.Children.Clear();
         if (unseen)
@@ -245,7 +226,7 @@ public sealed partial class HomePage : Page
             Connections.Children.Add(Quiet("Not reported by the USB Transmitter."));
             return;
         }
-        if (!working)
+        if (!live)
         {
             Connections.Children.Add(Quiet("Nothing to report until the headset answers."));
             return;
@@ -264,12 +245,6 @@ public sealed partial class HomePage : Page
             OverCable(status) ? "USB-C cable"
             : status.NoSound ? "No transmitter"
             : Through(status)));
-
-        // How it is attached is ours to say, because we worked out where the
-        // headset went. Whether Bluetooth is up is the headset's to say, and
-        // over the USB transmitter it is not saying anything — so the row is
-        // left out rather than filled in from the dock's last memory of it.
-        if (!live) return;
 
         bool bluetooth = headset.TryGetNumberByKey(LinkState.Key, out int link)
                          && LinkState.Bluetooth(link);
@@ -344,11 +319,6 @@ public sealed partial class HomePage : Page
 
     // -- transmitters ------------------------------------------------------
 
-    /// <summary>
-    /// The four pairing slots. Read on arriving rather than kept current:
-    /// this is inventory, it changes when somebody pairs something, and each
-    /// empty slot costs a full read window to discover.
-    /// </summary>
     /// <summary>
     /// Look at what is plugged in, off the UI thread, and repaint the list if
     /// it changed.

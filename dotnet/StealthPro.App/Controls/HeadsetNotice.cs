@@ -30,9 +30,6 @@ namespace StealthPro.App.Controls;
 /// </summary>
 public sealed class HeadsetNotice : InfoBar
 {
-    /// <summary>The headset's own "I am off" flag; see the status strip.</summary>
-    private const int ConnectionKey = 0x230;
-
     public HeadsetNotice()
     {
         IsClosable = false;
@@ -50,13 +47,11 @@ public sealed class HeadsetNotice : InfoBar
         Loaded += (_, _) =>
         {
             AppServices.Headset.StatusChanged += OnStatus;
-            AppServices.Headset.Changed += Paint;
             Paint();
         };
         Unloaded += (_, _) =>
         {
             AppServices.Headset.StatusChanged -= OnStatus;
-            AppServices.Headset.Changed -= Paint;
         };
     }
 
@@ -64,45 +59,20 @@ public sealed class HeadsetNotice : InfoBar
 
     private void Paint()
     {
-        var headset = AppServices.Headset;
-        var status = headset.Status;
-
-        // <b>Said once, on Home, not at the top of every page.</b> On the USB
-        // Transmitter alone this banner opened every page with doubt about
-        // whether the headset was connected — to somebody listening to it.
-        // Home explains the mode in a line; each page folds away what it
-        // cannot reach and says why, where the missing thing would have been.
-        if (status.SettingsUnreachable || status.NotConnected)
+        // Only for nothing plugged in. Every other state is explained where it
+        // matters: on Home, above the mix, and in the card each page folds
+        // into. A banner on every page for them read as doubt about a headset
+        // somebody was listening to, and one flashing up while connecting was
+        // worse than the second of quiet it replaced.
+        if (AppServices.Headset.Status.Link != Link.Absent)
         {
             IsOpen = false;
             return;
         }
 
-        // Connecting says nothing. It lasts about a second, and a notice that
-        // appears and vanishes on every launch is worse than the second of
-        // quiet it replaces.
-        // No sound is said in the header and on Home. The settings pages
-        // still work, so they carry no banner for it.
-        if (status.Link is Link.Connecting or Link.Connected)
-        {
-            IsOpen = false;
-            return;
-        }
-
-        if (status.Link == Link.Absent)
-        {
-            Title = "No headset connected";
-            Message = "Plug in its Charging Dock, its USB Transmitter or its USB-C cable, "
-                      + "then switch the headset on.";
-        }
-        else
-        {
-            // The service writes this one. Whether the headset is off or
-            // merely paired to something no longer plugged in is not knowable
-            // from here, so it offers both ways out instead of picking one.
-            Title = "The app cannot reach your headset's settings";
-            Message = status.Detail;
-        }
+        Title = "No headset connected";
+        Message = "Plug in its Charging Dock, its USB Transmitter or its USB-C cable, "
+                  + "then switch the headset on.";
         IsOpen = true;
     }
 }
