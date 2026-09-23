@@ -15,6 +15,9 @@ public sealed partial class SettingsPage : Page
         StartWithWindows.IsOn = Startup.Enabled;
         _painting = false;
 
+        // The Startup folder belongs to the real copy of the app.
+        StartWithWindows.IsEnabled = !Pretend.Active;
+
         StartWithWindows.Toggled += (_, _) =>
         {
             if (_painting) return;

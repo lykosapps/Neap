@@ -6,7 +6,14 @@ public static class AppFolder
     private static readonly string LocalData =
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
-    public static string Path { get; } = System.IO.Path.Combine(LocalData, "Neap");
+    public static string Path { get; private set; } = System.IO.Path.Combine(LocalData, "Neap");
+
+    /// <summary>
+    /// Keeps everything in a folder of its own inside the app's, for a copy
+    /// that must leave the real one's settings, log and journal alone.
+    /// </summary>
+    /// <remarks>Call before anything reads or writes the folder.</remarks>
+    public static void Separate(string name) => Path = System.IO.Path.Combine(Path, name);
 
     /// <summary>
     /// Moves the folder kept under the app's earlier name, the first time.

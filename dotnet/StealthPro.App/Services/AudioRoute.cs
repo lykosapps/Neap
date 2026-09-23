@@ -2,6 +2,7 @@ using Microsoft.UI.Dispatching;
 using NAudio.CoreAudioApi;
 using StealthPro.Core.Audio;
 using StealthPro.Core.Connection;
+using StealthPro.Core.Pretend;
 
 namespace StealthPro.App.Services;
 
@@ -89,7 +90,7 @@ public sealed class AudioRoute : IDisposable
     {
         if (_elsewhere is { } known && known.Status == status) return known.Result;
         bool result = RoutingCheck.Judge(status, Output, Calls, Input, CallsInput, Cable,
-                (product, output) => Routing.Belonging(product, output), microphone: false)
+                Belonging, microphone: false)
             is { } verdict && verdict.Wrong.Any(w => w.Role == AudioRole.Sound);
         _elsewhere = (status, result);
         return result;
@@ -118,12 +119,19 @@ public sealed class AudioRoute : IDisposable
         }, TaskScheduler.Default);
     }
 
-    private static (Routed?, Routed?, Routed?, Routed?, string) Look() => (
-        Routing.Default(output: true),
-        Routing.Default(output: true, communications: true),
-        Routing.Default(output: false),
-        Routing.Default(output: false, communications: true),
-        Routing.Cable());
+    /// <summary>The names of one transmitter's devices, output or microphone.</summary>
+    public static List<string> Belonging(string product, bool output) =>
+        Pretend.Active ? PretendWindows.Belonging(product, output) : Routing.Belonging(product, output);
+
+    private static (Routed?, Routed?, Routed?, Routed?, string) Look() => Pretend.Active
+        ? (PretendWindows.Default(output: true), PretendWindows.Default(output: true),
+            PretendWindows.Default(output: false), PretendWindows.Default(output: false),
+            PretendWindows.Cable())
+        : (Routing.Default(output: true),
+            Routing.Default(output: true, communications: true),
+            Routing.Default(output: false),
+            Routing.Default(output: false, communications: true),
+            Routing.Cable());
 
     public void Dispose()
     {

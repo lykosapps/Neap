@@ -32,7 +32,7 @@ public static class WindowsAudio
     {
         try
         {
-            var info = AudioEndpoints.Describe(AudioEndpoints.DefaultMatch, flow);
+            var info = Pretend.Windows?.Describe(flow) ?? AudioEndpoints.Describe(AudioEndpoints.DefaultMatch, flow);
             return new VolumeState(info.Percent, info.Muted, info.Name, info.MatchedHeadset);
         }
         catch (Exception)
@@ -45,12 +45,22 @@ public static class WindowsAudio
     // so the control goes back to the real value on its own.
     public static Task SetVolume(int percent, Flow flow = Flow.Output) => Task.Run(() =>
     {
-        try { AudioEndpoints.SetPercent(percent, AudioEndpoints.DefaultMatch, flow); } catch { }
+        try
+        {
+            if (Pretend.Windows is { } windows) windows.SetPercent(percent, flow);
+            else AudioEndpoints.SetPercent(percent, AudioEndpoints.DefaultMatch, flow);
+        }
+        catch { }
     });
 
     public static Task SetMuted(bool muted, Flow flow = Flow.Output) => Task.Run(() =>
     {
-        try { AudioEndpoints.SetMuted(muted, AudioEndpoints.DefaultMatch, flow); } catch { }
+        try
+        {
+            if (Pretend.Windows is { } windows) windows.SetMuted(muted, flow);
+            else AudioEndpoints.SetMuted(muted, AudioEndpoints.DefaultMatch, flow);
+        }
+        catch { }
     });
 
     /// <summary>What Windows will accept on this endpoint, and what it is on now.</summary>
@@ -63,7 +73,7 @@ public static class WindowsAudio
     {
         try
         {
-            var report = DeviceFormat.Describe(AudioEndpoints.DefaultMatch, flow);
+            var report = Pretend.Windows?.Formats(flow) ?? DeviceFormat.Describe(AudioEndpoints.DefaultMatch, flow);
             return new FormatPanel(report.Device, report.Current, report.Options, null);
         }
         catch (Exception ex) { return FormatPanel.Empty(ex.Message); }
@@ -84,7 +94,8 @@ public static class WindowsAudio
         {
             try
             {
-                DeviceFormat.Apply(AudioEndpoints.DefaultMatch, format.Bits, format.Rate, flow);
+                if (Pretend.Windows is { } windows) windows.ApplyFormat(format.Bits, format.Rate, flow);
+                else DeviceFormat.Apply(AudioEndpoints.DefaultMatch, format.Bits, format.Rate, flow);
                 return null;
             }
             catch (Exception ex) { return ex.Message; }

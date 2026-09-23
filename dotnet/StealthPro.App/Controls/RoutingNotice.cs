@@ -101,7 +101,7 @@ public sealed class RoutingNotice : InfoBar
         var status = AppServices.Headset.Status;
         var route = AppServices.AudioRoute;
         var verdict = RoutingCheck.Judge(status, route.Output, route.Calls, route.Input,
-            route.CallsInput, route.Cable, (product, output) => Routing.Belonging(product, output),
+            route.CallsInput, route.Cable, AudioRoute.Belonging,
             Sound, Microphone);
         if (verdict is not { Wrong.Count: > 0 })
         {

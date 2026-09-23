@@ -36,9 +36,12 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         AppServices.Start();
 
-        Title = AppInfo.Name;
-        TitleText.Text = AppInfo.Name;
-        Tray.ToolTipText = AppInfo.Name;
+        // A pretend run says so wherever the app's name appears, so it is
+        // never mistaken for the copy talking to the real headset.
+        string title = Pretend.Active ? Strings.Format("Window_PretendTitle", AppInfo.Name) : AppInfo.Name;
+        Title = title;
+        TitleText.Text = title;
+        Tray.ToolTipText = title;
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(TitleBar);
 

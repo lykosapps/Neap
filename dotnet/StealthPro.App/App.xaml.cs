@@ -24,6 +24,10 @@ public partial class App : Application
     private const string OneName = @"Local\Neap";
     private const string WakeName = @"Local\Neap.Show";
 
+    /// <summary>The pretend run's own lock, so it can run beside the real app.</summary>
+    private const string PretendOneName = @"Local\Neap.Pretend";
+    private const string PretendWakeName = @"Local\Neap.Pretend.Show";
+
     private static Mutex? _one;
     private static EventWaitHandle? _wake;
 
@@ -32,14 +36,17 @@ public partial class App : Application
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         AppFolder.MoveFromEarlierName();
+        Services.Pretend.Separate();
         bool atLogin = Services.Startup.LaunchedAtLogin;
+        bool pretend = Services.Pretend.Active;
+        string wakeName = pretend ? PretendWakeName : WakeName;
 
-        _one = new Mutex(initiallyOwned: true, OneName, out bool first);
+        _one = new Mutex(initiallyOwned: true, pretend ? PretendOneName : OneName, out bool first);
         if (!first)
         {
             if (!atLogin)
             {
-                try { EventWaitHandle.OpenExisting(WakeName).Set(); } catch { }
+                try { EventWaitHandle.OpenExisting(wakeName).Set(); } catch { }
             }
             Services.AppLog.Write(atLogin
                 ? "started at login, but already running: left the running copy alone"
@@ -48,9 +55,10 @@ public partial class App : Application
             return;
         }
 
-        Services.AppLog.Write(atLogin ? "started at login" : "started");
+        Services.AppLog.Write(pretend ? "started with the pretend headset"
+            : atLogin ? "started at login" : "started");
 
-        _wake = new EventWaitHandle(false, EventResetMode.AutoReset, WakeName);
+        _wake = new EventWaitHandle(false, EventResetMode.AutoReset, wakeName);
         Window = new MainWindow();
         Window.Activate();
         if (atLogin) Window.HideToTray();

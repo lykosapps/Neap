@@ -151,7 +151,7 @@ public sealed partial class MixPanel : UserControl
         // the headset.
         var elsewhere = AppServices.Mix.Status?.Elsewhere;
         if (elsewhere is not null && status.Product.Length > 0
-            && Routing.Belonging(status.Product, output: true)
+            && AudioRoute.Belonging(status.Product, output: true)
                 .Contains(elsewhere.Device, StringComparer.OrdinalIgnoreCase))
             elsewhere = null;
         ElsewhereBar.IsOpen = elsewhere is not null;
@@ -184,6 +184,9 @@ public sealed partial class MixPanel : UserControl
         _painting = true;
         KeysOn.IsOn = AppServices.Hotkeys.Enabled;
         _painting = false;
+
+        // Global keys would be taken from the real copy of the app.
+        KeysOn.IsEnabled = !Pretend.Active;
 
         KeysOn.Toggled += (_, _) =>
         {

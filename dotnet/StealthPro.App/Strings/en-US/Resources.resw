@@ -858,4 +858,7 @@
   <data name="Startup_Description" xml:space="preserve">
     <value>Starts {0} in the notification area.</value>
   </data>
+  <data name="Window_PretendTitle" xml:space="preserve">
+    <value>{0} with a pretend headset</value>
+  </data>
 </root>

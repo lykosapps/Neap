@@ -5,6 +5,7 @@ using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
 using StealthPro.Core.Connection;
 using StealthPro.Core.Mix;
+using StealthPro.Core.Pretend;
 
 namespace StealthPro.App.Services;
 
@@ -58,7 +59,7 @@ public sealed class MixService : IDisposable
 
     private readonly HeadsetService _headset;
 
-    private SessionMix? _mix;
+    private IMixEngine? _mix;
     private int? _wheelLast;
     private bool _wheelDark;
     private bool _wheelResync;
@@ -100,12 +101,13 @@ public sealed class MixService : IDisposable
     /// else. An unclean exit is the one case where somebody is left with a
     /// quiet application and no idea why.
     /// </summary>
-    public static Task Recover() => Task.Run(() => SessionMix.Recover());
+    /// <remarks>A pretend run holds no real volume down, so it has nothing to put back.</remarks>
+    public static Task Recover() => Pretend.Active ? Task.CompletedTask : Task.Run(SessionMix.Recover);
 
     public void Start()
     {
         if (_mix is not null) return;
-        _mix = new SessionMix(ChatApps);
+        _mix = Pretend.Windows?.CreateMix(ChatApps) ?? new SessionMix(ChatApps);
         _mix.Start();
         _lastApplied = _mix.SetMix(_lastApplied ?? 50);
         Changed?.Invoke();
@@ -331,6 +333,26 @@ public sealed class MixService : IDisposable
     public Task<IReadOnlyList<ChatCandidate>> Candidates() => Task.Run<IReadOnlyList<ChatCandidate>>(() =>
     {
         var found = new Dictionary<string, ChatCandidate>(StringComparer.OrdinalIgnoreCase);
+        if (Pretend.Active)
+        {
+            foreach (var session in PretendWindows.Sessions)
+                found[session.Process] = new ChatCandidate(session.Process, session.Display, session.Playing);
+        }
+        else
+        {
+            AddSessions(found);
+        }
+
+        foreach (string chosen in ChatApps)
+            if (!found.ContainsKey(chosen))
+                found[chosen] = new ChatCandidate(chosen, chosen, false);
+
+        return found.Values.OrderBy(c => c.Display, StringComparer.CurrentCultureIgnoreCase).ToList();
+    });
+
+    /// <summary>Every application with an audio session on the headset.</summary>
+    private static void AddSessions(Dictionary<string, ChatCandidate> found)
+    {
         try
         {
             using var devices = new MMDeviceEnumerator();
@@ -353,13 +375,7 @@ public sealed class MixService : IDisposable
             }
         }
         catch { }
-
-        foreach (string chosen in ChatApps)
-            if (!found.ContainsKey(chosen))
-                found[chosen] = new ChatCandidate(chosen, chosen, false);
-
-        return found.Values.OrderBy(c => c.Display, StringComparer.CurrentCultureIgnoreCase).ToList();
-    });
+    }
 
     /// <summary>The process name, and something a person would recognise.</summary>
     private static (string Process, string Display) Name(uint pid)
@@ -385,6 +401,13 @@ public sealed class MixService : IDisposable
     /// </remarks>
     private static void CentreCue() => Task.Run(() =>
     {
+        // A pretend run plays nothing: the real headset may be on
+        // somebody's head.
+        if (Pretend.Active)
+        {
+            AppLog.Write("mix: centre cue, not played on a pretend run");
+            return;
+        }
         try
         {
             using var devices = new MMDeviceEnumerator();

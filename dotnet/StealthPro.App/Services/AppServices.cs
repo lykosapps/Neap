@@ -20,7 +20,7 @@ public static class AppServices
     public static AudioRoute AudioRoute { get; private set; } = null!;
 
     /// <summary>Where the headset's transmitters are looked for.</summary>
-    public static IDeviceSource Devices { get; private set; } = SystemDevices.Instance;
+    public static IDeviceSource Devices { get; } = (IDeviceSource?)Pretend.Headset ?? SystemDevices.Instance;
 
     public static void Start()
     {
@@ -32,15 +32,17 @@ public static class AppServices
         _ = MixService.Recover();
 
         // If the app has been moved since "start with Windows" was switched
-        // on, point the entry at where it is now.
-        Startup.Refresh();
+        // on, point the entry at where it is now. A pretend run is not the
+        // copy Windows should start.
+        if (!Pretend.Active) Startup.Refresh();
+        Pretend.Start();
 
         AudioRoute = new AudioRoute();
         Headset = new HeadsetService(Devices, cabled: () => AudioRoute.Cable.Length > 0);
         Mix = new MixService(Headset);
         Presets = new PresetService(Headset);
         Hotkeys = new HotkeyService(Mix);
-        Hotkeys.Enable(AppSettings.Current.MixHotkeys);
+        Hotkeys.Enable(AppSettings.Current.MixHotkeys && !Pretend.Active);
 
         // Pick up where the last run left off. Otherwise the mix starts only
         // when somebody opens the Audio page and chooses an application
@@ -55,5 +57,6 @@ public static class AppServices
         Mix?.Dispose();
         Headset?.Dispose();
         AudioRoute?.Dispose();
+        Pretend.Stop();
     }
 }
