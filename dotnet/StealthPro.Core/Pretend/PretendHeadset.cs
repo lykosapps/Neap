@@ -151,9 +151,14 @@ public sealed class PretendHeadset : IDeviceSource
     }
 
     /// <summary>A value as the headset holds it, or null when it holds none.</summary>
+    /// <remarks>A transmitter's lighting is held in its slot, at +1 and +2.</remarks>
     public string? Value(int key)
     {
-        lock (_gate) return _values.GetValueOrDefault(key);
+        int inSlot = key - SlotBlock;
+        lock (_gate)
+            return inSlot is >= 0 and < Transmitters.Slots * SlotStride && inSlot % SlotStride is 1 or 2
+                ? _control[inSlot / SlotStride][inSlot % SlotStride]
+                : _values.GetValueOrDefault(key);
     }
 
     /// <summary>The custom presets stored in one bank, by slot, with nulls for empty slots.</summary>

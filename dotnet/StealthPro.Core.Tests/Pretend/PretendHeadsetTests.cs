@@ -369,5 +369,6 @@ public class PretendHeadsetTests
 
         Assert.Equal("35", slots[1].Control[2]);
         Assert.Equal("60", slots[0].Control[2]);
+        Assert.Equal("35", headset.Value(0x422));
     }
 }
