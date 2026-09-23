@@ -708,11 +708,27 @@ public sealed class HeadsetService : IDisposable
             }
             catch (Exception ex)
             {
+                // Not a device going away but a fault of ours, which would
+                // otherwise retry every second and a half with nothing to
+                // say why.
+                NoteFault("headset loop", ex);
                 Drop(ref client, ref primed, ex.Message);
             }
         }
 
         client?.Dispose();
+    }
+
+    private string _lastFault = "";
+
+    /// <summary>One line in the log per fault, not one per retry.</summary>
+    private void NoteFault(string where, Exception ex)
+    {
+        string frame = ex.StackTrace?.Split('\n', 2)[0].Trim() ?? "";
+        string line = $"{where} failed: {ex.GetType().Name}: {ex.Message} {frame}";
+        if (line == _lastFault) return;
+        _lastFault = line;
+        AppLog.Write(line);
     }
 
     /// <summary>
@@ -721,7 +737,7 @@ public sealed class HeadsetService : IDisposable
     /// </summary>
     private static void LetGo(ref HeadsetClient? client)
     {
-        try { client?.Dispose(); } catch { }
+        client?.Dispose();
         client = null;
     }
 
@@ -737,9 +753,8 @@ public sealed class HeadsetService : IDisposable
     /// </summary>
     private void Drop(ref HeadsetClient? client, ref bool primed, string detail)
     {
-        ushort? was = null;
-        try { was = client?.ProductId; } catch { }
-        try { client?.Dispose(); } catch { }
+        ushort? was = client?.ProductId;
+        client?.Dispose();
         client = null;
         primed = false;
         Forget();
@@ -763,7 +778,11 @@ public sealed class HeadsetService : IDisposable
             if (!nothing && was is ushort gone && plugged.All(d => d.ProductId != gone))
                 _lostWithTransmitter = true;
         }
-        catch { nothing = true; }
+        catch (Exception ex)
+        {
+            NoteFault("listing devices", ex);
+            nothing = true;
+        }
 
         // <b>Gone for a moment is not gone.</b> Switching the headset on or
         // off over its cable restarts its USB connection: the device goes,
@@ -917,51 +936,47 @@ public sealed class HeadsetService : IDisposable
     /// </summary>
     private (string Name, string Product, bool Here)? Carrying(HeadsetClient client)
     {
-        try
+        var all = Transmitters.ReadAll(client, TimeSpan.FromMilliseconds(500));
+
+        // A dropped read comes back as four empty slots. Keeping that
+        // would wipe the list the moment a reply went missing, so only a
+        // read that found something replaces what we knew.
+        if (all.Any(t => t.Paired))
         {
-            var all = Transmitters.ReadAll(client, TimeSpan.FromMilliseconds(500));
-
-            // A dropped read comes back as four empty slots. Keeping that
-            // would wipe the list the moment a reply went missing, so only a
-            // read that found something replaces what we knew.
-            if (all.Any(t => t.Paired))
-            {
-                _known = all.Where(t => t.Paired).ToList();
-                _ui.TryEnqueue(() => TransmittersChanged?.Invoke());
-            }
-
-            // The dock's two lighting brightnesses come back inside its slot,
-            // and nothing was taking them out — so both LED rows sat greyed
-            // with a dash, on a dock that had been reporting them all along.
-            // The reply had them; we were the ones not listening.
-            var active = all.FirstOrDefault(t => t.Active);
-            if (active is not null) _lightingBlock = 0x400 + 0x20 * (active.Slot - 1);
-
-            var lighting = Transmitters.Lighting(all);
-            if (lighting.Count > 0)
-            {
-                var values = new Dictionary<string, JsonElement>();
-                foreach (var (key, value) in lighting)
-                    if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int number))
-                        values[key] = JsonSerializer.SerializeToElement(number);
-                if (values.Count > 0) Merge(values, authoritative: false);
-            }
-
-            if (string.IsNullOrEmpty(active?.Kind)) return null;
-
-            // <b>Compared, not inferred.</b> The slot says which transmitter
-            // the headset selected and the transport says which one we opened;
-            // if they are the same piece of hardware, the headset is on this
-            // one. Both halves are things the device stated outright.
-            bool here = ushort.TryParse(active!.ProductId,
-                            System.Globalization.NumberStyles.HexNumber,
-                            System.Globalization.CultureInfo.InvariantCulture,
-                            out ushort selected)
-                        && selected == client.ProductId;
-
-            return (active.Kind, active.ProductId, here);
+            _known = all.Where(t => t.Paired).ToList();
+            _ui.TryEnqueue(() => TransmittersChanged?.Invoke());
         }
-        catch { return null; }
+
+        // The dock's two lighting brightnesses come back inside its slot,
+        // and nothing was taking them out — so both LED rows sat greyed
+        // with a dash, on a dock that had been reporting them all along.
+        // The reply had them; we were the ones not listening.
+        var active = all.FirstOrDefault(t => t.Active);
+        if (active is not null) _lightingBlock = 0x400 + 0x20 * (active.Slot - 1);
+
+        var lighting = Transmitters.Lighting(all);
+        if (lighting.Count > 0)
+        {
+            var values = new Dictionary<string, JsonElement>();
+            foreach (var (key, value) in lighting)
+                if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int number))
+                    values[key] = JsonSerializer.SerializeToElement(number);
+            if (values.Count > 0) Merge(values, authoritative: false);
+        }
+
+        if (string.IsNullOrEmpty(active?.Kind)) return null;
+
+        // <b>Compared, not inferred.</b> The slot says which transmitter
+        // the headset selected and the transport says which one we opened;
+        // if they are the same piece of hardware, the headset is on this
+        // one. Both halves are things the device stated outright.
+        bool here = ushort.TryParse(active!.ProductId,
+                        System.Globalization.NumberStyles.HexNumber,
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        out ushort selected)
+                    && selected == client.ProductId;
+
+        return (active.Kind, active.ProductId, here);
     }
 
     /// <summary>
@@ -1084,7 +1099,7 @@ public sealed class HeadsetService : IDisposable
     private const string QuietDetail =
         StateCopy.WhatOff + " " + StateCopy.FixOff + " " + StateCopy.FallbackOff;
 
-    private static List<ushort> TransmittersPlugged()
+    private List<ushort> TransmittersPlugged()
     {
         try
         {
@@ -1094,7 +1109,11 @@ public sealed class HeadsetService : IDisposable
                 .Distinct()
                 .ToList();
         }
-        catch { return new List<ushort>(); }
+        catch (Exception ex)
+        {
+            NoteFault("listing transmitters", ex);
+            return new List<ushort>();
+        }
     }
 
     /// <summary>
