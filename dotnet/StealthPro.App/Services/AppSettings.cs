@@ -67,6 +67,8 @@ public sealed class AppSettings
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "StealthProIIControl", "app-settings.json");
 
+    private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
+
     private static readonly object Gate = new();
     private static AppSettings? _current;
 
@@ -99,8 +101,7 @@ public sealed class AppSettings
         try
         {
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path)!);
-            File.WriteAllText(Path, JsonSerializer.Serialize(settings,
-                new JsonSerializerOptions { WriteIndented = true }));
+            File.WriteAllText(Path, JsonSerializer.Serialize(settings, Indented));
         }
         catch { /* a preference we cannot save is not worth failing over */ }
     }

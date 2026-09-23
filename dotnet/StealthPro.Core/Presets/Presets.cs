@@ -90,21 +90,23 @@ public static class PresetStore
     /// reading it back, not copied from anywhere.
     /// </summary>
     public static IReadOnlyList<Preset> Factory(Bank bank) =>
-        bank == Bank.Game
-            ? new[]
-            {
-                new Preset(1, "Signature Sound", new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, bank, false),
-                new Preset(2, "Bass Boost", new[] { 50, 50, 35, 0, 0, 0, 0, 0, 0, 0 }, bank, false),
-                new Preset(3, "Bass & Treble Boost", new[] { 50, 50, 35, 0, 0, 0, 30, 50, 50, 50 }, bank, false),
-                new Preset(4, "Vocal Boost", new[] { 0, 0, 20, 35, 35, 35, 20, 0, 0, 0 }, bank, false),
-            }
-            : new[]
-            {
-                new Preset(1, "Signature Sound", new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, bank, false),
-                new Preset(2, "Full", new[] { -30, 50, 50, 30, 0, -11, 0, 0, 0, 0 }, bank, false),
-                new Preset(3, "Clarity", new[] { -30, -30, -20, 0, 0, 0, 30, 40, 40, 0 }, bank, false),
-                new Preset(4, "Smooth", new[] { 0, 0, 0, 0, -20, -20, 0, 20, 20, 0 }, bank, false),
-            };
+        bank == Bank.Game ? GameFactory : MicFactory;
+
+    private static readonly Preset[] GameFactory =
+    [
+        new(1, "Signature Sound", new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Bank.Game, false),
+        new(2, "Bass Boost", new[] { 50, 50, 35, 0, 0, 0, 0, 0, 0, 0 }, Bank.Game, false),
+        new(3, "Bass & Treble Boost", new[] { 50, 50, 35, 0, 0, 0, 30, 50, 50, 50 }, Bank.Game, false),
+        new(4, "Vocal Boost", new[] { 0, 0, 20, 35, 35, 35, 20, 0, 0, 0 }, Bank.Game, false),
+    ];
+
+    private static readonly Preset[] MicFactory =
+    [
+        new(1, "Signature Sound", new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Bank.Mic, false),
+        new(2, "Full", new[] { -30, 50, 50, 30, 0, -11, 0, 0, 0, 0 }, Bank.Mic, false),
+        new(3, "Clarity", new[] { -30, -30, -20, 0, 0, 0, 30, 40, 40, 0 }, Bank.Mic, false),
+        new(4, "Smooth", new[] { 0, 0, 0, 0, -20, -20, 0, 20, 20, 0 }, Bank.Mic, false),
+    ];
 
     // -- reading -----------------------------------------------------------
 

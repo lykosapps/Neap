@@ -267,7 +267,7 @@ internal sealed class Endpoint : IDisposable
                 return value.PointerValue == IntPtr.Zero
                     ? "" : Marshal.PtrToStringUni(value.PointerValue) ?? "";
             }
-            finally { Com.PropVariantClear(ref value); }
+            finally { _ = Com.PropVariantClear(ref value); }
         }
         finally { Marshal.ReleaseComObject(store); }
     }

@@ -200,8 +200,9 @@ public sealed class HotkeyService : IDisposable
             while (GetMessage(out var message, IntPtr.Zero, 0, 0) > 0)
                 if (message.Kind == WmHotkey)
                 {
-                    int id = (int)message.WParam;
-                    _ui.TryEnqueue(() => Move((MixKey)(id - 1)));
+                    // The id given to RegisterHotKey above, one more than the key.
+                    var which = (MixKey)(message.WParam.ToInt64() - 1);
+                    if (Enum.IsDefined(which)) _ui.TryEnqueue(() => Move(which));
                 }
 
             foreach (var which in wanted.Keys) UnregisterHotKey(IntPtr.Zero, (int)which + 1);

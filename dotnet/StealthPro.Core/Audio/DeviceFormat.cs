@@ -196,7 +196,7 @@ public static class DeviceFormat
                 // Copied into managed memory before the clear below frees it.
                 return Read(Marshal.PtrToStructure<WaveFormatExtensible>(value.BlobData));
             }
-            finally { Com.PropVariantClear(ref value); }
+            finally { _ = Com.PropVariantClear(ref value); }
         }
         finally { Marshal.ReleaseComObject(store); }
     }

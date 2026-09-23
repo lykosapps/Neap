@@ -70,7 +70,7 @@ try
         case "registry": return PrintRegistry();
         case "presets":
             return ShowPresets(
-            args.Length > 1 && args[1].StartsWith("mic") ? Bank.Mic : Bank.Game);
+            args.Length > 1 && args[1].StartsWith("mic", StringComparison.Ordinal) ? Bank.Mic : Bank.Game);
         case "slots": return Group(Verbs.PresetSlotCategories);
         case "transmitters": return Group(Verbs.TransmitterCategories);
         case "json": return Json();
@@ -93,7 +93,7 @@ try
         case "setformat": return SetFormat(int.Parse(args[1], CultureInfo.InvariantCulture), int.Parse(args[2], CultureInfo.InvariantCulture));
         case "formats":
             return Formats(
-            args.Length > 1 && args[1].StartsWith("mic") ? Flow.Input : Flow.Output);
+            args.Length > 1 && args[1].StartsWith("mic", StringComparison.Ordinal) ? Flow.Input : Flow.Output);
         default:
             Console.Error.WriteLine($"unknown command '{args[0]}'");
             return 2;
@@ -272,8 +272,7 @@ static int Json()
     var values = client.ReadAll();
     var ordered = values.OrderBy(p => Convert.ToInt32(p.Key, 16))
                         .ToDictionary(p => p.Key, p => DeviceEvent.Render(p.Value));
-    Console.WriteLine(JsonSerializer.Serialize(ordered,
-        new JsonSerializerOptions { WriteIndented = true }));
+    Console.WriteLine(JsonSerializer.Serialize(ordered, Indented));
     return 0;
 }
 
@@ -935,4 +934,9 @@ static int Watch(double seconds)
         foreach (var fragment in EventParser.Unrecognised) Console.WriteLine($"  {fragment}");
     }
     return 0;
+}
+
+partial class Program
+{
+    private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
 }

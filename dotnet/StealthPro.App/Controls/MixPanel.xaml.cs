@@ -81,7 +81,8 @@ public sealed partial class MixPanel : UserControl
     private async Task LoadCandidates()
     {
         var candidates = await AppServices.Mix.Candidates();
-        string? chosen = AppServices.Mix.ChatApps.FirstOrDefault();
+        var apps = AppServices.Mix.ChatApps;
+        string? chosen = apps.Count > 0 ? apps[0] : null;
 
         _painting = true;
         try

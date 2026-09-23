@@ -112,7 +112,7 @@ public sealed class EqualiserCurve : UserControl
 
     // -- shapes ------------------------------------------------------------
 
-    private Brush Themed(string key) => (Brush)Application.Current.Resources[key];
+    private static Brush Themed(string key) => (Brush)Application.Current.Resources[key];
 
     private void Build(int bands)
     {
@@ -199,7 +199,7 @@ public sealed class EqualiserCurve : UserControl
 
     // -- geometry ----------------------------------------------------------
 
-    private double PlotTop => Inset;
+    private static double PlotTop => Inset;
     private double PlotBottom => Math.Max(Inset, _canvas.ActualHeight - Inset);
 
     private double X(int index) =>

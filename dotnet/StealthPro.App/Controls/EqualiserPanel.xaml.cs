@@ -311,7 +311,7 @@ public sealed partial class EqualiserPanel : UserControl
         return row;
     }
 
-    private UIElement EmptyChip() => new Border
+    private static UIElement EmptyChip() => new Border
     {
         Padding = new Thickness(14, 8, 14, 8),
         BorderBrush = (Brush)Application.Current.Resources["ControlStrokeColorDefaultBrush"],
@@ -334,7 +334,7 @@ public sealed partial class EqualiserPanel : UserControl
     }
 
     private static bool Same(string a, string b) =>
-        string.Equals(a.Trim(), b.Trim(), StringComparison.CurrentCultureIgnoreCase);
+        string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Keep this curve as a preset of its own.

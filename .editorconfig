@@ -23,6 +23,10 @@ dotnet_sort_system_directives_first = true
 csharp_prefer_braces = when_multiline:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 
+# Private helpers keep base and interface types on purpose; the saving
+# CA1859 offers is too small to be worth narrower signatures here.
+dotnet_diagnostic.CA1859.severity = none
+
 # Constants and static read-only fields are PascalCase; other private fields
 # are _camelCase.
 dotnet_naming_rule.constants.symbols = constants
