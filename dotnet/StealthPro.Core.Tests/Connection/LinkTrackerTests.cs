@@ -175,6 +175,23 @@ public class LinkTrackerTests
     }
 
     [Fact]
+    public void SwitchedOffOnItsCableGoesStraightFromNotConnectedToOff()
+    {
+        _cabled = true;
+        OnTheDock();
+        _link.Unreachable([Dock, Headset]);
+        Assert.Equal(Link.Quiet, _link.Status.Link);
+
+        // Its sound device goes, and the headset answers over the cable.
+        _cabled = false;
+        Assert.Null(OnTheCable());
+        Assert.Equal(Link.Quiet, _link.Status.Link);
+
+        After(LinkTracker.OffGrace.TotalSeconds);
+        Assert.True(_link.Cable(false, Route.DirectUsb, "Headset", "Headset", "device", "229E")?.SwitchedOff);
+    }
+
+    [Fact]
     public void OnItsCableTheSoundDeviceComingBackIsConnected()
     {
         OnTheCable();

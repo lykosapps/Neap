@@ -224,7 +224,11 @@ public sealed class LinkTracker(LinkWords words, Func<TimeSpan> clock, Func<bool
         {
             if (OffOnCable())
                 return Set(Link.Quiet, route, adapter, words.OffOnCable, product);
-            if (Status.Link != Link.Connecting && !Status.SwitchedOff)
+            // Already showing it as off or unreachable: stay there until the
+            // grace decides, rather than passing through "Connecting" on the
+            // way to "Headset off".
+            if (Status.Link is not (Link.Connecting or Link.Quiet or Link.Silent)
+                && !Status.SwitchedOff)
                 return Set(Link.Connecting, Route.Unknown, "", words.Looking);
             return null;
         }
