@@ -379,28 +379,28 @@ static int Hear(string match, double seconds)
     // Bytes arriving at all, apart from how loud they are: a mic that
     // delivers silence and one that delivers nothing read the same as a level.
     var arrived = new long[mics.Count];
-    var captures = new List<WasapiCapture>();
+    var captures = new List<WasapiRecorder>();
     for (int m = 0; m < mics.Count; m++)
     {
         int index = m;
         try
         {
-            var capture = new WasapiCapture(mics[m]);
+            var capture = new WasapiRecorderBuilder().WithDevice(mics[m]).Build();
             bool floats = capture.WaveFormat.Encoding == WaveFormatEncoding.IeeeFloat
                           || capture.WaveFormat.BitsPerSample == 32;
-            capture.DataAvailable += (_, e) =>
+            capture.DataAvailable += (buffer, _, _, _) =>
             {
                 float peak = 0;
                 if (floats)
-                    for (int i = 0; i + 3 < e.BytesRecorded; i += 4)
-                        peak = Math.Max(peak, Math.Abs(BitConverter.ToSingle(e.Buffer, i)));
+                    for (int i = 0; i + 3 < buffer.Length; i += 4)
+                        peak = Math.Max(peak, Math.Abs(BitConverter.ToSingle(buffer[i..])));
                 else
-                    for (int i = 0; i + 1 < e.BytesRecorded; i += 2)
-                        peak = Math.Max(peak, Math.Abs(BitConverter.ToInt16(e.Buffer, i) / 32768f));
+                    for (int i = 0; i + 1 < buffer.Length; i += 2)
+                        peak = Math.Max(peak, Math.Abs(BitConverter.ToInt16(buffer[i..]) / 32768f));
                 lock (loudest)
                 {
                     loudest[index] = Math.Max(loudest[index], peak);
-                    arrived[index] += e.BytesRecorded;
+                    arrived[index] += buffer.Length;
                 }
             };
             capture.StartRecording();
@@ -414,18 +414,22 @@ static int Hear(string match, double seconds)
         : $"beeping on {output.FriendlyName} [{Owner(output)}] every 3 s for {seconds:0} s");
     Console.WriteLine("mics: " + string.Join("  |  ", mics.Select(m => $"{m.FriendlyName} [{Owner(m)}]")));
 
-    // The beep: 880 Hz for a third of a second, faded in and out.
-    const int rate = 48000;
-    int total = rate / 3, fade = rate / 80;
-    var pcm = new byte[total * 2];
-    for (int i = 0; i < total; i++)
+    // The beep: 880 Hz for a third of a second, faded in and out, made at
+    // the device's own rate so nothing has to convert it.
+    static byte[] Beep(int rate)
     {
-        double amplitude = 0.25;
-        if (i < fade) amplitude *= (double)i / fade;
-        else if (i > total - fade) amplitude *= (double)(total - i) / fade;
-        short sample = (short)(amplitude * short.MaxValue * Math.Sin(2 * Math.PI * 880 * i / rate));
-        pcm[i * 2] = (byte)(sample & 0xFF);
-        pcm[i * 2 + 1] = (byte)((sample >> 8) & 0xFF);
+        int total = rate / 3, fade = rate / 80;
+        var pcm = new byte[total * 2];
+        for (int i = 0; i < total; i++)
+        {
+            double amplitude = 0.25;
+            if (i < fade) amplitude *= (double)i / fade;
+            else if (i > total - fade) amplitude *= (double)(total - i) / fade;
+            short sample = (short)(amplitude * short.MaxValue * Math.Sin(2 * Math.PI * 880 * i / rate));
+            pcm[i * 2] = (byte)(sample & 0xFF);
+            pcm[i * 2 + 1] = (byte)((sample >> 8) & 0xFF);
+        }
+        return pcm;
     }
 
     var started = DateTime.Now;
@@ -440,8 +444,12 @@ static int Hear(string match, double seconds)
             beep = "  beep";
             try
             {
-                var source = new RawSourceWaveStream(new MemoryStream(pcm), new WaveFormat(rate, 16, 1));
-                var player = new WasapiOut(output, AudioClientShareMode.Shared, false, 60);
+                var player = new WasapiPlayerBuilder()
+                    .WithDevice(output).WithSharedMode().WithPollingSync().WithLatency(60)
+                    .Build();
+                int rate = player.DeviceMixFormat.SampleRate;
+                var source = new RawSourceWaveStream(
+                    new MemoryStream(Beep(rate)), new WaveFormat(rate, 16, 1));
                 player.PlaybackStopped += (_, _) => { player.Dispose(); source.Dispose(); };
                 player.Init(source);
                 player.Play();

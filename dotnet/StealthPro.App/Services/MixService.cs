@@ -376,7 +376,16 @@ public sealed class MixService : IDisposable
     {
         try
         {
-            const int rate = 44100;
+            using var devices = new MMDeviceEnumerator();
+            using var headset = StealthPro.Core.Audio.Routing.Headset(devices, output: true);
+            if (headset is null) return;
+
+            using var player = new WasapiPlayerBuilder()
+                .WithDevice(headset).WithSharedMode().WithPollingSync().WithLatency(60)
+                .Build();
+
+            // Made at the device's own rate, so nothing has to convert it.
+            int rate = player.DeviceMixFormat.SampleRate;
             const double seconds = 0.13, frequency = 620.0;
             int total = (int)(rate * seconds), fade = (int)(rate * 0.012);
             var pcm = new byte[total * 2];
@@ -391,20 +400,13 @@ public sealed class MixService : IDisposable
                 pcm[i * 2 + 1] = (byte)((sample >> 8) & 0xFF);
             }
 
-            using var devices = new MMDeviceEnumerator();
-            using var headset = StealthPro.Core.Audio.Routing.Headset(devices, output: true);
-            if (headset is null) return;
-
-            var source = new RawSourceWaveStream(
+            using var source = new RawSourceWaveStream(
                 new MemoryStream(pcm), new WaveFormat(rate, 16, 1));
-            var player = new WasapiOut(headset, AudioClientShareMode.Shared, false, 60);
-            var finished = new ManualResetEventSlim();
+            using var finished = new ManualResetEventSlim();
             player.PlaybackStopped += (_, _) => finished.Set();
             player.Init(source);
             player.Play();
             finished.Wait(TimeSpan.FromSeconds(2));
-            player.Dispose();
-            source.Dispose();
         }
         catch { /* a cue that will not play is not worth an error */ }
     });
