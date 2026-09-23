@@ -220,7 +220,7 @@ either way.
 | `0x700` | noise gate, 0/1 |
 | `0x710` | noise gate threshold, 0–100 |
 | `0x720` | Superhuman Hearing, 0/1 |
-| `0x730` | Superhuman Hearing type: 0 Legacy, 1 Footsteps, 2 Gunshots *(named from Swarm II; not matched by capture)* |
+| `0x730` | Superhuman Hearing type: 0 Legacy, 1 Footsteps, 2 Gunshots *(named from Swarm II; confirmed by ear, not by capture)* |
 | `0x740` | Superhuman Hearing intensity, 0–100 *(as `0x730`)* |
 | `0x750` | active noise cancellation, 0/1 |
 | `0x760` | noise cancellation intensity, 0–100 |
@@ -319,6 +319,37 @@ range *(measured)*.
 
 The probe's `who` command asks each transmitter separately, which is the only
 way to see which one is answering.
+
+Which transmitter the headset joins when switched on is its own choice, and
+not the one it last used: in one evening it came back on the Charging Dock
+twice and on the USB Transmitter five times, with both plugged in
+*(measured)*. To make it start on one, unplug the other first.
+
+### A transmitter answers from memory
+
+A transmitter goes on answering for a headset it can no longer reach, with
+the values it last had *(measured)*:
+
+- Switched off while on the Charging Dock, the Dock went quiet and, three
+  seconds later, the USB Transmitter answered, with the sound link at 0.
+- Just after a switch-on, the Charging Dock answered for sixteen seconds with
+  the sound link at 2, then went quiet, and the USB Transmitter, where the
+  headset really was, answered.
+
+So no single answer proves the headset is there. After the headset goes
+quiet, the app takes an answer from a different transmitter only once its
+sound link is up, which covers the first case and not the second.
+
+### No sound, and nothing says so
+
+Once more, both transmitter lights went amber with the headset on and no
+sound anywhere. It followed unplugging and replugging the Charging Dock,
+which carried the settings, while the USB Transmitter carried the sound. The
+Dock kept answering live (its signal strength changed every ten seconds), the
+slots said the USB Transmitter was selected, and every other value matched a
+healthy connection, `0x150` and `0x230` included. CrossPlay moved the sound
+to the Dock and brought it back; only the slots' selection changed
+*(measured)*.
 
 ### The sound link, `0x230`
 
@@ -627,8 +658,9 @@ categories were found) and its device plugin.
    needs its control found and operated while watching (`watch` or `diff` in
    the probe).
 2. What the frame's tag byte encodes.
-3. Whether any value marks the silent state that `0x230` misses. If it
-   happens again, read `0x150` and every GSI value before pressing anything.
+3. Whether anything marks the silent state that `0x230` misses. No value in
+   `Inf` or `GSI` does (see *No sound, and nothing says so*); the slots and
+   Windows' own meters are what remain.
 4. Whether `0x250` is charging or cable power; see *General state*.
 5. Whether the microphone bank's delete register behaves like the game
    bank's (not exercised: there were no custom microphone presets).

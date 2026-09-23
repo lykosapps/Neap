@@ -6,7 +6,7 @@ namespace StealthPro.Core.Settings;
 /// specific control was operated by hand. A value that is read back but not
 /// yet matched to a control is named with the best hypothesis, left
 /// non-writable, and says so in its note. The exceptions are 0x730 and 0x740,
-/// which are writable; see the comment above them.
+/// confirmed by ear rather than by capture; see the comment above them.
 /// </remarks>
 public static class Registry
 {
@@ -169,10 +169,10 @@ public static class Registry
             E(0xB20, "mode_button_function", "Btn", ModeButtonOptions),
 
             // 0x730 and 0x740 are named from Swarm II's Superhuman Hearing
-            // controls and written by the app, but not yet matched by capture.
-            // The values after them are read back but not matched to a control,
-            // so they are named with the best current hypothesis and left
-            // non-writable.
+            // controls and not matched by capture, but confirmed by ear: each
+            // type and intensity audibly changes the sound. The values after
+            // them are read back but not matched to a control, so they are
+            // named with the best current hypothesis and left non-writable.
             E(0x730, "shh_preset", "SAF", ShhPresetOptions),
             R(0x740, "shh_level", "SAF", 0, 100, note: "Superhuman Hearing intensity"),
             R(0x640, "mic_unknown_640", "Mic", writable: false,
