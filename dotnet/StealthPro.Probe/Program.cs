@@ -53,8 +53,6 @@ if (args.Length == 0 || args[0] is "-h" or "--help")
                              the real SessionMix class - demo sweeps, abandon
                              exits mid-mix so recovery can be tested
           recover            put back whatever a previous run left turned down
-          sessionmix <app> [0-100|demo|restore]
-                             crossfade by session volume alone - no cable, no capture
         """);
     return 0;
 }
@@ -89,8 +87,9 @@ try
         case "loopback": return Loopback(uint.Parse(args[1], CultureInfo.InvariantCulture));
         case "mixapp": return MixApp(args[1], args.Length > 2 ? args[2] : "demo");
         case "recover": return RecoverMix();
-        case "sessionmix": return SessionMix(args[1], args.Length > 2 ? args[2] : "demo");
-        case "setformat": return SetFormat(int.Parse(args[1], CultureInfo.InvariantCulture), int.Parse(args[2], CultureInfo.InvariantCulture));
+        case "setformat":
+            return SetFormat(int.Parse(args[1], CultureInfo.InvariantCulture),
+                int.Parse(args[2], CultureInfo.InvariantCulture));
         case "formats":
             return Formats(
                 args.Length > 1 && args[1].StartsWith("mic", StringComparison.Ordinal) ? Flow.Input : Flow.Output);
@@ -106,7 +105,7 @@ catch (DeviceNotFoundException error)
 }
 catch (TransportException error)
 {
-    Console.Error.WriteLine($"{error.Message} — is Swarm II or the Python server running?");
+    Console.Error.WriteLine($"{error.Message} — is Swarm II or Stealth Pro II Control running?");
     return 1;
 }
 
@@ -147,7 +146,8 @@ static int Who()
 
     foreach (var device in candidates)
     {
-        string name = Transmitters.Hardware.TryGetValue(device.ProductId.ToString("X4", CultureInfo.InvariantCulture), out var called)
+        string product = device.ProductId.ToString("X4", CultureInfo.InvariantCulture);
+        string name = Transmitters.Hardware.TryGetValue(product, out var called)
             ? called : $"0x{device.ProductId:x4}";
         try
         {
@@ -509,20 +509,9 @@ static int Formats(Flow flow)
     return 0;
 }
 
-// The chat/game crossfade with nothing in the audio path.
-//
-// Process loopback taps the stream after session volume (see Loopback), so
-// capturing an app and silencing its session does not work; it also shows
-// session volume is a working per-app gain. So the chat app's sessions get
-// the chat half of the crossfade and everything else the game half, and both
-// keep playing natively to the headset. No virtual cable, capture or engine.
-//
-// The game side uses the same mechanism; the difference is that the chat app
-// is chosen by name rather than by device. These are local functions because
-// top-level statements cannot declare fields.
-static float ChatScale(int mix) => MathF.Min(1f, 2f * (mix / 100f));
-static float GameScale(int mix) => MathF.Min(1f, 2f * (1f - mix / 100f));
-
+// The chat/game crossfade as the app runs it: Core's SessionMix, driven from
+// here so a sweep can be watched session by session. "abandon" exits mid-mix,
+// as a crash would, so that "recover" can be tested against a real journal.
 static int MixApp(string chatApp, string what)
 {
     StealthPro.Core.Mix.SessionMix.Recover();      // clean up after any previous run
@@ -595,126 +584,6 @@ static int RecoverMix()
     return low == 0 ? 0 : 1;
 }
 
-static string MixJournalPath() => Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-    "StealthProIIControl", "sessionmix-journal.json");
-
-// Record each session's original volume once, keep it in the journal, and do
-// not re-read it.
-//
-// Re-reading a session's volume after a write records our own attenuated
-// level as the original, and repeated runs ratchet an app to silence. The
-// volume journal in Core exists for the same reason: we are holding other
-// applications down and are the only thing that knows their real levels.
-static Dictionary<string, float> LoadMixJournal()
-{
-    try
-    {
-        return JsonSerializer.Deserialize<Dictionary<string, float>>(
-            File.ReadAllText(MixJournalPath())) ?? new();
-    }
-    catch { return new(); }
-}
-
-static void SaveMixJournal(Dictionary<string, float> originals)
-{
-    Directory.CreateDirectory(Path.GetDirectoryName(MixJournalPath())!);
-    if (originals.Count == 0) { try { File.Delete(MixJournalPath()); } catch { } return; }
-    File.WriteAllText(MixJournalPath(), JsonSerializer.Serialize(originals));
-}
-
-static int SessionMix(string chatApp, string what)
-{
-    using var devices = new MMDeviceEnumerator();
-    using var headset = devices.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)
-        .FirstOrDefault(d => d.FriendlyName.Contains("Stealth Pro", StringComparison.OrdinalIgnoreCase));
-    if (headset is null) { Console.WriteLine("headset not found"); return 1; }
-
-    var originals = LoadMixJournal();
-
-    // Refreshed, never cached: otherwise a session that starts after the mix
-    // is set is invisible.
-    headset.AudioSessionManager.RefreshSessions();
-    var all = headset.AudioSessionManager.Sessions;
-    int ours = Environment.ProcessId;
-
-    var chat = new List<AudioSessionControl>();
-    var game = new List<AudioSessionControl>();
-    var byId = new Dictionary<AudioSessionControl, string>();
-
-    for (int i = 0; i < all.Count; i++)
-    {
-        var session = all[i];
-        if (session.GetProcessID == ours) continue;
-        if (session.State == AudioSessionState.AudioSessionStateExpired) continue;
-        string? id = session.GetSessionIdentifier;
-        if (string.IsNullOrEmpty(id)) continue;      // nothing we could put back
-        byId[session] = id;
-        if (!originals.ContainsKey(id)) originals[id] = session.SimpleAudioVolume.Volume;
-        (ProcessName(session.GetProcessID).Contains(chatApp, StringComparison.OrdinalIgnoreCase)
-            ? chat : game).Add(session);
-    }
-
-    if (what is "restore" or "off")
-    {
-        foreach (var pair in byId)
-            if (originals.TryGetValue(pair.Value, out float level))
-                pair.Key.SimpleAudioVolume.Volume = level;
-        SaveMixJournal(new());
-        Console.WriteLine($"restored {byId.Count} sessions and cleared the journal");
-        return 0;
-    }
-
-    Console.WriteLine($"chat  ({chatApp}): {Describe(chat)}");
-    Console.WriteLine($"game  (the rest): {Describe(game)}");
-    if (chat.Count == 0)
-        Console.WriteLine($"  nothing matching '{chatApp}' has a session on the headset");
-
-    void Apply(int mix)
-    {
-        // Journal before touching any volume: a kill after the save loses
-        // nothing, whereas saving afterwards could lose the originals.
-        SaveMixJournal(originals);
-        foreach (var session in chat)
-            session.SimpleAudioVolume.Volume = originals[byId[session]] * ChatScale(mix);
-        foreach (var session in game)
-            session.SimpleAudioVolume.Volume = originals[byId[session]] * GameScale(mix);
-        Console.WriteLine($"  mix {mix,3}  chat x{ChatScale(mix):0.00}  game x{GameScale(mix):0.00}"
-                        + $"   endpoint peak over 3s: {PeakOver(headset, 3000):0.0000}");
-    }
-
-    if (what == "demo")
-    {
-        Console.WriteLine("sweeping - chat and game should trade places");
-        foreach (int mix in new[] { 50, 100, 0, 50 }) Apply(mix);
-        foreach (var pair in byId)
-            if (originals.TryGetValue(pair.Value, out float level))
-                pair.Key.SimpleAudioVolume.Volume = level;
-        SaveMixJournal(new());
-        Console.WriteLine("restored, journal cleared");
-    }
-    else Apply(int.Parse(what, CultureInfo.InvariantCulture));
-    return 0;
-}
-
-// What is actually reaching the headset, as opposed to what we think we hear.
-static float PeakOver(MMDevice device, int milliseconds)
-{
-    float top = 0f;
-    var until = DateTime.UtcNow.AddMilliseconds(milliseconds);
-    while (DateTime.UtcNow < until)
-    {
-        try { top = Math.Max(top, device.AudioMeterInformation.MasterPeakValue); }
-        catch { }
-        Thread.Sleep(20);
-    }
-    return top;
-}
-
-static string Describe(List<AudioSessionControl> sessions) =>
-    sessions.Count == 0 ? "(none)"
-    : string.Join(", ", sessions.Select(s => $"{ProcessName(s.GetProcessID)}:{s.GetProcessID}"));
-
 static string ProcessName(uint pid)
 {
     try { return System.Diagnostics.Process.GetProcessById((int)pid).ProcessName; }
@@ -727,8 +596,7 @@ static string ProcessName(uint pid)
 // headset means hearing it twice unless the app's own session is silenced.
 // That only works if loopback taps the stream before session volume is
 // applied; if it taps after, silencing the app silences the capture too.
-// Measured: it taps after, which is why the crossfade above uses session
-// volume alone.
+// Measured: it taps after, which is why the mix uses session volume alone.
 static int Loopback(uint pid)
 {
     Console.WriteLine($"pid {pid}: capturing at full volume, then with its session muted");
@@ -895,7 +763,8 @@ static int Diff(double seconds)
                 if (!seen.TryGetValue(pair.Key, out var was))
                     Console.WriteLine($"  [{clock.Elapsed:mm\\:ss}] {pair.Key,-12} appeared  = {Short(pair.Value)}");
                 else if (was != pair.Value)
-                    Console.WriteLine($"  [{clock.Elapsed:mm\\:ss}] {pair.Key,-12} {Short(was)} -> {Short(pair.Value)}");
+                    Console.WriteLine(
+                        $"  [{clock.Elapsed:mm\\:ss}] {pair.Key,-12} {Short(was)} -> {Short(pair.Value)}");
             }
             foreach (var key in seen.Keys.Where(k => !now.ContainsKey(k)).ToList())
                 Console.WriteLine($"  [{clock.Elapsed:mm\\:ss}] {key,-12} stopped answering (was {Short(seen[key])})");

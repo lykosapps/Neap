@@ -98,9 +98,10 @@ gain; it is how the game side always worked. Naming the chat application does
 the whole job.
 
 **Kept as history rather than as code.** The old engine has been removed. The
-probe keeps the two measurements behind what replaced it: `loopback`, which
-found that process capture taps the stream after session volume, and
-`sessionmix`, the prototype mix that followed from it.
+probe keeps the measurement behind what replaced it, `loopback`, which found
+that process capture taps the stream after session volume, and `mixapp`,
+which drives the mix engine itself so a sweep can be watched session by
+session.
 
 ### The limit, stated plainly
 
