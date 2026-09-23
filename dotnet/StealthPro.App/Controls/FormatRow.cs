@@ -22,7 +22,6 @@ namespace StealthPro.App.Controls;
 public sealed class FormatRow : SettingsCard
 {
     private ComboBox? _picker;
-    private InfoBar? _trouble;
     private bool _painting;
 
     public FormatRow()

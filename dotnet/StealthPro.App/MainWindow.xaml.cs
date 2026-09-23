@@ -17,7 +17,7 @@ public sealed partial class MainWindow : Window
     /// The one window, so a page can move the selection rather than navigate
     /// the frame behind the rail's back and leave the two disagreeing.
     /// </summary>
-    public static MainWindow? Current { get; private set; }
+    public static MainWindow? Instance { get; private set; }
 
     /// <summary>Go somewhere by its rail tag, as though it had been clicked.</summary>
     public void GoTo(string tag)
@@ -28,7 +28,7 @@ public sealed partial class MainWindow : Window
 
     public MainWindow()
     {
-        Current = this;
+        Instance = this;
         InitializeComponent();
         AppServices.Start();
 

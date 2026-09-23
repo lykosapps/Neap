@@ -62,7 +62,6 @@ public sealed class EqualiserCurve : UserControl
     private int[] _live = Array.Empty<int>();
     private int[]? _stored;
     private int _dragging = -1;
-    private bool _moved;
 
     public int Minimum { get; set; } = -90;
     public int Maximum { get; set; } = 90;
@@ -334,7 +333,6 @@ public sealed class EqualiserCurve : UserControl
     private void BeginDrag(int index, PointerRoutedEventArgs args)
     {
         _dragging = index;
-        _moved = false;
         _canvas.CapturePointer(args.Pointer);
         args.Handled = true;
     }
@@ -342,7 +340,6 @@ public sealed class EqualiserCurve : UserControl
     private void OnPointerMoved(object sender, PointerRoutedEventArgs args)
     {
         if (_dragging < 0) return;
-        _moved = true;
         int tenths = TenthsAt(args.GetCurrentPoint(_canvas).Position.Y);
         if (_dragging < _live.Length && _live[_dragging] == tenths) return;
         BandChanged?.Invoke(_dragging, tenths);
@@ -352,6 +349,5 @@ public sealed class EqualiserCurve : UserControl
     {
         _canvas.ReleasePointerCapture(args.Pointer);
         _dragging = -1;
-        _moved = false;
     }
 }

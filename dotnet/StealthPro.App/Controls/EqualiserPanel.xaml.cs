@@ -418,10 +418,11 @@ public sealed partial class EqualiserPanel : UserControl
 
         void Judge()
         {
+            if (_state is not { } state) return;
             string typed = field.Text.Trim();
-            var taken = _state.Custom.FirstOrDefault(p => Same(p.Name, typed));
+            var taken = state.Custom.FirstOrDefault(p => Same(p.Name, typed));
             bool factory = PresetStore.Factory(Bank).Any(p => Same(p.Name, typed));
-            int free = _state.FreeSlots.Count;
+            int free = state.FreeSlots.Count;
 
             if (typed.Length == 0)
             {

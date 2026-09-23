@@ -449,10 +449,10 @@ public sealed partial class HomePage : Page
         }
 
         foreach (var row in rows.OrderBy(r => r.Order))
-            Transmitters.Children.Add(new SettingsCard
+        {
+            var card = new SettingsCard
             {
                 Header = row.Name,
-                Description = row.Detail.Length > 0 ? row.Detail : null,
                 Content = new TextBlock
                 {
                     Text = row.State,
@@ -460,7 +460,10 @@ public sealed partial class HomePage : Page
                     Foreground = (Brush)Application.Current.Resources[
                         row.Order == 0 ? "TextFillColorPrimaryBrush" : "TextFillColorSecondaryBrush"],
                 },
-            });
+            };
+            if (row.Detail.Length > 0) card.Description = row.Detail;
+            Transmitters.Children.Add(card);
+        }
     }
 
     private static bool IsTransmitter(string product) =>
@@ -507,7 +510,7 @@ public sealed partial class HomePage : Page
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(tile, place.Name);
             tile.Click += (sender, _) =>
             {
-                if (sender is Button { Tag: string tag }) MainWindow.Current?.GoTo(tag);
+                if (sender is Button { Tag: string tag }) MainWindow.Instance?.GoTo(tag);
             };
             Tiles.Children.Add(tile);
         }
