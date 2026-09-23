@@ -43,6 +43,9 @@ public enum Link
     Connected,
 }
 
+/// <summary>Work asked of the headset while nothing is answering for it.</summary>
+public sealed class HeadsetUnavailableException(string message) : Exception(message);
+
 /// <summary>How the headset is being reached.</summary>
 public enum Route
 {
@@ -438,7 +441,7 @@ public sealed class HeadsetService : IDisposable
         _pending[key] = value;
         if (!_inFlight.TryAdd(key, true)) return;
 
-        _ = Post(client =>
+        var write = Post(client =>
         {
             _inFlight.TryRemove(key, out _);
             if (!_pending.TryRemove(key, out int latest)) return true;
@@ -452,6 +455,15 @@ public sealed class HeadsetService : IDisposable
             _lastWrite[key] = Stopwatch.GetTimestamp();
             return true;
         });
+
+        // A write failed before it ran never clears its own mark, and with the
+        // mark left behind that key could not be written again until restart.
+        // Clear it here; the latest value stays pending for the next write.
+        write.ContinueWith(failed =>
+        {
+            _ = failed.Exception;
+            _inFlight.TryRemove(key, out _);
+        }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
     }
 
     /// <summary>
@@ -768,9 +780,20 @@ public sealed class HeadsetService : IDisposable
             absent ? Link.Absent : Link.Connecting,
             Route.Unknown, "",
             absent ? detail : "Looking for the headset…");
-        while (_jobs.TryTake(out var waiting))
-            waiting.Done.TrySetException(new DeviceNotFoundException(detail));
+        FailWaiting(detail);
         _stopping.Token.WaitHandle.WaitOne(1500);
+    }
+
+    /// <summary>
+    /// Fail everything queued. Done whenever nothing answers for the headset,
+    /// so work asked for then fails at once, as its callers expect, rather
+    /// than waiting for the headset to come back and then all running
+    /// together ahead of the chat wheel.
+    /// </summary>
+    private void FailWaiting(string why)
+    {
+        while (_jobs.TryTake(out var waiting))
+            waiting.Done.TrySetException(new HeadsetUnavailableException(why));
     }
 
     /// <summary>
@@ -1043,6 +1066,7 @@ public sealed class HeadsetService : IDisposable
         {
             SetStatus(link, Route.Unknown, "", detail);
         }
+        FailWaiting(detail);
     }
 
     /// <summary>
