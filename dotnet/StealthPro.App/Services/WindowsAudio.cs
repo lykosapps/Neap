@@ -41,6 +41,8 @@ public static class WindowsAudio
         }
     });
 
+    // A set that fails is not reported: the rows re-read Windows every second,
+    // so the control goes back to the real value on its own.
     public static Task SetVolume(int percent, Flow flow = Flow.Output) => Task.Run(() =>
     {
         try { AudioEndpoints.SetPercent(percent, AudioEndpoints.DefaultMatch, flow); } catch { }

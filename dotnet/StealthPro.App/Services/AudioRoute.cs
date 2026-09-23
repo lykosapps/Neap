@@ -43,7 +43,11 @@ public sealed class AudioRoute : IDisposable
             _watch.DeviceRemoved += (_, _) => Soon();
             _watch.DeviceStateChanged += (_, _) => Soon();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            // The poll below still notices every change, only later.
+            AppLog.Write($"audio route: no device notifications, polling only: {ex.Message}");
+        }
         _poll = new System.Threading.Timer(_ => Soon(), null, PollEvery, PollEvery);
     }
 

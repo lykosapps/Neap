@@ -67,7 +67,12 @@ public static class Startup
             WriteShortcut();
             RemoveRunEntry();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            // Not worth interrupting a launch for, but it would leave Windows
+            // starting a copy that may no longer be there.
+            AppLog.Write($"startup: could not refresh the shortcut: {ex.Message}");
+        }
     }
 
     public static bool Set(bool enabled)
