@@ -240,7 +240,11 @@ public sealed class SettingRow : SettingsCard
             _control.Visibility = known ? Visibility.Visible : Visibility.Collapsed;
         if (_absent is not null)
             _absent.Visibility = known ? Visibility.Collapsed : Visibility.Visible;
-        IsEnabled = known && _key is { Writable: true };
+        // Disabled only where there is a control that cannot be used: a
+        // reading with nothing to change is not unavailable, and greyed out it
+        // read as one.
+        bool readout = _toggle is null && _slider is null && _choice is null;
+        IsEnabled = known && (readout || _key is { Writable: true });
     }
 
     private void Paint()
@@ -254,6 +258,11 @@ public sealed class SettingRow : SettingsCard
                 string? text = AppServices.Headset.GetText(_key.Name);
                 Known(!string.IsNullOrWhiteSpace(text));
                 if (_readout is not null) _readout.Text = text ?? "";
+
+                // A value of all zeros is the headset saying it has none: this
+                // one reports its serial number as 00000000000. Not shown.
+                Visibility = text is { Length: > 0 } && text.All(c => c == '0')
+                    ? Visibility.Collapsed : Visibility.Visible;
                 return;
             }
             if (!AppServices.Headset.TryGetNumberByKey(_key.Key, out int value))
