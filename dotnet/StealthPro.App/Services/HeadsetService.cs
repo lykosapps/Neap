@@ -80,6 +80,7 @@ public sealed class HeadsetService : IDisposable
     private readonly ConcurrentDictionary<int, bool> _inFlight = new();
     private readonly ConcurrentDictionary<int, long> _lastWrite = new();
     private readonly Thread _worker;
+    private readonly IDeviceSource _devices;
 
     private static string Looking => Strings.Get("Headset_Looking");
 
@@ -102,12 +103,14 @@ public sealed class HeadsetService : IDisposable
 
     private sealed record Job(Func<HeadsetClient, object?> Work, TaskCompletionSource<object?> Done);
 
+    /// <param name="devices">Where the headset's transmitters are looked for.</param>
     /// <param name="cabled">
     /// Whether the headset's own sound device is in Windows, which it is only
     /// while connected by its USB-C cable. See <see cref="LinkTracker"/>.
     /// </param>
-    public HeadsetService(Func<bool>? cabled = null)
+    public HeadsetService(IDeviceSource devices, Func<bool>? cabled = null)
     {
+        _devices = devices;
         var running = Stopwatch.StartNew();
         _link = new LinkTracker(Words, () => running.Elapsed, cabled ?? (() => false));
         if (AppSettings.Current.SettingsLeftWith is ushort left) _link.SettingsLeftEarlierWith(left);
@@ -132,7 +135,7 @@ public sealed class HeadsetService : IDisposable
     /// <summary>
     /// The transmitters the headset last reported, kept after the device that
     /// reported them has gone. What is plugged in now is a separate question;
-    /// see <see cref="HidTransport.Candidates"/>.
+    /// see <see cref="IDeviceSource.Candidates"/>.
     /// </summary>
     public IReadOnlyList<Transmitter> KnownTransmitters => _known;
 
@@ -652,7 +655,7 @@ public sealed class HeadsetService : IDisposable
     /// <exception cref="DeviceNotFoundException">Nothing is plugged in at all.</exception>
     private HeadsetClient? Open(out int present)
     {
-        var client = HeadsetClient.Behind(allowWrites: true, out present, _askLast);
+        var client = HeadsetClient.Behind(allowWrites: true, out present, _askLast, _devices);
         _askLast = null;
         return client;
     }
@@ -757,7 +760,7 @@ public sealed class HeadsetService : IDisposable
     {
         try
         {
-            return HidTransport.Candidates().Select(device => device.ProductId).ToList();
+            return _devices.Candidates().Select(device => device.ProductId).ToList();
         }
         catch (Exception ex)
         {

@@ -331,7 +331,7 @@ public sealed partial class HomePage : Page
     private async Task LookAtWhatIsPlugged()
     {
         IReadOnlyList<HidDeviceInfo> now;
-        try { now = await Task.Run(() => HidTransport.Candidates()); }
+        try { now = await Task.Run(() => AppServices.Devices.Candidates()); }
         catch { return; }
 
         static string Key(IEnumerable<HidDeviceInfo> devices) =>

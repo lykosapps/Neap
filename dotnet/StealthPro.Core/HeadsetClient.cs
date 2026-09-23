@@ -65,14 +65,17 @@ public sealed class HeadsetClient : IDisposable
     /// </para>
     /// </remarks>
     /// <param name="askLast">A product id to ask after the others, when its answer is in doubt.</param>
+    /// <param name="devices">Where to look; what Windows has when not given.</param>
     /// <returns>
     /// The client for the device that answered, or null when devices are
     /// present but none has the headset.
     /// </returns>
     /// <exception cref="DeviceNotFoundException">No candidate device is present.</exception>
-    public static HeadsetClient? Behind(bool allowWrites, out int present, ushort? askLast = null)
+    public static HeadsetClient? Behind(bool allowWrites, out int present, ushort? askLast = null,
+        IDeviceSource? devices = null)
     {
-        var candidates = HidTransport.Candidates().OrderBy(d => d.ProductId == askLast).ToList();
+        devices ??= SystemDevices.Instance;
+        var candidates = devices.Candidates().OrderBy(d => d.ProductId == askLast).ToList();
         present = candidates.Count;
         if (present == 0)
             throw new DeviceNotFoundException("no Turtle Beach control collection is present");
@@ -86,7 +89,7 @@ public sealed class HeadsetClient : IDisposable
                 // closed, and so is the one kept once the app lets it go. The
                 // app re-asks every device every few seconds while the
                 // headset is off, so an unowned handle leaks on each pass.
-                client = new HeadsetClient(allowWrites, new HidTransport(device.Path),
+                client = new HeadsetClient(allowWrites, devices.Open(device),
                     ownsTransport: true);
                 client.Drain();
                 if (client.ReadCategory("GSI", AskWindow).Count > 0) return client;

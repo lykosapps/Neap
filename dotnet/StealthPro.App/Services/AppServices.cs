@@ -1,3 +1,5 @@
+using StealthPro.Core.Hid;
+
 namespace StealthPro.App.Services;
 
 /// <summary>
@@ -17,6 +19,9 @@ public static class AppServices
     public static HotkeyService Hotkeys { get; private set; } = null!;
     public static AudioRoute AudioRoute { get; private set; } = null!;
 
+    /// <summary>Where the headset's transmitters are looked for.</summary>
+    public static IDeviceSource Devices { get; private set; } = SystemDevices.Instance;
+
     public static void Start()
     {
         if (Headset is not null) return;
@@ -31,7 +36,7 @@ public static class AppServices
         Startup.Refresh();
 
         AudioRoute = new AudioRoute();
-        Headset = new HeadsetService(cabled: () => AudioRoute.Cable.Length > 0);
+        Headset = new HeadsetService(Devices, cabled: () => AudioRoute.Cable.Length > 0);
         Mix = new MixService(Headset);
         Presets = new PresetService(Headset);
         Hotkeys = new HotkeyService(Mix);
