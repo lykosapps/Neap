@@ -33,6 +33,9 @@ public sealed record ChatCandidate(string Process, string Display, bool Playing)
 /// straight through centre skipped it, and a value that snapped to 50 slid
 /// off it again on the next notch, so the beep and the number disagreed. It
 /// catches a crossing, and it holds.
+///
+/// Everything here runs on the UI thread: the slider and keyboard directly,
+/// the wheel and the link through the headset service's events.
 /// </summary>
 public sealed class MixService : IDisposable
 {
@@ -46,7 +49,6 @@ public sealed class MixService : IDisposable
     private const int NotchLimit = 15;
 
     private readonly HeadsetService _headset;
-    private readonly object _gate = new();
 
     private SessionMix? _mix;
     private int? _wheelLast;
@@ -94,20 +96,17 @@ public sealed class MixService : IDisposable
 
     public void Start()
     {
-        lock (_gate)
-        {
-            if (_mix is not null) return;
-            _mix = new SessionMix(ChatApps);
-            _mix.Start();
-            _lastApplied = _mix.SetMix(_lastApplied ?? 50);
-        }
+        if (_mix is not null) return;
+        _mix = new SessionMix(ChatApps);
+        _mix.Start();
+        _lastApplied = _mix.SetMix(_lastApplied ?? 50);
         Changed?.Invoke();
     }
 
     public void Stop()
     {
-        SessionMix? going;
-        lock (_gate) { going = _mix; _mix = null; }
+        var going = _mix;
+        _mix = null;
         going?.Dispose();
         Changed?.Invoke();
     }
@@ -204,33 +203,29 @@ public sealed class MixService : IDisposable
 
     private void OnWheel(int position)
     {
-        int? from;
-        lock (_gate)
+        int? from = _wheelLast;
+
+        // <b>A reconnect is a starting point, never a movement.</b> The
+        // first reading after a connect used to be adopted as the mix, on
+        // the theory that the wheel is a physical control with a real
+        // position. It is not: it is a free-spinning encoder, and the
+        // headset's count behind it resets when the headset is switched
+        // on. Measured: 45 before an idle shut-off, 0 after switching back
+        // on, the wheel untouched throughout — and the app moved the mix
+        // to "Game only", silencing chat, while nobody touched anything.
+        // Only the wheel moving may move the mix.
+        if (from is null || _mix is null)
         {
-            from = _wheelLast;
+            _wheelLast = position;
+            return;
+        }
 
-            // <b>A reconnect is a starting point, never a movement.</b> The
-            // first reading after a connect used to be adopted as the mix, on
-            // the theory that the wheel is a physical control with a real
-            // position. It is not: it is a free-spinning encoder, and the
-            // headset's count behind it resets when the headset is switched
-            // on. Measured: 45 before an idle shut-off, 0 after switching back
-            // on, the wheel untouched throughout — and the app moved the mix
-            // to "Game only", silencing chat, while nobody touched anything.
-            // Only the wheel moving may move the mix.
-            if (from is null || _mix is null)
-            {
-                _wheelLast = position;
-                return;
-            }
-
-            // Nor is the first count to differ after no sound. See OnLink.
-            if (_wheelResync && position != from)
-            {
-                _wheelLast = position;
-                _wheelResync = false;
-                return;
-            }
+        // Nor is the first count to differ after no sound. See OnLink.
+        if (_wheelResync && position != from)
+        {
+            _wheelLast = position;
+            _wheelResync = false;
+            return;
         }
         if (position == from) return;
 
@@ -242,7 +237,7 @@ public sealed class MixService : IDisposable
         if (now - _lastWheelApply < Stopwatch.Frequency / 33) return;
         _lastWheelApply = now;
 
-        lock (_gate) _wheelLast = position;
+        _wheelLast = position;
         Apply(Follow(Mix, from.Value, position), $"wheel {from.Value}->{position}");
     }
 
@@ -291,22 +286,19 @@ public sealed class MixService : IDisposable
     /// </summary>
     private void OnLink(HeadsetStatus status)
     {
-        lock (_gate)
+        if (status.Link != Link.Connected)
         {
-            if (status.Link != Link.Connected)
-            {
-                _wheelLast = null;
-                _wheelDark = _wheelResync = false;
-            }
-            else if (status.NoSound)
-            {
-                _wheelDark = true;
-            }
-            else if (_wheelDark)
-            {
-                _wheelDark = false;
-                _wheelResync = true;
-            }
+            _wheelLast = null;
+            _wheelDark = _wheelResync = false;
+        }
+        else if (status.NoSound)
+        {
+            _wheelDark = true;
+        }
+        else if (_wheelDark)
+        {
+            _wheelDark = false;
+            _wheelResync = true;
         }
     }
 
