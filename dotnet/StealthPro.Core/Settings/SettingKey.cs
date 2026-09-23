@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace StealthPro.Core.Settings;
 
 public enum SettingKind { Range, Toggle, Enum, Text }
@@ -27,7 +29,8 @@ public sealed record SettingKey(
     {
         if (Kind == SettingKind.Text) return value.ToString() ?? "";
 
-        if (!int.TryParse(value.ToString(), out int number))
+        if (!int.TryParse(Convert.ToString(value, CultureInfo.InvariantCulture),
+                NumberStyles.Integer, CultureInfo.InvariantCulture, out int number))
             throw new ArgumentException($"{Name} takes a number; got '{value}'");
 
         if (Kind == SettingKind.Toggle && number is not (0 or 1))
@@ -40,6 +43,6 @@ public sealed record SettingKey(
         if (Maximum is { } high && number > high)
             throw new ArgumentException($"{Name} maximum is {high}");
 
-        return number.ToString();
+        return number.ToString(CultureInfo.InvariantCulture);
     }
 }

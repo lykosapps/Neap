@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.UI.Dispatching;
 using StealthPro.Core;
@@ -283,7 +284,9 @@ public sealed class HeadsetService : IDisposable
         switch (element.ValueKind)
         {
             case JsonValueKind.Number: return element.TryGetInt32(out value);
-            case JsonValueKind.String: return int.TryParse(element.GetString(), out value);
+            case JsonValueKind.String:
+                return int.TryParse(element.GetString(), NumberStyles.Integer,
+                    CultureInfo.InvariantCulture, out value);
             case JsonValueKind.True: value = 1; return true;
             case JsonValueKind.False: value = 0; return true;
             default: return false;
@@ -387,7 +390,7 @@ public sealed class HeadsetService : IDisposable
         string before = was is JsonElement e ? StealthPro.Core.Protocol.DeviceEvent.Render(e) : "-";
         string after = StealthPro.Core.Protocol.DeviceEvent.Render(now);
         if (before == after) return;
-        if (int.TryParse(after, out int value))
+        if (int.TryParse(after, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value))
         {
             if (value > 0) _soundSeenUp = true;
             else _soundDownAt = Stopwatch.GetTimestamp();
@@ -462,7 +465,7 @@ public sealed class HeadsetService : IDisposable
     public void SetKeyLocally(int key, int value)
     {
         string hex = Hex(key);
-        _values[hex] = JsonDocument.Parse(value.ToString()).RootElement;
+        _values[hex] = JsonSerializer.SerializeToElement(value);
         _owned[hex] = Stopwatch.GetTimestamp()
             + (long)(OwnershipWindow.TotalSeconds * Stopwatch.Frequency);
         Raise();
@@ -916,8 +919,8 @@ public sealed class HeadsetService : IDisposable
             {
                 var values = new Dictionary<string, JsonElement>();
                 foreach (var (key, value) in lighting)
-                    if (int.TryParse(value, out int number))
-                        values[key] = JsonDocument.Parse(number.ToString()).RootElement;
+                    if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int number))
+                        values[key] = JsonSerializer.SerializeToElement(number);
                 if (values.Count > 0) Merge(values, authoritative: false);
             }
 

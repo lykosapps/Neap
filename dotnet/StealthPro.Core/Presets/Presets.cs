@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using StealthPro.Core.Protocol;
 
@@ -137,7 +138,7 @@ public static class PresetStore
             var bands = new List<int>();
             if (slot.TryGetProperty("bands", out var b) && b.ValueKind == JsonValueKind.Array)
                 foreach (var value in b.EnumerateArray())
-                    bands.Add(int.TryParse(value.GetString(), out int parsed) ? parsed : 0);
+                    bands.Add(TryNumber(value.GetString(), out int parsed) ? parsed : 0);
 
             found.Add(new Preset(FirstCustomId + index, name, bands, bank, true));
         }
@@ -154,17 +155,21 @@ public static class PresetStore
         var spec = Spec(bank);
         var values = client.ReadCategory(spec.Category, wait ?? TimeSpan.FromMilliseconds(1200));
         if (!values.TryGetValue($"{spec.Select:x}", out var selected)) return null;
-        if (!int.TryParse(selected.GetString(), out int id)) return null;
+        if (!TryNumber(selected.GetString(), out int id)) return null;
 
         string name = values.TryGetValue($"{spec.NameKey:x}", out var n)
             ? (n.GetString() ?? "").Trim() : "";
         var bands = spec.Bands
             .Select(key => values.TryGetValue($"{key:x}", out var v)
-                           && int.TryParse(v.GetString(), out int parsed) ? parsed : 0)
+                           && TryNumber(v.GetString(), out int parsed) ? parsed : 0)
             .ToArray();
 
         return new Preset(id, name, bands, bank, id >= FirstCustomId);
     }
+
+    /// <summary>A number as the headset sends it, whatever the PC's language.</summary>
+    private static bool TryNumber(string? text, out int value) =>
+        int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
 
     /// <summary>Custom ids with nothing in them.</summary>
     public static List<int> FreeSlots(IEnumerable<Preset> presets)
@@ -184,7 +189,7 @@ public static class PresetStore
     {
         var values = client.ReadCategory("CEC", wait ?? TimeSpan.FromMilliseconds(1200));
         return values.TryGetValue($"{Spec(bank).CountKey:x}", out var raw)
-               && int.TryParse(raw.GetString(), out int count) ? count : null;
+               && TryNumber(raw.GetString(), out int count) ? count : null;
     }
 
     // -- writing -----------------------------------------------------------

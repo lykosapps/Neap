@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace StealthPro.Core.Protocol;
@@ -86,7 +87,11 @@ public static class Frames
     /// <summary>Frame for <c>set_kvp {"0x&lt;key&gt;":"&lt;value&gt;"}</c>.</summary>
     public static byte[] SetKey(int key, object value, int counter = 0) =>
         Build("set_kvp",
-              new Dictionary<string, string> { [$"0x{key:x}"] = value.ToString() ?? "" },
+              new Dictionary<string, string>
+              {
+                  // The headset reads "-30", never a language's own minus sign.
+                  [$"0x{key:x}"] = Convert.ToString(value, CultureInfo.InvariantCulture) ?? "",
+              },
               counter);
 
     /// <summary>
