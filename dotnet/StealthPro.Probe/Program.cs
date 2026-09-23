@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using System.Text.Json;
-using StealthPro.Core;
-using StealthPro.Core.Hid;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
+using StealthPro.Core;
 using StealthPro.Core.Audio;
+using StealthPro.Core.Hid;
 using StealthPro.Core.Presets;
 using StealthPro.Core.Protocol;
 using StealthPro.Core.Settings;
@@ -67,16 +67,19 @@ try
         case "read": return Read(args.Length > 1 ? args[1] : null);
         case "named": return Named();
         case "registry": return PrintRegistry();
-        case "presets": return ShowPresets(
+        case "presets":
+            return ShowPresets(
             args.Length > 1 && args[1].StartsWith("mic") ? Bank.Mic : Bank.Game);
         case "slots": return Group(Verbs.PresetSlotCategories);
         case "transmitters": return Group(Verbs.TransmitterCategories);
         case "json": return Json();
         case "watch": return Watch(args.Length > 1 ? double.Parse(args[1]) : 10);
-        case "raw": return Raw(
+        case "raw":
+            return Raw(
             args.Length > 1 ? double.Parse(args[1]) : 20,
             args.Length > 2 ? Convert.ToUInt16(args[2], 16) : HidTransport.VendorUsagePage);
-        case "decode": return StealthPro.Probe.Capture.Decode(
+        case "decode":
+            return StealthPro.Probe.Capture.Decode(
             args[1], args.Length > 2 ? int.Parse(args[2]) : 1);
         case "diff": return Diff(args.Length > 1 ? double.Parse(args[1]) : 180);
         case "audio": return Audio();
@@ -87,7 +90,8 @@ try
         case "recover": return RecoverMix();
         case "sessionmix": return SessionMix(args[1], args.Length > 2 ? args[2] : "demo");
         case "setformat": return SetFormat(int.Parse(args[1]), int.Parse(args[2]));
-        case "formats": return Formats(
+        case "formats":
+            return Formats(
             args.Length > 1 && args[1].StartsWith("mic") ? Flow.Input : Flow.Output);
         default:
             Console.Error.WriteLine($"unknown command '{args[0]}'");

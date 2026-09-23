@@ -1,7 +1,7 @@
-﻿using NAudio.CoreAudioApi;
+using NAudio.CoreAudioApi;
 using NFlow = NAudio.CoreAudioApi.DataFlow;
-using NRole = NAudio.CoreAudioApi.Role;
 using NKey = NAudio.CoreAudioApi.PropertyKey;
+using NRole = NAudio.CoreAudioApi.Role;
 using NState = NAudio.CoreAudioApi.DeviceState;
 
 namespace StealthPro.Core.Audio;

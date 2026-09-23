@@ -112,7 +112,8 @@ internal interface IMMDeviceCollection
  InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 internal interface IMMDevice
 {
-    [PreserveSig] int Activate(ref Guid iid, uint context, IntPtr parameters,
+    [PreserveSig]
+    int Activate(ref Guid iid, uint context, IntPtr parameters,
         [MarshalAs(UnmanagedType.IUnknown)] out object instance);
     [PreserveSig] int OpenPropertyStore(uint access, out IPropertyStore store);
     [PreserveSig] int GetId([MarshalAs(UnmanagedType.LPWStr)] out string id);
@@ -153,7 +154,8 @@ internal interface IAudioEndpointVolume
  InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 internal interface IAudioClient
 {
-    [PreserveSig] int Initialize(int shareMode, uint flags, long bufferDuration,
+    [PreserveSig]
+    int Initialize(int shareMode, uint flags, long bufferDuration,
         long periodicity, IntPtr format, IntPtr sessionGuid);
     [PreserveSig] int GetBufferSize(out uint frames);
     [PreserveSig] int GetStreamLatency(out long latency);
@@ -188,22 +190,28 @@ internal interface IAudioMeterInformation
 internal interface IPolicyConfig
 {
     [PreserveSig] int GetMixFormat([MarshalAs(UnmanagedType.LPWStr)] string id, out IntPtr format);
-    [PreserveSig] int GetDeviceFormat([MarshalAs(UnmanagedType.LPWStr)] string id,
+    [PreserveSig]
+    int GetDeviceFormat([MarshalAs(UnmanagedType.LPWStr)] string id,
         [MarshalAs(UnmanagedType.Bool)] bool isDefault, out IntPtr format);
     [PreserveSig] int ResetDeviceFormat([MarshalAs(UnmanagedType.LPWStr)] string id);
-    [PreserveSig] int SetDeviceFormat([MarshalAs(UnmanagedType.LPWStr)] string id,
+    [PreserveSig]
+    int SetDeviceFormat([MarshalAs(UnmanagedType.LPWStr)] string id,
         IntPtr endpointFormat, IntPtr mixFormat);
-    [PreserveSig] int GetProcessingPeriod([MarshalAs(UnmanagedType.LPWStr)] string id,
+    [PreserveSig]
+    int GetProcessingPeriod([MarshalAs(UnmanagedType.LPWStr)] string id,
         [MarshalAs(UnmanagedType.Bool)] bool isDefault, out long period, out long minimum);
     [PreserveSig] int SetProcessingPeriod([MarshalAs(UnmanagedType.LPWStr)] string id, ref long period);
     [PreserveSig] int GetShareMode([MarshalAs(UnmanagedType.LPWStr)] string id, IntPtr mode);
     [PreserveSig] int SetShareMode([MarshalAs(UnmanagedType.LPWStr)] string id, IntPtr mode);
-    [PreserveSig] int GetPropertyValue([MarshalAs(UnmanagedType.LPWStr)] string id,
+    [PreserveSig]
+    int GetPropertyValue([MarshalAs(UnmanagedType.LPWStr)] string id,
         ref PropertyKey key, out PropVariant value);
-    [PreserveSig] int SetPropertyValue([MarshalAs(UnmanagedType.LPWStr)] string id,
+    [PreserveSig]
+    int SetPropertyValue([MarshalAs(UnmanagedType.LPWStr)] string id,
         ref PropertyKey key, ref PropVariant value);
     [PreserveSig] int SetDefaultEndpoint([MarshalAs(UnmanagedType.LPWStr)] string id, Role role);
-    [PreserveSig] int SetEndpointVisibility([MarshalAs(UnmanagedType.LPWStr)] string id,
+    [PreserveSig]
+    int SetEndpointVisibility([MarshalAs(UnmanagedType.LPWStr)] string id,
         [MarshalAs(UnmanagedType.Bool)] bool visible);
 }
 

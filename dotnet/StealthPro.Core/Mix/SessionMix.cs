@@ -1,5 +1,5 @@
-using System.Text.Json;
 using System.Diagnostics;
+using System.Text.Json;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 

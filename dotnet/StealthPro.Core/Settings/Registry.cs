@@ -46,8 +46,11 @@ public static class Registry
     private static readonly IReadOnlyDictionary<int, string> AutoShutoffOptions =
         new Dictionary<int, string>
         {
-            [0] = "Off", [1] = "5 minutes", [2] = "10 minutes",
-            [3] = "20 minutes", [4] = "30 minutes",
+            [0] = "Off",
+            [1] = "5 minutes",
+            [2] = "10 minutes",
+            [3] = "20 minutes",
+            [4] = "30 minutes",
         };
 
     public static readonly IReadOnlyList<SettingKey> All = Build();
