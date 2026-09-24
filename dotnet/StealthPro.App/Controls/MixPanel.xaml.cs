@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Input;
 using StealthPro.App.Services;
 using StealthPro.Core.Audio;
 using StealthPro.Core.Connection;
+using StealthPro.Core.Mix;
 using Windows.System;
 
 namespace StealthPro.App.Controls;
@@ -163,12 +164,12 @@ public sealed partial class MixPanel : UserControl
         {
             int mix = AppServices.Mix.Mix;
             MixSlider.Value = mix;
-            MixCaption.Text = mix switch
+            MixCaption.Text = MixLevels.Lean(mix) switch
             {
-                50 => Strings.Get("Mix_Balanced"),
-                0 => Strings.Get("Mix_GameOnly"),
-                100 => Strings.Get("Mix_ChatOnly"),
-                < 50 => Strings.Format("Mix_TowardGame", 100 - mix),
+                MixLean.Balanced => Strings.Get("Mix_Balanced"),
+                MixLean.GameOnly => Strings.Get("Mix_GameOnly"),
+                MixLean.ChatOnly => Strings.Get("Mix_ChatOnly"),
+                MixLean.TowardGame => Strings.Format("Mix_TowardGame", 100 - mix),
                 _ => Strings.Format("Mix_TowardChat", mix),
             };
         }

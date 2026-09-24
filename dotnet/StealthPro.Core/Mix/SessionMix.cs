@@ -175,11 +175,6 @@ public sealed class SessionMix : IMixEngine
         }
     }
 
-    // Balance curve: the centre leaves both sides untouched, and moving off
-    // centre attenuates the side being moved away from.
-    internal static float ChatScale(int mix) => MathF.Min(1f, 2f * (mix / 100f));
-    internal static float GameScale(int mix) => MathF.Min(1f, 2f * (1f - mix / 100f));
-
     private void Apply()
     {
         bool running;
@@ -211,7 +206,7 @@ public sealed class SessionMix : IMixEngine
             RestoreDevices(_devices, previous);
         _lastDevice = headset.ID;
 
-        float chatScale = ChatScale(mix), gameScale = GameScale(mix);
+        float chatScale = MixLevels.ChatScale(mix), gameScale = MixLevels.GameScale(mix);
         int ours = Environment.ProcessId;
         int chatSeen = 0, gameSeen = 0;
         bool chatPlaying = false;
