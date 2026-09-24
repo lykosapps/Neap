@@ -9,63 +9,65 @@
         Padding="32,0,32,32"
         HorizontalScrollBarVisibility="Disabled"
         HorizontalScrollMode="Disabled">
-        <StackPanel>
+        <Grid>
+            <StackPanel Style="{StaticResource PageColumnStyle}">
 
-            <TextBlock x:Uid="Microphone_Title" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock x:Uid="Microphone_Title" Style="{StaticResource PageTitleStyle}" />
 
-            <c:HeadsetNotice />
+                <c:HeadsetNotice />
 
-            <!--
-                With the headset off, the whole page is one card, the level
-                included: see HeadsetSection.WhenOff.
-            -->
-            <c:HeadsetSection x:Uid="Microphone_Section" WhenOff="True">
-                <TextBlock x:Uid="Microphone_MicrophoneHeading" Style="{StaticResource SectionHeaderStyle}" />
-                <StackPanel>
-                    <c:RoutingNotice Margin="0,0,0,8" Sound="False" />
-                    <StackPanel Spacing="4">
-                        <c:HeadsetSection Explain="False">
-                            <c:SettingRow
-                                x:Uid="Microphone_Muted"
-                                Glyph="&#xE720;"
-                                Setting="mic_muted" />
-                        </c:HeadsetSection>
-                        <c:WindowsVolumeRow
-                            x:Uid="Microphone_Sensitivity"
-                            Capture="True"
-                            Glyph="&#xE9A9;"
-                            Kind="Volume" />
-                        <c:HeadsetSection Explain="False">
-                            <c:SettingRow
-                                x:Uid="Microphone_MicMonitoring"
-                                Glyph="&#xE767;"
-                                Setting="mic_monitoring" />
-                        </c:HeadsetSection>
-                    </StackPanel>
-                </StackPanel>
-
-                <c:HeadsetSection x:Uid="Microphone_HeadsetSection">
-                    <TextBlock x:Uid="Microphone_NoiseHandlingHeading" Style="{StaticResource SectionHeaderStyle}" />
-                    <StackPanel Spacing="4">
-                        <c:SettingRow
-                            x:Uid="Microphone_AINoiseReduction"
-                            Glyph="&#xE945;"
-                            Setting="ai_noise_reduction" />
-                        <c:SettingRow
-                            x:Uid="Microphone_NoiseGate"
-                            Glyph="&#xE71C;"
-                            Setting="noise_gate" />
-                        <c:SettingRow
-                            x:Uid="Microphone_Threshold"
-                            Glyph="&#xE9E9;"
-                            Setting="noise_gate_threshold" />
+                <!--
+                    With the headset off, the whole page is one card, the level
+                    included: see HeadsetSection.WhenOff.
+                -->
+                <c:HeadsetSection x:Uid="Microphone_Section" WhenOff="True">
+                    <TextBlock x:Uid="Microphone_MicrophoneHeading" Style="{StaticResource SectionHeaderStyle}" />
+                    <StackPanel>
+                        <c:RoutingNotice Margin="0,0,0,8" Sound="False" />
+                        <StackPanel Spacing="4">
+                            <c:HeadsetSection Explain="False">
+                                <c:SettingRow
+                                    x:Uid="Microphone_Muted"
+                                    Glyph="&#xE720;"
+                                    Setting="mic_muted" />
+                            </c:HeadsetSection>
+                            <c:WindowsVolumeRow
+                                x:Uid="Microphone_Sensitivity"
+                                Capture="True"
+                                Glyph="&#xE9A9;"
+                                Kind="Volume" />
+                            <c:HeadsetSection Explain="False">
+                                <c:SettingRow
+                                    x:Uid="Microphone_MicMonitoring"
+                                    Glyph="&#xE767;"
+                                    Setting="mic_monitoring" />
+                            </c:HeadsetSection>
+                        </StackPanel>
                     </StackPanel>
 
-                    <TextBlock x:Uid="Microphone_EqualiserHeading" Style="{StaticResource SectionHeaderStyle}" />
-                    <c:EqualiserPanel Bank="Mic" />
+                    <c:HeadsetSection x:Uid="Microphone_HeadsetSection">
+                        <TextBlock x:Uid="Microphone_NoiseHandlingHeading" Style="{StaticResource SectionHeaderStyle}" />
+                        <StackPanel Spacing="4">
+                            <c:SettingRow
+                                x:Uid="Microphone_AINoiseReduction"
+                                Glyph="&#xE945;"
+                                Setting="ai_noise_reduction" />
+                            <c:SettingRow
+                                x:Uid="Microphone_NoiseGate"
+                                Glyph="&#xE71C;"
+                                Setting="noise_gate" />
+                            <c:SettingRow
+                                x:Uid="Microphone_Threshold"
+                                Glyph="&#xE9E9;"
+                                Setting="noise_gate_threshold" />
+                        </StackPanel>
+
+                        <TextBlock x:Uid="Microphone_EqualiserHeading" Style="{StaticResource SectionHeaderStyle}" />
+                        <c:EqualiserPanel Bank="Mic" />
+                    </c:HeadsetSection>
                 </c:HeadsetSection>
-            </c:HeadsetSection>
 
-        </StackPanel>
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>

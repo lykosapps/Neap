@@ -31,113 +31,115 @@
         Padding="32,0,32,32"
         HorizontalScrollBarVisibility="Disabled"
         HorizontalScrollMode="Disabled">
-        <StackPanel Spacing="20">
+        <Grid>
+            <StackPanel Spacing="20" Style="{StaticResource PageColumnStyle}">
 
-            <TextBlock x:Uid="Home_Title" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock x:Uid="Home_Title" Style="{StaticResource PageTitleStyle}" />
 
-            <!--  Nothing plugged in is said first, in words.  -->
-            <c:HeadsetNotice />
+                <!--  Nothing plugged in is said first, in words.  -->
+                <c:HeadsetNotice />
 
-            <!--  The headset itself.  -->
-            <Border Style="{StaticResource HomeCard}">
-                <StackPanel Spacing="18">
-                    <StackPanel Orientation="Horizontal" Spacing="16">
-                        <FontIcon
-                            VerticalAlignment="Center"
-                            FontSize="30"
-                            Glyph="&#xE7F6;" />
-                        <StackPanel VerticalAlignment="Center" Spacing="2">
-                            <TextBlock
-                                x:Name="ModelName"
-                                Style="{StaticResource SubtitleTextBlockStyle}"
-                                Text="Stealth Pro II" />
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Ellipse
-                                    x:Name="StateDot"
-                                    Width="8"
-                                    Height="8"
-                                    VerticalAlignment="Center" />
+                <!--  The headset itself.  -->
+                <Border Style="{StaticResource HomeCard}">
+                    <StackPanel Spacing="18">
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <FontIcon
+                                VerticalAlignment="Center"
+                                FontSize="30"
+                                Glyph="&#xE7F6;" />
+                            <StackPanel VerticalAlignment="Center" Spacing="2">
                                 <TextBlock
-                                    x:Name="StateText"
-                                    VerticalAlignment="Center"
-                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                    Style="{StaticResource BodyTextBlockStyle}" />
+                                    x:Name="ModelName"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    Text="Stealth Pro II" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Ellipse
+                                        x:Name="StateDot"
+                                        Width="8"
+                                        Height="8"
+                                        VerticalAlignment="Center" />
+                                    <TextBlock
+                                        x:Name="StateText"
+                                        VerticalAlignment="Center"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{StaticResource BodyTextBlockStyle}" />
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
-                    </StackPanel>
-                    <StackPanel
-                        x:Name="Readings"
-                        Orientation="Horizontal"
-                        Spacing="40" />
+                        <StackPanel
+                            x:Name="Readings"
+                            Orientation="Horizontal"
+                            Spacing="40" />
 
-                    <!--
-                        One note for every state that needs explaining, filled from
-                        StateCopy: what is happening, what still works, the one
-                        thing to do, and a fallback last and smallest. One panel
-                        rather than one per state, so the states cannot be worded
-                        differently from each other.
-                    -->
-                    <StackPanel
-                        x:Name="NotePanel"
-                        Spacing="6"
-                        Visibility="Collapsed">
+                        <!--
+                            One note for every state that needs explaining, filled from
+                            StateCopy: what is happening, what still works, the one
+                            thing to do, and a fallback last and smallest. One panel
+                            rather than one per state, so the states cannot be worded
+                            differently from each other.
+                        -->
+                        <StackPanel
+                            x:Name="NotePanel"
+                            Spacing="6"
+                            Visibility="Collapsed">
+                            <TextBlock
+                                x:Name="NoteWhat"
+                                Style="{StaticResource BodyTextBlockStyle}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                x:Name="NoteMix"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Style="{StaticResource BodyTextBlockStyle}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                x:Name="NoteFix"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Style="{StaticResource BodyTextBlockStyle}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                x:Name="NoteFallback"
+                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!--  How it is reached.  -->
+                <Border x:Name="ConnectionsCard" Style="{StaticResource HomeCard}">
+                    <StackPanel>
+                        <TextBlock x:Uid="Home_Connections" Style="{StaticResource CardTitle}" />
+                        <StackPanel x:Name="Connections" Spacing="4" />
+                        <!--
+                            Beside the rows it contradicts: "connected through the
+                            USB Transmitter" and, right under it, Windows playing
+                            somewhere else.
+                        -->
+                        <c:RoutingNotice Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!--  What it is paired with.  -->
+                <Border x:Name="TransmittersCard" Style="{StaticResource HomeCard}">
+                    <StackPanel>
+                        <TextBlock x:Uid="Home_Transmitters" Style="{StaticResource CardTitle}" />
                         <TextBlock
-                            x:Name="NoteWhat"
-                            Style="{StaticResource BodyTextBlockStyle}"
-                            TextWrapping="Wrap" />
-                        <TextBlock
-                            x:Name="NoteMix"
+                            x:Uid="Home_TransmittersNote"
+                            Margin="0,-10,0,12"
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Style="{StaticResource BodyTextBlockStyle}"
-                            TextWrapping="Wrap" />
-                        <TextBlock
-                            x:Name="NoteFix"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Style="{StaticResource BodyTextBlockStyle}"
-                            TextWrapping="Wrap" />
-                        <TextBlock
-                            x:Name="NoteFallback"
-                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                             Style="{StaticResource CaptionTextBlockStyle}"
                             TextWrapping="Wrap" />
+                        <StackPanel x:Name="Transmitters" Spacing="4" />
                     </StackPanel>
-                </StackPanel>
-            </Border>
+                </Border>
 
-            <!--  How it is reached.  -->
-            <Border x:Name="ConnectionsCard" Style="{StaticResource HomeCard}">
-                <StackPanel>
-                    <TextBlock x:Uid="Home_Connections" Style="{StaticResource CardTitle}" />
-                    <StackPanel x:Name="Connections" Spacing="4" />
-                    <!--
-                        Beside the rows it contradicts: "connected through the
-                        USB Transmitter" and, right under it, Windows playing
-                        somewhere else.
-                    -->
-                    <c:RoutingNotice Margin="0,8,0,0" />
-                </StackPanel>
-            </Border>
+                <!--  And the way out to everything else.  -->
+                <tk:WrapPanel
+                    x:Name="Tiles"
+                    HorizontalSpacing="12"
+                    VerticalSpacing="12" />
 
-            <!--  What it is paired with.  -->
-            <Border x:Name="TransmittersCard" Style="{StaticResource HomeCard}">
-                <StackPanel>
-                    <TextBlock x:Uid="Home_Transmitters" Style="{StaticResource CardTitle}" />
-                    <TextBlock
-                        x:Uid="Home_TransmittersNote"
-                        Margin="0,-10,0,12"
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Style="{StaticResource CaptionTextBlockStyle}"
-                        TextWrapping="Wrap" />
-                    <StackPanel x:Name="Transmitters" Spacing="4" />
-                </StackPanel>
-            </Border>
-
-            <!--  And the way out to everything else.  -->
-            <tk:WrapPanel
-                x:Name="Tiles"
-                HorizontalSpacing="12"
-                VerticalSpacing="12" />
-
-        </StackPanel>
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>

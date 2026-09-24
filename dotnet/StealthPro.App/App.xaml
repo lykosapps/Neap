@@ -25,6 +25,16 @@
             <Color x:Key="SystemAccentColorDark2">#5845BD</Color>
             <Color x:Key="SystemAccentColorDark3">#40309A</Color>
 
+            <!--
+                Every page's column, held to a width that reads on a wide
+                screen. It sits in a grid inside the page's scroller: placed
+                straight in the scroller, a column narrower than the window
+                sits off to one side.
+            -->
+            <Style x:Key="PageColumnStyle" TargetType="StackPanel">
+                <Setter Property="MaxWidth" Value="800" />
+            </Style>
+
             <!--  The page's own name, at the top of every page.  -->
             <Style
                 x:Key="PageTitleStyle"

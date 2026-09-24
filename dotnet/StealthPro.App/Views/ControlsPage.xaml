@@ -9,78 +9,80 @@
         Padding="32,0,32,32"
         HorizontalScrollBarVisibility="Disabled"
         HorizontalScrollMode="Disabled">
-        <StackPanel>
+        <Grid>
+            <StackPanel Style="{StaticResource PageColumnStyle}">
 
-            <TextBlock x:Uid="Controls_Title" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock x:Uid="Controls_Title" Style="{StaticResource PageTitleStyle}" />
 
-            <c:HeadsetNotice />
+                <c:HeadsetNotice />
 
-            <c:HeadsetSection x:Uid="Controls_Section">
-                <TextBlock x:Uid="Controls_OnHeadsetHeading" Style="{StaticResource SectionHeaderStyle}" />
-                <StackPanel Spacing="4">
-                    <c:SettingRow
-                        x:Uid="Controls_ModeButton"
-                        Glyph="&#xE7FC;"
-                        Setting="mode_button_function" />
-                    <c:SettingRow
-                        x:Uid="Controls_LowerDial"
-                        Glyph="&#xE9E9;"
-                        Setting="dial_function" />
-                </StackPanel>
-
-                <TextBlock x:Uid="Controls_PowerHeading" Style="{StaticResource SectionHeaderStyle}" />
-                <StackPanel Spacing="4">
-                    <c:SettingRow
-                        x:Uid="Controls_AutoShutOff"
-                        Glyph="&#xE7E8;"
-                        Setting="auto_shutoff" />
-                    <c:SettingRow
-                        x:Uid="Controls_WakeOnMotion"
-                        Glyph="&#xE9D9;"
-                        Setting="wake_on_motion" />
-                    <c:SettingRow
-                        x:Uid="Controls_VoicePrompts"
-                        Glyph="&#xE767;"
-                        Setting="voice_prompt_volume"
-                        Unit="%" />
-                </StackPanel>
-
-                <!--
-                    The lights of the transmitter carrying the headset, named for
-                    it; which rows show is decided in ControlsPage.xaml.cs.
-                -->
-                <StackPanel>
-                    <TextBlock
-                        x:Name="LightsHeader"
-                        x:Uid="Controls_LightsHeader"
-                        Style="{StaticResource SectionHeaderStyle}"
-                        Visibility="Collapsed" />
+                <c:HeadsetSection x:Uid="Controls_Section">
+                    <TextBlock x:Uid="Controls_OnHeadsetHeading" Style="{StaticResource SectionHeaderStyle}" />
                     <StackPanel Spacing="4">
                         <c:SettingRow
-                            x:Name="DockRing"
-                            x:Uid="Controls_DockRing"
-                            Glyph="&#xE706;"
-                            Setting="led_brightness_1"
-                            Unit="%"
-                            Visibility="Collapsed" />
+                            x:Uid="Controls_ModeButton"
+                            Glyph="&#xE7FC;"
+                            Setting="mode_button_function" />
                         <c:SettingRow
-                            x:Name="DockStatus"
-                            x:Uid="Controls_DockStatus"
-                            Glyph="&#xE706;"
-                            Setting="led_brightness_2"
-                            Unit="%"
-                            Visibility="Collapsed" />
-                        <c:SettingRow
-                            x:Name="TransmitterLight"
-                            x:Uid="Controls_TransmitterLight"
-                            Glyph="&#xE706;"
-                            Setting="led_brightness_1"
-                            Unit="%"
-                            Visibility="Collapsed" />
+                            x:Uid="Controls_LowerDial"
+                            Glyph="&#xE9E9;"
+                            Setting="dial_function" />
                     </StackPanel>
-                </StackPanel>
-            </c:HeadsetSection>
 
-        </StackPanel>
+                    <TextBlock x:Uid="Controls_PowerHeading" Style="{StaticResource SectionHeaderStyle}" />
+                    <StackPanel Spacing="4">
+                        <c:SettingRow
+                            x:Uid="Controls_AutoShutOff"
+                            Glyph="&#xE7E8;"
+                            Setting="auto_shutoff" />
+                        <c:SettingRow
+                            x:Uid="Controls_WakeOnMotion"
+                            Glyph="&#xE9D9;"
+                            Setting="wake_on_motion" />
+                        <c:SettingRow
+                            x:Uid="Controls_VoicePrompts"
+                            Glyph="&#xE767;"
+                            Setting="voice_prompt_volume"
+                            Unit="%" />
+                    </StackPanel>
+
+                    <!--
+                        The lights of the transmitter carrying the headset, named for
+                        it; which rows show is decided in ControlsPage.xaml.cs.
+                    -->
+                    <StackPanel>
+                        <TextBlock
+                            x:Name="LightsHeader"
+                            x:Uid="Controls_LightsHeader"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Visibility="Collapsed" />
+                        <StackPanel Spacing="4">
+                            <c:SettingRow
+                                x:Name="DockRing"
+                                x:Uid="Controls_DockRing"
+                                Glyph="&#xE706;"
+                                Setting="led_brightness_1"
+                                Unit="%"
+                                Visibility="Collapsed" />
+                            <c:SettingRow
+                                x:Name="DockStatus"
+                                x:Uid="Controls_DockStatus"
+                                Glyph="&#xE706;"
+                                Setting="led_brightness_2"
+                                Unit="%"
+                                Visibility="Collapsed" />
+                            <c:SettingRow
+                                x:Name="TransmitterLight"
+                                x:Uid="Controls_TransmitterLight"
+                                Glyph="&#xE706;"
+                                Setting="led_brightness_1"
+                                Unit="%"
+                                Visibility="Collapsed" />
+                        </StackPanel>
+                    </StackPanel>
+                </c:HeadsetSection>
+
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>

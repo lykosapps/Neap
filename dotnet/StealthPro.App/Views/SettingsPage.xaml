@@ -9,31 +9,33 @@
         Padding="32,0,32,32"
         HorizontalScrollBarVisibility="Disabled"
         HorizontalScrollMode="Disabled">
-        <StackPanel>
+        <Grid>
+            <StackPanel Style="{StaticResource PageColumnStyle}">
 
-            <TextBlock x:Uid="Settings_Title" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock x:Uid="Settings_Title" Style="{StaticResource PageTitleStyle}" />
 
-            <TextBlock x:Uid="Settings_RunningHeading" Style="{StaticResource SectionHeaderStyle}" />
-            <TextBlock x:Uid="Settings_RunningNote" Style="{StaticResource SectionNoteStyle}" />
-            <StackPanel Spacing="4">
-                <tk:SettingsCard x:Uid="Settings_StartWithWindows">
-                    <tk:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE7E8;" />
-                    </tk:SettingsCard.HeaderIcon>
-                    <ToggleSwitch x:Name="StartWithWindows" />
-                </tk:SettingsCard>
+                <TextBlock x:Uid="Settings_RunningHeading" Style="{StaticResource SectionHeaderStyle}" />
+                <TextBlock x:Uid="Settings_RunningNote" Style="{StaticResource SectionNoteStyle}" />
+                <StackPanel Spacing="4">
+                    <tk:SettingsCard x:Uid="Settings_StartWithWindows">
+                        <tk:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE7E8;" />
+                        </tk:SettingsCard.HeaderIcon>
+                        <ToggleSwitch x:Name="StartWithWindows" />
+                    </tk:SettingsCard>
+
+                </StackPanel>
+
+                <TextBlock x:Uid="Settings_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
+                <StackPanel Spacing="4">
+                    <tk:SettingsCard x:Name="AboutCard">
+                        <tk:SettingsCard.HeaderIcon>
+                            <ImageIcon Source="ms-appx:///Assets/logo.png" />
+                        </tk:SettingsCard.HeaderIcon>
+                    </tk:SettingsCard>
+                </StackPanel>
 
             </StackPanel>
-
-            <TextBlock x:Uid="Settings_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
-            <StackPanel Spacing="4">
-                <tk:SettingsCard x:Name="AboutCard">
-                    <tk:SettingsCard.HeaderIcon>
-                        <ImageIcon Source="ms-appx:///Assets/logo.png" />
-                    </tk:SettingsCard.HeaderIcon>
-                </tk:SettingsCard>
-            </StackPanel>
-
-        </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>

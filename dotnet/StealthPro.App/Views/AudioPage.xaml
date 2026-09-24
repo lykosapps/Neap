@@ -9,72 +9,74 @@
         Padding="32,0,32,32"
         HorizontalScrollBarVisibility="Disabled"
         HorizontalScrollMode="Disabled">
-        <StackPanel>
+        <Grid>
+            <StackPanel Style="{StaticResource PageColumnStyle}">
 
-            <TextBlock x:Uid="Audio_Title" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock x:Uid="Audio_Title" Style="{StaticResource PageTitleStyle}" />
 
-            <c:HeadsetNotice />
+                <c:HeadsetNotice />
 
-            <!--
-                With the headset off, the whole page is one card: the mix and
-                Windows' volume go on working without it, but on nothing the
-                person can hear. See HeadsetSection.WhenOff.
-            -->
-            <c:HeadsetSection x:Uid="Audio_Section" WhenOff="True">
-                <TextBlock x:Uid="Audio_GameAndChatHeading" Style="{StaticResource SectionHeaderStyle}" />
-                <c:MixPanel />
+                <!--
+                    With the headset off, the whole page is one card: the mix and
+                    Windows' volume go on working without it, but on nothing the
+                    person can hear. See HeadsetSection.WhenOff.
+                -->
+                <c:HeadsetSection x:Uid="Audio_Section" WhenOff="True">
+                    <TextBlock x:Uid="Audio_GameAndChatHeading" Style="{StaticResource SectionHeaderStyle}" />
+                    <c:MixPanel />
 
-                <TextBlock x:Uid="Audio_VolumeHeading" Style="{StaticResource SectionHeaderStyle}" />
-                <TextBlock x:Uid="Audio_VolumeNote" Style="{StaticResource SectionNoteStyle}" />
-                <StackPanel>
-                    <c:RoutingNotice Margin="0,0,0,8" Microphone="False" />
-                    <StackPanel Spacing="4">
-                        <c:WindowsVolumeRow
-                            x:Uid="Audio_Mute"
-                            Glyph="&#xE74F;"
-                            Kind="Mute" />
-                        <c:WindowsVolumeRow
-                            x:Uid="Audio_MasterVolume"
-                            Glyph="&#xE767;"
-                            Kind="Volume" />
-                    </StackPanel>
-                </StackPanel>
-
-                <c:HeadsetSection x:Uid="Audio_HeadsetSection">
-                    <TextBlock x:Uid="Audio_NoiseCancellationHeading" Style="{StaticResource SectionHeaderStyle}" />
-                    <StackPanel Spacing="4">
-                        <c:SettingRow
-                            x:Uid="Audio_ActiveNoiseCancellation"
-                            Glyph="&#xE767;"
-                            Setting="anc" />
-                        <c:SettingRow
-                            x:Uid="Audio_AncIntensity"
-                            Glyph="&#xE9E9;"
-                            Setting="anc_level" />
+                    <TextBlock x:Uid="Audio_VolumeHeading" Style="{StaticResource SectionHeaderStyle}" />
+                    <TextBlock x:Uid="Audio_VolumeNote" Style="{StaticResource SectionNoteStyle}" />
+                    <StackPanel>
+                        <c:RoutingNotice Margin="0,0,0,8" Microphone="False" />
+                        <StackPanel Spacing="4">
+                            <c:WindowsVolumeRow
+                                x:Uid="Audio_Mute"
+                                Glyph="&#xE74F;"
+                                Kind="Mute" />
+                            <c:WindowsVolumeRow
+                                x:Uid="Audio_MasterVolume"
+                                Glyph="&#xE767;"
+                                Kind="Volume" />
+                        </StackPanel>
                     </StackPanel>
 
-                    <TextBlock x:Uid="Audio_SuperhumanHearingHeading" Style="{StaticResource SectionHeaderStyle}" />
-                    <StackPanel Spacing="4">
-                        <c:SettingRow
-                            x:Uid="Audio_SuperhumanHearing"
-                            Glyph="&#xE9D9;"
-                            Setting="superhuman_hearing" />
-                        <c:SettingRow
-                            x:Uid="Audio_Type"
-                            Glyph="&#xE8FD;"
-                            Setting="shh_preset" />
-                        <c:SettingRow
-                            x:Uid="Audio_Intensity"
-                            Glyph="&#xE9E9;"
-                            Setting="shh_level" />
-                    </StackPanel>
+                    <c:HeadsetSection x:Uid="Audio_HeadsetSection">
+                        <TextBlock x:Uid="Audio_NoiseCancellationHeading" Style="{StaticResource SectionHeaderStyle}" />
+                        <StackPanel Spacing="4">
+                            <c:SettingRow
+                                x:Uid="Audio_ActiveNoiseCancellation"
+                                Glyph="&#xE767;"
+                                Setting="anc" />
+                            <c:SettingRow
+                                x:Uid="Audio_AncIntensity"
+                                Glyph="&#xE9E9;"
+                                Setting="anc_level" />
+                        </StackPanel>
 
-                    <TextBlock x:Uid="Audio_EqualiserHeading" Style="{StaticResource SectionHeaderStyle}" />
-                    <c:EqualiserPanel Bank="Game" />
+                        <TextBlock x:Uid="Audio_SuperhumanHearingHeading" Style="{StaticResource SectionHeaderStyle}" />
+                        <StackPanel Spacing="4">
+                            <c:SettingRow
+                                x:Uid="Audio_SuperhumanHearing"
+                                Glyph="&#xE9D9;"
+                                Setting="superhuman_hearing" />
+                            <c:SettingRow
+                                x:Uid="Audio_Type"
+                                Glyph="&#xE8FD;"
+                                Setting="shh_preset" />
+                            <c:SettingRow
+                                x:Uid="Audio_Intensity"
+                                Glyph="&#xE9E9;"
+                                Setting="shh_level" />
+                        </StackPanel>
+
+                        <TextBlock x:Uid="Audio_EqualiserHeading" Style="{StaticResource SectionHeaderStyle}" />
+                        <c:EqualiserPanel Bank="Game" />
+                    </c:HeadsetSection>
                 </c:HeadsetSection>
-            </c:HeadsetSection>
 
-        </StackPanel>
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>
 
