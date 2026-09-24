@@ -74,6 +74,8 @@ internal sealed class DecibelFormatter : INumberFormatter2, INumberParser
 /// </remarks>
 public sealed partial class EqualiserPanel : UserControl
 {
+    private const double ChipCurveWidth = 44, ChipCurveHeight = 16;
+
     private readonly List<BandCell> _cells = new();
     private readonly DecibelFormatter _decibels = new();
     private BankState? _state;
@@ -270,9 +272,25 @@ public sealed partial class EqualiserPanel : UserControl
         var slot = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, Tag = preset };
         var chip = new Button
         {
-            Content = preset.Name,
+            Content = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 10,
+                Children =
+                {
+                    new TextBlock { Text = preset.Name, VerticalAlignment = VerticalAlignment.Center },
+                    new Microsoft.UI.Xaml.Shapes.Path
+                    {
+                        Width = ChipCurveWidth,
+                        Height = ChipCurveHeight,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Data = CurveGeometry.Of(preset.Bands, ChipCurveWidth, ChipCurveHeight),
+                    },
+                },
+            },
             Padding = new Thickness(14, 8, 14, 8),
         };
+        AutomationProperties.SetName(chip, preset.Name);
         slot.Children.Add(chip);
         chip.Click += async (_, _) =>
         {
@@ -559,6 +577,9 @@ public sealed partial class EqualiserPanel : UserControl
                 {
                     chip.Style = (Style)Application.Current.Resources[
                         selected ? "AccentButtonStyle" : "DefaultButtonStyle"];
+                    if (chip.Content is StackPanel { Children: [_, Microsoft.UI.Xaml.Shapes.Path curve] })
+                        curve.Style = (Style)Application.Current.Resources[
+                            selected ? "NeapMiniCurveOnAccentStyle" : "NeapMiniCurveStyle"];
                     // The accent says it to the eye; this says it to a screen reader.
                     AutomationProperties.SetItemStatus(chip, selected ? Strings.Get("Equaliser_Selected") : "");
                 }

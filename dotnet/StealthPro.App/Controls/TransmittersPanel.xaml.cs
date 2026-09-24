@@ -30,6 +30,9 @@ public sealed partial class TransmittersPanel : UserControl
     public TransmittersPanel()
     {
         InitializeComponent();
+        // The outline on the transmitter in use is a brush set in code, so
+        // the rows are rebuilt for a new theme.
+        ActualThemeChanged += (_, _) => Paint();
         Loaded += (_, _) =>
         {
             AppServices.Headset.StatusChanged += OnStatus;
@@ -100,7 +103,7 @@ public sealed partial class TransmittersPanel : UserControl
                     },
                     Style = (Style)Application.Current.Resources[
                         row.State == TransmitterState.InUse
-                            ? "BodyStrongTextBlockStyle" : "SecondaryBodyTextStyle"],
+                            ? "NeapInUseTextStyle" : "SecondaryBodyTextStyle"],
                 },
             };
             string detail = row.State switch
@@ -111,6 +114,8 @@ public sealed partial class TransmittersPanel : UserControl
                 _ => row.Firmware.Length > 0 ? Strings.Format("Transmitters_Firmware", row.Firmware) : "",
             };
             if (detail.Length > 0) card.Description = detail;
+            if (row.State == TransmitterState.InUse)
+                card.BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["AccentFillColorDefaultBrush"];
             Rows.Children.Add(card);
         }
     }

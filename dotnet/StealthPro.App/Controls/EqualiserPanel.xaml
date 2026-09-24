@@ -8,8 +8,8 @@
 
     <Border
         Padding="20,16,20,20"
-        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+        Background="{ThemeResource SettingsCardBackground}"
+        BorderBrush="{ThemeResource SettingsCardBorderBrush}"
         BorderThickness="1"
         CornerRadius="{ThemeResource ControlCornerRadius}">
         <StackPanel Spacing="16">

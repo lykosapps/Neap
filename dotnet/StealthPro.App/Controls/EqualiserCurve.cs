@@ -135,7 +135,7 @@ public sealed class EqualiserCurve : UserControl
         var centre = Themed("ControlStrongStrokeColorDefaultBrush");
         var accent = Themed("AccentFillColorDefaultBrush");
         var ghost = Themed("TextFillColorTertiaryBrush");
-        var behind = Themed("CardBackgroundFillColorDefaultBrush");
+        var behind = Themed("SettingsCardBackground");
 
         // Four gridlines and the 0 dB line, which is drawn last of the five
         // so it reads as the one that matters.

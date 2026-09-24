@@ -238,9 +238,13 @@
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 
-    <!--  The small curve beside a preset's name.  -->
+    <!--  The small curve beside a preset's name, and on a preset that is chosen and filled with the accent.  -->
     <Style x:Key="NeapMiniCurveStyle" TargetType="Path">
         <Setter Property="Stroke" Value="{ThemeResource NeapGameTextBrush}" />
+        <Setter Property="StrokeThickness" Value="2" />
+    </Style>
+    <Style x:Key="NeapMiniCurveOnAccentStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
         <Setter Property="StrokeThickness" Value="2" />
     </Style>
 </ResourceDictionary>
