@@ -22,6 +22,12 @@ namespace StealthPro.App.Controls;
 /// setting no option is chosen and the group is disabled, since a first
 /// option ticked would read as a value.
 /// </para>
+/// <para>
+/// Each button is ticked directly and each tick is the person's choice. The
+/// group's own selection is not used: set from code it neither shows on the
+/// buttons to UI Automation nor changes until after painting, when it would
+/// send the value just shown back to the headset.
+/// </para>
 /// </remarks>
 public sealed class SettingChoice : UserControl
 {
@@ -41,10 +47,6 @@ public sealed class SettingChoice : UserControl
             Child = new StackPanel { Spacing = 6, Children = { _title, _description, _options } },
         };
         _link = new SettingLink(this, () => Setting, Build, Paint);
-        _options.SelectionChanged += (_, _) =>
-        {
-            if (_options.SelectedItem is RadioButton { Tag: int value }) _link.Write(value);
-        };
     }
 
     public static readonly DependencyProperty SettingProperty = DependencyProperty.Register(
@@ -89,13 +91,18 @@ public sealed class SettingChoice : UserControl
     {
         AutomationProperties.SetAutomationId(_options, key.Name);
         foreach (var option in key.Options ?? new Dictionary<int, string>())
-            _options.Items.Add(new RadioButton { Content = option.Value, Tag = option.Key });
+        {
+            var button = new RadioButton { Content = option.Value, Tag = option.Key };
+            button.Checked += (_, _) => _link.Write(option.Key);
+            _options.Items.Add(button);
+        }
     }
 
     private void Paint()
     {
         int? value = _link.Value;
         _options.IsEnabled = value is not null && _link.Key is { Writable: true };
-        _options.SelectedItem = _options.Items.OfType<RadioButton>().FirstOrDefault(r => r.Tag is int tag && tag == value);
+        foreach (var button in _options.Items.OfType<RadioButton>())
+            button.IsChecked = button.Tag is int tag && tag == value;
     }
 }
