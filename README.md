@@ -14,6 +14,7 @@ and Swarm II are trademarks of Turtle Beach Corporation.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — building, testing, and the checks
   that need a headset
 - [SECURITY.md](SECURITY.md) — reporting a security problem
+- [BACKLOG.md](BACKLOG.md) — bugs, features and work still to do
 
 ## What it does
 
