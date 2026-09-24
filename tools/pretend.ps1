@@ -460,7 +460,7 @@ try {
     }
 
     Write-Host 'Settings'
-    foreach ($page in 'Audio', 'Microphone', 'Controls') { Settings $page }
+    foreach ($page in 'Audio', 'Microphone', 'Controls', 'Device') { Settings $page }
     $missed = @($script:registry | Where-Object { $_.writable -and $_.kind -ne 'Text' -and -not $script:covered[$_.name] } | ForEach-Object { $_.name })
     Write-Host "  note  writable settings with no control on these pages: $($missed -join ', ')"
 

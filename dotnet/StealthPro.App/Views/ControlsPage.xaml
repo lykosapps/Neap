@@ -45,41 +45,6 @@
                             Setting="voice_prompt_volume"
                             Unit="%" />
                     </StackPanel>
-
-                    <!--
-                        The lights of the transmitter carrying the headset, named for
-                        it; which rows show is decided in ControlsPage.xaml.cs.
-                    -->
-                    <StackPanel>
-                        <TextBlock
-                            x:Name="LightsHeader"
-                            x:Uid="Controls_LightsHeader"
-                            Style="{StaticResource SectionHeaderStyle}"
-                            Visibility="Collapsed" />
-                        <StackPanel Spacing="4">
-                            <c:SettingRow
-                                x:Name="DockRing"
-                                x:Uid="Controls_DockRing"
-                                Glyph="&#xE706;"
-                                Setting="led_brightness_1"
-                                Unit="%"
-                                Visibility="Collapsed" />
-                            <c:SettingRow
-                                x:Name="DockStatus"
-                                x:Uid="Controls_DockStatus"
-                                Glyph="&#xE706;"
-                                Setting="led_brightness_2"
-                                Unit="%"
-                                Visibility="Collapsed" />
-                            <c:SettingRow
-                                x:Name="TransmitterLight"
-                                x:Uid="Controls_TransmitterLight"
-                                Glyph="&#xE706;"
-                                Setting="led_brightness_1"
-                                Unit="%"
-                                Visibility="Collapsed" />
-                        </StackPanel>
-                    </StackPanel>
                 </c:HeadsetSection>
 
             </StackPanel>

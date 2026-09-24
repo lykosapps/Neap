@@ -193,7 +193,7 @@
     <value>Controls</value>
   </data>
   <data name="Controls_Section.What" xml:space="preserve">
-    <value>The mode button, the dial, power and the lights</value>
+    <value>The mode button, the dial and power</value>
   </data>
   <data name="Controls_OnHeadsetHeading.Text" xml:space="preserve">
     <value>On the headset</value>
@@ -231,25 +231,25 @@
   <data name="Controls_VoicePrompts.Header" xml:space="preserve">
     <value>Voice prompts</value>
   </data>
-  <data name="Controls_LightsHeader.Text" xml:space="preserve">
+  <data name="Device_LightsHeader.Text" xml:space="preserve">
     <value>Charging Dock lights</value>
   </data>
-  <data name="Controls_DockRing.Description" xml:space="preserve">
+  <data name="Device_DockRing.Description" xml:space="preserve">
     <value>The ring around the spare battery slot.</value>
   </data>
-  <data name="Controls_DockRing.Header" xml:space="preserve">
+  <data name="Device_DockRing.Header" xml:space="preserve">
     <value>Battery slot ring</value>
   </data>
-  <data name="Controls_DockStatus.Description" xml:space="preserve">
+  <data name="Device_DockStatus.Description" xml:space="preserve">
     <value>Turns purple when the link is running high bandwidth.</value>
   </data>
-  <data name="Controls_DockStatus.Header" xml:space="preserve">
+  <data name="Device_DockStatus.Header" xml:space="preserve">
     <value>Status ring</value>
   </data>
-  <data name="Controls_TransmitterLight.Description" xml:space="preserve">
+  <data name="Device_TransmitterLight.Description" xml:space="preserve">
     <value>The status light on the transmitter.</value>
   </data>
-  <data name="Controls_TransmitterLight.Header" xml:space="preserve">
+  <data name="Device_TransmitterLight.Header" xml:space="preserve">
     <value>Light</value>
   </data>
   <data name="Device_Title.Text" xml:space="preserve">
@@ -765,10 +765,10 @@
   <data name="Tray_StillRunning" xml:space="preserve">
     <value>{0} is in the notification area, keeping the mix and the chat wheel working. Open or quit it from there.</value>
   </data>
-  <data name="Controls_DockLightsHeading" xml:space="preserve">
+  <data name="Device_DockLightsHeading" xml:space="preserve">
     <value>Charging Dock lights</value>
   </data>
-  <data name="Controls_TransmitterLightHeading" xml:space="preserve">
+  <data name="Device_TransmitterLightHeading" xml:space="preserve">
     <value>USB Transmitter light</value>
   </data>
   <data name="Device_Unidentified" xml:space="preserve">

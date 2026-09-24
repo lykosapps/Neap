@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using StealthPro.App.Services;
 using StealthPro.Core;
+using StealthPro.Core.Connection;
 using StealthPro.Core.Protocol;
 using StealthPro.Core.Settings;
 
@@ -16,9 +17,34 @@ public sealed partial class DevicePage : Page
         Loaded += (_, _) =>
         {
             AppServices.Headset.Changed += PaintRaw;
+            AppServices.Headset.StatusChanged += OnStatus;
             PaintRaw();
+            PaintLights();
         };
-        Unloaded += (_, _) => AppServices.Headset.Changed -= PaintRaw;
+        Unloaded += (_, _) =>
+        {
+            AppServices.Headset.Changed -= PaintRaw;
+            AppServices.Headset.StatusChanged -= OnStatus;
+        };
+    }
+
+    private void OnStatus(HeadsetStatus status) => PaintLights();
+
+    /// <summary>
+    /// Shows the light settings of the transmitter the headset is on, and only
+    /// those; <see cref="TransmitterLights"/> decides which.
+    /// </summary>
+    private void PaintLights()
+    {
+        var lights = TransmitterLights.For(AppServices.Headset.Status);
+        bool dock = lights == LightSet.Dock;
+        bool usb = lights == LightSet.Transmitter;
+
+        LightsHeader.Text = Strings.Get(dock ? "Device_DockLightsHeading" : "Device_TransmitterLightHeading");
+        LightsHeader.Visibility = dock || usb ? Visibility.Visible : Visibility.Collapsed;
+        DockRing.Visibility = dock ? Visibility.Visible : Visibility.Collapsed;
+        DockStatus.Visibility = dock ? Visibility.Visible : Visibility.Collapsed;
+        TransmitterLight.Visibility = usb ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>
