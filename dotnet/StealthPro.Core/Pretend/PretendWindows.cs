@@ -51,6 +51,12 @@ public sealed class PretendWindows
 
     private Endpoint Of(Flow flow) => flow == Flow.Output ? _output : _input;
 
+    /// <summary>
+    /// Gets or sets the loudest level the pretend microphone hears, from 0 to
+    /// 1, for the level meter; a real microphone is never opened.
+    /// </summary>
+    public float MicrophonePeak { get; set; } = 0.2f;
+
     // -- routing ------------------------------------------------------------
 
     /// <summary>

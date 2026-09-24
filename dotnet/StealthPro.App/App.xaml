@@ -89,6 +89,14 @@
                 <Setter Property="Typography.NumeralAlignment" Value="Tabular" />
             </Style>
 
+            <!--  The microphone meter's bars, lit in the chat side's colour: it is your voice.  -->
+            <Style x:Key="MeterLitStyle" TargetType="Rectangle">
+                <Setter Property="Fill" Value="{ThemeResource NeapChatBrush}" />
+            </Style>
+            <Style x:Key="MeterUnlitStyle" TargetType="Rectangle">
+                <Setter Property="Fill" Value="{ThemeResource ControlStrokeColorDefaultBrush}" />
+            </Style>
+
             <!--  The page's own name, at the top of every page.  -->
             <Style
                 x:Key="PageTitleStyle"

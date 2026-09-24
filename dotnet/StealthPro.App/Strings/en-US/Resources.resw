@@ -327,6 +327,18 @@
   <data name="Microphone_Mic.Header" xml:space="preserve">
     <value>Microphone</value>
   </data>
+  <data name="Microphone_Level.Header" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="Microphone_Level.Description" xml:space="preserve">
+    <value>Speak to see it move.</value>
+  </data>
+  <data name="Microphone_Meter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Microphone level</value>
+  </data>
+  <data name="Microphone_MeterUnavailable" xml:space="preserve">
+    <value>The level can't be shown: Windows isn't letting the app listen to the microphone, or it isn't there.</value>
+  </data>
   <data name="Microphone_Sensitivity.Description" xml:space="preserve">
     <value>Windows' recording level for this microphone. The headset reports it back but cannot change it, so this sets it where it actually lives.</value>
   </data>

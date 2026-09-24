@@ -34,6 +34,16 @@
                                     <c:MicSwitch x:Name="Mic" />
                                 </tk:SettingsCard>
                             </c:HeadsetSection>
+                            <!--
+                                What the microphone hears, while this page is open: Windows shows
+                                its microphone in use light for as long as the meter listens.
+                            -->
+                            <tk:SettingsCard x:Uid="Microphone_Level">
+                                <tk:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xE9D9;" />
+                                </tk:SettingsCard.HeaderIcon>
+                                <c:MicMeter x:Uid="Microphone_Meter" />
+                            </tk:SettingsCard>
                             <c:WindowsVolumeRow
                                 x:Uid="Microphone_Sensitivity"
                                 Capture="True"

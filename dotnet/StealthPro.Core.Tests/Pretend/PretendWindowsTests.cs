@@ -49,7 +49,7 @@ public class PretendWindowsTests
         windows.ApplyFormat(24, 96000, Flow.Output);
 
         Assert.Equal(new AudioFormat(24, 96000, 2), windows.Formats(Flow.Output).Current);
-        Assert.Throws<Audio.FormatException>(() => windows.ApplyFormat(24, 96000, Flow.Input));
+        Assert.Throws<Core.Audio.FormatException>(() => windows.ApplyFormat(24, 96000, Flow.Input));
     }
 
     [Fact]
