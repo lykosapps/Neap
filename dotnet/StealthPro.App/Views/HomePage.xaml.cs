@@ -25,7 +25,6 @@ namespace StealthPro.App.Views;
 public sealed partial class HomePage : Page
 {
     private const int NameKey = 0x220;
-    private const int SignalKey = 0x320;
     private const int BatteryKey = 0x240;
 
     private sealed record Tile(string Tag, string Glyph, string Name, string What);
@@ -162,7 +161,7 @@ public sealed partial class HomePage : Page
         // Signal is the wireless link's, and says nothing about sound that
         // goes over a cable.
         if (live && !OverCable(status)
-            && headset.TryGetNumberByKey(SignalKey, out int signal))
+            && headset.TryGetNumberByKey(Signal.Key, out int signal))
             Add(Strings.Get("Home_Signal"), Strength(signal));
 
         PaintConnections(headset, status, live, unseen);
@@ -302,25 +301,13 @@ public sealed partial class HomePage : Page
         Style = (Style)Application.Current.Resources["SecondaryBodyTextStyle"],
     };
 
-    /// <summary>
-    /// Describes the wireless link strength in words.
-    /// </summary>
-    /// <remarks>
-    /// The value arrives signed in notifications and unsigned in a full read,
-    /// so it is normalised to dBm either way; otherwise it swings on which
-    /// arrived last.
-    /// </remarks>
-    private static string Strength(int raw)
+    private static string Strength(int raw) => Signal.Strength(raw) switch
     {
-        int dbm = raw > 127 ? raw - 256 : raw;
-        return dbm switch
-        {
-            >= -55 => Strings.Get("Home_SignalStrong"),
-            >= -65 => Strings.Get("Home_SignalGood"),
-            >= -73 => Strings.Get("Home_SignalOK"),
-            _ => Strings.Get("Home_SignalWeak"),
-        };
-    }
+        SignalStrength.Strong => Strings.Get("Home_SignalStrong"),
+        SignalStrength.Good => Strings.Get("Home_SignalGood"),
+        SignalStrength.Ok => Strings.Get("Home_SignalOK"),
+        _ => Strings.Get("Home_SignalWeak"),
+    };
 
     // -- transmitters ------------------------------------------------------
 
