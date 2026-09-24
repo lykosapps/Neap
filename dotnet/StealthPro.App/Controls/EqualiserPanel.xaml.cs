@@ -123,8 +123,9 @@ public sealed partial class EqualiserPanel : UserControl
             BuildBands();
             await Reload();
 
-            // A headset that turns up late still gets its presets read, once.
-            if (_state is null)
+            // A headset that turns up late still gets its presets read, once,
+            // unless the page was left while they were being read.
+            if (_state is null && IsLoaded)
                 AppServices.Headset.StatusChanged += OnStatusChanged;
         };
         Unloaded += (_, _) =>

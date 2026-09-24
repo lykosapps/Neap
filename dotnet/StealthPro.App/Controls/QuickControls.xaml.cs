@@ -46,6 +46,8 @@ public sealed partial class QuickControls : UserControl
             AppServices.Hotkeys.Changed += Paint;
             // The connection line says whether the sound's transmitter is
             // here, so it follows what is plugged in as well as the status.
+            // A move can load the control again before unloading it.
+            _plugged?.Stop();
             _plugged = new PluggedWatch(DispatcherQueue, Paint);
             Paint();
         };

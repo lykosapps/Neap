@@ -43,6 +43,8 @@ public sealed partial class TransmittersPanel : UserControl
             AppServices.Headset.TransmittersChanged += Paint;
             AppServices.Headset.Changed += PaintBluetooth;
             AppServices.AudioRoute.Changed += Paint;
+            // A move can load the control again before unloading it.
+            _plugged?.Stop();
             _plugged = new PluggedWatch(DispatcherQueue, Paint);
             Paint();
         };
