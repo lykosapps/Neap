@@ -7,8 +7,6 @@ to GitHub, these become issues.
 
 ## Bugs
 
-- **Quit from the tray does nothing.** Right-clicking the notification area
-  icon and choosing Quit leaves Neap running; only Task Manager ends it.
 - **The mic button fights the boom arm.**
   - With the arm down (unmuted), the app's mute button must still mute.
   - With the arm up (muted), the app cannot unmute, so its button should be
