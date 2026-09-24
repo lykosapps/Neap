@@ -31,7 +31,15 @@ public partial class App : Application
     private static Mutex? _one;
     private static EventWaitHandle? _wake;
 
-    public App() => InitializeComponent();
+    /// <remarks>
+    /// A crash leaves its exception in the app log, since Windows records only
+    /// the module it happened in.
+    /// </remarks>
+    public App()
+    {
+        InitializeComponent();
+        UnhandledException += (_, e) => Services.AppLog.Write($"crashed: {e.Exception}");
+    }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
