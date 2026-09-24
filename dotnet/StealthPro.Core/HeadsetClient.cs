@@ -27,6 +27,7 @@ public sealed class HeadsetClient : IDisposable
     private readonly IHidTransport _transport;
     private readonly bool _ownsTransport;
     private readonly List<byte> _buffer = new();
+    private readonly List<DeviceEvent> _setAside = new();
     private int _counter;
 
     public bool AllowWrites { get; }
@@ -122,13 +123,28 @@ public sealed class HeadsetClient : IDisposable
     /// Performs one read from the headset and returns any complete events found.
     /// </summary>
     /// <remarks>
-    /// Long replies span several reports and an unrelated notification can
-    /// land in the middle of one, so only the consumed prefix is dropped.
+    /// Notifications that arrived while <see cref="ReadCategory"/> waited for
+    /// its reply come first, so none is lost to a read.
     /// </remarks>
     public IReadOnlyList<DeviceEvent> ReadOnce()
     {
+        var events = Receive();
+        if (_setAside.Count == 0) return events;
+        var all = new List<DeviceEvent>(_setAside);
+        all.AddRange(events);
+        _setAside.Clear();
+        return all;
+    }
+
+    /// <summary>Performs one read from the transport and returns any complete events found.</summary>
+    /// <remarks>
+    /// Long replies span several reports and an unrelated notification can
+    /// land in the middle of one, so only the consumed prefix is dropped.
+    /// </remarks>
+    private List<DeviceEvent> Receive()
+    {
         var payload = Frames.PayloadOf(_transport.GetInput());
-        if (payload.IsEmpty) return Array.Empty<DeviceEvent>();
+        if (payload.IsEmpty) return [];
 
         _buffer.AddRange(payload.ToArray());
         var (events, remainder) = EventParser.Consume(_buffer.ToArray());
@@ -143,6 +159,12 @@ public sealed class HeadsetClient : IDisposable
     /// Reads one category, returning as soon as that category's response
     /// completes rather than waiting out the whole window.
     /// </summary>
+    /// <remarks>
+    /// A notification from another category that arrives meanwhile is kept
+    /// for <see cref="ReadOnce"/>. It is the headset's only word on that
+    /// change: a chat wheel notch dropped here leaves the app's count behind
+    /// the wheel's, and the next notch then reads as a turn of several.
+    /// </remarks>
     /// <exception cref="KeyNotFoundException">The category has no read verb.</exception>
     public Dictionary<string, JsonElement> ReadCategory(string category, TimeSpan wait)
     {
@@ -157,9 +179,13 @@ public sealed class HeadsetClient : IDisposable
         var clock = Stopwatch.StartNew();
         while (clock.Elapsed < wait)
         {
-            foreach (var evt in ReadOnce())
+            foreach (var evt in Receive())
             {
-                if (evt.Category != category) continue;
+                if (evt.Category != category)
+                {
+                    if (evt.Kind == "UP") _setAside.Add(evt);
+                    continue;
+                }
                 foreach (var pair in evt.Values) values[pair.Key] = pair.Value;
                 if (evt.Kind == "OR") return values;
             }
@@ -214,6 +240,7 @@ public sealed class HeadsetClient : IDisposable
     public int Drain(int limit = 200)
     {
         _buffer.Clear();
+        _setAside.Clear();
         int seen = 0;
         for (int i = 0; i < limit; i++)
         {

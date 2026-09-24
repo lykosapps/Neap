@@ -34,6 +34,20 @@ public class HeadsetClientTests
     }
 
     [Fact]
+    public void ANotificationArrivingDuringAReadIsKeptForTheNext()
+    {
+        var headset = new PretendHeadset();
+        headset.Push("{\"UP\":\"3DT\",\"KVP\":{\"510\":\"40\"}}");
+        using var client = new HeadsetClient(transport: headset.Open());
+
+        client.ReadCategory("SAF", Window);
+
+        var kept = Assert.Single(client.ReadOnce());
+        Assert.Equal("3DT", kept.Category);
+        Assert.Equal("40", kept.Values["510"].GetString());
+    }
+
+    [Fact]
     public void AReplySpanningSeveralReportsArrivesWhole()
     {
         using var client = new HeadsetClient(transport: new PretendHeadset().Open());
