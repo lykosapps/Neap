@@ -25,7 +25,7 @@
                             Setting="mode_button_function" />
                         <c:SettingRow
                             x:Uid="Controls_LowerDial"
-                            Glyph="&#xE9E9;"
+                            Glyph="&#xE916;"
                             Setting="dial_function" />
                     </StackPanel>
 
@@ -37,11 +37,11 @@
                             Setting="auto_shutoff" />
                         <c:SettingRow
                             x:Uid="Controls_WakeOnMotion"
-                            Glyph="&#xE9D9;"
+                            Glyph="&#xE945;"
                             Setting="wake_on_motion" />
                         <c:SettingRow
                             x:Uid="Controls_VoicePrompts"
-                            Glyph="&#xE767;"
+                            Glyph="&#xE8BD;"
                             Setting="voice_prompt_volume"
                             Unit="%" />
                     </StackPanel>

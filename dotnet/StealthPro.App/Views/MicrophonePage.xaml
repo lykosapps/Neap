@@ -47,12 +47,12 @@
                             <c:WindowsVolumeRow
                                 x:Uid="Microphone_Sensitivity"
                                 Capture="True"
-                                Glyph="&#xE9A9;"
+                                Glyph="&#xE9E9;"
                                 Kind="Volume" />
                             <c:HeadsetSection Explain="False">
                                 <c:SettingRow
                                     x:Uid="Microphone_MicMonitoring"
-                                    Glyph="&#xE767;"
+                                    Glyph="&#xE95B;"
                                     Setting="mic_monitoring" />
                             </c:HeadsetSection>
                         </StackPanel>
@@ -63,7 +63,7 @@
                         <StackPanel Spacing="4">
                             <c:SettingRow
                                 x:Uid="Microphone_AINoiseReduction"
-                                Glyph="&#xE945;"
+                                Glyph="&#xF4A5;"
                                 Setting="ai_noise_reduction" />
                             <c:SettingRow
                                 x:Uid="Microphone_NoiseGate"
@@ -71,7 +71,7 @@
                                 Setting="noise_gate" />
                             <c:SettingRow
                                 x:Uid="Microphone_Threshold"
-                                Glyph="&#xE9E9;"
+                                Glyph="&#xED5E;"
                                 Setting="noise_gate_threshold" />
                         </StackPanel>
 

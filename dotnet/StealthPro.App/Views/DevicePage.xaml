@@ -69,7 +69,7 @@
                         <c:FormatRow
                             x:Uid="Device_HeadsetOutput"
                             Capture="False"
-                            Glyph="&#xE7F6;" />
+                            Glyph="&#xE7F5;" />
                         <c:FormatRow
                             x:Uid="Device_Microphone"
                             Capture="True"
@@ -81,7 +81,7 @@
                         <StackPanel Spacing="4">
                             <c:SettingRow
                                 x:Uid="Device_Firmware"
-                                Glyph="&#xE945;"
+                                Glyph="&#xE950;"
                                 Setting="firmware_version" />
                             <c:SettingRow
                                 x:Uid="Device_SerialNumber"
@@ -92,7 +92,7 @@
                         <TextBlock x:Uid="Device_ReportedHeading" Style="{StaticResource SectionHeaderStyle}" />
                         <tk:SettingsExpander x:Uid="Device_RawValues">
                             <tk:SettingsExpander.HeaderIcon>
-                                <FontIcon Glyph="&#xE9D9;" />
+                                <FontIcon Glyph="&#xE8A1;" />
                             </tk:SettingsExpander.HeaderIcon>
                             <tk:SettingsExpander.ItemsHeader>
                                 <StackPanel

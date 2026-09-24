@@ -36,7 +36,7 @@
                         <TextBlock x:Uid="Audio_NoiseCancellationHeading" Style="{StaticResource SectionHeaderStyle}" />
                         <tk:SettingsExpander x:Uid="Audio_ActiveNoiseCancellation">
                             <tk:SettingsExpander.HeaderIcon>
-                                <FontIcon Glyph="&#xE767;" />
+                                <FontIcon Glyph="&#xE7F6;" />
                             </tk:SettingsExpander.HeaderIcon>
                             <c:SettingToggle x:Uid="Audio_AncSwitch" Setting="anc" />
                             <tk:SettingsExpander.Items>
@@ -47,7 +47,7 @@
                         <TextBlock x:Uid="Audio_SuperhumanHearingHeading" Style="{StaticResource SectionHeaderStyle}" />
                         <tk:SettingsExpander x:Uid="Audio_SuperhumanHearing">
                             <tk:SettingsExpander.HeaderIcon>
-                                <FontIcon Glyph="&#xE9D9;" />
+                                <FontIcon Glyph="&#xF270;" />
                             </tk:SettingsExpander.HeaderIcon>
                             <c:SettingToggle x:Uid="Audio_ShhSwitch" Setting="superhuman_hearing" />
                             <tk:SettingsExpander.Items>
@@ -72,7 +72,7 @@
                                 Kind="Mute" />
                             <c:WindowsVolumeRow
                                 x:Uid="Audio_MasterVolume"
-                                Glyph="&#xE767;"
+                                Glyph="&#xE994;"
                                 Kind="Volume" />
                         </StackPanel>
                     </StackPanel>

@@ -78,7 +78,7 @@
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Main_NavAudio" Tag="audio">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7F6;" />
+                        <FontIcon Glyph="&#xE8D6;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Main_NavMicrophone" Tag="mic">
