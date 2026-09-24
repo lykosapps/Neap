@@ -385,9 +385,9 @@ function Format {
 }
 
 function Wheel {
-    Page 'Audio'
-    $picker = Find $script:window 'AutomationIdProperty' 'SetupPicker'
-    if ($null -eq $picker) { Fail 'Audio offers a chat app picker'; return }
+    Page 'Home'
+    $picker = Find $script:window 'AutomationIdProperty' 'ChatPicker'
+    if ($null -eq $picker) { Fail 'Home offers a chat app picker'; return }
     Choose $picker 'Pretend Chat'
     Check (Until { $null -ne (Ask 'mix') } 5) 'choosing a chat app starts the mix'
     $start = Ask 'mix'
@@ -400,7 +400,7 @@ function Wheel {
     Check (Until { (Ask 'mix') -gt $start }) "turning the wheel toward chat moves the mix from $start to $(Ask 'mix')"
     Check (@(Writes | Where-Object { $_.key -eq '0x510' }).Count -eq 0) 'the wheel is read, never written'
     Collect
-    Screenshot 'audio-mix'
+    Screenshot 'home-mix'
 }
 
 function Battery {

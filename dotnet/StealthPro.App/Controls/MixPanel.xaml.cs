@@ -1,24 +1,33 @@
-using Microsoft.UI.Input;
+using System.Globalization;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using StealthPro.App.Services;
 using StealthPro.Core.Audio;
 using StealthPro.Core.Connection;
 using StealthPro.Core.Mix;
-using Windows.System;
 
 namespace StealthPro.App.Controls;
 
 /// <summary>
-/// The game/chat crossfade, and the choice of which application carries chat.
+/// The game/chat crossfade as a dial, and the choice of which application
+/// carries chat.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Only one of two states is on screen. Before an application is chosen there
-/// is nothing to mix, so the slider is absent rather than disabled, and the
-/// only card asks which application carries chat. Once one is chosen, the
-/// slider is the content and the choice becomes a settings row beneath it.
+/// Before an application is chosen there is nothing to mix, so the dial is
+/// absent rather than disabled, and the panel only asks which application
+/// carries chat. The same picker stays beneath the dial once one is chosen.
+/// </para>
+/// <para>
+/// The middle of the dial shows how loud each side plays, not a share: a
+/// balanced mix plays both at full level. <see cref="MixLevels"/> decides
+/// both numbers and the word above them.
+/// </para>
+/// <para>
+/// It stands on its own, needing nothing from the page around it, and says
+/// for itself why the chat wheel is not reaching it, so the same panel can
+/// sit anywhere the mix is wanted.
 /// </para>
 /// <para>
 /// Naming the application is the whole configuration: no virtual audio
@@ -33,22 +42,19 @@ public sealed partial class MixPanel : UserControl
     {
         InitializeComponent();
 
-        MixSlider.ValueChanged += (_, args) =>
+        Dial.ValueChanged += (_, args) =>
         {
             if (_painting) return;
-            AppServices.Mix.Apply((int)args.NewValue);
+            AppServices.Mix.Apply((int)Math.Round(args.NewValue));
         };
-        SetupPicker.SelectionChanged += (_, _) => Choose(SetupPicker);
-        ChosenPicker.SelectionChanged += (_, _) => Choose(ChosenPicker);
-        SetupRefresh.Click += (_, _) => _ = LoadCandidates();
-        ChosenRefresh.Click += (_, _) => _ = LoadCandidates();
+        ChatPicker.SelectionChanged += (_, _) => Choose();
+        Refresh.Click += (_, _) => _ = LoadCandidates();
 
-        WireKeys();
         Loaded += (_, _) =>
         {
             AppServices.Mix.Changed += Paint;
             AppServices.Headset.StatusChanged += OnHeadset;
-            // The line above the slider names the keys once they are on.
+            // The wheel's notice names the keys once they are on.
             AppServices.Hotkeys.Changed += Paint;
             Paint();
             _ = LoadCandidates();
@@ -67,20 +73,18 @@ public sealed partial class MixPanel : UserControl
     /// </summary>
     private void OnHeadset(HeadsetStatus status) => Paint();
 
-    private void Choose(ComboBox picker)
+    private void Choose()
     {
-        if (_painting || picker.SelectedItem is not ComboBoxItem { Tag: string process }) return;
+        if (_painting || ChatPicker.SelectedItem is not ComboBoxItem { Tag: string process }) return;
         AppServices.Mix.ChatApps = new[] { process };
         if (!AppServices.Mix.Running) AppServices.Mix.Start();
         Paint();
     }
 
-    /// <summary>
-    /// Lists the applications playing to the headset into both pickers.
-    /// </summary>
+    /// <summary>Lists the applications playing to the headset into the picker.</summary>
     /// <remarks>
-    /// Cheap enough to run on opening the page, and re-run on demand, since
-    /// the chat application may have started since.
+    /// Cheap enough to run on arrival, and re-run on demand, since the chat
+    /// application may have started since.
     /// </remarks>
     private async Task LoadCandidates()
     {
@@ -91,31 +95,21 @@ public sealed partial class MixPanel : UserControl
         _painting = true;
         try
         {
-            foreach (var picker in new[] { SetupPicker, ChosenPicker })
+            ChatPicker.Items.Clear();
+            foreach (var candidate in candidates)
             {
-                picker.Items.Clear();
-                foreach (var candidate in candidates)
+                var item = new ComboBoxItem
                 {
-                    var item = new ComboBoxItem
-                    {
-                        Content = candidate.Playing
-                            ? Strings.Format("Mix_Playing", candidate.Display)
-                            : candidate.Display,
-                        Tag = candidate.Process,
-                    };
-                    picker.Items.Add(item);
-                    if (string.Equals(candidate.Process, chosen, StringComparison.OrdinalIgnoreCase))
-                        picker.SelectedItem = item;
-                }
+                    Content = candidate.Playing
+                        ? Strings.Format("Mix_Playing", candidate.Display)
+                        : candidate.Display,
+                    Tag = candidate.Process,
+                };
+                ChatPicker.Items.Add(item);
+                if (string.Equals(candidate.Process, chosen, StringComparison.OrdinalIgnoreCase))
+                    ChatPicker.SelectedItem = item;
             }
-
             Notice.IsOpen = candidates.Count == 0;
-            if (candidates.Count == 0)
-            {
-                Notice.Severity = InfoBarSeverity.Informational;
-                Notice.Title = Strings.Get("Mix_NothingPlayingTitle");
-                Notice.Message = Strings.Get("Mix_NothingPlaying");
-            }
         }
         finally { _painting = false; }
     }
@@ -123,24 +117,15 @@ public sealed partial class MixPanel : UserControl
     private void Paint()
     {
         bool chosen = AppServices.Mix.ChatApps.Count > 0;
-        SetupCard.Visibility = chosen ? Visibility.Collapsed : Visibility.Visible;
-        MixCard.Visibility = chosen ? Visibility.Visible : Visibility.Collapsed;
-        ChosenCard.Visibility = chosen ? Visibility.Visible : Visibility.Collapsed;
-        KeysCard.Visibility = chosen ? Visibility.Visible : Visibility.Collapsed;
-        if (!chosen) return;
-
-        PaintKeys();
+        SetupLine.Visibility = chosen ? Visibility.Collapsed : Visibility.Visible;
+        DialArea.Visibility = chosen ? Visibility.Visible : Visibility.Collapsed;
 
         var status = AppServices.Headset.Status;
 
-        // When the chat wheel cannot reach the app (settings out of reach, as
-        // on the USB Transmitter alone, or no sound), the keyboard is the way
-        // in. Say why once, above the slider; the keyboard switch keeps its
-        // own description.
-        WheelBar.IsOpen = status.SettingsUnreachable || status.NoSound;
-        WheelBar.Title = StateCopy.WheelTitle;
-        WheelBar.Message = StateCopy.MixWithoutWheel(onAudioPage: true) + " "
-            + (status.SettingsUnreachable ? StateCopy.FixUnreachable : StateCopy.FixNoSound);
+        // The wheel arrives over the very link that is missing, so the app
+        // cannot fix this itself; it says what still moves the mix.
+        WheelBar.IsOpen = chosen && (status.SettingsUnreachable || status.NoSound);
+        WheelBar.Message = StateCopy.MixWithoutWheel();
 
         // The chat application is playing to another device. It keeps its own
         // output setting, so changing the headset in Windows does not move it;
@@ -150,7 +135,7 @@ public sealed partial class MixPanel : UserControl
         // is in the right place and Windows is not, which the routing warning
         // says with the right fix; this one would say to move chat away from
         // the headset.
-        var elsewhere = AppServices.Mix.Status?.Elsewhere;
+        var elsewhere = chosen ? AppServices.Mix.Status?.Elsewhere : null;
         if (elsewhere is not null && status.Product.Length > 0
             && AudioRoute.Belonging(status.Product, output: true)
                 .Contains(elsewhere.Device, StringComparer.OrdinalIgnoreCase))
@@ -159,135 +144,26 @@ public sealed partial class MixPanel : UserControl
         if (elsewhere is not null)
             ElsewhereBar.Message = Strings.Format("Mix_Elsewhere", elsewhere.App, elsewhere.Device);
 
+        if (!chosen) return;
         _painting = true;
         try
         {
             int mix = AppServices.Mix.Mix;
-            MixSlider.Value = mix;
-            MixCaption.Text = MixLevels.Lean(mix) switch
+            int game = MixLevels.Game(mix), chat = MixLevels.Chat(mix);
+            Dial.Value = mix;
+            GameLevel.Text = game.ToString(CultureInfo.CurrentCulture);
+            ChatLevel.Text = chat.ToString(CultureInfo.CurrentCulture);
+            LeanText.Text = MixLevels.Lean(mix) switch
             {
-                MixLean.Balanced => Strings.Get("Mix_Balanced"),
                 MixLean.GameOnly => Strings.Get("Mix_GameOnly"),
-                MixLean.ChatOnly => Strings.Get("Mix_ChatOnly"),
-                MixLean.TowardGame => Strings.Format("Mix_TowardGame", 100 - mix),
-                _ => Strings.Format("Mix_TowardChat", mix),
+                MixLean.TowardGame => Strings.Get("Mix_TowardGame"),
+                MixLean.Balanced => Strings.Get("Mix_Balanced"),
+                MixLean.TowardChat => Strings.Get("Mix_TowardChat"),
+                _ => Strings.Get("Mix_ChatOnly"),
             };
+            // The dial's number is its position; what it means is said with it.
+            AutomationProperties.SetHelpText(Dial, Strings.Format("Mix_Levels", LeanText.Text, game, chat));
         }
         finally { _painting = false; }
     }
-
-    // -- the keyboard ------------------------------------------------------
-
-    private MixKey? _capturing;
-
-    private void WireKeys()
-    {
-        _painting = true;
-        KeysOn.IsOn = AppServices.Hotkeys.Enabled;
-        _painting = false;
-
-        // Global keys would be taken from the real copy of the app.
-        KeysOn.IsEnabled = !Pretend.Active;
-
-        KeysOn.Toggled += (_, _) =>
-        {
-            if (_painting) return;
-            AppServices.Hotkeys.Enable(KeysOn.IsOn);
-            AppSettings.Update(settings => settings.MixHotkeys = KeysOn.IsOn);
-            PaintKeys();
-        };
-
-        KeysReset.Click += (_, _) => { AppServices.Hotkeys.ResetToDefaults(); PaintKeys(); };
-
-        Capture(GameKey, MixKey.TowardGame);
-        Capture(ChatKey, MixKey.TowardChat);
-        Capture(CentreKey, MixKey.Balanced);
-    }
-
-    /// <summary>
-    /// Makes a button record a key combination by having it pressed, rather
-    /// than picked from a list.
-    /// </summary>
-    /// <remarks>
-    /// The button itself becomes the prompt, so there is no dialog to dismiss;
-    /// Escape leaves the binding as it was.
-    /// </remarks>
-    private void Capture(Button button, MixKey which)
-    {
-        button.Click += (_, _) =>
-        {
-            _capturing = which;
-            button.Content = Strings.Get("Mix_PressKeys");
-            button.Focus(FocusState.Programmatic);
-        };
-
-        button.LostFocus += (_, _) => { if (_capturing == which) { _capturing = null; PaintKeys(); } };
-
-        button.KeyDown += (_, args) =>
-        {
-            if (_capturing != which) return;
-            args.Handled = true;
-
-            if (args.Key == VirtualKey.Escape) { _capturing = null; PaintKeys(); return; }
-
-            // A modifier on its own is the person still reaching for the
-            // combination, not the combination.
-            if (args.Key is VirtualKey.Control or VirtualKey.Menu or VirtualKey.Shift
-                or VirtualKey.LeftWindows or VirtualKey.RightWindows) return;
-
-            uint modifiers = 0;
-            if (Held(VirtualKey.Control)) modifiers |= Shortcut.Control;
-            if (Held(VirtualKey.Menu)) modifiers |= Shortcut.Alt;
-            if (Held(VirtualKey.Shift)) modifiers |= Shortcut.Shift;
-
-            var shortcut = new Shortcut(modifiers, (uint)args.Key);
-            _capturing = null;
-
-            if (!shortcut.Sane)
-            {
-                // Refused rather than accepted quietly: a bare key here is
-                // taken from every other program on the machine.
-                PaintKeys();
-                Notice.Title = Strings.Get("Mix_NeedsModifierTitle");
-                Notice.Message = Strings.Get("Mix_NeedsModifier");
-                Notice.IsOpen = true;
-                return;
-            }
-
-            Notice.IsOpen = false;
-            AppServices.Hotkeys.Rebind(which, shortcut);
-            PaintKeys();
-        };
-    }
-
-    private static bool Held(VirtualKey key) =>
-        InputKeyboardSource.GetKeyStateForCurrentThread(key)
-            .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
-
-    private void PaintKeys()
-    {
-        Show(GameKey, GameRow, MixKey.TowardGame);
-        Show(ChatKey, ChatRow, MixKey.TowardChat);
-        Show(CentreKey, CentreRow, MixKey.Balanced);
-
-        _painting = true;
-        KeysOn.IsOn = AppServices.Hotkeys.Enabled;
-        _painting = false;
-    }
-
-    private static void Show(Button button, CommunityToolkit.WinUI.Controls.SettingsCard row, MixKey which)
-    {
-        button.Content = AppServices.Hotkeys.Key(which).ToString();
-
-        // The keys alone do not say what they do: "Toward game: Ctrl + Alt +
-        // Page Down", not just the keys.
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
-            button, Strings.Format("Mix_KeyName", row.Header, button.Content));
-
-        // A combination another program already holds does nothing at all
-        // when pressed, and there is nowhere else this could be said.
-        string? trouble = AppServices.Hotkeys.Trouble(which);
-        row.Description = trouble ?? "";
-    }
 }
-

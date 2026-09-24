@@ -49,8 +49,8 @@
 
         <!--
             One note for every state that needs explaining, filled from
-            StateCopy: what is happening, what still works, the one thing to
-            do, and a fallback last. It sits where the controls it replaces
+            StateCopy: what is happening, the one thing to do, and a fallback
+            last. What still moves the mix is said in the mix itself. It sits where the controls it replaces
             were, so nothing moves under the pointer.
         -->
         <Border
@@ -63,10 +63,6 @@
                     Style="{StaticResource BodyStrongTextBlockStyle}"
                     TextWrapping="Wrap" />
                 <TextBlock
-                    x:Name="NoteMix"
-                    Style="{StaticResource SecondaryBodyTextStyle}"
-                    TextWrapping="Wrap" />
-                <TextBlock
                     x:Name="NoteFix"
                     Style="{StaticResource BodyTextBlockStyle}"
                     TextWrapping="Wrap" />
@@ -75,6 +71,14 @@
                     Style="{StaticResource SecondaryCaptionTextStyle}"
                     TextWrapping="Wrap" />
             </StackPanel>
+        </Border>
+
+        <!--
+            The controls. The mix goes on working with only the headset's
+            settings out of reach, so it folds only when the headset is away.
+        -->
+        <Border x:Name="MixCard" Style="{StaticResource QuickCardStyle}">
+            <c:MixPanel />
         </Border>
 
     </StackPanel>

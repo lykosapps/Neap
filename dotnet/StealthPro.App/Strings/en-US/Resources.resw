@@ -63,17 +63,23 @@
   <data name="Equaliser_SaveButton.Content" xml:space="preserve">
     <value>Save as new preset</value>
   </data>
-  <data name="Mix_SetupCard.Description" xml:space="preserve">
+  <data name="Mix_ChatPicker.PlaceholderText" xml:space="preserve">
+    <value>Choose an app</value>
+  </data>
+  <data name="Mix_Title.Text" xml:space="preserve">
+    <value>Game and chat</value>
+  </data>
+  <data name="Mix_Setup.Text" xml:space="preserve">
     <value>Pick the app your voice chat comes out of. Everything else on the headset becomes the game side.</value>
   </data>
-  <data name="Mix_SetupCard.Header" xml:space="preserve">
-    <value>Choose your chat app</value>
+  <data name="Mix_ChatFrom.Text" xml:space="preserve">
+    <value>Chat comes from</value>
   </data>
-  <data name="Mix_SetupPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Choose your chat app</value>
+  <data name="Mix_ChatPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Chat comes from</value>
   </data>
-  <data name="Mix_SetupPicker.PlaceholderText" xml:space="preserve">
-    <value>Choose an app</value>
+  <data name="Mix_Levels" xml:space="preserve">
+    <value>{0}. Game at {1}%, chat at {2}%.</value>
   </data>
   <data name="Mix_Refresh.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Look for chat apps again</value>
@@ -90,7 +96,7 @@
   <data name="Mix_Game.Text" xml:space="preserve">
     <value>Game</value>
   </data>
-  <data name="Mix_MixSlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+  <data name="Mix_Dial.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Game and chat mix</value>
   </data>
   <data name="Mix_Chat.Text" xml:space="preserve">
@@ -123,23 +129,11 @@
   <data name="Mix_KeysReset.Content" xml:space="preserve">
     <value>Reset</value>
   </data>
-  <data name="Mix_ChosenCard.Description" xml:space="preserve">
-    <value>Everything else playing on the headset is treated as game audio.</value>
-  </data>
-  <data name="Mix_ChosenCard.Header" xml:space="preserve">
-    <value>Chat comes from</value>
-  </data>
-  <data name="Mix_ChosenPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Chat comes from</value>
-  </data>
   <data name="Audio_Title.Text" xml:space="preserve">
     <value>Audio</value>
   </data>
   <data name="Audio_Section.What" xml:space="preserve">
-    <value>The game and chat mix, volume, noise cancellation and the equaliser</value>
-  </data>
-  <data name="Audio_GameAndChatHeading.Text" xml:space="preserve">
-    <value>Game and chat</value>
+    <value>Volume, noise cancellation and the equaliser</value>
   </data>
   <data name="Audio_VolumeHeading.Text" xml:space="preserve">
     <value>Volume</value>
@@ -366,6 +360,9 @@
   <data name="Settings_RunningNote.Text" xml:space="preserve">
     <value>Closing the window leaves the app running in the notification area, so the chat wheel and the mix keep working. Quit from its menu there to stop it altogether.</value>
   </data>
+  <data name="Settings_MixHeading.Text" xml:space="preserve">
+    <value>Game and chat mix</value>
+  </data>
   <data name="Settings_StartWithWindows.Description" xml:space="preserve">
     <value>Starts quietly in the notification area, so the chat wheel and the mix work from the moment you log in.</value>
   </data>
@@ -426,17 +423,11 @@
   <data name="State_WhatOffOnCable" xml:space="preserve">
     <value>Your headset is switched off.</value>
   </data>
-  <data name="State_WheelTitle" xml:space="preserve">
-    <value>The chat wheel isn't reaching the app</value>
-  </data>
   <data name="State_MixWithKeys" xml:space="preserve">
-    <value>You can still move the mix with the slider, or from the keyboard with {0} and {1}.</value>
+    <value>You can still move the mix with the dial, or from the keyboard with {0} and {1}.</value>
   </data>
-  <data name="State_MixKeysBelow" xml:space="preserve">
-    <value>You can still move the mix with the slider, or turn on the keyboard shortcut below to move it from inside a game.</value>
-  </data>
-  <data name="State_MixKeysOnAudio" xml:space="preserve">
-    <value>You can still move the mix with the slider on Audio, or turn on its keyboard shortcut there to move it from inside a game.</value>
+  <data name="State_MixKeysInSettings" xml:space="preserve">
+    <value>You can still move the mix with the dial, or turn on its keyboard shortcut in Settings to move it from inside a game.</value>
   </data>
   <data name="Routing_OpenSoundSettings" xml:space="preserve">
     <value>Open Sound settings</value>
@@ -705,10 +696,10 @@
   <data name="Mix_Playing" xml:space="preserve">
     <value>{0}  ·  playing</value>
   </data>
-  <data name="Mix_NothingPlayingTitle" xml:space="preserve">
+  <data name="Mix_NothingPlaying.Title" xml:space="preserve">
     <value>Nothing is playing to the headset yet</value>
   </data>
-  <data name="Mix_NothingPlaying" xml:space="preserve">
+  <data name="Mix_NothingPlaying.Message" xml:space="preserve">
     <value>Start your chat app, then look again.</value>
   </data>
   <data name="Mix_Elsewhere" xml:space="preserve">
@@ -724,10 +715,10 @@
     <value>Chat only</value>
   </data>
   <data name="Mix_TowardGame" xml:space="preserve">
-    <value>{0}% toward game</value>
+    <value>Toward game</value>
   </data>
   <data name="Mix_TowardChat" xml:space="preserve">
-    <value>{0}% toward chat</value>
+    <value>Toward chat</value>
   </data>
   <data name="Mix_PressKeys" xml:space="preserve">
     <value>Press the keys…</value>

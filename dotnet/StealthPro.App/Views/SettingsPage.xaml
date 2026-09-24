@@ -3,6 +3,7 @@
     x:Class="StealthPro.App.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:StealthPro.App.Controls"
     xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <ScrollViewer
@@ -25,6 +26,9 @@
                     </tk:SettingsCard>
 
                 </StackPanel>
+
+                <TextBlock x:Uid="Settings_MixHeading" Style="{StaticResource SectionHeaderStyle}" />
+                <c:MixKeysPanel />
 
                 <TextBlock x:Uid="Settings_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
                 <StackPanel Spacing="4">

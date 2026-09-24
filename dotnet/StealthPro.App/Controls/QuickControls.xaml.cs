@@ -84,6 +84,14 @@ public sealed partial class QuickControls : UserControl
             AddReading(Strings.Get("Home_Signal"), Strength(signal));
 
         PaintNote(StateNote.For(status));
+        Fold(MixCard, SectionFold.For(status, whenOff: true));
+    }
+
+    /// <summary>Shows a part of the block, or hides it while the note stands in for it.</summary>
+    private static void Fold(UIElement part, Fold fold)
+    {
+        if (fold != Core.Connection.Fold.Unchanged)
+            part.Visibility = fold == Core.Connection.Fold.Open ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private string Connection(HeadsetStatus status, bool cable, Headline headline) =>
@@ -130,16 +138,14 @@ public sealed partial class QuickControls : UserControl
     /// </remarks>
     private void PaintNote(Note which)
     {
-        (string What, string Mix, string Fix, string Fallback)? note = which switch
+        (string What, string Fix, string Fallback)? note = which switch
         {
-            Note.UnreachableNoSound => (StateCopy.WhatUnreachableNoSound, "", StateCopy.FixUnreachable, ""),
-            Note.Unreachable => (StateCopy.WhatUnreachable, StateCopy.MixWithoutWheel(onAudioPage: false),
-                                 StateCopy.FixUnreachable, ""),
-            Note.NoSound => (StateCopy.WhatNoSound, StateCopy.MixWithoutWheel(onAudioPage: false),
-                             StateCopy.FixNoSound, StateCopy.FallbackNoSound),
+            Note.UnreachableNoSound => (StateCopy.WhatUnreachableNoSound, StateCopy.FixUnreachable, ""),
+            Note.Unreachable => (StateCopy.WhatUnreachable, StateCopy.FixUnreachable, ""),
+            Note.NoSound => (StateCopy.WhatNoSound, StateCopy.FixNoSound, StateCopy.FallbackNoSound),
             // No fallback: a cable has no out of range, and nothing to press.
-            Note.OffOnCable => (StateCopy.WhatOffOnCable, "", StateCopy.FixOff, ""),
-            Note.Off => (StateCopy.WhatOff, "", StateCopy.FixOff, StateCopy.FallbackOff),
+            Note.OffOnCable => (StateCopy.WhatOffOnCable, StateCopy.FixOff, ""),
+            Note.Off => (StateCopy.WhatOff, StateCopy.FixOff, StateCopy.FallbackOff),
             _ => null,
         };
 
@@ -147,8 +153,6 @@ public sealed partial class QuickControls : UserControl
         if (note is not { } n) return;
 
         NoteWhat.Text = n.What;
-        NoteMix.Text = n.Mix;
-        NoteMix.Visibility = n.Mix.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         NoteFix.Text = n.Fix;
         NoteFallback.Text = n.Fallback;
         NoteFallback.Visibility = n.Fallback.Length > 0 ? Visibility.Visible : Visibility.Collapsed;

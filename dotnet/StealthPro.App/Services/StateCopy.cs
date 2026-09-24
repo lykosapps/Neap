@@ -8,7 +8,7 @@ namespace StealthPro.App.Services;
 /// <remarks>
 /// <para>
 /// Written once so they cannot drift. Each state is explained in up to three
-/// places (Home, the line above the mix slider, and the header's tooltip), and
+/// places (Home, the notice in the mix, and the header's tooltip), and
 /// separately written copies disagree: one names the keyboard and another does
 /// not, or one says the mix "still works" without saying the wheel does not.
 /// Everything that explains a state takes its sentences from here.
@@ -76,8 +76,6 @@ public static class StateCopy
 
     // -- the mix, without the wheel ------------------------------------------
 
-    public static string WheelTitle => Strings.Get("State_WheelTitle");
-
     /// <summary>Windows is sending sound to a device the headset is not listening on.</summary>
     public static string SoundElsewhere => Strings.Get("State_SoundElsewhere");
 
@@ -88,14 +86,11 @@ public static class StateCopy
     /// off. So this gives the actual keys when they are on, and where to turn
     /// them on when they are not.
     /// </remarks>
-    public static string MixWithoutWheel(bool onAudioPage)
+    public static string MixWithoutWheel()
     {
         var keys = AppServices.Hotkeys;
-        if (keys.Enabled)
-            return Strings.Format("State_MixWithKeys",
-                keys.Key(MixKey.TowardGame), keys.Key(MixKey.TowardChat));
-        return onAudioPage
-            ? Strings.Get("State_MixKeysBelow")
-            : Strings.Get("State_MixKeysOnAudio");
+        return keys.Enabled
+            ? Strings.Format("State_MixWithKeys", keys.Key(MixKey.TowardGame), keys.Key(MixKey.TowardChat))
+            : Strings.Get("State_MixKeysInSettings");
     }
 }

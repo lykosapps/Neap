@@ -8,7 +8,40 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.SettingsControls/Themes/Generic.xaml" />
+                <ResourceDictionary Source="ms-appx:///Controls/GameChatDial.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!--
+                Game and chat, from the half moon in the mark: game is the
+                twilight wave, chat is the moon, silver on dark and ink on
+                light, so the two sides differ in lightness as well as in hue
+                and neither reads as a status colour. Fills are at least 3:1
+                against the window and text at least 4.5:1. High contrast
+                uses the system's highlight and text colours instead.
+            -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="NeapGameBrush" Color="#9D8CFF" />
+                    <SolidColorBrush x:Key="NeapGameTextBrush" Color="#B2A5FF" />
+                    <SolidColorBrush x:Key="NeapChatBrush" Color="#E6E8EC" />
+                    <SolidColorBrush x:Key="NeapChatTextBrush" Color="#E6E8EC" />
+                    <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#1FFFFFFF" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="NeapGameBrush" Color="#6D5AD9" />
+                    <SolidColorBrush x:Key="NeapGameTextBrush" Color="#5845BD" />
+                    <SolidColorBrush x:Key="NeapChatBrush" Color="#15171C" />
+                    <SolidColorBrush x:Key="NeapChatTextBrush" Color="#15171C" />
+                    <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#17000000" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="HighContrast">
+                    <SolidColorBrush x:Key="NeapGameBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+                    <SolidColorBrush x:Key="NeapGameTextBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+                    <SolidColorBrush x:Key="NeapChatBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+                    <SolidColorBrush x:Key="NeapChatTextBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+                    <SolidColorBrush x:Key="NeapDialTrackBrush" Color="{ThemeResource SystemColorGrayTextColor}" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
 
             <!--
                 Neap's twilight accent, in place of the Windows accent colour.
@@ -45,6 +78,15 @@
                 <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="CornerRadius" Value="8" />
                 <Setter Property="Padding" Value="20,16" />
+            </Style>
+
+            <!--
+                Numbers that change while you watch, such as the mix levels.
+                Figures of one width, so a level going from 99 to 100 does
+                not shift everything beside it.
+            -->
+            <Style x:Key="NumeralTextStyle" TargetType="TextBlock">
+                <Setter Property="Typography.NumeralAlignment" Value="Tabular" />
             </Style>
 
             <!--  The page's own name, at the top of every page.  -->

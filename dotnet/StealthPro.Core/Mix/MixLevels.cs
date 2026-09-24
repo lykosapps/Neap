@@ -20,6 +20,12 @@ public static class MixLevels
     /// <summary>The game side's gain, from 0 to 1.</summary>
     public static float GameScale(int mix) => MathF.Min(1f, 2f * (1f - Clamp(mix) / 100f));
 
+    /// <summary>The game side's level as a whole percentage.</summary>
+    public static int Game(int mix) => (int)MathF.Round(GameScale(mix) * 100f);
+
+    /// <summary>The chat side's level as a whole percentage.</summary>
+    public static int Chat(int mix) => (int)MathF.Round(ChatScale(mix) * 100f);
+
     public static MixLean Lean(int mix) => Clamp(mix) switch
     {
         0 => MixLean.GameOnly,

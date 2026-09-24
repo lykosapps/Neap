@@ -17,6 +17,18 @@ public class MixLevelsTests
     }
 
     [Theory]
+    [InlineData(50, 100, 100)]
+    [InlineData(40, 100, 80)]
+    [InlineData(63, 74, 100)]
+    [InlineData(0, 100, 0)]
+    [InlineData(100, 0, 100)]
+    public void BalancedPlaysBothSidesAtFullLevel(int mix, int game, int chat)
+    {
+        Assert.Equal(game, MixLevels.Game(mix));
+        Assert.Equal(chat, MixLevels.Chat(mix));
+    }
+
+    [Theory]
     [InlineData(-5, MixLean.GameOnly)]
     [InlineData(0, MixLean.GameOnly)]
     [InlineData(1, MixLean.TowardGame)]
