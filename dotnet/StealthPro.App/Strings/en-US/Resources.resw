@@ -58,16 +58,16 @@
     <value>Edited</value>
   </data>
   <data name="Equaliser_DiscardButton.Content" xml:space="preserve">
-    <value>Discard changes</value>
+    <value>Discard</value>
   </data>
   <data name="Equaliser_SaveButton.Content" xml:space="preserve">
-    <value>Save as new preset</value>
+    <value>Save as new</value>
   </data>
   <data name="Equaliser_OverwriteAny" xml:space="preserve">
-    <value>Overwrite preset</value>
+    <value>Save</value>
   </data>
   <data name="Equaliser_OverwriteYes.Content" xml:space="preserve">
-    <value>Overwrite</value>
+    <value>Replace</value>
   </data>
   <data name="Equaliser_OverwriteNo.Content" xml:space="preserve">
     <value>Cancel</value>
@@ -79,7 +79,7 @@
     <value>Game and chat</value>
   </data>
   <data name="Mix_Setup.Text" xml:space="preserve">
-    <value>Pick the app your voice chat comes out of. Everything else on the headset becomes the game side.</value>
+    <value>Choose your chat app to balance it against your game.</value>
   </data>
   <data name="Mix_ChatFrom.Text" xml:space="preserve">
     <value>Chat comes from</value>
@@ -112,7 +112,7 @@
     <value>Chat</value>
   </data>
   <data name="Mix_KeysCard.Description" xml:space="preserve">
-    <value>Works from inside a game, on either transmitter, and alongside the wheel.</value>
+    <value>Shortcut keys that work while you play.</value>
   </data>
   <data name="Mix_KeysCard.Header" xml:space="preserve">
     <value>Move the mix with the keyboard</value>
@@ -151,7 +151,7 @@
     <value>Master volume</value>
   </data>
   <data name="Audio_MasterVolume.Description" xml:space="preserve">
-    <value>Windows' volume. The headset's volume wheel moves it too.</value>
+    <value>The volume wheel on the headset moves this too.</value>
   </data>
   <data name="Audio_HeadsetSection.What" xml:space="preserve">
     <value>Noise cancellation, Superhuman Hearing and the equaliser</value>
@@ -160,7 +160,7 @@
     <value>Around you</value>
   </data>
   <data name="Audio_AncTile.Title" xml:space="preserve">
-    <value>Active noise cancellation</value>
+    <value>Noise cancellation</value>
   </data>
   <data name="Audio_AncTile.Description" xml:space="preserve">
     <value>Blocks out the room around you.</value>
@@ -169,10 +169,7 @@
     <value>Superhuman Hearing</value>
   </data>
   <data name="Audio_ShhTile.Description" xml:space="preserve">
-    <value>Lifts quiet detail so footsteps and reloads carry.</value>
-  </data>
-  <data name="Audio_AncIntensity.Description" xml:space="preserve">
-    <value>How hard it works.</value>
+    <value>Makes footsteps and quiet sounds easier to hear.</value>
   </data>
   <data name="Audio_AncIntensity.Header" xml:space="preserve">
     <value>Intensity</value>
@@ -214,13 +211,13 @@
     <value>Volume wheel</value>
   </data>
   <data name="Controls_VolumeWheelDoes.Text" xml:space="preserve">
-    <value>Windows' volume, from any app.</value>
+    <value>Sets the volume.</value>
   </data>
   <data name="Controls_ChatWheel.Text" xml:space="preserve">
     <value>Chat wheel</value>
   </data>
   <data name="Controls_ChatWheelDoes.Text" xml:space="preserve">
-    <value>The game and chat mix on Home.</value>
+    <value>Balances game and chat.</value>
   </data>
   <data name="Controls_BoomArm.Text" xml:space="preserve">
     <value>Boom arm</value>
@@ -232,13 +229,13 @@
     <value>CrossPlay</value>
   </data>
   <data name="Controls_CrossPlayDoes.Text" xml:space="preserve">
-    <value>Moves the sound between your transmitters.</value>
+    <value>Switches between your transmitters.</value>
   </data>
   <data name="Controls_BluetoothButton.Text" xml:space="preserve">
     <value>Bluetooth button</value>
   </data>
   <data name="Controls_BluetoothButtonDoes.Text" xml:space="preserve">
-    <value>The headset's own Bluetooth radio. It cannot be given another job.</value>
+    <value>Turns Bluetooth on and off, and pairs your phone.</value>
   </data>
   <data name="Controls_PowerHeading.Text" xml:space="preserve">
     <value>Power</value>
@@ -256,7 +253,7 @@
     <value>Wake on motion</value>
   </data>
   <data name="Controls_VoicePrompts.Description" xml:space="preserve">
-    <value>How loud the headset's own spoken announcements are.</value>
+    <value>How loud the headset's spoken alerts are.</value>
   </data>
   <data name="Controls_VoicePrompts.Header" xml:space="preserve">
     <value>Voice prompts</value>
@@ -271,7 +268,7 @@
     <value>Battery slot ring</value>
   </data>
   <data name="Device_DockStatusNote" xml:space="preserve">
-    <value>Turns purple when the link is running high bandwidth.</value>
+    <value>Turns purple for high-quality audio.</value>
   </data>
   <data name="Device_DockStatusName" xml:space="preserve">
     <value>Status ring</value>
@@ -292,7 +289,7 @@
     <value>Audio format</value>
   </data>
   <data name="Device_FormatNote.Text" xml:space="preserve">
-    <value>Windows' setting rather than the headset's, and the same one as Sound settings. Only formats this device actually accepts are listed.</value>
+    <value>The same setting as in Windows Sound settings.</value>
   </data>
   <data name="Device_HeadsetOutput.Header" xml:space="preserve">
     <value>Headset output</value>
@@ -322,13 +319,13 @@
     <value>Everything the headset reports</value>
   </data>
   <data name="Device_RawNote.Text" xml:space="preserve">
-    <value>Values without a confirmed meaning are shown greyed. They stay read-only until we know what they do.</value>
+    <value>Read-only. Greyed values aren't understood yet.</value>
   </data>
   <data name="Device_Details.Header" xml:space="preserve">
     <value>Details</value>
   </data>
   <data name="Device_Details.Description" xml:space="preserve">
-    <value>Firmware, serial number and everything the headset reports.</value>
+    <value>Firmware and serial number.</value>
   </data>
   <data name="Transmitters_Heading.Text" xml:space="preserve">
     <value>Transmitters</value>
@@ -355,10 +352,10 @@
     <value>Microphone level</value>
   </data>
   <data name="Microphone_MeterUnavailable" xml:space="preserve">
-    <value>The level can't be shown: Windows isn't letting the app listen to the microphone, or it isn't there.</value>
+    <value>The level can't be shown. Check that apps may use the microphone in Windows privacy settings.</value>
   </data>
   <data name="Microphone_Sensitivity.Description" xml:space="preserve">
-    <value>Windows' recording level for this microphone. The headset reports it back but cannot change it, so this sets it where it actually lives.</value>
+    <value>How loud you come through.</value>
   </data>
   <data name="Microphone_Sensitivity.Header" xml:space="preserve">
     <value>Sensitivity</value>
@@ -376,7 +373,7 @@
     <value>Background noise</value>
   </data>
   <data name="Microphone_AiTile.Description" xml:space="preserve">
-    <value>Strips background noise out of what people hear.</value>
+    <value>Removes background noise from your voice.</value>
   </data>
   <data name="Microphone_AiTile.Title" xml:space="preserve">
     <value>AI noise reduction</value>
@@ -403,13 +400,13 @@
     <value>Running</value>
   </data>
   <data name="Settings_RunningNote.Text" xml:space="preserve">
-    <value>Closing the window leaves the app running in the notification area, so the chat wheel and the mix keep working. Quit from its menu there to stop it altogether.</value>
+    <value>Closing the window keeps Neap running in the notification area, so the chat wheel keeps working. Quit from there.</value>
   </data>
   <data name="Settings_MixHeading.Text" xml:space="preserve">
     <value>Game and chat mix</value>
   </data>
   <data name="Settings_StartWithWindows.Description" xml:space="preserve">
-    <value>Starts quietly in the notification area, so the chat wheel and the mix work from the moment you log in.</value>
+    <value>Starts in the notification area when you sign in.</value>
   </data>
   <data name="Settings_StartWithWindows.Header" xml:space="preserve">
     <value>Start with Windows</value>
@@ -439,19 +436,19 @@
     <value>Nothing plugged in</value>
   </data>
   <data name="State_WhatUnreachable" xml:space="preserve">
-    <value>The app can't reach your headset's settings or its chat wheel right now. Windows volume, your microphone level and the headset's own buttons still work, and it keeps using the settings it has.</value>
+    <value>Neap can't reach your headset's settings right now. Sound, volume and the headset's own buttons still work.</value>
   </data>
   <data name="State_FixUnreachable" xml:space="preserve">
     <value>Switch the headset off and on again to bring everything back.</value>
   </data>
   <data name="State_WhatUnreachableNoSound" xml:space="preserve">
-    <value>Your headset lost the transmitter it was using, so no sound reaches it, your microphone isn't heard, and the app can't reach its settings or chat wheel.</value>
+    <value>Your headset lost its transmitter, so there's no sound and nobody can hear you.</value>
   </data>
   <data name="State_WhatNoSound" xml:space="preserve">
-    <value>Your headset is connected, but no transmitter is sending it sound, and its chat wheel isn't reaching the app.</value>
+    <value>Your headset is connected, but no sound is reaching it.</value>
   </data>
   <data name="State_FixNoSound" xml:space="preserve">
-    <value>Press the CrossPlay button on the headset to bring the sound and the chat wheel back.</value>
+    <value>Press CrossPlay on the headset to bring the sound back.</value>
   </data>
   <data name="State_FallbackNoSound" xml:space="preserve">
     <value>Still nothing? Switch the headset off and on again.</value>
@@ -472,7 +469,7 @@
     <value>You can still move the mix with the dial, or from the keyboard with {0} and {1}.</value>
   </data>
   <data name="State_MixKeysInSettings" xml:space="preserve">
-    <value>You can still move the mix with the dial, or turn on its keyboard shortcut in Settings to move it from inside a game.</value>
+    <value>You can still move the mix with the dial, or turn on keyboard shortcuts in Settings.</value>
   </data>
   <data name="Routing_OpenSoundSettings" xml:space="preserve">
     <value>Open Sound settings</value>
@@ -634,7 +631,7 @@
     <value>{0} characters is as long as a preset name can be.</value>
   </data>
   <data name="Preset_Full" xml:space="preserve">
-    <value>All five custom slots are full. Replace one, or delete one first.</value>
+    <value>All five slots are full. Delete one first.</value>
   </data>
   <data name="Preset_Missing" xml:space="preserve">
     <value>There is no custom preset called {0}.</value>
@@ -661,13 +658,13 @@
     <value>Presets</value>
   </data>
   <data name="Equaliser_FreeSlots" xml:space="preserve">
-    <value>{0} slots free for your own presets.</value>
+    <value>Room for {0} more of your own.</value>
   </data>
   <data name="Equaliser_OneFreeSlot" xml:space="preserve">
-    <value>1 slot free for your own presets.</value>
+    <value>Room for 1 more of your own.</value>
   </data>
   <data name="Equaliser_NoFreeSlots" xml:space="preserve">
-    <value>No slots free. Delete one of yours to save another.</value>
+    <value>No room for more. Delete one of yours to save another.</value>
   </data>
   <data name="Equaliser_KeepNamed" xml:space="preserve">
     <value>Keep {0}</value>
@@ -691,10 +688,10 @@
     <value>{0} is one of the headset's own presets.</value>
   </data>
   <data name="Equaliser_NameTaken" xml:space="preserve">
-    <value>You already have a preset called {0}. To replace it, close this and use Overwrite.</value>
+    <value>You already have a preset called {0}. Choose another name.</value>
   </data>
   <data name="Equaliser_SlotsFull" xml:space="preserve">
-    <value>All five slots are full. Delete one first, or overwrite the preset this came from.</value>
+    <value>All five slots are full. Delete one first, or save over the preset this came from.</value>
   </data>
   <data name="Equaliser_SlotsFree" xml:space="preserve">
     <value>{0} of 5 slots free.</value>
@@ -712,10 +709,10 @@
     <value>Changed from {0} dB</value>
   </data>
   <data name="Equaliser_Overwrite" xml:space="preserve">
-    <value>Overwrite {0}</value>
+    <value>Save {0}</value>
   </data>
   <data name="Equaliser_OverwriteQuestion" xml:space="preserve">
-    <value>Replace {0} with the curve you have now? Its old curve is lost.</value>
+    <value>Replace {0} with this curve? You can't undo this.</value>
   </data>
   <data name="Equaliser_Selected" xml:space="preserve">
     <value>Selected</value>
@@ -748,7 +745,7 @@
     <value>Switch your headset on to see and change these.</value>
   </data>
   <data name="Section_Why" xml:space="preserve">
-    <value>These are set on the headset itself, which keeps using them. Switch the headset off and on again to change them here.</value>
+    <value>Your headset keeps using these. Switch it off and on again to change them here.</value>
   </data>
   <data name="Mix_Playing" xml:space="preserve">
     <value>{0}  ·  playing</value>
@@ -760,7 +757,7 @@
     <value>Start your chat app, then look again.</value>
   </data>
   <data name="Mix_Elsewhere" xml:space="preserve">
-    <value>{0} is playing to {1}, not your headset, so the mix cannot reach it. Change its output device in its own audio settings.</value>
+    <value>{0} is playing to {1}, not your headset. Change its output in that app's audio settings.</value>
   </data>
   <data name="Mix_Balanced" xml:space="preserve">
     <value>Balanced</value>
@@ -805,7 +802,7 @@
     <value>Still running</value>
   </data>
   <data name="Tray_StillRunning" xml:space="preserve">
-    <value>{0} is in the notification area, keeping the mix and the chat wheel working. Open or quit it from there.</value>
+    <value>{0} is still running in the notification area, so the chat wheel keeps working.</value>
   </data>
   <data name="Device_Unidentified" xml:space="preserve">
     <value>not yet identified</value>
@@ -829,7 +826,7 @@
     <value>Mute</value>
   </data>
   <data name="Volume_MuteTip" xml:space="preserve">
-    <value>Mutes Windows' sound to the headset, like Swarm's Master Volume switch. Turning the volume wheel unmutes it.</value>
+    <value>Mutes the headset. Turning the volume wheel unmutes it.</value>
   </data>
   <data name="Quick_PresetList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Equaliser presets</value>
@@ -868,7 +865,7 @@
     <value>Set to the {0}, which is not plugged in</value>
   </data>
   <data name="Home_ThroughNoSound" xml:space="preserve">
-    <value>Connected, with no transmitter sending it sound</value>
+    <value>Connected, but no sound</value>
   </data>
   <data name="Home_Battery" xml:space="preserve">
     <value>Battery</value>

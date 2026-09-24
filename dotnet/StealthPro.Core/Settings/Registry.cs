@@ -15,8 +15,8 @@ public static class Registry
     public static readonly IReadOnlyDictionary<int, string> ModeButtonOptions =
         new Dictionary<int, string>
         {
-            [0] = "Active Noise Cancellation on/off",
-            [1] = "Cycle game presets",
+            [0] = "Noise cancellation on/off",
+            [1] = "Next equaliser preset",
             [2] = "Noise gate on/off",
         };
 
