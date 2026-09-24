@@ -83,8 +83,12 @@ public sealed partial class MainWindow : Window
             Hide();
         };
 
-        // The tray icon exposes a command rather than a click event.
+        // The tray icon and its menu run commands, not click events: the menu
+        // is drawn by Windows, not by WinUI, and a menu item's Click handler
+        // never runs, so Open and Quit would do nothing.
         Tray.LeftClickCommand = new Do(Show);
+        TrayOpen.Command = new Do(Show);
+        TrayQuit.Command = new Do(Quit);
 
         AppServices.Headset.StatusChanged += _ => PaintTray();
         AppServices.Headset.Changed += PaintTray;
@@ -268,10 +272,9 @@ public sealed partial class MainWindow : Window
         SetForegroundWindow(Handle);
     }
 
-    private void OnShowRequested(object sender, RoutedEventArgs e) => Show();
-
-    private void OnQuitRequested(object sender, RoutedEventArgs e)
+    private void Quit()
     {
+        AppLog.Write("quit from the notification area");
         _quitting = true;
         Remember();
         Tray.Dispose();

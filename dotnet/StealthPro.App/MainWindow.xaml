@@ -129,9 +129,9 @@
             NoLeftClickDelay="True">
             <tray:TaskbarIcon.ContextFlyout>
                 <MenuFlyout>
-                    <MenuFlyoutItem x:Uid="Main_TrayOpen" Click="OnShowRequested" />
+                    <MenuFlyoutItem x:Name="TrayOpen" x:Uid="Main_TrayOpen" />
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem x:Uid="Main_TrayQuit" Click="OnQuitRequested" />
+                    <MenuFlyoutItem x:Name="TrayQuit" x:Uid="Main_TrayQuit" />
                 </MenuFlyout>
             </tray:TaskbarIcon.ContextFlyout>
         </tray:TaskbarIcon>
