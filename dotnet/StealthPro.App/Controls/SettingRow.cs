@@ -28,46 +28,15 @@ public sealed class SettingRow : SettingsCard
 {
     private const int SliderWidth = 220;
 
-    private SettingKey? _key;
+    private readonly SettingLink _link;
     private ToggleSwitch? _toggle;
     private Slider? _slider;
     private ComboBox? _choice;
     private TextBlock? _readout;
     private UIElement? _control;
     private TextBlock? _absent;
-    private bool _painting;
-    private bool _listening;
 
-    /// <remarks>
-    /// Listens on every load, not only the first. A row is unloaded and
-    /// loaded again whenever it moves, and a HeadsetSection moves its rows
-    /// into one panel when it first paints; a row that listened only once
-    /// froze at whatever it showed then, a dash if the headset was off.
-    /// A move can raise Loaded at the new place before Unloaded at the old
-    /// one, so an Unloaded while still loaded is ignored; otherwise the row
-    /// stops listening for good and misses the headset's own buttons.
-    /// </remarks>
-    public SettingRow()
-    {
-        Loaded += (_, _) =>
-        {
-            if (!Build()) return;
-            Listen(true);
-            Paint();
-        };
-        Unloaded += (_, _) =>
-        {
-            if (!IsLoaded) Listen(false);
-        };
-    }
-
-    private void Listen(bool on)
-    {
-        if (on == _listening) return;
-        _listening = on;
-        if (on) AppServices.Headset.Changed += Paint;
-        else AppServices.Headset.Changed -= Paint;
-    }
+    public SettingRow() => _link = new SettingLink(this, () => Setting, Build, Paint);
 
     public static readonly DependencyProperty SettingProperty = DependencyProperty.Register(
         nameof(Setting), typeof(string), typeof(SettingRow), new PropertyMetadata(""));
@@ -101,26 +70,17 @@ public sealed class SettingRow : SettingsCard
         set => SetValue(UnitProperty, value);
     }
 
-    /// <summary>Builds the row's control, once. False for a setting the registry does not know.</summary>
-    private bool Build()
+    /// <summary>Builds the row's control for its setting, once.</summary>
+    private void Build(SettingKey key)
     {
-        if (_control is not null) return true;
-
-        if (!Registry.ByName.TryGetValue(Setting, out _key))
-        {
-            Description = $"Unknown setting '{Setting}'";
-            IsEnabled = false;
-            return false;
-        }
-
         if (Glyph.Length > 0) HeaderIcon = new FontIcon { Glyph = Glyph };
-        if (Header is null) Header = _key.Name;
+        if (Header is null) Header = key.Name;
 
-        _control = _key.Kind switch
+        _control = key.Kind switch
         {
             SettingKind.Toggle => BuildToggle(),
-            SettingKind.Enum => BuildChoice(),
-            SettingKind.Range => BuildSlider(),
+            SettingKind.Enum => BuildChoice(key),
+            SettingKind.Range => BuildSlider(key),
             _ => BuildReadout(),
         };
 
@@ -150,47 +110,40 @@ public sealed class SettingRow : SettingsCard
         // readout, so name the controls themselves, not what the builder
         // returned. The automation id is the setting's registry name, so a
         // script can find the control by the setting it writes.
-        string spoken = Header?.ToString() ?? _key.Name;
+        string spoken = Header?.ToString() ?? key.Name;
         foreach (UIElement? control in new UIElement?[] { _slider, _toggle, _choice })
             if (control is not null)
             {
                 Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(control, spoken);
-                Microsoft.UI.Xaml.Automation.AutomationProperties.SetAutomationId(control, _key.Name);
+                Microsoft.UI.Xaml.Automation.AutomationProperties.SetAutomationId(control, key.Name);
             }
-        return true;
     }
 
     private UIElement BuildToggle()
     {
         _toggle = new ToggleSwitch { OnContent = null, OffContent = null };
-        _toggle.Toggled += (_, _) =>
-        {
-            if (_painting || _key is null) return;
-            AppServices.Headset.SetKey(_key.Key, _toggle.IsOn ? 1 : 0);
-        };
+        _toggle.Toggled += (_, _) => _link.Write(_toggle.IsOn ? 1 : 0);
         return _toggle;
     }
 
-    private UIElement BuildChoice()
+    private UIElement BuildChoice(SettingKey key)
     {
         _choice = new ComboBox { MinWidth = 160 };
-        foreach (var option in _key!.Options ?? new Dictionary<int, string>())
+        foreach (var option in key.Options ?? new Dictionary<int, string>())
             _choice.Items.Add(new ComboBoxItem { Content = option.Value, Tag = option.Key });
         _choice.SelectionChanged += (_, _) =>
         {
-            if (_painting || _key is null) return;
-            if (_choice.SelectedItem is ComboBoxItem { Tag: int value })
-                AppServices.Headset.SetKey(_key.Key, value);
+            if (_choice.SelectedItem is ComboBoxItem { Tag: int value }) _link.Write(value);
         };
         return _choice;
     }
 
-    private UIElement BuildSlider()
+    private UIElement BuildSlider(SettingKey key)
     {
         _slider = new Slider
         {
-            Minimum = _key!.Minimum ?? 0,
-            Maximum = _key.Maximum ?? 100,
+            Minimum = key.Minimum ?? 0,
+            Maximum = key.Maximum ?? 100,
             Width = SliderWidth,
             VerticalAlignment = VerticalAlignment.Center,
             // No thumb tooltip: the number is in the row already, and the
@@ -200,8 +153,7 @@ public sealed class SettingRow : SettingsCard
         _slider.ValueChanged += (_, args) =>
         {
             ShowValue((int)args.NewValue);
-            if (_painting || _key is null) return;
-            AppServices.Headset.SetKey(_key.Key, (int)args.NewValue);
+            _link.Write((int)args.NewValue);
         };
 
         _readout = new TextBlock
@@ -254,41 +206,36 @@ public sealed class SettingRow : SettingsCard
         // reading with nothing to change is not unavailable, and greyed out it
         // read as one.
         bool readout = _toggle is null && _slider is null && _choice is null;
-        IsEnabled = known && (readout || _key is { Writable: true });
+        IsEnabled = known && (readout || _link.Key is { Writable: true });
     }
 
     private void Paint()
     {
-        if (_key is null) return;
-        _painting = true;
-        try
+        if (_link.Key is not { } key) return;
+        if (key.Kind == SettingKind.Text)
         {
-            if (_key.Kind == SettingKind.Text)
-            {
-                string? text = AppServices.Headset.GetText(_key.Name);
-                Known(!string.IsNullOrWhiteSpace(text));
-                if (_readout is not null) _readout.Text = text ?? "";
+            string? text = AppServices.Headset.GetText(key.Name);
+            Known(!string.IsNullOrWhiteSpace(text));
+            if (_readout is not null) _readout.Text = text ?? "";
 
-                // A value of all zeros is the headset saying it has none: this
-                // one reports its serial number as 00000000000. Not shown.
-                Visibility = text is { Length: > 0 } && text.All(c => c == '0')
-                    ? Visibility.Collapsed : Visibility.Visible;
-                return;
-            }
-            if (!AppServices.Headset.TryGetNumberByKey(_key.Key, out int value))
-            {
-                Known(false);
-                return;
-            }
-            Known(true);
-
-            if (_toggle is not null) _toggle.IsOn = value == 1;
-            if (_slider is not null) { _slider.Value = value; ShowValue(value); }
-            if (_choice is not null)
-                foreach (ComboBoxItem item in _choice.Items)
-                    if (item.Tag is int tag && tag == value) { _choice.SelectedItem = item; break; }
-            if (_choice is null && _slider is null && _toggle is null) ShowValue(value);
+            // A value of all zeros is the headset saying it has none: this
+            // one reports its serial number as 00000000000. Not shown.
+            Visibility = text is { Length: > 0 } && text.All(c => c == '0')
+                ? Visibility.Collapsed : Visibility.Visible;
+            return;
         }
-        finally { _painting = false; }
+        if (_link.Value is not { } value)
+        {
+            Known(false);
+            return;
+        }
+        Known(true);
+
+        if (_toggle is not null) _toggle.IsOn = value == 1;
+        if (_slider is not null) { _slider.Value = value; ShowValue(value); }
+        if (_choice is not null)
+            foreach (ComboBoxItem item in _choice.Items)
+                if (item.Tag is int tag && tag == value) { _choice.SelectedItem = item; break; }
+        if (_choice is null && _slider is null && _toggle is null) ShowValue(value);
     }
 }
