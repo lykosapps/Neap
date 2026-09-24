@@ -119,7 +119,7 @@ public sealed partial class EqualiserPanel : UserControl
         Loaded += async (_, _) =>
         {
             AppServices.Headset.Changed += Paint;
-            ShowWaiting(true);
+            ShowWaiting(Wait.Reading);
             BuildBands();
             await Reload();
 
@@ -155,18 +155,29 @@ public sealed partial class EqualiserPanel : UserControl
         try { _state = await AppServices.Presets.Load(Bank); }
         catch
         {
-            // The headset is not answering. The status strip already says so;
+            // The headset is not answering. The status strip already says why;
             // what matters here is not showing a curve we cannot vouch for.
-            ShowWaiting(true);
+            ShowWaiting(Wait.Unreadable);
             return;
         }
         BuildSlots();
         Paint();
     }
 
-    private void ShowWaiting(bool waiting)
+    private enum Wait { None, Reading, Unreadable }
+
+    private void ShowWaiting(Wait wait)
     {
+        bool waiting = wait != Wait.None;
         Waiting.Visibility = waiting ? Visibility.Visible : Visibility.Collapsed;
+        WaitingRing.IsActive = wait == Wait.Reading;
+        WaitingRing.Visibility = wait == Wait.Reading ? Visibility.Visible : Visibility.Collapsed;
+        WaitingText.Text = wait switch
+        {
+            Wait.Reading => Strings.Get("Equaliser_Reading"),
+            Wait.Unreadable => Strings.Get("Equaliser_Unreadable"),
+            _ => "",
+        };
         Curve.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
         PresetColumn.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
         Actions.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
@@ -520,7 +531,7 @@ public sealed partial class EqualiserPanel : UserControl
         // slots and nothing else. A blank plot over ten empty fields would
         // read as a broken equaliser rather than an absent headset.
         var live = AppServices.Presets.LiveBands(Bank);
-        ShowWaiting(live is null);
+        ShowWaiting(live is null ? Wait.Unreadable : Wait.None);
         if (live is null) return;
 
         _painting = true;

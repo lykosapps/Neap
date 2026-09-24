@@ -131,16 +131,22 @@
                 </StackPanel>
 
                 <!--
-                    Shown until the headset reports its bands. A flat line would
-                    read as an equaliser set flat. The same dash the settings
-                    rows use: the page's notice or the folded section's card
-                    says why, so this only has to say there is no reading.
+                    Shown until the headset reports its bands, in place of the
+                    curve: a flat line would read as an equaliser set flat.
                 -->
-                <TextBlock
+                <StackPanel
                     x:Name="Waiting"
-                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                    Style="{StaticResource BodyTextBlockStyle}"
-                    Text="—" />
+                    Padding="0,24"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="12">
+                    <ProgressRing
+                        x:Name="WaitingRing"
+                        Width="20"
+                        Height="20"
+                        AutomationProperties.AccessibilityView="Raw" />
+                    <TextBlock x:Name="WaitingText" Style="{StaticResource SecondaryBodyTextStyle}" />
+                </StackPanel>
 
             </StackPanel>
         </Grid>

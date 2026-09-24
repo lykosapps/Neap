@@ -654,6 +654,12 @@
   <data name="Equaliser_Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="Equaliser_Reading" xml:space="preserve">
+    <value>Reading the presets from your headset…</value>
+  </data>
+  <data name="Equaliser_Unreadable" xml:space="preserve">
+    <value>Can't read the equaliser right now.</value>
+  </data>
   <data name="Equaliser_PresetsLabel.Text" xml:space="preserve">
     <value>Presets</value>
   </data>
