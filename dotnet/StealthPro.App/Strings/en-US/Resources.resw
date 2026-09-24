@@ -792,8 +792,20 @@
   <data name="Quick_Microphone.Text" xml:space="preserve">
     <value>Microphone</value>
   </data>
-  <data name="Quick_MicrophoneNote.Text" xml:space="preserve">
-    <value>Flipping the boom arm up mutes it too.</value>
+  <data name="Quick_MicTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="Quick_AncTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Noise cancellation</value>
+  </data>
+  <data name="Quick_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Quick_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Quick_PresetList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Equaliser presets</value>
   </data>
   <data name="Mic_Live" xml:space="preserve">
     <value>On</value>
@@ -805,9 +817,6 @@
     <value>Microphone</value>
   </data>
   <data name="Quick_NoiseCancelling.Text" xml:space="preserve">
-    <value>Noise cancellation</value>
-  </data>
-  <data name="Quick_NoiseCancellingSwitch.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Noise cancellation</value>
   </data>
   <data name="Quick_Preset.Text" xml:space="preserve">

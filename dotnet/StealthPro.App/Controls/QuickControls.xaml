@@ -95,13 +95,10 @@
             <Border x:Name="MixCard" Style="{StaticResource QuickCardStyle}">
                 <c:MixPanel />
             </Border>
-            <Border
+            <c:QuickSettings
                 x:Name="SettingsCard"
                 Grid.Column="1"
-                VerticalAlignment="Top"
-                Style="{StaticResource QuickCardStyle}">
-                <c:QuickSettings />
-            </Border>
+                VerticalAlignment="Top" />
         </Grid>
 
     </StackPanel>

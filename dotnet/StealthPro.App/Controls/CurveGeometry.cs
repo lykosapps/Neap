@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Media;
+using StealthPro.App.Services;
 using StealthPro.Core.Presets;
 using Windows.Foundation;
 
@@ -6,7 +7,8 @@ namespace StealthPro.App.Controls;
 
 /// <summary>
 /// Draws an equaliser curve: a smooth line through the bands that never
-/// overshoots between them.
+/// overshoots between them, for the equaliser itself and for the small
+/// curves beside a preset's name.
 /// </summary>
 internal static class CurveGeometry
 {
@@ -39,5 +41,15 @@ internal static class CurveGeometry
 
         geometry.Figures.Add(figure);
         return geometry;
+    }
+
+    /// <summary>A preset's bands fitted into a box of this size, for the small curve beside its name.</summary>
+    public static PathGeometry Of(IReadOnlyList<int> bands, double width, double height)
+    {
+        const double pad = 2;
+        var points = bands.Select((b, i) => new Point(
+            ResponseCurve.X(i, bands.Count, width),
+            ResponseCurve.Y(b, PresetService.BandFloor, PresetService.BandCeiling, pad, height - pad))).ToList();
+        return Through(points);
     }
 }

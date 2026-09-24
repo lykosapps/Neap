@@ -456,11 +456,18 @@ function Quick {
     QuickSwitch 'Microphone' 'mic_muted' '0x600' $true
     QuickSwitch 'Noise cancellation' 'anc' '0x750' $false
 
+    # The equaliser tile opens a list of presets in a flyout, which sits
+    # outside the tile in the tree, so the preset is looked for in the window.
     $script:step = 'the preset list on Home'
-    $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
-    if ($null -eq $picker) { Fail 'Home has a preset list'; return }
+    $tile = Find $script:window 'AutomationIdProperty' 'PresetPicker'
+    if ($null -eq $tile) { Fail 'Home has an equaliser tile'; return }
     Ask 'clear' | Out-Null
-    Choose $picker 'Signature Sound'
+    (Pattern $tile ([System.Windows.Automation.InvokePattern])).Invoke()
+    Start-Sleep -Milliseconds 500
+    $item = FindAll $script:window 'NameProperty' 'Signature Sound' |
+        Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem } | Select-Object -First 1
+    if ($null -eq $item) { Fail 'the equaliser tile lists Signature Sound'; return }
+    (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select()
     Check (Until { @(Writes | Where-Object { $_.key -eq '0x1210' -and $_.value -eq '1' }).Count -gt 0 }) 'the preset list on Home sends 0x1210=1'
     Collect
 }
