@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using StealthPro.App.Services;
 
@@ -28,11 +29,11 @@ public sealed partial class SettingsPage : Page
             _painting = false;
         };
 
-        var version = AppInfo.Version;
-        AboutCard.Header = AppInfo.Name;
-        AboutCard.Description = version is null
-            ? Strings.Get("Settings_About")
-            : Strings.Format("Settings_AboutVersion",
-                $"{version.Major}.{version.Minor}.{version.Build}", Strings.Get("Settings_About"));
+        AppName.Text = AppInfo.Name;
+        if (AppInfo.Version is { } version)
+        {
+            AppVersion.Text = Strings.Format("Settings_AboutVersion", $"{version.Major}.{version.Minor}.{version.Build}");
+            AppVersion.Visibility = Visibility.Visible;
+        }
     }
 }

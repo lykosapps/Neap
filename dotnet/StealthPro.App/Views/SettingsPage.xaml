@@ -31,13 +31,33 @@
                 <c:MixKeysPanel />
 
                 <TextBlock x:Uid="Settings_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
-                <StackPanel Spacing="4">
-                    <tk:SettingsCard x:Name="AboutCard">
-                        <tk:SettingsCard.HeaderIcon>
-                            <ImageIcon Source="ms-appx:///Assets/logo.png" />
-                        </tk:SettingsCard.HeaderIcon>
-                    </tk:SettingsCard>
-                </StackPanel>
+                <!--  Neap itself, on the same lit panel as the headset's controls.  -->
+                <Border Style="{StaticResource QuickCardStyle}">
+                    <Grid ColumnSpacing="20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Image
+                            Width="56"
+                            Height="56"
+                            VerticalAlignment="Top"
+                            AutomationProperties.AccessibilityView="Raw"
+                            Source="ms-appx:///Assets/logo.png" />
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock x:Name="AppName" Style="{StaticResource SubtitleTextBlockStyle}" />
+                            <TextBlock
+                                x:Name="AppVersion"
+                                Style="{StaticResource NeapLabelStyle}"
+                                Visibility="Collapsed" />
+                            <TextBlock
+                                x:Uid="Settings_AboutNote"
+                                Margin="0,6,0,0"
+                                Style="{StaticResource SecondaryBodyTextStyle}"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
 
             </StackPanel>
         </Grid>
