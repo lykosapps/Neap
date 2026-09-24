@@ -5,12 +5,16 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using StealthPro.App.Services;
 using StealthPro.App.Views;
+using StealthPro.Core;
 using Windows.Graphics;
 
 namespace StealthPro.App;
 
 public sealed partial class MainWindow : Window
 {
+    private const int FirstWidth = 1180, FirstHeight = 900;
+    private const int MinimumWidth = 500, MinimumHeight = 480;
+
     private bool _quitting;
     private Microsoft.UI.Dispatching.DispatcherQueueTimer? _trim;
 
@@ -54,12 +58,7 @@ public sealed partial class MainWindow : Window
         AppWindow.Changed += (_, _) => FitTitleBar();
         FitTitleBar();
 
-        // Big enough for the equaliser's ten bands side by side, the widest
-        // thing in the app and the one that reads badly when cramped. Scaled
-        // by the monitor's DPI, because AppWindow works in physical pixels and
-        // this would otherwise come up half-size at 200%.
-        double scale = Dpi() / 96.0;
-        AppWindow.Resize(new SizeInt32((int)(1180 * scale), (int)(900 * scale)));
+        Place();
 
         Nav.SelectedItem = Nav.MenuItems[0];
 
@@ -132,8 +131,61 @@ public sealed partial class MainWindow : Window
         Status.Margin = new Thickness(0, 0, inset + 8, 0);
     }
 
+    /// <summary>
+    /// Opens the window where it was left, or centred on the main screen the
+    /// first time, and sets how small it can be made.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The first size is big enough for the equaliser's ten bands side by
+    /// side, the widest thing in the app and the one that reads badly when
+    /// cramped. Sizes are scaled by the monitor's DPI, because AppWindow works
+    /// in physical pixels and they would otherwise come up half-size at 200%.
+    /// </para>
+    /// <para>
+    /// A pretend run always opens at the first size, so its screenshots can be
+    /// compared from one run to the next.
+    /// </para>
+    /// </remarks>
+    private void Place()
+    {
+        double scale = Dpi() / 96.0;
+        if (AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            presenter.PreferredMinimumWidth = (int)(MinimumWidth * scale);
+            presenter.PreferredMinimumHeight = (int)(MinimumHeight * scale);
+        }
+
+        Box? saved = !Pretend.Active && AppSettings.Current.Window is [int x, int y, int w, int h]
+            ? new Box(x, y, w, h) : null;
+        Box? savedArea = null;
+        if (saved is { } box)
+        {
+            var (cx, cy) = WindowPlacement.Centre(box);
+            savedArea = DisplayArea.GetFromPoint(new PointInt32(cx, cy), DisplayAreaFallback.None) is { } display
+                ? Of(display.WorkArea) : null;
+        }
+
+        var place = WindowPlacement.Fit(saved, savedArea, Of(DisplayArea.Primary.WorkArea),
+            (int)(FirstWidth * scale), (int)(FirstHeight * scale));
+        AppWindow.MoveAndResize(new RectInt32(place.X, place.Y, place.Width, place.Height));
+
+        static Box Of(RectInt32 rect) => new(rect.X, rect.Y, rect.Width, rect.Height);
+    }
+
+    /// <summary>Records where the window is, for the next launch. Not while maximised or minimised.</summary>
+    private void Remember()
+    {
+        if (Pretend.Active
+            || AppWindow.Presenter is not OverlappedPresenter { State: OverlappedPresenterState.Restored })
+            return;
+        var (at, size) = (AppWindow.Position, AppWindow.Size);
+        AppSettings.Update(s => s.Window = new[] { at.X, at.Y, size.Width, size.Height });
+    }
+
     private void Hide()
     {
+        Remember();
         AppWindow.Hide();
 
         // Unload the page, so what it watches and polls stops while nobody
@@ -190,6 +242,7 @@ public sealed partial class MainWindow : Window
     private void OnQuitRequested(object sender, RoutedEventArgs e)
     {
         _quitting = true;
+        Remember();
         Tray.Dispose();
         AppServices.Stop();
         Close();

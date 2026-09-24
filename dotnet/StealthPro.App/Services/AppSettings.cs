@@ -12,8 +12,8 @@ namespace StealthPro.App.Services;
 /// Deliberately small. Everything about the headset lives on the headset and
 /// is read back from it, so there is no local copy to drift out of date. Only
 /// choices neither the headset nor Windows can answer for us are stored: which
-/// applications carry chat, the keyboard shortcuts, and whether the tray
-/// notice has been shown.
+/// applications carry chat, the keyboard shortcuts, where the window was
+/// left, and whether the tray notice has been shown.
 /// </para>
 /// <para>
 /// Kept separate from the mix's volume journal, which is recovery state
@@ -48,6 +48,13 @@ public sealed class AppSettings
     /// on the machine is not something to do to someone without asking.
     /// </remarks>
     [JsonPropertyName("mix_hotkeys")] public bool MixHotkeys { get; set; }
+
+    /// <summary>Where the window was left: left, top, width and height, in physical pixels.</summary>
+    /// <remarks>
+    /// Null until the window has been closed once. Its size is the person's
+    /// choice; where it goes back to is decided by <see cref="WindowPlacement"/>.
+    /// </remarks>
+    [JsonPropertyName("window")] public int[]? Window { get; set; }
 
     /// <summary>Changed key combinations, by name.</summary>
     /// <remarks>
