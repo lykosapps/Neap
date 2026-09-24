@@ -920,7 +920,7 @@
     <value>Firmware {0}</value>
   </data>
   <data name="Settings_AboutNote.Text" xml:space="preserve">
-    <value>A replacement for Swarm II. Free software under the GNU GPL, version 3 or later, with no warranty. Not affiliated with or endorsed by Turtle Beach.</value>
+    <value>A replacement for Swarm II, for the Stealth Pro II only. It has not been tested with any other Turtle Beach headset. Free software under the GNU GPL, version 3 or later, with no warranty. Not affiliated with or endorsed by Turtle Beach.</value>
   </data>
   <data name="Settings_AboutVersion" xml:space="preserve">
     <value>Version {0}</value>
