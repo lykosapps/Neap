@@ -732,6 +732,15 @@
   <data name="Volume_Name" xml:space="preserve">
     <value>Volume</value>
   </data>
+  <data name="Tray_State" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Tray_StateBattery" xml:space="preserve">
+    <value>{0}: {1}, battery {2}%</value>
+  </data>
+  <data name="Tray_StateCharging" xml:space="preserve">
+    <value>{0}: {1}, battery {2}% and charging</value>
+  </data>
   <data name="Tray_StillRunningTitle" xml:space="preserve">
     <value>Still running</value>
   </data>

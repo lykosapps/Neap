@@ -177,6 +177,11 @@ public sealed class HeadsetService : IDisposable
         return _values.TryGetValue(Hex(key), out var element) && TryRead(element, out value);
     }
 
+    /// <summary>The battery reading worth showing, or null when there is none; see <see cref="Core.Connection.Battery"/>.</summary>
+    public BatteryReading? Battery => Core.Connection.Battery.Of(_status,
+        TryGetNumberByKey(Core.Connection.Battery.Key, out int charge) ? charge : null,
+        TryGetNumberByKey(LinkState.ChargingKey, out int power) ? power : null);
+
     public int GetNumber(string name, int fallback = 0) =>
         TryGetNumber(name, out int value) ? value : fallback;
 

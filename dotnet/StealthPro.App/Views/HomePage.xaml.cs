@@ -25,7 +25,6 @@ namespace StealthPro.App.Views;
 public sealed partial class HomePage : Page
 {
     private const int NameKey = 0x220;
-    private const int BatteryKey = 0x240;
 
     private sealed record Tile(string Tag, string Glyph, string Name, string What);
 
@@ -148,15 +147,9 @@ public sealed partial class HomePage : Page
         ToolTipService.SetToolTip(StateText, status.Detail);
 
         Readings.Children.Clear();
-        // Switched off on its cable the headset still answers, for charging,
-        // so the battery is a real reading there too, and the one worth seeing.
-        if ((live || status.SwitchedOff) && headset.TryGetNumberByKey(BatteryKey, out int battery))
-        {
-            bool charging = headset.TryGetNumberByKey(LinkState.ChargingKey, out int power)
-                            && power == 1;
+        if (headset.Battery is { } battery)
             Add(Strings.Get("Home_Battery"),
-                Strings.Format(charging ? "Home_BatteryCharging" : "Home_BatteryLevel", battery));
-        }
+                Strings.Format(battery.Charging ? "Home_BatteryCharging" : "Home_BatteryLevel", battery.Percent));
         // Signal is the wireless link's, and says nothing about sound that
         // goes over a cable.
         if (live && !OverCable(status)

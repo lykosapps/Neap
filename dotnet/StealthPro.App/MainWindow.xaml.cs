@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using StealthPro.App.Services;
 using StealthPro.App.Views;
 using StealthPro.Core;
+using StealthPro.Core.Connection;
 using Windows.Graphics;
 
 namespace StealthPro.App;
@@ -45,7 +46,6 @@ public sealed partial class MainWindow : Window
         string title = Pretend.Active ? Strings.Format("Window_PretendTitle", AppInfo.Name) : AppInfo.Name;
         Title = title;
         TitleText.Text = title;
-        Tray.ToolTipText = title;
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(TitleBar);
 
@@ -76,6 +76,27 @@ public sealed partial class MainWindow : Window
         // The tray icon exposes a command rather than a click event.
         Tray.LeftClickCommand = new Do(Show);
 
+        AppServices.Headset.StatusChanged += _ => PaintTray();
+        AppServices.Headset.Changed += PaintTray;
+        AppServices.AudioRoute.Changed += PaintTray;
+        PaintTray();
+
+    }
+
+    /// <summary>
+    /// Says the headset's state and battery on the notification-area icon, so
+    /// a glance at it answers "is it on, and how much is left?" without
+    /// opening the window.
+    /// </summary>
+    /// <remarks>The state is worded as the title bar words it.</remarks>
+    private void PaintTray()
+    {
+        var status = AppServices.Headset.Status;
+        string state = StateCopy.Label(StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status)).Headline);
+        string text = AppServices.Headset.Battery is { } battery
+            ? Strings.Format(battery.Charging ? "Tray_StateCharging" : "Tray_StateBattery", Title, state, battery.Percent)
+            : Strings.Format("Tray_State", Title, state);
+        if (Tray.ToolTipText != text) Tray.ToolTipText = text;
     }
 
     /// <summary>
