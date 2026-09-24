@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
@@ -60,8 +61,19 @@ public sealed class MicrophoneListener : IDisposable
     /// <exception cref="WindowsAudioException">The headset has no microphone Windows can record from.</exception>
     public static MicrophoneListener Open(string match = AudioEndpoints.DefaultMatch)
     {
-        var devices = new MMDeviceEnumerator();
-        var device = Routing.Headset(devices, output: false, match);
+        MMDeviceEnumerator? devices = null;
+        MMDevice? device;
+        try
+        {
+            devices = new MMDeviceEnumerator();
+            device = Routing.Headset(devices, output: false, match);
+        }
+        catch (COMException e)
+        {
+            // Windows' audio service can be restarting as the page opens.
+            devices?.Dispose();
+            throw new WindowsAudioException($"could not list recording devices: {e.Message}");
+        }
         if (device is null)
         {
             devices.Dispose();
