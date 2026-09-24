@@ -22,17 +22,8 @@ public sealed record ChatCandidate(string Process, string Display, bool Playing)
 /// else's. This class is everything between the hardware and that.
 /// </para>
 /// <para>
-/// The wheel is relative, not a position. It is a free-spinning encoder and
-/// the headset reports an absolute 0-100 counter we cannot write. With the mix
-/// set to 70 on screen the counter is still wherever the wheel physically
-/// sits, so treating its reading as the mix would snap the dial to the
-/// wheel's position (usually near zero) on the first notch. Only the movement
-/// between readings is applied.
-/// </para>
-/// <para>
-/// The ends are anchored. The counter clamps at 0 and 100, so once it is
-/// pinned there it reports no further movement. Without anchoring, a mix that
-/// had drifted a few points short of an extreme could never reach it.
+/// Which of the wheel's readings move the mix, and how far, is decided in
+/// <see cref="ChatWheel"/>.
 /// </para>
 /// <para>
 /// The centre has a detent. The wheel steps in fives and rarely lands on
@@ -59,16 +50,16 @@ public sealed class MixService : IDisposable
 
     private readonly HeadsetService _headset;
 
+    private readonly ChatWheel _wheel;
+
     private IMixEngine? _mix;
-    private int? _wheelLast;
-    private bool _wheelDark;
-    private bool _wheelResync;
     private int? _lastApplied;
     private bool _detentHeld;
-    private long _lastWheelApply;
 
     public MixService(HeadsetService headset)
     {
+        var running = Stopwatch.StartNew();
+        _wheel = new ChatWheel(() => running.Elapsed);
         _headset = headset;
         _headset.WheelMoved += OnWheel;
         _headset.StatusChanged += OnLink;
@@ -215,112 +206,17 @@ public sealed class MixService : IDisposable
             + (_noteSteps > 1 ? $", {_noteSteps} steps)" : ")"), _noteStarted);
     }
 
-    private void OnWheel(int position)
+    private void OnWheel(int count)
     {
-        int? from = _wheelLast;
-
-        // A reconnect is a starting point, never a movement. The wheel is a
-        // free-spinning encoder, not a control with a real position, and the
-        // headset's count behind it resets when the headset is switched on.
-        // Measured: 45 before an idle shut-off, 0 after switching back on,
-        // the wheel untouched throughout. Adopting that reading would move
-        // the mix to "Game only" and silence chat with nobody touching
-        // anything. Only the wheel moving may move the mix.
-        if (from is null || _mix is null)
-        {
-            _wheelLast = position;
-            return;
-        }
-
-        // Nor is the first count to differ after no sound. See OnLink.
-        if (_wheelResync && position != from)
-        {
-            _wheelLast = position;
-            _wheelResync = false;
-            return;
-        }
-        if (position == from) return;
-
-        // Bound how often the wheel is allowed to drive the mix. It is turned
-        // far faster than there is any point applying. The starting point is
-        // left where it was, so a reading skipped here is carried into the
-        // next step rather than lost.
-        long now = Stopwatch.GetTimestamp();
-        if (now - _lastWheelApply < Stopwatch.Frequency / 33) return;
-        _lastWheelApply = now;
-
-        _wheelLast = position;
-        Apply(Follow(Mix, from.Value, position), $"wheel {from.Value}->{position}");
+        var step = _wheel.Read(count);
+        if (_wheel.Doubted is int doubted)
+            AppLog.Write(FormattableString.Invariant(
+                $"mix: the wheel read {doubted} straight after rest; held until the next reading confirms it"));
+        if (step is WheelStep moved && _mix is not null)
+            Apply(ChatWheel.Follow(Mix, moved), FormattableString.Invariant($"wheel {moved.From}->{moved.To}"));
     }
 
-    /// <summary>
-    /// Where the mix goes when the wheel's count moves from one value to
-    /// another.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The count and the mix are two scales that drift apart: the dial and
-    /// the keyboard move the mix without the wheel, and the count resets at
-    /// power-on. Adding the difference keeps them apart for good, and then the
-    /// wheel cannot reach an end: its count stops at 0 while the mix is still
-    /// at 20. Snapping to the end when the count gets near it is no answer; it
-    /// lurches from Balanced to Game only in one notch.
-    /// </para>
-    /// <para>
-    /// So each step covers the same share of what is left. Turning toward game
-    /// moves the mix by the fraction of the remaining count just travelled;
-    /// the same toward chat. Both arrive at the end together, with no jump, and
-    /// once the two agree this is exactly the difference.
-    /// </para>
-    /// </remarks>
-    private static int Follow(int mix, int from, int to)
-    {
-        double next = to < from
-            ? (from <= 0 ? mix : mix * (double)to / from)
-            : (from >= 100 ? mix : 100 - (100 - mix) * (100.0 - to) / (100 - from));
-        return (int)Math.Round(Math.Clamp(next, 0, 100));
-    }
-
-    /// <summary>
-    /// Forget where the wheel was when the link goes, or when the wheel's
-    /// clicks stop reaching the app.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// Otherwise the next reading is treated as a movement from a position
-    /// the wheel may have left long ago: the headset can be switched to
-    /// another transmitter, or turned off and moved, entirely out of sight.
-    /// Forgetting makes the first reading after a reconnect a starting point
-    /// again, which is the only honest thing it can be.
-    /// </para>
-    /// <para>
-    /// No sound is treated the same, although the link stays up. While no
-    /// transmitter is sending the headset sound, the wheel's clicks are lost
-    /// with it, and when the sound comes back the first click can jump the mix
-    /// (measured: 50 to 70 at once, most likely every turn made in the
-    /// meantime arriving together). The app cannot tell a count left over from
-    /// before from a fresh one, so after no sound the first count that differs
-    /// is taken as the new starting point, and only turns after it move the
-    /// mix.
-    /// </para>
-    /// </remarks>
-    private void OnLink(HeadsetStatus status)
-    {
-        if (status.Link != Link.Connected)
-        {
-            _wheelLast = null;
-            _wheelDark = _wheelResync = false;
-        }
-        else if (status.NoSound)
-        {
-            _wheelDark = true;
-        }
-        else if (_wheelDark)
-        {
-            _wheelDark = false;
-            _wheelResync = true;
-        }
-    }
+    private void OnLink(HeadsetStatus status) => _wheel.Link(status);
 
     // -- the picker --------------------------------------------------------
 
