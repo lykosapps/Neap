@@ -71,21 +71,29 @@ public sealed class FormatRow : SettingsCard
         await Load();
     }
 
+    /// <summary>Shows the formats on offer and selects the one in use.</summary>
+    /// <remarks>
+    /// The items are replaced only when the formats on offer change. Replacing
+    /// them just after one is chosen crashes XAML with a catastrophic failure,
+    /// and a re-read after a change offers the same formats as before.
+    /// </remarks>
     private async Task Load()
     {
         var panel = await WindowsAudio.Formats(Flow);
         _painting = true;
         try
         {
-            _picker!.Items.Clear();
-            foreach (var option in panel.Options)
+            var items = _picker!.Items.Cast<ComboBoxItem>().ToList();
+            if (!items.Select(item => (AudioFormat)item.Tag).SequenceEqual(panel.Options))
             {
-                var item = new ComboBoxItem { Content = option.Label, Tag = option };
-                _picker.Items.Add(item);
-                if (panel.Current is not null
-                    && option.Bits == panel.Current.Bits && option.Rate == panel.Current.Rate)
-                    _picker.SelectedItem = item;
+                items = panel.Options
+                    .Select(option => new ComboBoxItem { Content = option.Label, Tag = option })
+                    .ToList();
+                _picker.Items.Clear();
+                foreach (var item in items) _picker.Items.Add(item);
             }
+            _picker.SelectedItem = items.FirstOrDefault(item => item.Tag is AudioFormat option
+                && option.Bits == panel.Current?.Bits && option.Rate == panel.Current?.Rate);
             _picker.IsEnabled = panel.Options.Count > 0;
             Description = panel.Trouble ?? (panel.Options.Count == 0
                 ? Strings.Get("Format_NoneOffered")
