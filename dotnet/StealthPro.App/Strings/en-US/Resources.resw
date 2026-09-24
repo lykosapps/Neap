@@ -15,20 +15,38 @@
   <data name="Main_NavHome.Content" xml:space="preserve">
     <value>Home</value>
   </data>
+  <data name="Main_NavHome.AccessKey" xml:space="preserve">
+    <value>H</value>
+  </data>
   <data name="Main_NavAudio.Content" xml:space="preserve">
     <value>Audio</value>
+  </data>
+  <data name="Main_NavAudio.AccessKey" xml:space="preserve">
+    <value>A</value>
   </data>
   <data name="Main_NavMicrophone.Content" xml:space="preserve">
     <value>Microphone</value>
   </data>
+  <data name="Main_NavMicrophone.AccessKey" xml:space="preserve">
+    <value>M</value>
+  </data>
   <data name="Main_NavControls.Content" xml:space="preserve">
     <value>Controls</value>
+  </data>
+  <data name="Main_NavControls.AccessKey" xml:space="preserve">
+    <value>C</value>
   </data>
   <data name="Main_NavDevice.Content" xml:space="preserve">
     <value>Device</value>
   </data>
+  <data name="Main_NavDevice.AccessKey" xml:space="preserve">
+    <value>D</value>
+  </data>
   <data name="Main_NavSettings.Content" xml:space="preserve">
     <value>Settings</value>
+  </data>
+  <data name="Main_NavSettings.AccessKey" xml:space="preserve">
+    <value>S</value>
   </data>
   <data name="Main_TrayOpen.Text" xml:space="preserve">
     <value>Open</value>

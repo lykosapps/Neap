@@ -62,6 +62,16 @@ public sealed partial class MainWindow : Window
 
         Nav.SelectedItem = Nav.MenuItems[0];
 
+        // Alt and a page's letter goes to that page. A menu item has no
+        // action of its own for an access key to invoke, so selecting it is
+        // done here.
+        foreach (var item in Nav.MenuItems.Concat(Nav.FooterMenuItems).OfType<NavigationViewItem>())
+            item.AccessKeyInvoked += (sender, args) =>
+            {
+                Nav.SelectedItem = sender;
+                args.Handled = true;
+            };
+
         // Closing the window puts the app in the notification area instead of
         // stopping it. The mix, the chat wheel and the headset's own controls
         // are the point of running, and none of them need a window. Quit is on
