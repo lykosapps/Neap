@@ -494,6 +494,11 @@ live only in Swarm II's own `STEALTH_PRO_II.ini` *(research)*.
 
 - **The buttons send nothing to Windows.** Pressing one produces only a
   change notification on the control channel.
+- **Holding the Mode button sends nothing** while it is set to noise
+  cancellation on/off. Three two-second holds changed nothing and produced
+  no report, in two runs, while short presses in the same run reported
+  `0x750` each time *(measured)*. A hold cannot be given a function by the
+  PC.
 - **The volume wheel is hardware.** It sends consumer-control volume keys
   (`0C 01` up, `0C 02` down, `0C 00` release), so Windows shows its volume
   overlay with nothing running. Hiding the overlay would mean swallowing
