@@ -29,7 +29,7 @@ public sealed class NoiseControlPanel : UserControl
 {
     private static readonly NoiseMode[] Modes = [NoiseMode.Cancelling, NoiseMode.Transparency, NoiseMode.Off];
 
-    private readonly RadioButtons _modes = new() { MaxColumns = Modes.Length, IsEnabled = false };
+    private readonly RadioButtons _modes = new() { IsEnabled = false };
     private readonly SettingRow _blocking;
     private bool _painting;
     private bool _listening;
