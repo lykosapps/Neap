@@ -473,7 +473,6 @@ function QuickSwitch([string]$name, [string]$setting, [string]$key, [bool]$inver
 function Quick {
     Page 'Home'
     QuickSwitch 'Microphone' 'mic_muted' '0x600' $true
-    QuickSwitch 'Noise cancellation' 'anc' '0x750' $false
 
     # The equaliser tile opens a list of presets in a flyout, which sits
     # outside the tile in the tree, so the preset is looked for in the window.
@@ -491,6 +490,53 @@ function Quick {
     (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select()
     Check (Until { @(Writes | Where-Object { $_.key -eq '0x1210' -and $_.value -eq '1' }).Count -gt 0 }) 'the preset list on Home sends 0x1210=1'
     Collect
+}
+
+# One step of noise control: what it does, then where the headset must end
+# up, touching nothing but noise cancellation and its level.
+function NoiseStep([scriptblock]$do, [string]$anc, [string]$level, [string]$what) {
+    $script:step = $what
+    Ask 'clear' | Out-Null
+    & $do
+    Check (Until { (Ask 'value 0x750') -eq $anc -and (Ask 'value 0x760') -eq $level }) "$what leaves the headset at 0x750=$anc, 0x760=$level"
+    Check (@(Writes | Where-Object { $_.key -notin '0x750', '0x760' }).Count -eq 0) "$what writes nothing else"
+    Collect
+}
+
+# Noise cancellation, transparency and off: chosen on Audio, stepped through
+# on Home, and cycled by the Mode button, whose presses the pretend headset
+# reports as noise cancellation turning on and off by itself.
+function NoiseControl {
+    Page 'Audio'
+    $modes = Find $script:window 'AutomationIdProperty' 'noise_control'
+    if ($null -eq $modes) { Fail 'Audio offers noise control'; return }
+    if ((Ask 'value 0x750') -ne '1') { Fail 'the pretend headset starts with noise cancellation on'; return }
+    $level = Ask 'value 0x760'
+    NoiseStep { Operate $modes 'Transparency' } '1' '0' 'choosing Transparency on Audio'
+    Check ($null -eq (Find $script:window 'AutomationIdProperty' 'anc_level')) 'Blocking is hidden in transparency'
+    NoiseStep { Operate $modes 'Off' } '0' $level 'choosing Off on Audio'
+    NoiseStep { Operate $modes 'Noise cancellation' } '1' $level 'choosing Noise cancellation on Audio'
+    Check (Until { $null -ne (Find $script:window 'AutomationIdProperty' 'anc_level') }) 'Blocking is shown with noise cancellation'
+
+    Page 'Home'
+    $tile = Control 'Noise control' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -eq $tile) { Fail 'Home has a noise control tile'; return }
+    $toggle = Pattern $tile ([System.Windows.Automation.TogglePattern])
+    NoiseStep { $toggle.Toggle() } '1' '0' 'the Home tile from noise cancellation'
+    NoiseStep { $toggle.Toggle() } '0' $level 'the Home tile from transparency'
+    NoiseStep { $toggle.Toggle() } '1' $level 'the Home tile from off'
+
+    Page 'Controls'
+    $mode = Find $script:window 'AutomationIdProperty' 'mode_button_function'
+    NoiseStep { Operate $mode 'Noise cancellation, transparency and off' } '1' $level 'choosing the Mode button cycle'
+    Check ($null -ne (Find $script:window 'NameProperty' 'Works while Neap is running. Otherwise the button turns noise cancellation on and off.')) 'the cycle says it needs Neap running'
+    NoiseStep { Ask 'report anc 0' | Out-Null } '1' '0' 'a Mode press from noise cancellation'
+    NoiseStep { Ask 'report anc 0' | Out-Null } '0' $level 'a Mode press from transparency'
+    NoiseStep { Ask 'report anc 1' | Out-Null } '1' $level 'a Mode press from off'
+    NoiseStep { Operate $mode 'Noise cancellation on/off' } '1' $level 'choosing noise cancellation on/off again'
+    NoiseStep { Ask 'report anc 0' | Out-Null } '0' $level 'a Mode press without the cycle'
+    Ask 'report anc 1' | Out-Null
+    Screenshot 'controls-mode'
 }
 
 function Battery {
@@ -569,6 +615,9 @@ try {
 
     Write-Host 'Home'
     Quick
+
+    Write-Host 'Noise control'
+    NoiseControl
 
     Write-Host 'Headset'
     Battery

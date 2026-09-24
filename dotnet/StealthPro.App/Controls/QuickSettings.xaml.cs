@@ -4,12 +4,13 @@ using Microsoft.UI.Xaml.Controls;
 using StealthPro.App.Services;
 using StealthPro.Core.Connection;
 using StealthPro.Core.Presets;
+using StealthPro.Core.Settings;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
 
 namespace StealthPro.App.Controls;
 
 /// <summary>
-/// The microphone, noise cancellation and the equaliser preset, as tiles: the
+/// The microphone, noise control and the equaliser preset, as tiles: the
 /// headset settings reached for mid-game or mid-call.
 /// </summary>
 /// <remarks>
@@ -30,17 +31,18 @@ public sealed partial class QuickSettings : UserControl
     private const double CurveWidth = 180, CurveHeight = 40;
     private const double ListCurveWidth = 72, ListCurveHeight = 22;
 
-    private readonly SettingLink _anc;
     private bool _painting;
 
     public QuickSettings()
     {
         InitializeComponent();
-        AncWord.Text = Strings.Get("Reading_None");
+        NoiseWord.Text = Strings.Get("Reading_None");
         PresetName.Text = Strings.Get("Reading_None");
 
-        _anc = new SettingLink(AncTile, () => "anc", _ => { }, PaintAnc);
-        AncTile.Click += (_, _) => _anc.Write(AncTile.IsChecked == true ? 1 : 0);
+        NoiseTile.Click += (_, _) =>
+        {
+            if (AppServices.Noise.Mode is NoiseMode mode) AppServices.Noise.Choose(NoiseControl.Next(mode));
+        };
 
         PresetFlyout.Opened += (_, _) => (PresetList.ContainerFromItem(PresetList.SelectedItem) as ListViewItem
             ?? PresetList.ContainerFromIndex(0) as ListViewItem)?.Focus(FocusState.Programmatic);
@@ -56,26 +58,34 @@ public sealed partial class QuickSettings : UserControl
         {
             AppServices.Headset.Changed += PaintPreset;
             AppServices.Headset.StatusChanged += OnStatus;
+            AppServices.Noise.Changed += PaintNoise;
+            PaintNoise();
             await LoadPresets();
         };
         Unloaded += (_, _) =>
         {
             AppServices.Headset.Changed -= PaintPreset;
             AppServices.Headset.StatusChanged -= OnStatus;
+            AppServices.Noise.Changed -= PaintNoise;
         };
     }
 
-    private void PaintAnc()
+    private void PaintNoise()
     {
-        AncTile.IsEnabled = _anc.Value is not null && _anc.Key is { Writable: true };
-        AncTile.IsChecked = _anc.Value == 1;
-        AncWord.Text = _anc.Value switch
-        {
-            null => Strings.Get("Reading_None"),
-            1 => Strings.Get("Switch_On"),
-            _ => Strings.Get("Switch_Off"),
-        };
+        var mode = AppServices.Noise.Mode;
+        NoiseTile.IsEnabled = AppServices.Noise.CanChoose;
+        NoiseTile.IsChecked = mode is not null and not NoiseMode.Off;
+        NoiseWord.Text = mode is NoiseMode known ? Strings.Get(NoiseModeWord(known)) : Strings.Get("Reading_None");
+        AutomationProperties.SetItemStatus(NoiseTile, NoiseWord.Text);
     }
+
+    /// <summary>The resource naming a noise control mode.</summary>
+    internal static string NoiseModeWord(NoiseMode mode) => mode switch
+    {
+        NoiseMode.Cancelling => "Noise_Cancelling",
+        NoiseMode.Transparency => "Noise_Transparency",
+        _ => "Noise_Off",
+    };
 
     // -- the equaliser preset ------------------------------------------------
 

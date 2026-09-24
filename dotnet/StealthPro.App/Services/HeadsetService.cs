@@ -238,15 +238,24 @@ public sealed class HeadsetService : IDisposable
 
     /// <summary>Set a value, coalescing rapid changes to the same key.</summary>
     /// <remarks>
+    /// <para>
     /// A slider dragged across its range raises a change per pixel. Sending
     /// every one builds a backlog the headset answers long after the finger
     /// has stopped, so only the latest value for a key is ever in flight and
     /// writes to one key are spaced by <see cref="WriteGapMs"/>. The last value
     /// always lands.
+    /// </para>
+    /// <para>
+    /// A value set is held as the person's for a moment, so a late report of
+    /// the old one does not pull a slider back under their finger. A value
+    /// the app sets on its own account, such as finishing a Mode button step,
+    /// passes <paramref name="hold"/> false: the headset's own buttons must be
+    /// heard straight away.
+    /// </para>
     /// </remarks>
-    public void SetKey(int key, int value)
+    public void SetKey(int key, int value, bool hold = true)
     {
-        SetKeyLocally(key, value);
+        Store(key, value, hold);
         _pending[key] = value;
         if (!_inFlight.TryAdd(key, true)) return;
 
@@ -288,12 +297,17 @@ public sealed class HeadsetService : IDisposable
     /// the UI should not sit on the old curve for the 1.2 seconds a full read
     /// takes to confirm it.
     /// </remarks>
-    public void SetKeyLocally(int key, int value)
+    public void SetKeyLocally(int key, int value) => Store(key, value, hold: true);
+
+    private void Store(int key, int value, bool hold)
     {
         string hex = Hex(key);
         _values[hex] = JsonSerializer.SerializeToElement(value);
-        _owned[hex] = Stopwatch.GetTimestamp()
-            + (long)(OwnershipWindow.TotalSeconds * Stopwatch.Frequency);
+        if (hold)
+            _owned[hex] = Stopwatch.GetTimestamp()
+                + (long)(OwnershipWindow.TotalSeconds * Stopwatch.Frequency);
+        else
+            _owned.TryRemove(hex, out _);
         Raise();
     }
 

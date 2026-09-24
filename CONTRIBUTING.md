@@ -94,6 +94,14 @@ Run through this with the release build, not a debug one:
    Enter). The app stays open, Windows Sound settings shows the same format
    each time, and at 24-bit, 96 kHz the Charging Dock's status ring turns
    purple.
+6. **Noise control.** Choose each mode on Audio and hear it change. Set
+   Blocking to something other than full, then go to transparency and back:
+   noise cancellation returns at that level. Choose the Mode button's cycle
+   on Controls and press it six times, pausing on each: noise cancellation,
+   transparency, off, twice over, with only a moment of off on the way into
+   transparency. From off, the press lands on noise cancellation with no
+   transparency first. Close Neap: the button turns noise cancellation on
+   and off.
 
 ## Pull requests
 

@@ -24,6 +24,11 @@ lighting, battery, power, wake on motion, voice prompts. No driver, no
 Turtle Beach software, no admin rights. Two of those — wake on motion and
 voice prompt volume — are not in Swarm II's desktop app at all.
 
+**Transparency, which the headset does not offer.** Noise control has three
+modes: noise cancellation, transparency and off. Transparency is noise
+cancellation at zero, which lets the room through. The Mode button can step
+through all three while Neap is running.
+
 **A game and chat mix that needs no setup.** The transmitter gives Windows a
 single stereo output, so the headset cannot split game from chat on a PC. It
 has to be done on the PC, and every other way of doing it asks you to install

@@ -13,7 +13,8 @@ namespace StealthPro.App.Services;
 /// is read back from it, so there is no local copy to drift out of date. Only
 /// choices neither the headset nor Windows can answer for us are stored: which
 /// applications carry chat, the keyboard shortcuts, where the window was
-/// left, and whether the tray notice has been shown.
+/// left, whether the tray notice has been shown, and the two halves of noise
+/// control the headset has no place for.
 /// </para>
 /// <para>
 /// Kept separate from the mix's volume journal, which is recovery state
@@ -48,6 +49,19 @@ public sealed class AppSettings
     /// on the machine is not something to do to someone without asking.
     /// </remarks>
     [JsonPropertyName("mix_hotkeys")] public bool MixHotkeys { get; set; }
+
+    /// <summary>The level noise cancellation comes back at, or null if it has never been used.</summary>
+    /// <remarks>
+    /// Transparency is noise cancellation at zero, so while it is on the
+    /// headset no longer holds the level it came from.
+    /// </remarks>
+    [JsonPropertyName("noise_blocking")] public int? NoiseBlocking { get; set; }
+
+    /// <summary>Whether a press of the Mode button steps through noise cancellation, transparency and off.</summary>
+    /// <remarks>
+    /// The headset has no such function; see <see cref="Core.Settings.ModeButton"/>.
+    /// </remarks>
+    [JsonPropertyName("mode_cycles_noise")] public bool ModeCyclesNoise { get; set; }
 
     /// <summary>Where the window was left: left, top, width and height, in physical pixels.</summary>
     /// <remarks>

@@ -57,6 +57,16 @@ public sealed class SettingRow : SettingsCard
         set => SetValue(GlyphProperty, value);
     }
 
+    public static readonly DependencyProperty MinimumProperty = DependencyProperty.Register(
+        nameof(Minimum), typeof(double), typeof(SettingRow), new PropertyMetadata(double.NaN));
+
+    /// <summary>Gets or sets the lowest value a slider offers, where that is above the setting's own.</summary>
+    public double Minimum
+    {
+        get => (double)GetValue(MinimumProperty);
+        set => SetValue(MinimumProperty, value);
+    }
+
     /// <summary>Builds the row's control for its setting, once.</summary>
     private void Build(SettingKey key)
     {
@@ -129,7 +139,7 @@ public sealed class SettingRow : SettingsCard
     {
         _slider = new Slider
         {
-            Minimum = key.Minimum ?? 0,
+            Minimum = double.IsNaN(Minimum) ? key.Minimum ?? 0 : Math.Max(Minimum, key.Minimum ?? 0),
             Maximum = key.Maximum ?? 100,
             Width = SliderWidth,
             VerticalAlignment = VerticalAlignment.Center,

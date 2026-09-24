@@ -15,6 +15,7 @@ public static class AppServices
 {
     public static HeadsetService Headset { get; private set; } = null!;
     public static MixService Mix { get; private set; } = null!;
+    public static NoiseService Noise { get; private set; } = null!;
     public static PresetService Presets { get; private set; } = null!;
     public static HotkeyService Hotkeys { get; private set; } = null!;
     public static AudioRoute AudioRoute { get; private set; } = null!;
@@ -40,6 +41,7 @@ public static class AppServices
         AudioRoute = new AudioRoute();
         Headset = new HeadsetService(Devices, cabled: () => AudioRoute.Cable.Length > 0);
         Mix = new MixService(Headset);
+        Noise = new NoiseService(Headset);
         Presets = new PresetService(Headset);
         Hotkeys = new HotkeyService(Mix);
         Hotkeys.Enable(AppSettings.Current.MixHotkeys && !Pretend.Active);
@@ -55,6 +57,7 @@ public static class AppServices
     {
         Hotkeys?.Dispose();
         Mix?.Dispose();
+        Noise?.Dispose();
         Headset?.Dispose();
         AudioRoute?.Dispose();
         Pretend.Stop();

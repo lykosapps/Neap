@@ -33,8 +33,9 @@
                         <c:EqualiserPanel Bank="Game" />
 
                         <!--
-                            Noise cancellation and Superhuman Hearing as Home's tiles,
-                            side by side, with how strong each is under it while it is on.
+                            Noise control with its three modes, and Superhuman Hearing as
+                            Home's tile, side by side, with how strong each is under it
+                            while it is on.
                         -->
                         <TextBlock x:Uid="Audio_AroundYouHeading" Style="{StaticResource SectionHeaderStyle}" />
                         <Grid ColumnSpacing="12">
@@ -42,14 +43,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <c:SettingTile
-                                x:Uid="Audio_AncTile"
-                                Glyph="&#xE7F6;"
-                                Setting="anc">
-                                <StackPanel Spacing="4">
-                                    <c:SettingRow x:Uid="Audio_AncIntensity" Setting="anc_level" />
-                                </StackPanel>
-                            </c:SettingTile>
+                            <c:NoiseControlPanel />
                             <c:SettingTile
                                 x:Uid="Audio_ShhTile"
                                 Grid.Column="1"

@@ -7,7 +7,7 @@
 
     <!--
         The headset's settings reached for mid-game or mid-call, as tiles:
-        the microphone and noise cancellation side by side, and the
+        the microphone and noise control side by side, and the
         equaliser across the width under them, with its curve.
     -->
     <Grid ColumnSpacing="10" RowSpacing="10">
@@ -22,9 +22,13 @@
 
         <c:MicTile />
 
+        <!--
+            Noise control steps through its three modes in the order the Mode
+            button does, and is lit for either mode that is not off.
+        -->
         <ToggleButton
-            x:Name="AncTile"
-            x:Uid="Quick_AncTile"
+            x:Name="NoiseTile"
+            x:Uid="Quick_NoiseTile"
             Grid.Column="1"
             IsEnabled="False"
             Style="{StaticResource NeapToggleTileStyle}">
@@ -41,11 +45,11 @@
                     FontSize="22"
                     Glyph="&#xE7F6;" />
                 <TextBlock
-                    x:Uid="Quick_NoiseCancelling"
+                    x:Uid="Quick_NoiseControl"
                     Grid.Row="1"
                     Style="{StaticResource NeapTileTitleStyle}" />
                 <TextBlock
-                    x:Name="AncWord"
+                    x:Name="NoiseWord"
                     Grid.Row="2"
                     Style="{StaticResource NeapTileStateStyle}" />
             </Grid>

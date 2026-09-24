@@ -159,20 +159,11 @@
   <data name="Audio_AroundYouHeading.Text" xml:space="preserve">
     <value>Around you</value>
   </data>
-  <data name="Audio_AncTile.Title" xml:space="preserve">
-    <value>Noise cancellation</value>
-  </data>
-  <data name="Audio_AncTile.Description" xml:space="preserve">
-    <value>Blocks out the room around you.</value>
-  </data>
   <data name="Audio_ShhTile.Title" xml:space="preserve">
     <value>Superhuman Hearing</value>
   </data>
   <data name="Audio_ShhTile.Description" xml:space="preserve">
     <value>Makes footsteps and quiet sounds easier to hear.</value>
-  </data>
-  <data name="Audio_AncIntensity.Header" xml:space="preserve">
-    <value>Intensity</value>
   </data>
   <data name="Audio_Type.Header" xml:space="preserve">
     <value>Type</value>
@@ -819,9 +810,6 @@
   <data name="Quick_Microphone.Text" xml:space="preserve">
     <value>Microphone</value>
   </data>
-  <data name="Quick_AncTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Noise cancellation</value>
-  </data>
   <data name="Reading_None" xml:space="preserve">
     <value>—</value>
     <comment>Stands in for a value the headset has not reported.</comment>
@@ -852,9 +840,6 @@
   </data>
   <data name="Mic_Name" xml:space="preserve">
     <value>Microphone</value>
-  </data>
-  <data name="Quick_NoiseCancelling.Text" xml:space="preserve">
-    <value>Noise cancellation</value>
   </data>
   <data name="Quick_Preset.Text" xml:space="preserve">
     <value>Equaliser</value>
@@ -948,5 +933,38 @@
   </data>
   <data name="Window_PretendTitle" xml:space="preserve">
     <value>{0} with a pretend headset</value>
+  </data>
+  <data name="Quick_NoiseTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Noise control</value>
+  </data>
+  <data name="Quick_NoiseControl.Text" xml:space="preserve">
+    <value>Noise control</value>
+  </data>
+  <data name="Noise_Title" xml:space="preserve">
+    <value>Noise control</value>
+  </data>
+  <data name="Noise_Description" xml:space="preserve">
+    <value>Blocks the room around you, or lets it in.</value>
+  </data>
+  <data name="Noise_Cancelling" xml:space="preserve">
+    <value>Noise cancellation</value>
+  </data>
+  <data name="Noise_Transparency" xml:space="preserve">
+    <value>Transparency</value>
+  </data>
+  <data name="Noise_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Noise_Blocking" xml:space="preserve">
+    <value>Blocking</value>
+  </data>
+  <data name="Noise_BlockingDescription" xml:space="preserve">
+    <value>How much of the room noise cancellation keeps out.</value>
+  </data>
+  <data name="Mode_NoiseCycle" xml:space="preserve">
+    <value>Noise cancellation, transparency and off</value>
+  </data>
+  <data name="Mode_NoiseCycleNeedsApp" xml:space="preserve">
+    <value>Works while Neap is running. Otherwise the button turns noise cancellation on and off.</value>
   </data>
 </root>

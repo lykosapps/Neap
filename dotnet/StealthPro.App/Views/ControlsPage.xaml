@@ -28,7 +28,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <c:SettingChoice x:Uid="Controls_ModeButton" Setting="mode_button_function" />
+                        <c:ModeButtonChoice x:Uid="Controls_ModeButton" />
                         <c:SettingChoice
                             x:Uid="Controls_LowerDial"
                             Grid.Column="1"
