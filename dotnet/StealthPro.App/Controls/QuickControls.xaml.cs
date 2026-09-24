@@ -36,8 +36,6 @@ public sealed partial class QuickControls : UserControl
     {
         InitializeComponent();
 
-        // The state dot is coloured in code, so it is repainted for a new theme.
-        ActualThemeChanged += (_, _) => Paint();
         Block.SizeChanged += (_, _) => Arrange();
         Loaded += (_, _) =>
         {
@@ -73,7 +71,7 @@ public sealed partial class QuickControls : UserControl
             : "Stealth Pro II";
 
         var look = StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status));
-        StateDot.Fill = Tones.Brush(look.Tone);
+        StateDot.Style = Tones.Style(look.Tone);
         bool cable = AppServices.AudioRoute.OverCable(status);
         HowConnected.Text = Connection(status, cable, look.Headline);
         ToolTipService.SetToolTip(HowConnected, status.Detail);

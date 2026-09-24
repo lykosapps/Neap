@@ -1,6 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using StealthPro.App.Services;
 using StealthPro.Core.Connection;
 
@@ -23,20 +22,16 @@ public sealed partial class HeadsetStatusStrip : UserControl
         {
             AppServices.Headset.StatusChanged += OnStatus;
             AppServices.AudioRoute.Changed += Paint;
-            ActualThemeChanged += OnTheme;
             Paint();
         };
         Unloaded += (_, _) =>
         {
             AppServices.Headset.StatusChanged -= OnStatus;
             AppServices.AudioRoute.Changed -= Paint;
-            ActualThemeChanged -= OnTheme;
         };
     }
 
     private void OnStatus(HeadsetStatus status) => Paint();
-
-    private void OnTheme(FrameworkElement sender, object args) => Paint();
 
     private void Paint()
     {
@@ -44,7 +39,7 @@ public sealed partial class HeadsetStatusStrip : UserControl
         bool elsewhere = AppServices.AudioRoute.SoundElsewhere(status);
         var look = StatusLook.Of(status, elsewhere);
 
-        ConnectionDot.Fill = Tones.Brush(look.Tone);
+        ConnectionDot.Style = Tones.Style(look.Tone);
         ConnectionText.Text = StateCopy.Label(look.Headline);
 
         // No sound happens while connected, where Detail names the device, so
@@ -57,14 +52,14 @@ public sealed partial class HeadsetStatusStrip : UserControl
     }
 }
 
-/// <summary>The colour for each tone, the same wherever a state is shown.</summary>
+/// <summary>The dot for each tone, the same wherever a state is shown.</summary>
 internal static class Tones
 {
-    public static Brush Brush(Tone tone) => (Brush)Application.Current.Resources[tone switch
+    public static Style Style(Tone tone) => (Style)Application.Current.Resources[tone switch
     {
-        Tone.Good => "SystemFillColorSuccessBrush",
-        Tone.Neutral => "SystemFillColorNeutralBrush",
-        Tone.Critical => "SystemFillColorCriticalBrush",
-        _ => "SystemFillColorCautionBrush",
+        Tone.Good => "ToneGoodStyle",
+        Tone.Neutral => "ToneNeutralStyle",
+        Tone.Critical => "ToneCriticalStyle",
+        _ => "ToneCautionStyle",
     }];
 }
