@@ -11,11 +11,11 @@
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Default">
             <LinearGradientBrush x:Key="NeapTileBrush" StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Offset="0" Color="#343438" />
-                <GradientStop Offset="1" Color="#2B2B2F" />
+                <GradientStop Offset="0" Color="#342C48" />
+                <GradientStop Offset="1" Color="#2A233B" />
             </LinearGradientBrush>
-            <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#38383D" />
-            <SolidColorBrush x:Key="NeapTileStrokeBrush" Color="#403F46" />
+            <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#3A3150" />
+            <SolidColorBrush x:Key="NeapTileStrokeBrush" Color="#45395F" />
             <SolidColorBrush x:Key="NeapTileEdgeBrush" Color="#66000000" />
             <SolidColorBrush x:Key="NeapTileTextBrush" Color="#FFFFFF" />
             <LinearGradientBrush x:Key="NeapTileOnBrush" StartPoint="0.5,0" EndPoint="0.5,1">

@@ -9,11 +9,12 @@
     xmlns:tray="using:H.NotifyIcon"
     mc:Ignorable="d">
 
-    <Window.SystemBackdrop>
-        <MicaBackdrop />
-    </Window.SystemBackdrop>
-
-    <Grid>
+    <!--
+        Neap's own ground behind everything, title bar and menu included, in
+        place of Mica, which takes its tint from the desktop wallpaper. High
+        contrast uses the system's window colour.
+    -->
+    <Grid Background="{ThemeResource NeapGroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
             <RowDefinition Height="*" />

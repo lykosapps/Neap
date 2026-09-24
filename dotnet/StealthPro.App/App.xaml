@@ -13,6 +13,11 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!--
+                Neap's twilight ground and panels, in place of Windows' grey:
+                a violet-leaning dark in the dark theme and a pale lavender in
+                the light one, so every page reads as the same product. The
+                accent marks only what is on, in use or playing.
+                
                 Game and chat, from the half moon in the mark: game is the
                 twilight wave, chat is the moon, silver on dark and ink on
                 light, so the two sides differ in lightness as well as in hue
@@ -22,20 +27,28 @@
             -->
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="NeapGroundBrush" Color="#110E19" />
+                    <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#110E19" />
+                    <SolidColorBrush x:Key="NavigationViewContentBackground" Color="#171322" />
+                    <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="#282238" />
+                    <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#269D8CFF" />
+                    <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#339D8CFF" />
+                    <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPressed" Color="#1F9D8CFF" />
                     <RadialGradientBrush x:Key="NeapPanelBrush" Center="0.5,0" GradientOrigin="0.5,0" RadiusX="1.2" RadiusY="0.9">
-                        <GradientStop Offset="0" Color="#2A2733" />
-                        <GradientStop Offset="1" Color="#1D1C22" />
+                        <GradientStop Offset="0" Color="#2E2742" />
+                        <GradientStop Offset="1" Color="#1E1929" />
                     </RadialGradientBrush>
-                    <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#36333F" />
-                    <SolidColorBrush x:Key="SettingsCardBackground" Color="#24222B" />
-                    <SolidColorBrush x:Key="SettingsCardBackgroundPointerOver" Color="#2A2833" />
-                    <SolidColorBrush x:Key="SettingsCardBackgroundPressed" Color="#211F28" />
-                    <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#34313D" />
-                    <SolidColorBrush x:Key="SettingsCardBorderBrushPointerOver" Color="#3D3A47" />
-                    <SolidColorBrush x:Key="SettingsCardBorderBrushPressed" Color="#34313D" />
-                    <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="#24222B" />
-                    <SolidColorBrush x:Key="ExpanderContentBackground" Color="#211F27" />
-                    <SolidColorBrush x:Key="NeapRuleBrush" Color="#2C2A33" />
+                    <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#3B3351" />
+                    <SolidColorBrush x:Key="SettingsCardBackground" Color="#221C31" />
+                    <SolidColorBrush x:Key="SettingsCardBackgroundPointerOver" Color="#29223A" />
+                    <SolidColorBrush x:Key="SettingsCardBackgroundPressed" Color="#1E192C" />
+                    <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#342B49" />
+                    <SolidColorBrush x:Key="SettingsCardBorderBrushPointerOver" Color="#3F3556" />
+                    <SolidColorBrush x:Key="SettingsCardBorderBrushPressed" Color="#342B49" />
+                    <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="#221C31" />
+                    <SolidColorBrush x:Key="ExpanderContentBackground" Color="#1D182B" />
+                    <SolidColorBrush x:Key="NeapRuleBrush" Color="#2B2440" />
                     <SolidColorBrush x:Key="NeapGameBrush" Color="#9D8CFF" />
                     <SolidColorBrush x:Key="NeapGameTextBrush" Color="#B2A5FF" />
                     <SolidColorBrush x:Key="NeapChatBrush" Color="#E6E8EC" />
@@ -43,19 +56,27 @@
                     <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#1FFFFFFF" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="NeapGroundBrush" Color="#EFECF6" />
+                    <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#EFECF6" />
+                    <SolidColorBrush x:Key="NavigationViewContentBackground" Color="#F7F5FB" />
+                    <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="#E2DEEC" />
+                    <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#266D5AD9" />
+                    <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#336D5AD9" />
+                    <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPressed" Color="#1F6D5AD9" />
                     <RadialGradientBrush x:Key="NeapPanelBrush" Center="0.5,0" GradientOrigin="0.5,0" RadiusX="1.2" RadiusY="0.9">
                         <GradientStop Offset="0" Color="#FFFFFF" />
-                        <GradientStop Offset="1" Color="#F0EFF5" />
+                        <GradientStop Offset="1" Color="#F0EDF7" />
                     </RadialGradientBrush>
-                    <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#DCDBE3" />
-                    <SolidColorBrush x:Key="SettingsCardBackground" Color="#FCFBFE" />
-                    <SolidColorBrush x:Key="SettingsCardBackgroundPointerOver" Color="#F6F5FA" />
-                    <SolidColorBrush x:Key="SettingsCardBackgroundPressed" Color="#F1F0F6" />
-                    <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#E3E1EA" />
-                    <SolidColorBrush x:Key="SettingsCardBorderBrushPointerOver" Color="#D8D6E1" />
-                    <SolidColorBrush x:Key="SettingsCardBorderBrushPressed" Color="#E3E1EA" />
-                    <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="#FCFBFE" />
-                    <SolidColorBrush x:Key="ExpanderContentBackground" Color="#F7F6FB" />
+                    <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#DDD8E8" />
+                    <SolidColorBrush x:Key="SettingsCardBackground" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="SettingsCardBackgroundPointerOver" Color="#FAF9FD" />
+                    <SolidColorBrush x:Key="SettingsCardBackgroundPressed" Color="#F4F2F9" />
+                    <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#E2DEEC" />
+                    <SolidColorBrush x:Key="SettingsCardBorderBrushPointerOver" Color="#D6D1E3" />
+                    <SolidColorBrush x:Key="SettingsCardBorderBrushPressed" Color="#E2DEEC" />
+                    <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="ExpanderContentBackground" Color="#FAF8FD" />
                     <SolidColorBrush x:Key="NeapRuleBrush" Color="#DCDBE3" />
                     <SolidColorBrush x:Key="NeapGameBrush" Color="#6D5AD9" />
                     <SolidColorBrush x:Key="NeapGameTextBrush" Color="#5845BD" />
@@ -64,6 +85,7 @@
                     <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#17000000" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="HighContrast">
+                    <SolidColorBrush x:Key="NeapGroundBrush" Color="{ThemeResource SystemColorWindowColor}" />
                     <SolidColorBrush x:Key="NeapPanelBrush" Color="{ThemeResource SystemColorWindowColor}" />
                     <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
                     <SolidColorBrush x:Key="NeapRuleBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
