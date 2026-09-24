@@ -193,7 +193,7 @@ public sealed class SettingRow : SettingsCard
             _absent.Visibility = known ? Visibility.Collapsed : Visibility.Visible;
         // Disabled only where there is a control that cannot be used: a
         // reading with nothing to change is not unavailable, and greyed out it
-        // read as one.
+        // reads as one.
         bool readout = _toggle is null && _slider is null && _choice is null;
         IsEnabled = known && (readout || _link.Key is { Writable: true });
     }

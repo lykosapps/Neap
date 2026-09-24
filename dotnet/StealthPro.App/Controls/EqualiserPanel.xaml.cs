@@ -420,9 +420,8 @@ public sealed partial class EqualiserPanel : UserControl
     /// Writes the current curve over the custom preset it came from.
     /// </summary>
     /// <remarks>
-    /// Named rather than confirmed: the button says which preset it replaces
-    /// ("Overwrite Mud cut"), so no dialog follows. Replacing is a delete
-    /// followed by a write.
+    /// Replacing is a delete followed by a write, and the old curve cannot be
+    /// had back, so the button asks first; see the confirmation it opens.
     /// </remarks>
     private async Task Overwrite()
     {

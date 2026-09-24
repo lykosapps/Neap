@@ -12,8 +12,8 @@ namespace StealthPro.App.Controls;
 /// <para>
 /// Listens on every load, not only the first. A control is unloaded and
 /// loaded again whenever it moves, and a <see cref="HeadsetSection"/> moves
-/// its content into one panel when it first paints; a control that listened
-/// only once froze at whatever it showed then, a dash if the headset was off.
+/// its content into one panel when it first paints; a control that listens
+/// only once stays at whatever it showed then, a dash if the headset was off.
 /// A move can raise Loaded at the new place before Unloaded at the old one,
 /// so an Unloaded while still loaded is ignored; otherwise the control stops
 /// listening for good and misses the headset's own buttons.
