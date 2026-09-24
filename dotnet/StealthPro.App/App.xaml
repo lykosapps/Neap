@@ -22,6 +22,12 @@
             -->
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Default">
+                    <RadialGradientBrush x:Key="NeapPanelBrush" Center="0.5,0" GradientOrigin="0.5,0" RadiusX="1.2" RadiusY="0.9">
+                        <GradientStop Offset="0" Color="#2A2733" />
+                        <GradientStop Offset="1" Color="#1D1C22" />
+                    </RadialGradientBrush>
+                    <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#36333F" />
+                    <SolidColorBrush x:Key="NeapRuleBrush" Color="#2C2A33" />
                     <SolidColorBrush x:Key="NeapGameBrush" Color="#9D8CFF" />
                     <SolidColorBrush x:Key="NeapGameTextBrush" Color="#B2A5FF" />
                     <SolidColorBrush x:Key="NeapChatBrush" Color="#E6E8EC" />
@@ -29,6 +35,12 @@
                     <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#1FFFFFFF" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Light">
+                    <RadialGradientBrush x:Key="NeapPanelBrush" Center="0.5,0" GradientOrigin="0.5,0" RadiusX="1.2" RadiusY="0.9">
+                        <GradientStop Offset="0" Color="#FFFFFF" />
+                        <GradientStop Offset="1" Color="#F0EFF5" />
+                    </RadialGradientBrush>
+                    <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#DCDBE3" />
+                    <SolidColorBrush x:Key="NeapRuleBrush" Color="#DCDBE3" />
                     <SolidColorBrush x:Key="NeapGameBrush" Color="#6D5AD9" />
                     <SolidColorBrush x:Key="NeapGameTextBrush" Color="#5845BD" />
                     <SolidColorBrush x:Key="NeapChatBrush" Color="#15171C" />
@@ -36,6 +48,9 @@
                     <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#17000000" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="HighContrast">
+                    <SolidColorBrush x:Key="NeapPanelBrush" Color="{ThemeResource SystemColorWindowColor}" />
+                    <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+                    <SolidColorBrush x:Key="NeapRuleBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
                     <SolidColorBrush x:Key="NeapGameBrush" Color="{ThemeResource SystemColorHighlightColor}" />
                     <SolidColorBrush x:Key="NeapGameTextBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
                     <SolidColorBrush x:Key="NeapChatBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
@@ -70,15 +85,35 @@
             </Style>
 
             <!--
-                A card on Home, holding one part of the quick controls. One
-                card shape repeated, after the WinUI Gallery.
+                A panel on Home, lit from the top edge like a piece of gear
+                on a desk: the mix, and the note that stands in for the
+                controls.
             -->
             <Style x:Key="QuickCardStyle" TargetType="Border">
-                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
-                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="Background" Value="{ThemeResource NeapPanelBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource NeapPanelStrokeBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="CornerRadius" Value="16" />
                 <Setter Property="Padding" Value="20,16" />
+            </Style>
+
+            <!--  A small label over what it names: a panel's title, a reading's name.  -->
+            <Style
+                x:Key="NeapLabelStyle"
+                BasedOn="{StaticResource CaptionTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="CharacterSpacing" Value="100" />
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Style>
+
+            <!--  A reading worth a glance, such as the battery: a big number.  -->
+            <Style
+                x:Key="NeapReadingStyle"
+                BasedOn="{StaticResource SubtitleTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="Typography.NumeralAlignment" Value="Tabular" />
             </Style>
 
             <!--

@@ -141,12 +141,12 @@ public sealed partial class QuickControls : UserControl
                 new TextBlock
                 {
                     Text = label,
-                    Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
+                    Style = (Style)Application.Current.Resources["NeapLabelStyle"],
                 },
                 new TextBlock
                 {
                     Text = value,
-                    Style = (Style)Application.Current.Resources["BodyStrongTextBlockStyle"],
+                    Style = (Style)Application.Current.Resources["NeapReadingStyle"],
                 },
             },
         });

@@ -12,16 +12,20 @@
             glance. The title bar says the state on every page; this says
             which transmitter and how much battery is left.
         -->
-        <Grid ColumnSpacing="24">
+        <Grid
+            Padding="0,0,0,16"
+            BorderBrush="{ThemeResource NeapRuleBrush}"
+            BorderThickness="0,0,0,1"
+            ColumnSpacing="24">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <StackPanel VerticalAlignment="Center" Spacing="2">
+            <StackPanel VerticalAlignment="Bottom" Spacing="4">
                 <TextBlock
                     x:Name="HeadsetName"
                     AutomationProperties.HeadingLevel="Level1"
-                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Style="{StaticResource NeapLabelStyle}"
                     Text="Stealth Pro II" />
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <Ellipse
@@ -32,14 +36,15 @@
                     <TextBlock
                         x:Name="HowConnected"
                         VerticalAlignment="Center"
-                        Style="{StaticResource SecondaryBodyTextStyle}"
+                        FontSize="18"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
                         TextWrapping="Wrap" />
                 </StackPanel>
             </StackPanel>
             <StackPanel
                 x:Name="Readings"
                 Grid.Column="1"
-                VerticalAlignment="Center"
+                VerticalAlignment="Bottom"
                 Orientation="Horizontal"
                 Spacing="32" />
         </Grid>

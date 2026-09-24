@@ -10,7 +10,7 @@
         <TextBlock
             x:Uid="Mix_Title"
             AutomationProperties.HeadingLevel="Level2"
-            Style="{StaticResource BodyStrongTextBlockStyle}" />
+            Style="{StaticResource NeapLabelStyle}" />
 
         <!--
             The chat wheel cannot reach the app, with what still moves the
@@ -106,27 +106,29 @@
 
         <!--
             Which application carries chat: the only thing the mix needs to
-            know. One picker, before and after the choice.
+            know. One picker, before and after the choice, under its label so
+            an app's name has the panel's width.
         -->
-        <Grid ColumnSpacing="8">
+        <Grid ColumnSpacing="8" RowSpacing="4">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock
-                x:Uid="Mix_ChatFrom"
-                VerticalAlignment="Center"
-                Style="{StaticResource BodyTextBlockStyle}" />
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock x:Uid="Mix_ChatFrom" Style="{StaticResource SecondaryCaptionTextStyle}" />
             <ComboBox
                 x:Name="ChatPicker"
                 x:Uid="Mix_ChatPicker"
-                Grid.Column="1"
+                Grid.Row="1"
                 HorizontalAlignment="Stretch" />
             <Button
                 x:Name="Refresh"
                 x:Uid="Mix_Refresh"
-                Grid.Column="2">
+                Grid.Row="1"
+                Grid.Column="1">
                 <FontIcon FontSize="14" Glyph="&#xE72C;" />
             </Button>
         </Grid>
