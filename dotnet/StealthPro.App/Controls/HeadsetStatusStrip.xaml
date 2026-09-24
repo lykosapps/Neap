@@ -22,7 +22,7 @@
             Width="8"
             Height="8"
             VerticalAlignment="Center"
-            Fill="{ThemeResource SystemFillColorCautionBrush}" />
+            Style="{StaticResource ToneCautionStyle}" />
         <TextBlock
             x:Name="ConnectionText"
             VerticalAlignment="Center"
