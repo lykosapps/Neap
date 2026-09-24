@@ -41,6 +41,8 @@
                     <SolidColorBrush x:Key="NeapChatBrush" Color="#E6E8EC" />
                     <SolidColorBrush x:Key="NeapChatTextBrush" Color="#E6E8EC" />
                     <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#1FFFFFFF" />
+                    <SolidColorBrush x:Key="NeapInUseStrokeBrush" Color="#C8BEFF" />
+                    <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#12FFFFFF" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Light">
                     <SolidColorBrush x:Key="NeapGroundBrush" Color="#EFECF6" />
@@ -55,6 +57,8 @@
                     <SolidColorBrush x:Key="NeapChatBrush" Color="#15171C" />
                     <SolidColorBrush x:Key="NeapChatTextBrush" Color="#15171C" />
                     <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#17000000" />
+                    <SolidColorBrush x:Key="NeapInUseStrokeBrush" Color="#6D5AD9" />
+                    <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#0F000000" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="HighContrast">
                     <SolidColorBrush x:Key="NeapGroundBrush" Color="{ThemeResource SystemColorWindowColor}" />
@@ -66,6 +70,8 @@
                     <SolidColorBrush x:Key="NeapChatBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
                     <SolidColorBrush x:Key="NeapChatTextBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
                     <SolidColorBrush x:Key="NeapDialTrackBrush" Color="{ThemeResource SystemColorGrayTextColor}" />
+                    <SolidColorBrush x:Key="NeapInUseStrokeBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+                    <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="{ThemeResource SystemColorGrayTextColor}" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
 
@@ -120,7 +126,7 @@
                 x:Key="NeapInUsePanelStyle"
                 BasedOn="{StaticResource QuickCardStyle}"
                 TargetType="Border">
-                <Setter Property="BorderBrush" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource NeapInUseStrokeBrush}" />
                 <Setter Property="BorderThickness" Value="2" />
             </Style>
 
@@ -157,7 +163,7 @@
                 <Setter Property="Fill" Value="{ThemeResource NeapGameBrush}" />
             </Style>
             <Style x:Key="MeterUnlitStyle" TargetType="Rectangle">
-                <Setter Property="Fill" Value="{ThemeResource ControlStrokeColorDefaultBrush}" />
+                <Setter Property="Fill" Value="{ThemeResource NeapMeterUnlitBrush}" />
             </Style>
 
             <!--

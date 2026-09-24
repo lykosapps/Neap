@@ -70,6 +70,8 @@
         drops onto it, so it feels pushed rather than only recoloured.
     -->
     <Style x:Key="NeapToggleTileStyle" TargetType="ToggleButton">
+        <!--  In high contrast its own text colours hold against the highlight, so no backplate is drawn.  -->
+        <Setter Property="HighContrastAdjustment" Value="None" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />

@@ -11,8 +11,9 @@
     only resources on an ancestor are looked in first. Pop-ups open outside
     the navigation view, so for them only the app's copy applies.
     
-    Only the dark and light themes are named. High contrast keeps Windows'
-    own colours throughout.
+    High contrast keeps Windows' own colours throughout. Its dictionary is
+    here and empty on purpose: with none, a contrast theme falls back to the
+    light one's colours.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -202,5 +203,7 @@
             <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPressed" Color="#1F6D5AD9" />
             <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedUnfocused" Color="#266D5AD9" />
         </ResourceDictionary>
+
+        <ResourceDictionary x:Key="HighContrast" />
     </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>
