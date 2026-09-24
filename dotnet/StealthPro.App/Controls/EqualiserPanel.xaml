@@ -52,6 +52,7 @@
                     everything, where overwriting loses the old curve.
                 -->
                 <StackPanel
+                    x:Name="Actions"
                     Grid.Column="1"
                     Orientation="Horizontal"
                     Spacing="8">

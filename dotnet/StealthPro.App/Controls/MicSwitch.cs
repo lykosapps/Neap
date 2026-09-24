@@ -51,7 +51,7 @@ public sealed class MicSwitch : UserControl
     public event Action<MicState>? StateChanged;
 
     /// <summary>The microphone icon for a state, crossed out while muted.</summary>
-    public static string GlyphFor(MicState state) => state == MicState.Muted ? "\uEC71" : "\uE720";
+    public static string GlyphFor(MicState state) => state == MicState.Muted ? "\uF781" : "\uE720";
 
     private void Paint()
     {

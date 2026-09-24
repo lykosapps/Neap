@@ -150,7 +150,7 @@ public sealed partial class EqualiserPanel : UserControl
         Waiting.Visibility = waiting ? Visibility.Visible : Visibility.Collapsed;
         Curve.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
         Slots.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
-        SaveButton.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
+        Actions.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
     }
 
     // -- the bands ---------------------------------------------------------
