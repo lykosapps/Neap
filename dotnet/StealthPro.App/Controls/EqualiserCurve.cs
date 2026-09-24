@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using StealthPro.App.Services;
+using StealthPro.Core.Presets;
 using Windows.Foundation;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
 
@@ -31,10 +32,7 @@ internal static class Db
 /// back where the preset has it.
 /// </para>
 /// <para>
-/// The curve never overshoots. Smoothing is monotone cubic (Fritsch–Carlson),
-/// so the curve cannot bulge past a neighbouring band's value. An ordinary
-/// Catmull-Rom spline does, and on an equaliser that draws gain the headset
-/// is not applying.
+/// The curve never overshoots: see <see cref="ResponseCurve"/>.
 /// </para>
 /// <para>
 /// A press anywhere in a band's column grabs that band, so a point does not
@@ -211,22 +209,11 @@ public sealed class EqualiserCurve : UserControl
     private static double PlotTop => Inset;
     private double PlotBottom => Math.Max(Inset, _canvas.ActualHeight - Inset);
 
-    private double X(int index) =>
-        _live.Length == 0 ? 0 : (index + 0.5) * _canvas.ActualWidth / _live.Length;
+    private double X(int index) => ResponseCurve.X(index, _live.Length, _canvas.ActualWidth);
 
-    private double Y(double tenths)
-    {
-        double span = Maximum - Minimum;
-        double t = span <= 0 ? 0.5 : (Maximum - tenths) / span;
-        return PlotTop + t * (PlotBottom - PlotTop);
-    }
+    private double Y(double tenths) => ResponseCurve.Y(tenths, Minimum, Maximum, PlotTop, PlotBottom);
 
-    private int TenthsAt(double y)
-    {
-        double height = PlotBottom - PlotTop;
-        double t = height <= 0 ? 0 : (y - PlotTop) / height;
-        return (int)Math.Round(Math.Clamp(Maximum - t * (Maximum - Minimum), Minimum, Maximum));
-    }
+    private int TenthsAt(double y) => ResponseCurve.TenthsAt(y, Minimum, Maximum, PlotTop, PlotBottom);
 
     private void Layout()
     {
@@ -243,13 +230,13 @@ public sealed class EqualiserCurve : UserControl
         }
 
         var points = _live.Select((v, i) => new Point(X(i), Y(v))).ToArray();
-        _curve.Data = Through(points, close: false);
-        _area.Data = Through(points, close: true);
+        _curve.Data = CurveGeometry.Through(points);
+        _area.Data = CurveGeometry.Through(points, closeAt: Y(0));
 
         bool edited = _stored is not null && !_stored.SequenceEqual(_live);
         _ghost.Visibility = edited ? Visibility.Visible : Visibility.Collapsed;
         if (edited)
-            _ghost.Data = Through(_stored!.Select((v, i) => new Point(X(i), Y(v))).ToArray(), close: false);
+            _ghost.Data = CurveGeometry.Through(_stored!.Select((v, i) => new Point(X(i), Y(v))).ToArray());
 
         double column = width / _live.Length;
         for (int i = 0; i < _live.Length; i++)
@@ -272,70 +259,6 @@ public sealed class EqualiserCurve : UserControl
             Canvas.SetTop(_rings[i], ringY - GhostRadius);
             ToolTipService.SetToolTip(_rings[i], Strings.Format("Equaliser_BackTo", Db.Text(_stored[i])));
         }
-    }
-
-    /// <summary>
-    /// Builds a smooth path through every point that never overshoots between
-    /// them; see the class remarks.
-    /// </summary>
-    private PathGeometry Through(Point[] points, bool close)
-    {
-        var figure = new PathFigure { StartPoint = points[0], IsClosed = close, IsFilled = close };
-        var slopes = Slopes(points);
-
-        for (int i = 0; i < points.Length - 1; i++)
-        {
-            double run = (points[i + 1].X - points[i].X) / 3;
-            figure.Segments.Add(new BezierSegment
-            {
-                Point1 = new Point(points[i].X + run, points[i].Y + slopes[i] * run),
-                Point2 = new Point(points[i + 1].X - run, points[i + 1].Y - slopes[i + 1] * run),
-                Point3 = points[i + 1],
-            });
-        }
-
-        if (close)
-        {
-            double zero = Y(0);
-            figure.Segments.Add(new LineSegment { Point = new Point(points[^1].X, zero) });
-            figure.Segments.Add(new LineSegment { Point = new Point(points[0].X, zero) });
-        }
-
-        var geometry = new PathGeometry();
-        geometry.Figures.Add(figure);
-        return geometry;
-    }
-
-    /// <summary>Fritsch–Carlson tangents: smooth, and monotone between points.</summary>
-    private static double[] Slopes(Point[] points)
-    {
-        int n = points.Length;
-        var slope = new double[n];
-        if (n < 2) return slope;
-
-        var secant = new double[n - 1];
-        for (int i = 0; i < n - 1; i++)
-        {
-            double run = points[i + 1].X - points[i].X;
-            secant[i] = run == 0 ? 0 : (points[i + 1].Y - points[i].Y) / run;
-        }
-
-        slope[0] = secant[0];
-        slope[n - 1] = secant[n - 2];
-        for (int i = 1; i < n - 1; i++)
-            slope[i] = secant[i - 1] * secant[i] <= 0 ? 0 : (secant[i - 1] + secant[i]) / 2;
-
-        for (int i = 0; i < n - 1; i++)
-        {
-            if (secant[i] == 0) { slope[i] = 0; slope[i + 1] = 0; continue; }
-            double a = slope[i] / secant[i], b = slope[i + 1] / secant[i];
-            double size = a * a + b * b;
-            if (size <= 9) continue;
-            double scale = 3 / Math.Sqrt(size);
-            slope[i] = scale * a * secant[i];
-            slope[i + 1] = scale * b * secant[i];
-        }
-        return slope;
     }
 
     // -- dragging ----------------------------------------------------------
