@@ -240,9 +240,13 @@ public sealed partial class HomePage : Page
         // transmitter is unplugged, and the app says what to do then. It is
         // still tracked in HeadsetStatus.ControlVia.
         Connections.Children.Add(Row("\uE704", Strings.Get("Home_ConnectedThrough"),
-            OverCable(status) ? Strings.Get("Home_Cable")
-            : status.NoSound ? Strings.Get("Home_NoTransmitter")
-            : Through(status)));
+            ConnectionLine.Of(status, OverCable(status), PluggedProducts) switch
+            {
+                ConnectionShown.Cable => Strings.Get("Home_Cable"),
+                ConnectionShown.NoTransmitter => Strings.Get("Home_NoTransmitter"),
+                ConnectionShown.TransmitterUnplugged => Strings.Format("Home_Unplugged", status.Adapter),
+                _ => Strings.Format("Home_Wireless", status.Adapter),
+            }));
 
         bool bluetooth = headset.TryGetNumberByKey(LinkState.Key, out int link)
                          && LinkState.Bluetooth(link);
@@ -250,40 +254,11 @@ public sealed partial class HomePage : Page
             Strings.Get(bluetooth ? "Home_BluetoothOn" : "Home_BluetoothOff")));
     }
 
-    /// <summary>
-    /// Names the transmitter carrying the headset's sound, and says if it is
-    /// not plugged in.
-    /// </summary>
-    /// <remarks>
-    /// A transmitter can be selected and unplugged at once (see the
-    /// transmitter list), and this row must never say plainly "connected
-    /// through" something not plugged in.
-    /// </remarks>
-    private string Through(HeadsetStatus status)
-    {
-        // Not yet looked is not "not plugged in": the first paint comes
-        // before the first look, and would flash the wrong answer.
-        bool here = _plugged.Count == 0
-                    || _plugged.Any(d =>
-                        Same(d.ProductId.ToString("X4", CultureInfo.InvariantCulture), status.Product));
-        return Strings.Format(here ? "Home_Wireless" : "Home_Unplugged", status.Adapter);
-    }
+    private IReadOnlyCollection<string> PluggedProducts =>
+        _plugged.Select(d => d.ProductId.ToString("X4", CultureInfo.InvariantCulture)).ToList();
 
-    /// <summary>
-    /// Whether the headset is plugged in with its USB-C cable, which makes the
-    /// cable its connection: the app is talking to it over the cable, or its
-    /// own audio device is there for Windows to use.
-    /// </summary>
-    /// <remarks>
-    /// This follows what is plugged in, not where Windows sends sound. With
-    /// the cable in, the cable is the only right place for sound, microphone
-    /// and calls; anything Windows sends elsewhere is for the
-    /// <see cref="RoutingNotice"/> beside this row to say. Following Windows
-    /// instead would show "Connected through Charging Dock" over a headset
-    /// whose microphone and calls are on the cable.
-    /// </remarks>
     private static bool OverCable(HeadsetStatus status) =>
-        status.Route == Route.DirectUsb || AppServices.AudioRoute.Cable.Length > 0;
+        ConnectionLine.OverCable(status, AppServices.AudioRoute.Cable);
 
     private static SettingsCard Row(string glyph, string header, string value) => new()
     {
@@ -343,7 +318,7 @@ public sealed partial class HomePage : Page
     {
         var rows = TransmitterList.Rows(AppServices.Headset.Status,
             AppServices.Headset.KnownTransmitters,
-            _plugged.Select(d => d.ProductId.ToString("X4", CultureInfo.InvariantCulture)),
+            PluggedProducts,
             OverCable(AppServices.Headset.Status));
 
         Transmitters.Children.Clear();
@@ -382,9 +357,6 @@ public sealed partial class HomePage : Page
             Transmitters.Children.Add(card);
         }
     }
-
-    private static bool Same(string a, string b) =>
-        a.Length > 0 && string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 
     // -- the way out -------------------------------------------------------
 
