@@ -18,11 +18,12 @@ public static class Microphone
     public const string Setting = "mic_muted";
 
     /// <param name="muted">The reported <c>mic_muted</c>, or null if the headset has not reported it.</param>
+    /// <remarks>Anything but 0 or 1 is not a reading of the mute, so it is unknown rather than muted.</remarks>
     public static MicState Of(int? muted) => muted switch
     {
-        null => MicState.Unknown,
         0 => MicState.Live,
-        _ => MicState.Muted,
+        1 => MicState.Muted,
+        _ => MicState.Unknown,
     };
 
     /// <summary>The value that makes the microphone live, or mutes it.</summary>

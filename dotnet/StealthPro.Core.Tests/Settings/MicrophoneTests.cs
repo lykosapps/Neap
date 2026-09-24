@@ -8,6 +8,7 @@ public class MicrophoneTests
     [InlineData(null, MicState.Unknown)]
     [InlineData(0, MicState.Live)]
     [InlineData(1, MicState.Muted)]
+    [InlineData(2, MicState.Unknown)]
     public void ReadsTheMuteAsWhetherTheMicrophoneIsLive(int? muted, MicState state) =>
         Assert.Equal(state, Microphone.Of(muted));
 
