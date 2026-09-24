@@ -50,8 +50,21 @@ public sealed class PresetService
 
     private readonly HeadsetService _headset;
     private readonly Dictionary<Bank, BankState> _banks = new();
+    private readonly Dictionary<Bank, Task<BankState>> _reading = new();
 
-    public PresetService(HeadsetService headset) => _headset = headset;
+    /// <remarks>
+    /// Follows the headset before any screen paints from it: the service
+    /// subscribes first, so every screen sees the preset chosen on the
+    /// headset, not only the one that happens to follow it.
+    /// </remarks>
+    public PresetService(HeadsetService headset)
+    {
+        _headset = headset;
+        _headset.Changed += () =>
+        {
+            foreach (var state in _banks.Values) Follow(state);
+        };
+    }
 
     public BankState? State(Bank bank) => _banks.GetValueOrDefault(bank);
 
@@ -60,19 +73,37 @@ public sealed class PresetService
     /// slot, so this is a deliberate action rather than something to do on
     /// every repaint.
     /// </summary>
-    public async Task<BankState> Load(Bank bank)
+    /// <remarks>
+    /// A read already under way is shared rather than started again: Home and
+    /// a page can both ask as they load, and each read is ten round trips.
+    /// </remarks>
+    public Task<BankState> Load(Bank bank)
     {
-        var presets = await _headset.Post(client => PresetStore.ReadBank(client, bank));
-        var state = new BankState
+        if (!_reading.TryGetValue(bank, out var reading))
         {
-            Bank = bank,
-            Spec = PresetStore.Spec(bank),
-            Presets = presets,
-            Baseline = _banks.GetValueOrDefault(bank)?.Baseline,
-        };
-        _banks[bank] = state;
-        AdoptBaseline(state);
-        return state;
+            reading = Read(bank);
+            if (!reading.IsCompleted) _reading[bank] = reading;
+        }
+        return reading;
+    }
+
+    private async Task<BankState> Read(Bank bank)
+    {
+        try
+        {
+            var presets = await _headset.Post(client => PresetStore.ReadBank(client, bank));
+            var state = new BankState
+            {
+                Bank = bank,
+                Spec = PresetStore.Spec(bank),
+                Presets = presets,
+                Baseline = _banks.GetValueOrDefault(bank)?.Baseline,
+            };
+            _banks[bank] = state;
+            AdoptBaseline(state);
+            return state;
+        }
+        finally { _reading.Remove(bank); }
     }
 
     /// <summary>Work out which preset the live curve came from, and keep it.</summary>
@@ -102,11 +133,6 @@ public sealed class PresetService
     /// stays on the one chosen in the app, and the new curve reads as an
     /// edit of it.
     /// </remarks>
-    public void Follow(Bank bank)
-    {
-        if (_banks.TryGetValue(bank, out var state)) Follow(state);
-    }
-
     private bool Follow(BankState state)
     {
         if (!_headset.TryGetNumberByKey(state.Spec.Select, out int selected)

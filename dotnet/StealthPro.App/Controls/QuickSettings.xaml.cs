@@ -146,7 +146,6 @@ public sealed partial class QuickSettings : UserControl
     private void PaintPreset()
     {
         if (AppServices.Presets.State(Bank.Game) is not { } state) return;
-        AppServices.Presets.Follow(Bank.Game);
         bool edited = AppServices.Presets.IsEdited(Bank.Game);
         string name = state.Baseline?.Name ?? "";
 
