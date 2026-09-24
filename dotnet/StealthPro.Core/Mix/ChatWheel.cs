@@ -38,20 +38,11 @@ public sealed class ChatWheel(Func<TimeSpan> clock)
     /// <summary>How long the wheel must be still for its next reading to be a first notch.</summary>
     public static readonly TimeSpan Rest = TimeSpan.FromMilliseconds(500);
 
-    /// <summary>
-    /// The shortest time between movements. The wheel is turned far faster
-    /// than there is any point applying; a reading skipped here is carried
-    /// into the next movement rather than lost.
-    /// </summary>
-    public static readonly TimeSpan Spacing = TimeSpan.FromSeconds(1.0 / 33);
-
     /// <summary>The furthest a first notch after rest can move the count.</summary>
     public const int FirstNotchLimit = 15;
 
-    private int? _from;
-    private int? _seen;
+    private int? _last;
     private TimeSpan _seenAt;
-    private TimeSpan? _movedAt;
     private int? _doubted;
     private bool _dark;
     private bool _resync;
@@ -70,13 +61,13 @@ public sealed class ChatWheel(Func<TimeSpan> clock)
         bool rested = now - _seenAt >= Rest;
         _seenAt = now;
 
-        if (_from is not int from || _seen is not int seen)
+        if (_last is not int last)
         {
             Start(count);
             return null;
         }
 
-        if (_resync && count != from)
+        if (_resync && count != last)
         {
             _resync = false;
             Start(count);
@@ -86,30 +77,21 @@ public sealed class ChatWheel(Func<TimeSpan> clock)
         if (_doubted is int doubted)
         {
             _doubted = null;
-            if (Near(count, doubted))
-            {
-                from = doubted;
-                _from = doubted;
-            }
-            else if (!Near(count, seen))
+            if (Near(count, doubted)) last = doubted;
+            else if (!Near(count, last))
             {
                 Start(count);
                 return null;
             }
         }
-        else if (rested && !Near(count, seen))
+        else if (rested && !Near(count, last))
         {
             _doubted = count;
             return null;
         }
 
-        _seen = count;
-        if (count == from) return null;
-        if (_movedAt is TimeSpan movedAt && now - movedAt < Spacing) return null;
-
-        _movedAt = now;
-        _from = count;
-        return new WheelStep(from, count);
+        _last = count;
+        return count == last ? null : new WheelStep(last, count);
     }
 
     /// <summary>Follow the headset's link, which decides when a reading is a starting point.</summary>
@@ -132,7 +114,7 @@ public sealed class ChatWheel(Func<TimeSpan> clock)
     {
         if (status.Link != Connection.Link.Connected)
         {
-            _from = _seen = _doubted = null;
+            _last = _doubted = null;
             _dark = _resync = false;
         }
         else if (status.NoSound)
@@ -177,7 +159,7 @@ public sealed class ChatWheel(Func<TimeSpan> clock)
 
     private void Start(int count)
     {
-        _from = _seen = count;
+        _last = count;
         _doubted = null;
     }
 

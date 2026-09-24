@@ -102,14 +102,13 @@ public class ChatWheelTests
     }
 
     [Fact]
-    public void AReadingTooSoonIsCarriedIntoTheNextMovement()
+    public void ReadingsArrivingTogetherEachMove()
     {
         var wheel = NewWheel();
         wheel.Read(50);
-        Assert.Equal(new WheelStep(50, 55), Turn(wheel, 55));
-        _now += TimeSpan.FromMilliseconds(5);
-        Assert.Null(wheel.Read(60));
-        Assert.Equal(new WheelStep(55, 65), Turn(wheel, 65));
+        Turn(wheel, 55);
+        Assert.Equal(new WheelStep(55, 60), wheel.Read(60));
+        Assert.Equal(new WheelStep(60, 65), wheel.Read(65));
     }
 
     [Fact]
