@@ -2,6 +2,7 @@ using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using StealthPro.App.Services;
 using StealthPro.Core.Audio;
 
@@ -31,10 +32,12 @@ public enum WindowsControl { Volume, Mute }
 public sealed class WindowsVolumeRow : SettingsCard
 {
     private const int SliderWidth = 220;
+    private const string UnmutedGlyph = "\uE994", MutedGlyph = "\uE74F";
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(1);
 
     private Slider? _slider;
     private ToggleSwitch? _toggle;
+    private ToggleButton? _mute;
     private TextBlock? _readout;
     private DispatcherQueueTimer? _poll;
     private bool _painting;
@@ -105,6 +108,16 @@ public sealed class WindowsVolumeRow : SettingsCard
         set => SetValue(GlyphProperty, value);
     }
 
+    public static readonly DependencyProperty WithMuteProperty = DependencyProperty.Register(
+        nameof(WithMute), typeof(bool), typeof(WindowsVolumeRow), new PropertyMetadata(false));
+
+    /// <summary>Gets or sets whether a volume row carries Windows' mute beside its slider, so the two take one line.</summary>
+    public bool WithMute
+    {
+        get => (bool)GetValue(WithMuteProperty);
+        set => SetValue(WithMuteProperty, value);
+    }
+
     private Flow Flow => Capture ? Flow.Input : Flow.Output;
 
     /// <summary>The registry name of the headset's mirror of this level, or null when it has none.</summary>
@@ -150,7 +163,7 @@ public sealed class WindowsVolumeRow : SettingsCard
             };
             _slider.ValueChanged += (_, args) =>
             {
-                if (_readout is not null) _readout.Text = $"{(int)args.NewValue}%";
+                if (_readout is not null) _readout.Text = Strings.Format("Level_Percent", (int)args.NewValue);
                 if (!_painting) _ = WindowsAudio.SetVolume((int)args.NewValue, Flow);
             };
             _readout = new TextBlock
@@ -160,12 +173,24 @@ public sealed class WindowsVolumeRow : SettingsCard
                 VerticalAlignment = VerticalAlignment.Center,
                 Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
             };
-            Content = new StackPanel
+            var line = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 Spacing = 12,
                 Children = { _slider, _readout },
             };
+            if (WithMute)
+            {
+                _mute = new ToggleButton { Content = new FontIcon { Glyph = UnmutedGlyph, FontSize = 16 } };
+                Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_mute, Strings.Get("Volume_Mute"));
+                ToolTipService.SetToolTip(_mute, Strings.Get("Volume_MuteTip"));
+                _mute.Click += (_, _) =>
+                {
+                    if (!_painting) _ = WindowsAudio.SetMuted(_mute.IsChecked == true, Flow);
+                };
+                line.Children.Insert(0, _mute);
+            }
+            Content = line;
         }
 
         Speak();
@@ -186,7 +211,12 @@ public sealed class WindowsVolumeRow : SettingsCard
         try
         {
             if (_toggle is not null) _toggle.IsOn = state.Muted;
-            else if (_slider is not null && !_slider.FocusState.Equals(FocusState.Pointer))
+            if (_mute is not null)
+            {
+                _mute.IsChecked = state.Muted;
+                if (_mute.Content is FontIcon icon) icon.Glyph = state.Muted ? MutedGlyph : UnmutedGlyph;
+            }
+            if (_slider is not null && !_slider.FocusState.Equals(FocusState.Pointer))
             {
                 _slider.Value = state.Percent;
                 if (_readout is not null) _readout.Text = Strings.Format("Level_Percent", state.Percent);
@@ -211,7 +241,7 @@ public sealed class WindowsVolumeRow : SettingsCard
         try
         {
             _slider.Value = level;
-            if (_readout is not null) _readout.Text = $"{level}%";
+            if (_readout is not null) _readout.Text = Strings.Format("Level_Percent", level);
         }
         finally { _painting = false; }
     }

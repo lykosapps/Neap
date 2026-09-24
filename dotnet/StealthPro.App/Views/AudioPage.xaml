@@ -11,7 +11,7 @@
         HorizontalScrollBarVisibility="Disabled"
         HorizontalScrollMode="Disabled">
         <Grid>
-            <StackPanel Style="{StaticResource PageColumnStyle}">
+            <StackPanel MaxWidth="1040" Style="{StaticResource PageColumnStyle}">
 
                 <TextBlock x:Uid="Audio_Title" Style="{StaticResource PageTitleStyle}" />
 
@@ -20,60 +20,59 @@
                 <!--
                     With the headset off, the whole page is one card: Windows'
                     volume goes on working without it, but on nothing the person
-                    can hear. See HeadsetSection.WhenOff.
+                    can hear. See HeadsetSection.WhenOff. Wider than other pages,
+                    for the equaliser's list beside its curve.
                 -->
                 <c:HeadsetSection x:Uid="Audio_Section" WhenOff="True">
                     <!--
-                        The equaliser first, since it is what this page is
-                        opened for. Noise cancellation and Superhuman Hearing
-                        each take one line with their switch; what matters
-                        only once one is on sits inside it.
+                        The equaliser first, since it is what this page is opened for:
+                        the presets down the left and the curve beside them.
                     -->
                     <c:HeadsetSection x:Uid="Audio_HeadsetSection">
                         <TextBlock x:Uid="Audio_EqualiserHeading" Style="{StaticResource SectionHeaderStyle}" />
                         <c:EqualiserPanel Bank="Game" />
 
+                        <!--
+                            Noise cancellation and Superhuman Hearing as Home's tiles,
+                            side by side, with how strong each is under it while it is on.
+                        -->
                         <TextBlock x:Uid="Audio_AroundYouHeading" Style="{StaticResource SectionHeaderStyle}" />
-                        <tk:SettingsExpander x:Uid="Audio_ActiveNoiseCancellation">
-                            <tk:SettingsExpander.HeaderIcon>
-                                <FontIcon Glyph="&#xE7F6;" />
-                            </tk:SettingsExpander.HeaderIcon>
-                            <c:SettingToggle x:Uid="Audio_AncSwitch" Setting="anc" />
-                            <tk:SettingsExpander.Items>
-                                <c:SettingRow x:Uid="Audio_AncIntensity" Setting="anc_level" />
-                            </tk:SettingsExpander.Items>
-                        </tk:SettingsExpander>
-                        <tk:SettingsExpander x:Uid="Audio_SuperhumanHearing" Margin="0,4,0,0">
-                            <tk:SettingsExpander.HeaderIcon>
-                                <FontIcon Glyph="&#xF270;" />
-                            </tk:SettingsExpander.HeaderIcon>
-                            <c:SettingToggle x:Uid="Audio_ShhSwitch" Setting="superhuman_hearing" />
-                            <tk:SettingsExpander.Items>
-                                <c:SettingRow x:Uid="Audio_Type" Setting="shh_preset" />
-                                <c:SettingRow x:Uid="Audio_Intensity" Setting="shh_level" />
-                            </tk:SettingsExpander.Items>
-                        </tk:SettingsExpander>
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <c:SettingTile
+                                x:Uid="Audio_AncTile"
+                                Glyph="&#xE7F6;"
+                                Setting="anc">
+                                <StackPanel Spacing="4">
+                                    <c:SettingRow x:Uid="Audio_AncIntensity" Setting="anc_level" />
+                                </StackPanel>
+                            </c:SettingTile>
+                            <c:SettingTile
+                                x:Uid="Audio_ShhTile"
+                                Grid.Column="1"
+                                Glyph="&#xF270;"
+                                Setting="superhuman_hearing">
+                                <StackPanel Spacing="4">
+                                    <c:SettingRow x:Uid="Audio_Type" Setting="shh_preset" />
+                                    <c:SettingRow x:Uid="Audio_Intensity" Setting="shh_level" />
+                                </StackPanel>
+                            </c:SettingTile>
+                        </Grid>
                     </c:HeadsetSection>
 
                     <!--
-                        Windows' own volume and mute, last: the headset's wheel
-                        is the everyday way to change them.
+                        Windows' own volume, with its mute beside it on one line, last:
+                        the headset's wheel is the everyday way to change it.
                     -->
                     <TextBlock x:Uid="Audio_VolumeHeading" Style="{StaticResource SectionHeaderStyle}" />
-                    <TextBlock x:Uid="Audio_VolumeNote" Style="{StaticResource SectionNoteStyle}" />
-                    <StackPanel>
-                        <c:RoutingNotice Margin="0,0,0,8" Microphone="False" />
-                        <StackPanel Spacing="4">
-                            <c:WindowsVolumeRow
-                                x:Uid="Audio_Mute"
-                                Glyph="&#xE74F;"
-                                Kind="Mute" />
-                            <c:WindowsVolumeRow
-                                x:Uid="Audio_MasterVolume"
-                                Glyph="&#xE994;"
-                                Kind="Volume" />
-                        </StackPanel>
-                    </StackPanel>
+                    <c:RoutingNotice Margin="0,0,0,8" Microphone="False" />
+                    <c:WindowsVolumeRow
+                        x:Uid="Audio_MasterVolume"
+                        Kind="Volume"
+                        WithMute="True" />
                 </c:HeadsetSection>
 
             </StackPanel>

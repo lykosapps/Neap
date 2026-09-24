@@ -26,6 +26,8 @@
             <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#C3B8FF" />
             <SolidColorBrush x:Key="NeapTileOnEdgeBrush" Color="#4A3AA8" />
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#15112A" />
+            <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#269D8CFF" />
+            <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0FFFFFFF" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
             <LinearGradientBrush x:Key="NeapTileBrush" StartPoint="0.5,0" EndPoint="0.5,1">
@@ -44,6 +46,8 @@
             <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#5845BD" />
             <SolidColorBrush x:Key="NeapTileOnEdgeBrush" Color="#40309A" />
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D5AD9" />
+            <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0A000000" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="HighContrast">
             <SolidColorBrush x:Key="NeapTileBrush" Color="{ThemeResource SystemColorButtonFaceColor}" />
@@ -56,6 +60,8 @@
             <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
             <SolidColorBrush x:Key="NeapTileOnEdgeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
+            <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="Transparent" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
@@ -238,13 +244,70 @@
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 
-    <!--  The small curve beside a preset's name, and on a preset that is chosen and filled with the accent.  -->
+    <!--  The small curve beside a preset's name.  -->
     <Style x:Key="NeapMiniCurveStyle" TargetType="Path">
         <Setter Property="Stroke" Value="{ThemeResource NeapGameTextBrush}" />
         <Setter Property="StrokeThickness" Value="2" />
     </Style>
-    <Style x:Key="NeapMiniCurveOnAccentStyle" TargetType="Path">
-        <Setter Property="Stroke" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
-        <Setter Property="StrokeThickness" Value="2" />
+
+    <!--
+        A preset in the equaliser's list, as in Home's list: a flat row, and
+        the chosen one tinted and marked with the accent at its left edge,
+        which is what still shows in high contrast.
+    -->
+    <Style x:Key="NeapPresetStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid
+                        x:Name="Face"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                        <Border
+                            Width="3"
+                            Margin="0,8"
+                            HorizontalAlignment="Left"
+                            Background="{TemplateBinding BorderBrush}"
+                            CornerRadius="2" />
+                        <ContentPresenter
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="Center"
+                            Content="{TemplateBinding Content}"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="Face.Background" Value="{ThemeResource NeapPresetHoverBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed" />
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="Face.Opacity" Value="0.55" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style
+        x:Key="NeapPresetChosenStyle"
+        BasedOn="{StaticResource NeapPresetStyle}"
+        TargetType="Button">
+        <Setter Property="Background" Value="{ThemeResource NeapPresetSelectedBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource AccentFillColorDefaultBrush}" />
     </Style>
 </ResourceDictionary>

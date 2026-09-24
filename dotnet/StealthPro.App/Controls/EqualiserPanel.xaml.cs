@@ -67,14 +67,19 @@ internal sealed class DecibelFormatter : INumberFormatter2, INumberParser
 /// curve is indistinguishable from the preset it came from.
 /// </para>
 /// <para>
-/// Empty slots are shown: there are five, and how many are free matters when
-/// deciding whether to save over one. Deleting confirms in place: the slot's
-/// chip becomes Delete and Cancel, with no dialog.
+/// The presets are a list beside the curve, each with its own small curve,
+/// and how many slots are free is said under them: there are five, and how
+/// many are left matters when deciding whether to save over one. Deleting
+/// confirms in place: the preset's row becomes Delete and Cancel, with no
+/// dialog.
 /// </para>
 /// </remarks>
 public sealed partial class EqualiserPanel : UserControl
 {
-    private const double ChipCurveWidth = 44, ChipCurveHeight = 16;
+    private const double ListCurveWidth = 64, ListCurveHeight = 20;
+
+    /// <summary>The room kept at the end of every preset's row for its delete button, whether it has one or not.</summary>
+    private const double DeleteWidth = 32;
 
     private readonly List<BandCell> _cells = new();
     private readonly DecibelFormatter _decibels = new();
@@ -151,7 +156,7 @@ public sealed partial class EqualiserPanel : UserControl
     {
         Waiting.Visibility = waiting ? Visibility.Visible : Visibility.Collapsed;
         Curve.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
-        Slots.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
+        PresetColumn.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
         Actions.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
     }
 
@@ -255,13 +260,18 @@ public sealed partial class EqualiserPanel : UserControl
         foreach (var preset in _state.Presets)
             Slots.Items.Add(SlotChip(preset));
 
-        foreach (int slot in _state.FreeSlots)
-            Slots.Items.Add(EmptyChip());
+        int free = _state.FreeSlots.Count;
+        FreeSlots.Text = free switch
+        {
+            0 => Strings.Get("Equaliser_NoFreeSlots"),
+            1 => Strings.Get("Equaliser_OneFreeSlot"),
+            _ => Strings.Format("Equaliser_FreeSlots", free),
+        };
     }
 
     /// <summary>
-    /// Builds a preset's chip: its button, and for a custom preset a delete
-    /// button beside it.
+    /// Builds a preset's row in the list: its button, with its name and curve,
+    /// and for a custom preset a delete button beside it.
     /// </summary>
     /// <remarks>
     /// The delete button sits beside the chip, not inside it; a button inside
@@ -269,26 +279,34 @@ public sealed partial class EqualiserPanel : UserControl
     /// </remarks>
     private UIElement SlotChip(Preset preset)
     {
-        var slot = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, Tag = preset };
+        var slot = new Grid { ColumnSpacing = 2, Tag = preset };
+        slot.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        slot.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(DeleteWidth) });
+
+        var face = new Grid { ColumnSpacing = 10 };
+        face.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        face.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        face.Children.Add(new TextBlock
+        {
+            Text = preset.Name,
+            VerticalAlignment = VerticalAlignment.Center,
+            TextTrimming = TextTrimming.CharacterEllipsis,
+        });
+        var curve = new Microsoft.UI.Xaml.Shapes.Path
+        {
+            Width = ListCurveWidth,
+            Height = ListCurveHeight,
+            VerticalAlignment = VerticalAlignment.Center,
+            Data = CurveGeometry.Of(preset.Bands, ListCurveWidth, ListCurveHeight),
+            Style = (Style)Application.Current.Resources["NeapMiniCurveStyle"],
+        };
+        Grid.SetColumn(curve, 1);
+        face.Children.Add(curve);
+
         var chip = new Button
         {
-            Content = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                Spacing = 10,
-                Children =
-                {
-                    new TextBlock { Text = preset.Name, VerticalAlignment = VerticalAlignment.Center },
-                    new Microsoft.UI.Xaml.Shapes.Path
-                    {
-                        Width = ChipCurveWidth,
-                        Height = ChipCurveHeight,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Data = CurveGeometry.Of(preset.Bands, ChipCurveWidth, ChipCurveHeight),
-                    },
-                },
-            },
-            Padding = new Thickness(14, 8, 14, 8),
+            Content = face,
+            Style = (Style)Application.Current.Resources["NeapPresetStyle"],
         };
         AutomationProperties.SetName(chip, preset.Name);
         slot.Children.Add(chip);
@@ -308,7 +326,10 @@ public sealed partial class EqualiserPanel : UserControl
                 Content = new FontIcon { Glyph = "\uE711", FontSize = 11 },
                 Padding = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Stretch,
+                Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent),
+                BorderThickness = new Thickness(0),
             };
+            Grid.SetColumn(remove, 1);
             AutomationProperties.SetName(remove, Strings.Format("Equaliser_DeleteNamed", preset.Name));
             remove.Click += (_, args) =>
             {
@@ -348,16 +369,6 @@ public sealed partial class EqualiserPanel : UserControl
         row.Children.Add(cancel);
         return row;
     }
-
-    private static UIElement EmptyChip() => new Border
-    {
-        Style = (Style)Application.Current.Resources["EmptySlotStyle"],
-        Child = new TextBlock
-        {
-            Text = Strings.Get("Equaliser_EmptySlot"),
-            Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
-        },
-    };
 
     // -- saving and discarding ---------------------------------------------
 
@@ -570,16 +581,13 @@ public sealed partial class EqualiserPanel : UserControl
             }
             else
             {
-                if (Slots.Items[index] is not StackPanel { Tag: Preset held } || held.Id != preset.Id)
+                if (Slots.Items[index] is not Grid { Tag: Preset held } || held.Id != preset.Id)
                     Slots.Items[index] = SlotChip(preset);
 
-                if (Slots.Items[index] is StackPanel { Children: [Button chip, ..] } slot)
+                if (Slots.Items[index] is Grid { Children: [Button chip, ..] })
                 {
                     chip.Style = (Style)Application.Current.Resources[
-                        selected ? "AccentButtonStyle" : "DefaultButtonStyle"];
-                    if (chip.Content is StackPanel { Children: [_, Microsoft.UI.Xaml.Shapes.Path curve] })
-                        curve.Style = (Style)Application.Current.Resources[
-                            selected ? "NeapMiniCurveOnAccentStyle" : "NeapMiniCurveStyle"];
+                        selected ? "NeapPresetChosenStyle" : "NeapPresetStyle"];
                     // The accent says it to the eye; this says it to a screen reader.
                     AutomationProperties.SetItemStatus(chip, selected ? Strings.Get("Equaliser_Selected") : "");
                 }

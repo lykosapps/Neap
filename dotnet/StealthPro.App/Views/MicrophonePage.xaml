@@ -11,7 +11,7 @@
         HorizontalScrollBarVisibility="Disabled"
         HorizontalScrollMode="Disabled">
         <Grid>
-            <StackPanel Style="{StaticResource PageColumnStyle}">
+            <StackPanel MaxWidth="1040" Style="{StaticResource PageColumnStyle}">
 
                 <TextBlock x:Uid="Microphone_Title" Style="{StaticResource PageTitleStyle}" />
 
