@@ -31,12 +31,26 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock
-                x:Name="TitleText"
+            <!--
+                The app's mark beside its name, as Windows draws a title bar.
+                Decoration only: the name says it.
+            -->
+            <StackPanel
                 Grid.Column="0"
                 Margin="16,0,0,0"
-                VerticalAlignment="Center"
-                Style="{StaticResource CaptionTextBlockStyle}" />
+                Orientation="Horizontal"
+                Spacing="10">
+                <Image
+                    Width="16"
+                    Height="16"
+                    VerticalAlignment="Center"
+                    AutomationProperties.AccessibilityView="Raw"
+                    Source="ms-appx:///Assets/logo.png" />
+                <TextBlock
+                    x:Name="TitleText"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource CaptionTextBlockStyle}" />
+            </StackPanel>
 
             <controls:HeadsetStatusStrip
                 x:Name="Status"
