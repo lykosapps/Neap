@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 using StealthPro.App.Services;
 using StealthPro.Core.Connection;
 using StealthPro.Core.Presets;
-using StealthPro.Core.Settings;
 
 namespace StealthPro.App.Controls;
 
@@ -14,10 +13,8 @@ namespace StealthPro.App.Controls;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The microphone's switch is the microphone, on while it is live, because
-/// "is my microphone on?" is the question asked of it; see
-/// <see cref="Microphone"/>. Muted, its icon is crossed out as well as its
-/// word changed, so the state reads without the colour of the switch.
+/// The microphone is the same <see cref="MicSwitch"/> as on the Microphone
+/// page, with its icon crossed out while muted.
 /// </para>
 /// <para>
 /// Each control follows the headset's own buttons: flipping the boom arm,
@@ -26,10 +23,6 @@ namespace StealthPro.App.Controls;
 /// </remarks>
 public sealed partial class QuickSettings : UserControl
 {
-    private const string LiveGlyph = "\uE720";
-    private const string MutedGlyph = "\uEC71";
-
-    private readonly SettingLink _mic;
     private readonly SettingLink _anc;
     private bool _painting;
 
@@ -37,8 +30,7 @@ public sealed partial class QuickSettings : UserControl
     {
         InitializeComponent();
 
-        _mic = new SettingLink(MicSwitch, () => Microphone.Setting, _ => { }, PaintMic);
-        MicSwitch.Toggled += (_, _) => _mic.Write(Microphone.ValueFor(MicSwitch.IsOn));
+        Mic.StateChanged += state => MicIcon.Glyph = MicSwitch.GlyphFor(state);
 
         _anc = new SettingLink(AncSwitch, () => "anc", _ => { }, PaintAnc);
         AncSwitch.Toggled += (_, _) => _anc.Write(AncSwitch.IsOn ? 1 : 0);
@@ -62,25 +54,13 @@ public sealed partial class QuickSettings : UserControl
         };
     }
 
-    private void PaintMic()
-    {
-        var state = Microphone.Of(_mic.Value);
-        Known(MicSwitch, MicAbsent, state != MicState.Unknown);
-        MicSwitch.IsOn = state == MicState.Live;
-        MicIcon.Glyph = state == MicState.Muted ? MutedGlyph : LiveGlyph;
-    }
-
+    /// <summary>Shows the switch, or the dash in its place until the headset has reported the setting.</summary>
     private void PaintAnc()
     {
-        Known(AncSwitch, AncAbsent, _anc.Value is not null);
+        bool known = _anc.Value is not null;
+        AncSwitch.Visibility = known ? Visibility.Visible : Visibility.Collapsed;
+        AncAbsent.Visibility = known ? Visibility.Collapsed : Visibility.Visible;
         AncSwitch.IsOn = _anc.Value == 1;
-    }
-
-    /// <summary>Shows a switch, or the dash in its place until the headset has reported its setting.</summary>
-    private static void Known(ToggleSwitch control, TextBlock absent, bool known)
-    {
-        control.Visibility = known ? Visibility.Visible : Visibility.Collapsed;
-        absent.Visibility = known ? Visibility.Collapsed : Visibility.Visible;
     }
 
     // -- the equaliser preset ------------------------------------------------

@@ -321,11 +321,11 @@
   <data name="Microphone_MicrophoneHeading.Text" xml:space="preserve">
     <value>Microphone</value>
   </data>
-  <data name="Microphone_Muted.Description" xml:space="preserve">
-    <value>Flipping the boom arm up does this too.</value>
+  <data name="Microphone_Mic.Description" xml:space="preserve">
+    <value>Flipping the boom arm up mutes it too.</value>
   </data>
-  <data name="Microphone_Muted.Header" xml:space="preserve">
-    <value>Muted</value>
+  <data name="Microphone_Mic.Header" xml:space="preserve">
+    <value>Microphone</value>
   </data>
   <data name="Microphone_Sensitivity.Description" xml:space="preserve">
     <value>Windows' recording level for this microphone. The headset reports it back but cannot change it, so this sets it where it actually lives.</value>
@@ -783,13 +783,13 @@
   <data name="Quick_MicrophoneNote.Text" xml:space="preserve">
     <value>Flipping the boom arm up mutes it too.</value>
   </data>
-  <data name="Quick_MicrophoneSwitch.OnContent" xml:space="preserve">
+  <data name="Mic_Live" xml:space="preserve">
     <value>On</value>
   </data>
-  <data name="Quick_MicrophoneSwitch.OffContent" xml:space="preserve">
+  <data name="Mic_Muted" xml:space="preserve">
     <value>Muted</value>
   </data>
-  <data name="Quick_MicrophoneSwitch.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+  <data name="Mic_Name" xml:space="preserve">
     <value>Microphone</value>
   </data>
   <data name="Quick_NoiseCancelling.Text" xml:space="preserve">

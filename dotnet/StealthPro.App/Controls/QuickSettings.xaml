@@ -2,7 +2,8 @@
 <UserControl
     x:Class="StealthPro.App.Controls.QuickSettings"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:StealthPro.App.Controls">
 
     <!--
         The headset's settings reached for mid-game or mid-call, one to a
@@ -31,17 +32,10 @@
                     Style="{StaticResource SecondaryCaptionTextStyle}"
                     TextWrapping="Wrap" />
             </StackPanel>
-            <Grid Grid.Column="2" VerticalAlignment="Center">
-                <ToggleSwitch
-                    x:Name="MicSwitch"
-                    x:Uid="Quick_MicrophoneSwitch"
-                    MinWidth="0"
-                    Visibility="Collapsed" />
-                <TextBlock
-                    x:Name="MicAbsent"
-                    Style="{StaticResource SecondaryBodyTextStyle}"
-                    Text="—" />
-            </Grid>
+            <c:MicSwitch
+                x:Name="Mic"
+                Grid.Column="2"
+                VerticalAlignment="Center" />
         </Grid>
 
         <Grid ColumnSpacing="12">

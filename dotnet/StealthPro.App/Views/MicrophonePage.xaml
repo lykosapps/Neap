@@ -3,7 +3,8 @@
     x:Class="StealthPro.App.Views.MicrophonePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:c="using:StealthPro.App.Controls">
+    xmlns:c="using:StealthPro.App.Controls"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <ScrollViewer
         Padding="32,0,32,32"
@@ -26,10 +27,12 @@
                         <c:RoutingNotice Margin="0,0,0,8" Sound="False" />
                         <StackPanel Spacing="4">
                             <c:HeadsetSection Explain="False">
-                                <c:SettingRow
-                                    x:Uid="Microphone_Muted"
-                                    Glyph="&#xE720;"
-                                    Setting="mic_muted" />
+                                <tk:SettingsCard x:Uid="Microphone_Mic">
+                                    <tk:SettingsCard.HeaderIcon>
+                                        <FontIcon x:Name="MicIcon" Glyph="&#xE720;" />
+                                    </tk:SettingsCard.HeaderIcon>
+                                    <c:MicSwitch x:Name="Mic" />
+                                </tk:SettingsCard>
                             </c:HeadsetSection>
                             <c:WindowsVolumeRow
                                 x:Uid="Microphone_Sensitivity"
