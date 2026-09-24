@@ -114,7 +114,7 @@ public sealed class FormatRow : SettingsCard
         await Load();
     }
 
-    private async Task Complain(string trouble) => await new ContentDialog
+    private async Task Complain(string trouble) => await new NeapDialog
     {
         XamlRoot = XamlRoot,
         Title = Strings.Get("Format_CouldNotChange"),

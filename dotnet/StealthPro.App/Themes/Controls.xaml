@@ -1,12 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <!--
     Windows' own controls in Neap's colours: the page frame, settings rows,
-    buttons, lists, text fields and sliders.
+    buttons, lists, text fields, sliders, and the pop-ups, menus, tooltips
+    and dialogs that open over them.
     
-    These sit on the navigation view rather than in the app's resources. A
-    control's template looks for its colours in its own dictionary before the
-    app's, so an app-level override never reaches it; resources on an
-    ancestor are looked in first.
+    It is merged into the app's resources after Windows' control styles,
+    which later dictionaries override, and again on the navigation view. The
+    toolkit's settings rows take their style from their own library, which
+    looks for colours in its own dictionary before the app's, so for them
+    only resources on an ancestor are looked in first. Pop-ups open outside
+    the navigation view, so for them only the app's copy applies.
     
     Only the dark and light themes are named. High contrast keeps Windows'
     own colours throughout.
@@ -60,6 +63,11 @@
             <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#251F33" />
             <SolidColorBrush x:Key="TextControlBorderBrush" Color="#3B3351" />
             <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#4A4063" />
+            <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#171322" />
+            <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="#1E1929" />
+            <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="#2A2438" />
+            <SolidColorBrush x:Key="AccentButtonBackgroundDisabled" Color="#1E1929" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrushDisabled" Color="#2A2438" />
 
             <SolidColorBrush x:Key="SliderTrackFill" Color="#332B47" />
             <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#3B3351" />
@@ -80,6 +88,30 @@
             <SolidColorBrush x:Key="SliderThumbBackground" Color="#9D8CFF" />
             <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="#B2A5FF" />
             <SolidColorBrush x:Key="SliderThumbBackgroundPressed" Color="#8B7AF0" />
+
+            <SolidColorBrush x:Key="FlyoutPresenterBackground" Color="#241D35" />
+            <SolidColorBrush x:Key="FlyoutBorderThemeBrush" Color="#3B3351" />
+            <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="#241D35" />
+            <SolidColorBrush x:Key="MenuFlyoutPresenterBorderBrush" Color="#3B3351" />
+            <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#241D35" />
+            <SolidColorBrush x:Key="ComboBoxDropDownBorderBrush" Color="#3B3351" />
+            <SolidColorBrush x:Key="ToolTipBackground" Color="#241D35" />
+            <SolidColorBrush x:Key="ToolTipBorderBrush" Color="#3B3351" />
+            <SolidColorBrush x:Key="ContentDialogTopOverlay" Color="#241D35" />
+            <SolidColorBrush x:Key="ContentDialogBackground" Color="#1D182B" />
+            <SolidColorBrush x:Key="ContentDialogBorderBrush" Color="#3B3351" />
+            <SolidColorBrush x:Key="ContentDialogSeparatorBorderBrush" Color="#342B49" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="#1A9D8CFF" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="#129D8CFF" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="#269D8CFF" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPointerOver" Color="#339D8CFF" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPressed" Color="#1F9D8CFF" />
+            <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#1A9D8CFF" />
+            <SolidColorBrush x:Key="ListViewItemBackgroundPressed" Color="#129D8CFF" />
+            <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#269D8CFF" />
+            <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#339D8CFF" />
+            <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPressed" Color="#1F9D8CFF" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedUnfocused" Color="#269D8CFF" />
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
@@ -120,6 +152,11 @@
             <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#FAF9FD" />
             <SolidColorBrush x:Key="TextControlBorderBrush" Color="#DDD8E8" />
             <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#CFC8DE" />
+            <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="#F7F5FB" />
+            <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="#E2DEEC" />
+            <SolidColorBrush x:Key="AccentButtonBackgroundDisabled" Color="#F7F5FB" />
+            <SolidColorBrush x:Key="AccentButtonBorderBrushDisabled" Color="#E2DEEC" />
 
             <SolidColorBrush x:Key="SliderTrackFill" Color="#DCD6EA" />
             <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#D0C9E1" />
@@ -140,6 +177,30 @@
             <SolidColorBrush x:Key="SliderThumbBackground" Color="#6D5AD9" />
             <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="#5845BD" />
             <SolidColorBrush x:Key="SliderThumbBackgroundPressed" Color="#40309A" />
+
+            <SolidColorBrush x:Key="FlyoutPresenterBackground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="FlyoutBorderThemeBrush" Color="#DDD8E8" />
+            <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="MenuFlyoutPresenterBorderBrush" Color="#DDD8E8" />
+            <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="ComboBoxDropDownBorderBrush" Color="#DDD8E8" />
+            <SolidColorBrush x:Key="ToolTipBackground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="ToolTipBorderBrush" Color="#DDD8E8" />
+            <SolidColorBrush x:Key="ContentDialogTopOverlay" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="ContentDialogBackground" Color="#F7F5FB" />
+            <SolidColorBrush x:Key="ContentDialogBorderBrush" Color="#DDD8E8" />
+            <SolidColorBrush x:Key="ContentDialogSeparatorBorderBrush" Color="#E2DEEC" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="#1A6D5AD9" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="#126D5AD9" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="#266D5AD9" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPointerOver" Color="#336D5AD9" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPressed" Color="#1F6D5AD9" />
+            <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#1A6D5AD9" />
+            <SolidColorBrush x:Key="ListViewItemBackgroundPressed" Color="#126D5AD9" />
+            <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#266D5AD9" />
+            <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#336D5AD9" />
+            <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPressed" Color="#1F6D5AD9" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedUnfocused" Color="#266D5AD9" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

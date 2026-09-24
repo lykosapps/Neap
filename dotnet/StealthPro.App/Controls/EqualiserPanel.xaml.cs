@@ -457,7 +457,7 @@ public sealed partial class EqualiserPanel : UserControl
             TextWrapping = TextWrapping.Wrap,
         };
 
-        var dialog = new ContentDialog
+        var dialog = new NeapDialog
         {
             XamlRoot = XamlRoot,
             Title = Strings.Get("Equaliser_SaveTitle"),
@@ -512,7 +512,7 @@ public sealed partial class EqualiserPanel : UserControl
         return answer == ContentDialogResult.Primary ? field.Text.Trim() : "";
     }
 
-    private async Task Complain(string title, string trouble) => await new ContentDialog
+    private async Task Complain(string title, string trouble) => await new NeapDialog
     {
         XamlRoot = XamlRoot,
         Title = title,

@@ -71,7 +71,7 @@
             OpenPaneLength="220"
             PaneDisplayMode="Auto"
             SelectionChanged="OnNavigate">
-            <!--  Windows' controls in Neap's colours; see Themes/Controls.xaml for why here.  -->
+            <!--  For the toolkit's settings rows; see Themes/Controls.xaml.  -->
             <NavigationView.Resources>
                 <ResourceDictionary>
                     <ResourceDictionary.MergedDictionaries>
