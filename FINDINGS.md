@@ -223,7 +223,7 @@ either way.
 | `0x730` | Superhuman Hearing type: 0 Legacy, 1 Footsteps, 2 Gunshots *(named from Swarm II; confirmed by ear, not by capture)* |
 | `0x740` | Superhuman Hearing intensity, 0–100 *(as `0x730`)* |
 | `0x750` | active noise cancellation, 0/1 |
-| `0x760` | noise cancellation intensity, 0–100 |
+| `0x760` | noise cancellation intensity, 0–100. At 0, with `0x750` on, outside sound comes through, unlike `0x750` off *(confirmed by ear by the owner)* |
 
 The headset receives one stereo stream from a PC, so it cannot mix game
 against chat there: `0x510` is an input to the PC's mix, not a mix itself. It
