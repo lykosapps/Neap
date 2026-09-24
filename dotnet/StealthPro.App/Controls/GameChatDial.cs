@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation.Peers;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -11,25 +12,28 @@ using Path = Microsoft.UI.Xaml.Shapes.Path;
 namespace StealthPro.App.Controls;
 
 /// <summary>
-/// The game and chat mix as a dial: a 270° arc with game at its left end,
-/// chat at its right and balanced at the top.
+/// The game and chat mix as a hardware knob: a ridged knob with a pointer,
+/// inside a 270° ring of segments that light game from the left and chat
+/// from the right.
 /// </summary>
 /// <remarks>
 /// <para>
 /// It is a range control, from 0 (game only) to 100 (chat only), so a screen
 /// reader announces it as a slider and it takes a slider's keys: the arrows
 /// move it a step, Page Up and Page Down further, Home and End to the ends.
-/// <see cref="MixDial"/> decides where everything is drawn; this draws it,
-/// and its look is in GameChatDial.xaml.
+/// <see cref="MixDial"/> decides where everything is drawn and which segments
+/// are lit; this draws it, and its look is in GameChatDial.xaml.
+/// </para>
+/// <para>
+/// It is handled like the wheel on the headset. Grabbing the knob and
+/// turning it moves the mix by as much as it turns, so a press alone changes
+/// nothing (<see cref="MixDial.Turn"/>). A press on the ring goes straight to
+/// that point, and a press in the gap below the ring does nothing.
 /// </para>
 /// <para>
 /// A step is five points, the chat wheel's own. A step of one would never
 /// leave the centre, because the mix holds a balanced setting against a nudge
 /// of up to four.
-/// </para>
-/// <para>
-/// Only a press on the arc moves the mix; anywhere else it only takes focus.
-/// See <see cref="MixDial.Grabs"/>.
 /// </para>
 /// </remarks>
 public sealed partial class GameChatDial : RangeBase
@@ -38,17 +42,24 @@ public sealed partial class GameChatDial : RangeBase
     private const double Size = 240;
 
     private const double Centre = Size / 2;
-    private const double Stroke = 12;
-    private const double Radius = Centre - Stroke;
-    private const double ThumbRadius = 12;
+    private const double RingRadius = 108;
 
-    /// <summary>How near the centre a press may start and still land on the arc.</summary>
-    private const double FaceRadius = Radius - 2 * Stroke;
+    /// <summary>The edge of the well the knob sits in: inside it a press turns the knob, outside it lands on the ring.</summary>
+    private const double KnobEdge = 97;
 
-    private Path? _game;
-    private Path? _chat;
-    private FrameworkElement? _thumb;
-    private bool _dragging;
+    private const double RidgeInner = 86, RidgeOuter = 94;
+    private const int Ridges = 90;
+    private const double PointerInner = 62, PointerOuter = 80;
+
+    private readonly Path[] _segments = new Path[MixDial.SegmentCount];
+    private Path[] _gameGlow = [];
+    private Path[] _chatGlow = [];
+    private Path? _pointer;
+
+    private enum Hold { None, Ring, Knob }
+    private Hold _hold;
+    private double _turnFrom;
+    private double _turned;
 
     public GameChatDial()
     {
@@ -61,12 +72,25 @@ public sealed partial class GameChatDial : RangeBase
     protected override void OnApplyTemplate()
     {
         base.OnApplyTemplate();
-        _game = GetTemplateChild("GameArc") as Path;
-        _chat = GetTemplateChild("ChatArc") as Path;
-        _thumb = GetTemplateChild("Thumb") as FrameworkElement;
-        if (GetTemplateChild("Track") is Path track) track.Data = Arc(MixDial.Track);
+        _pointer = GetTemplateChild("Pointer") as Path;
+        if (GetTemplateChild("Ridges") is Path ridges) ridges.Data = RidgeLines();
+
+        _gameGlow = Parts("GameGlowFar", "GameGlowNear");
+        _chatGlow = Parts("ChatGlowFar", "ChatGlowNear");
+        if (GetTemplateChild("Ring") is Canvas ring)
+        {
+            ring.Children.Clear();
+            for (int i = 0; i < MixDial.SegmentCount; i++)
+            {
+                _segments[i] = new Path { Data = Arc(MixDial.Segment(i)) };
+                ring.Children.Add(_segments[i]);
+            }
+        }
         Draw();
     }
+
+    private Path[] Parts(params string[] names) =>
+        names.Select(GetTemplateChild).OfType<Path>().ToArray();
 
     protected override void OnValueChanged(double oldValue, double newValue)
     {
@@ -78,42 +102,90 @@ public sealed partial class GameChatDial : RangeBase
 
     private int Mix => (int)Math.Round(Value);
 
+    /// <summary>
+    /// Lights the segments, lays each side's glow along its lit segments and
+    /// turns the pointer. Styles carry the colours, so a theme change needs no
+    /// redraw.
+    /// </summary>
     private void Draw()
     {
         int mix = Mix;
-        Place(_game, MixDial.GameArc(mix));
-        Place(_chat, MixDial.ChatArc(mix));
+        int firstChat = MixDial.SegmentCount, lastGame = -1;
+        for (int i = 0; i < MixDial.SegmentCount; i++)
+        {
+            if (_segments[i] is null) return;
+            var side = MixDial.Lit(i, mix);
+            if (side == DialSide.Game) lastGame = i;
+            if (side == DialSide.Chat && firstChat == MixDial.SegmentCount) firstChat = i;
+            _segments[i].Style = Styled(side switch
+            {
+                DialSide.Game => "NeapSegmentGameStyle",
+                DialSide.Chat => "NeapSegmentChatStyle",
+                _ => "NeapSegmentOffStyle",
+            });
+        }
+        Glow(_gameGlow, lastGame < 0 ? null : new DialArc(MixDial.Segment(0).From, MixDial.Segment(lastGame).To));
+        Glow(_chatGlow, firstChat == MixDial.SegmentCount ? null
+            : new DialArc(MixDial.Segment(firstChat).From, MixDial.Segment(MixDial.SegmentCount - 1).To));
 
-        if (_thumb is null) return;
-        var (x, y) = MixDial.PointAt(MixDial.AngleOf(mix), Radius);
-        _thumb.Margin = new Thickness(Centre + x - ThumbRadius, Centre + y - ThumbRadius, 0, 0);
+        if (_pointer is null) return;
+        double angle = MixDial.AngleOf(mix);
+        var (x0, y0) = MixDial.PointAt(angle, PointerInner);
+        var (x1, y1) = MixDial.PointAt(angle, PointerOuter);
+        _pointer.Data = Line(x0, y0, x1, y1);
+        _pointer.Style = Styled(mix <= 50 ? "NeapPointerGameStyle" : "NeapPointerChatStyle");
     }
 
-    /// <summary>
-    /// Draws one side's arc, or hides it when that side is silent: a round
-    /// cap on an arc of no length would still leave a dot.
-    /// </summary>
-    private static void Place(Path? path, DialArc arc)
+    /// <summary>Shapes one side's glow to its lit stretch, or hides it when that side is silent.</summary>
+    private static void Glow(Path[] layers, DialArc? lit)
     {
-        if (path is null) return;
-        path.Visibility = arc.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-        if (arc.Length > 0) path.Data = Arc(arc);
+        foreach (var layer in layers)
+        {
+            layer.Visibility = lit is null ? Visibility.Collapsed : Visibility.Visible;
+            if (lit is { } arc) layer.Data = Arc(arc);
+        }
     }
+
+    private static Style Styled(string key) => (Style)Application.Current.Resources[key];
 
     private static PathGeometry Arc(DialArc arc)
     {
-        var (x0, y0) = MixDial.PointAt(arc.From, Radius);
-        var (x1, y1) = MixDial.PointAt(arc.To, Radius);
+        var (x0, y0) = MixDial.PointAt(arc.From, RingRadius);
+        var (x1, y1) = MixDial.PointAt(arc.To, RingRadius);
         var figure = new PathFigure { StartPoint = new Point(Centre + x0, Centre + y0) };
         figure.Segments.Add(new ArcSegment
         {
             Point = new Point(Centre + x1, Centre + y1),
-            Size = new Size(Radius, Radius),
+            Size = new Size(RingRadius, RingRadius),
             SweepDirection = SweepDirection.Clockwise,
             IsLargeArc = arc.IsLarge,
         });
         var geometry = new PathGeometry();
         geometry.Figures.Add(figure);
+        return geometry;
+    }
+
+    private static PathGeometry Line(double x0, double y0, double x1, double y1)
+    {
+        var figure = new PathFigure { StartPoint = new Point(Centre + x0, Centre + y0) };
+        figure.Segments.Add(new LineSegment { Point = new Point(Centre + x1, Centre + y1) });
+        var geometry = new PathGeometry();
+        geometry.Figures.Add(figure);
+        return geometry;
+    }
+
+    private static PathGeometry RidgeLines()
+    {
+        var geometry = new PathGeometry();
+        for (int i = 0; i < Ridges; i++)
+        {
+            double angle = 360.0 * i / Ridges;
+            var (xi, yi) = MixDial.PointAt(angle, RidgeInner);
+            var (xo, yo) = MixDial.PointAt(angle, RidgeOuter);
+            var figure = new PathFigure { StartPoint = new Point(Centre + xi, Centre + yi) };
+            figure.Segments.Add(new LineSegment { Point = new Point(Centre + xo, Centre + yo) });
+            geometry.Figures.Add(figure);
+        }
         return geometry;
     }
 
@@ -124,39 +196,60 @@ public sealed partial class GameChatDial : RangeBase
         base.OnPointerPressed(e);
         Focus(FocusState.Pointer);
         var point = e.GetCurrentPoint(this);
-        var at = point.Position;
-        if (!point.Properties.IsLeftButtonPressed
-            || !MixDial.Grabs(at.X - Centre, at.Y - Centre, FaceRadius, Centre)) return;
+        if (!point.Properties.IsLeftButtonPressed) return;
+        double x = point.Position.X - Centre, y = point.Position.Y - Centre;
 
-        _dragging = CapturePointer(e.Pointer);
-        MoveTo(at);
+        if (Math.Sqrt(x * x + y * y) < KnobEdge)
+        {
+            _hold = Hold.Knob;
+            _turnFrom = MixDial.AngleAt(x, y);
+            _turned = Value;
+        }
+        else if (MixDial.Grabs(x, y, KnobEdge, Centre))
+        {
+            _hold = Hold.Ring;
+            Value = MixDial.MixAt(x, y);
+        }
+        else return;
+
+        CapturePointer(e.Pointer);
         e.Handled = true;
     }
 
     protected override void OnPointerMoved(PointerRoutedEventArgs e)
     {
         base.OnPointerMoved(e);
-        if (!_dragging) return;
-        MoveTo(e.GetCurrentPoint(this).Position);
+        if (_hold == Hold.None) return;
+        var at = e.GetCurrentPoint(this).Position;
+        double x = at.X - Centre, y = at.Y - Centre;
+        if (_hold == Hold.Ring)
+        {
+            Value = MixDial.MixAt(x, y);
+        }
+        else
+        {
+            double angle = MixDial.AngleAt(x, y);
+            _turned = MixDial.Turn(_turned, _turnFrom, angle);
+            _turnFrom = angle;
+            Value = Math.Round(_turned);
+        }
         e.Handled = true;
     }
 
     protected override void OnPointerReleased(PointerRoutedEventArgs e)
     {
         base.OnPointerReleased(e);
-        if (!_dragging) return;
+        if (_hold == Hold.None) return;
         ReleasePointerCapture(e.Pointer);
-        _dragging = false;
+        _hold = Hold.None;
         e.Handled = true;
     }
 
     protected override void OnPointerCaptureLost(PointerRoutedEventArgs e)
     {
         base.OnPointerCaptureLost(e);
-        _dragging = false;
+        _hold = Hold.None;
     }
-
-    private void MoveTo(Point at) => Value = MixDial.MixAt(at.X - Centre, at.Y - Centre);
 
     // -- the keyboard ------------------------------------------------------
 

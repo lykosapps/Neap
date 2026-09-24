@@ -88,4 +88,46 @@ public class MixDialTests
     [InlineData(0, -160, false)]
     public void OnlyAPressOnTheArcTakesHold(double x, double y, bool grabs) =>
         Assert.Equal(grabs, MixDial.Grabs(x, y, inner: 100, outer: 150));
+
+    [Fact]
+    public void TheSegmentsCoverTheRingWithGapsBetween()
+    {
+        Assert.True(MixDial.Segment(0).From > MixDial.GameEnd);
+        Assert.True(MixDial.Segment(MixDial.SegmentCount - 1).To < MixDial.ChatEnd);
+        Assert.True(MixDial.Segment(1).From > MixDial.Segment(0).To);
+    }
+
+    [Fact]
+    public void BalancedLightsEverySegmentHalfEach()
+    {
+        var sides = Enumerable.Range(0, MixDial.SegmentCount).Select(i => MixDial.Lit(i, 50)).ToList();
+        Assert.Equal(MixDial.SegmentCount / 2, sides.Count(s => s == DialSide.Game));
+        Assert.Equal(MixDial.SegmentCount / 2, sides.Count(s => s == DialSide.Chat));
+    }
+
+    [Fact]
+    public void TowardChatDarkensSomeOfTheGameSide()
+    {
+        var sides = Enumerable.Range(0, MixDial.SegmentCount).Select(i => MixDial.Lit(i, 75)).ToList();
+        Assert.Equal(MixDial.SegmentCount / 2, sides.Count(s => s == DialSide.Chat));
+        Assert.Contains(DialSide.None, sides);
+        Assert.Equal(DialSide.Game, sides[0]);
+    }
+
+    [Theory]
+    [InlineData(50, 0, 27, 60)]
+    [InlineData(50, 0, -27, 40)]
+    [InlineData(95, 0, 90, 100)]
+    [InlineData(5, 0, -90, 0)]
+    [InlineData(50, 170, -170, 57.4)]
+    [InlineData(50, -170, 170, 42.6)]
+    public void TurningTheKnobMovesTheMixByAsMuchAsItTurns(double mix, double from, double to, double after) =>
+        Assert.Equal(after, MixDial.Turn(mix, from, to), 1);
+
+    [Theory]
+    [InlineData(0, -1, 0)]
+    [InlineData(1, 0, 90)]
+    [InlineData(-1, 0, -90)]
+    public void AnglesRunClockwiseFromTwelve(double x, double y, double angle) =>
+        Assert.Equal(angle, MixDial.AngleAt(x, y), 6);
 }

@@ -1,5 +1,8 @@
 namespace StealthPro.Core.Mix;
 
+/// <summary>Which side of the mix a lit stretch of the dial belongs to.</summary>
+public enum DialSide { None, Game, Chat }
+
 /// <summary>A stretch of the dial, from one angle to a later one.</summary>
 public readonly record struct DialArc(double From, double To)
 {
@@ -68,6 +71,48 @@ public static class MixDial
         double distance = Math.Sqrt(x * x + y * y);
         double angle = Math.Atan2(x, -y) * 180 / Math.PI;
         return distance >= inner && distance <= outer && angle >= GameEnd && angle <= ChatEnd;
+    }
+
+    /// <summary>How many lit segments the dial's ring is made of.</summary>
+    public const int SegmentCount = 30;
+
+    /// <summary>The gap left between two segments, in degrees.</summary>
+    private const double SegmentGap = 3.2;
+
+    /// <summary>One segment of the ring, counted from the game end.</summary>
+    public static DialArc Segment(int index)
+    {
+        double width = Sweep / SegmentCount;
+        double from = GameEnd + width * index;
+        return new(from + SegmentGap / 2, from + width - SegmentGap / 2);
+    }
+
+    /// <summary>Which side lights a segment, or none: each side lights as far as its own arc reaches.</summary>
+    public static DialSide Lit(int index, int mix)
+    {
+        var segment = Segment(index);
+        double middle = (segment.From + segment.To) / 2;
+        return middle <= GameArc(mix).To ? DialSide.Game
+            : middle >= ChatArc(mix).From ? DialSide.Chat
+            : DialSide.None;
+    }
+
+    /// <summary>The angle of a point from the centre, in the dial's degrees.</summary>
+    public static double AngleAt(double x, double y) => Math.Atan2(x, -y) * 180 / Math.PI;
+
+    /// <summary>The mix after the knob is turned from one angle to another.</summary>
+    /// <remarks>
+    /// A knob is turned, not pointed: grabbing it anywhere and turning moves
+    /// the mix by as much as it turns, and a press that does not turn it
+    /// changes nothing. A turn across the bottom of the dial, where the angle
+    /// jumps from +180 to -180, is taken the short way round.
+    /// </remarks>
+    public static double Turn(double mix, double fromAngle, double toAngle)
+    {
+        double delta = toAngle - fromAngle;
+        while (delta > 180) delta -= 360;
+        while (delta <= -180) delta += 360;
+        return Math.Clamp(mix + delta / Sweep * 100, 0, 100);
     }
 
     /// <summary>The point at an angle and distance from the centre.</summary>

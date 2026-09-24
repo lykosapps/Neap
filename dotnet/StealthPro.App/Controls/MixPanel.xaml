@@ -47,9 +47,10 @@
             TextWrapping="Wrap"
             Visibility="Collapsed" />
 
-        <!--  Chosen: the dial, with how loud each side plays in its middle.  -->
+        <!--  Chosen: the knob, with how loud each side plays on its cap.  -->
         <Grid
             x:Name="DialArea"
+            Margin="0,0,0,14"
             HorizontalAlignment="Center"
             Visibility="Collapsed">
             <c:GameChatDial x:Name="Dial" x:Uid="Mix_Dial" />
@@ -61,6 +62,7 @@
                 <TextBlock
                     x:Name="LeanText"
                     HorizontalAlignment="Center"
+                    CharacterSpacing="60"
                     Style="{StaticResource SecondaryCaptionTextStyle}" />
                 <StackPanel
                     HorizontalAlignment="Center"
@@ -68,32 +70,36 @@
                     Spacing="12">
                     <TextBlock
                         x:Name="GameLevel"
-                        FontSize="32"
-                        FontWeight="SemiLight"
+                        FontSize="30"
+                        FontWeight="SemiBold"
                         Foreground="{ThemeResource NeapGameTextBrush}"
                         Style="{StaticResource NumeralTextStyle}" />
                     <TextBlock
                         x:Name="ChatLevel"
-                        FontSize="32"
-                        FontWeight="SemiLight"
+                        FontSize="30"
+                        FontWeight="SemiBold"
                         Foreground="{ThemeResource NeapChatTextBrush}"
                         Style="{StaticResource NumeralTextStyle}" />
                 </StackPanel>
             </StackPanel>
 
-            <!--  Under each end of the arc: which side is which.  -->
+            <!--  Under each end of the ring: which side is which.  -->
             <TextBlock
                 x:Uid="Mix_Game"
-                Margin="36,0,0,4"
+                Margin="36,0,0,-14"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Bottom"
+                CharacterSpacing="80"
+                FontWeight="SemiBold"
                 Foreground="{ThemeResource NeapGameTextBrush}"
                 Style="{StaticResource CaptionTextBlockStyle}" />
             <TextBlock
                 x:Uid="Mix_Chat"
-                Margin="0,0,36,4"
+                Margin="0,0,36,-14"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
+                CharacterSpacing="80"
+                FontWeight="SemiBold"
                 Foreground="{ThemeResource NeapChatTextBrush}"
                 Style="{StaticResource CaptionTextBlockStyle}" />
         </Grid>

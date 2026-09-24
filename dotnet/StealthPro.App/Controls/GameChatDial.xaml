@@ -5,11 +5,127 @@
     xmlns:c="using:StealthPro.App.Controls">
 
     <!--
-        The dial's look. Every colour is a theme resource, so a change of
-        theme or contrast while the page is open repaints it without code;
-        the code only places the shapes. Its size is the one GameChatDial
-        draws for.
+        The dial's look: a raised knob with a ridged rim, inside a ring of
+        segments that light in each side's colour. Every colour is a theme
+        resource or a style, so a change of theme or contrast while the page
+        is open repaints it without code; the code only places the shapes.
+        The knob is an object on the desk, so it stays dark metal in the
+        dark theme and turns brushed silver in the light one. High contrast
+        drops the glow and the metal for the system's own colours.
     -->
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Default">
+            <SolidColorBrush x:Key="NeapKnobWellBrush" Color="#0E0E11" />
+            <LinearGradientBrush x:Key="NeapKnobBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+                <GradientStop Offset="0" Color="#4A4854" />
+                <GradientStop Offset="0.5" Color="#2C2B33" />
+                <GradientStop Offset="1" Color="#1E1D23" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="NeapKnobRimBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+                <GradientStop Offset="0" Color="#55FFFFFF" />
+                <GradientStop Offset="1" Color="#08FFFFFF" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="NeapKnobRidgeBrush" Color="#70000000" />
+            <SolidColorBrush x:Key="NeapKnobCapStrokeBrush" Color="#1CFFFFFF" />
+            <RadialGradientBrush x:Key="NeapKnobShadowBrush">
+                <GradientStop Offset="0.7" Color="#99000000" />
+                <GradientStop Offset="1" Color="#00000000" />
+            </RadialGradientBrush>
+            <x:Double x:Key="NeapGlowNearOpacity">0.28</x:Double>
+            <x:Double x:Key="NeapGlowFarOpacity">0.12</x:Double>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="NeapKnobWellBrush" Color="#C9C9D0" />
+            <LinearGradientBrush x:Key="NeapKnobBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+                <GradientStop Offset="0" Color="#FBFBFD" />
+                <GradientStop Offset="0.5" Color="#E6E6EB" />
+                <GradientStop Offset="1" Color="#D2D2D9" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="NeapKnobRimBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+                <GradientStop Offset="0" Color="#FFFFFFFF" />
+                <GradientStop Offset="1" Color="#40FFFFFF" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="NeapKnobRidgeBrush" Color="#33000000" />
+            <SolidColorBrush x:Key="NeapKnobCapStrokeBrush" Color="#26000000" />
+            <RadialGradientBrush x:Key="NeapKnobShadowBrush">
+                <GradientStop Offset="0.7" Color="#44000000" />
+                <GradientStop Offset="1" Color="#00000000" />
+            </RadialGradientBrush>
+            <x:Double x:Key="NeapGlowNearOpacity">0.22</x:Double>
+            <x:Double x:Key="NeapGlowFarOpacity">0.08</x:Double>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="HighContrast">
+            <SolidColorBrush x:Key="NeapKnobWellBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="NeapKnobBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="NeapKnobRimBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="NeapKnobRidgeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapKnobCapStrokeBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="NeapKnobShadowBrush" Color="Transparent" />
+            <x:Double x:Key="NeapGlowNearOpacity">0</x:Double>
+            <x:Double x:Key="NeapGlowFarOpacity">0</x:Double>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+    <!--
+        One segment of the ring, unlit and lit, and each side's glow: one
+        soft band along its lit segments, not one per segment, so the glow
+        reads as light rather than as boxes.
+    -->
+    <Style x:Key="NeapSegmentOffStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{ThemeResource NeapDialTrackBrush}" />
+        <Setter Property="StrokeThickness" Value="9" />
+    </Style>
+    <Style x:Key="NeapSegmentGameStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{ThemeResource NeapGameBrush}" />
+        <Setter Property="StrokeThickness" Value="9" />
+    </Style>
+    <Style x:Key="NeapSegmentChatStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{ThemeResource NeapChatBrush}" />
+        <Setter Property="StrokeThickness" Value="9" />
+    </Style>
+    <Style x:Key="NeapGlowNearGameStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{ThemeResource NeapGameBrush}" />
+        <Setter Property="StrokeThickness" Value="14" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+        <Setter Property="Opacity" Value="{ThemeResource NeapGlowNearOpacity}" />
+    </Style>
+    <Style x:Key="NeapGlowFarGameStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{ThemeResource NeapGameBrush}" />
+        <Setter Property="StrokeThickness" Value="20" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+        <Setter Property="Opacity" Value="{ThemeResource NeapGlowFarOpacity}" />
+    </Style>
+    <Style x:Key="NeapGlowNearChatStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{ThemeResource NeapChatBrush}" />
+        <Setter Property="StrokeThickness" Value="14" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+        <Setter Property="Opacity" Value="{ThemeResource NeapGlowNearOpacity}" />
+    </Style>
+    <Style x:Key="NeapGlowFarChatStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{ThemeResource NeapChatBrush}" />
+        <Setter Property="StrokeThickness" Value="20" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+        <Setter Property="Opacity" Value="{ThemeResource NeapGlowFarOpacity}" />
+    </Style>
+
+    <!--  The knob's pointer, in the colour of the side the mix leans to.  -->
+    <Style x:Key="NeapPointerGameStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{ThemeResource NeapGameTextBrush}" />
+        <Setter Property="StrokeThickness" Value="4" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+    </Style>
+    <Style x:Key="NeapPointerChatStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{ThemeResource NeapChatTextBrush}" />
+        <Setter Property="StrokeThickness" Value="4" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+    </Style>
+
     <Style TargetType="c:GameChatDial">
         <Setter Property="Width" Value="240" />
         <Setter Property="Height" Value="240" />
@@ -21,33 +137,41 @@
             <Setter.Value>
                 <ControlTemplate TargetType="c:GameChatDial">
                     <Grid Background="Transparent">
-                        <Path
-                            x:Name="Track"
-                            Stroke="{ThemeResource NeapDialTrackBrush}"
-                            StrokeEndLineCap="Round"
-                            StrokeStartLineCap="Round"
-                            StrokeThickness="12" />
-                        <Path
-                            x:Name="GameArc"
-                            Stroke="{ThemeResource NeapGameBrush}"
-                            StrokeEndLineCap="Round"
-                            StrokeStartLineCap="Round"
-                            StrokeThickness="12" />
-                        <Path
-                            x:Name="ChatArc"
-                            Stroke="{ThemeResource NeapChatBrush}"
-                            StrokeEndLineCap="Round"
-                            StrokeStartLineCap="Round"
-                            StrokeThickness="12" />
+                        <!--  Each side's glow, then the segments; shaped by the code.  -->
+                        <Path x:Name="GameGlowFar" Style="{StaticResource NeapGlowFarGameStyle}" />
+                        <Path x:Name="GameGlowNear" Style="{StaticResource NeapGlowNearGameStyle}" />
+                        <Path x:Name="ChatGlowFar" Style="{StaticResource NeapGlowFarChatStyle}" />
+                        <Path x:Name="ChatGlowNear" Style="{StaticResource NeapGlowNearChatStyle}" />
+                        <Canvas x:Name="Ring" />
                         <Ellipse
-                            x:Name="Thumb"
-                            Width="24"
-                            Height="24"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Fill="{ThemeResource TextFillColorPrimaryBrush}"
-                            Stroke="{ThemeResource ControlStrokeColorDefaultBrush}"
+                            Width="194"
+                            Height="194"
+                            Fill="{ThemeResource NeapKnobWellBrush}" />
+                        <Ellipse
+                            Width="200"
+                            Height="200"
+                            Margin="0,12,0,0"
+                            Fill="{ThemeResource NeapKnobShadowBrush}" />
+                        <Ellipse
+                            Width="188"
+                            Height="188"
+                            Fill="{ThemeResource NeapKnobBrush}" />
+                        <Path
+                            x:Name="Ridges"
+                            Stroke="{ThemeResource NeapKnobRidgeBrush}"
+                            StrokeThickness="1.6" />
+                        <Ellipse
+                            Width="188"
+                            Height="188"
+                            Stroke="{ThemeResource NeapKnobRimBrush}"
                             StrokeThickness="1" />
+                        <Ellipse
+                            Width="156"
+                            Height="156"
+                            Fill="{ThemeResource NeapKnobBrush}"
+                            Stroke="{ThemeResource NeapKnobCapStrokeBrush}"
+                            StrokeThickness="1" />
+                        <Path x:Name="Pointer" Style="{StaticResource NeapPointerGameStyle}" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
