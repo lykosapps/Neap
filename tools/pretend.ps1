@@ -342,7 +342,7 @@ function Exercise($element, $setting) {
     try { Ask "report $($setting.key) $backWire" | Out-Null }
     catch { Write-Host "  note  $name is set only from the app: $($_.Exception.Message)"; return }
     Check (Until { [string](Shown $element) -eq [string]$back }) "$name follows the headset to $backWire"
-    Check (@(Writes).Count -eq 0) "following the headset sends nothing back"
+    Check (@(Writes).Count -eq 0) "following the headset, $name sends nothing back"
     Collect
 }
 
@@ -466,7 +466,7 @@ function QuickSwitch([string]$name, [string]$setting, [string]$key, [bool]$inver
     $back = if ($want -eq '1') { '0' } else { '1' }
     Ask "report $setting $back" | Out-Null
     Check (Until { ($toggle.Current.ToggleState -eq 'On') -eq $on }) "the $name switch follows the headset back"
-    Check (@(Writes).Count -eq 0) 'following the headset sends nothing back'
+    Check (@(Writes).Count -eq 0) "following the headset, the $name switch sends nothing back"
     Collect
 }
 
@@ -482,10 +482,12 @@ function Quick {
     if ($null -eq $tile) { Fail 'Home has an equaliser tile'; return }
     Ask 'clear' | Out-Null
     (Pattern $tile ([System.Windows.Automation.InvokePattern])).Invoke()
-    Start-Sleep -Milliseconds 500
-    $item = FindAll $script:window 'NameProperty' 'Signature Sound' |
-        Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem } | Select-Object -First 1
-    if ($null -eq $item) { Fail 'the equaliser tile lists Signature Sound'; return }
+    $preset = {
+        FindAll $script:window 'NameProperty' 'Signature Sound' |
+            Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem } | Select-Object -First 1
+    }
+    if (-not (Until { $null -ne (& $preset) })) { Fail 'the equaliser tile lists Signature Sound'; return }
+    $item = & $preset
     (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select()
     Check (Until { @(Writes | Where-Object { $_.key -eq '0x1210' -and $_.value -eq '1' }).Count -gt 0 }) 'the preset list on Home sends 0x1210=1'
     Collect
