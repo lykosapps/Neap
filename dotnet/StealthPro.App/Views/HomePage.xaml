@@ -119,20 +119,6 @@
                     </StackPanel>
                 </Border>
 
-                <!--  What it is paired with.  -->
-                <Border x:Name="TransmittersCard" Style="{StaticResource HomeCard}">
-                    <StackPanel>
-                        <TextBlock x:Uid="Home_Transmitters" Style="{StaticResource CardTitle}" />
-                        <TextBlock
-                            x:Uid="Home_TransmittersNote"
-                            Margin="0,-10,0,12"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            TextWrapping="Wrap" />
-                        <StackPanel x:Name="Transmitters" Spacing="4" />
-                    </StackPanel>
-                </Border>
-
                 <!--  And the way out to everything else.  -->
                 <tk:WrapPanel
                     x:Name="Tiles"

@@ -5,9 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using StealthPro.App.Controls;
 using StealthPro.App.Services;
-using StealthPro.Core;
 using StealthPro.Core.Connection;
-using StealthPro.Core.Hid;
 using StealthPro.Core.Settings;
 
 namespace StealthPro.App.Views;
@@ -36,18 +34,7 @@ public sealed partial class HomePage : Page
         new("device", "\uE950", Strings.Get("Home_TileDevice"), Strings.Get("Home_TileDeviceWhat")),
     };
 
-    /// <summary>
-    /// How often to look at what is plugged in.
-    /// </summary>
-    /// <remarks>
-    /// Enumerating devices opens nothing for I/O, so it cannot disturb the
-    /// connection; it only has to be quick enough that a transmitter shows up
-    /// while you are still looking.
-    /// </remarks>
-    private static readonly TimeSpan PluggedPoll = TimeSpan.FromSeconds(3);
-
-    private Microsoft.UI.Dispatching.DispatcherQueueTimer? _pluggedTimer;
-    private IReadOnlyList<HidDeviceInfo> _plugged = Array.Empty<HidDeviceInfo>();
+    private PluggedWatch? _plugged;
 
     public HomePage()
     {
@@ -55,51 +42,27 @@ public sealed partial class HomePage : Page
         BuildTiles();
         // The state dot is coloured in code, so it is repainted for a new theme.
         ActualThemeChanged += (_, _) => Paint();
-        Loaded += async (_, _) =>
+        Loaded += (_, _) =>
         {
             AppServices.Headset.Changed += Paint;
             AppServices.Headset.StatusChanged += OnStatus;
-            AppServices.Headset.TransmittersChanged += PaintTransmitters;
-            AppServices.AudioRoute.Changed += OnAudioRoute;
+            AppServices.AudioRoute.Changed += Paint;
+            // The connection line says whether the sound's transmitter is
+            // here, so it follows what is plugged in as well as the status.
+            _plugged = new PluggedWatch(DispatcherQueue, Paint);
             Paint();
-            await LookAtWhatIsPlugged();
-
-            _pluggedTimer = DispatcherQueue.CreateTimer();
-            _pluggedTimer.Interval = PluggedPoll;
-            _pluggedTimer.Tick += async (_, _) => await LookAtWhatIsPlugged();
-            _pluggedTimer.Start();
         };
         Unloaded += (_, _) =>
         {
             AppServices.Headset.Changed -= Paint;
             AppServices.Headset.StatusChanged -= OnStatus;
-            AppServices.Headset.TransmittersChanged -= PaintTransmitters;
-            AppServices.AudioRoute.Changed -= OnAudioRoute;
-            _pluggedTimer?.Stop();
-            _pluggedTimer = null;
+            AppServices.AudioRoute.Changed -= Paint;
+            _plugged?.Stop();
+            _plugged = null;
         };
     }
 
-    private void OnStatus(HeadsetStatus status)
-    {
-        Paint();
-
-        // Which transmitter is in use follows the status, so repaint the list
-        // on every change, in every state. Otherwise, with only sound
-        // reaching the headset, it can go on showing the Charging Dock as in
-        // use while the headset is on the USB Transmitter.
-        PaintTransmitters();
-    }
-
-    /// <summary>
-    /// Repaints when Windows' routing changes: it decides what "connected
-    /// through" says, and whether any transmitter is carrying sound at all.
-    /// </summary>
-    private void OnAudioRoute()
-    {
-        Paint();
-        PaintTransmitters();
-    }
+    private void OnStatus(HeadsetStatus status) => Paint();
 
     // -- the headset -------------------------------------------------------
 
@@ -128,13 +91,6 @@ public sealed partial class HomePage : Page
         // A card that can only say it has nothing to say is not worth its
         // space. With the settings out of reach it goes.
         ConnectionsCard.Visibility = unseen || quiet ? Visibility.Collapsed : Visibility.Visible;
-
-        // The transmitter list goes too. With nothing answering, the app knows
-        // only what is plugged in, not which transmitter the headset is using,
-        // so every row could only say "Plugged in". In this list that means
-        // "plugged in and not in use", which is wrong over a Charging Dock
-        // playing the headset's sound.
-        TransmittersCard.Visibility = unseen ? Visibility.Collapsed : Visibility.Visible;
 
         // A label, the same as the header's. The explanation is in the note
         // below and in the tooltip. Connected, the name they gave the headset
@@ -240,18 +196,11 @@ public sealed partial class HomePage : Page
                 ConnectionShown.TransmitterUnplugged => Strings.Format("Home_Unplugged", status.Adapter),
                 _ => Strings.Format("Home_Wireless", status.Adapter),
             }));
-
-        bool bluetooth = headset.TryGetNumberByKey(LinkState.Key, out int link)
-                         && LinkState.Bluetooth(link);
-        Connections.Children.Add(Row("\uE702", Strings.Get("Home_Bluetooth"),
-            Strings.Get(bluetooth ? "Home_BluetoothOn" : "Home_BluetoothOff")));
     }
 
-    private IReadOnlyCollection<string> PluggedProducts =>
-        _plugged.Select(d => d.ProductId.ToString("X4", CultureInfo.InvariantCulture)).ToList();
+    private IReadOnlyCollection<string>? PluggedProducts => _plugged is { Looked: true } p ? p.Products : null;
 
-    private static bool OverCable(HeadsetStatus status) =>
-        ConnectionLine.OverCable(status, AppServices.AudioRoute.Cable);
+    private static bool OverCable(HeadsetStatus status) => AppServices.AudioRoute.OverCable(status);
 
     private static SettingsCard Row(string glyph, string header, string value) => new()
     {
@@ -277,79 +226,6 @@ public sealed partial class HomePage : Page
         SignalStrength.Ok => Strings.Get("Home_SignalOK"),
         _ => Strings.Get("Home_SignalWeak"),
     };
-
-    // -- transmitters ------------------------------------------------------
-
-    /// <summary>
-    /// Looks at what is plugged in, off the UI thread, and repaints if it
-    /// changed.
-    /// </summary>
-    private async Task LookAtWhatIsPlugged()
-    {
-        IReadOnlyList<HidDeviceInfo> now;
-        try { now = await Task.Run(() => AppServices.Devices.Candidates()); }
-        catch { return; }
-
-        static string Key(IEnumerable<HidDeviceInfo> devices) =>
-            string.Join(",", devices.Select(d => d.ProductId).Order());
-        if (Key(now) == Key(_plugged) && Transmitters.Children.Count > 0) return;
-
-        _plugged = now;
-
-        // The Connections card says whether the sound's transmitter is here,
-        // so it follows what is plugged in as well as the status.
-        Paint();
-        PaintTransmitters();
-    }
-
-    /// <summary>
-    /// Lists every transmitter worth mentioning, from what the headset
-    /// reported and what is plugged in. <see cref="TransmitterList"/> decides
-    /// each one's state; this shows it.
-    /// </summary>
-    private void PaintTransmitters()
-    {
-        var rows = TransmitterList.Rows(AppServices.Headset.Status,
-            AppServices.Headset.KnownTransmitters,
-            PluggedProducts,
-            OverCable(AppServices.Headset.Status));
-
-        Transmitters.Children.Clear();
-        if (rows.Count == 0)
-        {
-            Transmitters.Children.Add(Quiet(Strings.Get("Home_NoTransmitters")));
-            return;
-        }
-
-        foreach (var row in rows)
-        {
-            var card = new SettingsCard
-            {
-                Header = row.Name,
-                Content = new TextBlock
-                {
-                    Text = row.State switch
-                    {
-                        TransmitterState.InUse => Strings.Get("Home_InUse"),
-                        TransmitterState.CanSwitchTo or TransmitterState.PluggedIn => Strings.Get("Home_PluggedIn"),
-                        _ => Strings.Get("Home_NotPluggedIn"),
-                    },
-                    Style = (Style)Application.Current.Resources[
-                        row.State == TransmitterState.InUse
-                            ? "BodyTextBlockStyle" : "SecondaryBodyTextStyle"],
-                },
-            };
-            string detail = row.State switch
-            {
-                TransmitterState.SelectedButUnplugged => Strings.Get("Home_SetToThis"),
-                TransmitterState.CanSwitchTo => Strings.Get("Home_SwitchToThis"),
-                TransmitterState.PluggedIn => "",
-                _ => row.Firmware.Length > 0 ? Strings.Format("Home_Firmware", row.Firmware) : "",
-            };
-            if (detail.Length > 0) card.Description = detail;
-            Transmitters.Children.Add(card);
-        }
-    }
 
     // -- the way out -------------------------------------------------------
 

@@ -303,10 +303,10 @@
   <data name="Home_Connections.Text" xml:space="preserve">
     <value>Connections</value>
   </data>
-  <data name="Home_Transmitters.Text" xml:space="preserve">
+  <data name="Transmitters_Heading.Text" xml:space="preserve">
     <value>Transmitters</value>
   </data>
-  <data name="Home_TransmittersNote.Text" xml:space="preserve">
+  <data name="Transmitters_Note.Text" xml:space="preserve">
     <value>Your headset uses one at a time. Press CrossPlay on the headset to switch between them.</value>
   </data>
   <data name="Microphone_Title.Text" xml:space="preserve">
@@ -825,13 +825,13 @@
   <data name="Home_NoTransmitter" xml:space="preserve">
     <value>No transmitter</value>
   </data>
-  <data name="Home_Bluetooth" xml:space="preserve">
+  <data name="Transmitters_Bluetooth.Header" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
-  <data name="Home_BluetoothOn" xml:space="preserve">
+  <data name="Transmitters_BluetoothOn" xml:space="preserve">
     <value>Connected</value>
   </data>
-  <data name="Home_BluetoothOff" xml:space="preserve">
+  <data name="Transmitters_BluetoothOff" xml:space="preserve">
     <value>Not connected</value>
   </data>
   <data name="Home_Wireless" xml:space="preserve">
@@ -852,25 +852,25 @@
   <data name="Home_SignalWeak" xml:space="preserve">
     <value>Weak</value>
   </data>
-  <data name="Home_NoTransmitters" xml:space="preserve">
+  <data name="Transmitters_None" xml:space="preserve">
     <value>No transmitter plugged in.</value>
   </data>
-  <data name="Home_InUse" xml:space="preserve">
+  <data name="Transmitters_InUse" xml:space="preserve">
     <value>In use</value>
   </data>
-  <data name="Home_PluggedIn" xml:space="preserve">
+  <data name="Transmitters_PluggedIn" xml:space="preserve">
     <value>Plugged in</value>
   </data>
-  <data name="Home_NotPluggedIn" xml:space="preserve">
+  <data name="Transmitters_NotPluggedIn" xml:space="preserve">
     <value>Not plugged in</value>
   </data>
-  <data name="Home_SetToThis" xml:space="preserve">
+  <data name="Transmitters_SetToThis" xml:space="preserve">
     <value>Your headset's sound is set to this one.</value>
   </data>
-  <data name="Home_SwitchToThis" xml:space="preserve">
+  <data name="Transmitters_SwitchToThis" xml:space="preserve">
     <value>Press CrossPlay on the headset to switch to it.</value>
   </data>
-  <data name="Home_Firmware" xml:space="preserve">
+  <data name="Transmitters_Firmware" xml:space="preserve">
     <value>Firmware {0}</value>
   </data>
   <data name="Settings_About" xml:space="preserve">

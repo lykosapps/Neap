@@ -74,6 +74,9 @@ public sealed class AudioRoute : IDisposable
     /// </summary>
     public string Cable { get; private set; } = "";
 
+    /// <summary>Whether the headset's USB-C cable is its connection; see <see cref="ConnectionLine.OverCable"/>.</summary>
+    public bool OverCable(HeadsetStatus status) => ConnectionLine.OverCable(status, Cable);
+
     /// <summary>Any of these moved. Raised on the UI thread.</summary>
     public event Action? Changed;
 

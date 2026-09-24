@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="StealthPro.App.Controls.TransmittersPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls">
+
+    <StackPanel>
+        <TextBlock x:Uid="Transmitters_Heading" Style="{StaticResource SectionHeaderStyle}" />
+        <TextBlock x:Uid="Transmitters_Note" Style="{StaticResource SectionNoteStyle}" />
+        <StackPanel x:Name="Rows" Spacing="4" />
+
+        <!--
+            Bluetooth has its own button on the headset and no switch in
+            software, so it is only said, beside the transmitters it runs
+            alongside.
+        -->
+        <tk:SettingsCard
+            x:Name="BluetoothRow"
+            x:Uid="Transmitters_Bluetooth"
+            Margin="0,4,0,0"
+            Visibility="Collapsed">
+            <tk:SettingsCard.HeaderIcon>
+                <FontIcon Glyph="&#xE702;" />
+            </tk:SettingsCard.HeaderIcon>
+            <TextBlock x:Name="BluetoothState" Style="{StaticResource BodyTextBlockStyle}" />
+        </tk:SettingsCard>
+    </StackPanel>
+</UserControl>

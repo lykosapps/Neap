@@ -17,6 +17,9 @@
 
                 <c:HeadsetNotice />
 
+                <!--  Listed whenever anything answers, the headset on or off.  -->
+                <c:TransmittersPanel />
+
                 <!--
                     With the headset off, the whole page is one card, the audio
                     format included: see HeadsetSection.WhenOff.
