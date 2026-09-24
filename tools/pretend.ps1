@@ -317,8 +317,22 @@ function Exercise($element, $setting) {
     Collect
 }
 
+# Opens every expander on the page, so the settings folded inside one can
+# be found. Lists are left alone: opening one is choosing from it.
+function ExpandAll {
+    $all = $script:window.FindAll($Scopes::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
+    foreach ($element in $all) {
+        if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::ComboBox) { continue }
+        $expand = $null
+        if ($element.TryGetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern, [ref]$expand) -and
+            $expand.Current.ExpandCollapseState -eq 'Collapsed') { $expand.Expand() }
+    }
+    Start-Sleep -Milliseconds 400
+}
+
 function Settings([string]$page) {
     Page $page
+    ExpandAll
     $found = 0
     foreach ($setting in $script:registry | Where-Object { $_.writable -and $_.kind -ne 'Text' }) {
         $element = Find $script:window 'AutomationIdProperty' $setting.name

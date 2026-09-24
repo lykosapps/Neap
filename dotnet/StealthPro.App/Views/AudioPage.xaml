@@ -3,7 +3,8 @@
     x:Class="StealthPro.App.Views.AudioPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:c="using:StealthPro.App.Controls">
+    xmlns:c="using:StealthPro.App.Controls"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <ScrollViewer
         Padding="32,0,32,32"
@@ -22,6 +23,44 @@
                     can hear. See HeadsetSection.WhenOff.
                 -->
                 <c:HeadsetSection x:Uid="Audio_Section" WhenOff="True">
+                    <!--
+                        The equaliser first, since it is what this page is
+                        opened for. Noise cancellation and Superhuman Hearing
+                        each take one line with their switch; what matters
+                        only once one is on sits inside it.
+                    -->
+                    <c:HeadsetSection x:Uid="Audio_HeadsetSection">
+                        <TextBlock x:Uid="Audio_EqualiserHeading" Style="{StaticResource SectionHeaderStyle}" />
+                        <c:EqualiserPanel Bank="Game" />
+
+                        <TextBlock x:Uid="Audio_NoiseCancellationHeading" Style="{StaticResource SectionHeaderStyle}" />
+                        <tk:SettingsExpander x:Uid="Audio_ActiveNoiseCancellation">
+                            <tk:SettingsExpander.HeaderIcon>
+                                <FontIcon Glyph="&#xE767;" />
+                            </tk:SettingsExpander.HeaderIcon>
+                            <c:SettingToggle x:Uid="Audio_AncSwitch" Setting="anc" />
+                            <tk:SettingsExpander.Items>
+                                <c:SettingRow x:Uid="Audio_AncIntensity" Setting="anc_level" />
+                            </tk:SettingsExpander.Items>
+                        </tk:SettingsExpander>
+
+                        <TextBlock x:Uid="Audio_SuperhumanHearingHeading" Style="{StaticResource SectionHeaderStyle}" />
+                        <tk:SettingsExpander x:Uid="Audio_SuperhumanHearing">
+                            <tk:SettingsExpander.HeaderIcon>
+                                <FontIcon Glyph="&#xE9D9;" />
+                            </tk:SettingsExpander.HeaderIcon>
+                            <c:SettingToggle x:Uid="Audio_ShhSwitch" Setting="superhuman_hearing" />
+                            <tk:SettingsExpander.Items>
+                                <c:SettingRow x:Uid="Audio_Type" Setting="shh_preset" />
+                                <c:SettingRow x:Uid="Audio_Intensity" Setting="shh_level" />
+                            </tk:SettingsExpander.Items>
+                        </tk:SettingsExpander>
+                    </c:HeadsetSection>
+
+                    <!--
+                        Windows' own volume and mute, last: the headset's wheel
+                        is the everyday way to change them.
+                    -->
                     <TextBlock x:Uid="Audio_VolumeHeading" Style="{StaticResource SectionHeaderStyle}" />
                     <TextBlock x:Uid="Audio_VolumeNote" Style="{StaticResource SectionNoteStyle}" />
                     <StackPanel>
@@ -37,39 +76,6 @@
                                 Kind="Volume" />
                         </StackPanel>
                     </StackPanel>
-
-                    <c:HeadsetSection x:Uid="Audio_HeadsetSection">
-                        <TextBlock x:Uid="Audio_NoiseCancellationHeading" Style="{StaticResource SectionHeaderStyle}" />
-                        <StackPanel Spacing="4">
-                            <c:SettingRow
-                                x:Uid="Audio_ActiveNoiseCancellation"
-                                Glyph="&#xE767;"
-                                Setting="anc" />
-                            <c:SettingRow
-                                x:Uid="Audio_AncIntensity"
-                                Glyph="&#xE9E9;"
-                                Setting="anc_level" />
-                        </StackPanel>
-
-                        <TextBlock x:Uid="Audio_SuperhumanHearingHeading" Style="{StaticResource SectionHeaderStyle}" />
-                        <StackPanel Spacing="4">
-                            <c:SettingRow
-                                x:Uid="Audio_SuperhumanHearing"
-                                Glyph="&#xE9D9;"
-                                Setting="superhuman_hearing" />
-                            <c:SettingRow
-                                x:Uid="Audio_Type"
-                                Glyph="&#xE8FD;"
-                                Setting="shh_preset" />
-                            <c:SettingRow
-                                x:Uid="Audio_Intensity"
-                                Glyph="&#xE9E9;"
-                                Setting="shh_level" />
-                        </StackPanel>
-
-                        <TextBlock x:Uid="Audio_EqualiserHeading" Style="{StaticResource SectionHeaderStyle}" />
-                        <c:EqualiserPanel Bank="Game" />
-                    </c:HeadsetSection>
                 </c:HeadsetSection>
 
             </StackPanel>
