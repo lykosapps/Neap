@@ -136,26 +136,18 @@ public sealed class HeadsetSection : StackPanel
     private void Paint()
     {
         var status = AppServices.Headset.Status;
-
-        // Connecting keeps the page as it was. It lasts a few seconds, and
-        // folding for it would make every page jump twice.
-        if (status.Link == Link.Connecting) return;
+        var fold = SectionFold.For(status, WhenOff);
+        if (fold == Fold.Unchanged) return;
         Gather();
 
-        bool absent = status.Link == Link.Absent;
-        bool fold = absent || status.NotConnected || (!WhenOff && status.SettingsUnreachable);
-
-        _body!.Visibility = fold ? Visibility.Collapsed : Visibility.Visible;
+        _body!.Visibility = fold == Fold.Open ? Visibility.Visible : Visibility.Collapsed;
         if (_card is null) return;
 
         // Worded for which it is: "switch it off and on" means nothing to a
         // headset that is already off.
-        _card.Description = status.NotConnected
+        _card.Description = fold == Fold.Off
             ? (WhyOff.Length > 0 ? WhyOff : Strings.Get("Section_WhyOff"))
             : (Why.Length > 0 ? Why : Strings.Get("Section_Why"));
-
-        // Nothing plugged in is said once, at the top of the page; a card
-        // here as well would say it twice.
-        _card.Visibility = fold && !absent ? Visibility.Visible : Visibility.Collapsed;
+        _card.Visibility = fold is Fold.Off or Fold.Unreachable ? Visibility.Visible : Visibility.Collapsed;
     }
 }

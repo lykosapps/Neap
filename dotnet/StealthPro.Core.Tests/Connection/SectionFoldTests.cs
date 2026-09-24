@@ -1,0 +1,25 @@
+using StealthPro.Core.Connection;
+
+namespace StealthPro.Core.Tests.Connection;
+
+public class SectionFoldTests
+{
+    [Theory]
+    [InlineData(Link.Connecting, false, Fold.Unchanged)]
+    [InlineData(Link.Connecting, true, Fold.Unchanged)]
+    [InlineData(Link.Absent, false, Fold.Hidden)]
+    [InlineData(Link.Absent, true, Fold.Hidden)]
+    [InlineData(Link.Quiet, false, Fold.Off)]
+    [InlineData(Link.Quiet, true, Fold.Off)]
+    [InlineData(Link.Silent, false, Fold.Unreachable)]
+    [InlineData(Link.Silent, true, Fold.Open)]
+    [InlineData(Link.Connected, false, Fold.Open)]
+    [InlineData(Link.Connected, true, Fold.Open)]
+    public void FoldsForEachState(Link link, bool whenOff, Fold fold) =>
+        Assert.Equal(fold, SectionFold.For(new HeadsetStatus(link, Route.ChargingDock, "", ""), whenOff));
+
+    [Fact]
+    public void SwitchedOffOnItsCableFoldsAsOff() =>
+        Assert.Equal(Fold.Off,
+            SectionFold.For(new HeadsetStatus(Link.Quiet, Route.DirectUsb, "", ""), whenOff: true));
+}
