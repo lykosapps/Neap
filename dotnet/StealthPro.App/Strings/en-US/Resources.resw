@@ -759,6 +759,39 @@
   <data name="Device_Unidentified" xml:space="preserve">
     <value>not yet identified</value>
   </data>
+  <data name="Quick_Microphone.Text" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="Quick_MicrophoneNote.Text" xml:space="preserve">
+    <value>Flipping the boom arm up mutes it too.</value>
+  </data>
+  <data name="Quick_MicrophoneSwitch.OnContent" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Quick_MicrophoneSwitch.OffContent" xml:space="preserve">
+    <value>Muted</value>
+  </data>
+  <data name="Quick_MicrophoneSwitch.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="Quick_NoiseCancelling.Text" xml:space="preserve">
+    <value>Noise cancellation</value>
+  </data>
+  <data name="Quick_NoiseCancellingSwitch.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Noise cancellation</value>
+  </data>
+  <data name="Quick_Preset.Text" xml:space="preserve">
+    <value>Equaliser</value>
+  </data>
+  <data name="Quick_PresetPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Equaliser preset</value>
+  </data>
+  <data name="Quick_PresetEdited" xml:space="preserve">
+    <value>{0}, edited</value>
+  </data>
+  <data name="Quick_PresetUnsaved" xml:space="preserve">
+    <value>Your own curve</value>
+  </data>
   <data name="Home_Through" xml:space="preserve">
     <value>Connected through the {0}</value>
   </data>

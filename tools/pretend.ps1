@@ -403,6 +403,46 @@ function Wheel {
     Screenshot 'home-mix'
 }
 
+# A switch on Home, which writes one key and follows the headset. $inverted
+# is for the microphone, whose switch is on while it is live and so writes
+# the mute the other way round.
+function QuickSwitch([string]$name, [string]$setting, [string]$key, [bool]$inverted) {
+    $script:step = "the $name switch on Home"
+    $switch = Control $name ([System.Windows.Automation.ControlType]::Button)
+    if ($null -eq $switch) { Fail "Home has a $name switch"; return }
+    $toggle = Pattern $switch ([System.Windows.Automation.TogglePattern])
+    $on = $toggle.Current.ToggleState -eq 'On'
+    $want = if ($on -eq $inverted) { '1' } else { '0' }
+
+    Ask 'clear' | Out-Null
+    $toggle.Toggle()
+    Check (Until { @(Writes | Where-Object { $_.key -eq $key -and $_.value -eq $want }).Count -gt 0 }) "the $name switch sends $key=$want"
+    Check (@(Writes | Where-Object { $_.key -ne $key }).Count -eq 0) "the $name switch writes nothing else"
+    Collect
+
+    # The value just set is the person's for a moment; let it pass.
+    Start-Sleep -Milliseconds 1800
+    $back = if ($want -eq '1') { '0' } else { '1' }
+    Ask "report $setting $back" | Out-Null
+    Check (Until { ($toggle.Current.ToggleState -eq 'On') -eq $on }) "the $name switch follows the headset back"
+    Check (@(Writes).Count -eq 0) 'following the headset sends nothing back'
+    Collect
+}
+
+function Quick {
+    Page 'Home'
+    QuickSwitch 'Microphone' 'mic_muted' '0x600' $true
+    QuickSwitch 'Noise cancellation' 'anc' '0x750' $false
+
+    $script:step = 'the preset list on Home'
+    $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
+    if ($null -eq $picker) { Fail 'Home has a preset list'; return }
+    Ask 'clear' | Out-Null
+    Choose $picker 'Bass Boost'
+    Check (Until { @(Writes | Where-Object { $_.key -eq '0x1210' -and $_.value -eq '2' }).Count -gt 0 }) 'the preset list on Home sends 0x1210=2'
+    Collect
+}
+
 function Battery {
     Page 'Home'
     Ask 'report battery 42' | Out-Null
@@ -475,6 +515,9 @@ try {
 
     Write-Host 'Chat wheel'
     Wheel
+
+    Write-Host 'Home'
+    Quick
 
     Write-Host 'Headset'
     Battery

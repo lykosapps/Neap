@@ -84,17 +84,35 @@ public sealed class PresetService
     /// </remarks>
     private void AdoptBaseline(BankState state)
     {
-        if (_headset.TryGetNumberByKey(state.Spec.Select, out int selected))
-        {
-            var chosen = state.Presets.FirstOrDefault(p => p.Id == selected);
-            if (chosen is not null) { state.Baseline = chosen; return; }
-        }
+        if (Follow(state)) return;
         if (state.Baseline is not null) return;
 
         var live = LiveBands(state);
         if (live is null) return;
         state.Baseline = state.Presets.FirstOrDefault(
             p => p.Bands.Count == live.Length && p.Bands.SequenceEqual(live));
+    }
+
+    /// <summary>
+    /// Takes the preset the headset says it is on as the baseline, for a
+    /// preset chosen on the headset itself.
+    /// </summary>
+    /// <remarks>
+    /// The mode button can step through presets. Without this the baseline
+    /// stays on the one chosen in the app, and the new curve reads as an
+    /// edit of it.
+    /// </remarks>
+    public void Follow(Bank bank)
+    {
+        if (_banks.TryGetValue(bank, out var state)) Follow(state);
+    }
+
+    private bool Follow(BankState state)
+    {
+        if (!_headset.TryGetNumberByKey(state.Spec.Select, out int selected)
+            || state.Presets.FirstOrDefault(p => p.Id == selected) is not { } chosen) return false;
+        state.Baseline = chosen;
+        return true;
     }
 
     /// <summary>The curve the headset is on right now, or null if not read yet.</summary>

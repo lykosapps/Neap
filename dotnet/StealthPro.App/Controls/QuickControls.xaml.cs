@@ -27,6 +27,9 @@ public sealed partial class QuickControls : UserControl
 {
     private const int NameKey = 0x220;
 
+    /// <summary>The narrowest the block can be and still hold the mix and the settings side by side.</summary>
+    private const double SideBySide = 640;
+
     private PluggedWatch? _plugged;
 
     public QuickControls()
@@ -35,6 +38,7 @@ public sealed partial class QuickControls : UserControl
 
         // The state dot is coloured in code, so it is repainted for a new theme.
         ActualThemeChanged += (_, _) => Paint();
+        Block.SizeChanged += (_, _) => Arrange();
         Loaded += (_, _) =>
         {
             AppServices.Headset.Changed += Paint;
@@ -85,6 +89,24 @@ public sealed partial class QuickControls : UserControl
 
         PaintNote(StateNote.For(status));
         Fold(MixCard, SectionFold.For(status, whenOff: true));
+        Fold(SettingsCard, SectionFold.For(status, whenOff: false));
+        Arrange();
+    }
+
+    /// <summary>
+    /// Puts the mix and the settings side by side when both are shown and
+    /// there is room, and one above the other otherwise, so a part left on
+    /// its own takes the whole width.
+    /// </summary>
+    private void Arrange()
+    {
+        bool beside = Block.ActualWidth >= SideBySide
+                      && MixCard.Visibility == Visibility.Visible
+                      && SettingsCard.Visibility == Visibility.Visible;
+        Grid.SetColumn(SettingsCard, beside ? 1 : 0);
+        Grid.SetRow(SettingsCard, beside ? 0 : 1);
+        Grid.SetColumnSpan(MixCard, beside ? 1 : 2);
+        Grid.SetColumnSpan(SettingsCard, beside ? 1 : 2);
     }
 
     /// <summary>Shows a part of the block, or hides it while the note stands in for it.</summary>

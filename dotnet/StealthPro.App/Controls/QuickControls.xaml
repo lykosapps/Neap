@@ -74,12 +74,35 @@
         </Border>
 
         <!--
-            The controls. The mix goes on working with only the headset's
-            settings out of reach, so it folds only when the headset is away.
+            The controls, side by side when there is room for both and one
+            above the other when there is not; see Arrange. The mix goes on
+            working with only the headset's settings out of reach, so it
+            folds only when the headset is away. The settings fold whenever
+            they cannot be reached.
         -->
-        <Border x:Name="MixCard" Style="{StaticResource QuickCardStyle}">
-            <c:MixPanel />
-        </Border>
+        <Grid
+            x:Name="Block"
+            ColumnSpacing="16"
+            RowSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Border x:Name="MixCard" Style="{StaticResource QuickCardStyle}">
+                <c:MixPanel />
+            </Border>
+            <Border
+                x:Name="SettingsCard"
+                Grid.Column="1"
+                VerticalAlignment="Top"
+                Style="{StaticResource QuickCardStyle}">
+                <c:QuickSettings />
+            </Border>
+        </Grid>
 
     </StackPanel>
 </UserControl>

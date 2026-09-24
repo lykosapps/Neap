@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="StealthPro.App.Controls.QuickSettings"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        The headset's settings reached for mid-game or mid-call, one to a
+        line: a name on the left, its control on the right. A dash stands in
+        for a control until the headset reports the setting, because a switch
+        at off would read as a value.
+    -->
+    <StackPanel Spacing="16">
+
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <FontIcon
+                x:Name="MicIcon"
+                VerticalAlignment="Center"
+                AutomationProperties.AccessibilityView="Raw"
+                FontSize="16"
+                Glyph="&#xE720;" />
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock x:Uid="Quick_Microphone" Style="{StaticResource BodyTextBlockStyle}" />
+                <TextBlock
+                    x:Uid="Quick_MicrophoneNote"
+                    Style="{StaticResource SecondaryCaptionTextStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+            <Grid Grid.Column="2" VerticalAlignment="Center">
+                <ToggleSwitch
+                    x:Name="MicSwitch"
+                    x:Uid="Quick_MicrophoneSwitch"
+                    MinWidth="0"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="MicAbsent"
+                    Style="{StaticResource SecondaryBodyTextStyle}"
+                    Text="—" />
+            </Grid>
+        </Grid>
+
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                x:Uid="Quick_NoiseCancelling"
+                VerticalAlignment="Center"
+                Style="{StaticResource BodyTextBlockStyle}" />
+            <Grid Grid.Column="1" VerticalAlignment="Center">
+                <ToggleSwitch
+                    x:Name="AncSwitch"
+                    x:Uid="Quick_NoiseCancellingSwitch"
+                    MinWidth="0"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="AncAbsent"
+                    Style="{StaticResource SecondaryBodyTextStyle}"
+                    Text="—" />
+            </Grid>
+        </Grid>
+
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                x:Uid="Quick_Preset"
+                VerticalAlignment="Center"
+                Style="{StaticResource BodyTextBlockStyle}" />
+            <ComboBox
+                x:Name="PresetPicker"
+                x:Uid="Quick_PresetPicker"
+                Grid.Column="1"
+                MinWidth="160"
+                HorizontalAlignment="Right"
+                IsEnabled="False" />
+        </Grid>
+
+    </StackPanel>
+</UserControl>
