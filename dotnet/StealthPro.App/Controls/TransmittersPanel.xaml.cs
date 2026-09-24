@@ -1,5 +1,7 @@
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using StealthPro.App.Services;
 using StealthPro.Core.Connection;
 using StealthPro.Core.Settings;
@@ -122,7 +124,6 @@ public sealed partial class TransmittersPanel : UserControl
                 TransmitterState.CanSwitchTo or TransmitterState.PluggedIn => Strings.Get("Transmitters_PluggedIn"),
                 _ => Strings.Get("Transmitters_NotPluggedIn"),
             },
-            VerticalAlignment = VerticalAlignment.Center,
             Style = Styled(inUse ? "NeapInUseTextStyle" : "SecondaryBodyTextStyle"),
         };
         Grid.SetColumn(state, 1);
@@ -161,11 +162,15 @@ public sealed partial class TransmittersPanel : UserControl
         return panel;
     }
 
+    /// <remarks>Set into the panel rather than raised as a row of its own, so the panel reads as one piece.</remarks>
     private static SettingRow Light(string setting, string name, string note) => new()
     {
         Setting = setting,
         Header = Strings.Get(name),
         Description = Strings.Get(note),
+        Background = new SolidColorBrush(Colors.Transparent),
+        BorderThickness = new Thickness(0),
+        Padding = new Thickness(0, 8, 0, 8),
         Glyph = "",
     };
 
@@ -175,7 +180,7 @@ public sealed partial class TransmittersPanel : UserControl
         top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         top.Children.Add(new TextBlock { Text = Strings.Get("Transmitters_Bluetooth"), Style = Styled("BodyStrongTextBlockStyle") });
-        _bluetooth = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Style = Styled("SecondaryBodyTextStyle") };
+        _bluetooth = new TextBlock { Style = Styled("SecondaryBodyTextStyle") };
         Grid.SetColumn(_bluetooth, 1);
         top.Children.Add(_bluetooth);
         return new Border { Style = Styled("QuickCardStyle"), Child = top };

@@ -89,7 +89,7 @@
                 sits off to one side.
             -->
             <Style x:Key="PageColumnStyle" TargetType="StackPanel">
-                <Setter Property="MaxWidth" Value="800" />
+                <Setter Property="MaxWidth" Value="1040" />
             </Style>
 
             <!--
