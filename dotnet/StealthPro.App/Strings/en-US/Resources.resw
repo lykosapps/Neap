@@ -162,8 +162,8 @@
   <data name="Audio_HeadsetSection.What" xml:space="preserve">
     <value>Noise cancellation, Superhuman Hearing and the equaliser</value>
   </data>
-  <data name="Audio_NoiseCancellationHeading.Text" xml:space="preserve">
-    <value>Noise cancellation</value>
+  <data name="Audio_AroundYouHeading.Text" xml:space="preserve">
+    <value>Around you</value>
   </data>
   <data name="Audio_ActiveNoiseCancellation.Header" xml:space="preserve">
     <value>Active noise cancellation</value>
@@ -176,9 +176,6 @@
   </data>
   <data name="Audio_AncIntensity.Header" xml:space="preserve">
     <value>Intensity</value>
-  </data>
-  <data name="Audio_SuperhumanHearingHeading.Text" xml:space="preserve">
-    <value>Superhuman Hearing</value>
   </data>
   <data name="Audio_SuperhumanHearing.Description" xml:space="preserve">
     <value>Lifts quiet detail so footsteps and reloads carry.</value>
@@ -852,8 +849,8 @@
   <data name="Home_BatteryLevel" xml:space="preserve">
     <value>{0}%</value>
   </data>
-  <data name="Home_BatteryCharging" xml:space="preserve">
-    <value>{0}%, charging</value>
+  <data name="Home_Charging" xml:space="preserve">
+    <value>Charging</value>
   </data>
   <data name="Home_Signal" xml:space="preserve">
     <value>Signal</value>

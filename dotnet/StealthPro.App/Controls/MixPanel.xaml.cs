@@ -25,9 +25,9 @@ namespace StealthPro.App.Controls;
 /// both numbers and the word above them.
 /// </para>
 /// <para>
-/// It stands on its own, needing nothing from the page around it, and says
-/// for itself why the chat wheel is not reaching it, so the same panel can
-/// sit anywhere the mix is wanted.
+/// It stands on its own, needing nothing from the page around it, and can say
+/// for itself why the chat wheel is not reaching it (<see cref="ExplainsWheel"/>),
+/// so the same panel can sit anywhere the mix is wanted.
 /// </para>
 /// <para>
 /// Naming the application is the whole configuration: no virtual audio
@@ -72,6 +72,20 @@ public sealed partial class MixPanel : UserControl
     /// the transmitter, so the panel follows the headset as well as the mix.
     /// </summary>
     private void OnHeadset(HeadsetStatus status) => Paint();
+
+    public static readonly DependencyProperty ExplainsWheelProperty = DependencyProperty.Register(
+        nameof(ExplainsWheel), typeof(bool), typeof(MixPanel), new PropertyMetadata(true));
+
+    /// <summary>
+    /// Gets or sets whether the mix itself says the chat wheel is not reaching
+    /// the app. False where a note beside it already says so, so one problem
+    /// is not explained twice.
+    /// </summary>
+    public bool ExplainsWheel
+    {
+        get => (bool)GetValue(ExplainsWheelProperty);
+        set => SetValue(ExplainsWheelProperty, value);
+    }
 
     private void Choose()
     {
@@ -124,7 +138,7 @@ public sealed partial class MixPanel : UserControl
 
         // The wheel arrives over the very link that is missing, so the app
         // cannot fix this itself; it says what still moves the mix.
-        WheelBar.IsOpen = chosen && (status.SettingsUnreachable || status.NoSound);
+        WheelBar.IsOpen = ExplainsWheel && chosen && (status.SettingsUnreachable || status.NoSound);
         WheelBar.Message = StateCopy.MixWithoutWheel();
 
         // The chat application is playing to another device. It keeps its own

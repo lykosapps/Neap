@@ -54,8 +54,9 @@
 
         <!--
             One note for every state that needs explaining, filled from
-            StateCopy: what is happening, the one thing to do, and a fallback
-            last. What still moves the mix is said in the mix itself. It sits where the controls it replaces
+            StateCopy: what is happening, what still moves the mix, the one
+            thing to do, and a fallback last. The mix leaves the chat wheel to
+            this note, so the problem is said once. It sits where the controls it replaces
             were, so nothing moves under the pointer.
         -->
         <Border
@@ -66,6 +67,10 @@
                 <TextBlock
                     x:Name="NoteWhat"
                     Style="{StaticResource BodyStrongTextBlockStyle}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    x:Name="NoteMix"
+                    Style="{StaticResource SecondaryBodyTextStyle}"
                     TextWrapping="Wrap" />
                 <TextBlock
                     x:Name="NoteFix"
@@ -98,7 +103,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Border x:Name="MixCard" Style="{StaticResource QuickCardStyle}">
-                <c:MixPanel />
+                <c:MixPanel ExplainsWheel="False" />
             </Border>
             <c:QuickSettings
                 x:Name="SettingsCard"

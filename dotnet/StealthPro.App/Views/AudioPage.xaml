@@ -33,7 +33,7 @@
                         <TextBlock x:Uid="Audio_EqualiserHeading" Style="{StaticResource SectionHeaderStyle}" />
                         <c:EqualiserPanel Bank="Game" />
 
-                        <TextBlock x:Uid="Audio_NoiseCancellationHeading" Style="{StaticResource SectionHeaderStyle}" />
+                        <TextBlock x:Uid="Audio_AroundYouHeading" Style="{StaticResource SectionHeaderStyle}" />
                         <tk:SettingsExpander x:Uid="Audio_ActiveNoiseCancellation">
                             <tk:SettingsExpander.HeaderIcon>
                                 <FontIcon Glyph="&#xE7F6;" />
@@ -43,9 +43,7 @@
                                 <c:SettingRow x:Uid="Audio_AncIntensity" Setting="anc_level" />
                             </tk:SettingsExpander.Items>
                         </tk:SettingsExpander>
-
-                        <TextBlock x:Uid="Audio_SuperhumanHearingHeading" Style="{StaticResource SectionHeaderStyle}" />
-                        <tk:SettingsExpander x:Uid="Audio_SuperhumanHearing">
+                        <tk:SettingsExpander x:Uid="Audio_SuperhumanHearing" Margin="0,4,0,0">
                             <tk:SettingsExpander.HeaderIcon>
                                 <FontIcon Glyph="&#xF270;" />
                             </tk:SettingsExpander.HeaderIcon>

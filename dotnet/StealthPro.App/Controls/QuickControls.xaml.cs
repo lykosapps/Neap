@@ -42,6 +42,8 @@ public sealed partial class QuickControls : UserControl
             AppServices.Headset.Changed += Paint;
             AppServices.Headset.StatusChanged += OnStatus;
             AppServices.AudioRoute.Changed += Paint;
+            // The note names the mix's keys once they are on.
+            AppServices.Hotkeys.Changed += Paint;
             // The connection line says whether the sound's transmitter is
             // here, so it follows what is plugged in as well as the status.
             _plugged = new PluggedWatch(DispatcherQueue, Paint);
@@ -52,6 +54,7 @@ public sealed partial class QuickControls : UserControl
             AppServices.Headset.Changed -= Paint;
             AppServices.Headset.StatusChanged -= OnStatus;
             AppServices.AudioRoute.Changed -= Paint;
+            AppServices.Hotkeys.Changed -= Paint;
             _plugged?.Stop();
             _plugged = null;
         };
@@ -78,8 +81,8 @@ public sealed partial class QuickControls : UserControl
 
         Readings.Children.Clear();
         if (headset.Battery is { } battery)
-            AddReading(Strings.Get("Home_Battery"),
-                Strings.Format(battery.Charging ? "Home_BatteryCharging" : "Home_BatteryLevel", battery.Percent));
+            AddReading(Strings.Get(battery.Charging ? "Home_Charging" : "Home_Battery"),
+                Strings.Format("Home_BatteryLevel", battery.Percent));
         // Signal is the wireless link's, and says nothing about sound that
         // goes over a cable.
         if (status.Link == Link.Connected && !cable && headset.TryGetNumberByKey(Signal.Key, out int signal))
@@ -158,14 +161,14 @@ public sealed partial class QuickControls : UserControl
     /// </remarks>
     private void PaintNote(Note which)
     {
-        (string What, string Fix, string Fallback)? note = which switch
+        (string What, string Mix, string Fix, string Fallback)? note = which switch
         {
-            Note.UnreachableNoSound => (StateCopy.WhatUnreachableNoSound, StateCopy.FixUnreachable, ""),
-            Note.Unreachable => (StateCopy.WhatUnreachable, StateCopy.FixUnreachable, ""),
-            Note.NoSound => (StateCopy.WhatNoSound, StateCopy.FixNoSound, StateCopy.FallbackNoSound),
+            Note.UnreachableNoSound => (StateCopy.WhatUnreachableNoSound, "", StateCopy.FixUnreachable, ""),
+            Note.Unreachable => (StateCopy.WhatUnreachable, StateCopy.MixWithoutWheel(), StateCopy.FixUnreachable, ""),
+            Note.NoSound => (StateCopy.WhatNoSound, StateCopy.MixWithoutWheel(), StateCopy.FixNoSound, StateCopy.FallbackNoSound),
             // No fallback: a cable has no out of range, and nothing to press.
-            Note.OffOnCable => (StateCopy.WhatOffOnCable, StateCopy.FixOff, ""),
-            Note.Off => (StateCopy.WhatOff, StateCopy.FixOff, StateCopy.FallbackOff),
+            Note.OffOnCable => (StateCopy.WhatOffOnCable, "", StateCopy.FixOff, ""),
+            Note.Off => (StateCopy.WhatOff, "", StateCopy.FixOff, StateCopy.FallbackOff),
             _ => null,
         };
 
@@ -173,6 +176,8 @@ public sealed partial class QuickControls : UserControl
         if (note is not { } n) return;
 
         NoteWhat.Text = n.What;
+        NoteMix.Text = n.Mix;
+        NoteMix.Visibility = n.Mix.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         NoteFix.Text = n.Fix;
         NoteFallback.Text = n.Fallback;
         NoteFallback.Visibility = n.Fallback.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
