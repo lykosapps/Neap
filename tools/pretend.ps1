@@ -41,13 +41,18 @@ Where to put the screenshots.
 .PARAMETER KeepOpen
 Leave the app running afterwards.
 
+.PARAMETER Unattended
+Nobody is at the machine, so the app may come to the front without the run
+stopping.
+
 .EXAMPLE
 powershell -ExecutionPolicy Bypass -File tools\pretend.ps1
 #>
 param(
     [string]$Exe = (Join-Path $PSScriptRoot '..\dotnet\StealthPro.App\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.exe'),
     [string]$Out = (Join-Path $env:TEMP 'neap-pretend'),
-    [switch]$KeepOpen
+    [switch]$KeepOpen,
+    [switch]$Unattended
 )
 
 $ErrorActionPreference = 'Stop'
@@ -93,6 +98,7 @@ function Until([scriptblock]$condition, [double]$seconds = 3) {
 # The run happens while somebody works: the app must never come to the
 # front. Looked at every time the script waits.
 function Watch {
+    if ($Unattended) { return }
     $owner = [uint32]0
     [NeapWindow]::GetWindowThreadProcessId([NeapWindow]::GetForegroundWindow(), [ref]$owner) | Out-Null
     if ($owner -eq $process.Id) {
@@ -546,7 +552,7 @@ try {
 
     Write-Host 'Audio format'
     Format
-    Check ($script:tookFocus -eq 0) 'the app never came to the front'
+    if (-not $Unattended) { Check ($script:tookFocus -eq 0) 'the app never came to the front' }
 }
 finally {
     if ($pipe) { $pipe.Dispose() }
