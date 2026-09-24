@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="StealthPro.App.Controls.QuickControls"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:StealthPro.App.Controls">
+
+    <StackPanel Spacing="16">
+
+        <!--
+            The headset, how it is connected, and the two readings worth a
+            glance. The title bar says the state on every page; this says
+            which transmitter and how much battery is left.
+        -->
+        <Grid ColumnSpacing="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center" Spacing="2">
+                <TextBlock
+                    x:Name="HeadsetName"
+                    AutomationProperties.HeadingLevel="Level1"
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Text="Stealth Pro II" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Ellipse
+                        x:Name="StateDot"
+                        Width="8"
+                        Height="8"
+                        VerticalAlignment="Center" />
+                    <TextBlock
+                        x:Name="HowConnected"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource SecondaryBodyTextStyle}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </StackPanel>
+            <StackPanel
+                x:Name="Readings"
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="32" />
+        </Grid>
+
+        <!--  Windows playing somewhere the headset is not listening.  -->
+        <c:RoutingNotice />
+
+        <!--
+            One note for every state that needs explaining, filled from
+            StateCopy: what is happening, what still works, the one thing to
+            do, and a fallback last. It sits where the controls it replaces
+            were, so nothing moves under the pointer.
+        -->
+        <Border
+            x:Name="NotePanel"
+            Style="{StaticResource QuickCardStyle}"
+            Visibility="Collapsed">
+            <StackPanel Spacing="6">
+                <TextBlock
+                    x:Name="NoteWhat"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    x:Name="NoteMix"
+                    Style="{StaticResource SecondaryBodyTextStyle}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    x:Name="NoteFix"
+                    Style="{StaticResource BodyTextBlockStyle}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    x:Name="NoteFallback"
+                    Style="{StaticResource SecondaryCaptionTextStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

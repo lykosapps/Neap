@@ -35,6 +35,18 @@
                 <Setter Property="MaxWidth" Value="800" />
             </Style>
 
+            <!--
+                A card on Home, holding one part of the quick controls. One
+                card shape repeated, after the WinUI Gallery.
+            -->
+            <Style x:Key="QuickCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="20,16" />
+            </Style>
+
             <!--  The page's own name, at the top of every page.  -->
             <Style
                 x:Key="PageTitleStyle"
