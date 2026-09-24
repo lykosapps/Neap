@@ -17,17 +17,90 @@
                 <c:HeadsetNotice />
 
                 <c:HeadsetSection x:Uid="Controls_Section">
+                    <!--
+                        The two controls on the headset that can be given a job, side by
+                        side, each with every job it can do in view rather than behind a
+                        list.
+                    -->
                     <TextBlock x:Uid="Controls_OnHeadsetHeading" Style="{StaticResource SectionHeaderStyle}" />
-                    <StackPanel Spacing="4">
-                        <c:SettingRow
-                            x:Uid="Controls_ModeButton"
-                            Glyph="&#xE7FC;"
-                            Setting="mode_button_function" />
-                        <c:SettingRow
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <c:SettingChoice x:Uid="Controls_ModeButton" Setting="mode_button_function" />
+                        <c:SettingChoice
                             x:Uid="Controls_LowerDial"
-                            Glyph="&#xE916;"
+                            Grid.Column="1"
                             Setting="dial_function" />
-                    </StackPanel>
+                    </Grid>
+
+                    <!--
+                        What the other controls do. They cannot be changed, so they are
+                        said rather than offered, in one panel for reference.
+                    -->
+                    <TextBlock x:Uid="Controls_FixedHeading" Style="{StaticResource SectionHeaderStyle}" />
+                    <Border Style="{StaticResource QuickCardStyle}">
+                        <Grid ColumnSpacing="24" RowSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock x:Uid="Controls_VolumeWheel" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock
+                                x:Uid="Controls_VolumeWheelDoes"
+                                Grid.Column="1"
+                                Style="{StaticResource SecondaryBodyTextStyle}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                x:Uid="Controls_ChatWheel"
+                                Grid.Row="1"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock
+                                x:Uid="Controls_ChatWheelDoes"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Style="{StaticResource SecondaryBodyTextStyle}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                x:Uid="Controls_BoomArm"
+                                Grid.Row="2"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock
+                                x:Uid="Controls_BoomArmDoes"
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Style="{StaticResource SecondaryBodyTextStyle}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                x:Uid="Controls_CrossPlay"
+                                Grid.Row="3"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock
+                                x:Uid="Controls_CrossPlayDoes"
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Style="{StaticResource SecondaryBodyTextStyle}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                x:Uid="Controls_BluetoothButton"
+                                Grid.Row="4"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock
+                                x:Uid="Controls_BluetoothButtonDoes"
+                                Grid.Row="4"
+                                Grid.Column="1"
+                                Style="{StaticResource SecondaryBodyTextStyle}"
+                                TextWrapping="Wrap" />
+                        </Grid>
+                    </Border>
 
                     <TextBlock x:Uid="Controls_PowerHeading" Style="{StaticResource SectionHeaderStyle}" />
                     <StackPanel Spacing="4">

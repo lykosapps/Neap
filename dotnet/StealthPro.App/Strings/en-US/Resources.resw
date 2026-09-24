@@ -193,19 +193,52 @@
     <value>The mode button, the dial and power</value>
   </data>
   <data name="Controls_OnHeadsetHeading.Text" xml:space="preserve">
-    <value>On the headset</value>
+    <value>Buttons you can change</value>
   </data>
   <data name="Controls_ModeButton.Description" xml:space="preserve">
-    <value>What the button beside the power switch does when you press it.</value>
+    <value>The button beside the power switch.</value>
   </data>
-  <data name="Controls_ModeButton.Header" xml:space="preserve">
+  <data name="Controls_ModeButton.Title" xml:space="preserve">
     <value>Mode button</value>
   </data>
   <data name="Controls_LowerDial.Description" xml:space="preserve">
     <value>The smaller of the two wheels.</value>
   </data>
-  <data name="Controls_LowerDial.Header" xml:space="preserve">
+  <data name="Controls_LowerDial.Title" xml:space="preserve">
     <value>Lower dial</value>
+  </data>
+  <data name="Controls_FixedHeading.Text" xml:space="preserve">
+    <value>Everything else on the headset</value>
+  </data>
+  <data name="Controls_VolumeWheel.Text" xml:space="preserve">
+    <value>Volume wheel</value>
+  </data>
+  <data name="Controls_VolumeWheelDoes.Text" xml:space="preserve">
+    <value>Windows' volume, from any app.</value>
+  </data>
+  <data name="Controls_ChatWheel.Text" xml:space="preserve">
+    <value>Chat wheel</value>
+  </data>
+  <data name="Controls_ChatWheelDoes.Text" xml:space="preserve">
+    <value>The game and chat mix on Home.</value>
+  </data>
+  <data name="Controls_BoomArm.Text" xml:space="preserve">
+    <value>Boom arm</value>
+  </data>
+  <data name="Controls_BoomArmDoes.Text" xml:space="preserve">
+    <value>Flipped up, it mutes the microphone.</value>
+  </data>
+  <data name="Controls_CrossPlay.Text" xml:space="preserve">
+    <value>CrossPlay</value>
+  </data>
+  <data name="Controls_CrossPlayDoes.Text" xml:space="preserve">
+    <value>Moves the sound between your transmitters.</value>
+  </data>
+  <data name="Controls_BluetoothButton.Text" xml:space="preserve">
+    <value>Bluetooth button</value>
+  </data>
+  <data name="Controls_BluetoothButtonDoes.Text" xml:space="preserve">
+    <value>The headset's own Bluetooth radio. It cannot be given another job.</value>
   </data>
   <data name="Controls_PowerHeading.Text" xml:space="preserve">
     <value>Power</value>

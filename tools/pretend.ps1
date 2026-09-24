@@ -180,10 +180,16 @@ function Header { (Find $script:window 'AutomationIdProperty' 'ConnectionText').
 
 # -- reading and moving one control ------------------------------------------
 
+# The radio buttons of a setting shown with every option in view.
+function Segments($element) {
+    FindAll $element 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::RadioButton)
+}
+
 function Kind($element) {
     $type = $element.Current.ControlType
     if ($type -eq [System.Windows.Automation.ControlType]::Slider) { return 'slider' }
     if ($type -eq [System.Windows.Automation.ControlType]::ComboBox) { return 'choice' }
+    if (@(Segments $element).Count -gt 0) { return 'segments' }
     return 'toggle'
 }
 
@@ -223,6 +229,10 @@ function Shown($element) {
             $chosen = (Pattern $element ([System.Windows.Automation.SelectionPattern])).Current.GetSelection()
             if ($chosen.Count -gt 0) { $chosen[0].Current.Name } else { '' }
         }
+        'segments' {
+            $chosen = Segments $element | Where-Object { (Pattern $_ ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }
+            if ($chosen) { @($chosen)[0].Current.Name } else { '' }
+        }
         default { [int]((Pattern $element ([System.Windows.Automation.TogglePattern])).Current.ToggleState -eq 'On') }
     }
 }
@@ -231,6 +241,10 @@ function Operate($element, $value) {
     switch (Kind $element) {
         'slider' { (Pattern $element ([System.Windows.Automation.RangeValuePattern])).SetValue([double]$value) }
         'choice' { Choose $element $value }
+        'segments' {
+            $item = Segments $element | Where-Object { $_.Current.Name -eq $value } | Select-Object -First 1
+            (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select()
+        }
         default { (Pattern $element ([System.Windows.Automation.TogglePattern])).Toggle() }
     }
 }
@@ -245,7 +259,7 @@ function Another($setting, $shown, [string]$kind) {
             if ($pick -eq $shown) { $pick = [int]($low + 2 * ($high - $low) / 3) }
             return $pick
         }
-        'choice' {
+        { $_ -in 'choice', 'segments' } {
             $labels = @($setting.options.PSObject.Properties | ForEach-Object { $_.Value })
             return @($labels | Where-Object { $_ -ne $shown })[0]
         }
@@ -255,7 +269,7 @@ function Another($setting, $shown, [string]$kind) {
 
 # The value a label or a toggle state goes out as.
 function Wire($setting, $value, [string]$kind) {
-    if ($kind -eq 'choice') {
+    if ($kind -in 'choice', 'segments') {
         return ($setting.options.PSObject.Properties | Where-Object { $_.Value -eq $value }).Name
     }
     return [string]$value
@@ -316,7 +330,7 @@ function Exercise($element, $setting) {
 
     # The value the person just set is theirs for a moment; let it pass.
     Start-Sleep -Milliseconds 1800
-    $back = if ($kind -eq 'choice') { $shown } else { Another $setting $want $kind }
+    $back = if ($kind -in 'choice', 'segments') { $shown } else { Another $setting $want $kind }
     $backWire = Wire $setting $back $kind
     try { Ask "report $($setting.key) $backWire" | Out-Null }
     catch { Write-Host "  note  $name is set only from the app: $($_.Exception.Message)"; return }
