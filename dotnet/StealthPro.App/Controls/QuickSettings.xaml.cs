@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 using StealthPro.App.Services;
 using StealthPro.Core.Connection;
 using StealthPro.Core.Presets;
-using StealthPro.Core.Settings;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
 
 namespace StealthPro.App.Controls;
@@ -15,10 +14,7 @@ namespace StealthPro.App.Controls;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The microphone's tile is the microphone, lit while it is live, because
-/// "is my microphone on?" is the question asked of it; see
-/// <see cref="Microphone"/>. Muted, its icon is crossed out as well as its
-/// word changed, so the state reads without the fill.
+/// The microphone is the same <see cref="MicTile"/> as on the Microphone page.
 /// </para>
 /// <para>
 /// A tile is disabled, with a dash for its state, until the headset reports
@@ -34,16 +30,12 @@ public sealed partial class QuickSettings : UserControl
     private const double CurveWidth = 180, CurveHeight = 40;
     private const double ListCurveWidth = 72, ListCurveHeight = 22;
 
-    private readonly SettingLink _mic;
     private readonly SettingLink _anc;
     private bool _painting;
 
     public QuickSettings()
     {
         InitializeComponent();
-
-        _mic = new SettingLink(MicTile, () => Microphone.Setting, _ => { }, PaintMic);
-        MicTile.Click += (_, _) => _mic.Write(Microphone.ValueFor(MicTile.IsChecked == true));
 
         _anc = new SettingLink(AncTile, () => "anc", _ => { }, PaintAnc);
         AncTile.Click += (_, _) => _anc.Write(AncTile.IsChecked == true ? 1 : 0);
@@ -69,20 +61,6 @@ public sealed partial class QuickSettings : UserControl
             AppServices.Headset.Changed -= PaintPreset;
             AppServices.Headset.StatusChanged -= OnStatus;
         };
-    }
-
-    private void PaintMic()
-    {
-        var state = Microphone.Of(_mic.Value);
-        MicTile.IsEnabled = state != MicState.Unknown;
-        MicTile.IsChecked = state == MicState.Live;
-        MicWord.Text = state switch
-        {
-            MicState.Live => Strings.Get("Mic_Live"),
-            MicState.Muted => Strings.Get("Mic_Muted"),
-            _ => "—",
-        };
-        MicIcon.Glyph = MicSwitch.GlyphFor(state);
     }
 
     private void PaintAnc()

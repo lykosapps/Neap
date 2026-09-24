@@ -306,19 +306,13 @@
   <data name="Microphone_Section.What" xml:space="preserve">
     <value>Mute, level, monitoring, noise reduction, the noise gate and the equaliser</value>
   </data>
-  <data name="Microphone_MicrophoneHeading.Text" xml:space="preserve">
-    <value>Microphone</value>
+  <data name="Microphone_VoiceHeading.Text" xml:space="preserve">
+    <value>Your voice</value>
   </data>
-  <data name="Microphone_Mic.Description" xml:space="preserve">
-    <value>Flipping the boom arm up mutes it too.</value>
+  <data name="Microphone_LevelLabel.Text" xml:space="preserve">
+    <value>What they hear</value>
   </data>
-  <data name="Microphone_Mic.Header" xml:space="preserve">
-    <value>Microphone</value>
-  </data>
-  <data name="Microphone_Level.Header" xml:space="preserve">
-    <value>Level</value>
-  </data>
-  <data name="Microphone_Level.Description" xml:space="preserve">
+  <data name="Microphone_LevelNote.Text" xml:space="preserve">
     <value>Speak to see it move.</value>
   </data>
   <data name="Microphone_Meter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
@@ -343,18 +337,18 @@
     <value>Mute, monitoring, noise reduction, the noise gate and the equaliser</value>
   </data>
   <data name="Microphone_NoiseHandlingHeading.Text" xml:space="preserve">
-    <value>Noise handling</value>
+    <value>Background noise</value>
   </data>
-  <data name="Microphone_AINoiseReduction.Description" xml:space="preserve">
+  <data name="Microphone_AiTile.Description" xml:space="preserve">
     <value>Strips background noise out of what people hear.</value>
   </data>
-  <data name="Microphone_AINoiseReduction.Header" xml:space="preserve">
+  <data name="Microphone_AiTile.Title" xml:space="preserve">
     <value>AI noise reduction</value>
   </data>
-  <data name="Microphone_NoiseGate.Description" xml:space="preserve">
+  <data name="Microphone_GateTile.Description" xml:space="preserve">
     <value>Stays silent until you speak.</value>
   </data>
-  <data name="Microphone_NoiseGate.Header" xml:space="preserve">
+  <data name="Microphone_GateTile.Title" xml:space="preserve">
     <value>Noise gate</value>
   </data>
   <data name="Microphone_Threshold.Description" xml:space="preserve">
@@ -787,9 +781,6 @@
     <value>not yet identified</value>
   </data>
   <data name="Quick_Microphone.Text" xml:space="preserve">
-    <value>Microphone</value>
-  </data>
-  <data name="Quick_MicTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Microphone</value>
   </data>
   <data name="Quick_AncTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">

@@ -26,7 +26,6 @@ namespace StealthPro.App.Controls;
 /// </remarks>
 public sealed class MicMeter : UserControl
 {
-    private const int Bars = 20;
     private static readonly TimeSpan Reading = TimeSpan.FromMilliseconds(50);
 
     private readonly List<Rectangle> _bars = new();
@@ -40,24 +39,53 @@ public sealed class MicMeter : UserControl
     public MicMeter()
     {
         _trouble.Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"];
-        for (int i = 0; i < Bars; i++)
-        {
-            var bar = new Rectangle { Width = 5, Height = 16, RadiusX = 1, RadiusY = 1 };
-            _bars.Add(bar);
-            _meter.Children.Add(bar);
-        }
-        Paint(0);
         Content = new StackPanel { Spacing = 4, Children = { _meter, _trouble } };
 
         _timer = DispatcherQueue.CreateTimer();
         _timer.Interval = Reading;
         _timer.Tick += (_, _) => Read();
 
-        Loaded += async (_, _) => await Open();
+        Loaded += async (_, _) =>
+        {
+            BuildBars();
+            await Open();
+        };
         Unloaded += (_, _) =>
         {
             if (!IsLoaded) Close();
         };
+    }
+
+    public static readonly DependencyProperty LargeProperty = DependencyProperty.Register(
+        nameof(Large), typeof(bool), typeof(MicMeter), new PropertyMetadata(false));
+
+    /// <summary>Gets or sets whether the meter is drawn wide and tall, as a monitor rather than a reading in a row.</summary>
+    public bool Large
+    {
+        get => (bool)GetValue(LargeProperty);
+        set => SetValue(LargeProperty, value);
+    }
+
+    private int BarCount => Large ? 40 : 20;
+
+    /// <summary>Lays out the bars, once, at the size the meter is set to.</summary>
+    private void BuildBars()
+    {
+        if (_bars.Count > 0) return;
+        _meter.Spacing = Large ? 4 : 3;
+        for (int i = 0; i < BarCount; i++)
+        {
+            var bar = new Rectangle
+            {
+                Width = Large ? 8 : 5,
+                Height = Large ? 40 : 16,
+                RadiusX = Large ? 2 : 1,
+                RadiusY = Large ? 2 : 1,
+            };
+            _bars.Add(bar);
+            _meter.Children.Add(bar);
+        }
+        Paint(0);
     }
 
     private async Task Open()
@@ -104,7 +132,7 @@ public sealed class MicMeter : UserControl
     private void Read()
     {
         float? heard = Pretend.Windows?.MicrophonePeak ?? _listener?.Take();
-        if (heard is float peak) Paint(MicLevel.Fall(_shown, MicLevel.Lit(peak, Bars)));
+        if (heard is float peak) Paint(MicLevel.Fall(_shown, MicLevel.Lit(peak, BarCount)));
     }
 
     private void Fail(string why)
@@ -124,7 +152,7 @@ public sealed class MicMeter : UserControl
     /// <summary>Lights the first bars, restyling only those that changed.</summary>
     private void Paint(int lit)
     {
-        if (lit == _shown && _bars[0].Style is not null) return;
+        if (_bars.Count == 0 || (lit == _shown && _bars[0].Style is not null)) return;
         var on = (Style)Application.Current.Resources["MeterLitStyle"];
         var off = (Style)Application.Current.Resources["MeterUnlitStyle"];
         for (int i = 0; i < _bars.Count; i++)
