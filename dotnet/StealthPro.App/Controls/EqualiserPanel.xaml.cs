@@ -104,6 +104,18 @@ public sealed partial class EqualiserPanel : UserControl
             OverwriteConfirm.Hide();
             await Overwrite();
         };
+        // Once here, not on each load: a section can load the panel twice,
+        // and every band step would then be set twice.
+        Response.BandChanged += (index, tenths) =>
+        {
+            AppServices.Presets.SetBand(Bank, index, tenths);
+            Paint();
+        };
+        Response.BandReverted += index =>
+        {
+            AppServices.Presets.RevertBand(Bank, index);
+            Paint();
+        };
         Loaded += async (_, _) =>
         {
             AppServices.Headset.Changed += Paint;
@@ -169,16 +181,6 @@ public sealed partial class EqualiserPanel : UserControl
         Response.Minimum = PresetService.BandFloor;
         Response.Maximum = PresetService.BandCeiling;
         Response.Frequencies = spec.Frequencies;
-        Response.BandChanged += (index, tenths) =>
-        {
-            AppServices.Presets.SetBand(Bank, index, tenths);
-            Paint();
-        };
-        Response.BandReverted += index =>
-        {
-            AppServices.Presets.RevertBand(Bank, index);
-            Paint();
-        };
 
         Bands.ColumnDefinitions.Clear();
         Bands.Children.Clear();
