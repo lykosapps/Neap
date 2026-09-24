@@ -13,6 +13,11 @@ to GitHub, these become issues.
   - With the arm down (unmuted), the app's mute button must still mute.
   - With the arm up (muted), the app cannot unmute, so its button should be
     disabled.
+- **Started at login, Neap writes nothing to its log.** On 25 September the
+  copy Windows started at login ran normally for almost an hour but logged
+  nothing, not even that it started; the same build started by hand logs as
+  usual. The log swallows its own failures, so why it cannot write is not
+  recorded either.
 - **Muting just after opening a page is slow.** A press waits about four
   seconds behind the page reading its presets, because every request to the
   headset queues in one line.
