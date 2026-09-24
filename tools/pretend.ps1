@@ -193,26 +193,33 @@ function Kind($element) {
     return 'toggle'
 }
 
+function Items($element) {
+    FindAll $element 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::ListItem)
+}
+
+# $label may end in * for an option whose name goes on, such as an app
+# listed as playing.
+function Item($element, [string]$label) {
+    Items $element | Where-Object { $_.Current.Name -like $label } | Select-Object -First 1
+}
+
+# An opened list fills in its items a moment later, so both of these wait
+# for them rather than look once.
 function Options($element) {
     $expand = Pattern $element ([System.Windows.Automation.ExpandCollapsePattern])
     $expand.Expand()
-    Start-Sleep -Milliseconds 300
-    $items = FindAll $element 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::ListItem)
-    $names = @($items | Where-Object { $_.Current.IsEnabled } | ForEach-Object { $_.Current.Name })
+    Until { @(Items $element).Count -gt 0 } | Out-Null
+    $names = @(Items $element | Where-Object { $_.Current.IsEnabled } | ForEach-Object { $_.Current.Name })
     $expand.Collapse()
     Start-Sleep -Milliseconds 200
     return $names
 }
 
-# $label may end in * for an option whose name goes on, such as an app
-# listed as playing.
 function Choose($element, [string]$label) {
     $expand = Pattern $element ([System.Windows.Automation.ExpandCollapsePattern])
     $expand.Expand()
-    Start-Sleep -Milliseconds 300
-    $item = FindAll $element 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::ListItem) |
-        Where-Object { $_.Current.Name -like $label } | Select-Object -First 1
-    if ($null -eq $item) { $expand.Collapse(); throw "no option '$label' in $($element.Current.Name)" }
+    if (-not (Until { $null -ne (Item $element $label) })) { $expand.Collapse(); throw "no option '$label' in $($element.Current.Name)" }
+    $item = Item $element $label
     try { (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select() }
     catch [System.Windows.Automation.ElementNotEnabledException] {
         # The format list disables itself while the change is applied, and
@@ -405,8 +412,6 @@ function WindowsOwned {
     Collect
 }
 
-# Last, because it has crashed the app: an item chosen through UI
-# Automation while the list is open, which then disables itself.
 function Format {
     Page 'Device'
     $format = Control 'Headset output' ([System.Windows.Automation.ControlType]::ComboBox)
@@ -414,7 +419,7 @@ function Format {
     $other = @(Options $format | Where-Object { $_ -ne (Shown $format) })[0]
     Choose $format $other
     Start-Sleep -Seconds 3
-    if ($process.HasExited) { Fail 'the app crashed choosing an output format'; return }
+    if ($process.HasExited) { throw 'the app crashed choosing an output format' }
     Check (Until { (Ask 'format output') -ne $before } 5) "the output format moves off $before"
     Check (@(Writes).Count -eq 0) 'the format writes nothing to the headset'
     Collect
@@ -555,6 +560,7 @@ try {
 
     Write-Host 'Windows'
     WindowsOwned
+    Format
 
     Write-Host 'Chat wheel'
     Wheel
@@ -572,9 +578,6 @@ try {
     Check ($refusals.Count -eq 0) "the pretend headset refused nothing$(if ($refusals.Count) { ': ' + ($refusals | ForEach-Object { $_.reason }) -join '; ' })"
     Check (@($script:everything | Where-Object { (Number $_.key) -in 0x400, 0x420, 0x440, 0x460 }).Count -eq 0) 'no transmitter slot base address was written'
     Write-Host "  note  $($script:everything.Count) writes in all"
-
-    Write-Host 'Audio format'
-    Format
     if (-not $Unattended) { Check ($script:tookFocus -eq 0) 'the app never came to the front' }
 }
 finally {
