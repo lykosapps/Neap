@@ -132,7 +132,7 @@ public sealed class WindowsVolumeRow : SettingsCard
 
         if (Kind == WindowsControl.Mute)
         {
-            _toggle = new ToggleSwitch { OnContent = null, OffContent = null };
+            _toggle = new ToggleSwitch { OnContent = Strings.Get("Switch_On"), OffContent = Strings.Get("Switch_Off") };
             _toggle.Toggled += (_, _) =>
             {
                 if (!_painting) _ = WindowsAudio.SetMuted(_toggle.IsOn, Flow);
@@ -189,7 +189,7 @@ public sealed class WindowsVolumeRow : SettingsCard
             else if (_slider is not null && !_slider.FocusState.Equals(FocusState.Pointer))
             {
                 _slider.Value = state.Percent;
-                if (_readout is not null) _readout.Text = $"{state.Percent}%";
+                if (_readout is not null) _readout.Text = Strings.Format("Level_Percent", state.Percent);
             }
         }
         finally { _painting = false; }

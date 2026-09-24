@@ -51,4 +51,14 @@ public class SettingKeyTests
         }
         finally { CultureInfo.CurrentCulture = before; }
     }
+
+    [Theory]
+    [InlineData("mic_monitoring", true)]
+    [InlineData("noise_gate_threshold", true)]
+    [InlineData("voice_prompt_volume", true)]
+    [InlineData("eq_band_3", false)]
+    [InlineData("anc", false)]
+    [InlineData("dial_function", false)]
+    public void ALevelFromZeroToAHundredIsAPercentage(string name, bool percent) =>
+        Assert.Equal(percent, Registry.Resolve(name).IsPercent);
 }

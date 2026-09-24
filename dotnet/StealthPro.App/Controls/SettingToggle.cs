@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
+using StealthPro.App.Services;
 using StealthPro.Core.Settings;
 
 namespace StealthPro.App.Controls;
@@ -18,7 +19,7 @@ namespace StealthPro.App.Controls;
 /// </remarks>
 public sealed class SettingToggle : UserControl
 {
-    private readonly ToggleSwitch _switch = new() { OnContent = null, OffContent = null, MinWidth = 0 };
+    private readonly ToggleSwitch _switch = new() { OnContent = Strings.Get("Switch_On"), OffContent = Strings.Get("Switch_Off"), MinWidth = 0 };
     private readonly SettingLink _link;
 
     public SettingToggle()

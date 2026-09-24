@@ -38,21 +38,18 @@
                                 x:Uid="Device_DockRing"
                                 Glyph="&#xE706;"
                                 Setting="led_brightness_1"
-                                Unit="%"
                                 Visibility="Collapsed" />
                             <c:SettingRow
                                 x:Name="DockStatus"
                                 x:Uid="Device_DockStatus"
                                 Glyph="&#xE706;"
                                 Setting="led_brightness_2"
-                                Unit="%"
                                 Visibility="Collapsed" />
                             <c:SettingRow
                                 x:Name="TransmitterLight"
                                 x:Uid="Device_TransmitterLight"
                                 Glyph="&#xE706;"
                                 Setting="led_brightness_1"
-                                Unit="%"
                                 Visibility="Collapsed" />
                         </StackPanel>
                     </StackPanel>

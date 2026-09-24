@@ -92,8 +92,8 @@ public sealed partial class QuickSettings : UserControl
         AncWord.Text = _anc.Value switch
         {
             null => "—",
-            1 => Strings.Get("Quick_On"),
-            _ => Strings.Get("Quick_Off"),
+            1 => Strings.Get("Switch_On"),
+            _ => Strings.Get("Switch_Off"),
         };
     }
 

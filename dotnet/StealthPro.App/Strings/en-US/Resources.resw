@@ -798,11 +798,14 @@
   <data name="Quick_AncTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Noise cancellation</value>
   </data>
-  <data name="Quick_On" xml:space="preserve">
+  <data name="Switch_On" xml:space="preserve">
     <value>On</value>
   </data>
-  <data name="Quick_Off" xml:space="preserve">
+  <data name="Switch_Off" xml:space="preserve">
     <value>Off</value>
+  </data>
+  <data name="Level_Percent" xml:space="preserve">
+    <value>{0}%</value>
   </data>
   <data name="Quick_PresetList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Equaliser presets</value>

@@ -23,6 +23,9 @@ public sealed record SettingKey(
 {
     public string Hex => $"0x{Key:x}";
 
+    /// <summary>Gets whether this is a level from 0 to 100, shown as a percentage wherever it appears.</summary>
+    public bool IsPercent => Kind == SettingKind.Range && Minimum == 0 && Maximum == 100;
+
     /// <summary>Checks a value against this key and returns it in wire form.</summary>
     public string Validate(object value)
     {

@@ -42,8 +42,7 @@
                         <c:SettingRow
                             x:Uid="Controls_VoicePrompts"
                             Glyph="&#xE8BD;"
-                            Setting="voice_prompt_volume"
-                            Unit="%" />
+                            Setting="voice_prompt_volume" />
                     </StackPanel>
                 </c:HeadsetSection>
 

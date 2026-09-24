@@ -57,19 +57,6 @@ public sealed class SettingRow : SettingsCard
         set => SetValue(GlyphProperty, value);
     }
 
-    /// <summary>
-    /// Identifies the <see cref="Unit"/> property: text shown after the
-    /// value, for settings with a unit worth saying.
-    /// </summary>
-    public static readonly DependencyProperty UnitProperty = DependencyProperty.Register(
-        nameof(Unit), typeof(string), typeof(SettingRow), new PropertyMetadata(""));
-
-    public string Unit
-    {
-        get => (string)GetValue(UnitProperty);
-        set => SetValue(UnitProperty, value);
-    }
-
     /// <summary>Builds the row's control for its setting, once.</summary>
     private void Build(SettingKey key)
     {
@@ -121,7 +108,7 @@ public sealed class SettingRow : SettingsCard
 
     private UIElement BuildToggle()
     {
-        _toggle = new ToggleSwitch { OnContent = null, OffContent = null };
+        _toggle = new ToggleSwitch { OnContent = Strings.Get("Switch_On"), OffContent = Strings.Get("Switch_Off") };
         _toggle.Toggled += (_, _) => _link.Write(_toggle.IsOn ? 1 : 0);
         return _toggle;
     }
@@ -185,7 +172,9 @@ public sealed class SettingRow : SettingsCard
     private void ShowValue(int value)
     {
         if (_readout is not null)
-            _readout.Text = Unit.Length > 0 ? $"{value}{Unit}" : value.ToString(CultureInfo.CurrentCulture);
+            _readout.Text = _link.Key is { IsPercent: true }
+                ? Strings.Format("Level_Percent", value)
+                : value.ToString(CultureInfo.CurrentCulture);
     }
 
     /// <summary>
