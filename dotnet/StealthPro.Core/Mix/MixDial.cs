@@ -35,9 +35,6 @@ public static class MixDial
     public const double GameEnd = -Sweep / 2;
     public const double ChatEnd = Sweep / 2;
 
-    /// <summary>The whole dial, drawn behind both sides as its track.</summary>
-    public static DialArc Track { get; } = new(GameEnd, ChatEnd);
-
     /// <summary>Where the pointer sits for a mix.</summary>
     public static double AngleOf(int mix) => GameEnd + Sweep * Math.Clamp(mix, 0, 100) / 100.0;
 
@@ -54,8 +51,7 @@ public static class MixDial
     /// </remarks>
     public static int MixAt(double x, double y)
     {
-        double angle = Math.Atan2(x, -y) * 180 / Math.PI;
-        angle = Math.Clamp(angle, GameEnd, ChatEnd);
+        double angle = Math.Clamp(AngleAt(x, y), GameEnd, ChatEnd);
         return (int)Math.Round((angle - GameEnd) / Sweep * 100);
     }
 
@@ -69,7 +65,7 @@ public static class MixDial
     public static bool Grabs(double x, double y, double inner, double outer)
     {
         double distance = Math.Sqrt(x * x + y * y);
-        double angle = Math.Atan2(x, -y) * 180 / Math.PI;
+        double angle = AngleAt(x, y);
         return distance >= inner && distance <= outer && angle >= GameEnd && angle <= ChatEnd;
     }
 

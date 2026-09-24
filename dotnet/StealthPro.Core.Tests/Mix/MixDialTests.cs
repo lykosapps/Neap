@@ -35,9 +35,9 @@ public class MixDialTests
     }
 
     [Fact]
-    public void OnlyTheTrackTurnsThroughMoreThanHalfACircle()
+    public void OnlyAnArcPastHalfACircleIsLarge()
     {
-        Assert.True(MixDial.Track.IsLarge);
+        Assert.True(new DialArc(MixDial.GameEnd, MixDial.ChatEnd).IsLarge);
         Assert.False(MixDial.GameArc(0).IsLarge);
         Assert.False(MixDial.ChatArc(100).IsLarge);
     }
