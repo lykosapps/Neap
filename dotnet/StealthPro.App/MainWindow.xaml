@@ -71,6 +71,14 @@
             OpenPaneLength="220"
             PaneDisplayMode="Auto"
             SelectionChanged="OnNavigate">
+            <!--  Windows' controls in Neap's colours; see Themes/Controls.xaml for why here.  -->
+            <NavigationView.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceDictionary Source="ms-appx:///Themes/Controls.xaml" />
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </NavigationView.Resources>
             <NavigationView.MenuItems>
                 <NavigationViewItem x:Uid="Main_NavHome" Tag="home">
                     <NavigationViewItem.Icon>
