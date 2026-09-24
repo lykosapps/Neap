@@ -89,8 +89,11 @@ Run through this with the release build, not a debug one:
 4. **Presets.** Save a preset named with an ampersand and 19 characters,
    overwrite it, then delete it. The probe's `presets` command agrees at
    each step.
-5. **Audio format.** Change the headset's format on the Device page and
-   check Windows Sound settings shows the same.
+5. **Audio format.** Change the headset's format on the Device page twice
+   with the mouse, then twice from the keyboard (Alt+Down, an arrow key,
+   Enter). The app stays open, Windows Sound settings shows the same format
+   each time, and at 24-bit, 96 kHz the Charging Dock's status ring turns
+   purple.
 
 ## Pull requests
 
