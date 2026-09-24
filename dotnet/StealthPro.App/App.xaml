@@ -143,6 +143,15 @@
                 <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
             </Style>
 
+            <!--  The panel of what is in use, outlined in the accent.  -->
+            <Style
+                x:Key="NeapInUsePanelStyle"
+                BasedOn="{StaticResource QuickCardStyle}"
+                TargetType="Border">
+                <Setter Property="BorderBrush" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="2" />
+            </Style>
+
             <!--  A small label over what it names: a panel's title, a reading's name.  -->
             <Style
                 x:Key="NeapLabelStyle"

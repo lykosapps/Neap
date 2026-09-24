@@ -20,41 +20,6 @@
                 <!--  Listed whenever anything answers, the headset on or off.  -->
                 <c:TransmittersPanel />
 
-                <c:HeadsetSection Explain="False">
-                    <!--
-                        The lights of the transmitter carrying the headset,
-                        beside the list of transmitters and named for the
-                        one in use.
-                    -->
-                    <StackPanel>
-                        <TextBlock
-                            x:Name="LightsHeader"
-                            x:Uid="Device_LightsHeader"
-                            Style="{StaticResource SectionHeaderStyle}"
-                            Visibility="Collapsed" />
-                        <StackPanel Spacing="4">
-                            <c:SettingRow
-                                x:Name="DockRing"
-                                x:Uid="Device_DockRing"
-                                Glyph="&#xE706;"
-                                Setting="led_brightness_1"
-                                Visibility="Collapsed" />
-                            <c:SettingRow
-                                x:Name="DockStatus"
-                                x:Uid="Device_DockStatus"
-                                Glyph="&#xE706;"
-                                Setting="led_brightness_2"
-                                Visibility="Collapsed" />
-                            <c:SettingRow
-                                x:Name="TransmitterLight"
-                                x:Uid="Device_TransmitterLight"
-                                Glyph="&#xE706;"
-                                Setting="led_brightness_1"
-                                Visibility="Collapsed" />
-                        </StackPanel>
-                    </StackPanel>
-                </c:HeadsetSection>
-
                 <!--
                     With the headset off, the whole page is one card, the audio
                     format included: see HeadsetSection.WhenOff.
@@ -73,30 +38,30 @@
                             Glyph="&#xE720;" />
                     </StackPanel>
 
+                    <!--
+                        Firmware, serial number and everything the headset reports, looked
+                        up now and then, folded into one row at the end.
+                    -->
                     <c:HeadsetSection x:Uid="Device_DetailsSection">
                         <TextBlock x:Uid="Device_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
-                        <StackPanel Spacing="4">
-                            <c:SettingRow
-                                x:Uid="Device_Firmware"
-                                Glyph="&#xE950;"
-                                Setting="firmware_version" />
-                            <c:SettingRow
-                                x:Uid="Device_SerialNumber"
-                                Glyph="&#xE8EC;"
-                                Setting="serial_number" />
-                        </StackPanel>
-
-                        <TextBlock x:Uid="Device_ReportedHeading" Style="{StaticResource SectionHeaderStyle}" />
-                        <tk:SettingsExpander x:Uid="Device_RawValues">
+                        <tk:SettingsExpander x:Uid="Device_Details">
                             <tk:SettingsExpander.HeaderIcon>
-                                <FontIcon Glyph="&#xE8A1;" />
+                                <FontIcon Glyph="&#xE950;" />
                             </tk:SettingsExpander.HeaderIcon>
-                            <tk:SettingsExpander.ItemsHeader>
-                                <StackPanel
-                                    x:Name="RawRows"
-                                    Padding="16,8"
-                                    Spacing="2" />
-                            </tk:SettingsExpander.ItemsHeader>
+                            <tk:SettingsExpander.Items>
+                                <c:SettingRow x:Uid="Device_Firmware" Setting="firmware_version" />
+                                <c:SettingRow x:Uid="Device_SerialNumber" Setting="serial_number" />
+                            </tk:SettingsExpander.Items>
+                            <tk:SettingsExpander.ItemsFooter>
+                                <StackPanel Padding="16,12" Spacing="6">
+                                    <TextBlock x:Uid="Device_ReportedHeading" Style="{StaticResource NeapLabelStyle}" />
+                                    <TextBlock
+                                        x:Uid="Device_RawNote"
+                                        Style="{StaticResource SecondaryCaptionTextStyle}"
+                                        TextWrapping="Wrap" />
+                                    <StackPanel x:Name="RawRows" Spacing="2" />
+                                </StackPanel>
+                            </tk:SettingsExpander.ItemsFooter>
                         </tk:SettingsExpander>
                     </c:HeadsetSection>
                 </c:HeadsetSection>

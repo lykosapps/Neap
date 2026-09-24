@@ -261,25 +261,25 @@
   <data name="Controls_VoicePrompts.Header" xml:space="preserve">
     <value>Voice prompts</value>
   </data>
-  <data name="Device_LightsHeader.Text" xml:space="preserve">
-    <value>Charging Dock lights</value>
+  <data name="Device_LightsLabel" xml:space="preserve">
+    <value>Lights</value>
   </data>
-  <data name="Device_DockRing.Description" xml:space="preserve">
+  <data name="Device_DockRingNote" xml:space="preserve">
     <value>The ring around the spare battery slot.</value>
   </data>
-  <data name="Device_DockRing.Header" xml:space="preserve">
+  <data name="Device_DockRingName" xml:space="preserve">
     <value>Battery slot ring</value>
   </data>
-  <data name="Device_DockStatus.Description" xml:space="preserve">
+  <data name="Device_DockStatusNote" xml:space="preserve">
     <value>Turns purple when the link is running high bandwidth.</value>
   </data>
-  <data name="Device_DockStatus.Header" xml:space="preserve">
+  <data name="Device_DockStatusName" xml:space="preserve">
     <value>Status ring</value>
   </data>
-  <data name="Device_TransmitterLight.Description" xml:space="preserve">
+  <data name="Device_TransmitterLightNote" xml:space="preserve">
     <value>The status light on the transmitter.</value>
   </data>
-  <data name="Device_TransmitterLight.Header" xml:space="preserve">
+  <data name="Device_TransmitterLightName" xml:space="preserve">
     <value>Light</value>
   </data>
   <data name="Device_Title.Text" xml:space="preserve">
@@ -310,7 +310,7 @@
     <value>Switch your headset on to see these.</value>
   </data>
   <data name="Device_AboutHeading.Text" xml:space="preserve">
-    <value>About</value>
+    <value>About the headset</value>
   </data>
   <data name="Device_Firmware.Header" xml:space="preserve">
     <value>Firmware</value>
@@ -321,11 +321,14 @@
   <data name="Device_ReportedHeading.Text" xml:space="preserve">
     <value>Everything the headset reports</value>
   </data>
-  <data name="Device_RawValues.Description" xml:space="preserve">
+  <data name="Device_RawNote.Text" xml:space="preserve">
     <value>Values without a confirmed meaning are shown greyed. They stay read-only until we know what they do.</value>
   </data>
-  <data name="Device_RawValues.Header" xml:space="preserve">
-    <value>Raw values</value>
+  <data name="Device_Details.Header" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Device_Details.Description" xml:space="preserve">
+    <value>Firmware, serial number and everything the headset reports.</value>
   </data>
   <data name="Transmitters_Heading.Text" xml:space="preserve">
     <value>Transmitters</value>
@@ -804,12 +807,6 @@
   <data name="Tray_StillRunning" xml:space="preserve">
     <value>{0} is in the notification area, keeping the mix and the chat wheel working. Open or quit it from there.</value>
   </data>
-  <data name="Device_DockLightsHeading" xml:space="preserve">
-    <value>Charging Dock lights</value>
-  </data>
-  <data name="Device_TransmitterLightHeading" xml:space="preserve">
-    <value>USB Transmitter light</value>
-  </data>
   <data name="Device_Unidentified" xml:space="preserve">
     <value>not yet identified</value>
   </data>
@@ -885,7 +882,7 @@
   <data name="Home_Signal" xml:space="preserve">
     <value>Signal</value>
   </data>
-  <data name="Transmitters_Bluetooth.Header" xml:space="preserve">
+  <data name="Transmitters_Bluetooth" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
   <data name="Transmitters_BluetoothOn" xml:space="preserve">
