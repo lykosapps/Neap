@@ -198,12 +198,14 @@ function Options($element) {
     return $names
 }
 
+# $label may end in * for an option whose name goes on, such as an app
+# listed as playing.
 function Choose($element, [string]$label) {
     $expand = Pattern $element ([System.Windows.Automation.ExpandCollapsePattern])
     $expand.Expand()
     Start-Sleep -Milliseconds 300
     $item = FindAll $element 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::ListItem) |
-        Where-Object { $_.Current.Name -eq $label } | Select-Object -First 1
+        Where-Object { $_.Current.Name -like $label } | Select-Object -First 1
     if ($null -eq $item) { $expand.Collapse(); throw "no option '$label' in $($element.Current.Name)" }
     try { (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select() }
     catch [System.Windows.Automation.ElementNotEnabledException] {
@@ -408,7 +410,7 @@ function Wheel {
     Page 'Home'
     $picker = Find $script:window 'AutomationIdProperty' 'ChatPicker'
     if ($null -eq $picker) { Fail 'Home offers a chat app picker'; return }
-    Choose $picker 'Pretend Chat'
+    Choose $picker 'Pretend Chat*'
     Check (Until { $null -ne (Ask 'mix') } 5) 'choosing a chat app starts the mix'
     $start = Ask 'mix'
 
@@ -458,8 +460,8 @@ function Quick {
     $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
     if ($null -eq $picker) { Fail 'Home has a preset list'; return }
     Ask 'clear' | Out-Null
-    Choose $picker 'Bass Boost'
-    Check (Until { @(Writes | Where-Object { $_.key -eq '0x1210' -and $_.value -eq '2' }).Count -gt 0 }) 'the preset list on Home sends 0x1210=2'
+    Choose $picker 'Signature Sound'
+    Check (Until { @(Writes | Where-Object { $_.key -eq '0x1210' -and $_.value -eq '1' }).Count -gt 0 }) 'the preset list on Home sends 0x1210=1'
     Collect
 }
 
