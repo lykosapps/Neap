@@ -36,6 +36,8 @@ public sealed partial class QuickSettings : UserControl
     public QuickSettings()
     {
         InitializeComponent();
+        AncWord.Text = Strings.Get("Reading_None");
+        PresetName.Text = Strings.Get("Reading_None");
 
         _anc = new SettingLink(AncTile, () => "anc", _ => { }, PaintAnc);
         AncTile.Click += (_, _) => _anc.Write(AncTile.IsChecked == true ? 1 : 0);
@@ -69,7 +71,7 @@ public sealed partial class QuickSettings : UserControl
         AncTile.IsChecked = _anc.Value == 1;
         AncWord.Text = _anc.Value switch
         {
-            null => "—",
+            null => Strings.Get("Reading_None"),
             1 => Strings.Get("Switch_On"),
             _ => Strings.Get("Switch_Off"),
         };

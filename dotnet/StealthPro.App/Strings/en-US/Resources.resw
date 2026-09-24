@@ -546,6 +546,9 @@
   <data name="List_Last" xml:space="preserve">
     <value>{0} and {1}</value>
   </data>
+  <data name="Headset_Model" xml:space="preserve">
+    <value>Stealth Pro II</value>
+  </data>
   <data name="Headset_Looking" xml:space="preserve">
     <value>Looking for the headset…</value>
   </data>
@@ -818,6 +821,10 @@
   </data>
   <data name="Quick_AncTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Noise cancellation</value>
+  </data>
+  <data name="Reading_None" xml:space="preserve">
+    <value>—</value>
+    <comment>Stands in for a value the headset has not reported.</comment>
   </data>
   <data name="Switch_On" xml:space="preserve">
     <value>On</value>

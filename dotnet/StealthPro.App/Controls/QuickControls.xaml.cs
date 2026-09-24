@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using StealthPro.App.Services;
@@ -25,8 +26,6 @@ namespace StealthPro.App.Controls;
 /// </remarks>
 public sealed partial class QuickControls : UserControl
 {
-    private const int NameKey = 0x220;
-
     /// <summary>The narrowest the block can be and still hold the mix and the settings side by side.</summary>
     private const double SideBySide = 640;
 
@@ -70,10 +69,9 @@ public sealed partial class QuickControls : UserControl
         var status = headset.Status;
 
         // The name its owner gave the headset, where it has one.
-        HeadsetName.Text = headset.Values.TryGetValue(NameKey.ToString("x", CultureInfo.InvariantCulture), out var given)
-                           && !string.IsNullOrWhiteSpace(given.ToString())
-            ? given.ToString()
-            : "Stealth Pro II";
+        headset.Values.TryGetValue(HeadsetLabel.Key.ToString("x", CultureInfo.InvariantCulture), out var given);
+        HeadsetName.Text = HeadsetLabel.Given(given.ValueKind == JsonValueKind.Undefined ? null : given.ToString())
+            ?? Strings.Get("Headset_Model");
 
         var look = StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status));
         StateDot.Style = Tones.Style(look.Tone);

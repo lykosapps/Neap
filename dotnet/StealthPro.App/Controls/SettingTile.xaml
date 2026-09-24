@@ -37,8 +37,7 @@
                     Grid.Column="2"
                     VerticalAlignment="Top"
                     FontWeight="SemiBold"
-                    Style="{StaticResource NeapTileStateStyle}"
-                    Text="—" />
+                    Style="{StaticResource NeapTileStateStyle}" />
             </Grid>
         </ToggleButton>
         <ContentPresenter x:Name="InsideHost" Visibility="Collapsed" />

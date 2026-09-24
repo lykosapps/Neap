@@ -34,6 +34,7 @@ public sealed partial class SettingTile : UserControl
     public SettingTile()
     {
         InitializeComponent();
+        StateWord.Text = Strings.Get("Reading_None");
         _link = new SettingLink(Face, () => Setting, Build, Paint);
         Face.Click += (_, _) => _link.Write(Face.IsChecked == true ? 1 : 0);
     }
@@ -106,7 +107,7 @@ public sealed partial class SettingTile : UserControl
         Face.IsChecked = value == 1;
         StateWord.Text = value switch
         {
-            null => "—",
+            null => Strings.Get("Reading_None"),
             1 => Strings.Get("Switch_On"),
             _ => Strings.Get("Switch_Off"),
         };

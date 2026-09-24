@@ -194,7 +194,7 @@ public sealed partial class TransmittersPanel : UserControl
         if (_bluetooth is null) return;
         _bluetooth.Text = AppServices.Headset.TryGetNumberByKey(LinkState.Key, out int link)
             ? Strings.Get(LinkState.Bluetooth(link) ? "Transmitters_BluetoothOn" : "Transmitters_BluetoothOff")
-            : "—";
+            : Strings.Get("Reading_None");
     }
 
     private static TextBlock Note(string text) => new()

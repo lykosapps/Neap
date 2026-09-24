@@ -47,8 +47,7 @@
                 <TextBlock
                     x:Name="AncWord"
                     Grid.Row="2"
-                    Style="{StaticResource NeapTileStateStyle}"
-                    Text="—" />
+                    Style="{StaticResource NeapTileStateStyle}" />
             </Grid>
         </ToggleButton>
 
@@ -103,8 +102,7 @@
                 <TextBlock
                     x:Name="PresetName"
                     Grid.Row="2"
-                    Style="{StaticResource NeapTileStateStyle}"
-                    Text="—" />
+                    Style="{StaticResource NeapTileStateStyle}" />
                 <Path
                     x:Name="PresetCurve"
                     Grid.Row="1"

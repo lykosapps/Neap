@@ -34,6 +34,7 @@ public sealed partial class MicTile : UserControl
     public MicTile()
     {
         InitializeComponent();
+        Word.Text = Strings.Get("Reading_None");
         AutomationProperties.SetName(Face, Strings.Get("Mic_Name"));
         _link = new SettingLink(Face, () => Microphone.Setting, _ => { }, Paint);
         Face.Click += (_, _) => _link.Write(Microphone.ValueFor(Face.IsChecked == true));
@@ -48,7 +49,7 @@ public sealed partial class MicTile : UserControl
         {
             MicState.Live => Strings.Get("Mic_Live"),
             MicState.Muted => Strings.Get("Mic_Muted"),
-            _ => "—",
+            _ => Strings.Get("Reading_None"),
         };
         Icon.Glyph = state == MicState.Muted ? MutedGlyph : LiveGlyph;
     }

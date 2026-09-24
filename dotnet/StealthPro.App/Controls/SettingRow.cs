@@ -77,7 +77,7 @@ public sealed class SettingRow : SettingsCard
         // than "off".
         _absent = new TextBlock
         {
-            Text = "—",
+            Text = Strings.Get("Reading_None"),
             VerticalAlignment = VerticalAlignment.Center,
             Style = (Style)Application.Current.Resources["TertiaryBodyTextStyle"],
             Visibility = Visibility.Collapsed,

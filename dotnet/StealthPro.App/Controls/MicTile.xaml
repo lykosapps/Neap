@@ -28,8 +28,7 @@
             <TextBlock
                 x:Name="Word"
                 Grid.Row="2"
-                Style="{StaticResource NeapTileStateStyle}"
-                Text="—" />
+                Style="{StaticResource NeapTileStateStyle}" />
         </Grid>
     </ToggleButton>
 </UserControl>
