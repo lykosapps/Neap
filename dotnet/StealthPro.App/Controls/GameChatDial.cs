@@ -52,8 +52,6 @@ public sealed partial class GameChatDial : RangeBase
     private const double PointerInner = 62, PointerOuter = 80;
 
     private readonly Path[] _segments = new Path[MixDial.SegmentCount];
-    private Path[] _gameGlow = [];
-    private Path[] _chatGlow = [];
     private Path? _pointer;
 
     private enum Hold { None, Ring, Knob }
@@ -75,8 +73,6 @@ public sealed partial class GameChatDial : RangeBase
         _pointer = GetTemplateChild("Pointer") as Path;
         if (GetTemplateChild("Ridges") is Path ridges) ridges.Data = RidgeLines();
 
-        _gameGlow = Parts("GameGlowFar", "GameGlowNear");
-        _chatGlow = Parts("ChatGlowFar", "ChatGlowNear");
         if (GetTemplateChild("Ring") is Canvas ring)
         {
             ring.Children.Clear();
@@ -89,9 +85,6 @@ public sealed partial class GameChatDial : RangeBase
         Draw();
     }
 
-    private Path[] Parts(params string[] names) =>
-        names.Select(GetTemplateChild).OfType<Path>().ToArray();
-
     protected override void OnValueChanged(double oldValue, double newValue)
     {
         base.OnValueChanged(oldValue, newValue);
@@ -102,21 +95,14 @@ public sealed partial class GameChatDial : RangeBase
 
     private int Mix => (int)Math.Round(Value);
 
-    /// <summary>
-    /// Lights the segments, lays each side's glow along its lit segments and
-    /// turns the pointer. Styles carry the colours, so a theme change needs no
-    /// redraw.
-    /// </summary>
+    /// <summary>Lights the segments and turns the pointer. Styles carry the colours, so a theme change needs no redraw.</summary>
     private void Draw()
     {
         int mix = Mix;
-        int firstChat = MixDial.SegmentCount, lastGame = -1;
         for (int i = 0; i < MixDial.SegmentCount; i++)
         {
             if (_segments[i] is null) return;
             var side = MixDial.Lit(i, mix);
-            if (side == DialSide.Game) lastGame = i;
-            if (side == DialSide.Chat && firstChat == MixDial.SegmentCount) firstChat = i;
             _segments[i].Style = Styled(side switch
             {
                 DialSide.Game => "NeapSegmentGameStyle",
@@ -124,9 +110,6 @@ public sealed partial class GameChatDial : RangeBase
                 _ => "NeapSegmentOffStyle",
             });
         }
-        Glow(_gameGlow, lastGame < 0 ? null : new DialArc(MixDial.Segment(0).From, MixDial.Segment(lastGame).To));
-        Glow(_chatGlow, firstChat == MixDial.SegmentCount ? null
-            : new DialArc(MixDial.Segment(firstChat).From, MixDial.Segment(MixDial.SegmentCount - 1).To));
 
         if (_pointer is null) return;
         double angle = MixDial.AngleOf(mix);
@@ -134,16 +117,6 @@ public sealed partial class GameChatDial : RangeBase
         var (x1, y1) = MixDial.PointAt(angle, PointerOuter);
         _pointer.Data = Line(x0, y0, x1, y1);
         _pointer.Style = Styled(mix <= 50 ? "NeapPointerGameStyle" : "NeapPointerChatStyle");
-    }
-
-    /// <summary>Shapes one side's glow to its lit stretch, or hides it when that side is silent.</summary>
-    private static void Glow(Path[] layers, DialArc? lit)
-    {
-        foreach (var layer in layers)
-        {
-            layer.Visibility = lit is null ? Visibility.Collapsed : Visibility.Visible;
-            if (lit is { } arc) layer.Data = Arc(arc);
-        }
     }
 
     private static Style Styled(string key) => (Style)Application.Current.Resources[key];
