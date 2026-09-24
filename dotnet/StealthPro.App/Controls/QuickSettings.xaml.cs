@@ -67,7 +67,7 @@ public sealed partial class QuickSettings : UserControl
 
     private void PaintAnc()
     {
-        AncTile.IsEnabled = _anc.Value is not null;
+        AncTile.IsEnabled = _anc.Value is not null && _anc.Key is { Writable: true };
         AncTile.IsChecked = _anc.Value == 1;
         AncWord.Text = _anc.Value switch
         {
