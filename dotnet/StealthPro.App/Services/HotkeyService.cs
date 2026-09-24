@@ -68,7 +68,7 @@ public sealed record Shortcut(uint Modifiers, uint Key)
 /// The headset's chat wheel only reaches the app through the Charging Dock.
 /// Through the USB Transmitter it reports nothing at all (measured, with the
 /// volume wheel as a control), so the one thing you reach for mid-game is gone
-/// and the on-screen slider is no use with a game in front of it. Shortcuts
+/// and the on-screen dial is no use with a game in front of it. Shortcuts
 /// work on any transmitter, and alongside the wheel where the wheel works.
 /// </para>
 /// <para>

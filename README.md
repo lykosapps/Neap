@@ -32,7 +32,7 @@ asks a single question — which application carries your chat — and mixes tha
 application's audio against everything else. Nothing to install, nothing to
 reboot.
 
-Move it with the headset's chat wheel, with the slider, or with the keyboard
+Move it with the headset's chat wheel, with the dial on Home, or with the keyboard
 from inside a game: Ctrl + Alt + Page Down, Page Up and Home, all rebindable.
 
 **Equaliser presets stored on the headset**, for both the game and microphone

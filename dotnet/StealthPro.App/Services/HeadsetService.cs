@@ -152,7 +152,7 @@ public sealed class HeadsetService : IDisposable
     /// <remarks>
     /// Kept out of the value store. It is a free-spinning encoder whose counter
     /// cannot be written, so it drifts away from the mix the app is applying;
-    /// stored as a value, it would snap the mix slider to the wheel's physical
+    /// stored as a value, it would snap the mix dial to the wheel's physical
     /// position on the first notch. The mix handles it as movement instead.
     /// </remarks>
     public const int WheelKey = 0x510;

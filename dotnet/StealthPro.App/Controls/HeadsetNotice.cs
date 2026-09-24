@@ -56,7 +56,7 @@ public sealed class HeadsetNotice : InfoBar
     private void Paint()
     {
         // Only for nothing plugged in. Every other state is explained where it
-        // matters: on Home, above the mix, and in the card each section folds
+        // matters: on Home, in the mix, and in the card each section folds
         // into. A banner on every page for those reads as doubt about a
         // headset somebody is listening to, and one flashing up while
         // connecting is worse than a second of quiet.

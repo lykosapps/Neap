@@ -45,7 +45,7 @@ public static class AppServices
         Hotkeys.Enable(AppSettings.Current.MixHotkeys && !Pretend.Active);
 
         // Pick up where the last run left off. Otherwise the mix starts only
-        // when somebody opens the Audio page and chooses an application
+        // when somebody opens Home and chooses an application
         // again, and a login launch, which never shows a window, sits there
         // with the chat wheel doing nothing.
         if (Mix.ChatApps.Count > 0) Mix.Start();

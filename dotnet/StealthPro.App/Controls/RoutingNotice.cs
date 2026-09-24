@@ -21,7 +21,7 @@ namespace StealthPro.App.Controls;
 /// </para>
 /// <para>
 /// The notice sits beside what it is about rather than at the top of the
-/// page: in the Connections card on Home, under Volume on Audio, and under
+/// page: under the headset's name on Home, under Volume on Audio, and under
 /// the microphone's own section. <see cref="Sound"/> and
 /// <see cref="Microphone"/> say which half a placement checks.
 /// </para>

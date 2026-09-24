@@ -11,7 +11,7 @@ namespace StealthPro.App.Services;
 /// <para>
 /// Some faults cannot be explained without it. A launch at sign-in that never
 /// happened looks the same as one that died, and a mix that moves with nobody
-/// touching the wheel or the slider leaves nothing to say what moved it. A
+/// touching the wheel or the dial leaves nothing to say what moved it. A
 /// line per event separates those.
 /// </para>
 /// <para>

@@ -25,7 +25,7 @@ public sealed record ChatCandidate(string Process, string Display, bool Playing)
 /// The wheel is relative, not a position. It is a free-spinning encoder and
 /// the headset reports an absolute 0-100 counter we cannot write. With the mix
 /// set to 70 on screen the counter is still wherever the wheel physically
-/// sits, so treating its reading as the mix would snap the slider to the
+/// sits, so treating its reading as the mix would snap the dial to the
 /// wheel's position (usually near zero) on the first notch. Only the movement
 /// between readings is applied.
 /// </para>
@@ -42,7 +42,7 @@ public sealed record ChatCandidate(string Process, string Display, bool Playing)
 /// and it holds.
 /// </para>
 /// <para>
-/// Everything here runs on the UI thread: the slider and keyboard directly,
+/// Everything here runs on the UI thread: the dial and keyboard directly,
 /// the wheel and the link through the headset service's events.
 /// </para>
 /// </remarks>
@@ -52,7 +52,7 @@ public sealed class MixService : IDisposable
     private const int Detent = 4;
 
     /// <summary>
-    /// Biggest step still treated as a wheel notch. A slider dragged across
+    /// Biggest step still treated as a wheel notch. The dial dragged across
     /// the whole range passes through centre rather than sticking to it.
     /// </summary>
     private const int NotchLimit = 15;
@@ -124,7 +124,7 @@ public sealed class MixService : IDisposable
     // -- setting the mix ---------------------------------------------------
 
     /// <summary>
-    /// Set the mix. The one path both the slider and the wheel take, so the
+    /// Set the mix. The one path both the dial and the wheel take, so the
     /// detent behaves identically whichever moved it.
     /// </summary>
     /// <param name="value">The mix wanted, 0 to 100.</param>
@@ -133,7 +133,7 @@ public sealed class MixService : IDisposable
     /// anything can be traced to its cause.
     /// </param>
     /// <returns>The mix applied, or null when the mix is not running.</returns>
-    public int? Apply(int value, string why = "slider")
+    public int? Apply(int value, string why = "dial")
     {
         int want = Math.Clamp(value, 0, 100);
         int? previous = _lastApplied;
@@ -259,7 +259,7 @@ public sealed class MixService : IDisposable
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The count and the mix are two scales that drift apart: the slider and
+    /// The count and the mix are two scales that drift apart: the dial and
     /// the keyboard move the mix without the wheel, and the count resets at
     /// power-on. Adding the difference keeps them apart for good, and then the
     /// wheel cannot reach an end: its count stops at 0 while the mix is still
