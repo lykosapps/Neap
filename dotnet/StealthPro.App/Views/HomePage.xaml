@@ -78,7 +78,7 @@
                         differently from each other.
                     -->
                     <StackPanel
-                        x:Name="StateNote"
+                        x:Name="NotePanel"
                         Spacing="6"
                         Visibility="Collapsed">
                         <TextBlock

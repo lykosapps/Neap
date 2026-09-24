@@ -117,7 +117,6 @@ public sealed partial class HomePage : Page
         // HeadsetStatus.SettingsUnreachable.
         bool unseen = status.SettingsUnreachable;
         bool quiet = status.NotConnected;
-        bool noSound = live && status.NoSound;
 
         // The model heads the card; the name the owner gave the headset goes
         // underneath, where it does not compete.
@@ -125,7 +124,7 @@ public sealed partial class HomePage : Page
             ? raw.ToString() : null;
         ModelName.Text = "Stealth Pro II";
 
-        PaintNote(unseen, quiet, noSound, status.SwitchedOff, soundGone: status.NoSound);
+        PaintNote(StateNote.For(status));
 
         // A card that can only say it has nothing to say is not worth its
         // space. With the settings out of reach it goes.
@@ -174,20 +173,22 @@ public sealed partial class HomePage : Page
     /// Every sentence comes from <see cref="StateCopy"/>, which the line above
     /// the mix slider and the header's tooltip use too.
     /// </remarks>
-    private void PaintNote(bool unseen, bool quiet, bool noSound, bool offOnCable, bool soundGone)
+    private void PaintNote(Note which)
     {
-        (string What, string Mix, string Fix, string Fallback)? note =
-            unseen && soundGone ? (StateCopy.WhatUnreachableNoSound, "", StateCopy.FixUnreachable, "")
-            : unseen ? (StateCopy.WhatUnreachable, StateCopy.MixWithoutWheel(onAudioPage: false),
-                        StateCopy.FixUnreachable, "")
-            : noSound ? (StateCopy.WhatNoSound, StateCopy.MixWithoutWheel(onAudioPage: false),
-                         StateCopy.FixNoSound, StateCopy.FallbackNoSound)
+        (string What, string Mix, string Fix, string Fallback)? note = which switch
+        {
+            Note.UnreachableNoSound => (StateCopy.WhatUnreachableNoSound, "", StateCopy.FixUnreachable, ""),
+            Note.Unreachable => (StateCopy.WhatUnreachable, StateCopy.MixWithoutWheel(onAudioPage: false),
+                                 StateCopy.FixUnreachable, ""),
+            Note.NoSound => (StateCopy.WhatNoSound, StateCopy.MixWithoutWheel(onAudioPage: false),
+                             StateCopy.FixNoSound, StateCopy.FallbackNoSound),
             // No fallback: a cable has no out of range, and nothing to press.
-            : offOnCable ? (StateCopy.WhatOffOnCable, "", StateCopy.FixOff, "")
-            : quiet ? (StateCopy.WhatOff, "", StateCopy.FixOff, StateCopy.FallbackOff)
-            : null;
+            Note.OffOnCable => (StateCopy.WhatOffOnCable, "", StateCopy.FixOff, ""),
+            Note.Off => (StateCopy.WhatOff, "", StateCopy.FixOff, StateCopy.FallbackOff),
+            _ => null,
+        };
 
-        StateNote.Visibility = note is null ? Visibility.Collapsed : Visibility.Visible;
+        NotePanel.Visibility = note is null ? Visibility.Collapsed : Visibility.Visible;
         if (note is not { } n) return;
 
         NoteWhat.Text = n.What;
