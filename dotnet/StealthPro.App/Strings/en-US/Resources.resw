@@ -63,6 +63,15 @@
   <data name="Equaliser_SaveButton.Content" xml:space="preserve">
     <value>Save as new preset</value>
   </data>
+  <data name="Equaliser_OverwriteAny" xml:space="preserve">
+    <value>Overwrite preset</value>
+  </data>
+  <data name="Equaliser_OverwriteYes.Content" xml:space="preserve">
+    <value>Overwrite</value>
+  </data>
+  <data name="Equaliser_OverwriteNo.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
   <data name="Mix_ChatPicker.PlaceholderText" xml:space="preserve">
     <value>Choose an app</value>
   </data>
@@ -665,6 +674,9 @@
   </data>
   <data name="Equaliser_Overwrite" xml:space="preserve">
     <value>Overwrite {0}</value>
+  </data>
+  <data name="Equaliser_OverwriteQuestion" xml:space="preserve">
+    <value>Replace {0} with the curve you have now? Its old curve is lost.</value>
   </data>
   <data name="Equaliser_Selected" xml:space="preserve">
     <value>Selected</value>

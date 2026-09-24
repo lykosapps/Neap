@@ -87,7 +87,16 @@ public sealed partial class EqualiserPanel : UserControl
         InitializeComponent();
         DiscardButton.Click += async (_, _) => await Discard();
         SaveButton.Click += async (_, _) => await SaveAsNew();
-        OverwriteButton.Click += async (_, _) => await Overwrite();
+        // Overwriting deletes the preset before saving over it, so it asks
+        // first, in place, with the safe answer focused.
+        OverwriteButton.Content = Strings.Get("Equaliser_OverwriteAny");
+        OverwriteConfirm.Opened += (_, _) => OverwriteNo.Focus(FocusState.Programmatic);
+        OverwriteNo.Click += (_, _) => OverwriteConfirm.Hide();
+        OverwriteYes.Click += async (_, _) =>
+        {
+            OverwriteConfirm.Hide();
+            await Overwrite();
+        };
         Loaded += async (_, _) =>
         {
             AppServices.Headset.Changed += Paint;
@@ -272,8 +281,8 @@ public sealed partial class EqualiserPanel : UserControl
             Paint();
         };
 
-        // Only a custom preset can be deleted, and the button shows only while
-        // that preset is selected (see PaintSlotStates).
+        // Only a custom preset can be deleted, and any of them can, without
+        // choosing it first: the headset deletes by name.
         if (preset.Custom)
         {
             var remove = new Button
@@ -281,7 +290,6 @@ public sealed partial class EqualiserPanel : UserControl
                 Content = new FontIcon { Glyph = "\uE711", FontSize = 11 },
                 Padding = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Stretch,
-                Visibility = Visibility.Collapsed,
             };
             AutomationProperties.SetName(remove, Strings.Format("Equaliser_DeleteNamed", preset.Name));
             remove.Click += (_, args) =>
@@ -302,12 +310,11 @@ public sealed partial class EqualiserPanel : UserControl
     private UIElement ConfirmChip(Preset preset)
     {
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
-        var delete = new Button
-        {
-            Content = Strings.Get("Equaliser_Delete"),
-            Style = (Style)Application.Current.Resources["AccentButtonStyle"],
-        };
+        var delete = new Button { Content = Strings.Get("Equaliser_Delete") };
         var cancel = new Button { Content = Strings.Get("Dialog_Cancel") };
+        // The keyboard lands on the safe choice, where the delete button it
+        // came from was, not on the destructive one.
+        cancel.Loaded += (_, _) => cancel.Focus(FocusState.Programmatic);
         // "Delete" and "Cancel" on their own do not say what of.
         AutomationProperties.SetName(delete, Strings.Format("Equaliser_DeleteNamed", preset.Name));
         AutomationProperties.SetName(cancel, Strings.Format("Equaliser_KeepNamed", preset.Name));
@@ -511,28 +518,18 @@ public sealed partial class EqualiserPanel : UserControl
             PresetName.Text = AppServices.Presets.CurrentName(Bank);
             bool edited = AppServices.Presets.IsEdited(Bank);
             EditedPill.Visibility = edited ? Visibility.Visible : Visibility.Collapsed;
-            DiscardButton.Visibility = edited ? Visibility.Visible : Visibility.Collapsed;
 
-            // Only when there is something to save; otherwise pressing it
-            // spends one of five slots on a copy of an existing preset. The
-            // exception is a curve whose preset is unknown: saving is the
-            // only way to keep it.
-            SaveButton.IsEnabled = edited || _state.Baseline is null;
-
-            // Overwrite only exists when there is a preset of yours to
-            // overwrite. On a factory preset there is nothing to write back
-            // to, so the button is not there rather than there and refusing.
-            var over = _state.Baseline;
-            bool canOverwrite = edited && over is { Custom: true };
-            OverwriteButton.Visibility = canOverwrite ? Visibility.Visible : Visibility.Collapsed;
-            if (canOverwrite) OverwriteButton.Content = Strings.Format("Equaliser_Overwrite", over!.Name);
-
-            // The accent marks the likely intent, which moves: refining a
-            // preset of your own usually means keeping it, and on one of the
-            // headset's own there is only one thing you can do.
-            SaveButton.Style = canOverwrite
-                ? (Style)Application.Current.Resources["DefaultButtonStyle"]
-                : (Style)Application.Current.Resources["AccentButtonStyle"];
+            var can = EqualiserActions.For(edited, _state.Baseline);
+            DiscardButton.IsEnabled = can.Discard;
+            SaveButton.IsEnabled = can.Save;
+            OverwriteButton.IsEnabled = can.Overwrite;
+            // Named for the preset it replaces whenever there is one of yours
+            // behind the curve, so it says what it would do before it can.
+            OverwriteButton.Content = _state.Baseline is { Custom: true } over
+                ? Strings.Format("Equaliser_Overwrite", over.Name)
+                : Strings.Get("Equaliser_OverwriteAny");
+            if (_state.Baseline is { Custom: true } replacing)
+                OverwriteQuestion.Text = Strings.Format("Equaliser_OverwriteQuestion", replacing.Name);
 
             PaintSlotStates();
         }
@@ -564,8 +561,6 @@ public sealed partial class EqualiserPanel : UserControl
                         selected ? "AccentButtonStyle" : "DefaultButtonStyle"];
                     // The accent says it to the eye; this says it to a screen reader.
                     AutomationProperties.SetItemStatus(chip, selected ? Strings.Get("Equaliser_Selected") : "");
-                    if (slot.Children.Count > 1)
-                        slot.Children[1].Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
                 }
             }
             index++;

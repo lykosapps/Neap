@@ -43,22 +43,46 @@
                     </Border>
                 </StackPanel>
 
+                <!--
+                    Always there, and disabled when they cannot be used, so
+                    none moves under the pointer when a band is first
+                    dragged. Overwrite goes first because its label names
+                    the preset and changes width; the two after it stay put.
+                    Only saving a new preset is the accent: it keeps
+                    everything, where overwriting loses the old curve.
+                -->
                 <StackPanel
                     Grid.Column="1"
                     Orientation="Horizontal"
                     Spacing="8">
+                    <Button x:Name="OverwriteButton" IsEnabled="False">
+                        <Button.Flyout>
+                            <Flyout x:Name="OverwriteConfirm">
+                                <StackPanel MaxWidth="280" Spacing="12">
+                                    <TextBlock
+                                        x:Name="OverwriteQuestion"
+                                        Style="{StaticResource BodyTextBlockStyle}"
+                                        TextWrapping="Wrap" />
+                                    <StackPanel
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <Button x:Name="OverwriteYes" x:Uid="Equaliser_OverwriteYes" />
+                                        <Button x:Name="OverwriteNo" x:Uid="Equaliser_OverwriteNo" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                     <Button
                         x:Name="DiscardButton"
                         x:Uid="Equaliser_DiscardButton"
-                        Visibility="Collapsed" />
+                        IsEnabled="False" />
                     <Button
                         x:Name="SaveButton"
                         x:Uid="Equaliser_SaveButton"
-                        IsEnabled="False" />
-                    <Button
-                        x:Name="OverwriteButton"
-                        Style="{StaticResource AccentButtonStyle}"
-                        Visibility="Collapsed" />
+                        IsEnabled="False"
+                        Style="{StaticResource AccentButtonStyle}" />
                 </StackPanel>
             </Grid>
 
