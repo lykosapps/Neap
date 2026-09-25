@@ -104,5 +104,3 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - The Controls page drawing of the headset.
 - Unreachable states in the pretend headset.
 - The equaliser as one tab stop.
-- The microphone bank shaped parametrically. Its bands are a different set
-  of filters, two of whose frequencies are inferred.
