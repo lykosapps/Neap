@@ -29,6 +29,16 @@ to GitHub, these become issues.
   model.
 - **An installer**, beyond the zip.
 - **Microsoft Store distribution.**
+- **Other Swarm II headsets.** The Stealth 600 Gen 3, 700 Gen 3, 500 and
+  Atlas Air share the Stealth Pro II's platform. Each needs an owner to
+  capture its settings and run the checks, so ask for help once public.
+  The 600 Gen 3 first. Screens need to show only what a headset has.
+- **Help add this headset.** When Neap finds a Turtle Beach headset it does
+  not support, it offers to read it and save the result, with the headset's
+  name and transmitter addresses removed and the contents shown before
+  anything is shared, then opens a filled-in GitHub issue to attach it to.
+  Later, a guided version that watches while the owner changes settings in
+  Swarm II, to match each value to its control.
 
 ## Checks with the headset
 
