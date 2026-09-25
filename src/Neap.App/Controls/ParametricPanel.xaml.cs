@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using System.Globalization;
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Documents;
 using Neap.App.Services;
 using Neap.Core.Audio;
 using Neap.Core.Presets;
@@ -92,6 +94,14 @@ public sealed partial class ParametricPanel : UserControl
         FrequencyField.NumberFormatter = _frequencies;
         FrequencyField.Minimum = Adjustment.LowestFrequency;
         FrequencyField.Maximum = Adjustment.HighestFrequency;
+        // Figures of one width, so the typed frequency does not jitter as it
+        // steps. The text box only exists once the field has its template.
+        FrequencyField.Loaded += (_, _) =>
+        {
+            FrequencyField.ApplyTemplate();
+            if (FrequencyField.FindDescendant<TextBox>() is { } box)
+                Typography.SetNumeralAlignment(box, FontNumeralAlignment.Tabular);
+        };
 
         Shape.Frequencies = PresetStore.Game.Frequencies;
         Shape.AdjustmentChosen += index => { _selected = index; Paint(); };
@@ -298,7 +308,7 @@ public sealed partial class ParametricPanel : UserControl
             var value = new TextBlock
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Style = (Style)Application.Current.Resources["BodyStrongTextBlockStyle"],
+                Style = (Style)Application.Current.Resources["NumeralBodyStrongTextStyle"],
             };
             var hz = new TextBlock
             {
@@ -391,7 +401,13 @@ public sealed partial class ParametricPanel : UserControl
         while (Chips.Children.Count < adjustments.Count)
         {
             int index = Chips.Children.Count;
-            var chip = new ToggleButton();
+            // Figures of one width and room to spare, so Add and Remove do
+            // not move while a point is dragged.
+            var chip = new ToggleButton
+            {
+                MinWidth = 104,
+                Content = new TextBlock { Style = (Style)Application.Current.Resources["NumeralBodyTextStyle"] },
+            };
             chip.Click += (_, _) => { _selected = index; Paint(); };
             Chips.Children.Add(chip);
         }
@@ -399,7 +415,7 @@ public sealed partial class ParametricPanel : UserControl
         {
             var chip = (ToggleButton)Chips.Children[i];
             string frequency = FrequencyFormatter.Text(adjustments[i].Frequency);
-            chip.Content = Strings.Format("Parametric_Chip", i + 1, frequency);
+            ((TextBlock)chip.Content).Text = Strings.Format("Parametric_Chip", i + 1, frequency);
             chip.IsChecked = i == _selected;
             AutomationProperties.SetName(chip, Strings.Format("Parametric_ChipName", i + 1, frequency));
         }

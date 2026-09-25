@@ -95,7 +95,7 @@
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
-        <Setter Property="Padding" Value="16,14" />
+        <Setter Property="Padding" Value="16" />
         <Setter Property="MinHeight" Value="120" />
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="FocusVisualMargin" Value="-3" />
@@ -200,7 +200,7 @@
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
-        <Setter Property="Padding" Value="16,14" />
+        <Setter Property="Padding" Value="16" />
         <Setter Property="MinHeight" Value="120" />
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="FocusVisualMargin" Value="-3" />
@@ -258,13 +258,16 @@
     </Style>
 
     <!--  A tile's name and its state, under its icon.  -->
-    <Style x:Key="NeapTileTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+    <Style
+        x:Key="NeapTileTitleStyle"
+        BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+        TargetType="TextBlock">
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
-    <Style x:Key="NeapTileStateStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12" />
+    <Style
+        x:Key="NeapTileStateStyle"
+        BasedOn="{StaticResource CaptionTextBlockStyle}"
+        TargetType="TextBlock">
         <Setter Property="Opacity" Value="0.85" />
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>

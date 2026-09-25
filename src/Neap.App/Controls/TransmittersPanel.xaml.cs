@@ -116,6 +116,7 @@ public sealed partial class TransmittersPanel : UserControl
         top.Children.Add(new TextBlock
         {
             Text = row.Name,
+            VerticalAlignment = VerticalAlignment.Center,
             Style = Styled(inUse ? "SubtitleTextBlockStyle" : "BodyStrongTextBlockStyle"),
         });
         var state = new TextBlock
@@ -126,12 +127,13 @@ public sealed partial class TransmittersPanel : UserControl
                 TransmitterState.CanSwitchTo or TransmitterState.PluggedIn => Strings.Get("Transmitters_PluggedIn"),
                 _ => Strings.Get("Transmitters_NotPluggedIn"),
             },
+            VerticalAlignment = VerticalAlignment.Center,
             Style = Styled(inUse ? "NeapInUseTextStyle" : "SecondaryBodyTextStyle"),
         };
         Grid.SetColumn(state, 1);
         top.Children.Add(state);
 
-        var body = new StackPanel { Spacing = 6, Children = { top } };
+        var body = new StackPanel { Spacing = 8, Children = { top } };
         string detail = row.State switch
         {
             TransmitterState.SelectedButUnplugged => Strings.Get("Transmitters_SetToThis"),
@@ -150,7 +152,7 @@ public sealed partial class TransmittersPanel : UserControl
     private static UIElement? LightsPanel(LightSet lights)
     {
         if (lights == LightSet.None) return null;
-        var panel = new StackPanel { Spacing = 4, Margin = new Thickness(0, 10, 0, 0) };
+        var panel = new StackPanel { Spacing = 4, Margin = new Thickness(0, 8, 0, 0) };
         panel.Children.Add(new TextBlock { Text = Strings.Get("Device_LightsLabel"), Style = Styled("NeapLabelStyle") });
         if (lights == LightSet.Dock)
         {

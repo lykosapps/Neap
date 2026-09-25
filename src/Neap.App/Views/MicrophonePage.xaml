@@ -37,11 +37,8 @@
                         <c:HeadsetSection Explain="False">
                             <c:MicTile />
                         </c:HeadsetSection>
-                        <Border
-                            Grid.Column="1"
-                            Padding="20,14,20,16"
-                            Style="{StaticResource QuickCardStyle}">
-                            <StackPanel Spacing="10">
+                        <Border Grid.Column="1" Style="{StaticResource QuickCardStyle}">
+                            <StackPanel Spacing="8">
                                 <TextBlock x:Uid="Microphone_LevelLabel" Style="{StaticResource NeapLabelStyle}" />
                                 <c:MicMeter x:Uid="Microphone_Meter" Large="True" />
                                 <TextBlock x:Uid="Microphone_LevelNote" Style="{StaticResource SecondaryCaptionTextStyle}" />

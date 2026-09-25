@@ -70,13 +70,13 @@ public sealed class NoiseControlPanel : UserControl
 
         Content = new StackPanel
         {
-            Spacing = 6,
+            Spacing = 4,
             Children =
             {
                 new Border
                 {
                     Style = (Style)Application.Current.Resources["QuickCardStyle"],
-                    Child = new StackPanel { Spacing = 6, Children = { title, description, _modes } },
+                    Child = new StackPanel { Spacing = 8, Children = { title, description, _modes } },
                 },
                 _blocking,
             },

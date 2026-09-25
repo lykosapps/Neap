@@ -119,3 +119,6 @@ and date.
 - Tighter, more consistent wording: keyboard shortcuts, assignable and
   fixed controls, slot counts, refreshing the chat app list, and one way of
   saying couldn't, isn't and won't.
+- Spacing and type follow Windows' own grid and type sizes throughout, and
+  changing numbers (levels, decibels, frequencies, battery) keep their
+  width, so nothing beside them shifts as they change.

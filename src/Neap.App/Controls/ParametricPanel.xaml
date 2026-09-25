@@ -12,12 +12,12 @@
             equaliser, with a cut or boost added where it stands.
         -->
         <Border
-            Padding="12,10"
+            Padding="12"
             BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
             BorderThickness="1"
             CornerRadius="8">
             <StackPanel Spacing="8">
-                <Grid ColumnSpacing="10">
+                <Grid ColumnSpacing="8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -31,8 +31,11 @@
                         x:Uid="Tone_Label"
                         VerticalAlignment="Center"
                         Style="{StaticResource SecondaryBodyTextStyle}" />
-                    <Button x:Name="SweepButton" Grid.Column="1">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Button
+                        x:Name="SweepButton"
+                        Grid.Column="1"
+                        MinWidth="96">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon x:Name="SweepIcon" FontSize="12" />
                             <TextBlock x:Name="SweepText" />
                         </StackPanel>
@@ -41,7 +44,7 @@
                         x:Name="StopButton"
                         x:Uid="Tone_Stop"
                         Grid.Column="2"
-                        Padding="10,5">
+                        VerticalAlignment="Stretch">
                         <FontIcon FontSize="12" Glyph="&#xE71A;" />
                     </Button>
                     <Slider
@@ -59,11 +62,11 @@
                         x:Name="ToneText"
                         Grid.Column="4"
                         VerticalAlignment="Center"
-                        Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        Style="{StaticResource NumeralBodyStrongTextStyle}" />
                     <FontIcon
                         Grid.Column="5"
                         VerticalAlignment="Center"
-                        FontSize="14"
+                        FontSize="16"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Glyph="&#xE767;" />
                     <Slider
@@ -78,13 +81,13 @@
                 </Grid>
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <Button x:Name="CutButton" x:Uid="Tone_Cut">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="12" Glyph="&#xE74B;" />
                             <TextBlock x:Uid="Tone_CutLabel" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="BoostButton" x:Uid="Tone_Boost">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="12" Glyph="&#xE74A;" />
                             <TextBlock x:Uid="Tone_BoostLabel" />
                         </StackPanel>
@@ -134,8 +137,9 @@
             Spacing="8"
             Visibility="Collapsed">
             <FontIcon
-                VerticalAlignment="Center"
-                FontSize="14"
+                Margin="0,2,0,0"
+                VerticalAlignment="Top"
+                FontSize="16"
                 Foreground="{ThemeResource SystemFillColorCautionBrush}"
                 Glyph="&#xE946;" />
             <TextBlock
@@ -145,18 +149,18 @@
         </StackPanel>
 
         <!--  One button per adjustment, then adding and removing.  -->
-        <StackPanel Orientation="Horizontal" Spacing="6">
+        <StackPanel Orientation="Horizontal" Spacing="8">
             <StackPanel
                 x:Name="Chips"
                 Orientation="Horizontal"
-                Spacing="6" />
+                Spacing="8" />
             <Button x:Name="AddButton" x:Uid="Parametric_Add">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon FontSize="12" Glyph="&#xE710;" />
                     <TextBlock x:Uid="Parametric_AddLabel" />
                 </StackPanel>
             </Button>
-            <Button x:Name="RemoveButton" Padding="10,5">
+            <Button x:Name="RemoveButton" VerticalAlignment="Stretch">
                 <FontIcon FontSize="12" Glyph="&#xE74D;" />
             </Button>
         </StackPanel>
@@ -170,11 +174,11 @@
         <Grid
             x:Name="Fields"
             ColumnSpacing="12"
-            RowSpacing="6">
+            RowSpacing="8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="90" />
+                <ColumnDefinition Width="88" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="110" />
+                <ColumnDefinition Width="112" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -225,7 +229,7 @@
                 Grid.Row="1"
                 Grid.Column="2"
                 VerticalAlignment="Center"
-                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                Style="{StaticResource NumeralBodyStrongTextStyle}" />
 
             <TextBlock
                 x:Uid="Parametric_Width"
@@ -258,7 +262,7 @@
                 Grid.Column="2"
                 Margin="0,6,0,0"
                 VerticalAlignment="Top"
-                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                Style="{StaticResource NumeralBodyStrongTextStyle}" />
         </Grid>
 
         <!--  What reaches the headset: the ten gains, nothing else.  -->
@@ -266,7 +270,7 @@
             Padding="0,12,0,0"
             BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
             BorderThickness="0,1,0,0"
-            Spacing="6">
+            Spacing="8">
             <TextBlock x:Uid="Parametric_Sent" Style="{StaticResource NeapLabelStyle}" />
             <Grid x:Name="Sent" />
         </StackPanel>

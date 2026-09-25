@@ -40,7 +40,7 @@
                 Grid.Column="0"
                 Margin="16,0,0,0"
                 Orientation="Horizontal"
-                Spacing="10">
+                Spacing="12">
                 <Image
                     Width="16"
                     Height="16"

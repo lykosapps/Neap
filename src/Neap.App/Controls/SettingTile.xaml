@@ -8,13 +8,13 @@
         A setting's tile, as on Home, with what only matters once it is on
         laid out under it while it is on.
     -->
-    <StackPanel Spacing="6">
+    <StackPanel Spacing="4">
         <ToggleButton
             x:Name="Face"
             MinHeight="96"
             IsEnabled="False"
             Style="{StaticResource NeapToggleTileStyle}">
-            <Grid ColumnSpacing="14">
+            <Grid ColumnSpacing="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -24,7 +24,7 @@
                     x:Name="Icon"
                     VerticalAlignment="Top"
                     AutomationProperties.AccessibilityView="Raw"
-                    FontSize="22" />
+                    FontSize="20" />
                 <StackPanel
                     Grid.Column="1"
                     VerticalAlignment="Bottom"
@@ -35,6 +35,7 @@
                 <TextBlock
                     x:Name="StateWord"
                     Grid.Column="2"
+                    Margin="0,2,0,0"
                     VerticalAlignment="Top"
                     FontWeight="SemiBold"
                     Style="{StaticResource NeapTileStateStyle}" />

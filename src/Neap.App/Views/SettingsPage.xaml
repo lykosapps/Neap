@@ -52,7 +52,7 @@
                                 Visibility="Collapsed" />
                             <TextBlock
                                 x:Uid="Settings_AboutNote"
-                                Margin="0,6,0,0"
+                                Margin="0,4,0,0"
                                 Style="{StaticResource SecondaryBodyTextStyle}"
                                 TextWrapping="Wrap" />
                         </StackPanel>

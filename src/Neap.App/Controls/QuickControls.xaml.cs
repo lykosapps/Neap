@@ -40,8 +40,10 @@ public sealed partial class QuickControls : UserControl
     public QuickControls()
     {
         InitializeComponent();
-        _battery = AddReading();
-        _signal = AddReading();
+        // Wide enough for their longest values, so a battery going from
+        // 9% to 10% or the signal from OK to Strong moves nothing beside it.
+        _battery = AddReading(72);
+        _signal = AddReading(96);
 
         Block.SizeChanged += (_, _) => Arrange();
         Loaded += (_, _) =>
@@ -147,11 +149,17 @@ public sealed partial class QuickControls : UserControl
     };
 
     /// <summary>Adds an empty reading, hidden until it has something to show.</summary>
-    private Reading AddReading()
+    private Reading AddReading(double minWidth)
     {
         var label = new TextBlock { Style = (Style)Application.Current.Resources["NeapLabelStyle"] };
         var value = new TextBlock { Style = (Style)Application.Current.Resources["NeapReadingStyle"] };
-        var panel = new StackPanel { Spacing = 2, Visibility = Visibility.Collapsed, Children = { label, value } };
+        var panel = new StackPanel
+        {
+            MinWidth = minWidth,
+            Spacing = 2,
+            Visibility = Visibility.Collapsed,
+            Children = { label, value },
+        };
         Readings.Children.Add(panel);
         return new Reading(panel, label, value);
     }

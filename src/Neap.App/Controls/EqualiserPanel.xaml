@@ -13,7 +13,7 @@
     <Border Padding="0" Style="{StaticResource QuickCardStyle}">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="290" />
+                <ColumnDefinition Width="288" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
@@ -23,10 +23,10 @@
             -->
             <StackPanel
                 x:Name="PresetColumn"
-                Padding="10,16,10,16"
+                Padding="8,16"
                 BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
                 BorderThickness="0,0,1,0"
-                Spacing="2">
+                Spacing="4">
                 <TextBlock
                     x:Uid="Equaliser_PresetsLabel"
                     Margin="12,0,0,8"
@@ -40,7 +40,7 @@
                 <Button
                     x:Name="NewButton"
                     x:Uid="Equaliser_New"
-                    Margin="0,6,0,0"
+                    Margin="0,4,0,0"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Left"
                     Style="{StaticResource NeapPresetStyle}">
@@ -71,7 +71,7 @@
                     <StackPanel
                         Grid.Column="0"
                         Orientation="Horizontal"
-                        Spacing="10">
+                        Spacing="8">
                         <TextBlock
                             x:Name="PresetName"
                             VerticalAlignment="Center"
@@ -128,6 +128,7 @@
                             IsEnabled="False" />
                         <Button
                             x:Name="SaveButton"
+                            MinWidth="104"
                             IsEnabled="False"
                             Style="{StaticResource AccentButtonStyle}" />
                     </StackPanel>
@@ -162,7 +163,7 @@
                     MaxWidth="900"
                     HorizontalAlignment="Stretch">
                     <c:EqualiserCurve x:Name="Response" Height="220" />
-                    <Grid x:Name="Bands" Margin="0,6,0,0" />
+                    <Grid x:Name="Bands" Margin="0,8,0,0" />
                 </StackPanel>
 
                 <!--

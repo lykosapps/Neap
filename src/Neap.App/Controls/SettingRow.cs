@@ -158,7 +158,7 @@ public sealed class SettingRow : SettingsCard
             MinWidth = 44,
             TextAlignment = TextAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center,
-            Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
+            Style = (Style)Application.Current.Resources["NumeralBodyTextStyle"],
         };
 
         return new StackPanel
@@ -174,7 +174,7 @@ public sealed class SettingRow : SettingsCard
         _readout = new TextBlock
         {
             VerticalAlignment = VerticalAlignment.Center,
-            Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
+            Style = (Style)Application.Current.Resources["NumeralBodyTextStyle"],
         };
         return _readout;
     }

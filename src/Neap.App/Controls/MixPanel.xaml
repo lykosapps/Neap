@@ -70,16 +70,16 @@
                     Spacing="12">
                     <TextBlock
                         x:Name="GameLevel"
-                        FontSize="30"
-                        FontWeight="SemiBold"
+                        MinWidth="56"
                         Foreground="{ThemeResource NeapGameTextBrush}"
-                        Style="{StaticResource NumeralTextStyle}" />
+                        Style="{StaticResource NeapReadingStyle}"
+                        TextAlignment="Right" />
                     <TextBlock
                         x:Name="ChatLevel"
-                        FontSize="30"
-                        FontWeight="SemiBold"
+                        MinWidth="56"
                         Foreground="{ThemeResource NeapChatTextBrush}"
-                        Style="{StaticResource NumeralTextStyle}" />
+                        Style="{StaticResource NeapReadingStyle}"
+                        TextAlignment="Left" />
                 </StackPanel>
             </StackPanel>
 
@@ -139,7 +139,7 @@
                     Severity="Informational" />
                 <Button x:Name="Refresh" x:Uid="Mix_Refresh">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon FontSize="14" Glyph="&#xE72C;" />
+                        <FontIcon FontSize="16" Glyph="&#xE72C;" />
                         <TextBlock x:Uid="Mix_RefreshText" />
                     </StackPanel>
                 </Button>

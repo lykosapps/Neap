@@ -41,7 +41,7 @@ public sealed class ModeButtonChoice : UserControl
         Content = new Border
         {
             Style = (Style)Application.Current.Resources["QuickCardStyle"],
-            Child = new StackPanel { Spacing = 6, Children = { _title, _description, _options, _needsApp } },
+            Child = new StackPanel { Spacing = 8, Children = { _title, _description, _options, _needsApp } },
         };
         _link = new SettingLink(this, () => "mode_button_function", Build, Paint);
     }

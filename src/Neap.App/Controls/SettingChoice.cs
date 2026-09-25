@@ -44,7 +44,7 @@ public sealed class SettingChoice : UserControl
         Content = new Border
         {
             Style = (Style)Application.Current.Resources["QuickCardStyle"],
-            Child = new StackPanel { Spacing = 6, Children = { _title, _description, _options } },
+            Child = new StackPanel { Spacing = 8, Children = { _title, _description, _options } },
         };
         _link = new SettingLink(this, () => Setting, Build, Paint);
     }

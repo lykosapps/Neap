@@ -59,7 +59,7 @@
                                 <c:SettingRow x:Uid="Device_SerialNumber" Setting="serial_number" />
                             </tk:SettingsExpander.Items>
                             <tk:SettingsExpander.ItemsFooter>
-                                <StackPanel Padding="16,12" Spacing="6">
+                                <StackPanel Padding="16,12" Spacing="8">
                                     <TextBlock x:Uid="Device_ReportedHeading" Style="{StaticResource NeapLabelStyle}" />
                                     <TextBlock
                                         x:Uid="Device_RawNote"

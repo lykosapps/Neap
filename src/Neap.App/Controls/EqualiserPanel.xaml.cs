@@ -3,6 +3,7 @@ using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Neap.App.Services;
 using Neap.Core.Connection;
@@ -249,7 +250,7 @@ public sealed partial class EqualiserPanel : UserControl
                 SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Hidden,
                 ValidationMode = NumberBoxValidationMode.InvalidInputOverwritten,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(3, 0, 3, 0),
+                Margin = new Thickness(2, 0, 2, 0),
             };
             // Without a name, a screen reader announces ten identical controls.
             AutomationProperties.SetName(field, spec.Frequencies[i]);
@@ -278,8 +279,12 @@ public sealed partial class EqualiserPanel : UserControl
             field.Loaded += (_, _) =>
             {
                 // The text box only exists once the field has its template.
+                // Its figures are of one width, so the value does not jitter
+                // as it steps.
                 field.ApplyTemplate();
-                if (field.FindDescendant<TextBox>() is { } box) box.ContextFlyout = menu;
+                if (field.FindDescendant<TextBox>() is not { } box) return;
+                box.ContextFlyout = menu;
+                Typography.SetNumeralAlignment(box, FontNumeralAlignment.Tabular);
             };
 
             field.ValueChanged += (sender, args) =>
@@ -295,7 +300,7 @@ public sealed partial class EqualiserPanel : UserControl
                 Paint();
             };
 
-            var column = new StackPanel { Spacing = 6 };
+            var column = new StackPanel { Spacing = 4 };
             column.Children.Add(field);
             column.Children.Add(hz);
             Grid.SetColumn(column, i);
@@ -334,11 +339,11 @@ public sealed partial class EqualiserPanel : UserControl
     /// </remarks>
     private UIElement SlotChip(Preset preset)
     {
-        var slot = new Grid { ColumnSpacing = 2, Tag = preset };
+        var slot = new Grid { ColumnSpacing = 4, Tag = preset };
         slot.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         slot.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(DeleteWidth) });
 
-        var face = new Grid { ColumnSpacing = 10 };
+        var face = new Grid { ColumnSpacing = 12 };
         face.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         face.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         face.Children.Add(new TextBlock
@@ -378,7 +383,7 @@ public sealed partial class EqualiserPanel : UserControl
         {
             var remove = new Button
             {
-                Content = new FontIcon { Glyph = "\uE711", FontSize = 11 },
+                Content = new FontIcon { Glyph = "\uE711", FontSize = 12 },
                 Padding = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Stretch,
                 Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent),
@@ -403,7 +408,7 @@ public sealed partial class EqualiserPanel : UserControl
     /// </summary>
     private UIElement ConfirmChip(Preset preset)
     {
-        var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
+        var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         var delete = new Button { Content = Strings.Get("Equaliser_Delete") };
         var cancel = new Button { Content = Strings.Get("Dialog_Cancel") };
         // The keyboard lands on the safe choice, where the delete button it

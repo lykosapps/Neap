@@ -171,7 +171,7 @@ public sealed class WindowsVolumeRow : SettingsCard
                 MinWidth = 44,
                 TextAlignment = TextAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Center,
-                Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
+                Style = (Style)Application.Current.Resources["NumeralBodyTextStyle"],
             };
             var line = new StackPanel
             {

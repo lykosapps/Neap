@@ -31,12 +31,13 @@
                         x:Name="StateDot"
                         Width="8"
                         Height="8"
-                        VerticalAlignment="Center" />
+                        Margin="0,8,0,0"
+                        VerticalAlignment="Top" />
                     <TextBlock
                         x:Name="HowConnected"
                         VerticalAlignment="Center"
-                        FontSize="18"
-                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        FontWeight="SemiBold"
+                        Style="{StaticResource BodyLargeTextBlockStyle}"
                         TextWrapping="Wrap" />
                 </StackPanel>
             </StackPanel>
@@ -62,7 +63,7 @@
             x:Name="NotePanel"
             Style="{StaticResource QuickCardStyle}"
             Visibility="Collapsed">
-            <StackPanel Spacing="6">
+            <StackPanel Spacing="8">
                 <TextBlock
                     x:Name="NoteWhat"
                     Style="{StaticResource BodyStrongTextBlockStyle}"
