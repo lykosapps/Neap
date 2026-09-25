@@ -13,6 +13,12 @@ namespace Neap.Core.Audio;
 /// been open a moment, is enough.
 /// </para>
 /// <para>
+/// A microphone that closes before then has still turned the ring white,
+/// and nothing else will turn it back: Neap's own meter does this whenever
+/// its page is passed through. So a closing that comes before the reset was
+/// due is the reset's cue instead.
+/// </para>
+/// <para>
 /// A reset restarts Windows' audio on the device, and applications' streams
 /// can close and reopen with it. Any opening seen soon after a reset is
 /// taken as that, not as someone starting a call; otherwise one reset would
@@ -46,16 +52,21 @@ public sealed class RingRefresh
         bool opened = open && !_wasOpen;
         _wasOpen = open;
 
-        if (!open)
+        bool reset;
+        if (open)
         {
-            _due = null;
-            return false;
+            if (opened && now >= _quietUntil) _due = now + Settle;
+            reset = _due is { } due && now >= due;
         }
-        if (opened && now >= _quietUntil) _due = now + Settle;
-        if (_due is not { } due || now < due) return false;
+        else
+        {
+            // Closed before its reset. Not wanted means sound has left the
+            // dock or the switch is off, and a reset would do nothing.
+            reset = wanted && _due is not null;
+        }
 
-        _due = null;
-        _quietUntil = now + Quiet;
-        return true;
+        if (!open || reset) _due = null;
+        if (reset) _quietUntil = now + Quiet;
+        return reset;
     }
 }

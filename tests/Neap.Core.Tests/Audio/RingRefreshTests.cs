@@ -29,11 +29,43 @@ public sealed class RingRefreshTests
     }
 
     [Fact]
-    public void DoesNothingWhenTheMicrophoneClosesBeforeItSettles()
+    public void ResetsOnceWhenTheMicrophoneClosesBeforeItSettles()
+    {
+        // Passing through the page with the microphone meter on it.
+        var refresh = new RingRefresh();
+        refresh.Next(micOpen: true, wanted: true, At(0));
+        Assert.True(refresh.Next(micOpen: false, wanted: true, At(1)));
+        for (int second = 2; second < 60; second++)
+            Assert.False(refresh.Next(micOpen: false, wanted: true, At(second)));
+    }
+
+    [Fact]
+    public void DoesNothingWhenTheMicrophoneClosesAfterItsReset()
     {
         var refresh = new RingRefresh();
         refresh.Next(micOpen: true, wanted: true, At(0));
-        Assert.False(refresh.Next(micOpen: false, wanted: true, At(1)));
+        Assert.True(refresh.Next(micOpen: true, wanted: true, At(2)));
+        Assert.False(refresh.Next(micOpen: false, wanted: true, At(30)));
+    }
+
+    [Fact]
+    public void DoesNothingWhenNoLongerWantedBeforeItSettles()
+    {
+        // Sound moved off the dock, or the switch turned off, mid-opening.
+        var refresh = new RingRefresh();
+        refresh.Next(micOpen: true, wanted: true, At(0));
+        Assert.False(refresh.Next(micOpen: false, wanted: false, At(1)));
+        Assert.False(refresh.Next(micOpen: false, wanted: true, At(2)));
+    }
+
+    [Fact]
+    public void TakesABriefOpeningStraightAfterAResetAsTheResetItself()
+    {
+        var refresh = new RingRefresh();
+        refresh.Next(micOpen: true, wanted: true, At(0));
+        Assert.True(refresh.Next(micOpen: true, wanted: true, At(2)));
+        refresh.Next(micOpen: false, wanted: true, At(3));
+        refresh.Next(micOpen: true, wanted: true, At(4));
         Assert.False(refresh.Next(micOpen: false, wanted: true, At(5)));
     }
 

@@ -37,7 +37,9 @@ and date.
   microphone, the Charging Dock drops out of high resolution and its status
   ring turns white. It stays that way after the call, even though Windows
   still says 24-bit/96 kHz. Neap restores it a moment later, and the ring
-  turns purple again. There is a switch for it on the Device page.
+  turns purple again, including after something only touches the
+  microphone for a second, such as passing through Neap's own microphone
+  meter. There is a switch for it on the Device page.
 - **Says what is actually happening.** Connected, no sound, settings out of
   reach, switched off, out of range: each is its own state, with what still
   works and the one thing to do.
