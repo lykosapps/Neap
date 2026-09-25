@@ -7,6 +7,7 @@ to GitHub, these become issues.
 
 ## Bugs
 
+None open.
 
 ### Known limits, recorded rather than fixed
 
