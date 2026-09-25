@@ -112,7 +112,16 @@ public sealed class PresetService
     {
         try
         {
-            var presets = await _headset.Post(client => PresetStore.ReadBank(client, bank));
+            // One slot per job, so a setting changed meanwhile waits for the
+            // slot being read rather than the whole bank: an empty slot
+            // never answers, and a bank of empty slots took seconds.
+            var presets = PresetStore.Factory(bank).ToList();
+            for (int i = 0; i < PresetStore.Spec(bank).Slots.Count; i++)
+            {
+                int index = i;
+                if (await _headset.Post(client => PresetStore.ReadSlot(client, bank, index)) is { } preset)
+                    presets.Add(preset);
+            }
             var state = new BankState
             {
                 Bank = bank,

@@ -29,6 +29,16 @@ public sealed class HeadsetClient : IDisposable
     private readonly List<byte> _buffer = new();
     private readonly List<DeviceEvent> _setAside = new();
     private int _counter;
+    private long _lastSet;
+
+    /// <summary>How long a read waits after a write before it is sent.</summary>
+    /// <remarks>
+    /// The headset drops a request sent straight after another, and a write
+    /// has no reply to wait for, so a read sent right behind one could be
+    /// lost. A lost read of a preset slot looks like an empty slot. About one
+    /// read's round trip.
+    /// </remarks>
+    internal static readonly TimeSpan AfterWrite = TimeSpan.FromMilliseconds(100);
 
     public bool AllowWrites { get; }
 
@@ -173,6 +183,8 @@ public sealed class HeadsetClient : IDisposable
                 $"no read verb for '{category}'; readable categories are "
                 + string.Join(", ", Verbs.Readers.Keys.Order()));
 
+        var sinceWrite = Stopwatch.GetElapsedTime(_lastSet);
+        if (_lastSet != 0 && sinceWrite < AfterWrite) Thread.Sleep(AfterWrite - sinceWrite);
         _transport.SendOutput(Frames.Build(verb, counter: NextCounter()));
 
         var values = new Dictionary<string, JsonElement>();
@@ -271,6 +283,7 @@ public sealed class HeadsetClient : IDisposable
             throw new WritesDisabledException(
                 $"refusing to set 0x{key:x}: this client is read-only");
         _transport.SendOutput(Frames.SetKey(key, Registry.WireValue(key, value), NextCounter()));
+        _lastSet = Stopwatch.GetTimestamp();
     }
 
     public void Dispose()

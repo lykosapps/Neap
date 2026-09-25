@@ -153,38 +153,37 @@ public static class PresetStore
     // -- reading -----------------------------------------------------------
 
     /// <summary>Reads the used custom slots straight off the headset, without changing what plays.</summary>
-    /// <remarks>
-    /// An empty slot answers with an empty name. A slot that does not answer
-    /// at all is also left out, but it is not known to be empty, so do not
-    /// treat it as free to write.
-    /// </remarks>
+    /// <remarks>See <see cref="ReadSlot"/> for what is left out.</remarks>
     public static List<Preset> ReadCustoms(
-        HeadsetClient client, Bank bank, TimeSpan? wait = null)
+        HeadsetClient client, Bank bank, TimeSpan? wait = null) =>
+        Enumerable.Range(0, Spec(bank).Slots.Count)
+            .Select(index => ReadSlot(client, bank, index, wait))
+            .OfType<Preset>()
+            .ToList();
+
+    /// <summary>Reads one custom slot straight off the headset, or null when it holds no preset.</summary>
+    /// <remarks>
+    /// An empty slot does not answer, and one that answers with an empty name
+    /// is empty too. A slot that does not answer is left out, but it is not
+    /// known to be empty, since its reply may have been lost, so do not treat
+    /// it as free to write. An empty slot costs the whole wait.
+    /// </remarks>
+    public static Preset? ReadSlot(HeadsetClient client, Bank bank, int index, TimeSpan? wait = null)
     {
-        var spec = Spec(bank);
-        var window = wait ?? TimeSpan.FromSeconds(1);
-        var found = new List<Preset>();
+        string category = Spec(bank).Slots[index];
+        var values = client.ReadCategory(category, wait ?? TimeSpan.FromSeconds(1));
+        string key = $"{Verbs.PresetSlotKey(category):x}";
+        if (!values.TryGetValue(key, out var slot) || slot.ValueKind != JsonValueKind.Object) return null;
 
-        for (int index = 0; index < spec.Slots.Count; index++)
-        {
-            string category = spec.Slots[index];
-            var values = client.ReadCategory(category, window);
-            string key = $"{Verbs.PresetSlotKey(category):x}";
-            if (!values.TryGetValue(key, out var slot)
-                || slot.ValueKind != JsonValueKind.Object) continue;
+        string name = slot.TryGetProperty("name", out var n) ? (n.GetString() ?? "").Trim() : "";
+        if (name.Length == 0) return null;
 
-            string name = slot.TryGetProperty("name", out var n)
-                ? (n.GetString() ?? "").Trim() : "";
-            if (name.Length == 0) continue;           // genuinely empty
+        var bands = new List<int>();
+        if (slot.TryGetProperty("bands", out var b) && b.ValueKind == JsonValueKind.Array)
+            foreach (var value in b.EnumerateArray())
+                bands.Add(TryNumber(value.GetString(), out int parsed) ? parsed : 0);
 
-            var bands = new List<int>();
-            if (slot.TryGetProperty("bands", out var b) && b.ValueKind == JsonValueKind.Array)
-                foreach (var value in b.EnumerateArray())
-                    bands.Add(TryNumber(value.GetString(), out int parsed) ? parsed : 0);
-
-            found.Add(new Preset(FirstCustomId + index, name, bands, bank, true));
-        }
-        return found;
+        return new Preset(FirstCustomId + index, name, bands, bank, true);
     }
 
     /// <summary>Everything in one bank: the factory presets plus whatever is stored.</summary>

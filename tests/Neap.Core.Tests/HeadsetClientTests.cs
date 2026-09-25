@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using Neap.Core.Pretend;
 
@@ -116,6 +117,19 @@ public class HeadsetClientTests
         client.Set(0x461, 20);
 
         Assert.Equal([new PretendWrite(0x422, "60"), new PretendWrite(0x461, "20")], headset.Writes);
+    }
+
+    [Fact]
+    public void AReadRightAfterAWriteWaitsBeforeItIsSent()
+    {
+        using var client = new HeadsetClient(allowWrites: true, transport: new PretendHeadset().Open());
+
+        client.Set(0x760, 55);
+        var clock = Stopwatch.StartNew();
+        client.ReadCategory("GSI", Window);
+
+        Assert.True(clock.Elapsed >= HeadsetClient.AfterWrite - TimeSpan.FromMilliseconds(5),
+            $"the read went out {clock.ElapsedMilliseconds} ms after the write");
     }
 
     [Fact]

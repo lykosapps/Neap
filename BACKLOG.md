@@ -7,10 +7,6 @@ to GitHub, these become issues.
 
 ## Bugs
 
-- **A headset setting changed just after start can wait.** Every request to
-  the headset queues in one line, so a change made while the presets are
-  being read waits behind them, about four seconds. The microphone no longer
-  does: it mutes in Windows, measured at a tenth of a second mid-read.
 
 ### Known limits, recorded rather than fixed
 
@@ -59,6 +55,10 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - **Does CrossPlay report its presses?** Unknown.
 - **The lights:** the USB Transmitter's second light, and the lights while
   sound and settings are on different transmitters.
+- **Settings while presets load.** Open the Microphone page and change a
+  setting at once: it takes effect within about a second. Every saved
+  preset is still listed on both equaliser pages, many times over: a read
+  now waits a moment after a write, and a lost read would hide a preset.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
 - **Two chat apps at once**, Discord and Teams say: both follow the chat

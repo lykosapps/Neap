@@ -114,3 +114,5 @@ and date.
 - A lit tile's state, such as "On" under Microphone, is easier to read: the
   tile's purple is a shade deeper in the light theme and a shade lighter at
   its foot in the dark one.
+- A setting changed while the equaliser's presets are loading takes effect
+  in under a second, rather than waiting up to four.
