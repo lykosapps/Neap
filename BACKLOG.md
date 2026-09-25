@@ -7,10 +7,10 @@ to GitHub, these become issues.
 
 ## Bugs
 
-- **The mic button fights the boom arm.**
-  - With the arm down (unmuted), the app's mute button must still mute.
-  - With the arm up (muted), the app cannot unmute, so its button should be
-    disabled.
+- **Windows can show Neap using the microphone after leaving the Microphone
+  page.** Seen once on 25 September: the indicator stayed on after a visit to
+  the page and a return to Home. Not reproduced since, with real or scripted
+  clicks, or by closing the window to the tray from that page.
 - **Started at login, Neap writes nothing to its log.** On 25 September the
   copy Windows started at login ran normally for almost an hour but logged
   nothing, not even that it started; the same build started by hand logs as
