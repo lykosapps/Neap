@@ -53,8 +53,6 @@ to GitHub, these become issues.
 The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 - **The full hardware list**, on the current build.
-- **Light theme.** Includes faint window buttons when Windows is forced to
-  light.
 - **High contrast.** The fixes for it have not been seen on screen.
 - **Neap's colours on drop-downs, menus, tooltips and dialogs**, on screen.
 - **Starting with Windows** on the current build.
