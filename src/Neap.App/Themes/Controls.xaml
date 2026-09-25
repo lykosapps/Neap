@@ -69,6 +69,7 @@
             <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="#2A2438" />
             <SolidColorBrush x:Key="AccentButtonBackgroundDisabled" Color="#1E1929" />
             <SolidColorBrush x:Key="AccentButtonBorderBrushDisabled" Color="#2A2438" />
+            <SolidColorBrush x:Key="AccentButtonForegroundDisabled" Color="{ThemeResource TextFillColorDisabled}" />
 
             <SolidColorBrush x:Key="SliderTrackFill" Color="#332B47" />
             <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#3B3351" />
@@ -158,6 +159,7 @@
             <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="#E2DEEC" />
             <SolidColorBrush x:Key="AccentButtonBackgroundDisabled" Color="#F7F5FB" />
             <SolidColorBrush x:Key="AccentButtonBorderBrushDisabled" Color="#E2DEEC" />
+            <SolidColorBrush x:Key="AccentButtonForegroundDisabled" Color="{ThemeResource TextFillColorDisabled}" />
 
             <SolidColorBrush x:Key="SliderTrackFill" Color="#DCD6EA" />
             <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#D0C9E1" />
