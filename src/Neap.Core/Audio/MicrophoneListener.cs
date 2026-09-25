@@ -23,6 +23,12 @@ namespace Neap.Core.Audio;
 /// in shared mode whatever the device's own format, so there is one sample
 /// format to read.
 /// </para>
+/// <para>
+/// NAudio's recorder loses a stop that arrives before its capture thread is
+/// running, and then records until the process ends, holding the
+/// microphone and the in use indicator. Leaving the page as the meter opens
+/// does exactly that, so opening returns only once recording has begun.
+/// </para>
 /// </remarks>
 public sealed class MicrophoneListener : IDisposable
 {
@@ -31,6 +37,7 @@ public sealed class MicrophoneListener : IDisposable
     private readonly MMDevice _device;
     private readonly WasapiRecorder _capture;
     private float _peak;
+    private Exception? _fault;
 
     private MicrophoneListener(MMDeviceEnumerator devices, MMDevice device)
     {
@@ -50,7 +57,9 @@ public sealed class MicrophoneListener : IDisposable
         };
         _capture.RecordingStopped += (_, args) =>
         {
-            if (args.Exception is not null) Stopped?.Invoke(args.Exception);
+            if (args.Exception is null) return;
+            _fault = args.Exception;
+            Stopped?.Invoke(args.Exception);
         };
     }
 
@@ -85,6 +94,9 @@ public sealed class MicrophoneListener : IDisposable
         {
             listener = new MicrophoneListener(devices, device);
             listener._capture.StartRecording();
+            SpinWait.SpinUntil(() => listener._capture.CaptureState != CaptureState.Starting);
+            if (listener._capture.CaptureState != CaptureState.Capturing)
+                throw new InvalidOperationException(listener._fault?.Message ?? "recording stopped as it started");
             return listener;
         }
         catch (Exception e) when (e is not WindowsAudioException)

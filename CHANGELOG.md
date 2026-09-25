@@ -47,7 +47,9 @@ and date.
   the microphone are on a device the headset is not listening to, Neap
   names the right one. The Charging Dock, the USB Transmitter and the
   headset's USB-C cable all work, alone or together.
-- **A microphone meter** that shows what the other person hears.
+- **A microphone meter** that shows what the other person hears. It uses
+  the microphone only while its page is on screen, and lets go of it as
+  soon as you move on, however quickly.
 - **The audio format** for the headset and the microphone, set from inside
   the app.
 
