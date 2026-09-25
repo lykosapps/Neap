@@ -14,7 +14,7 @@ namespace Neap.Core.Tests.Resources;
 /// </remarks>
 public sealed partial class AppStringsTests
 {
-    private static readonly string App = Path.Combine(RepoRoot(), "src", "Neap.App");
+    private static readonly string App = AppSource.Folder;
 
     private static readonly HashSet<string> Names = XDocument
         .Load(Path.Combine(App, "Strings", "en-US", "Resources.resw"))
@@ -66,13 +66,6 @@ public sealed partial class AppStringsTests
     private static bool Under(string file, string folder) =>
         file.Contains($"{Path.DirectorySeparatorChar}{folder}{Path.DirectorySeparatorChar}",
             StringComparison.Ordinal);
-
-    private static string RepoRoot()
-    {
-        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
-            if (File.Exists(Path.Combine(dir.FullName, "global.json"))) return dir.FullName;
-        throw new InvalidOperationException("No global.json above the test's folder.");
-    }
 
     [GeneratedRegex("\"([A-Z][A-Za-z]*_[A-Za-z]+)\"")]
     private static partial Regex KeyLiteral();

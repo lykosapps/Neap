@@ -111,3 +111,6 @@ and date.
   theme.
 - A band's menu offers to put the band back, from the keyboard (Shift+F10) or
   a right-click, instead of only cut, copy and paste.
+- A lit tile's state, such as "On" under Microphone, is easier to read: the
+  tile's purple is a shade deeper in the light theme and a shade lighter at
+  its foot in the dark one.

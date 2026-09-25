@@ -24,7 +24,7 @@
             <SolidColorBrush x:Key="NeapTileTextBrush" Color="#FFFFFF" />
             <LinearGradientBrush x:Key="NeapTileOnBrush" StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Offset="0" Color="#AB9CFF" />
-                <GradientStop Offset="1" Color="#8D7BF5" />
+                <GradientStop Offset="1" Color="#9181F6" />
             </LinearGradientBrush>
             <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#B4A7FF" />
             <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#C3B8FF" />
@@ -48,11 +48,11 @@
             <SolidColorBrush x:Key="NeapTileEdgeBrush" Color="#26000000" />
             <SolidColorBrush x:Key="NeapTileTextBrush" Color="#1A1A1A" />
             <LinearGradientBrush x:Key="NeapTileOnBrush" StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Offset="0" Color="#7B68E6" />
-                <GradientStop Offset="1" Color="#6D5AD9" />
+                <GradientStop Offset="0" Color="#614ECF" />
+                <GradientStop Offset="1" Color="#5845BD" />
             </LinearGradientBrush>
-            <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#7462DF" />
-            <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#5845BD" />
+            <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#5C49C4" />
+            <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#4C3BB0" />
             <SolidColorBrush x:Key="NeapTileOnEdgeBrush" Color="#40309A" />
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D5AD9" />
