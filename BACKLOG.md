@@ -83,20 +83,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - Home rebuilds its readings on every change.
 - Volumes are polled rather than followed by event.
 
-## Local housekeeping
-
-Planned for the end of the 25 September session, with Neap closed:
-
-- Gather everything in one `neap` folder: the project, the daily build and
-  the archive, named to convention.
-- Remove whatever is no longer used, once it is confirmed unused or backed
-  up.
-- Point start with Windows, and the session notes, at the new places.
-- Remove the old branches and worktrees; all are merged or backed up.
-- Remove the local git exclude rule that hides new audio folders.
-- Clear about 840 MB of old raw captures and engine leftovers from the
-  working folder. Git ignores them.
-
 ## Last in line
 
 - **Other languages.** Lowest priority. When it comes, start with the Mode
