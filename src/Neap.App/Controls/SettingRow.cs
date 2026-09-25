@@ -67,6 +67,29 @@ public sealed class SettingRow : SettingsCard
         set => SetValue(MinimumProperty, value);
     }
 
+    public static readonly DependencyProperty InsetProperty = DependencyProperty.Register(
+        nameof(Inset), typeof(bool), typeof(SettingRow),
+        new PropertyMetadata(false, (d, e) => ((SettingRow)d).Flatten((bool)e.NewValue)));
+
+    /// <summary>
+    /// Gets or sets whether the row sits inside another card, such as the
+    /// options a tile opens, and so draws no card of its own.
+    /// </summary>
+    public bool Inset
+    {
+        get => (bool)GetValue(InsetProperty);
+        set => SetValue(InsetProperty, value);
+    }
+
+    private void Flatten(bool inset)
+    {
+        if (!inset) return;
+        Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+        BorderThickness = new Thickness(0);
+        Padding = new Thickness(0, 4, 0, 4);
+        MinHeight = 0;
+    }
+
     /// <summary>Builds the row's control for its setting, once.</summary>
     private void Build(SettingKey key)
     {

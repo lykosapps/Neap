@@ -32,6 +32,9 @@ public enum WindowsControl { Volume, Mute }
 public sealed class WindowsVolumeRow : SettingsCard
 {
     private const int SliderWidth = 220;
+
+    /// <summary>The slider beside a mute: shorter by the mute's room, so the line is as wide as any other row's.</summary>
+    private const int MutedSliderWidth = 164;
     private const string UnmutedGlyph = "\uE994", MutedGlyph = "\uE74F";
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(1);
 
@@ -158,7 +161,7 @@ public sealed class WindowsVolumeRow : SettingsCard
             {
                 Minimum = 0,
                 Maximum = 100,
-                Width = SliderWidth,
+                Width = WithMute ? MutedSliderWidth : SliderWidth,
                 VerticalAlignment = VerticalAlignment.Center,
             };
             _slider.ValueChanged += (_, args) =>

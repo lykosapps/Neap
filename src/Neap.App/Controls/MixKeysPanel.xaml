@@ -5,19 +5,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
-    <StackPanel Spacing="4">
-        <tk:SettingsCard x:Uid="Mix_KeysCard">
-            <tk:SettingsCard.HeaderIcon>
-                <FontIcon Glyph="&#xE765;" />
-            </tk:SettingsCard.HeaderIcon>
-            <ToggleSwitch x:Name="KeysOn" />
-        </tk:SettingsCard>
-
-        <!--
-            The keys themselves, as rows rather than folded away, and only
-            while they are on: set once, and worth seeing while they work.
-        -->
-        <StackPanel x:Name="KeyRows" Spacing="4">
+    <!--
+        The switch and the keys in one card: the keys open inside it while
+        they are on, and are set once and worth seeing while they work.
+    -->
+    <tk:SettingsExpander x:Name="Card" x:Uid="Mix_KeysCard">
+        <tk:SettingsExpander.HeaderIcon>
+            <FontIcon Glyph="&#xE765;" />
+        </tk:SettingsExpander.HeaderIcon>
+        <ToggleSwitch x:Name="KeysOn" />
+        <tk:SettingsExpander.Items>
             <tk:SettingsCard x:Name="GameRow" x:Uid="Mix_GameRow">
                 <Button x:Name="GameKey" MinWidth="190" />
             </tk:SettingsCard>
@@ -27,15 +24,17 @@
             <tk:SettingsCard x:Name="CentreRow" x:Uid="Mix_CentreRow">
                 <Button x:Name="CentreKey" MinWidth="190" />
             </tk:SettingsCard>
-            <tk:SettingsCard x:Uid="Mix_KeysResetRow">
+            <tk:SettingsCard x:Name="ResetRow" x:Uid="Mix_KeysResetRow">
                 <Button x:Name="KeysReset" x:Uid="Mix_KeysReset" />
             </tk:SettingsCard>
-        </StackPanel>
-
-        <InfoBar
-            x:Name="Notice"
-            IsClosable="False"
-            IsOpen="False"
-            Severity="Informational" />
-    </StackPanel>
+        </tk:SettingsExpander.Items>
+        <tk:SettingsExpander.ItemsFooter>
+            <InfoBar
+                x:Name="Notice"
+                Margin="16,8"
+                IsClosable="False"
+                IsOpen="False"
+                Severity="Informational" />
+        </tk:SettingsExpander.ItemsFooter>
+    </tk:SettingsExpander>
 </UserControl>

@@ -48,8 +48,14 @@
                                 Glyph="&#xF270;"
                                 Setting="superhuman_hearing">
                                 <StackPanel Spacing="4">
-                                    <c:SettingRow x:Uid="Audio_Type" Setting="shh_preset" />
-                                    <c:SettingRow x:Uid="Audio_Intensity" Setting="shh_level" />
+                                    <c:SettingRow
+                                        x:Uid="Audio_Type"
+                                        Inset="True"
+                                        Setting="shh_preset" />
+                                    <c:SettingRow
+                                        x:Uid="Audio_Intensity"
+                                        Inset="True"
+                                        Setting="shh_level" />
                                 </StackPanel>
                             </c:SettingTile>
                         </Grid>
@@ -58,11 +64,12 @@
                     <!--
                         Windows' own volume, with its mute beside it on one line, last:
                         the headset's wheel is the everyday way to change it. The
-                        headset's spoken alerts under it, so every level is in one place.
+                        headset's spoken alerts beside it, so every level is in one
+                        place, and neither row is a wide card with a short slider.
                     -->
                     <TextBlock x:Uid="Audio_VolumeHeading" Style="{StaticResource SectionHeaderStyle}" />
                     <c:RoutingNotice Margin="0,0,0,8" Microphone="False" />
-                    <StackPanel Spacing="4">
+                    <c:SideBySide>
                         <c:WindowsVolumeRow
                             x:Uid="Audio_MasterVolume"
                             Kind="Volume"
@@ -73,7 +80,7 @@
                                 Glyph="&#xE8BD;"
                                 Setting="voice_prompt_volume" />
                         </c:HeadsetSection>
-                    </StackPanel>
+                    </c:SideBySide>
                 </c:HeadsetSection>
 
             </StackPanel>

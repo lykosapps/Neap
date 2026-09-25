@@ -8,7 +8,7 @@ namespace Neap.App.Controls;
 
 /// <summary>
 /// Noise control with its three modes in view, and how much noise
-/// cancellation blocks under it while that is the mode.
+/// cancellation blocks under them, in the same card, while that is the mode.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -65,21 +65,16 @@ public sealed class NoiseControlPanel : UserControl
             Minimum = NoiseControl.LeastBlocking,
             Header = Strings.Get("Noise_Blocking"),
             Description = Strings.Get("Noise_BlockingDescription"),
+            Inset = true,
             Visibility = Visibility.Collapsed,
         };
 
-        Content = new StackPanel
+        // One card, which fills the height it is given so it lines up with
+        // the tile beside it.
+        Content = new Border
         {
-            Spacing = 4,
-            Children =
-            {
-                new Border
-                {
-                    Style = (Style)Application.Current.Resources["QuickCardStyle"],
-                    Child = new StackPanel { Spacing = 8, Children = { title, description, _modes } },
-                },
-                _blocking,
-            },
+            Style = (Style)Application.Current.Resources["QuickCardStyle"],
+            Child = new StackPanel { Spacing = 8, Children = { title, description, _modes, _blocking } },
         };
 
         Loaded += (_, _) =>

@@ -46,8 +46,9 @@
                         </Border>
                     </Grid>
 
+                    <!--  The two levels side by side, as on Audio.  -->
                     <TextBlock x:Uid="Microphone_VoiceHeading" Style="{StaticResource SectionHeaderStyle}" />
-                    <StackPanel Spacing="4">
+                    <c:SideBySide>
                         <c:WindowsVolumeRow
                             x:Uid="Microphone_Sensitivity"
                             Capture="True"
@@ -59,7 +60,7 @@
                                 Glyph="&#xE95B;"
                                 Setting="mic_monitoring" />
                         </c:HeadsetSection>
-                    </StackPanel>
+                    </c:SideBySide>
 
                     <c:HeadsetSection x:Uid="Microphone_HeadsetSection">
                         <!--
@@ -82,7 +83,10 @@
                                 Grid.Column="1"
                                 Glyph="&#xE71C;"
                                 Setting="noise_gate">
-                                <c:SettingRow x:Uid="Microphone_Threshold" Setting="noise_gate_threshold" />
+                                <c:SettingRow
+                                    x:Uid="Microphone_Threshold"
+                                    Inset="True"
+                                    Setting="noise_gate_threshold" />
                             </c:SettingTile>
                         </Grid>
 

@@ -31,6 +31,7 @@ public sealed partial class MixKeysPanel : UserControl
             if (_painting) return;
             AppServices.Hotkeys.Enable(KeysOn.IsOn);
             AppSettings.Update(settings => settings.MixHotkeys = KeysOn.IsOn);
+            Card.IsExpanded = KeysOn.IsOn;
             Paint();
         };
 
@@ -44,6 +45,7 @@ public sealed partial class MixKeysPanel : UserControl
         {
             AppServices.Hotkeys.Changed += Paint;
             Paint();
+            Card.IsExpanded = KeysOn.IsOn;
         };
         Unloaded += (_, _) => AppServices.Hotkeys.Changed -= Paint;
     }
@@ -117,7 +119,9 @@ public sealed partial class MixKeysPanel : UserControl
         _painting = true;
         KeysOn.IsOn = AppServices.Hotkeys.Enabled;
         _painting = false;
-        KeyRows.Visibility = KeysOn.IsOn ? Visibility.Visible : Visibility.Collapsed;
+        // Opened while off, the keys are there to read but do nothing, so they cannot be changed.
+        foreach (var row in new[] { GameRow, ChatRow, CentreRow, ResetRow })
+            row.IsEnabled = KeysOn.IsOn;
     }
 
     private static void Show(Button button, CommunityToolkit.WinUI.Controls.SettingsCard row, MixKey which)
