@@ -444,35 +444,36 @@ function Wheel {
     Screenshot 'home-mix'
 }
 
-# A switch on Home, which writes one key and follows the headset. $inverted
-# is for the microphone, whose switch is on while it is live and so writes
-# the mute the other way round.
-function QuickSwitch([string]$name, [string]$setting, [string]$key, [bool]$inverted) {
-    $script:step = "the $name switch on Home"
-    $switch = Control $name ([System.Windows.Automation.ControlType]::Button)
-    if ($null -eq $switch) { Fail "Home has a $name switch"; return }
-    $toggle = Pattern $switch ([System.Windows.Automation.TogglePattern])
-    $on = $toggle.Current.ToggleState -eq 'On'
-    $want = if ($on -eq $inverted) { '1' } else { '0' }
+# The microphone tile on Home, which mutes the microphone in Windows and
+# writes nothing to the headset, and is disabled while the boom arm is up.
+function MicTile {
+    $script:step = 'the microphone tile on Home'
+    $tile = Control 'Microphone' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -eq $tile) { Fail 'Home has a microphone tile'; return }
+    $toggle = Pattern $tile ([System.Windows.Automation.TogglePattern])
+    Check (Until { $tile.Current.IsEnabled -and $toggle.Current.ToggleState -eq 'On' }) 'with the arm down and Windows unmuted, the microphone tile is live'
 
     Ask 'clear' | Out-Null
     $toggle.Toggle()
-    Check (Until { @(Writes | Where-Object { $_.key -eq $key -and $_.value -eq $want }).Count -gt 0 }) "the $name switch sends $key=$want"
-    Check (@(Writes | Where-Object { $_.key -ne $key }).Count -eq 0) "the $name switch writes nothing else"
+    Check (Until { (Ask 'volume input').muted }) 'the microphone tile mutes the microphone in Windows'
+    Check (Until { $toggle.Current.ToggleState -eq 'Off' }) 'the microphone tile shows it muted'
+    $toggle.Toggle()
+    Check (Until { -not (Ask 'volume input').muted }) 'the microphone tile unmutes it again'
+    Check (@(Writes).Count -eq 0) 'the microphone tile writes nothing to the headset'
     Collect
 
-    # The value just set is the person's for a moment; let it pass.
-    Start-Sleep -Milliseconds 1800
-    $back = if ($want -eq '1') { '0' } else { '1' }
-    Ask "report $setting $back" | Out-Null
-    Check (Until { ($toggle.Current.ToggleState -eq 'On') -eq $on }) "the $name switch follows the headset back"
-    Check (@(Writes).Count -eq 0) "following the headset, the $name switch sends nothing back"
+    Ask 'report mic_muted 1' | Out-Null
+    Check (Until { -not $tile.Current.IsEnabled -and $toggle.Current.ToggleState -eq 'Off' }) 'with the arm up, the microphone tile is out and disabled'
+    Check ($null -ne (Find $tile 'NameProperty' 'Muted by the boom arm')) 'the microphone tile says the boom arm muted it'
+    Ask 'report mic_muted 0' | Out-Null
+    Check (Until { $tile.Current.IsEnabled -and $toggle.Current.ToggleState -eq 'On' }) 'with the arm down again, the microphone tile is live'
+    Check (@(Writes).Count -eq 0) 'following the arm, the microphone tile sends nothing'
     Collect
 }
 
 function Quick {
     Page 'Home'
-    QuickSwitch 'Microphone' 'mic_muted' '0x600' $true
+    MicTile
 
     # The equaliser tile opens a list of presets in a flyout, which sits
     # outside the tile in the tree, so the preset is looked for in the window.

@@ -838,6 +838,9 @@
   <data name="Mic_Muted" xml:space="preserve">
     <value>Muted</value>
   </data>
+  <data name="Mic_ArmUp" xml:space="preserve">
+    <value>Muted by the boom arm</value>
+  </data>
   <data name="Mic_Name" xml:space="preserve">
     <value>Microphone</value>
   </data>

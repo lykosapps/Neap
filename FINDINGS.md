@@ -213,7 +213,7 @@ either way.
 | Key | Meaning |
 |---|---|
 | `0x510` | game and chat mix, 0–100. The chat wheel reports its position here |
-| `0x600` | microphone muted, 0/1 (also set by flipping the boom up) |
+| `0x600` | microphone muted by the boom arm, 0/1: 1 while it is flipped up. Writing 1 with the arm down is accepted and does not mute; the microphone went on picking up speech. A Windows mute of the microphone does not change it *(both measured)* |
 | `0x610` | a **mirror** of the Windows recording level, not a control |
 | `0x620` | microphone monitoring (sidetone), 0–100 |
 | `0x630` | AI noise reduction, 0/1 |

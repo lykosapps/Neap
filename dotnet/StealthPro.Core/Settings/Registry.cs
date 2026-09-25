@@ -149,9 +149,10 @@ public static class Registry
                   + "a PC — it receives one stream — so treat this as an INPUT and apply "
                   + "the mix on the PC, which is what Swarm II does."),
 
-            T(0x600, "mic_muted", "Mic",
-              note: "1 while the mic is muted; observed changing when the boom was "
-                  + "unmuted by hand"),
+            T(0x600, "mic_muted", "Mic", writable: false,
+              note: "1 while the boom arm is flipped up, which mutes the mic. Writing "
+                  + "it is accepted and does not mute: the mic went on picking up "
+                  + "speech. Measured"),
             R(0x610, "mic_volume", "Mic", 0, 100,
               note: "a MIRROR of the Windows capture level for this microphone, not a "
                   + "control — the same arrangement as master volume. Set the Windows "

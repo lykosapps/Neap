@@ -41,6 +41,7 @@ if (args.Length == 0 || args[0] is "-h" or "--help")
                              read a USBPcap capture of Swarm II driving the
                              headset; writes <name>-decoded.txt beside it
           audio              Windows volume, mute and format, both devices
+          micmute on|off     mute or unmute the headset's microphone in Windows
           route              where Windows sends sound and takes the mic from,
                              by role, and which headset device is carrying it
           hear <output> [seconds]
@@ -82,6 +83,7 @@ try
                 args[1], args.Length > 2 ? int.Parse(args[2], CultureInfo.InvariantCulture) : 1);
         case "diff": return Diff(args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 180);
         case "audio": return Audio();
+        case "micmute": return MicMute(args.Length > 1 && args[1] == "on");
         case "route": return Route();
         case "hear": return Hear(args[1], args.Length > 2 ? double.Parse(args[2], CultureInfo.InvariantCulture) : 60);
         case "loopback": return Loopback(uint.Parse(args[1], CultureInfo.InvariantCulture));
@@ -274,6 +276,13 @@ static int Json()
     var ordered = values.OrderBy(p => Convert.ToInt32(p.Key, 16))
                         .ToDictionary(p => p.Key, p => DeviceEvent.Render(p.Value));
     Console.WriteLine(JsonSerializer.Serialize(ordered, Indented));
+    return 0;
+}
+
+static int MicMute(bool muted)
+{
+    AudioEndpoints.SetMuted(muted, flow: Flow.Input);
+    Console.WriteLine($"microphone {(AudioEndpoints.GetMuted(flow: Flow.Input) ? "muted" : "not muted")} in Windows");
     return 0;
 }
 
