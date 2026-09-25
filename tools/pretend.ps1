@@ -13,10 +13,12 @@ For each setting control on each page it moves the control, then checks
 that exactly one setting was written, that it is the control's own, that
 the value is the one chosen and inside the registry's limits, and that the
 headset holds it. It then has the headset change that setting itself and
-checks the control follows. It also covers the equaliser bands and
-presets, the Windows-owned volume, mute and format controls (which must
-write nothing to the headset), the chat wheel driving the mix, the
-battery, and the headset switching off and on. At the end nothing may have
+checks the control follows. It also covers the options a switch opens
+while it is on, the equaliser bands and presets, starting and deleting a
+preset, Home's tiles and its way to the equaliser, the Windows-owned
+volume, mute and format controls (which must write nothing to the
+headset), the chat wheel driving the mix, the battery, and the headset
+switching off and on. At the end nothing may have
 been refused: no unconfirmed key, no value out of range, no slot base
 address, no firmware command.
 
@@ -409,6 +411,82 @@ function Preset([string]$page, [string]$name, [string]$key, [string]$id) {
     Collect
 }
 
+# A switch's options open in a drawer only while it is on, and the walk over
+# each page leaves every switch where it found it, so it never sees them.
+# The headset turns the switch on by itself, each option is exercised, and
+# the headset turns it off again.
+function Drawer([string]$page, [string]$switch, [string[]]$options) {
+    Page $page
+    $script:step = "the options under $switch"
+    Ask "report $switch 1" | Out-Null
+    foreach ($name in $options) {
+        $setting = $script:registry | Where-Object { $_.name -eq $name }
+        if (-not (Until { $null -ne ($script:found = Find $script:window 'AutomationIdProperty' $name) })) {
+            Fail "$page shows $name while $switch is on"
+            continue
+        }
+        $script:covered[$name] = $true
+        Exercise $script:found $setting
+    }
+    Ask "report $switch 0" | Out-Null
+    Check (Until { $null -eq (Find $script:window 'AutomationIdProperty' $options[0]) }) "$page hides the options under $switch while it is off"
+    Collect
+}
+
+# Starting a preset from flat, and deleting one, from the list that opens
+# from the preset's name. Deleting asks first, in place.
+function PresetTools {
+    Page 'Audio'
+    $script:step = 'the preset tools on Audio'
+    $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
+    if ($null -eq $picker) { Fail 'Audio has a preset picker'; return }
+    $list = Pattern $picker ([System.Windows.Automation.ExpandCollapsePattern])
+
+    Ask 'clear' | Out-Null
+    $list.Expand()
+    $new = { Control 'Start a new preset' ([System.Windows.Automation.ControlType]::Button) }
+    if (-not (Until { $null -ne (& $new) })) { Fail 'the preset list offers a new preset'; return }
+    (Pattern (& $new) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Check (Until { (Find $script:window 'AutomationIdProperty' 'PresetName').Current.Name -eq 'New preset' }) 'New preset starts a preset from flat'
+    Check (Until { $list.Current.ExpandCollapseState -eq 'Collapsed' }) 'choosing New preset closes the list'
+    Collect
+
+    $list.Expand()
+    $delete = { Control 'Delete Night Raid' ([System.Windows.Automation.ControlType]::Button) }
+    if (-not (Until { $null -ne (& $delete) })) { Fail 'the preset list offers to delete Night Raid'; return }
+    (Pattern (& $delete) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Check (Until { $null -ne (Control 'Keep Night Raid' ([System.Windows.Automation.ControlType]::Button)) }) 'deleting Night Raid asks first'
+    Check (@(Writes | Where-Object { $_.key -eq '0x1610' }).Count -eq 0) 'asking deletes nothing'
+    (Pattern (& $delete) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Check (Until { @(Writes | Where-Object { $_.key -eq '0x1610' }).Count -gt 0 }) 'confirming deletes Night Raid on the headset'
+    Check (Until { $null -eq (Control 'Night Raid' ([System.Windows.Automation.ControlType]::Button)) }) 'Night Raid leaves the list'
+    Collect
+    $list.Collapse()
+}
+
+# Superhuman Hearing's tile on Home, and the way from Home's equaliser tile
+# to the equaliser itself.
+function HomeExtras {
+    Page 'Home'
+    $script:step = 'Superhuman Hearing on Home'
+    $tile = Find $script:window 'AutomationIdProperty' 'superhuman_hearing'
+    if ($null -eq $tile) { Fail 'Home has a Superhuman Hearing tile' }
+    else { Exercise $tile ($script:registry | Where-Object { $_.name -eq 'superhuman_hearing' }) }
+
+    $script:step = 'Open the equaliser on Home'
+    $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
+    (Pattern $picker ([System.Windows.Automation.InvokePattern])).Invoke()
+    $open = { Control 'Open the equaliser' ([System.Windows.Automation.ControlType]::Button) }
+    if (-not (Until { $null -ne (& $open) })) { Fail "Home's preset list ends with Open the equaliser"; return }
+    (Pattern (& $open) ([System.Windows.Automation.InvokePattern])).Invoke()
+    $audio = {
+        FindAll $script:window 'NameProperty' 'Audio' |
+            Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem } | Select-Object -First 1
+    }
+    Check (Until { (Pattern (& $audio) ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Open the equaliser goes to Audio'
+    Collect
+}
+
 function WindowsOwned {
     Page 'Audio'
     Ask 'clear' | Out-Null
@@ -627,6 +705,8 @@ try {
 
     Write-Host 'Settings'
     foreach ($page in 'Audio', 'Microphone', 'Controls', 'Device') { Settings $page }
+    Drawer 'Audio' 'superhuman_hearing' 'shh_preset', 'shh_level'
+    Drawer 'Microphone' 'noise_gate' 'noise_gate_threshold'
     $missed = @($script:registry | Where-Object { $_.writable -and $_.kind -ne 'Text' -and -not $script:covered[$_.name] } | ForEach-Object { $_.name })
     Write-Host "  note  writable settings with no control on these pages: $($missed -join ', ')"
 
@@ -643,8 +723,11 @@ try {
     Write-Host 'Chat wheel'
     Wheel
 
+    PresetTools
+
     Write-Host 'Home'
     Quick
+    HomeExtras
 
     Write-Host 'Noise control'
     NoiseControl

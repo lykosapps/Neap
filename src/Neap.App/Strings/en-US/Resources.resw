@@ -874,6 +874,9 @@
   <data name="Quick_OpenEqualiser.Text" xml:space="preserve">
     <value>Open the equaliser</value>
   </data>
+  <data name="Quick_OpenEqualiserButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Open the equaliser</value>
+  </data>
   <data name="Home_Through" xml:space="preserve">
     <value>Connected through the {0}</value>
   </data>
