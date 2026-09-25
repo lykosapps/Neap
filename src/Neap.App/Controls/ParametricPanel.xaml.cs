@@ -16,7 +16,7 @@ namespace Neap.App.Controls;
 /// Formats and parses a frequency for the parametric equaliser: hertz below
 /// 1 kHz, kilohertz above.
 /// </summary>
-/// <remarks>Parsing is lenient: "4915", "4.9k" and "4.9 kHz" are all accepted.</remarks>
+/// <remarks>Parsing is <see cref="FrequencyEntry.Parse"/>.</remarks>
 internal sealed class FrequencyFormatter : INumberFormatter2, INumberParser
 {
     public static string Text(double hertz) => hertz >= 1000
@@ -29,14 +29,7 @@ internal sealed class FrequencyFormatter : INumberFormatter2, INumberParser
 
     public string FormatDouble(double value) => Text(value);
 
-    public double? ParseDouble(string text)
-    {
-        string lower = text.ToLowerInvariant().Replace(',', '.');
-        string number = new(lower.Where(c => char.IsDigit(c) || c == '.').ToArray());
-        if (!double.TryParse(number, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
-            return null;
-        return lower.Contains('k', StringComparison.Ordinal) ? value * 1000 : value;
-    }
+    public double? ParseDouble(string text) => FrequencyEntry.Parse(text);
 
     public long? ParseInt(string text) => ParseDouble(text) is double d ? (long)Math.Round(d) : null;
 
