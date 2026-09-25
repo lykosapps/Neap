@@ -31,8 +31,9 @@ public sealed partial class MainWindow : Window
     /// <summary>Selects the page with this rail tag, as though it had been clicked.</summary>
     public void GoTo(string tag)
     {
-        foreach (var item in Nav.MenuItems.OfType<NavigationViewItem>())
+        foreach (var item in Nav.MenuItems.Concat(Nav.FooterMenuItems).OfType<NavigationViewItem>())
             if (item.Tag as string == tag) { Nav.SelectedItem = item; return; }
+        AppLog.Write($"no page with the tag {tag}: stayed where it was");
     }
 
     public MainWindow()
@@ -61,6 +62,7 @@ public sealed partial class MainWindow : Window
         Place();
 
         Nav.SelectedItem = Nav.MenuItems[0];
+        if (Pretend.Page is { } page) GoTo(page);
 
         // Alt and a page's letter goes to that page. A menu item has no
         // action of its own for an access key to invoke, so selecting it is

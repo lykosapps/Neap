@@ -190,6 +190,11 @@ public sealed partial class EqualiserPanel : UserControl
             return;
         }
         BuildSlots();
+        if (Pretend.Parametric && ParametricEq.Covers(Bank) && !AppServices.Presets.IsParametric(Bank))
+        {
+            await AppServices.Presets.UseParametric(Bank);
+            AppServices.Presets.SetAdjustments(Bank, Pretend.SampleAdjustments);
+        }
         Paint();
     }
 

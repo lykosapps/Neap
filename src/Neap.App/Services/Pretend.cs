@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Neap.Core;
+using Neap.Core.Presets;
 using Neap.Core.Pretend;
 
 namespace Neap.App.Services;
@@ -41,6 +42,12 @@ public static class Pretend
     /// <summary>With <see cref="Flag"/>, shows the app in the dark theme whatever Windows is set to.</summary>
     public const string DarkFlag = "--dark";
 
+    /// <summary>With <see cref="Flag"/> and a page's rail tag after it, opens the app on that page.</summary>
+    public const string PageFlag = "--page";
+
+    /// <summary>With <see cref="Flag"/>, opens the game equaliser in parametric mode with <see cref="SampleAdjustments"/>.</summary>
+    public const string ParametricFlag = "--parametric";
+
     public static bool Active { get; } = Given(Flag);
 
     /// <summary>
@@ -65,8 +72,34 @@ public static class Pretend
         : Given(DarkFlag) ? ApplicationTheme.Dark
         : null;
 
+    /// <summary>The rail tag of the page the app opens on, or null for Home.</summary>
+    /// <remarks>
+    /// Moving between pages through UI Automation brings the window forward
+    /// even behind everything, so a script that must not take the screen from
+    /// somebody sees each page by launching on it instead.
+    /// </remarks>
+    public static string? Page { get; } = Active ? After(PageFlag) : null;
+
+    /// <summary>
+    /// Whether the game equaliser opens in parametric mode, with every
+    /// adjustment in use, so a script sees its fullest layout without
+    /// operating it.
+    /// </summary>
+    public static bool Parametric { get; } = Active && Given(ParametricFlag);
+
+    /// <summary>The adjustments <see cref="ParametricFlag"/> opens with: the most allowed, one too narrow for the bands to match.</summary>
+    public static IReadOnlyList<Adjustment> SampleAdjustments { get; } =
+        [new(100, 30, 20), new(1000, -15, 15), new(4900, -40, 10), new(12000, 25, 15)];
+
     private static bool Given(string flag) => Environment.GetCommandLineArgs().Skip(1)
         .Any(a => string.Equals(a, flag, StringComparison.OrdinalIgnoreCase));
+
+    private static string? After(string flag)
+    {
+        var args = Environment.GetCommandLineArgs().Skip(1).ToList();
+        int at = args.FindIndex(a => string.Equals(a, flag, StringComparison.OrdinalIgnoreCase));
+        return at >= 0 && at + 1 < args.Count ? args[at + 1] : null;
+    }
 
     public static PretendHeadset? Headset { get; } = Active ? new PretendHeadset() : null;
 

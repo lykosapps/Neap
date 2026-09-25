@@ -49,6 +49,12 @@ so run it while nobody is using the machine. Add `-Theme Light` or
 `-Theme Dark` to see every screen in that theme without changing Windows'
 own.
 
+To look at a screen while somebody works, launch it on that screen instead:
+`Neap.exe --pretend --behind --page audio` opens behind every window and
+never comes forward. The tags are `home`, `audio`, `mic`, `controls`,
+`device` and `settings`. Add `--parametric` to open the game equaliser in
+parametric mode with every adjustment in use.
+
 ## Working with the hardware
 
 - **One process at a time.** Only one program can usefully hold the
