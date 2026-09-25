@@ -1,9 +1,12 @@
+using System.Diagnostics;
 using System.Globalization;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Neap.App.Services;
+using Neap.Core.Audio;
 using Neap.Core.Presets;
 using Windows.Globalization.NumberFormatting;
 
@@ -52,6 +55,13 @@ internal sealed class FrequencyFormatter : INumberFormatter2, INumberParser
 /// ten gains under them always agree.
 /// </para>
 /// <para>
+/// The test tone above the plot plays on the headset, so it is heard through
+/// the equaliser being set. It is moved by hand with its slider or swept, and
+/// held where it stands out, to be cut or boosted there. It plays only while
+/// the panel is on screen: leaving the page, hiding the window or going back
+/// to the bands stops it.
+/// </para>
+/// <para>
 /// The fields edit whichever adjustment is chosen; a point pressed on the
 /// plot chooses its adjustment too. Frequency has a slider, on a
 /// logarithmic scale as heard, and a field for typing an exact value.
@@ -65,6 +75,18 @@ public sealed partial class ParametricPanel : UserControl
     private readonly List<TextBlock> _sent = new();
     private int _selected;
     private bool _painting;
+
+    private enum Tone { Off, Sweeping, Held }
+
+    /// <summary>The tone's level, kept for the session so it comes back where it was left.</summary>
+    private static int _level = ToneSweep.FirstLevel;
+
+    private readonly DispatcherQueueTimer _sweep;
+    private readonly Stopwatch _swept = new();
+    private IPlayingTone? _player;
+    private Tone _tone;
+    private double _frequency = Adjustment.LowestFrequency;
+    private double _sweptFrom;
 
     /// <summary>Raised after the adjustments change, so the equaliser can repaint around them.</summary>
     public event Action? Changed;
@@ -108,7 +130,164 @@ public sealed partial class ParametricPanel : UserControl
         WidthSlider.ValueChanged += (_, args) =>
             Edit(a => a with { Width = (int)Math.Round(args.NewValue * 10) });
 
+        _sweep = DispatcherQueue.CreateTimer();
+        _sweep.Interval = TimeSpan.FromMilliseconds(33);
+        _sweep.Tick += (_, _) => SweepOn();
+        SweepButton.Click += async (_, _) => await SweepOrHold();
+        StopButton.Click += (_, _) => StopTone();
+        ToneSlider.ValueChanged += async (_, args) =>
+        {
+            if (_painting) return;
+            await Hold(ParametricEq.FrequencyAt(args.NewValue, ToneSlider.Maximum));
+        };
+        LevelSlider.Value = _level;
+        LevelSlider.ValueChanged += (_, args) =>
+        {
+            _level = (int)Math.Round(args.NewValue);
+            if (_player is not null) _player.Amplitude = ToneSweep.Amplitude(_level);
+        };
+        CutButton.Click += (_, _) => AddAtTone(boost: false);
+        BoostButton.Click += (_, _) => AddAtTone(boost: true);
+
+        // A tone left playing where it cannot be seen is a tone nobody can stop.
+        Unloaded += (_, _) => StopTone();
+        RegisterPropertyChangedCallback(VisibilityProperty, (_, _) =>
+        {
+            if (Visibility != Visibility.Visible) StopTone();
+        });
+
         BuildSent();
+    }
+
+    // -- the test tone -----------------------------------------------------
+
+    private async Task SweepOrHold()
+    {
+        switch (_tone)
+        {
+            case Tone.Sweeping:
+                _tone = Tone.Held;
+                _sweep.Stop();
+                break;
+            default:
+                _sweptFrom = ToneSweep.Start(_frequency);
+                if (!await Play(_sweptFrom)) return;
+                _tone = Tone.Sweeping;
+                _swept.Restart();
+                _sweep.Start();
+                break;
+        }
+        PaintTone();
+    }
+
+    /// <summary>Holds the tone at a frequency, starting it if it is not playing.</summary>
+    private async Task Hold(double frequency)
+    {
+        _sweep.Stop();
+        if (!await Play(frequency)) return;
+        _tone = Tone.Held;
+        PaintTone();
+    }
+
+    private void SweepOn()
+    {
+        if (_tone != Tone.Sweeping) { _sweep.Stop(); return; }
+        _frequency = ToneSweep.After(_sweptFrom, _swept.Elapsed.TotalSeconds);
+        if (_player is not null) _player.Frequency = _frequency;
+        if (ToneSweep.Finished(_frequency))
+        {
+            _tone = Tone.Held;
+            _sweep.Stop();
+        }
+        PaintTone();
+    }
+
+    /// <summary>Moves the tone to a frequency, opening it on the headset if needed.</summary>
+    /// <returns>Whether the tone is playing.</returns>
+    private async Task<bool> Play(double frequency)
+    {
+        _frequency = frequency;
+        if (_player is not null)
+        {
+            _player.Frequency = frequency;
+            return true;
+        }
+
+        ToneTrouble.Visibility = Visibility.Collapsed;
+        try
+        {
+            // A pretend run leaves the real headset's sound alone.
+            var player = await Task.Run(() => Pretend.Windows?.OpenTone(frequency) ?? TestTone.Open(frequency));
+            // Stopped, or left, while it was opening.
+            if (!IsLoaded || Visibility != Visibility.Visible)
+            {
+                player.Dispose();
+                return false;
+            }
+            player.Stopped += fault => DispatcherQueue.TryEnqueue(() => Fail(fault.Message));
+            player.Frequency = _frequency;
+            player.Amplitude = ToneSweep.Amplitude(_level);
+            _player = player;
+            return true;
+        }
+        catch (WindowsAudioException e)
+        {
+            Fail(e.Message);
+            return false;
+        }
+    }
+
+    private void Fail(string trouble)
+    {
+        AppLog.Write($"test tone: {trouble}");
+        StopTone();
+        ToneTrouble.Text = Strings.Format("Tone_CouldNotPlay", trouble);
+        ToneTrouble.Visibility = Visibility.Visible;
+    }
+
+    private void StopTone()
+    {
+        _sweep.Stop();
+        _player?.Dispose();
+        _player = null;
+        _tone = Tone.Off;
+        PaintTone();
+    }
+
+    private void AddAtTone(bool boost)
+    {
+        var adjustments = Current();
+        if (adjustments.Count >= ParametricEq.MostAdjustments) return;
+        adjustments.Add(ToneSweep.At(_frequency, boost));
+        _selected = adjustments.Count - 1;
+        Commit(adjustments);
+    }
+
+    /// <summary>Shows the tone's state: its buttons, its slider and its line on the plot.</summary>
+    private void PaintTone()
+    {
+        bool painting = _painting;
+        _painting = true;
+        try
+        {
+            (SweepIcon.Glyph, SweepText.Text) = _tone switch
+            {
+                Tone.Sweeping => ("\uE769", Strings.Get("Tone_Hold")),
+                Tone.Held => ("\uE768", Strings.Get("Tone_Resume")),
+                _ => ("\uE768", Strings.Get("Tone_Sweep")),
+            };
+            AutomationProperties.SetName(SweepButton, SweepText.Text);
+            StopButton.IsEnabled = _tone != Tone.Off;
+            ToneSlider.Value = Math.Round(ParametricEq.X(_frequency, ToneSlider.Maximum));
+            ToneText.Text = FrequencyFormatter.Text(_frequency);
+
+            // Only where the tone stands still: a cut at a moving frequency
+            // lands somewhere the ear has already left.
+            bool room = AppServices.Presets.Adjustments(Game).Count < ParametricEq.MostAdjustments;
+            CutButton.IsEnabled = BoostButton.IsEnabled = _tone == Tone.Held && room;
+            Shape.ShowTone(_tone == Tone.Off ? null : _frequency);
+        }
+        finally { _painting = painting; }
     }
 
     private void BuildSent()
@@ -199,6 +378,7 @@ public sealed partial class ParametricPanel : UserControl
 
             for (int i = 0; i < _sent.Count && i < bands.Length; i++)
                 _sent[i].Text = Db.Text(bands[i]);
+            PaintTone();
         }
         finally { _painting = false; }
     }

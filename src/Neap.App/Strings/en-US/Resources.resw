@@ -1051,4 +1051,43 @@
   <data name="Parametric_RemoveNamed" xml:space="preserve">
     <value>Remove adjustment {0}</value>
   </data>
+  <data name="Tone_Label.Text" xml:space="preserve">
+    <value>Test tone</value>
+  </data>
+  <data name="Tone_Sweep" xml:space="preserve">
+    <value>Sweep</value>
+  </data>
+  <data name="Tone_Hold" xml:space="preserve">
+    <value>Hold</value>
+  </data>
+  <data name="Tone_Resume" xml:space="preserve">
+    <value>Resume</value>
+  </data>
+  <data name="Tone_Stop.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Stop the test tone</value>
+  </data>
+  <data name="Tone_Frequency.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Test tone frequency</value>
+  </data>
+  <data name="Tone_Level.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Test tone level</value>
+  </data>
+  <data name="Tone_Cut.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Cut here</value>
+  </data>
+  <data name="Tone_CutLabel.Text" xml:space="preserve">
+    <value>Cut here</value>
+  </data>
+  <data name="Tone_Boost.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Boost here</value>
+  </data>
+  <data name="Tone_BoostLabel.Text" xml:space="preserve">
+    <value>Boost here</value>
+  </data>
+  <data name="Tone_HowTo.Text" xml:space="preserve">
+    <value>Move through the range with the slider, or press Sweep. Where the tone jumps out, cut. Where it drops away, boost. Then change the gain until the tone sounds even with its neighbours.</value>
+  </data>
+  <data name="Tone_CouldNotPlay" xml:space="preserve">
+    <value>The test tone can't play: {0}</value>
+  </data>
 </root>

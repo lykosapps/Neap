@@ -20,7 +20,7 @@ namespace Neap.Core.Audio;
 /// the stream closes, so it never starts or stops with a click.
 /// </para>
 /// </remarks>
-public sealed class TestTone : IDisposable
+public sealed class TestTone : IPlayingTone
 {
     private readonly MMDeviceEnumerator _devices;
     private readonly MMDevice _device;
@@ -44,17 +44,14 @@ public sealed class TestTone : IDisposable
         _player.Init(new SampleToWaveProvider(_tone));
     }
 
-    /// <summary>Raised, on the audio thread, when playback stops on its own because of a fault.</summary>
     public event Action<Exception>? Stopped;
 
-    /// <summary>Gets or sets the frequency, in hertz.</summary>
     public double Frequency
     {
         get => _tone.Frequency;
         set => _tone.Frequency = value;
     }
 
-    /// <summary>Gets or sets the loudness, from 0 to 1.</summary>
     public double Amplitude
     {
         get => _tone.Amplitude;

@@ -7,6 +7,101 @@
 
     <StackPanel Spacing="12">
 
+        <!--
+            The test tone: moved by hand or swept, heard through the
+            equaliser, with a cut or boost added where it stands.
+        -->
+        <Border
+            Padding="12,10"
+            BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
+            BorderThickness="1"
+            CornerRadius="8">
+            <StackPanel Spacing="8">
+                <Grid ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="100" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        x:Uid="Tone_Label"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource SecondaryBodyTextStyle}" />
+                    <Button x:Name="SweepButton" Grid.Column="1">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon x:Name="SweepIcon" FontSize="12" />
+                            <TextBlock x:Name="SweepText" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        x:Name="StopButton"
+                        x:Uid="Tone_Stop"
+                        Grid.Column="2"
+                        Padding="10,5">
+                        <FontIcon FontSize="12" Glyph="&#xE71A;" />
+                    </Button>
+                    <Slider
+                        x:Name="ToneSlider"
+                        x:Uid="Tone_Frequency"
+                        Grid.Column="3"
+                        VerticalAlignment="Center"
+                        IsThumbToolTipEnabled="False"
+                        LargeChange="50"
+                        Maximum="1000"
+                        Minimum="0"
+                        SmallChange="5"
+                        StepFrequency="1" />
+                    <TextBlock
+                        x:Name="ToneText"
+                        Grid.Column="4"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <FontIcon
+                        Grid.Column="5"
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Glyph="&#xE767;" />
+                    <Slider
+                        x:Name="LevelSlider"
+                        x:Uid="Tone_Level"
+                        Grid.Column="6"
+                        VerticalAlignment="Center"
+                        IsThumbToolTipEnabled="False"
+                        Maximum="100"
+                        Minimum="0"
+                        StepFrequency="1" />
+                </Grid>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button x:Name="CutButton" x:Uid="Tone_Cut">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontSize="12" Glyph="&#xE74B;" />
+                            <TextBlock x:Uid="Tone_CutLabel" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="BoostButton" x:Uid="Tone_Boost">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontSize="12" Glyph="&#xE74A;" />
+                            <TextBlock x:Uid="Tone_BoostLabel" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <TextBlock
+                    x:Name="ToneTrouble"
+                    Style="{StaticResource SecondaryBodyTextStyle}"
+                    TextWrapping="Wrap"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Uid="Tone_HowTo"
+                    Style="{StaticResource SecondaryCaptionTextStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
         <!--  The key to the two curves: which is asked for and which is heard.  -->
         <StackPanel Orientation="Horizontal" Spacing="20">
             <StackPanel Orientation="Horizontal" Spacing="8">

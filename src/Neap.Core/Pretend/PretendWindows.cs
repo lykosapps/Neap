@@ -57,6 +57,12 @@ public sealed class PretendWindows
     /// </summary>
     public float MicrophonePeak { get; set; } = 0.2f;
 
+    /// <summary>The test tone last opened, or null if none has been.</summary>
+    public PretendTone? Tone { get; private set; }
+
+    /// <summary>Opens the test tone, which plays nowhere; what it is asked to play is kept for a script to read.</summary>
+    public IPlayingTone OpenTone(double frequency) => Tone = new PretendTone(frequency);
+
     // -- routing ------------------------------------------------------------
 
     /// <summary>

@@ -23,6 +23,10 @@ namespace Neap.App.Controls;
 /// the bottom, so it is plain where the headset can act.
 /// </para>
 /// <para>
+/// While the test tone plays, a line marks its frequency, with a dot where
+/// it meets the curve heard.
+/// </para>
+/// <para>
 /// Dragging a point moves its adjustment's frequency and gain; the mouse
 /// wheel over it changes its width. The fields under the plot do all of this
 /// from the keyboard, so the plot is hidden from screen readers.
@@ -47,11 +51,21 @@ public sealed class ParametricCurve : UserControl
     private readonly List<Line> _ticks = new();
     private readonly List<TextBlock> _labels = new();
     private readonly List<(Ellipse Grab, Ellipse Dot, TextBlock Number)> _handles = new();
+    private readonly Line _toneLine = new() { StrokeThickness = 1.5, IsHitTestVisible = false };
+    private readonly Ellipse _toneDot = new() { Width = 8, Height = 8, IsHitTestVisible = false };
+    private readonly TextBlock _toneText = new() { FontSize = 11, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold };
+    private readonly Border _toneTag = new()
+    {
+        CornerRadius = new CornerRadius(4),
+        Padding = new Thickness(6, 1, 6, 2),
+        IsHitTestVisible = false,
+    };
 
     private IReadOnlyList<Adjustment> _adjustments = [];
     private int[] _bands = [];
     private int _selected;
     private int _dragging = -1;
+    private double? _tone;
 
     /// <summary>The bands' labels, as the band view shows them.</summary>
     public IReadOnlyList<string> Frequencies { get; set; } = [];
@@ -91,6 +105,13 @@ public sealed class ParametricCurve : UserControl
         };
         _canvas.PointerCaptureLost += (_, _) => _dragging = -1;
         _canvas.PointerCanceled += (_, _) => _dragging = -1;
+    }
+
+    /// <summary>Marks where the test tone is, or clears the mark when it is not playing.</summary>
+    public void ShowTone(double? frequency)
+    {
+        _tone = frequency;
+        PlaceTone();
     }
 
     /// <summary>Shows a set of adjustments, the band gains they fit to, and which one is chosen.</summary>
@@ -155,6 +176,16 @@ public sealed class ParametricCurve : UserControl
             _canvas.Children.Add(_gap);
             _canvas.Children.Add(_heard);
             _canvas.Children.Add(_asked);
+
+            var mark = Themed("TextFillColorPrimaryBrush");
+            _toneLine.Stroke = mark;
+            _toneDot.Fill = mark;
+            _toneTag.Background = mark;
+            _toneText.Foreground = Themed("SolidBackgroundFillColorBaseBrush");
+            _toneTag.Child = _toneText;
+            _canvas.Children.Add(_toneLine);
+            _canvas.Children.Add(_toneDot);
+            _canvas.Children.Add(_toneTag);
         }
 
         while (_handles.Count > _adjustments.Count)
@@ -268,6 +299,26 @@ public sealed class ParametricCurve : UserControl
             Canvas.SetLeft(grab, x - GrabRadius);
             Canvas.SetTop(grab, y - GrabRadius);
         }
+        PlaceTone();
+    }
+
+    /// <summary>Puts the test tone's line where it is, on the curve heard, with its frequency above.</summary>
+    private void PlaceTone()
+    {
+        double width = _canvas.ActualWidth;
+        var shown = _tone is not null && width > 0 && _bands.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        _toneLine.Visibility = _toneDot.Visibility = _toneTag.Visibility = shown;
+        if (_tone is not double tone || shown == Visibility.Collapsed) return;
+
+        double x = X(tone);
+        (_toneLine.X1, _toneLine.X2, _toneLine.Y1, _toneLine.Y2) = (x, x, Inset, PlotBottom);
+        Canvas.SetLeft(_toneDot, x - 4);
+        Canvas.SetTop(_toneDot, Y(ParametricEq.Heard(_bands, tone)) - 4);
+        _toneText.Text = FrequencyFormatter.Text(tone);
+        _toneTag.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        double tagWidth = _toneTag.DesiredSize.Width;
+        Canvas.SetLeft(_toneTag, Math.Clamp(x - tagWidth / 2, 0, Math.Max(0, width - tagWidth)));
+        Canvas.SetTop(_toneTag, 0);
     }
 
     private static PathGeometry Line(IReadOnlyList<Point> points, bool closed = false)
