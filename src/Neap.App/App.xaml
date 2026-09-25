@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.SettingsControls/Themes/Generic.xaml" />
                 <ResourceDictionary Source="ms-appx:///Controls/GameChatDial.xaml" />
                 <ResourceDictionary Source="ms-appx:///Controls/Tiles.xaml" />
+                <ResourceDictionary Source="ms-appx:///Controls/Curves.xaml" />
                 <!--  After Windows' control styles, so its colours win; see the file.  -->
                 <ResourceDictionary Source="ms-appx:///Themes/Controls.xaml" />
             </ResourceDictionary.MergedDictionaries>

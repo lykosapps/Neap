@@ -88,19 +88,10 @@ public sealed class EqualiserCurve : UserControl
         _canvas.Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
         _canvas.SizeChanged += (_, _) => Layout();
 
-        _area.Opacity = 0.14;
-        _curve.StrokeThickness = 2;
-        _curve.StrokeLineJoin = PenLineJoin.Round;
-        _ghost.StrokeThickness = 1;
+        _area.Style = Styled("CurveAreaStyle");
+        _curve.Style = Styled("CurveHeardStyle");
+        _ghost.Style = Styled("CurveStoredStyle");
         _ghost.StrokeDashArray = new DoubleCollection { 3, 3 };
-
-        // Its colours are set in code, so a new theme redraws it.
-        ActualThemeChanged += (_, _) =>
-        {
-            _handles.Clear();
-            Build(_live.Length);
-            Layout();
-        };
 
         _canvas.PointerMoved += OnPointerMoved;
         _canvas.PointerReleased += (_, args) => EndDrag(args);
@@ -122,7 +113,7 @@ public sealed class EqualiserCurve : UserControl
 
     // -- shapes ------------------------------------------------------------
 
-    private static Brush Themed(string key) => (Brush)Application.Current.Resources[key];
+    private static Style Styled(string key) => (Style)Application.Current.Resources[key];
 
     private void Build(int bands)
     {
@@ -134,29 +125,19 @@ public sealed class EqualiserCurve : UserControl
         _handles.Clear();
         _rings.Clear();
 
-        var faint = Themed("DividerStrokeColorDefaultBrush");
-        var centre = Themed("ControlStrongStrokeColorDefaultBrush");
-        var accent = Themed("AccentFillColorDefaultBrush");
-        var ghost = Themed("TextFillColorTertiaryBrush");
-        var behind = Themed("SettingsCardBackground");
-
         // Four gridlines and the 0 dB line, which is drawn last of the five
         // so it reads as the one that matters.
         foreach (int tenths in new[] { Maximum, Maximum / 2, Minimum / 2, Minimum, 0 })
         {
             var line = new Line
             {
-                Stroke = tenths == 0 ? centre : faint,
-                StrokeThickness = 1,
+                Style = Styled(tenths == 0 ? "CurveCentreStyle" : "CurveGridStyle"),
                 Tag = tenths,
             };
             _grid.Add(line);
             _canvas.Children.Add(line);
         }
 
-        _area.Fill = accent;
-        _curve.Stroke = accent;
-        _ghost.Stroke = ghost;
         _canvas.Children.Add(_area);
         _canvas.Children.Add(_ghost);
         _canvas.Children.Add(_curve);
@@ -174,9 +155,7 @@ public sealed class EqualiserCurve : UserControl
             {
                 Width = HandleRadius * 2,
                 Height = HandleRadius * 2,
-                Fill = accent,
-                Stroke = behind,
-                StrokeThickness = 2,
+                Style = Styled("CurveBandHandleStyle"),
                 IsHitTestVisible = false,
             };
             _handles.Add(handle);
@@ -192,9 +171,7 @@ public sealed class EqualiserCurve : UserControl
             {
                 Width = GhostRadius * 2,
                 Height = GhostRadius * 2,
-                Fill = behind,
-                Stroke = ghost,
-                StrokeThickness = 1.5,
+                Style = Styled("CurveRingStyle"),
                 Visibility = Visibility.Collapsed,
             };
             ring.PointerPressed += (_, args) =>

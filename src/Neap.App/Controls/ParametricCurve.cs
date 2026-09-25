@@ -51,15 +51,10 @@ public sealed class ParametricCurve : UserControl
     private readonly List<Line> _ticks = new();
     private readonly List<TextBlock> _labels = new();
     private readonly List<(Ellipse Grab, Ellipse Dot, TextBlock Number)> _handles = new();
-    private readonly Line _toneLine = new() { StrokeThickness = 1.5, IsHitTestVisible = false };
+    private readonly Line _toneLine = new() { IsHitTestVisible = false };
     private readonly Ellipse _toneDot = new() { Width = 8, Height = 8, IsHitTestVisible = false };
-    private readonly TextBlock _toneText = new() { FontSize = 11, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold };
-    private readonly Border _toneTag = new()
-    {
-        CornerRadius = new CornerRadius(4),
-        Padding = new Thickness(6, 1, 6, 2),
-        IsHitTestVisible = false,
-    };
+    private readonly TextBlock _toneText = new();
+    private readonly Border _toneTag = new() { IsHitTestVisible = false };
 
     private IReadOnlyList<Adjustment> _adjustments = [];
     private int[] _bands = [];
@@ -85,19 +80,15 @@ public sealed class ParametricCurve : UserControl
         _canvas.Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
         _canvas.SizeChanged += (_, _) => Layout();
 
-        _gap.Opacity = 0.3;
-        _heard.StrokeThickness = 2;
-        _heard.StrokeLineJoin = PenLineJoin.Round;
-        _asked.StrokeThickness = 1.5;
+        _gap.Style = Styled("CurveGapStyle");
+        _heard.Style = Styled("CurveHeardStyle");
+        _asked.Style = Styled("CurveAskedStyle");
         _asked.StrokeDashArray = new DoubleCollection { 4, 3 };
-
-        // Its colours are set in code, so a new theme rebuilds it.
-        ActualThemeChanged += (_, _) =>
-        {
-            _canvas.Children.Clear();
-            Build();
-            Layout();
-        };
+        _toneLine.Style = Styled("CurveToneLineStyle");
+        _toneDot.Style = Styled("CurveToneDotStyle");
+        _toneTag.Style = Styled("CurveToneTagStyle");
+        _toneText.Style = Styled("CurveToneTextStyle");
+        _toneTag.Child = _toneText;
 
         _canvas.PointerMoved += OnPointerMoved;
         _canvas.PointerReleased += (_, args) =>
@@ -128,24 +119,17 @@ public sealed class ParametricCurve : UserControl
 
     // -- shapes ------------------------------------------------------------
 
-    private static Brush Themed(string key) => (Brush)Application.Current.Resources[key];
+    private static Style Styled(string key) => (Style)Application.Current.Resources[key];
 
     private void Build()
     {
         if (_canvas.Children.Count == 0)
         {
-            _grid.Clear();
-            _ticks.Clear();
-            _labels.Clear();
-            _handles.Clear();
-
-            var faint = Themed("DividerStrokeColorDefaultBrush");
             foreach (int tenths in new[] { Range, Range / 2, -Range / 2, -Range, 0 })
             {
                 var line = new Line
                 {
-                    Stroke = tenths == 0 ? Themed("ControlStrongStrokeColorDefaultBrush") : faint,
-                    StrokeThickness = 1,
+                    Style = Styled(tenths == 0 ? "CurveCentreStyle" : "CurveGridStyle"),
                     Tag = tenths,
                 };
                 _grid.Add(line);
@@ -156,8 +140,7 @@ public sealed class ParametricCurve : UserControl
             {
                 var tick = new Line
                 {
-                    Stroke = faint,
-                    StrokeThickness = 1,
+                    Style = Styled("CurveBandTickStyle"),
                     StrokeDashArray = new DoubleCollection { 2, 3 },
                 };
                 _ticks.Add(tick);
@@ -166,25 +149,15 @@ public sealed class ParametricCurve : UserControl
                 var label = new TextBlock
                 {
                     Text = i < Frequencies.Count ? Frequencies[i] : "",
-                    Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
+                    Style = Styled("SecondaryCaptionTextStyle"),
                 };
                 _labels.Add(label);
                 _canvas.Children.Add(label);
             }
 
-            _gap.Fill = Themed("SystemFillColorCautionBrush");
-            _heard.Stroke = Themed("AccentFillColorDefaultBrush");
-            _asked.Stroke = Themed("TextFillColorSecondaryBrush");
             _canvas.Children.Add(_gap);
             _canvas.Children.Add(_heard);
             _canvas.Children.Add(_asked);
-
-            var mark = Themed("TextFillColorPrimaryBrush");
-            _toneLine.Stroke = mark;
-            _toneDot.Fill = mark;
-            _toneTag.Background = mark;
-            _toneText.Foreground = Themed("SolidBackgroundFillColorBaseBrush");
-            _toneTag.Child = _toneText;
             _canvas.Children.Add(_toneLine);
             _canvas.Children.Add(_toneDot);
             _canvas.Children.Add(_toneTag);
@@ -205,16 +178,12 @@ public sealed class ParametricCurve : UserControl
             {
                 Width = HandleRadius * 2,
                 Height = HandleRadius * 2,
-                StrokeThickness = 1.5,
                 IsHitTestVisible = false,
             };
             var number = new TextBlock
             {
                 Text = (index + 1).ToString(System.Globalization.CultureInfo.CurrentCulture),
-                FontSize = 11,
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
                 Width = HandleRadius * 2,
-                TextAlignment = TextAlignment.Center,
                 IsHitTestVisible = false,
             };
             var grab = new Ellipse
@@ -231,15 +200,11 @@ public sealed class ParametricCurve : UserControl
             _canvas.Children.Add(grab);
         }
 
-        var accent = Themed("AccentFillColorDefaultBrush");
-        var behind = Themed("SettingsCardBackground");
         for (int i = 0; i < _handles.Count; i++)
         {
             bool chosen = i == _selected;
-            _handles[i].Dot.Fill = chosen ? accent : behind;
-            _handles[i].Dot.Stroke = chosen ? behind : accent;
-            _handles[i].Number.Foreground = Themed(
-                chosen ? "TextOnAccentFillColorPrimaryBrush" : "AccentTextFillColorPrimaryBrush");
+            _handles[i].Dot.Style = Styled(chosen ? "CurveHandleChosenStyle" : "CurveHandleStyle");
+            _handles[i].Number.Style = Styled(chosen ? "CurveHandleChosenNumberStyle" : "CurveHandleNumberStyle");
         }
     }
 

@@ -100,3 +100,5 @@ and date.
 - Open and Quit on the tray menu work.
 - A failure to list recording devices is reported instead of closing the
   app.
+- The equaliser's plots follow a switch between light and dark while Neap
+  is open, rather than keeping the colours of the theme it started in.
