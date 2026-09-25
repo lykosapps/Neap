@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="Neap.App.Controls.ParametricPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -146,7 +146,10 @@
 
         <!--  One button per adjustment, then adding and removing.  -->
         <StackPanel Orientation="Horizontal" Spacing="6">
-            <StackPanel x:Name="Chips" Orientation="Horizontal" Spacing="6" />
+            <StackPanel
+                x:Name="Chips"
+                Orientation="Horizontal"
+                Spacing="6" />
             <Button x:Name="AddButton" x:Uid="Parametric_Add">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <FontIcon FontSize="12" Glyph="&#xE710;" />
@@ -188,11 +191,11 @@
                 x:Uid="Parametric_FrequencySlider"
                 Grid.Column="1"
                 IsThumbToolTipEnabled="False"
+                LargeChange="50"
                 Maximum="1000"
                 Minimum="0"
-                StepFrequency="1"
                 SmallChange="10"
-                LargeChange="50" />
+                StepFrequency="1" />
             <NumberBox
                 x:Name="FrequencyField"
                 x:Uid="Parametric_FrequencyField"
@@ -227,8 +230,8 @@
             <TextBlock
                 x:Uid="Parametric_Width"
                 Grid.Row="2"
-                VerticalAlignment="Top"
                 Margin="0,6,0,0"
+                VerticalAlignment="Top"
                 Style="{StaticResource SecondaryBodyTextStyle}" />
             <StackPanel Grid.Row="2" Grid.Column="1">
                 <Slider
@@ -253,8 +256,8 @@
                 x:Name="WidthText"
                 Grid.Row="2"
                 Grid.Column="2"
-                VerticalAlignment="Top"
                 Margin="0,6,0,0"
+                VerticalAlignment="Top"
                 Style="{StaticResource BodyStrongTextBlockStyle}" />
         </Grid>
 
