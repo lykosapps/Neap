@@ -94,8 +94,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 ## Smaller code items
 
 - The mix dial's size is fixed.
-- The microphone meter reads its Large setting once.
-- Home rebuilds its readings on every change.
 - Volumes are polled rather than followed by event.
 - The band view draws a smooth line through the ten gains, not what plays.
   Neighbouring bands overlap, so ten bands at +9 dB play about +13.5 dB.

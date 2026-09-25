@@ -57,7 +57,10 @@ public sealed class MicMeter : UserControl
     }
 
     public static readonly DependencyProperty LargeProperty = DependencyProperty.Register(
-        nameof(Large), typeof(bool), typeof(MicMeter), new PropertyMetadata(false));
+        nameof(Large), typeof(bool), typeof(MicMeter), new PropertyMetadata(false, (d, _) =>
+        {
+            if (d is MicMeter { IsLoaded: true } meter) meter.BuildBars();
+        }));
 
     /// <summary>Gets or sets whether the meter is drawn wide and tall, as a monitor rather than a reading in a row.</summary>
     public bool Large
@@ -68,10 +71,11 @@ public sealed class MicMeter : UserControl
 
     private int BarCount => Large ? 40 : 20;
 
-    /// <summary>Lays out the bars, once, at the size the meter is set to.</summary>
+    /// <summary>Lays out the bars at the size the meter is set to.</summary>
     private void BuildBars()
     {
-        if (_bars.Count > 0) return;
+        _bars.Clear();
+        _meter.Children.Clear();
         _meter.Spacing = Large ? 4 : 3;
         for (int i = 0; i < BarCount; i++)
         {

@@ -31,9 +31,17 @@ public sealed partial class QuickControls : UserControl
 
     private PluggedWatch? _plugged;
 
+    /// <summary>A reading at the top right: what it is, and its value.</summary>
+    private sealed record Reading(StackPanel Panel, TextBlock Label, TextBlock Value);
+
+    private readonly Reading _battery;
+    private readonly Reading _signal;
+
     public QuickControls()
     {
         InitializeComponent();
+        _battery = AddReading();
+        _signal = AddReading();
 
         Block.SizeChanged += (_, _) => Arrange();
         Loaded += (_, _) =>
@@ -79,14 +87,17 @@ public sealed partial class QuickControls : UserControl
         HowConnected.Text = Connection(status, cable, look.Headline);
         ToolTipService.SetToolTip(HowConnected, status.Detail);
 
-        Readings.Children.Clear();
         if (headset.Battery is { } battery)
-            AddReading(Strings.Get(battery.Charging ? "Home_Charging" : "Home_Battery"),
+            Show(_battery, Strings.Get(battery.Charging ? "Home_Charging" : "Home_Battery"),
                 Strings.Format("Home_BatteryLevel", battery.Percent));
+        else
+            _battery.Panel.Visibility = Visibility.Collapsed;
         // Signal is the wireless link's, and says nothing about sound that
         // goes over a cable.
         if (status.Link == Link.Connected && !cable && headset.TryGetNumberByKey(Signal.Key, out int signal))
-            AddReading(Strings.Get("Home_Signal"), Strength(signal));
+            Show(_signal, Strings.Get("Home_Signal"), Strength(signal));
+        else
+            _signal.Panel.Visibility = Visibility.Collapsed;
 
         PaintNote(StateNote.For(status));
         Fold(MixCard, SectionFold.For(status, whenOff: true));
@@ -135,24 +146,22 @@ public sealed partial class QuickControls : UserControl
         _ => Strings.Get("Home_SignalWeak"),
     };
 
-    private void AddReading(string label, string value) =>
-        Readings.Children.Add(new StackPanel
-        {
-            Spacing = 2,
-            Children =
-            {
-                new TextBlock
-                {
-                    Text = label,
-                    Style = (Style)Application.Current.Resources["NeapLabelStyle"],
-                },
-                new TextBlock
-                {
-                    Text = value,
-                    Style = (Style)Application.Current.Resources["NeapReadingStyle"],
-                },
-            },
-        });
+    /// <summary>Adds an empty reading, hidden until it has something to show.</summary>
+    private Reading AddReading()
+    {
+        var label = new TextBlock { Style = (Style)Application.Current.Resources["NeapLabelStyle"] };
+        var value = new TextBlock { Style = (Style)Application.Current.Resources["NeapReadingStyle"] };
+        var panel = new StackPanel { Spacing = 2, Visibility = Visibility.Collapsed, Children = { label, value } };
+        Readings.Children.Add(panel);
+        return new Reading(panel, label, value);
+    }
+
+    private static void Show(Reading reading, string label, string value)
+    {
+        reading.Label.Text = label;
+        reading.Value.Text = value;
+        reading.Panel.Visibility = Visibility.Visible;
+    }
 
     /// <summary>Shows the note for the states that need one.</summary>
     /// <remarks>
