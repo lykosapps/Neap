@@ -16,9 +16,10 @@ to GitHub, these become issues.
   nothing, not even that it started; the same build started by hand logs as
   usual. The log swallows its own failures, so why it cannot write is not
   recorded either.
-- **Muting just after opening a page is slow.** A press waits about four
-  seconds behind the page reading its presets, because every request to the
-  headset queues in one line.
+- **A headset setting changed just after start can wait.** Every request to
+  the headset queues in one line, so a change made while the presets are
+  being read waits behind them, about four seconds. The microphone no longer
+  does: it mutes in Windows, measured at a tenth of a second mid-read.
 - **Setting option names are English only.** The Mode button's, the dial's
   and Superhuman Hearing's option names are written into the code, not the
   resource file, so they can't be translated.
