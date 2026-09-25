@@ -74,14 +74,25 @@ public sealed class MixService : IDisposable
 
     public SessionMixStatus? Status => _mix?.Status;
 
+    /// <summary>The applications that carry chat.</summary>
+    /// <remarks>
+    /// Choosing the first starts the mix, and clearing the last stops it and
+    /// puts every volume back: with no chat to balance against, holding the
+    /// game half down would only make everything quieter.
+    /// </remarks>
     public IReadOnlyList<string> ChatApps
     {
         get => AppSettings.Current.ChatApps;
         set
         {
             AppSettings.Update(s => s.ChatApps = value.ToList());
-            if (_mix is not null) _mix.ChatApps = value;
-            Changed?.Invoke();
+            if (value.Count == 0) Stop();
+            else if (_mix is null) Start();
+            else
+            {
+                _mix.ChatApps = value;
+                Changed?.Invoke();
+            }
         }
     }
 

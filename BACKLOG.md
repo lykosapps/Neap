@@ -20,8 +20,6 @@ to GitHub, these become issues.
 
 ## Features
 
-- **More than one chat app.** The chat side takes one app. Planned: an
-  expandable card with a checkbox per app.
 - **Profiles.** Save and apply a set of settings, switch automatically when
   an app starts, and switch with hotkeys.
 - **A parametric equaliser.** Pick a frequency, gain and width, and Neap sets
@@ -57,6 +55,10 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   sound and settings are on different transmitters.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
+- **Two chat apps at once**, Discord and Teams say: both follow the chat
+  side, and clearing the last puts every volume back.
+- **The chat app list on screen** in light and high contrast, and the screen
+  checks' new steps for it, which have not had a full run.
 
 ## Protocol unknowns
 

@@ -72,20 +72,20 @@
   <data name="Equaliser_OverwriteNo.Content" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="Mix_ChatPicker.PlaceholderText" xml:space="preserve">
-    <value>Choose an app</value>
-  </data>
   <data name="Mix_Title.Text" xml:space="preserve">
     <value>Game and chat</value>
   </data>
   <data name="Mix_Setup.Text" xml:space="preserve">
-    <value>Choose your chat app to balance it against your game.</value>
+    <value>Choose your chat apps to balance them against your game.</value>
   </data>
   <data name="Mix_ChatFrom.Text" xml:space="preserve">
     <value>Chat comes from</value>
   </data>
-  <data name="Mix_ChatPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Chat comes from</value>
+  <data name="Mix_ChatFromName" xml:space="preserve">
+    <value>Chat comes from {0}</value>
+  </data>
+  <data name="Mix_NoneChosen" xml:space="preserve">
+    <value>No app chosen yet</value>
   </data>
   <data name="Mix_Levels" xml:space="preserve">
     <value>{0}. Game at {1}%, chat at {2}%.</value>
@@ -93,7 +93,7 @@
   <data name="Mix_Refresh.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Look for chat apps again</value>
   </data>
-  <data name="Mix_Refresh.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+  <data name="Mix_RefreshText.Text" xml:space="preserve">
     <value>Look again</value>
   </data>
   <data name="Mix_WheelBar.Title" xml:space="preserve">

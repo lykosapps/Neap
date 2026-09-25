@@ -10,14 +10,15 @@ using Neap.Core.Mix;
 namespace Neap.App.Controls;
 
 /// <summary>
-/// The game/chat crossfade as a dial, and the choice of which application
-/// carries chat.
+/// The game/chat crossfade as a dial, and the choice of which applications
+/// carry chat.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Before an application is chosen there is nothing to mix, so the dial is
-/// absent rather than disabled, and the panel only asks which application
-/// carries chat. The same picker stays beneath the dial once one is chosen.
+/// absent rather than disabled, and the panel only asks which applications
+/// carry chat, with the list open. Once one is chosen the list folds
+/// beneath the dial to a line naming them.
 /// </para>
 /// <para>
 /// The middle of the dial shows how loud each side plays, not a share: a
@@ -38,6 +39,9 @@ public sealed partial class MixPanel : UserControl
 {
     private bool _painting;
 
+    /// <summary>What the list last showed each application as, by process name.</summary>
+    private readonly Dictionary<string, string> _names = new(StringComparer.OrdinalIgnoreCase);
+
     public MixPanel()
     {
         InitializeComponent();
@@ -47,7 +51,6 @@ public sealed partial class MixPanel : UserControl
             if (_painting) return;
             AppServices.Mix.Apply((int)Math.Round(args.NewValue));
         };
-        ChatPicker.SelectionChanged += (_, _) => Choose();
         Refresh.Click += (_, _) => _ = LoadCandidates();
 
         Loaded += (_, _) =>
@@ -56,6 +59,7 @@ public sealed partial class MixPanel : UserControl
             AppServices.Headset.StatusChanged += OnHeadset;
             // The wheel's notice names the keys once they are on.
             AppServices.Hotkeys.Changed += Paint;
+            ChatFrom.IsExpanded = AppServices.Mix.ChatApps.Count == 0;
             Paint();
             _ = LoadCandidates();
         };
@@ -87,52 +91,58 @@ public sealed partial class MixPanel : UserControl
         set => SetValue(ExplainsWheelProperty, value);
     }
 
-    private void Choose()
+    /// <summary>Adds an application to those that carry chat, or takes it away.</summary>
+    private static void Choose(string process, bool on)
     {
-        if (_painting || ChatPicker.SelectedItem is not ComboBoxItem { Tag: string process }) return;
-        AppServices.Mix.ChatApps = new[] { process };
-        if (!AppServices.Mix.Running) AppServices.Mix.Start();
-        Paint();
+        var apps = AppServices.Mix.ChatApps
+            .Where(a => !string.Equals(a, process, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        if (on) apps.Add(process);
+        AppServices.Mix.ChatApps = apps;
     }
 
-    /// <summary>Lists the applications playing to the headset into the picker.</summary>
+    /// <summary>Lists the applications playing to the headset, a check box each.</summary>
     /// <remarks>
-    /// Cheap enough to run on arrival, and re-run on demand, since the chat
+    /// Cheap enough to run on arrival, and re-run on demand, since a chat
     /// application may have started since.
     /// </remarks>
     private async Task LoadCandidates()
     {
         var candidates = await AppServices.Mix.Candidates();
-        var apps = AppServices.Mix.ChatApps;
-        string? chosen = apps.Count > 0 ? apps[0] : null;
+        var chosen = AppServices.Mix.ChatApps;
 
-        _painting = true;
-        try
+        AppList.Children.Clear();
+        _names.Clear();
+        foreach (var candidate in candidates)
         {
-            ChatPicker.Items.Clear();
-            foreach (var candidate in candidates)
+            _names[candidate.Process] = candidate.Display;
+            var box = new CheckBox
             {
-                var item = new ComboBoxItem
-                {
-                    Content = candidate.Playing
-                        ? Strings.Format("Mix_Playing", candidate.Display)
-                        : candidate.Display,
-                    Tag = candidate.Process,
-                };
-                ChatPicker.Items.Add(item);
-                if (string.Equals(candidate.Process, chosen, StringComparison.OrdinalIgnoreCase))
-                    ChatPicker.SelectedItem = item;
-            }
-            Notice.IsOpen = candidates.Count == 0;
+                Content = candidate.Playing
+                    ? Strings.Format("Mix_Playing", candidate.Display)
+                    : candidate.Display,
+                IsChecked = chosen.Contains(candidate.Process, StringComparer.OrdinalIgnoreCase),
+            };
+            string process = candidate.Process;
+            box.Checked += (_, _) => Choose(process, on: true);
+            box.Unchecked += (_, _) => Choose(process, on: false);
+            AppList.Children.Add(box);
         }
-        finally { _painting = false; }
+        Notice.IsOpen = candidates.Count == 0;
+        Paint();
     }
 
     private void Paint()
     {
-        bool chosen = AppServices.Mix.ChatApps.Count > 0;
+        var apps = AppServices.Mix.ChatApps;
+        bool chosen = apps.Count > 0;
         SetupLine.Visibility = chosen ? Visibility.Collapsed : Visibility.Visible;
         DialArea.Visibility = chosen ? Visibility.Visible : Visibility.Collapsed;
+
+        ChosenText.Text = chosen
+            ? Strings.List(apps.Select(a => _names.GetValueOrDefault(a, a)).ToList())
+            : Strings.Get("Mix_NoneChosen");
+        AutomationProperties.SetName(ChatFrom, Strings.Format("Mix_ChatFromName", ChosenText.Text));
 
         var status = AppServices.Headset.Status;
 

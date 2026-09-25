@@ -427,10 +427,25 @@ function Format {
 
 function Wheel {
     Page 'Home'
-    $picker = Find $script:window 'AutomationIdProperty' 'ChatPicker'
-    if ($null -eq $picker) { Fail 'Home offers a chat app picker'; return }
-    Choose $picker 'Pretend Chat*'
+    $list = Find $script:window 'AutomationIdProperty' 'ChatFrom'
+    if ($null -eq $list) { Fail 'Home offers a list of chat apps'; return }
+    $expand = Pattern $list ([System.Windows.Automation.ExpandCollapsePattern])
+    Check ($expand.Current.ExpandCollapseState -eq 'Expanded') 'with no chat app chosen, the list is open'
+    Screenshot 'home-mix-choose'
+    $boxes = FindAll $list 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox)
+    $chat = $boxes | Where-Object { $_.Current.Name -like 'Pretend Chat*' } | Select-Object -First 1
+    $music = $boxes | Where-Object { $_.Current.Name -eq 'Pretend Music' } | Select-Object -First 1
+    if ($null -eq $chat -or $null -eq $music) { Fail 'the list offers the pretend apps'; return }
+    (Pattern $chat ([System.Windows.Automation.TogglePattern])).Toggle()
     Check (Until { $null -ne (Ask 'mix') } 5) 'choosing a chat app starts the mix'
+    (Pattern $music ([System.Windows.Automation.TogglePattern])).Toggle()
+    Check (Until { $list.Current.Name -eq 'Chat comes from Pretend Chat and Pretend Music' }) "a second app joins the first: $($list.Current.Name)"
+    Screenshot 'home-mix-two'
+    (Pattern $chat ([System.Windows.Automation.TogglePattern])).Toggle()
+    (Pattern $music ([System.Windows.Automation.TogglePattern])).Toggle()
+    Check (Until { $null -eq (Ask 'mix') } 5) 'clearing the last chat app stops the mix'
+    (Pattern $chat ([System.Windows.Automation.TogglePattern])).Toggle()
+    Check (Until { $null -ne (Ask 'mix') } 5) 'choosing it again starts the mix again'
     $start = Ask 'mix'
 
     # The first count is a starting point; the turns after it move the mix.
