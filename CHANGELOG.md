@@ -109,10 +109,13 @@ and date.
   to faint grey.
 - A greyed-out Save in the preset naming dialog shows its label in the light
   theme.
-- A band's menu offers to put the band back, from the keyboard (Shift+F10) or
+- A band's menu offers to revert the band, from the keyboard (Shift+F10) or
   a right-click, instead of only cut, copy and paste.
 - A lit tile's state, such as "On" under Microphone, is easier to read: the
   tile's purple is a shade deeper in the light theme and a shade lighter at
   its foot in the dark one.
 - A setting changed while the equaliser's presets are loading takes effect
   in under a second, rather than waiting up to four.
+- Tighter, more consistent wording: keyboard shortcuts, assignable and
+  fixed controls, slot counts, refreshing the chat app list, and one way of
+  saying couldn't, isn't and won't.

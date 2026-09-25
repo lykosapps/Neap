@@ -88,13 +88,13 @@
     <value>{0}. Game at {1}%, chat at {2}%.</value>
   </data>
   <data name="Mix_Refresh.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Look for chat apps again</value>
+    <value>Refresh the list of chat apps</value>
   </data>
   <data name="Mix_MissingHint.Text" xml:space="preserve">
-    <value>Don't see your app? Start it, then look again.</value>
+    <value>Don't see your app? Start it, then refresh.</value>
   </data>
   <data name="Mix_RefreshText.Text" xml:space="preserve">
-    <value>Look again</value>
+    <value>Refresh</value>
   </data>
   <data name="Mix_WheelBar.Title" xml:space="preserve">
     <value>The chat wheel isn't reaching the app</value>
@@ -112,10 +112,10 @@
     <value>Chat</value>
   </data>
   <data name="Mix_KeysCard.Description" xml:space="preserve">
-    <value>Shortcut keys that work while you play.</value>
+    <value>Move the mix while you play.</value>
   </data>
   <data name="Mix_KeysCard.Header" xml:space="preserve">
-    <value>Move the mix with the keyboard</value>
+    <value>Keyboard shortcuts</value>
   </data>
   <data name="Mix_GameRow.Header" xml:space="preserve">
     <value>Toward game</value>
@@ -130,13 +130,13 @@
     <value>Ctrl + Alt + Page Down, Page Up and Home.</value>
   </data>
   <data name="Mix_KeysResetRow.Header" xml:space="preserve">
-    <value>Put the keys back</value>
+    <value>Default shortcuts</value>
   </data>
   <data name="Mix_KeysReset.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Put the keyboard shortcuts back</value>
+    <value>Restore the default keyboard shortcuts</value>
   </data>
   <data name="Mix_KeysReset.Content" xml:space="preserve">
-    <value>Reset</value>
+    <value>Restore</value>
   </data>
   <data name="Audio_Title.Text" xml:space="preserve">
     <value>Audio</value>
@@ -181,7 +181,7 @@
     <value>The mode button, the dial and power</value>
   </data>
   <data name="Controls_OnHeadsetHeading.Text" xml:space="preserve">
-    <value>Buttons you can change</value>
+    <value>Assignable controls</value>
   </data>
   <data name="Controls_ModeButton.Description" xml:space="preserve">
     <value>The button beside the power switch.</value>
@@ -196,7 +196,7 @@
     <value>Lower dial</value>
   </data>
   <data name="Controls_FixedHeading.Text" xml:space="preserve">
-    <value>Everything else on the headset</value>
+    <value>Fixed controls</value>
   </data>
   <data name="Controls_VolumeWheel.Text" xml:space="preserve">
     <value>Volume wheel</value>
@@ -220,7 +220,7 @@
     <value>CrossPlay</value>
   </data>
   <data name="Controls_CrossPlayDoes.Text" xml:space="preserve">
-    <value>Switches between your transmitters.</value>
+    <value>Switches the headset between transmitters.</value>
   </data>
   <data name="Controls_BluetoothButton.Text" xml:space="preserve">
     <value>Bluetooth button</value>
@@ -259,7 +259,7 @@
     <value>Battery slot ring</value>
   </data>
   <data name="Device_DockStatusNote" xml:space="preserve">
-    <value>Turns purple for high-quality audio.</value>
+    <value>Turns purple for high-resolution audio.</value>
   </data>
   <data name="Device_DockStatusName" xml:space="preserve">
     <value>Status ring</value>
@@ -316,7 +316,7 @@
     <value>Everything the headset reports</value>
   </data>
   <data name="Device_RawNote.Text" xml:space="preserve">
-    <value>Read-only. Greyed values aren't understood yet.</value>
+    <value>Read-only. Greyed values aren't identified yet.</value>
   </data>
   <data name="Device_Details.Header" xml:space="preserve">
     <value>Details</value>
@@ -523,16 +523,16 @@
     <value>Your headset is on the {0}.</value>
   </data>
   <data name="Routing_OnSilent" xml:space="preserve">
-    <value>Your headset is on the {0}, so you will not hear anything.</value>
+    <value>Your headset is on the {0}, so you won't hear anything.</value>
   </data>
   <data name="Routing_OnNoCalls" xml:space="preserve">
-    <value>Your headset is on the {0}, so you will not hear calls.</value>
+    <value>Your headset is on the {0}, so you won't hear calls.</value>
   </data>
   <data name="Routing_OnUnheard" xml:space="preserve">
     <value>Your headset is on the {0}, so nobody will hear you.</value>
   </data>
   <data name="Routing_OnUnplugged" xml:space="preserve">
-    <value>Your headset is on the {0}, which is not plugged in. Press CrossPlay on the headset to switch it to the {1}.</value>
+    <value>Your headset is on the {0}, which isn't plugged in. Press CrossPlay on the headset to switch it to the {1}.</value>
   </data>
   <data name="Routing_PressOrChoose" xml:space="preserve">
     <value>Press CrossPlay on the headset to switch it to the {0}, or to stay on the {1}, choose {2} in Sound settings.</value>
@@ -550,7 +550,7 @@
     <value>Looking for the headset…</value>
   </data>
   <data name="Headset_NothingPluggedIn" xml:space="preserve">
-    <value>Nothing of the headset's is plugged in.</value>
+    <value>No transmitter or cable plugged in.</value>
   </data>
   <data name="Headset_LostContact" xml:space="preserve">
     <value>Lost contact with the headset.</value>
@@ -619,10 +619,10 @@
     <value>Another program already uses this. Pick another.</value>
   </data>
   <data name="Key_Refused" xml:space="preserve">
-    <value>Windows would not allow this one. Pick another.</value>
+    <value>Windows won't allow this one. Pick another.</value>
   </data>
   <data name="Preset_NotRead" xml:space="preserve">
-    <value>The presets have not been read yet.</value>
+    <value>The presets haven't been read yet.</value>
   </data>
   <data name="Preset_NeedsName" xml:space="preserve">
     <value>A preset needs a name.</value>
@@ -631,19 +631,19 @@
     <value>{0} characters is as long as a preset name can be.</value>
   </data>
   <data name="Preset_Full" xml:space="preserve">
-    <value>All five slots are full. Delete one first.</value>
+    <value>All 5 slots are full. Delete one first.</value>
   </data>
   <data name="Preset_Missing" xml:space="preserve">
-    <value>There is no custom preset called {0}.</value>
+    <value>There's no custom preset called {0}.</value>
   </data>
   <data name="Preset_Unreadable" xml:space="preserve">
-    <value>Could not read the current equaliser.</value>
+    <value>Couldn't read the current equaliser.</value>
   </data>
   <data name="Audio_NoDevice" xml:space="preserve">
     <value>No audio device</value>
   </data>
   <data name="Equaliser_BackTo" xml:space="preserve">
-    <value>Back to {0} dB</value>
+    <value>Revert to {0} dB</value>
   </data>
   <data name="Equaliser_Band" xml:space="preserve">
     <value>{0}   {1} dB</value>
@@ -664,22 +664,22 @@
     <value>Presets</value>
   </data>
   <data name="Equaliser_FreeSlots" xml:space="preserve">
-    <value>Room for {0} more of your own.</value>
+    <value>{0} slots free.</value>
   </data>
   <data name="Equaliser_OneFreeSlot" xml:space="preserve">
-    <value>Room for 1 more of your own.</value>
+    <value>1 slot free.</value>
   </data>
   <data name="Equaliser_NoFreeSlots" xml:space="preserve">
-    <value>No room for more. Delete one of yours to save another.</value>
+    <value>No slots free. Delete one of yours to save another.</value>
   </data>
   <data name="Equaliser_KeepNamed" xml:space="preserve">
     <value>Keep {0}</value>
   </data>
   <data name="Equaliser_CouldNotDelete" xml:space="preserve">
-    <value>Could not delete</value>
+    <value>Couldn't delete</value>
   </data>
   <data name="Equaliser_CouldNotSave" xml:space="preserve">
-    <value>Could not save</value>
+    <value>Couldn't save</value>
   </data>
   <data name="Equaliser_NamePlaceholder" xml:space="preserve">
     <value>Name</value>
@@ -697,19 +697,19 @@
     <value>You already have a preset called {0}. Choose another name.</value>
   </data>
   <data name="Equaliser_SlotsFull" xml:space="preserve">
-    <value>All five slots are full. Delete one first, or save over the preset this came from.</value>
+    <value>All 5 slots are full. Delete one first, or save over the preset this came from.</value>
   </data>
   <data name="Equaliser_SlotsFree" xml:space="preserve">
     <value>{0} of 5 slots free.</value>
   </data>
   <data name="Equaliser_NameAtLimit" xml:space="preserve">
-    <value>That is as long as a name can be.</value>
+    <value>That's as long as a name can be.</value>
   </data>
   <data name="Equaliser_PutBack" xml:space="preserve">
-    <value>Put back to {0} dB</value>
+    <value>Revert to {0} dB</value>
   </data>
   <data name="Equaliser_NotChanged" xml:space="preserve">
-    <value>Not changed from the preset</value>
+    <value>Unchanged from the preset</value>
   </data>
   <data name="Equaliser_ChangedFrom" xml:space="preserve">
     <value>Changed from {0} dB</value>
@@ -736,10 +736,10 @@
     <value>Audio format</value>
   </data>
   <data name="Format_NoneOffered" xml:space="preserve">
-    <value>Windows is not offering any formats for this device.</value>
+    <value>Windows isn't offering any formats for this device.</value>
   </data>
   <data name="Format_CouldNotChange" xml:space="preserve">
-    <value>Could not change the format</value>
+    <value>Couldn't change the format</value>
   </data>
   <data name="Notice_NoHeadsetTitle" xml:space="preserve">
     <value>No headset connected</value>
@@ -760,7 +760,7 @@
     <value>Nothing is playing to the headset yet</value>
   </data>
   <data name="Mix_NothingPlaying.Message" xml:space="preserve">
-    <value>Start your chat app, then look again.</value>
+    <value>Start your chat app, then refresh.</value>
   </data>
   <data name="Mix_Elsewhere" xml:space="preserve">
     <value>{0} is playing to {1}, not your headset. Change its output in that app's audio settings.</value>
@@ -784,10 +784,10 @@
     <value>Press the keys…</value>
   </data>
   <data name="Mix_NeedsModifierTitle" xml:space="preserve">
-    <value>That needs a modifier</value>
+    <value>Add a modifier key</value>
   </data>
   <data name="Mix_NeedsModifier" xml:space="preserve">
-    <value>Hold Ctrl, Alt or Shift as well, so the key still works everywhere else.</value>
+    <value>Hold Ctrl, Alt or Shift too, so the key still works everywhere else.</value>
   </data>
   <data name="Mix_KeyName" xml:space="preserve">
     <value>{0}: {1}</value>
@@ -860,7 +860,7 @@
     <value>{0}, edited</value>
   </data>
   <data name="Quick_PresetUnsaved" xml:space="preserve">
-    <value>Your own curve</value>
+    <value>Custom curve</value>
   </data>
   <data name="Home_Through" xml:space="preserve">
     <value>Connected through the {0}</value>
@@ -869,7 +869,7 @@
     <value>Connected with its USB-C cable</value>
   </data>
   <data name="Home_ThroughUnplugged" xml:space="preserve">
-    <value>Set to the {0}, which is not plugged in</value>
+    <value>Set to the {0}, which isn't plugged in</value>
   </data>
   <data name="Home_ThroughNoSound" xml:space="preserve">
     <value>Connected, but no sound</value>
@@ -1088,7 +1088,7 @@
     <value>Boost here</value>
   </data>
   <data name="Tone_HowTo.Text" xml:space="preserve">
-    <value>Move through the range with the slider, or press Sweep. Where the tone jumps out, cut. Where it drops away, boost. Then change the gain until the tone sounds even with its neighbours.</value>
+    <value>Slide through the range or press Sweep. Cut where the tone jumps out, boost where it drops away, then set the gain until it sounds even.</value>
   </data>
   <data name="Tone_CouldNotPlay" xml:space="preserve">
     <value>The test tone can't play: {0}</value>
@@ -1118,7 +1118,7 @@
     <value>{0} copy {1}</value>
   </data>
   <data name="Equaliser_Unsaved" xml:space="preserve">
-    <value>Your own curve</value>
+    <value>Custom curve</value>
   </data>
   <data name="Shutoff_Off" xml:space="preserve">
     <value>Off</value>
