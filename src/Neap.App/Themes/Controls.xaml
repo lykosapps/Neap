@@ -30,7 +30,7 @@
             <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent" />
             <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#110E19" />
             <SolidColorBrush x:Key="NavigationViewContentBackground" Color="#171322" />
-            <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="#282238" />
+            <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="#2B2440" />
             <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#269D8CFF" />
             <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#339D8CFF" />
             <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPressed" Color="#1F9D8CFF" />
@@ -38,15 +38,15 @@
             <SolidColorBrush x:Key="SettingsCardBackground" Color="#221C31" />
             <SolidColorBrush x:Key="SettingsCardBackgroundPointerOver" Color="#29223A" />
             <SolidColorBrush x:Key="SettingsCardBackgroundPressed" Color="#1E192C" />
-            <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#342B49" />
-            <SolidColorBrush x:Key="SettingsCardBorderBrushPointerOver" Color="#3F3556" />
-            <SolidColorBrush x:Key="SettingsCardBorderBrushPressed" Color="#342B49" />
+            <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#3B3351" />
+            <SolidColorBrush x:Key="SettingsCardBorderBrushPointerOver" Color="#4A4063" />
+            <SolidColorBrush x:Key="SettingsCardBorderBrushPressed" Color="#3B3351" />
             <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="#221C31" />
-            <SolidColorBrush x:Key="ExpanderHeaderBorderBrush" Color="#342B49" />
-            <SolidColorBrush x:Key="ExpanderHeaderBorderPointerOverBrush" Color="#3F3556" />
-            <SolidColorBrush x:Key="ExpanderHeaderBorderPressedBrush" Color="#342B49" />
+            <SolidColorBrush x:Key="ExpanderHeaderBorderBrush" Color="#3B3351" />
+            <SolidColorBrush x:Key="ExpanderHeaderBorderPointerOverBrush" Color="#4A4063" />
+            <SolidColorBrush x:Key="ExpanderHeaderBorderPressedBrush" Color="#3B3351" />
             <SolidColorBrush x:Key="ExpanderContentBackground" Color="#1D182B" />
-            <SolidColorBrush x:Key="ExpanderContentBorderBrush" Color="#342B49" />
+            <SolidColorBrush x:Key="ExpanderContentBorderBrush" Color="#3B3351" />
 
             <SolidColorBrush x:Key="ButtonBackground" Color="#2A2340" />
             <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#332A4C" />
@@ -102,7 +102,7 @@
             <SolidColorBrush x:Key="ContentDialogTopOverlay" Color="#241D35" />
             <SolidColorBrush x:Key="ContentDialogBackground" Color="#1D182B" />
             <SolidColorBrush x:Key="ContentDialogBorderBrush" Color="#3B3351" />
-            <SolidColorBrush x:Key="ContentDialogSeparatorBorderBrush" Color="#342B49" />
+            <SolidColorBrush x:Key="ContentDialogSeparatorBorderBrush" Color="#2B2440" />
             <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="#1A9D8CFF" />
             <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="#129D8CFF" />
             <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="#269D8CFF" />
@@ -128,15 +128,15 @@
             <SolidColorBrush x:Key="SettingsCardBackground" Color="#FFFFFF" />
             <SolidColorBrush x:Key="SettingsCardBackgroundPointerOver" Color="#FAF9FD" />
             <SolidColorBrush x:Key="SettingsCardBackgroundPressed" Color="#F4F2F9" />
-            <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#E2DEEC" />
+            <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#DDD8E8" />
             <SolidColorBrush x:Key="SettingsCardBorderBrushPointerOver" Color="#D6D1E3" />
-            <SolidColorBrush x:Key="SettingsCardBorderBrushPressed" Color="#E2DEEC" />
+            <SolidColorBrush x:Key="SettingsCardBorderBrushPressed" Color="#DDD8E8" />
             <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="#FFFFFF" />
-            <SolidColorBrush x:Key="ExpanderHeaderBorderBrush" Color="#E2DEEC" />
+            <SolidColorBrush x:Key="ExpanderHeaderBorderBrush" Color="#DDD8E8" />
             <SolidColorBrush x:Key="ExpanderHeaderBorderPointerOverBrush" Color="#D6D1E3" />
-            <SolidColorBrush x:Key="ExpanderHeaderBorderPressedBrush" Color="#E2DEEC" />
+            <SolidColorBrush x:Key="ExpanderHeaderBorderPressedBrush" Color="#DDD8E8" />
             <SolidColorBrush x:Key="ExpanderContentBackground" Color="#FAF8FD" />
-            <SolidColorBrush x:Key="ExpanderContentBorderBrush" Color="#E2DEEC" />
+            <SolidColorBrush x:Key="ExpanderContentBorderBrush" Color="#DDD8E8" />
 
             <SolidColorBrush x:Key="ButtonBackground" Color="#FFFFFF" />
             <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#F6F4FB" />

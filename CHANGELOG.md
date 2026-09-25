@@ -122,3 +122,6 @@ and date.
 - Spacing and type follow Windows' own grid and type sizes throughout, and
   changing numbers (levels, decibels, frequencies, battery) keep their
   width, so nothing beside them shifts as they change.
+- Surfaces match: the tiles take the panels' lavender tint and 16px corners
+  in the light theme, and cards, controls and dividers share one border
+  colour each.

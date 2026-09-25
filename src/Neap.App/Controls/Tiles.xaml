@@ -41,10 +41,10 @@
         <ResourceDictionary x:Key="Light">
             <LinearGradientBrush x:Key="NeapTileBrush" StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Offset="0" Color="#FFFFFF" />
-                <GradientStop Offset="1" Color="#F3F3F5" />
+                <GradientStop Offset="1" Color="#F0EDF7" />
             </LinearGradientBrush>
-            <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#F7F7F9" />
-            <SolidColorBrush x:Key="NeapTileStrokeBrush" Color="#DCDCE0" />
+            <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#FAF9FD" />
+            <SolidColorBrush x:Key="NeapTileStrokeBrush" Color="#DDD8E8" />
             <SolidColorBrush x:Key="NeapTileEdgeBrush" Color="#26000000" />
             <SolidColorBrush x:Key="NeapTileTextBrush" Color="#1A1A1A" />
             <LinearGradientBrush x:Key="NeapTileOnBrush" StartPoint="0.5,0" EndPoint="0.5,1">
@@ -57,7 +57,7 @@
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D5AD9" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0A000000" />
-            <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#E6E5E9" />
+            <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#E6E3EE" />
             <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#48474C" />
             <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#C9C1F0" />
@@ -99,7 +99,7 @@
         <Setter Property="MinHeight" Value="120" />
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="FocusVisualMargin" Value="-3" />
-        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="CornerRadius" Value="16" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
@@ -204,7 +204,7 @@
         <Setter Property="MinHeight" Value="120" />
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="FocusVisualMargin" Value="-3" />
-        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="CornerRadius" Value="16" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
