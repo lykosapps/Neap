@@ -7,184 +7,183 @@
     xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <!--
-        The presets down the left, as in Home's list, and the curve beside
-        them, on a lit panel like Home's.
+        The curve and its controls across the whole of a lit panel like
+        Home's, with the presets opening from the preset's name, as they
+        open from Home's tile.
     -->
     <Border Padding="0" Style="{StaticResource QuickCardStyle}">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="288" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <StackPanel Padding="20,16,20,20" Spacing="16">
+
+            <!--  Which preset, and whether it has been changed since.  -->
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel
+                    Grid.Column="0"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <!--
+                        The name is the way to the other presets. It keeps
+                        the title's size and loses the button's fill, so it
+                        still reads as the heading until pointed at.
+                    -->
+                    <DropDownButton
+                        x:Name="PresetPicker"
+                        x:Uid="Equaliser_PresetPicker"
+                        Margin="-10,0,0,0"
+                        Padding="10,2,8,4"
+                        Background="Transparent"
+                        BorderBrush="Transparent">
+                        <TextBlock x:Name="PresetName" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <DropDownButton.Flyout>
+                            <Flyout x:Name="PresetFlyout" Placement="BottomEdgeAlignedLeft">
+                                <!--
+                                    The slots, factory and custom, and how many are
+                                    left: that is part of the decision to save.
+                                -->
+                                <StackPanel MinWidth="280" Spacing="4">
+                                    <TextBlock
+                                        x:Uid="Equaliser_PresetsLabel"
+                                        Margin="12,0,0,8"
+                                        Style="{StaticResource NeapLabelStyle}" />
+                                    <ItemsControl x:Name="Slots" />
+                                    <!--
+                                        A new preset from flat, without choosing and
+                                        changing one first. Unavailable with every slot
+                                        full, as the note under it says.
+                                    -->
+                                    <Button
+                                        x:Name="NewButton"
+                                        x:Uid="Equaliser_New"
+                                        Margin="0,4,0,0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Left"
+                                        Style="{StaticResource NeapPresetStyle}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontSize="16" Glyph="&#xE710;" />
+                                            <TextBlock x:Uid="Equaliser_NewLabel" />
+                                        </StackPanel>
+                                    </Button>
+                                    <TextBlock
+                                        x:Name="FreeSlots"
+                                        Margin="12,8,12,0"
+                                        Style="{StaticResource SecondaryCaptionTextStyle}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Flyout>
+                        </DropDownButton.Flyout>
+                    </DropDownButton>
+                    <Border
+                        x:Name="EditedPill"
+                        Padding="8,2"
+                        VerticalAlignment="Center"
+                        Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                        CornerRadius="10"
+                        Visibility="Collapsed">
+                        <TextBlock
+                            x:Uid="Equaliser_Edited"
+                            Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}" />
+                    </Border>
+                </StackPanel>
+
+                <!--
+                    Always there, and disabled when they cannot be used, so
+                    none moves under the pointer when a band is first
+                    dragged. Overwrite goes first because its label names
+                    the preset and changes width; the two after it stay put.
+                    Only saving a new preset is the accent: it keeps
+                    everything, where overwriting loses the old curve.
+                -->
+                <StackPanel
+                    x:Name="Actions"
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button x:Name="OverwriteButton" IsEnabled="False">
+                        <Button.Flyout>
+                            <Flyout x:Name="OverwriteConfirm">
+                                <StackPanel MaxWidth="280" Spacing="12">
+                                    <TextBlock
+                                        x:Name="OverwriteQuestion"
+                                        Style="{StaticResource BodyTextBlockStyle}"
+                                        TextWrapping="Wrap" />
+                                    <StackPanel
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <Button x:Name="OverwriteYes" x:Uid="Equaliser_OverwriteYes" />
+                                        <Button x:Name="OverwriteNo" x:Uid="Equaliser_OverwriteNo" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                    <Button
+                        x:Name="DiscardButton"
+                        x:Uid="Equaliser_DiscardButton"
+                        IsEnabled="False" />
+                    <Button
+                        x:Name="SaveButton"
+                        MinWidth="104"
+                        IsEnabled="False"
+                        Style="{StaticResource AccentButtonStyle}" />
+                </StackPanel>
+            </Grid>
+
 
             <!--
-                The slots, factory and custom, and how many are left: that is
-                part of the decision to save.
+                How the curve is shaped: band by band, or by adjustments
+                fitted to the bands. Only the game bank has the second.
+            -->
+            <RadioButtons
+                x:Name="Mode"
+                x:Uid="Equaliser_Mode"
+                MaxColumns="2"
+                Visibility="Collapsed">
+                <RadioButton x:Name="ModeBands" x:Uid="Equaliser_ModeBands" />
+                <RadioButton x:Name="ModeParametric" x:Uid="Equaliser_ModeParametric" />
+            </RadioButtons>
+
+            <c:ParametricPanel
+                x:Name="Parametric"
+                MaxWidth="900"
+                HorizontalAlignment="Stretch"
+                Visibility="Collapsed" />
+
+            <!--
+                The curve and the readouts share one width and one set of
+                columns, so every point sits over its own number.
             -->
             <StackPanel
-                x:Name="PresetColumn"
-                Padding="8,16"
-                BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
-                BorderThickness="0,0,1,0"
-                Spacing="4">
-                <TextBlock
-                    x:Uid="Equaliser_PresetsLabel"
-                    Margin="12,0,0,8"
-                    Style="{StaticResource NeapLabelStyle}" />
-                <ItemsControl x:Name="Slots" />
-                <!--
-                    A new preset from flat, without choosing and changing one
-                    first. Unavailable with every slot full, as the note
-                    under it says.
-                -->
-                <Button
-                    x:Name="NewButton"
-                    x:Uid="Equaliser_New"
-                    Margin="0,4,0,0"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Left"
-                    Style="{StaticResource NeapPresetStyle}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon FontSize="16" Glyph="&#xE710;" />
-                        <TextBlock x:Uid="Equaliser_NewLabel" />
-                    </StackPanel>
-                </Button>
-                <TextBlock
-                    x:Name="FreeSlots"
-                    Margin="12,8,12,0"
-                    Style="{StaticResource SecondaryCaptionTextStyle}"
-                    TextWrapping="Wrap" />
+                x:Name="Curve"
+                MaxWidth="900"
+                HorizontalAlignment="Stretch">
+                <c:EqualiserCurve x:Name="Response" Height="220" />
+                <Grid x:Name="Bands" Margin="0,8,0,0" />
             </StackPanel>
 
+            <!--
+                Shown until the headset reports its bands, in place of the
+                curve: a flat line would read as an equaliser set flat.
+            -->
             <StackPanel
-                Grid.Column="1"
-                Padding="20,16,20,20"
-                Spacing="16">
-
-                <!--  Which preset, and whether it has been changed since.  -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel
-                        Grid.Column="0"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <TextBlock
-                            x:Name="PresetName"
-                            VerticalAlignment="Center"
-                            Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <Border
-                            x:Name="EditedPill"
-                            Padding="8,2"
-                            VerticalAlignment="Center"
-                            Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
-                            CornerRadius="10"
-                            Visibility="Collapsed">
-                            <TextBlock
-                                x:Uid="Equaliser_Edited"
-                                Foreground="{ThemeResource SystemFillColorCautionBrush}"
-                                Style="{StaticResource CaptionTextBlockStyle}" />
-                        </Border>
-                    </StackPanel>
-
-                    <!--
-                        Always there, and disabled when they cannot be used, so
-                        none moves under the pointer when a band is first
-                        dragged. Overwrite goes first because its label names
-                        the preset and changes width; the two after it stay put.
-                        Only saving a new preset is the accent: it keeps
-                        everything, where overwriting loses the old curve.
-                    -->
-                    <StackPanel
-                        x:Name="Actions"
-                        Grid.Column="1"
-                        Orientation="Horizontal"
-                        Spacing="8">
-                        <Button x:Name="OverwriteButton" IsEnabled="False">
-                            <Button.Flyout>
-                                <Flyout x:Name="OverwriteConfirm">
-                                    <StackPanel MaxWidth="280" Spacing="12">
-                                        <TextBlock
-                                            x:Name="OverwriteQuestion"
-                                            Style="{StaticResource BodyTextBlockStyle}"
-                                            TextWrapping="Wrap" />
-                                        <StackPanel
-                                            HorizontalAlignment="Right"
-                                            Orientation="Horizontal"
-                                            Spacing="8">
-                                            <Button x:Name="OverwriteYes" x:Uid="Equaliser_OverwriteYes" />
-                                            <Button x:Name="OverwriteNo" x:Uid="Equaliser_OverwriteNo" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Flyout>
-                            </Button.Flyout>
-                        </Button>
-                        <Button
-                            x:Name="DiscardButton"
-                            x:Uid="Equaliser_DiscardButton"
-                            IsEnabled="False" />
-                        <Button
-                            x:Name="SaveButton"
-                            MinWidth="104"
-                            IsEnabled="False"
-                            Style="{StaticResource AccentButtonStyle}" />
-                    </StackPanel>
-                </Grid>
-
-
-                <!--
-                    How the curve is shaped: band by band, or by adjustments
-                    fitted to the bands. Only the game bank has the second.
-                -->
-                <RadioButtons
-                    x:Name="Mode"
-                    x:Uid="Equaliser_Mode"
-                    MaxColumns="2"
-                    Visibility="Collapsed">
-                    <RadioButton x:Name="ModeBands" x:Uid="Equaliser_ModeBands" />
-                    <RadioButton x:Name="ModeParametric" x:Uid="Equaliser_ModeParametric" />
-                </RadioButtons>
-
-                <c:ParametricPanel
-                    x:Name="Parametric"
-                    MaxWidth="900"
-                    HorizontalAlignment="Stretch"
-                    Visibility="Collapsed" />
-
-                <!--
-                    The curve and the readouts share one width and one set of
-                    columns, so every point sits over its own number.
-                -->
-                <StackPanel
-                    x:Name="Curve"
-                    MaxWidth="900"
-                    HorizontalAlignment="Stretch">
-                    <c:EqualiserCurve x:Name="Response" Height="220" />
-                    <Grid x:Name="Bands" Margin="0,8,0,0" />
-                </StackPanel>
-
-                <!--
-                    Shown until the headset reports its bands, in place of the
-                    curve: a flat line would read as an equaliser set flat.
-                -->
-                <StackPanel
-                    x:Name="Waiting"
-                    Padding="0,24"
-                    HorizontalAlignment="Center"
-                    Orientation="Horizontal"
-                    Spacing="12">
-                    <ProgressRing
-                        x:Name="WaitingRing"
-                        Width="20"
-                        Height="20"
-                        AutomationProperties.AccessibilityView="Raw" />
-                    <TextBlock x:Name="WaitingText" Style="{StaticResource SecondaryBodyTextStyle}" />
-                </StackPanel>
-
+                x:Name="Waiting"
+                Padding="0,24"
+                HorizontalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="12">
+                <ProgressRing
+                    x:Name="WaitingRing"
+                    Width="20"
+                    Height="20"
+                    AutomationProperties.AccessibilityView="Raw" />
+                <TextBlock x:Name="WaitingText" Style="{StaticResource SecondaryBodyTextStyle}" />
             </StackPanel>
-        </Grid>
+
+        </StackPanel>
     </Border>
 </UserControl>

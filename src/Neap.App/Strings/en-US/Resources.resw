@@ -663,6 +663,9 @@
   <data name="Equaliser_PresetsLabel.Text" xml:space="preserve">
     <value>Presets</value>
   </data>
+  <data name="Equaliser_PresetPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Equaliser preset</value>
+  </data>
   <data name="Equaliser_FreeSlots" xml:space="preserve">
     <value>{0} slots free.</value>
   </data>
@@ -1045,7 +1048,7 @@
   <data name="Parametric_Wide.Text" xml:space="preserve">
     <value>Wide</value>
   </data>
-  <data name="Parametric_Sent.Text" xml:space="preserve">
+  <data name="Parametric_SentExpander.Header" xml:space="preserve">
     <value>Sent to the headset</value>
   </data>
   <data name="Parametric_Hertz" xml:space="preserve">

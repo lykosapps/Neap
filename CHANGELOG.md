@@ -133,3 +133,9 @@ and date.
 - Home's equaliser tile says when the curve is parametric, marks
   parametric presets in its list, and ends the list with a way to the
   equaliser.
+- The equaliser uses the whole width of its panel. Its presets open from
+  the preset's name, as they do on Home, so at the usual window size the
+  parametric plot, adjustments and sliders fit without scrolling, the test
+  tone's Cut here and Boost here sit on its first row, and nothing is cut
+  off in a narrow window. The ten values sent to the headset fold away
+  under the sliders.

@@ -358,6 +358,7 @@ function ExpandAll {
     $all = $script:window.FindAll($Scopes::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
     foreach ($element in $all) {
         if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::ComboBox) { continue }
+        if ($element.Current.AutomationId -eq 'PresetPicker') { continue }
         $expand = $null
         if ($element.TryGetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern, [ref]$expand) -and
             $expand.Current.ExpandCollapseState -eq 'Collapsed') { $expand.Expand() }
@@ -390,10 +391,16 @@ function Band([string]$page, [string]$label, [string]$key) {
     Collect
 }
 
+# The presets open from the preset's name in a flyout, which sits outside
+# the panel in the tree, so the preset is looked for in the window.
 function Preset([string]$page, [string]$name, [string]$key, [string]$id) {
     Page $page
-    $button = Control $name ([System.Windows.Automation.ControlType]::Button)
-    if ($null -eq $button) { Fail "$page lists the preset $name"; return }
+    $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
+    if ($null -eq $picker) { Fail "$page has a preset picker"; return }
+    (Pattern $picker ([System.Windows.Automation.ExpandCollapsePattern])).Expand()
+    $find = { Control $name ([System.Windows.Automation.ControlType]::Button) }
+    if (-not (Until { $null -ne (& $find) })) { Fail "$page lists the preset $name"; return }
+    $button = & $find
 
     Ask 'clear' | Out-Null
     (Pattern $button ([System.Windows.Automation.InvokePattern])).Invoke()

@@ -73,11 +73,12 @@ internal sealed class DecibelFormatter : INumberFormatter2, INumberParser
 /// (<see cref="ParametricPanel"/>), chosen above the curve.
 /// </para>
 /// <para>
-/// The presets are a list beside the curve, each with its own small curve,
-/// and how many slots are free is said under them: there are five, and how
-/// many are left matters when deciding whether to save over one. Deleting
-/// confirms in place: the preset's row becomes Delete and Cancel, with no
-/// dialog.
+/// The presets open from the preset's name, as they open from Home's tile,
+/// so the curve and its controls have the panel's whole width. Each has its
+/// own small curve, and how many slots are free is said under them: there
+/// are five, and how many are left matters when deciding whether to save
+/// over one. Deleting confirms in place: the preset's row becomes Delete and
+/// Cancel, with no dialog.
 /// </para>
 /// </remarks>
 public sealed partial class EqualiserPanel : UserControl
@@ -92,6 +93,7 @@ public sealed partial class EqualiserPanel : UserControl
     private BankState? _state;
     private bool _painting;
     private string? _confirmingDelete;
+    private Button? _chosen;
 
     private sealed record BandCell(NumberBox Field, MenuFlyoutItem Revert);
 
@@ -101,6 +103,7 @@ public sealed partial class EqualiserPanel : UserControl
         DiscardButton.Click += async (_, _) => await Discard();
         NewButton.Click += (_, _) =>
         {
+            PresetFlyout.Hide();
             AppServices.Presets.StartNew(Bank);
             Paint();
         };
@@ -110,6 +113,15 @@ public sealed partial class EqualiserPanel : UserControl
         OverwriteButton.Content = Strings.Get("Equaliser_OverwriteAny");
         SaveButton.Content = Strings.Get("Equaliser_SaveAsNew");
         OverwriteConfirm.Opened += (_, _) => OverwriteNo.Focus(FocusState.Programmatic);
+        // The list opens on the preset in use, as Home's does.
+        PresetFlyout.Opened += (_, _) => _chosen?.Focus(FocusState.Programmatic);
+        // Anything that closes the list mid-delete leaves the preset as it was.
+        PresetFlyout.Closed += (_, _) =>
+        {
+            if (_confirmingDelete is null) return;
+            _confirmingDelete = null;
+            Paint();
+        };
         OverwriteNo.Click += (_, _) => OverwriteConfirm.Hide();
         OverwriteYes.Click += async (_, _) =>
         {
@@ -212,7 +224,7 @@ public sealed partial class EqualiserPanel : UserControl
         // parametric panel stops its test tone.
         if (waiting) Parametric.Visibility = Visibility.Collapsed;
         Mode.Visibility = !waiting && ParametricEq.Covers(Bank) ? Visibility.Visible : Visibility.Collapsed;
-        PresetColumn.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
+        PresetPicker.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
         Actions.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
     }
 
@@ -375,6 +387,7 @@ public sealed partial class EqualiserPanel : UserControl
         chip.Click += async (_, _) =>
         {
             if (_confirmingDelete is not null) return;
+            PresetFlyout.Hide();
             await AppServices.Presets.Select(Bank, preset);
             Paint();
         };
@@ -621,6 +634,7 @@ public sealed partial class EqualiserPanel : UserControl
             if (parametric) Parametric.Paint();
 
             PresetName.Text = AppServices.Presets.CurrentName(Bank);
+            AutomationProperties.SetItemStatus(PresetPicker, PresetName.Text);
             bool edited = AppServices.Presets.IsEdited(Bank);
             EditedPill.Visibility = edited ? Visibility.Visible : Visibility.Collapsed;
 
@@ -646,6 +660,7 @@ public sealed partial class EqualiserPanel : UserControl
     {
         if (_state is null) return;
         var baseline = _state.Baseline;
+        _chosen = null;
         int index = 0;
         foreach (var preset in _state.Presets)
         {
@@ -665,6 +680,7 @@ public sealed partial class EqualiserPanel : UserControl
                 {
                     chip.Style = (Style)Application.Current.Resources[
                         selected ? "NeapPresetChosenStyle" : "NeapPresetStyle"];
+                    if (selected) _chosen = chip;
                     // The accent says it to the eye; this says it to a screen reader.
                     AutomationProperties.SetItemStatus(chip, selected ? Strings.Get("Equaliser_Selected") : "");
                 }

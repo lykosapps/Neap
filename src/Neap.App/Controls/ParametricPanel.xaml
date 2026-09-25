@@ -17,7 +17,15 @@
             BorderThickness="1"
             CornerRadius="8">
             <StackPanel Spacing="8">
-                <Grid ColumnSpacing="8">
+                <!--
+                    One row when there is room, with Cut here and Boost here
+                    beside the frequency they act on; under it when there is
+                    not. See Arrange.
+                -->
+                <Grid
+                    x:Name="ToneRow"
+                    ColumnSpacing="8"
+                    RowSpacing="8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -25,8 +33,13 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="80" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="100" />
                     </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
                     <TextBlock
                         x:Uid="Tone_Label"
                         VerticalAlignment="Center"
@@ -63,8 +76,26 @@
                         Grid.Column="4"
                         VerticalAlignment="Center"
                         Style="{StaticResource NumeralBodyStrongTextStyle}" />
-                    <FontIcon
+                    <StackPanel
+                        x:Name="Marks"
                         Grid.Column="5"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Button x:Name="CutButton" x:Uid="Tone_Cut">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xE74B;" />
+                                <TextBlock x:Uid="Tone_CutLabel" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="BoostButton" x:Uid="Tone_Boost">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xE74A;" />
+                                <TextBlock x:Uid="Tone_BoostLabel" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <FontIcon
+                        Grid.Column="6"
                         VerticalAlignment="Center"
                         FontSize="16"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -72,27 +103,13 @@
                     <Slider
                         x:Name="LevelSlider"
                         x:Uid="Tone_Level"
-                        Grid.Column="6"
+                        Grid.Column="7"
                         VerticalAlignment="Center"
                         IsThumbToolTipEnabled="False"
                         Maximum="100"
                         Minimum="0"
                         StepFrequency="1" />
                 </Grid>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Button x:Name="CutButton" x:Uid="Tone_Cut">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="16" Glyph="&#xE74B;" />
-                            <TextBlock x:Uid="Tone_CutLabel" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="BoostButton" x:Uid="Tone_Boost">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="16" Glyph="&#xE74A;" />
-                            <TextBlock x:Uid="Tone_BoostLabel" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
                 <TextBlock
                     x:Name="ToneTrouble"
                     Style="{StaticResource SecondaryBodyTextStyle}"
@@ -128,7 +145,7 @@
             </StackPanel>
         </StackPanel>
 
-        <c:ParametricCurve x:Name="Shape" Height="240" />
+        <c:ParametricCurve x:Name="Shape" Height="200" />
 
         <!--  Only when the headset misses by enough to hear.  -->
         <StackPanel
@@ -265,14 +282,15 @@
                 Style="{StaticResource NumeralBodyStrongTextStyle}" />
         </Grid>
 
-        <!--  What reaches the headset: the ten gains, nothing else.  -->
-        <StackPanel
-            Padding="0,12,0,0"
-            BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
-            BorderThickness="0,1,0,0"
-            Spacing="8">
-            <TextBlock x:Uid="Parametric_Sent" Style="{StaticResource NeapLabelStyle}" />
+        <!--
+            What reaches the headset: the ten gains, nothing else. Folded,
+            since the solid line already draws them; open for the numbers.
+        -->
+        <Expander
+            x:Uid="Parametric_SentExpander"
+            HorizontalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch">
             <Grid x:Name="Sent" />
-        </StackPanel>
+        </Expander>
     </StackPanel>
 </UserControl>

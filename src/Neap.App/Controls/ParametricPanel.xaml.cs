@@ -66,6 +66,9 @@ public sealed partial class ParametricPanel : UserControl
 {
     private const Bank Game = Bank.Game;
 
+    /// <summary>The narrowest tone row that holds Cut here and Boost here and still leaves the frequency slider room to move.</summary>
+    private const double MarksBeside = 780;
+
     private readonly FrequencyFormatter _frequencies = new();
     private readonly List<TextBlock> _sent = new();
     private int _selected;
@@ -153,6 +156,7 @@ public sealed partial class ParametricPanel : UserControl
         };
         CutButton.Click += (_, _) => AddAtTone(boost: false);
         BoostButton.Click += (_, _) => AddAtTone(boost: true);
+        ToneRow.SizeChanged += (_, _) => Arrange();
 
         // A tone left playing where it cannot be seen is a tone nobody can stop.
         Unloaded += (_, _) => StopTone();
@@ -165,6 +169,18 @@ public sealed partial class ParametricPanel : UserControl
     }
 
     // -- the test tone -----------------------------------------------------
+
+    /// <summary>
+    /// Puts Cut here and Boost here beside the frequency when the row has
+    /// room for them, and on a row of their own under it when it has not.
+    /// </summary>
+    private void Arrange()
+    {
+        bool beside = ToneRow.ActualWidth >= MarksBeside;
+        Grid.SetRow(Marks, beside ? 0 : 1);
+        Grid.SetColumn(Marks, beside ? 5 : 0);
+        Grid.SetColumnSpan(Marks, beside ? 1 : ToneRow.ColumnDefinitions.Count);
+    }
 
     private async Task SweepOrHold()
     {
