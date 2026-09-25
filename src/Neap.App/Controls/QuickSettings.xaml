@@ -59,8 +59,10 @@
 
         <!--
             The equaliser is not on or off, so its tile never fills. It shows
-            the curve it is on and opens the presets, each with its own
-            curve, to pick one directly.
+            the curve it is on, says when that curve comes from adjustments,
+            and opens the presets, each with its own curve, to pick one
+            directly. Tuning is a sit-down job, so the list ends with the way
+            to the equaliser rather than any of its controls.
         -->
         <Button
             x:Name="PresetPicker"
@@ -71,11 +73,31 @@
             Style="{StaticResource NeapButtonTileStyle}">
             <Button.Flyout>
                 <Flyout x:Name="PresetFlyout" Placement="BottomEdgeAlignedRight">
-                    <ListView
-                        x:Name="PresetList"
-                        x:Uid="Quick_PresetList"
-                        MinWidth="260"
-                        SelectionMode="Single" />
+                    <StackPanel MinWidth="260" Spacing="4">
+                        <ListView
+                            x:Name="PresetList"
+                            x:Uid="Quick_PresetList"
+                            SelectionMode="Single" />
+                        <Border
+                            Padding="0,4,0,0"
+                            BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
+                            BorderThickness="0,1,0,0">
+                            <Button x:Name="OpenEqualiser" Style="{StaticResource NeapPresetStyle}">
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Uid="Quick_OpenEqualiser" VerticalAlignment="Center" />
+                                    <FontIcon
+                                        Grid.Column="1"
+                                        AutomationProperties.AccessibilityView="Raw"
+                                        FontSize="12"
+                                        Glyph="&#xE76C;" />
+                                </Grid>
+                            </Button>
+                        </Border>
+                    </StackPanel>
                 </Flyout>
             </Button.Flyout>
             <Grid ColumnSpacing="16">
@@ -106,10 +128,21 @@
                     x:Uid="Quick_Preset"
                     Grid.Row="1"
                     Style="{StaticResource NeapTileTitleStyle}" />
-                <TextBlock
-                    x:Name="PresetName"
+                <StackPanel
                     Grid.Row="2"
-                    Style="{StaticResource NeapTileStateStyle}" />
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <TextBlock
+                        x:Name="PresetName"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource NeapTileStateStyle}" />
+                    <Border
+                        x:Name="ParametricTag"
+                        Style="{StaticResource NeapTagStyle}"
+                        Visibility="Collapsed">
+                        <TextBlock x:Name="ParametricWord" Style="{StaticResource NeapTagTextStyle}" />
+                    </Border>
+                </StackPanel>
                 <Path
                     x:Name="PresetCurve"
                     Grid.Row="1"

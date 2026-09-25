@@ -131,6 +131,11 @@ public sealed class PresetService
             };
             _banks[bank] = state;
             AdoptBaseline(state);
+            if (Pretend.Parametric && ParametricEq.Covers(bank) && !IsParametric(bank))
+            {
+                await UseParametric(bank);
+                SetAdjustments(bank, Pretend.SampleAdjustments);
+            }
             return state;
         }
         finally { _reading.Remove(bank); }
@@ -298,6 +303,11 @@ public sealed class PresetService
 
     /// <summary>Whether the bank's curve is shaped by parametric adjustments rather than its bands.</summary>
     public bool IsParametric(Bank bank) => _adjustments.ContainsKey(bank);
+
+    /// <summary>Whether a preset was saved from adjustments that still describe its bands.</summary>
+    public static bool MadeParametrically(Preset preset) =>
+        preset.Custom && AppSettings.Current.Adjustments(preset.Bank, preset.Name) is { } stored
+        && ParametricEq.Matches(stored, preset.Bands);
 
     /// <summary>The adjustments shaping the bank, or none when it is shaped by its bands.</summary>
     public IReadOnlyList<Adjustment> Adjustments(Bank bank) =>

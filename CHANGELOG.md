@@ -130,3 +130,6 @@ and date.
   mix's keyboard shortcuts with the headset's controls on Controls.
 - Superhuman Hearing has a tile on Home, so it can be switched on mid-game
   in one click.
+- Home's equaliser tile says when the curve is parametric, marks
+  parametric presets in its list, and ends the list with a way to the
+  equaliser.

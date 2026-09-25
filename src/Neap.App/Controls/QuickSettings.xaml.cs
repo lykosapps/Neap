@@ -40,6 +40,7 @@ public sealed partial class QuickSettings : UserControl
         NoiseWord.Text = Strings.Get("Reading_None");
         PresetName.Text = Strings.Get("Reading_None");
         ShhWord.Text = Strings.Get("Reading_None");
+        ParametricWord.Text = Strings.Get("Quick_Parametric");
 
         _shh = new SettingLink(ShhTile, () => ShhSetting,
             key => AutomationProperties.SetAutomationId(ShhTile, key.Name), PaintShh);
@@ -48,6 +49,12 @@ public sealed partial class QuickSettings : UserControl
         NoiseTile.Click += (_, _) =>
         {
             if (AppServices.Noise.Mode is NoiseMode mode) AppServices.Noise.Choose(NoiseControl.Next(mode));
+        };
+
+        OpenEqualiser.Click += (_, _) =>
+        {
+            PresetFlyout.Hide();
+            MainWindow.Instance?.GoTo("audio");
         };
 
         PresetFlyout.Opened += (_, _) => (PresetList.ContainerFromItem(PresetList.SelectedItem) as ListViewItem
@@ -144,21 +151,38 @@ public sealed partial class QuickSettings : UserControl
         PaintPreset();
     }
 
-    /// <summary>A preset in the list: its name, and its curve beside it.</summary>
+    /// <summary>A preset in the list: its name, marked when it was made from adjustments, and its curve beside it.</summary>
     private static ListViewItem Item(Preset preset)
     {
+        bool parametric = PresetService.MadeParametrically(preset);
+        var name = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        name.Children.Add(new TextBlock { Text = preset.Name, VerticalAlignment = VerticalAlignment.Center });
+        if (parametric) name.Children.Add(ParametricMark());
+
         var row = new Grid { ColumnSpacing = 16 };
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        row.Children.Add(new TextBlock { Text = preset.Name, VerticalAlignment = VerticalAlignment.Center });
+        row.Children.Add(name);
         var curve = Curve(preset.Bands, ListCurveWidth, ListCurveHeight);
         Grid.SetColumn(curve, 1);
         row.Children.Add(curve);
 
         var item = new ListViewItem { Content = row, Tag = preset, Padding = new Thickness(12, 8, 12, 8) };
-        AutomationProperties.SetName(item, preset.Name);
+        AutomationProperties.SetName(item,
+            parametric ? Strings.Format("Quick_PresetParametric", preset.Name) : preset.Name);
         return item;
     }
+
+    /// <summary>The same tag the tile shows, for a preset in the list.</summary>
+    private static Border ParametricMark() => new()
+    {
+        Style = (Style)Application.Current.Resources["NeapTagStyle"],
+        Child = new TextBlock
+        {
+            Text = Strings.Get("Quick_Parametric"),
+            Style = (Style)Application.Current.Resources["NeapTagTextStyle"],
+        },
+    };
 
     private static Path Curve(IReadOnlyList<int> bands, double width, double height) => new()
     {
@@ -184,7 +208,10 @@ public sealed partial class QuickSettings : UserControl
             PresetShown.Unsaved => Strings.Get("Quick_PresetUnsaved"),
             _ => name,
         };
-        AutomationProperties.SetItemStatus(PresetPicker, PresetName.Text);
+        bool parametric = AppServices.Presets.IsParametric(Bank.Game);
+        ParametricTag.Visibility = parametric ? Visibility.Visible : Visibility.Collapsed;
+        AutomationProperties.SetItemStatus(PresetPicker,
+            parametric ? Strings.Format("Quick_PresetParametric", PresetName.Text) : PresetName.Text);
         var bands = AppServices.Presets.LiveBands(Bank.Game) ?? state.Baseline?.Bands.ToArray();
         PresetCurve.Data = bands is null ? null : CurveGeometry.Of(bands, CurveWidth, CurveHeight);
 

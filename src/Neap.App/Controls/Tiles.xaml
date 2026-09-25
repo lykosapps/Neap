@@ -338,4 +338,22 @@
         <Setter Property="Background" Value="{ThemeResource NeapPresetSelectedBrush}" />
         <Setter Property="BorderBrush" Value="{ThemeResource AccentFillColorDefaultBrush}" />
     </Style>
+
+    <!--
+        A word beside a preset's name, such as "Parametric": outlined in the
+        accent rather than filled, so it reads as a label and not a state.
+    -->
+    <Style x:Key="NeapTagStyle" TargetType="Border">
+        <Setter Property="Padding" Value="6,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="BorderBrush" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+    </Style>
+    <Style
+        x:Key="NeapTagTextStyle"
+        BasedOn="{StaticResource CaptionTextBlockStyle}"
+        TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+    </Style>
 </ResourceDictionary>

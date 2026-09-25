@@ -862,6 +862,15 @@
   <data name="Quick_PresetUnsaved" xml:space="preserve">
     <value>Custom curve</value>
   </data>
+  <data name="Quick_Parametric" xml:space="preserve">
+    <value>Parametric</value>
+  </data>
+  <data name="Quick_PresetParametric" xml:space="preserve">
+    <value>{0}, parametric</value>
+  </data>
+  <data name="Quick_OpenEqualiser.Text" xml:space="preserve">
+    <value>Open the equaliser</value>
+  </data>
   <data name="Home_Through" xml:space="preserve">
     <value>Connected through the {0}</value>
   </data>
