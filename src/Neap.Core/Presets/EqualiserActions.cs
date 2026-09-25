@@ -6,15 +6,20 @@ namespace Neap.Core.Presets;
 /// disabled when they cannot, so none moves under the pointer when a band
 /// is first dragged.
 /// </remarks>
-public readonly record struct EqualiserActions(bool Discard, bool Save, bool Overwrite)
+/// <param name="Discard">The curve can go back to its preset.</param>
+/// <param name="Save">The curve can be saved as a new preset.</param>
+/// <param name="Overwrite">The curve can be written over the preset it came from.</param>
+/// <param name="Duplicate">Saving as new copies the preset as it is, and is named for that.</param>
+public readonly record struct EqualiserActions(bool Discard, bool Save, bool Overwrite, bool Duplicate)
 {
     /// <param name="edited">The curve has moved since its preset was chosen.</param>
     /// <param name="baseline">The preset it came from, or null when that is not known.</param>
     public static EqualiserActions For(bool edited, Preset? baseline) => new(
         Discard: edited,
-        // Saving an unchanged preset spends one of five slots on a copy of
-        // it; a curve whose preset is not known can only be kept by saving.
-        Save: edited || baseline is null,
+        // Always: a changed curve saves as a new preset, and an unchanged
+        // one copies its preset.
+        Save: true,
         // Only a preset of yours has somewhere to write the curve back to.
-        Overwrite: edited && baseline is { Custom: true });
+        Overwrite: edited && baseline is { Custom: true },
+        Duplicate: !edited && baseline is not null);
 }

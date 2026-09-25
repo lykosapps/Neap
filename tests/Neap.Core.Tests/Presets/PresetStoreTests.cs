@@ -5,6 +5,23 @@ namespace Neap.Core.Tests.Presets;
 
 public class PresetStoreTests
 {
+    private static string Copy(string name, params string[] taken) =>
+        PresetStore.CopyName(name, "{0} copy", "{0} copy {1}", taken, Bank.Game);
+
+    [Fact]
+    public void ACopyIsNamedForItsPreset() => Assert.Equal("Test copy", Copy("Test", "Test"));
+
+    [Fact]
+    public void ALaterCopyIsNumbered() => Assert.Equal("Test copy 2", Copy("Test", "Test", "Test copy"));
+
+    [Fact]
+    public void ALongNameIsShortenedToFit()
+    {
+        string name = Copy("Bass & Treble Boost", "Bass & Treble Boost");
+        Assert.Equal("Bass & Treble copy", name);
+        Assert.True(name.Length <= PresetStore.MaxNameLength);
+    }
+
     [Theory]
     [InlineData(27, 25)]
     [InlineData(23, 25)]

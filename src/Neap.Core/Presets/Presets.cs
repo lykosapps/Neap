@@ -123,6 +123,33 @@ public static class PresetStore
         new(4, "Smooth", new[] { 0, 0, 0, 0, -20, -20, 0, 20, 20, 0 }, Bank.Mic, false),
     ];
 
+    /// <summary>
+    /// A name for a copy of a preset: the first free one of the copy
+    /// patterns, shortening the preset's own name if that is what it takes to
+    /// fit.
+    /// </summary>
+    /// <param name="first">The first copy's pattern, with {0} for the name, such as "{0} copy".</param>
+    /// <param name="numbered">Later copies' pattern, with {1} for the number, such as "{0} copy {1}".</param>
+    /// <param name="taken">Every name already in the bank, factory presets included.</param>
+    public static string CopyName(string name, string first, string numbered, IEnumerable<string> taken, Bank bank)
+    {
+        var used = taken.Select(t => t.Trim()).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        for (int copy = 1; copy < 100; copy++)
+        {
+            for (int keep = name.Length; keep > 0; keep--)
+            {
+                string stem = name[..keep].TrimEnd();
+                string candidate = copy == 1
+                    ? string.Format(CultureInfo.CurrentCulture, first, stem)
+                    : string.Format(CultureInfo.CurrentCulture, numbered, stem, copy);
+                if (candidate.Length > MaxNameLength || !NameFits(candidate, bank)) continue;
+                if (!used.Contains(candidate)) return candidate;
+                break;
+            }
+        }
+        return "";
+    }
+
     // -- reading -----------------------------------------------------------
 
     /// <summary>Reads the used custom slots straight off the headset, without changing what plays.</summary>

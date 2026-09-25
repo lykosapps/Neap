@@ -106,6 +106,7 @@ public sealed partial class EqualiserPanel : UserControl
         // Overwriting deletes the preset before saving over it, so it asks
         // first, in place, with the safe answer focused.
         OverwriteButton.Content = Strings.Get("Equaliser_OverwriteAny");
+        SaveButton.Content = Strings.Get("Equaliser_SaveAsNew");
         OverwriteConfirm.Opened += (_, _) => OverwriteNo.Focus(FocusState.Programmatic);
         OverwriteNo.Click += (_, _) => OverwriteConfirm.Hide();
         OverwriteYes.Click += async (_, _) =>
@@ -438,7 +439,14 @@ public sealed partial class EqualiserPanel : UserControl
     {
         if (_state is null) return;
 
-        string name = await AskForName();
+        // An unchanged preset is being copied: the name starts as its copy.
+        bool duplicating = EqualiserActions.For(AppServices.Presets.IsEdited(Bank), _state.Baseline).Duplicate;
+        string suggested = duplicating && _state.Baseline is { } original
+            ? PresetStore.CopyName(original.Name, Strings.Get("Equaliser_CopyName"),
+                Strings.Get("Equaliser_CopyNameNumbered"), _state.Presets.Select(p => p.Name), Bank)
+            : "";
+        string name = await AskForName(
+            Strings.Get(duplicating ? "Equaliser_DuplicateTitle" : "Equaliser_SaveTitle"), suggested);
         if (name.Length == 0) return;
 
         string? trouble = await AppServices.Presets.Save(Bank, name, null);
@@ -473,10 +481,11 @@ public sealed partial class EqualiserPanel : UserControl
     /// limit gets a note. A taken name points at the Overwrite button, since
     /// replacing that preset is the likeliest reason to type its name.
     /// </remarks>
-    private async Task<string> AskForName()
+    private async Task<string> AskForName(string title, string suggested)
     {
         var field = new TextBox
         {
+            Text = suggested,
             PlaceholderText = Strings.Get("Equaliser_NamePlaceholder"),
             MaxLength = PresetStore.MaxNameLength,
         };
@@ -490,7 +499,7 @@ public sealed partial class EqualiserPanel : UserControl
         var dialog = new NeapDialog
         {
             XamlRoot = XamlRoot,
-            Title = Strings.Get("Equaliser_SaveTitle"),
+            Title = title,
             Content = new StackPanel { Spacing = 8, Children = { field, note } },
             PrimaryButtonText = Strings.Get("Dialog_Save"),
             CloseButtonText = Strings.Get("Dialog_Cancel"),
@@ -601,6 +610,7 @@ public sealed partial class EqualiserPanel : UserControl
             var can = EqualiserActions.For(edited, _state.Baseline);
             DiscardButton.IsEnabled = can.Discard;
             SaveButton.IsEnabled = can.Save;
+            SaveButton.Content = Strings.Get(can.Duplicate ? "Equaliser_Duplicate" : "Equaliser_SaveAsNew");
             OverwriteButton.IsEnabled = can.Overwrite;
             // Named for the preset it replaces whenever there is one of yours
             // behind the curve, so it says what it would do before it can.

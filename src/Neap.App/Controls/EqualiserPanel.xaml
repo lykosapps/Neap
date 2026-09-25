@@ -128,7 +128,6 @@
                             IsEnabled="False" />
                         <Button
                             x:Name="SaveButton"
-                            x:Uid="Equaliser_SaveButton"
                             IsEnabled="False"
                             Style="{StaticResource AccentButtonStyle}" />
                     </StackPanel>
