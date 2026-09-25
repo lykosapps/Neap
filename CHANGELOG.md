@@ -33,11 +33,11 @@ and date.
   frequency, then cut or boost right there.
 - **Preset tools:** start a new preset from flat, duplicate one, and Neap
   remembers which preset an edited curve came from, across restarts.
-- **The Charging Dock's status ring stays purple.** The ring turns white
-  whenever an app starts using the microphone, and stays white after it
-  stops, even though Windows' format has not changed. Neap sets the format
-  again a moment later, which turns it purple. There is a switch for it on
-  the Device page.
+- **High-resolution audio, kept.** Whenever an app starts using the
+  microphone, the Charging Dock drops out of high resolution and its status
+  ring turns white. It stays that way after the call, even though Windows
+  still says 24-bit/96 kHz. Neap restores it a moment later, and the ring
+  turns purple again. There is a switch for it on the Device page.
 - **Says what is actually happening.** Connected, no sound, settings out of
   reach, switched off, out of range: each is its own state, with what still
   works and the one thing to do.
