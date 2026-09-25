@@ -24,7 +24,7 @@
                     x:Name="Icon"
                     VerticalAlignment="Top"
                     AutomationProperties.AccessibilityView="Raw"
-                    FontSize="20" />
+                    FontSize="24" />
                 <StackPanel
                     Grid.Column="1"
                     VerticalAlignment="Bottom"
@@ -35,7 +35,7 @@
                 <TextBlock
                     x:Name="StateWord"
                     Grid.Column="2"
-                    Margin="0,2,0,0"
+                    Margin="0,4,0,0"
                     VerticalAlignment="Top"
                     FontWeight="SemiBold"
                     Style="{StaticResource NeapTileStateStyle}" />

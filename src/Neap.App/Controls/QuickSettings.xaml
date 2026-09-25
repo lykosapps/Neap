@@ -42,7 +42,7 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     AutomationProperties.AccessibilityView="Raw"
-                    FontSize="20"
+                    FontSize="24"
                     Glyph="&#xE7F6;" />
                 <TextBlock
                     x:Uid="Quick_NoiseControl"
@@ -90,11 +90,11 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     AutomationProperties.AccessibilityView="Raw"
-                    FontSize="20"
+                    FontSize="24"
                     Glyph="&#xE9E9;" />
                 <FontIcon
                     Grid.Column="1"
-                    Margin="0,4,0,0"
+                    Margin="0,6,0,0"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top"
                     AutomationProperties.AccessibilityView="Raw"

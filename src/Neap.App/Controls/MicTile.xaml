@@ -19,7 +19,7 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 AutomationProperties.AccessibilityView="Raw"
-                FontSize="20"
+                FontSize="24"
                 Glyph="&#xE720;" />
             <TextBlock
                 x:Uid="Quick_Microphone"
