@@ -20,9 +20,6 @@ to GitHub, these become issues.
   the headset queues in one line, so a change made while the presets are
   being read waits behind them, about four seconds. The microphone no longer
   does: it mutes in Windows, measured at a tenth of a second mid-read.
-- **Setting option names are English only.** The Mode button's, the dial's
-  and Superhuman Hearing's option names are written into the code, not the
-  resource file, so they can't be translated.
 - **The mix once moved to 76% with nobody touching it.** Not seen since. The
   chat wheel jump fix may have been the cause; check the log if it recurs.
 - **A screen-test check failed once and never again.** A "sends nothing back"
@@ -107,6 +104,13 @@ Planned for the end of the 25 September session, with Neap closed:
 - Remove the local git exclude rule that hides new audio folders.
 - Clear about 840 MB of old raw captures and engine leftovers from the
   working folder. Git ignores them.
+
+## Last in line
+
+- **Other languages.** Lowest priority. When it comes, start with the Mode
+  button's, the dial's and Superhuman Hearing's option names, which are
+  written into the code rather than the resource file, so they can't be
+  translated.
 
 ## Ideas, not yet decided
 
