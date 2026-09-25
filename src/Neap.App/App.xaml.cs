@@ -38,7 +38,7 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        if (Services.Pretend.Light) RequestedTheme = ApplicationTheme.Light;
+        if (Services.Pretend.Theme is ApplicationTheme theme) RequestedTheme = theme;
         UnhandledException += (_, e) => Services.AppLog.Write($"crashed: {e.Exception}");
     }
 

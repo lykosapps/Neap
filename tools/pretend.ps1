@@ -45,8 +45,9 @@ Leave the app running afterwards.
 Nobody is at the machine, so the app may come to the front without the run
 stopping.
 
-.PARAMETER Light
-Show the app in the light theme, whatever Windows is set to.
+.PARAMETER Theme
+Show the app in Light or Dark, whatever Windows is set to. Left out, it
+follows Windows.
 
 .EXAMPLE
 powershell -ExecutionPolicy Bypass -File tools\pretend.ps1
@@ -56,7 +57,8 @@ param(
     [string]$Out = (Join-Path $env:TEMP 'neap-pretend'),
     [switch]$KeepOpen,
     [switch]$Unattended,
-    [switch]$Light
+    [ValidateSet('', 'Light', 'Dark')]
+    [string]$Theme = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -588,7 +590,7 @@ $script:tookFocus = 0
 $script:step = 'the launch'
 # Behind every other window and never activated, so the run does not take
 # the machine from whoever is using it.
-$arguments = @('--pretend', '--behind') + @(if ($Light) { '--light' })
+$arguments = @('--pretend', '--behind') + @(if ($Theme) { "--$($Theme.ToLowerInvariant())" })
 $process = Start-Process $Exe -ArgumentList $arguments -PassThru
 try {
     $root = $A::RootElement

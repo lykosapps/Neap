@@ -41,8 +41,9 @@ and it can run beside the real app. Publish, then run
 `powershell -ExecutionPolicy Bypass -File tools\pretend.ps1`. It operates
 every screen through UI Automation, checks each command sent against the
 registry, and takes screenshots. It comes to the front as it changes page,
-so run it while nobody is using the machine. Add `-Light` to see every
-screen in the light theme without changing Windows' own.
+so run it while nobody is using the machine. Add `-Theme Light` or
+`-Theme Dark` to see every screen in that theme without changing Windows'
+own.
 
 ## Working with the hardware
 

@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Neap.Core;
 using Neap.Core.Pretend;
 
@@ -37,6 +38,9 @@ public static class Pretend
     /// <summary>With <see cref="Flag"/>, shows the app in the light theme whatever Windows is set to.</summary>
     public const string LightFlag = "--light";
 
+    /// <summary>With <see cref="Flag"/>, shows the app in the dark theme whatever Windows is set to.</summary>
+    public const string DarkFlag = "--dark";
+
     public static bool Active { get; } = Given(Flag);
 
     /// <summary>
@@ -46,15 +50,20 @@ public static class Pretend
     public static bool Behind { get; } = Active && Given(BehindFlag);
 
     /// <summary>
-    /// Whether the app is shown in the light theme, so a script can look at
-    /// every screen in it without changing the theme of somebody's machine.
+    /// The theme the app is shown in whatever Windows is set to, or null to
+    /// follow Windows, so a script can look at every screen in either theme
+    /// without changing the theme of somebody's machine.
     /// </summary>
     /// <remarks>
-    /// The window's own buttons still follow Windows, so with Windows dark
-    /// they are drawn for dark; only a real switch of theme shows them
-    /// right.
+    /// The window's own buttons still follow Windows, so with Windows in the
+    /// other theme they are drawn for it; only a real switch of theme shows
+    /// them right.
     /// </remarks>
-    public static bool Light { get; } = Active && Given(LightFlag);
+    public static ApplicationTheme? Theme { get; } =
+        !Active ? null
+        : Given(LightFlag) ? ApplicationTheme.Light
+        : Given(DarkFlag) ? ApplicationTheme.Dark
+        : null;
 
     private static bool Given(string flag) => Environment.GetCommandLineArgs().Skip(1)
         .Any(a => string.Equals(a, flag, StringComparison.OrdinalIgnoreCase));
