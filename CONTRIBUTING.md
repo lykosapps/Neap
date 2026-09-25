@@ -23,11 +23,11 @@ dotnet xstyler -f ((git ls-files '*.xaml') -join ',')
 ```
 
 Add `-p` to check without changing anything. Any warning fails the build.
+The build, the tests and both formatting checks run on every push and pull
+request.
 
 `tools/pre-commit` runs a fast version of both formatting checks on the
 files being committed. Copy it to `.git/hooks/pre-commit` to use it.
-The build, the tests and both formatting checks run on every push and pull
-request.
 
 The tests cover what needs no hardware: the frames sent to the headset, the
 parsing of its replies, which writes are allowed, the transmitter slots, the
