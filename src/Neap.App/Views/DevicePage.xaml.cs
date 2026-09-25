@@ -13,6 +13,8 @@ public sealed partial class DevicePage : Page
     public DevicePage()
     {
         InitializeComponent();
+        KeepRing.IsOn = AppServices.Ring.On;
+        KeepRing.Toggled += (_, _) => AppServices.Ring.On = KeepRing.IsOn;
         Loaded += (_, _) =>
         {
             AppServices.Headset.Changed += PaintRaw;

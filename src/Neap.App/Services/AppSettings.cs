@@ -16,8 +16,9 @@ namespace Neap.App.Services;
 /// applications carry chat, the keyboard shortcuts, where the window was
 /// left, whether the tray notice has been shown, the two halves of noise
 /// control the headset has no place for, the parametric adjustments
-/// behind a preset, of which its slot holds only the result, and which
-/// preset an edited curve came from.
+/// behind a preset, of which its slot holds only the result, which
+/// preset an edited curve came from, and whether to keep the Charging Dock's
+/// status ring purple.
 /// </para>
 /// <para>
 /// Kept separate from the mix's volume journal, which is recovery state
@@ -65,6 +66,14 @@ public sealed class AppSettings
     /// The headset has no such function; see <see cref="Core.Settings.ModeButton"/>.
     /// </remarks>
     [JsonPropertyName("mode_cycles_noise")] public bool ModeCyclesNoise { get; set; }
+
+    /// <summary>Whether the Charging Dock's status ring is turned purple again after the microphone opens.</summary>
+    /// <remarks>
+    /// On by default: without it the ring shows white through every call.
+    /// The switch is there for anyone who would rather not have the short gap
+    /// in the sound, and for telling the dock's behaviour from Neap's.
+    /// </remarks>
+    [JsonPropertyName("keep_ring_purple")] public bool KeepRingPurple { get; set; } = true;
 
     /// <summary>Where the window was left: left, top, width and height, in physical pixels.</summary>
     /// <remarks>

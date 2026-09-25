@@ -571,6 +571,14 @@ the Charging Dock's status ring turns purple and stays purple. Comparing all
 101 values the headset and transmitter report before and after, only the
 signal strength moved, and Swarm II stores no such setting *(measured)*.
 
+**The microphone turns the ring white.** When an application starts
+recording from the headset, the ring turns white within moments and stays
+white after the recording stops, while Windows goes on reporting 24-bit/96
+kHz throughout. Stepping the format to 48 kHz and back turns it purple
+again, with the microphone still open, and it stays purple *(confirmed by
+the owner, three times, with Discord and Teams)*. Whether the sound itself
+changes while the ring is white is not known.
+
 ### Core Audio
 
 `S_FALSE` (1) is success: Core Audio returns it when a set changes nothing,

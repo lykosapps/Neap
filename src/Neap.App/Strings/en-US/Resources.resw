@@ -282,6 +282,12 @@
   <data name="Device_FormatNote.Text" xml:space="preserve">
     <value>The same setting as in Windows Sound settings.</value>
   </data>
+  <data name="Device_KeepRing.Header" xml:space="preserve">
+    <value>Keep the dock's status ring purple</value>
+  </data>
+  <data name="Device_KeepRing.Description" xml:space="preserve">
+    <value>When an app starts using the mic, the Charging Dock's ring turns white. Neap sets the audio format again to turn it purple. You may hear a short gap.</value>
+  </data>
   <data name="Device_HeadsetOutput.Header" xml:space="preserve">
     <value>Headset output</value>
   </data>

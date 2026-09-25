@@ -58,6 +58,9 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   with Neap closed; and its plot in light and high contrast themes. The
   test tone: it plays on the headset, starts and stops without a click,
   and stops on leaving the page or hiding the window.
+- **Keeping the dock's ring purple.** Joining a call turns it purple again
+  within a few seconds, the gap is short, the call carries on, and it
+  happens once per call; with the switch off, the ring stays white.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
 - **Two chat apps at once**, Discord and Teams say: both follow the chat

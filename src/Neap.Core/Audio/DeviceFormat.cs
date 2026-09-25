@@ -142,6 +142,41 @@ public static class DeviceFormat
         Write(endpoint, format);
     }
 
+    /// <summary>
+    /// Sets the output's format again, by way of another the device accepts,
+    /// and checks the engine came back at it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Stepping away and back is what turned the Charging Dock's status ring
+    /// purple when done by hand; see <see cref="RingRefresh"/>.
+    /// </para>
+    /// <para>
+    /// Each step holds a silent stream of its own open, because a format is
+    /// only taken up by a live endpoint. The first step can end the streams
+    /// that were open, so the second cannot count on the first's.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="FormatException">There is no other format to step through, or the device did not come back.</exception>
+    /// <exception cref="WindowsAudioException">The headset has no output Windows can play to.</exception>
+    public static void Refresh(string match)
+    {
+        var report = Describe(match);
+        if (report.Current is not { } current)
+            throw new FormatException($"{report.Device} has no format to set again");
+        var other = report.Options.FirstOrDefault(f => f.Bits == current.Bits && f.Rate != current.Rate)
+            ?? report.Options.FirstOrDefault(f => f.Bits != current.Bits || f.Rate != current.Rate)
+            ?? throw new FormatException($"{report.Device} offers no other format to step through");
+
+        // A tone opens silent and stays so until given a loudness.
+        foreach (var step in new[] { other, current })
+            using (TestTone.Open(frequency: 1000, match))
+                Apply(match, step.Bits, step.Rate);
+
+        if (MixFormat(match) is { } engine && engine.Rate != current.Rate)
+            throw new FormatException($"{report.Device} came back at {engine.Rate} Hz, not {current.Rate} Hz");
+    }
+
     // -- the parts that do the work ---------------------------------------
 
     /// <summary>Builds a WAVEFORMATEXTENSIBLE the way Windows builds them.</summary>

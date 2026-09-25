@@ -19,6 +19,7 @@ public static class AppServices
     public static PresetService Presets { get; private set; } = null!;
     public static HotkeyService Hotkeys { get; private set; } = null!;
     public static AudioRoute AudioRoute { get; private set; } = null!;
+    public static RingService Ring { get; private set; } = null!;
 
     /// <summary>Where the headset's transmitters are looked for.</summary>
     public static IDeviceSource Devices { get; } = (IDeviceSource?)Pretend.Headset ?? SystemDevices.Instance;
@@ -39,6 +40,7 @@ public static class AppServices
         Pretend.Start();
 
         AudioRoute = new AudioRoute();
+        Ring = new RingService(AudioRoute);
         Headset = new HeadsetService(Devices, cabled: () => AudioRoute.Cable.Length > 0);
         Mix = new MixService(Headset);
         Noise = new NoiseService(Headset);
@@ -59,6 +61,7 @@ public static class AppServices
         Mix?.Dispose();
         Noise?.Dispose();
         Headset?.Dispose();
+        Ring?.Dispose();
         AudioRoute?.Dispose();
         Pretend.Stop();
     }

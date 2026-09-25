@@ -1,4 +1,6 @@
+using System.Runtime.InteropServices;
 using NAudio.CoreAudioApi;
+using NAudio.CoreAudioApi.Interfaces;
 using NFlow = NAudio.CoreAudioApi.DataFlow;
 using NKey = NAudio.CoreAudioApi.PropertyKey;
 using NRole = NAudio.CoreAudioApi.Role;
@@ -119,6 +121,24 @@ public static class Routing
                 device.Dispose();
         }
         return found;
+    }
+
+    /// <summary>Whether any application is recording from the headset's microphone.</summary>
+    /// <returns>False as well when there is no headset microphone or Windows cannot be asked.</returns>
+    public static bool Recording(string match = "Stealth Pro")
+    {
+        try
+        {
+            using var devices = new MMDeviceEnumerator();
+            using var microphone = Headset(devices, output: false, match);
+            if (microphone is null) return false;
+            microphone.AudioSessionManager.RefreshSessions();
+            var sessions = microphone.AudioSessionManager.Sessions;
+            for (int i = 0; i < sessions.Count; i++)
+                if (sessions[i].State == AudioSessionState.AudioSessionStateActive) return true;
+            return false;
+        }
+        catch (COMException) { return false; }
     }
 
     /// <summary>

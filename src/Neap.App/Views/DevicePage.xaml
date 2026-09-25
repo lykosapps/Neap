@@ -36,6 +36,12 @@
                             x:Uid="Device_Microphone"
                             Capture="True"
                             Glyph="&#xE720;" />
+                        <tk:SettingsCard x:Uid="Device_KeepRing">
+                            <tk:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xE781;" />
+                            </tk:SettingsCard.HeaderIcon>
+                            <ToggleSwitch x:Name="KeepRing" />
+                        </tk:SettingsCard>
                     </StackPanel>
 
                     <!--
