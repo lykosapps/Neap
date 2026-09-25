@@ -15,8 +15,9 @@ namespace Neap.App.Services;
 /// choices neither the headset nor Windows can answer for us are stored: which
 /// applications carry chat, the keyboard shortcuts, where the window was
 /// left, whether the tray notice has been shown, the two halves of noise
-/// control the headset has no place for, and the parametric adjustments
-/// behind a preset, of which its slot holds only the result.
+/// control the headset has no place for, the parametric adjustments
+/// behind a preset, of which its slot holds only the result, and which
+/// preset an edited curve came from.
 /// </para>
 /// <para>
 /// Kept separate from the mix's volume journal, which is recovery state
@@ -111,6 +112,42 @@ public sealed class AppSettings
     /// </remarks>
     [JsonPropertyName("parametric_presets")]
     public Dictionary<string, Dictionary<string, int[][]>> ParametricPresets { get; set; } = new();
+
+    /// <summary>
+    /// The curve each bank was left on: the preset it was an edit of and, if
+    /// it was shaped parametrically, its adjustments.
+    /// </summary>
+    /// <remarks>
+    /// The headset forgets which preset an edit came from, so after a restart
+    /// an edited curve would otherwise be nobody's.
+    /// </remarks>
+    [JsonPropertyName("equaliser_left_on")]
+    public Dictionary<string, LeftOn> EqualiserLeftOn { get; set; } = new();
+
+    /// <summary>Where one bank was left.</summary>
+    public sealed class LeftOn
+    {
+        [JsonPropertyName("preset")] public string? Preset { get; set; }
+        [JsonPropertyName("adjustments")] public int[][]? Adjustments { get; set; }
+    }
+
+    /// <summary>The preset a bank was left on an edit of, and its adjustments, if any and well formed.</summary>
+    public (string? Preset, IReadOnlyList<Adjustment>? Adjustments) LeftOnFor(Bank bank)
+    {
+        if (!EqualiserLeftOn.TryGetValue(bank.ToString(), out var left)) return (null, null);
+        var adjustments = left.Adjustments is { } stored && stored.All(a => a is { Length: 3 })
+            ? stored.Select(a => new Adjustment(a[0], a[1], a[2])).ToList()
+            : null;
+        return (left.Preset, adjustments);
+    }
+
+    /// <summary>Records where a bank was left.</summary>
+    public void SetLeftOn(Bank bank, string? preset, IReadOnlyList<Adjustment>? adjustments) =>
+        EqualiserLeftOn[bank.ToString()] = new LeftOn
+        {
+            Preset = preset,
+            Adjustments = adjustments?.Select(a => new[] { a.Frequency, a.Gain, a.Width }).ToArray(),
+        };
 
     /// <summary>A preset's stored adjustments, or null if it has none or they are malformed.</summary>
     public IReadOnlyList<Adjustment>? Adjustments(Bank bank, string name)

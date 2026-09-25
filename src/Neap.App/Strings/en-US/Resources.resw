@@ -1111,4 +1111,7 @@
   <data name="Equaliser_CopyNameNumbered" xml:space="preserve">
     <value>{0} copy {1}</value>
   </data>
+  <data name="Equaliser_Unsaved" xml:space="preserve">
+    <value>Your own curve</value>
+  </data>
 </root>

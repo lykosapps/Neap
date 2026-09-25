@@ -70,6 +70,9 @@ public sealed class PresetService
     /// <summary>Banks on a new preset, not yet saved.</summary>
     private readonly HashSet<Bank> _new = new();
 
+    /// <summary>How many times where the banks were left has been noted; only the latest note is written.</summary>
+    private int _leaves;
+
     /// <remarks>
     /// Follows the headset before any screen paints from it: the service
     /// subscribes first, so every screen sees the preset chosen on the
@@ -138,8 +141,41 @@ public sealed class PresetService
 
         var live = LiveBands(state);
         if (live is null) return;
-        Adopt(state, state.Presets.FirstOrDefault(
-            p => p.Bands.Count == live.Length && p.Bands.SequenceEqual(live)));
+        var same = state.Presets.FirstOrDefault(p => p.Bands.Count == live.Length && p.Bands.SequenceEqual(live));
+        if (same is not null) { Adopt(state, same); return; }
+
+        // An edit from before a restart: the headset has forgotten its
+        // preset, so take the one it was left on, and its adjustments while
+        // they still fit what plays.
+        var (preset, adjustments) = AppSettings.Current.LeftOnFor(state.Bank);
+        Adopt(state, state.Presets.FirstOrDefault(p => p.Name == preset));
+        if (adjustments is not null && ParametricEq.Covers(state.Bank) && ParametricEq.Matches(adjustments, live))
+            _adjustments[state.Bank] = adjustments.ToList();
+        else
+            _adjustments.Remove(state.Bank);
+        LeaveSoon();
+    }
+
+    /// <summary>Notes where every bank is, to be written once changes stop.</summary>
+    /// <remarks>
+    /// Taken here, on the caller's thread, and written a second later if
+    /// nothing has changed since, so a drag writes the settings file once
+    /// rather than at every step.
+    /// </remarks>
+    private void LeaveSoon()
+    {
+        var leaving = _banks.Values.ToDictionary(
+            state => state.Bank,
+            state => (state.Baseline?.Name, _adjustments.GetValueOrDefault(state.Bank)?.ToList()));
+        int note = Interlocked.Increment(ref _leaves);
+        Task.Delay(TimeSpan.FromSeconds(1)).ContinueWith(_ =>
+        {
+            if (note != Volatile.Read(ref _leaves)) return;
+            AppSettings.Update(settings =>
+            {
+                foreach (var (bank, (preset, adjustments)) in leaving) settings.SetLeftOn(bank, preset, adjustments);
+            });
+        }, TaskScheduler.Default);
     }
 
     /// <summary>Takes a preset as the baseline, with its adjustments if it was made parametrically.</summary>
@@ -161,6 +197,7 @@ public sealed class PresetService
             _adjustments[state.Bank] = stored.ToList();
         else
             _adjustments.Remove(state.Bank);
+        LeaveSoon();
     }
 
     /// <summary>
@@ -221,7 +258,9 @@ public sealed class PresetService
         // parametric curve names the flat preset it started from.
         if (state.Baseline is { } baseline) return baseline.Name;
         string nameKey = state.Spec.NameKey.ToString("x", CultureInfo.InvariantCulture);
-        return _headset.Values.TryGetValue(nameKey, out var raw) ? raw.ToString() : "";
+        string reported = _headset.Values.TryGetValue(nameKey, out var raw) ? raw.ToString() : "";
+        // A curve that is no preset's still says what it is, rather than nothing.
+        return string.IsNullOrWhiteSpace(reported) ? Strings.Get("Equaliser_Unsaved") : reported;
     }
 
     public void SetBand(Bank bank, int index, int tenths)
@@ -289,6 +328,7 @@ public sealed class PresetService
                 break;
         }
         _setAside.Remove(bank);
+        LeaveSoon();
     }
 
     /// <summary>Starts a new preset: flat, belonging to no preset, in whichever form the bank is shaped.</summary>
@@ -328,6 +368,7 @@ public sealed class PresetService
     public void UseBands(Bank bank)
     {
         if (_adjustments.Remove(bank, out var adjustments)) _setAside[bank] = adjustments;
+        LeaveSoon();
     }
 
     /// <summary>Shape the bank with these adjustments, writing whichever bands they move.</summary>
@@ -341,6 +382,7 @@ public sealed class PresetService
         var live = LiveBands(state);
         for (int i = 0; i < fitted.Length; i++)
             if (live is null || live[i] != fitted[i]) SetBand(bank, i, fitted[i]);
+        LeaveSoon();
     }
 
     /// <summary>Throw away unsaved edits and go back to the stored curve.</summary>
