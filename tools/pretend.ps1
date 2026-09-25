@@ -45,6 +45,9 @@ Leave the app running afterwards.
 Nobody is at the machine, so the app may come to the front without the run
 stopping.
 
+.PARAMETER Light
+Show the app in the light theme, whatever Windows is set to.
+
 .EXAMPLE
 powershell -ExecutionPolicy Bypass -File tools\pretend.ps1
 #>
@@ -52,7 +55,8 @@ param(
     [string]$Exe = (Join-Path $PSScriptRoot '..\src\Neap.App\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.exe'),
     [string]$Out = (Join-Path $env:TEMP 'neap-pretend'),
     [switch]$KeepOpen,
-    [switch]$Unattended
+    [switch]$Unattended,
+    [switch]$Light
 )
 
 $ErrorActionPreference = 'Stop'
@@ -584,7 +588,8 @@ $script:tookFocus = 0
 $script:step = 'the launch'
 # Behind every other window and never activated, so the run does not take
 # the machine from whoever is using it.
-$process = Start-Process $Exe -ArgumentList '--pretend', '--behind' -PassThru
+$arguments = @('--pretend', '--behind') + @(if ($Light) { '--light' })
+$process = Start-Process $Exe -ArgumentList $arguments -PassThru
 try {
     $root = $A::RootElement
     if (-not (Until { $null -ne (Find $root 'ProcessIdProperty' $process.Id 'Children') } 20)) { throw 'the app opened no window' }

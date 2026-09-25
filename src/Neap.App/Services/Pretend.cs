@@ -34,6 +34,9 @@ public static class Pretend
     /// <summary>With <see cref="Flag"/>, opens the window behind every other one and never activates it.</summary>
     public const string BehindFlag = "--behind";
 
+    /// <summary>With <see cref="Flag"/>, shows the app in the light theme whatever Windows is set to.</summary>
+    public const string LightFlag = "--light";
+
     public static bool Active { get; } = Given(Flag);
 
     /// <summary>
@@ -41,6 +44,17 @@ public static class Pretend
     /// the app while somebody works at the same machine.
     /// </summary>
     public static bool Behind { get; } = Active && Given(BehindFlag);
+
+    /// <summary>
+    /// Whether the app is shown in the light theme, so a script can look at
+    /// every screen in it without changing the theme of somebody's machine.
+    /// </summary>
+    /// <remarks>
+    /// The window's own buttons still follow Windows, so with Windows dark
+    /// they are drawn for dark; only a real switch of theme shows them
+    /// right.
+    /// </remarks>
+    public static bool Light { get; } = Active && Given(LightFlag);
 
     private static bool Given(string flag) => Environment.GetCommandLineArgs().Skip(1)
         .Any(a => string.Equals(a, flag, StringComparison.OrdinalIgnoreCase));
