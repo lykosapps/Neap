@@ -11,7 +11,9 @@ namespace Neap.App.Controls;
 
 /// <summary>
 /// The microphone, noise control, the equaliser preset and Superhuman
-/// Hearing, as tiles: the headset settings reached for mid-game or mid-call.
+/// Hearing, as tiles: the settings reached for mid-game or mid-call.
+/// Spatial sound is a tile too, but is self-contained; see
+/// <see cref="SpatialTile"/>.
 /// </summary>
 /// <remarks>
 /// <para>

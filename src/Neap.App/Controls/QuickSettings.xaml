@@ -6,10 +6,10 @@
     xmlns:c="using:Neap.App.Controls">
 
     <!--
-        The headset's settings reached for mid-game or mid-call, as tiles:
-        the microphone and noise control side by side, the equaliser
-        across the width under them with its curve, and Superhuman Hearing
-        across the width last.
+        The settings reached for mid-game or mid-call, as tiles: the
+        microphone and noise control side by side, the equaliser across the
+        width under them with its curve, then Superhuman Hearing and
+        Windows' spatial sound side by side last.
     -->
     <Grid ColumnSpacing="12" RowSpacing="12">
         <Grid.ColumnDefinitions>
@@ -166,7 +166,6 @@
             x:Name="ShhTile"
             x:Uid="Quick_ShhTile"
             Grid.Row="2"
-            Grid.ColumnSpan="2"
             IsEnabled="False"
             Style="{StaticResource NeapToggleTileStyle}">
             <Grid RowSpacing="2">
@@ -191,5 +190,8 @@
                     Style="{StaticResource NeapTileStateStyle}" />
             </Grid>
         </ToggleButton>
+
+        <!--  Windows' spatial sound on the headset: a Windows setting, reached from Home like the others.  -->
+        <c:SpatialTile Grid.Row="2" Grid.Column="1" />
     </Grid>
 </UserControl>

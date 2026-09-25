@@ -55,7 +55,7 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   setting at once: it takes effect within about a second. Every saved
   preset is still listed on both equaliser pages, many times over: a read
   now waits a moment after a write, and a lost read would hide a preset.
-- **Spatial sound.** On Audio, choose Dolby Atmos: it switches on and is
+- **Spatial sound.** From Home, choose Dolby Atmos: it switches on and is
   heard, or, unlicensed, the dialog opens Dolby Access. Windows Sonic and
   off work too. A game using Dolby's positional sound still follows the
   mix.

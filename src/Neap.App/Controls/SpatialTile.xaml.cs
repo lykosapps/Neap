@@ -1,19 +1,21 @@
-using CommunityToolkit.WinUI.Controls;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Neap.App.Services;
 using Neap.Core.Audio;
+using Neap.Core.Connection;
 
 namespace Neap.App.Controls;
 
 /// <summary>
-/// A settings row for Windows' spatial sound on the headset: off, Windows
+/// Windows' spatial sound for the headset, as a tile on Home: off, Windows
 /// Sonic, or whichever of Dolby Atmos and DTS this PC has installed.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Only what Windows says the headset supports is offered, and the row is
-/// re-read after every change rather than trusting it took.
+/// Only what Windows says the headset supports is offered, and the tile is
+/// re-read after every change rather than trusting it took, and whenever the
+/// headset connects or disconnects, since that changes what Windows offers.
 /// </para>
 /// <para>
 /// Dolby Atmos and DTS each need a licence Windows does not report until the
@@ -21,30 +23,39 @@ namespace Neap.App.Controls;
 /// activates it and opens that app's Store page, which starts it when it is
 /// installed. The Stealth Pro II carries a Dolby Atmos licence, which Dolby
 /// Access activates only with the headset's Dolby Atmos driver installed,
-/// and Swarm II is what installs it; the row and the dialog say so.
+/// and Swarm II is what installs it; the dialog says so.
 /// </para>
 /// </remarks>
-public sealed class SpatialRow : SettingsCard
+public sealed partial class SpatialTile : UserControl
 {
     private const string DolbyAccess = "ms-windows-store://pdp/?productid=9N0866FS04W8";
     private const string DtsSoundUnbound = "ms-windows-store://pdp/?productid=9PJ0NKL8MCSJ";
 
-    private readonly ComboBox _picker = new() { MinWidth = 240 };
-    private string? _description;
     private bool _painting;
 
-    public SpatialRow()
+    public SpatialTile()
     {
-        HeaderIcon = new FontIcon { Glyph = "" };
-        Content = _picker;
-        _picker.SelectionChanged += async (_, _) => await Apply();
+        InitializeComponent();
+        Word.Text = Strings.Get("Reading_None");
+
+        FormatFlyout.Opened += (_, _) => (FormatList.ContainerFromItem(FormatList.SelectedItem) as ListViewItem
+            ?? FormatList.ContainerFromIndex(0) as ListViewItem)?.Focus(FocusState.Programmatic);
+        FormatList.SelectionChanged += async (_, _) =>
+        {
+            if (_painting || FormatList.SelectedItem is not ListViewItem { Tag: SpatialFormat wanted }) return;
+            FormatFlyout.Hide();
+            await Apply(wanted);
+        };
+
         Loaded += async (_, _) =>
         {
-            _description ??= Description?.ToString();
-            AutomationProperties.SetName(_picker, Header?.ToString() ?? "");
+            AppServices.Headset.StatusChanged += OnStatus;
             await Load();
         };
+        Unloaded += (_, _) => AppServices.Headset.StatusChanged -= OnStatus;
     }
+
+    private async void OnStatus(HeadsetStatus status) => await Load();
 
     private async Task Load()
     {
@@ -52,29 +63,31 @@ public sealed class SpatialRow : SettingsCard
         _painting = true;
         try
         {
-            var shown = _picker.Items.Cast<ComboBoxItem>().Select(item => (SpatialFormat)item.Tag).ToList();
+            var shown = FormatList.Items.OfType<ListViewItem>().Select(item => (SpatialFormat)item.Tag).ToList();
             if (!shown.SequenceEqual(panel.Offered))
             {
-                _picker.Items.Clear();
+                FormatList.Items.Clear();
                 foreach (var format in panel.Offered)
-                    _picker.Items.Add(new ComboBoxItem { Content = Label(format), Tag = format });
+                    FormatList.Items.Add(new ListViewItem { Content = Label(format), Tag = format });
             }
-            _picker.SelectedItem = _picker.Items.Cast<ComboBoxItem>()
+            FormatList.SelectedItem = FormatList.Items.OfType<ListViewItem>()
                 .FirstOrDefault(item => panel.Active is { } active && (SpatialFormat)item.Tag == active);
-            _picker.IsEnabled = panel.Offered.Count > 1;
-            // Dolby Atmos is offered only once the headset's Dolby driver is
-            // installed, which Swarm II does; without it, say what it takes.
-            Description = panel.Trouble
-                ?? (panel.Offered.Count > 0 && !panel.Offered.Contains(SpatialFormat.DolbyAtmos)
-                    ? Strings.Get("Spatial_DolbyNeedsDriver") : _description) ?? "";
+            Face.IsEnabled = panel.Offered.Count > 1;
+            Word.Text = panel.Active is { } active ? Label(active) : Strings.Get("Reading_None");
+            AutomationProperties.SetItemStatus(Face, Word.Text);
+
+            // Windows never offers Dolby Atmos without the headset's Dolby
+            // Atmos driver, which Swarm II installs; say so rather than
+            // leave it looking simply absent.
+            bool needsDriver = panel.Offered.Count > 0 && !panel.Offered.Contains(SpatialFormat.DolbyAtmos);
+            DriverNote.Text = needsDriver ? Strings.Get("Spatial_DolbyNeedsDriver") : "";
+            DriverNote.Visibility = needsDriver ? Visibility.Visible : Visibility.Collapsed;
         }
         finally { _painting = false; }
     }
 
-    private async Task Apply()
+    private async Task Apply(SpatialFormat wanted)
     {
-        if (_painting || _picker.SelectedItem is not ComboBoxItem { Tag: SpatialFormat wanted }) return;
-        _picker.IsEnabled = false;
         var result = await SpatialAudio.Apply(wanted);
         switch (SpatialSound.NoteFor(result))
         {
