@@ -29,9 +29,9 @@ to GitHub, these become issues.
   shows the curve asked for and the curve the headset plays, with the gap
   between them, and says so only when the miss is audible (over about
   2 dB): "The headset can't match this exactly. The solid line is what
-  you'll hear." Open: where its presets live. Recommended: in Neap, with
-  the headset slot holding the ten gains, so a preset still sounds right
-  without Neap. Needs the headset to confirm the modelled curve.
+  you'll hear." Its presets keep their parametric settings in Neap, and the
+  headset slot holds the ten gains, so a preset still sounds right without
+  Neap. Needs the headset to confirm the modelled curve.
 - **Superhuman Hearing's type as buttons** rather than a drop-down, as the
   Mode button's jobs are shown.
 - **Quick panel from the taskbar.** A small panel for mid-game controls (mix,
