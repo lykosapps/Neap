@@ -150,3 +150,5 @@ and date.
 - Master volume sits beside voice prompts, and sensitivity beside mic
   monitoring, instead of each taking a wide, mostly empty row. They stack
   again in a narrow window.
+- The menu has a solid background when a narrow window turns it into a
+  pop-out, instead of showing the page through it.

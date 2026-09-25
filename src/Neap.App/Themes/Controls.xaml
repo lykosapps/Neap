@@ -27,7 +27,7 @@
 
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Dark">
-            <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="#110E19" />
             <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#110E19" />
             <SolidColorBrush x:Key="NavigationViewContentBackground" Color="#171322" />
             <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="#2B2440" />
@@ -117,7 +117,7 @@
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
-            <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="#EFECF6" />
             <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#EFECF6" />
             <SolidColorBrush x:Key="NavigationViewContentBackground" Color="#F7F5FB" />
             <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="#E2DEEC" />
