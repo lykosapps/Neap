@@ -1090,4 +1090,13 @@
   <data name="Tone_CouldNotPlay" xml:space="preserve">
     <value>The test tone can't play: {0}</value>
   </data>
+  <data name="Equaliser_New.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Start a new preset</value>
+  </data>
+  <data name="Equaliser_NewLabel.Text" xml:space="preserve">
+    <value>New preset</value>
+  </data>
+  <data name="Equaliser_NewPreset" xml:space="preserve">
+    <value>New preset</value>
+  </data>
 </root>

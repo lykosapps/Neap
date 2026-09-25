@@ -64,6 +64,12 @@ public sealed class PresetService
     /// <summary>The adjustments put aside when a bank went back to its bands, until another preset is chosen.</summary>
     private readonly Dictionary<Bank, List<Adjustment>> _setAside = new();
 
+    /// <summary>Banks that chose the flat preset as a starting point rather than as a preset, until another is chosen.</summary>
+    private readonly HashSet<Bank> _flatStart = new();
+
+    /// <summary>Banks on a new preset, not yet saved.</summary>
+    private readonly HashSet<Bank> _new = new();
+
     /// <remarks>
     /// Follows the headset before any screen paints from it: the service
     /// subscribes first, so every screen sees the preset chosen on the
@@ -146,6 +152,8 @@ public sealed class PresetService
     {
         state.Baseline = preset;
         _setAside.Remove(state.Bank);
+        _flatStart.Remove(state.Bank);
+        _new.Remove(state.Bank);
         var stored = preset is { Custom: true } && ParametricEq.Covers(state.Bank)
             ? AppSettings.Current.Adjustments(state.Bank, preset.Name)
             : null;
@@ -168,11 +176,10 @@ public sealed class PresetService
     {
         if (!_headset.TryGetNumberByKey(state.Spec.Select, out int selected)
             || state.Presets.FirstOrDefault(p => p.Id == selected) is not { } chosen) return false;
-        // Starting parametric chooses the flat preset (see UseParametric);
-        // that is the start of an edit, not a new baseline.
-        bool startingParametric = Adjustments(state.Bank).Count == 0 && IsParametric(state.Bank)
-            && chosen.Bands.All(band => band == 0);
-        if (state.Baseline?.Id != chosen.Id && !startingParametric) Adopt(state, chosen);
+        // A new preset, or parametric started flat, chooses the flat preset
+        // (see ChooseFlat); that is where an edit starts, not a new baseline.
+        bool startedFlat = _flatStart.Contains(state.Bank) && chosen.Bands.All(band => band == 0);
+        if (state.Baseline?.Id != chosen.Id && !startedFlat) Adopt(state, chosen);
         return true;
     }
 
@@ -208,6 +215,7 @@ public sealed class PresetService
     public string CurrentName(Bank bank)
     {
         if (!_banks.TryGetValue(bank, out var state)) return "";
+        if (_new.Contains(bank)) return Strings.Get("Equaliser_NewPreset");
         // A parametric curve is an edit of its baseline, even while the
         // headset names the flat preset it started from.
         if (IsParametric(bank)) return state.Baseline?.Name ?? "";
@@ -259,10 +267,7 @@ public sealed class PresetService
     /// <para>
     /// A curve made with the bands has no adjustments that describe it, so it
     /// starts from flat. That is an edit like any other: the preset it came
-    /// from stays the baseline, and Discard puts it back. Flat is reached by
-    /// choosing the headset's own flat preset for the same reason: setting
-    /// the bands to zero one by one showed flat on screen while the sound did
-    /// not change.
+    /// from stays the baseline, and Discard puts it back.
     /// </para>
     /// </remarks>
     public async Task UseParametric(Bank bank)
@@ -282,13 +287,43 @@ public sealed class PresetService
                 await Select(bank, baseline!);
                 break;
             default:
-                var flat = PresetStore.Factory(bank).First(p => p.Bands.All(band => band == 0));
                 _adjustments[bank] = [];
-                _headset.SetKey(state.Spec.Select, flat.Id);
-                foreach (int key in state.Spec.Bands) _headset.SetKeyLocally(key, 0);
+                ChooseFlat(state);
                 break;
         }
         _setAside.Remove(bank);
+    }
+
+    /// <summary>Starts a new preset: flat, belonging to no preset, in whichever form the bank is shaped.</summary>
+    /// <remarks>
+    /// With no baseline there is nothing to discard or overwrite, so only
+    /// saving as new is offered, and a new preset needs no other to be
+    /// chosen and changed first.
+    /// </remarks>
+    public void StartNew(Bank bank)
+    {
+        if (!_banks.TryGetValue(bank, out var state)) return;
+        bool parametric = IsParametric(bank);
+        Adopt(state, null);
+        if (parametric) _adjustments[bank] = [];
+        ChooseFlat(state);
+        _new.Add(bank);
+    }
+
+    /// <summary>Whether the bank is on a new preset, not yet saved.</summary>
+    public bool IsNew(Bank bank) => _new.Contains(bank);
+
+    /// <summary>Makes the curve flat by choosing the headset's own flat preset, as a starting point.</summary>
+    /// <remarks>
+    /// One write the headset always acts on. Setting the bands to zero one by
+    /// one showed flat on screen while the sound did not change.
+    /// </remarks>
+    private void ChooseFlat(BankState state)
+    {
+        var flat = PresetStore.Factory(state.Bank).First(p => p.Bands.All(band => band == 0));
+        _headset.SetKey(state.Spec.Select, flat.Id);
+        foreach (int key in state.Spec.Bands) _headset.SetKeyLocally(key, 0);
+        _flatStart.Add(state.Bank);
     }
 
     /// <summary>Shape the bank by its bands again, leaving them where the adjustments put them.</summary>

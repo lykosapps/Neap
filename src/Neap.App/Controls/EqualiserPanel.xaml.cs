@@ -97,6 +97,11 @@ public sealed partial class EqualiserPanel : UserControl
     {
         InitializeComponent();
         DiscardButton.Click += async (_, _) => await Discard();
+        NewButton.Click += (_, _) =>
+        {
+            AppServices.Presets.StartNew(Bank);
+            Paint();
+        };
         SaveButton.Click += async (_, _) => await SaveAsNew();
         // Overwriting deletes the preset before saving over it, so it asks
         // first, in place, with the safe answer focused.
@@ -299,6 +304,7 @@ public sealed partial class EqualiserPanel : UserControl
             Slots.Items.Add(SlotChip(preset));
 
         int free = _state.FreeSlots.Count;
+        NewButton.IsEnabled = free > 0;
         FreeSlots.Text = free switch
         {
             0 => Strings.Get("Equaliser_NoFreeSlots"),

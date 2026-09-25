@@ -32,6 +32,23 @@
                     Margin="12,0,0,8"
                     Style="{StaticResource NeapLabelStyle}" />
                 <ItemsControl x:Name="Slots" />
+                <!--
+                    A new preset from flat, without choosing and changing one
+                    first. Unavailable with every slot full, as the note
+                    under it says.
+                -->
+                <Button
+                    x:Name="NewButton"
+                    x:Uid="Equaliser_New"
+                    Margin="0,6,0,0"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Style="{StaticResource NeapPresetStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon FontSize="12" Glyph="&#xE710;" />
+                        <TextBlock x:Uid="Equaliser_NewLabel" />
+                    </StackPanel>
+                </Button>
                 <TextBlock
                     x:Name="FreeSlots"
                     Margin="12,8,12,0"
