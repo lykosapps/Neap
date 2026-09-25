@@ -331,6 +331,11 @@ public sealed class PresetService
         var bands = LiveBands(state);
         if (bands is null) return Strings.Get("Preset_Unreadable");
 
+        // Taken now, with the bands: replacing the chosen preset has the
+        // headset choose the flat one while the old is deleted, which is
+        // followed as a new baseline and drops the adjustments mid-save.
+        var adjustments = _adjustments.GetValueOrDefault(bank)?.ToList();
+
         try
         {
             await _headset.Post(client =>
@@ -352,7 +357,6 @@ public sealed class PresetService
 
         // The slot has only the gains, so the adjustments behind them are
         // kept here; a preset saved from the bands keeps none.
-        var adjustments = _adjustments.GetValueOrDefault(bank);
         AppSettings.Update(settings =>
         {
             if (replacing is not null) settings.SetAdjustments(bank, replacing, null);
