@@ -77,7 +77,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 ## Tooling and release
 
-- A fast formatting check before each commit.
 - Build, tests and formatting required on every pull request, once on GitHub.
 - Sign the download, so Windows does not warn about it.
 - Publish on GitHub: the repository named "neap", private vulnerability
