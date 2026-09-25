@@ -67,6 +67,10 @@ internal sealed class DecibelFormatter : INumberFormatter2, INumberParser
 /// curve is indistinguishable from the preset it came from.
 /// </para>
 /// <para>
+/// The game bank can instead be shaped by parametric adjustments
+/// (<see cref="ParametricPanel"/>), chosen above the curve.
+/// </para>
+/// <para>
 /// The presets are a list beside the curve, each with its own small curve,
 /// and how many slots are free is said under them: there are five, and how
 /// many are left matters when deciding whether to save over one. Deleting
@@ -111,6 +115,22 @@ public sealed partial class EqualiserPanel : UserControl
             AppServices.Presets.SetBand(Bank, index, tenths);
             Paint();
         };
+        // Each button is acted on as ticked, not through the group's
+        // selection, which changes only after painting and would send the
+        // mode just shown back again.
+        ModeBands.Checked += (_, _) =>
+        {
+            if (_painting) return;
+            AppServices.Presets.UseBands(Bank);
+            Paint();
+        };
+        ModeParametric.Checked += (_, _) =>
+        {
+            if (_painting) return;
+            AppServices.Presets.UseParametric(Bank);
+            Paint();
+        };
+        Parametric.Changed += Paint;
         Response.BandReverted += index =>
         {
             AppServices.Presets.RevertBand(Bank, index);
@@ -180,6 +200,8 @@ public sealed partial class EqualiserPanel : UserControl
             _ => "",
         };
         Curve.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
+        Parametric.Visibility = Visibility.Collapsed;
+        Mode.Visibility = !waiting && ParametricEq.Covers(Bank) ? Visibility.Visible : Visibility.Collapsed;
         PresetColumn.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
         Actions.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
     }
@@ -556,6 +578,13 @@ public sealed partial class EqualiserPanel : UserControl
             // The curve is given the preset behind it as well, so it can
             // draw where each band was before it was moved.
             Response.Show(live, _state.Baseline?.Bands.ToArray());
+
+            bool parametric = AppServices.Presets.IsParametric(Bank);
+            ModeBands.IsChecked = !parametric;
+            ModeParametric.IsChecked = parametric;
+            Curve.Visibility = parametric ? Visibility.Collapsed : Visibility.Visible;
+            Parametric.Visibility = parametric ? Visibility.Visible : Visibility.Collapsed;
+            if (parametric) Parametric.Paint();
 
             PresetName.Text = AppServices.Presets.CurrentName(Bank);
             bool edited = AppServices.Presets.IsEdited(Bank);

@@ -22,16 +22,6 @@ to GitHub, these become issues.
 
 - **Profiles.** Save and apply a set of settings, switch automatically when
   an app starts, and switch with hotkeys.
-- **A parametric equaliser.** Pick a frequency, gain and width, and Neap sets
-  the ten bands to match as closely as they can. The headset's band
-  frequencies and widths are fixed in its firmware, so only broad changes
-  come close; the width stops at the narrowest the bands can make. The plot
-  shows the curve asked for and the curve the headset plays, with the gap
-  between them, and says so only when the miss is audible (over about
-  2 dB): "The headset can't match this exactly. The solid line is what
-  you'll hear." Its presets keep their parametric settings in Neap, and the
-  headset slot holds the ten gains, so a preset still sounds right without
-  Neap. Needs the headset to confirm the modelled curve.
 - **Superhuman Hearing's type as buttons** rather than a drop-down, as the
   Mode button's jobs are shown.
 - **Quick panel from the taskbar.** A small panel for mid-game controls (mix,
@@ -53,6 +43,9 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - **Does CrossPlay report its presses?** Unknown.
 - **The lights:** the USB Transmitter's second light, and the lights while
   sound and settings are on different transmitters.
+- **The parametric equaliser.** A tone sweep against the curve it shows,
+  especially between bands; a parametric preset still sounding the same
+  with Neap closed; and its plot in light and high contrast themes.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
 - **Two chat apps at once**, Discord and Teams say: both follow the chat
@@ -89,6 +82,9 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - The microphone meter reads its Large setting once.
 - Home rebuilds its readings on every change.
 - Volumes are polled rather than followed by event.
+- The band view draws a smooth line through the ten gains, not what plays.
+  Neighbouring bands overlap, so ten bands at +9 dB play about +13.5 dB.
+  The parametric view already draws what plays.
 
 ## Last in line
 
