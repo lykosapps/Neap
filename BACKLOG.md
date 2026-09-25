@@ -24,6 +24,16 @@ to GitHub, these become issues.
   expandable card with a checkbox per app.
 - **Profiles.** Save and apply a set of settings, switch automatically when
   an app starts, and switch with hotkeys.
+- **A parametric equaliser.** Pick a frequency, gain and width, and Neap sets
+  the ten bands to match as closely as they can. The headset's band
+  frequencies and widths are fixed in its firmware, so only broad changes
+  come close; the width stops at the narrowest the bands can make. The plot
+  shows the curve asked for and the curve the headset plays, with the gap
+  between them, and says so only when the miss is audible (over about
+  2 dB): "The headset can't match this exactly. The solid line is what
+  you'll hear." Open: where its presets live. Recommended: in Neap, with
+  the headset slot holding the ten gains, so a preset still sounds right
+  without Neap. Needs the headset to confirm the modelled curve.
 - **Superhuman Hearing's type as buttons** rather than a drop-down, as the
   Mode button's jobs are shown.
 - **Quick panel from the taskbar.** A small panel for mid-game controls (mix,
