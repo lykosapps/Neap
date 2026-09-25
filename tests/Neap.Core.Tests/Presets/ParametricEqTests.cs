@@ -161,6 +161,36 @@ public class ParametricEqTests
     public void APresetMadeWithTheBandsStartsFlat() =>
         Assert.Equal(ParametricStart.Flat, ParametricEq.StartFrom(null, Flat, null, BassBoost));
 
+    private static readonly Adjustment Pressed = new(4915, -60, 10);
+
+    private static Adjustment Drag(double across, double down) =>
+        ParametricEq.Dragged(Pressed, across, down, width: 600, height: 240, range: 120);
+
+    [Fact]
+    public void APressWithoutAMoveLeavesThePointWhereItIs()
+    {
+        Assert.Equal(Pressed, Drag(0, 0));
+        Assert.Equal(Pressed, Drag(2, -2));
+    }
+
+    [Fact]
+    public void ADragUpRaisesTheGainByTheDistance() =>
+        // 240 pixels span 24 dB, so 20 pixels up is 2 dB.
+        Assert.Equal(-40, Drag(0, -20).Gain);
+
+    [Fact]
+    public void ADragAcrossMovesTheFrequencyFromWhereItWas()
+    {
+        var moved = Drag(60, 0);
+        Assert.Equal(Pressed.Gain, moved.Gain);
+        // A tenth of the plot is a tenth of the range's three decades.
+        Assert.InRange(moved.Frequency, 9700, 9900);
+    }
+
+    [Fact]
+    public void ADraggedGainIsAStepTheHeadsetTakes() =>
+        Assert.Equal(0, Drag(0, -7).Gain % PresetStore.BandStep);
+
     [Fact]
     public void OnlyTheGameBankIsParametric()
     {

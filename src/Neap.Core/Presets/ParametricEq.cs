@@ -360,6 +360,35 @@ public static class ParametricEq
         width * Math.Log(frequency / Adjustment.LowestFrequency)
               / Math.Log((double)Adjustment.HighestFrequency / Adjustment.LowestFrequency);
 
+    /// <summary>How far, in pixels, the pointer has to move before a press on a point becomes a drag.</summary>
+    public const double DragThreshold = 4;
+
+    /// <summary>
+    /// Where a dragged adjustment goes: moved by how far the pointer has gone
+    /// since the press, from where it was, with its gain in the headset's steps.
+    /// </summary>
+    /// <remarks>
+    /// Moved by the distance, not put under the pointer: a point is drawn on
+    /// the curve asked for, which neighbouring adjustments add to, and a
+    /// press lands anywhere within reach of it, so putting it under the
+    /// pointer would throw it off its value the moment it was pressed. A
+    /// movement too small to mean a drag leaves it alone.
+    /// </remarks>
+    /// <param name="start">The adjustment as it was when pressed.</param>
+    /// <param name="across">Pixels moved to the right since the press.</param>
+    /// <param name="down">Pixels moved down since the press.</param>
+    /// <param name="width">The plot's width, in pixels.</param>
+    /// <param name="height">The plot's height, in pixels.</param>
+    /// <param name="range">The plot's range either side of 0 dB, in tenths.</param>
+    public static Adjustment Dragged(Adjustment start, double across, double down,
+        double width, double height, int range)
+    {
+        if (Math.Sqrt(across * across + down * down) < DragThreshold || width <= 0 || height <= 0) return start;
+        int frequency = FrequencyAt(X(start.Frequency, width) + across, width);
+        int gain = PresetStore.Snap((int)Math.Round(start.Gain - down * 2 * range / height));
+        return (start with { Frequency = frequency, Gain = gain }).Held();
+    }
+
     /// <summary>
     /// The frequency at a point across a plot of this width, held inside the
     /// range and rounded to three significant figures.

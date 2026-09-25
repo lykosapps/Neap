@@ -65,6 +65,8 @@ public sealed class ParametricCurve : UserControl
     private int[] _bands = [];
     private int _selected;
     private int _dragging = -1;
+    private Point _pressedAt;
+    private Adjustment _pressed;
     private double? _tone;
 
     /// <summary>The bands' labels, as the band view shows them.</summary>
@@ -337,6 +339,8 @@ public sealed class ParametricCurve : UserControl
     private void BeginDrag(int index, PointerRoutedEventArgs args)
     {
         _dragging = index;
+        _pressedAt = args.GetCurrentPoint(_canvas).Position;
+        _pressed = _adjustments[index];
         _canvas.CapturePointer(args.Pointer);
         args.Handled = true;
         AdjustmentChosen?.Invoke(index);
@@ -346,11 +350,8 @@ public sealed class ParametricCurve : UserControl
     {
         if (_dragging < 0 || _dragging >= _adjustments.Count) return;
         var at = args.GetCurrentPoint(_canvas).Position;
-        int frequency = ParametricEq.FrequencyAt(at.X, _canvas.ActualWidth);
-        // Held to half-decibel steps, as the arrow keys step the fields.
-        int gain = (int)Math.Round(
-            ResponseCurve.TenthsAt(at.Y, -Range, Range, Inset, PlotBottom) / 5.0) * 5;
-        var moved = (_adjustments[_dragging] with { Frequency = frequency, Gain = gain }).Held();
+        var moved = ParametricEq.Dragged(_pressed, at.X - _pressedAt.X, at.Y - _pressedAt.Y,
+            _canvas.ActualWidth, PlotBottom - Inset, Range);
         if (moved != _adjustments[_dragging]) AdjustmentChanged?.Invoke(_dragging, moved);
     }
 
