@@ -36,7 +36,7 @@
                         Grid.Column="1"
                         MinWidth="96">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon x:Name="SweepIcon" FontSize="12" />
+                            <FontIcon x:Name="SweepIcon" FontSize="16" />
                             <TextBlock x:Name="SweepText" />
                         </StackPanel>
                     </Button>
@@ -45,7 +45,7 @@
                         x:Uid="Tone_Stop"
                         Grid.Column="2"
                         VerticalAlignment="Stretch">
-                        <FontIcon FontSize="12" Glyph="&#xE71A;" />
+                        <FontIcon FontSize="16" Glyph="&#xE71A;" />
                     </Button>
                     <Slider
                         x:Name="ToneSlider"
@@ -82,13 +82,13 @@
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <Button x:Name="CutButton" x:Uid="Tone_Cut">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="12" Glyph="&#xE74B;" />
+                            <FontIcon FontSize="16" Glyph="&#xE74B;" />
                             <TextBlock x:Uid="Tone_CutLabel" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="BoostButton" x:Uid="Tone_Boost">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="12" Glyph="&#xE74A;" />
+                            <FontIcon FontSize="16" Glyph="&#xE74A;" />
                             <TextBlock x:Uid="Tone_BoostLabel" />
                         </StackPanel>
                     </Button>
@@ -156,12 +156,12 @@
                 Spacing="8" />
             <Button x:Name="AddButton" x:Uid="Parametric_Add">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon FontSize="12" Glyph="&#xE710;" />
+                    <FontIcon FontSize="16" Glyph="&#xE710;" />
                     <TextBlock x:Uid="Parametric_AddLabel" />
                 </StackPanel>
             </Button>
             <Button x:Name="RemoveButton" VerticalAlignment="Stretch">
-                <FontIcon FontSize="12" Glyph="&#xE74D;" />
+                <FontIcon FontSize="16" Glyph="&#xE74D;" />
             </Button>
         </StackPanel>
 

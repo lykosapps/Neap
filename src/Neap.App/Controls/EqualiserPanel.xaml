@@ -45,7 +45,7 @@
                     HorizontalContentAlignment="Left"
                     Style="{StaticResource NeapPresetStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon FontSize="12" Glyph="&#xE710;" />
+                        <FontIcon FontSize="16" Glyph="&#xE710;" />
                         <TextBlock x:Uid="Equaliser_NewLabel" />
                     </StackPanel>
                 </Button>
