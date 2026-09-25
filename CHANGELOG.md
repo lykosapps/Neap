@@ -125,3 +125,6 @@ and date.
 - Surfaces match: the tiles take the panels' lavender tint and 16px corners
   in the light theme, and cards, controls and dividers share one border
   colour each.
+- Settings sit where you'd look for them: auto shut-off and wake on motion
+  on the Device page, voice prompts beside the volume on Audio, and the
+  mix's keyboard shortcuts with the headset's controls on Controls.

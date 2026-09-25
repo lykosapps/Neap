@@ -44,6 +44,19 @@
                         </tk:SettingsCard>
                     </StackPanel>
 
+                    <!--  How the headset switches itself off and back on: set once, like the format.  -->
+                    <TextBlock x:Uid="Device_PowerHeading" Style="{StaticResource SectionHeaderStyle}" />
+                    <StackPanel Spacing="4">
+                        <c:SettingRow
+                            x:Uid="Device_AutoShutOff"
+                            Glyph="&#xE7E8;"
+                            Setting="auto_shutoff" />
+                        <c:SettingRow
+                            x:Uid="Device_WakeOnMotion"
+                            Glyph="&#xE945;"
+                            Setting="wake_on_motion" />
+                    </StackPanel>
+
                     <!--
                         Firmware, serial number and everything the headset reports, looked
                         up now and then, folded into one row at the end.

@@ -147,6 +147,12 @@
   <data name="Audio_VolumeHeading.Text" xml:space="preserve">
     <value>Volume</value>
   </data>
+  <data name="Audio_VoicePrompts.Description" xml:space="preserve">
+    <value>How loud the headset's spoken alerts are.</value>
+  </data>
+  <data name="Audio_VoicePrompts.Header" xml:space="preserve">
+    <value>Voice prompts</value>
+  </data>
   <data name="Audio_MasterVolume.Header" xml:space="preserve">
     <value>Master volume</value>
   </data>
@@ -178,10 +184,13 @@
     <value>Controls</value>
   </data>
   <data name="Controls_Section.What" xml:space="preserve">
-    <value>The mode button, the dial and power</value>
+    <value>The mode button and the dial</value>
   </data>
   <data name="Controls_OnHeadsetHeading.Text" xml:space="preserve">
     <value>Assignable controls</value>
+  </data>
+  <data name="Controls_KeyboardHeading.Text" xml:space="preserve">
+    <value>On your keyboard</value>
   </data>
   <data name="Controls_ModeButton.Description" xml:space="preserve">
     <value>The button beside the power switch.</value>
@@ -228,27 +237,6 @@
   <data name="Controls_BluetoothButtonDoes.Text" xml:space="preserve">
     <value>Turns Bluetooth on and off, and pairs your phone.</value>
   </data>
-  <data name="Controls_PowerHeading.Text" xml:space="preserve">
-    <value>Power</value>
-  </data>
-  <data name="Controls_AutoShutOff.Description" xml:space="preserve">
-    <value>How long the headset waits before switching itself off.</value>
-  </data>
-  <data name="Controls_AutoShutOff.Header" xml:space="preserve">
-    <value>Auto shut-off</value>
-  </data>
-  <data name="Controls_WakeOnMotion.Description" xml:space="preserve">
-    <value>Picking the headset up brings it out of standby.</value>
-  </data>
-  <data name="Controls_WakeOnMotion.Header" xml:space="preserve">
-    <value>Wake on motion</value>
-  </data>
-  <data name="Controls_VoicePrompts.Description" xml:space="preserve">
-    <value>How loud the headset's spoken alerts are.</value>
-  </data>
-  <data name="Controls_VoicePrompts.Header" xml:space="preserve">
-    <value>Voice prompts</value>
-  </data>
   <data name="Device_LightsLabel" xml:space="preserve">
     <value>Lights</value>
   </data>
@@ -274,7 +262,22 @@
     <value>Device</value>
   </data>
   <data name="Device_Section.What" xml:space="preserve">
-    <value>The audio format, firmware, serial number and everything the headset reports</value>
+    <value>The audio format, power, firmware, serial number and everything the headset reports</value>
+  </data>
+  <data name="Device_PowerHeading.Text" xml:space="preserve">
+    <value>Power</value>
+  </data>
+  <data name="Device_AutoShutOff.Description" xml:space="preserve">
+    <value>How long the headset waits before switching itself off.</value>
+  </data>
+  <data name="Device_AutoShutOff.Header" xml:space="preserve">
+    <value>Auto shut-off</value>
+  </data>
+  <data name="Device_WakeOnMotion.Description" xml:space="preserve">
+    <value>Picking the headset up brings it out of standby.</value>
+  </data>
+  <data name="Device_WakeOnMotion.Header" xml:space="preserve">
+    <value>Wake on motion</value>
   </data>
   <data name="Device_AudioFormatHeading.Text" xml:space="preserve">
     <value>Audio format</value>
@@ -398,9 +401,6 @@
   </data>
   <data name="Settings_RunningNote.Text" xml:space="preserve">
     <value>Closing the window keeps Neap running in the notification area, so the chat wheel keeps working. Quit from there.</value>
-  </data>
-  <data name="Settings_MixHeading.Text" xml:space="preserve">
-    <value>Game and chat mix</value>
   </data>
   <data name="Settings_StartWithWindows.Description" xml:space="preserve">
     <value>Starts in the notification area when you sign in.</value>

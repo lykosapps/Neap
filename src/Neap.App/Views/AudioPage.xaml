@@ -59,14 +59,23 @@
 
                     <!--
                         Windows' own volume, with its mute beside it on one line, last:
-                        the headset's wheel is the everyday way to change it.
+                        the headset's wheel is the everyday way to change it. The
+                        headset's spoken alerts under it, so every level is in one place.
                     -->
                     <TextBlock x:Uid="Audio_VolumeHeading" Style="{StaticResource SectionHeaderStyle}" />
                     <c:RoutingNotice Margin="0,0,0,8" Microphone="False" />
-                    <c:WindowsVolumeRow
-                        x:Uid="Audio_MasterVolume"
-                        Kind="Volume"
-                        WithMute="True" />
+                    <StackPanel Spacing="4">
+                        <c:WindowsVolumeRow
+                            x:Uid="Audio_MasterVolume"
+                            Kind="Volume"
+                            WithMute="True" />
+                        <c:HeadsetSection Explain="False">
+                            <c:SettingRow
+                                x:Uid="Audio_VoicePrompts"
+                                Glyph="&#xE8BD;"
+                                Setting="voice_prompt_volume" />
+                        </c:HeadsetSection>
+                    </StackPanel>
                 </c:HeadsetSection>
 
             </StackPanel>

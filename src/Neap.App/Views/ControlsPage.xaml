@@ -101,23 +101,15 @@
                                 TextWrapping="Wrap" />
                         </Grid>
                     </Border>
-
-                    <TextBlock x:Uid="Controls_PowerHeading" Style="{StaticResource SectionHeaderStyle}" />
-                    <StackPanel Spacing="4">
-                        <c:SettingRow
-                            x:Uid="Controls_AutoShutOff"
-                            Glyph="&#xE7E8;"
-                            Setting="auto_shutoff" />
-                        <c:SettingRow
-                            x:Uid="Controls_WakeOnMotion"
-                            Glyph="&#xE945;"
-                            Setting="wake_on_motion" />
-                        <c:SettingRow
-                            x:Uid="Controls_VoicePrompts"
-                            Glyph="&#xE8BD;"
-                            Setting="voice_prompt_volume" />
-                    </StackPanel>
                 </c:HeadsetSection>
+
+                <!--
+                    The keyboard moves the mix as the chat wheel does, so its
+                    shortcuts sit with the headset's controls. Neap listens for
+                    them itself, so they stay whether the headset is on or off.
+                -->
+                <TextBlock x:Uid="Controls_KeyboardHeading" Style="{StaticResource SectionHeaderStyle}" />
+                <c:MixKeysPanel />
 
             </StackPanel>
         </Grid>

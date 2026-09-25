@@ -27,9 +27,6 @@
 
                 </StackPanel>
 
-                <TextBlock x:Uid="Settings_MixHeading" Style="{StaticResource SectionHeaderStyle}" />
-                <c:MixKeysPanel />
-
                 <TextBlock x:Uid="Settings_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
                 <!--  Neap itself, on the same lit panel as the headset's controls.  -->
                 <Border Style="{StaticResource QuickCardStyle}">
