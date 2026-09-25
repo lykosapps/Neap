@@ -164,7 +164,11 @@ public sealed class PresetService
     {
         if (!_headset.TryGetNumberByKey(state.Spec.Select, out int selected)
             || state.Presets.FirstOrDefault(p => p.Id == selected) is not { } chosen) return false;
-        if (state.Baseline?.Id != chosen.Id) Adopt(state, chosen);
+        // Starting parametric chooses the flat preset (see UseParametric);
+        // that is the start of an edit, not a new baseline.
+        bool startingParametric = Adjustments(state.Bank).Count == 0 && IsParametric(state.Bank)
+            && chosen.Bands.All(band => band == 0);
+        if (state.Baseline?.Id != chosen.Id && !startingParametric) Adopt(state, chosen);
         return true;
     }
 
@@ -200,6 +204,9 @@ public sealed class PresetService
     public string CurrentName(Bank bank)
     {
         if (!_banks.TryGetValue(bank, out var state)) return "";
+        // A parametric curve is an edit of its baseline, even while the
+        // headset names the flat preset it started from.
+        if (IsParametric(bank)) return state.Baseline?.Name ?? "";
         // The headset stops reporting a name the moment a band is touched,
         // which would empty the label exactly when it is most wanted.
         string nameKey = state.Spec.NameKey.ToString("x", CultureInfo.InvariantCulture);
@@ -241,14 +248,25 @@ public sealed class PresetService
 
     /// <summary>Shape the bank parametrically, starting flat.</summary>
     /// <remarks>
+    /// <para>
     /// A curve made with the bands has no adjustments that describe it, so
     /// shaping parametrically starts from flat. It is an edit like any other:
-    /// Discard puts the preset back.
+    /// the preset it came from stays the baseline, and Discard puts it back.
+    /// </para>
+    /// <para>
+    /// Flat is reached by choosing the headset's own flat preset, a single
+    /// write the headset always acts on. Setting the bands to zero one by
+    /// one showed flat on screen while the sound did not change.
+    /// </para>
     /// </remarks>
     public void UseParametric(Bank bank)
     {
-        if (!ParametricEq.Covers(bank) || IsParametric(bank)) return;
-        SetAdjustments(bank, []);
+        if (!ParametricEq.Covers(bank) || IsParametric(bank)
+            || !_banks.TryGetValue(bank, out var state)) return;
+        var flat = PresetStore.Factory(bank).First(p => p.Bands.All(band => band == 0));
+        _adjustments[bank] = [];
+        _headset.SetKey(state.Spec.Select, flat.Id);
+        foreach (int key in state.Spec.Bands) _headset.SetKeyLocally(key, 0);
     }
 
     /// <summary>Shape the bank by its bands again, leaving them where the adjustments put them.</summary>
