@@ -27,6 +27,11 @@ to GitHub, these become issues.
 - **Quick panel from the taskbar.** A small panel for mid-game controls (mix,
   mute, noise control) without opening the window. Eventual; Home is its
   model.
+- **Spatial sound.** Choose Windows' spatial sound for the headset (off,
+  Windows Sonic, Dolby Atmos for Headphones, DTS) from the Audio page,
+  offering only what works on this PC. When Dolby is installed but not
+  licensed, say so and point to the Dolby Access app. Needs the headset:
+  games using Dolby's positional sound still follow the mix.
 - **An installer**, beyond the zip.
 - **Microsoft Store distribution.**
 - **Other Swarm II headsets.** The Stealth 600 Gen 3, 700 Gen 3, 500 and
