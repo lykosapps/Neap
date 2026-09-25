@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.IO.Pipes;
+using System.Text;
 using System.Text.Json.Nodes;
 using Neap.Core.Audio;
 using Neap.Core.Presets;
@@ -69,9 +70,10 @@ public sealed class PretendControl : IDisposable
                     PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
                 await server.WaitForConnectionAsync(_stopping.Token).ConfigureAwait(false);
                 using var reader = new StreamReader(server);
-                await using var writer = new StreamWriter(server) { AutoFlush = true, NewLine = "\n" };
+                // Replies go straight to the pipe: a StreamWriter flushes when
+                // disposed, and that flush fails once the script has closed its end.
                 while (await reader.ReadLineAsync(_stopping.Token).ConfigureAwait(false) is string line)
-                    await writer.WriteLineAsync(Handle(line)).ConfigureAwait(false);
+                    await server.WriteAsync(Encoding.UTF8.GetBytes(Handle(line) + "\n"), _stopping.Token).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
