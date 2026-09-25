@@ -216,15 +216,12 @@ public sealed class PresetService
     {
         if (!_banks.TryGetValue(bank, out var state)) return "";
         if (_new.Contains(bank)) return Strings.Get("Equaliser_NewPreset");
-        // A parametric curve is an edit of its baseline, even while the
-        // headset names the flat preset it started from.
-        if (IsParametric(bank)) return state.Baseline?.Name ?? "";
-        // The headset stops reporting a name the moment a band is touched,
-        // which would empty the label exactly when it is most wanted.
+        // The baseline first: the name the headset reports lags a preset
+        // chosen here, and is emptied the moment a band is touched, and a
+        // parametric curve names the flat preset it started from.
+        if (state.Baseline is { } baseline) return baseline.Name;
         string nameKey = state.Spec.NameKey.ToString("x", CultureInfo.InvariantCulture);
-        string? reported = _headset.Values.TryGetValue(nameKey, out var raw)
-            ? raw.ToString() : null;
-        return string.IsNullOrWhiteSpace(reported) ? state.Baseline?.Name ?? "" : reported;
+        return _headset.Values.TryGetValue(nameKey, out var raw) ? raw.ToString() : "";
     }
 
     public void SetBand(Bank bank, int index, int tenths)
