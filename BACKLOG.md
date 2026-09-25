@@ -54,7 +54,7 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 - **The full hardware list**, on the current build.
 - **High contrast.** The fixes for it have not been seen on screen.
-- **Neap's colours on drop-downs, menus, tooltips and dialogs**, on screen.
+- **The tray icon's menu** in light and dark, on screen.
 - **Starting with Windows** on the current build.
 - **Does CrossPlay report its presses?** Unknown.
 - **The lights:** the USB Transmitter's second light, and the lights while
