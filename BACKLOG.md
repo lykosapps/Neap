@@ -11,11 +11,11 @@ to GitHub, these become issues.
   page.** Seen once on 25 September: the indicator stayed on after a visit to
   the page and a return to Home. Not reproduced since, with real or scripted
   clicks, or by closing the window to the tray from that page.
-- **Started at login, Neap writes nothing to its log.** On 25 September the
-  copy Windows started at login ran normally for almost an hour but logged
-  nothing, not even that it started; the same build started by hand logs as
-  usual. The log swallows its own failures, so why it cannot write is not
-  recorded either.
+- **Neap's log sometimes wrote nothing.** On 25 September two copies, one
+  started at login and one by hand, ran normally but logged nothing, not even
+  that they started. The log hid its own failures, so why is not known. It
+  now retries, keeps what it could not write, and writes it later with the
+  reason. Check the log after the next login.
 - **A headset setting changed just after start can wait.** Every request to
   the headset queues in one line, so a change made while the presets are
   being read waits behind them, about four seconds. The microphone no longer

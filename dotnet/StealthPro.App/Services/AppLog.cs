@@ -1,4 +1,3 @@
-using System.Globalization;
 using StealthPro.Core;
 
 namespace StealthPro.App.Services;
@@ -16,20 +15,27 @@ namespace StealthPro.App.Services;
 /// </para>
 /// <para>
 /// Small on purpose: plain lines, the most recent thousand, beside the app's
-/// settings. Nothing about the person, only the app's own states.
+/// settings. Nothing about the person, only the app's own states. How the
+/// file is kept, including when it cannot be written, is
+/// <see cref="LogFile"/>'s.
 /// </para>
 /// </remarks>
 public static class AppLog
 {
-    private const int KeepLines = 1000;
     private static readonly object Gate = new();
+    private static LogFile? _file;
 
-    private static string Folder => AppFolder.Path;
-
-    private static string File => Path.Combine(Folder, "app.log");
-
-    /// <summary>Length of the time stamp that starts every line, "yyyy-MM-dd HH:mm:ss.f".</summary>
-    private const int StampLength = 21;
+    /// <remarks>
+    /// Made at the first line, not before: a pretend run moves the app's
+    /// folder first, and its log belongs in the folder it moved to.
+    /// </remarks>
+    private static LogFile File
+    {
+        get
+        {
+            lock (Gate) return _file ??= new LogFile(Path.Combine(AppFolder.Path, "app.log"));
+        }
+    }
 
     /// <summary>Record a line.</summary>
     /// <param name="what">The line, without its time stamp.</param>
@@ -38,27 +44,5 @@ public static class AppLog
     /// finishes but stamped when it began. The line goes where that time
     /// belongs, so the record still reads in order.
     /// </param>
-    public static void Write(string what, DateTime? at = null)
-    {
-        try
-        {
-            lock (Gate)
-            {
-                Directory.CreateDirectory(Folder);
-                // Invariant: ":" in a format is the culture's time separator,
-                // and the stamps are compared as text to keep the lines in order.
-                string line = string.Create(CultureInfo.InvariantCulture,
-                    $"{(at ?? DateTime.Now):yyyy-MM-dd HH:mm:ss.f}  {what}");
-                var lines = System.IO.File.Exists(File)
-                    ? System.IO.File.ReadAllLines(File).ToList()
-                    : new List<string>();
-                int i = lines.Count;
-                while (i > 0 && string.CompareOrdinal(lines[i - 1], 0, line, 0, StampLength) > 0) i--;
-                lines.Insert(i, line);
-                if (lines.Count > KeepLines) lines.RemoveRange(0, lines.Count - KeepLines);
-                System.IO.File.WriteAllLines(File, lines);
-            }
-        }
-        catch { }
-    }
+    public static void Write(string what, DateTime? at = null) => File.Write(what, at ?? DateTime.Now);
 }
