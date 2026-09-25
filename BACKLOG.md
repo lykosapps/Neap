@@ -81,7 +81,10 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - Sign the download, so Windows does not warn about it.
 - Publish on GitHub: the repository named "neap", private vulnerability
   reporting on, main only, and a first real CI run.
-- A package update pass.
+- A package update pass. On 25 Sep: the Windows App SDK 1.8 to 2.5, a new
+  major version to read up on first; H.NotifyIcon 2.3.0 to 2.4.1, which
+  needs the tray menu checked by hand; and the SDK build tools. The rest
+  are current.
 - An ARM build.
 - A read-through by an experienced .NET developer before release.
 - A trademark search for the name.
