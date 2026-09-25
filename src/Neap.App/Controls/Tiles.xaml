@@ -7,6 +7,10 @@
         equaliser is not on or off, so its tile never fills and opens a list
         instead. High contrast uses the system's button and highlight
         colours, and the fill still says which is on.
+        
+        A tile that can't be changed, such as the microphone while the boom
+        arm mutes it, is drawn in its own quieter colours rather than faded:
+        its state still has to be read, so its text keeps 4.5:1.
     -->
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Default">
@@ -28,6 +32,11 @@
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#15112A" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#269D8CFF" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0FFFFFFF" />
+            <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#272137" />
+            <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#B3AEC2" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#433A6E" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#D9D3FF" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
             <LinearGradientBrush x:Key="NeapTileBrush" StartPoint="0.5,0" EndPoint="0.5,1">
@@ -48,6 +57,11 @@
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D5AD9" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0A000000" />
+            <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#E6E5E9" />
+            <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#48474C" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#C9C1F0" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#2E2466" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="HighContrast">
             <SolidColorBrush x:Key="NeapTileBrush" Color="{ThemeResource SystemColorButtonFaceColor}" />
@@ -62,6 +76,11 @@
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="{ThemeResource SystemColorButtonFaceColor}" />
+            <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="{ThemeResource SystemColorGrayTextColor}" />
+            <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="{ThemeResource SystemColorGrayTextColor}" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="{ThemeResource SystemColorButtonFaceColor}" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="{ThemeResource SystemColorGrayTextColor}" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
@@ -124,7 +143,10 @@
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <VisualState.Setters>
-                                        <Setter Target="Face.Opacity" Value="0.55" />
+                                        <Setter Target="Face.Background" Value="{ThemeResource NeapTileDisabledBrush}" />
+                                        <Setter Target="Face.BorderBrush" Value="{ThemeResource NeapTileDisabledStrokeBrush}" />
+                                        <Setter Target="Edge.Opacity" Value="0.55" />
+                                        <Setter Target="Content.Foreground" Value="{ThemeResource NeapTileDisabledTextBrush}" />
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Checked">
@@ -154,9 +176,10 @@
                                 </VisualState>
                                 <VisualState x:Name="CheckedDisabled">
                                     <VisualState.Setters>
-                                        <Setter Target="Face.Background" Value="{ThemeResource NeapTileOnBrush}" />
-                                        <Setter Target="Content.Foreground" Value="{ThemeResource NeapTileOnTextBrush}" />
-                                        <Setter Target="Face.Opacity" Value="0.55" />
+                                        <Setter Target="Face.Background" Value="{ThemeResource NeapTileOnDisabledBrush}" />
+                                        <Setter Target="Face.BorderBrush" Value="{ThemeResource NeapTileDisabledStrokeBrush}" />
+                                        <Setter Target="Edge.Opacity" Value="0.55" />
+                                        <Setter Target="Content.Foreground" Value="{ThemeResource NeapTileOnDisabledTextBrush}" />
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Indeterminate" />

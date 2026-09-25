@@ -104,3 +104,6 @@ and date.
   app.
 - The equaliser's plots follow a switch between light and dark while Neap
   is open, rather than keeping the colours of the theme it started in.
+- A tile that can't be changed, such as the microphone while the boom arm
+  mutes it, keeps its state readable in the light theme instead of fading
+  to faint grey.
