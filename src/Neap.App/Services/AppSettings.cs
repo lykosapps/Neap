@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Neap.Core;
+using Neap.Core.Presets;
 
 namespace Neap.App.Services;
 
@@ -13,8 +14,9 @@ namespace Neap.App.Services;
 /// is read back from it, so there is no local copy to drift out of date. Only
 /// choices neither the headset nor Windows can answer for us are stored: which
 /// applications carry chat, the keyboard shortcuts, where the window was
-/// left, whether the tray notice has been shown, and the two halves of noise
-/// control the headset has no place for.
+/// left, whether the tray notice has been shown, the two halves of noise
+/// control the headset has no place for, and the parametric adjustments
+/// behind a preset, of which its slot holds only the result.
 /// </para>
 /// <para>
 /// Kept separate from the mix's volume journal, which is recovery state
@@ -96,6 +98,42 @@ public sealed class AppSettings
         MixHotkeyKeys[which.ToString()] = new[] { (int)shortcut.Modifiers, (int)shortcut.Key };
 
     public void ClearShortcuts() => MixHotkeyKeys.Clear();
+
+    /// <summary>
+    /// The parametric adjustments behind each preset saved from the
+    /// parametric equaliser, by bank and then by preset name, each as
+    /// frequency, gain and width.
+    /// </summary>
+    /// <remarks>
+    /// The headset's slot holds only the ten gains they fit to, so a preset
+    /// still plays as made without Neap. See <see cref="ParametricEq.Matches"/>
+    /// for how a preset changed elsewhere since is recognised.
+    /// </remarks>
+    [JsonPropertyName("parametric_presets")]
+    public Dictionary<string, Dictionary<string, int[][]>> ParametricPresets { get; set; } = new();
+
+    /// <summary>A preset's stored adjustments, or null if it has none or they are malformed.</summary>
+    public IReadOnlyList<Adjustment>? Adjustments(Bank bank, string name)
+    {
+        if (!ParametricPresets.TryGetValue(bank.ToString(), out var presets)
+            || !presets.TryGetValue(name, out var stored)
+            || stored.Any(a => a is not { Length: 3 })) return null;
+        return stored.Select(a => new Adjustment(a[0], a[1], a[2])).ToList();
+    }
+
+    /// <summary>Stores a preset's adjustments, or forgets them when given null.</summary>
+    public void SetAdjustments(Bank bank, string name, IReadOnlyList<Adjustment>? adjustments)
+    {
+        string key = bank.ToString();
+        if (adjustments is null)
+        {
+            if (ParametricPresets.TryGetValue(key, out var presets)) presets.Remove(name);
+            return;
+        }
+        if (!ParametricPresets.TryGetValue(key, out var bankPresets))
+            ParametricPresets[key] = bankPresets = new();
+        bankPresets[name] = adjustments.Select(a => new[] { a.Frequency, a.Gain, a.Width }).ToArray();
+    }
 
     private static readonly string Path = System.IO.Path.Combine(AppFolder.Path, "app-settings.json");
 

@@ -59,6 +59,13 @@ public static class ParametricEq
     public static readonly IReadOnlyList<double> Centres =
         [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
 
+    /// <summary>Whether a bank can be shaped parametrically.</summary>
+    /// <remarks>
+    /// Only the game bank: the microphone's bands are a different set of
+    /// filters, two of whose frequencies are inferred rather than read.
+    /// </remarks>
+    public static bool Covers(Bank bank) => bank == Bank.Game;
+
     private const double BandQ = 1.414;
     private const double SampleRate = 48000;
     private const double BandLimit = 9.0;
@@ -241,6 +248,24 @@ public static class ParametricEq
     public static double Miss(IReadOnlyList<Adjustment> adjustments, IReadOnlyList<int> bands) =>
         Judged.Max(f => Math.Abs(Asked(adjustments, f) - Heard(bands, f)));
 
+    /// <summary>Whether the headset misses the curve asked for by enough to hear, and so enough to say.</summary>
+    public static bool FallsShort(IReadOnlyList<Adjustment> adjustments, IReadOnlyList<int> bands) =>
+        adjustments.Count > 0 && Miss(adjustments, bands) > AudibleMiss;
+
+    /// <summary>Where a new adjustment starts: flat, so adding one changes nothing until it is moved.</summary>
+    /// <remarks>
+    /// It goes to the first of a few spread-out frequencies that is more
+    /// than an octave from any adjustment already there, so a second one
+    /// does not land on top of the first.
+    /// </remarks>
+    public static Adjustment Next(IReadOnlyList<Adjustment> existing)
+    {
+        int[] places = [1000, 4000, 250, 63, 12000];
+        int frequency = places.FirstOrDefault(
+            place => existing.All(a => Math.Abs(Math.Log2((double)place / a.Frequency)) > 1), places[0]);
+        return new Adjustment(frequency, 0, 15);
+    }
+
     /// <summary>Whether ten band gains are what these adjustments fit to.</summary>
     /// <remarks>
     /// A preset's adjustments are kept in Neap and its gains on the headset.
@@ -257,11 +282,20 @@ public static class ParametricEq
         width * Math.Log(frequency / Adjustment.LowestFrequency)
               / Math.Log((double)Adjustment.HighestFrequency / Adjustment.LowestFrequency);
 
-    /// <summary>The frequency at a point across a plot of this width, held inside the range.</summary>
+    /// <summary>
+    /// The frequency at a point across a plot of this width, held inside the
+    /// range and rounded to three significant figures.
+    /// </summary>
+    /// <remarks>
+    /// A pixel is worth about 30 Hz at the top of the range, so a dragged
+    /// frequency to the hertz only looks precise.
+    /// </remarks>
     public static int FrequencyAt(double x, double width)
     {
         double t = width <= 0 ? 0 : Math.Clamp(x / width, 0, 1);
-        return (int)Math.Round(Adjustment.LowestFrequency
-            * Math.Pow((double)Adjustment.HighestFrequency / Adjustment.LowestFrequency, t));
+        double frequency = Adjustment.LowestFrequency
+            * Math.Pow((double)Adjustment.HighestFrequency / Adjustment.LowestFrequency, t);
+        double step = Math.Pow(10, Math.Floor(Math.Log10(frequency)) - 2);
+        return (int)(Math.Round(frequency / step) * step);
     }
 }

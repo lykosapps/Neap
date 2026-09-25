@@ -85,6 +85,42 @@ public class ParametricEqTests
     }
 
     [Fact]
+    public void AnAudibleMissIsSaid()
+    {
+        Adjustment[] narrow = [new Adjustment(3000, -90, 10), new Adjustment(4000, 90, 10)];
+        Adjustment[] broad = [new Adjustment(1000, 60, 20)];
+        Assert.True(ParametricEq.FallsShort(narrow, ParametricEq.Fit(narrow)));
+        Assert.False(ParametricEq.FallsShort(broad, ParametricEq.Fit(broad)));
+    }
+
+    [Fact]
+    public void NoAdjustmentsHaveNothingToMiss() =>
+        Assert.False(ParametricEq.FallsShort([], [60, 0, 0, 0, 0, 0, 0, 0, 0, 0]));
+
+    [Fact]
+    public void ANewAdjustmentIsFlat()
+    {
+        var added = ParametricEq.Next([]);
+        Assert.Equal(0, added.Gain);
+        Assert.All(ParametricEq.Fit([added]), band => Assert.Equal(0, band));
+    }
+
+    [Fact]
+    public void ANewAdjustmentKeepsClearOfTheOthers()
+    {
+        var first = ParametricEq.Next([]);
+        var second = ParametricEq.Next([first]);
+        Assert.True(Math.Abs(Math.Log2((double)second.Frequency / first.Frequency)) > 1);
+    }
+
+    [Fact]
+    public void OnlyTheGameBankIsParametric()
+    {
+        Assert.True(ParametricEq.Covers(Bank.Game));
+        Assert.False(ParametricEq.Covers(Bank.Mic));
+    }
+
+    [Fact]
     public void AnAdjustmentIsHeldInsideItsRange() =>
         Assert.Equal(new Adjustment(20, 90, 10), new Adjustment(5, 200, 2).Held());
 
@@ -100,6 +136,8 @@ public class ParametricEqTests
     [InlineData(300, 20000)]
     [InlineData(-40, 20)]
     [InlineData(999, 20000)]
+    [InlineData(150, 632)]
+    [InlineData(275, 11200)]
     public void APointAcrossThePlotMeansAFrequencyInsideTheRange(double x, int frequency) =>
         Assert.Equal(frequency, ParametricEq.FrequencyAt(x, 300));
 }

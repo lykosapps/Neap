@@ -42,6 +42,12 @@ public sealed class BankState
 /// Band values are tenths of a decibel, -90 to +90, matching the +9 dB..-9 dB
 /// scale printed in Swarm's own resources.
 /// </para>
+/// <para>
+/// The game bank can also be shaped parametrically. The adjustments are
+/// fitted to the ten bands (<see cref="ParametricEq"/>) and only the bands
+/// reach the headset, so a preset saved that way keeps its adjustments in
+/// <see cref="AppSettings"/> and its gains in the slot.
+/// </para>
 /// </remarks>
 public sealed class PresetService
 {
@@ -51,6 +57,9 @@ public sealed class PresetService
     private readonly HeadsetService _headset;
     private readonly Dictionary<Bank, BankState> _banks = new();
     private readonly Dictionary<Bank, Task<BankState>> _reading = new();
+
+    /// <summary>The adjustments shaping each bank shaped parametrically; a bank not here is shaped by its bands.</summary>
+    private readonly Dictionary<Bank, List<Adjustment>> _adjustments = new();
 
     /// <remarks>
     /// Follows the headset before any screen paints from it: the service
@@ -120,8 +129,26 @@ public sealed class PresetService
 
         var live = LiveBands(state);
         if (live is null) return;
-        state.Baseline = state.Presets.FirstOrDefault(
-            p => p.Bands.Count == live.Length && p.Bands.SequenceEqual(live));
+        Adopt(state, state.Presets.FirstOrDefault(
+            p => p.Bands.Count == live.Length && p.Bands.SequenceEqual(live)));
+    }
+
+    /// <summary>Takes a preset as the baseline, with its adjustments if it was made parametrically.</summary>
+    /// <remarks>
+    /// Stored adjustments are only taken while they still fit to the gains
+    /// the headset holds for the preset; if the preset has been changed
+    /// elsewhere since, it opens with its bands.
+    /// </remarks>
+    private void Adopt(BankState state, Preset? preset)
+    {
+        state.Baseline = preset;
+        var stored = preset is { Custom: true } && ParametricEq.Covers(state.Bank)
+            ? AppSettings.Current.Adjustments(state.Bank, preset.Name)
+            : null;
+        if (stored is not null && ParametricEq.Matches(stored, preset!.Bands))
+            _adjustments[state.Bank] = stored.ToList();
+        else
+            _adjustments.Remove(state.Bank);
     }
 
     /// <summary>
@@ -137,7 +164,7 @@ public sealed class PresetService
     {
         if (!_headset.TryGetNumberByKey(state.Spec.Select, out int selected)
             || state.Presets.FirstOrDefault(p => p.Id == selected) is not { } chosen) return false;
-        state.Baseline = chosen;
+        if (state.Baseline?.Id != chosen.Id) Adopt(state, chosen);
         return true;
     }
 
@@ -198,11 +225,46 @@ public sealed class PresetService
     public async Task Select(Bank bank, Preset preset)
     {
         if (!_banks.TryGetValue(bank, out var state)) return;
-        state.Baseline = preset;
+        Adopt(state, preset);
         _headset.SetKey(state.Spec.Select, preset.Id);
         for (int i = 0; i < preset.Bands.Count && i < state.Spec.Bands.Count; i++)
             _headset.SetKeyLocally(state.Spec.Bands[i], preset.Bands[i]);
         await Task.CompletedTask;
+    }
+
+    /// <summary>Whether the bank's curve is shaped by parametric adjustments rather than its bands.</summary>
+    public bool IsParametric(Bank bank) => _adjustments.ContainsKey(bank);
+
+    /// <summary>The adjustments shaping the bank, or none when it is shaped by its bands.</summary>
+    public IReadOnlyList<Adjustment> Adjustments(Bank bank) =>
+        _adjustments.TryGetValue(bank, out var adjustments) ? adjustments : [];
+
+    /// <summary>Shape the bank parametrically, starting flat.</summary>
+    /// <remarks>
+    /// A curve made with the bands has no adjustments that describe it, so
+    /// shaping parametrically starts from flat. It is an edit like any other:
+    /// Discard puts the preset back.
+    /// </remarks>
+    public void UseParametric(Bank bank)
+    {
+        if (!ParametricEq.Covers(bank) || IsParametric(bank)) return;
+        SetAdjustments(bank, []);
+    }
+
+    /// <summary>Shape the bank by its bands again, leaving them where the adjustments put them.</summary>
+    public void UseBands(Bank bank) => _adjustments.Remove(bank);
+
+    /// <summary>Shape the bank with these adjustments, writing whichever bands they move.</summary>
+    public void SetAdjustments(Bank bank, IReadOnlyList<Adjustment> adjustments)
+    {
+        if (!_banks.TryGetValue(bank, out var state) || !ParametricEq.Covers(bank)) return;
+        var held = adjustments.Take(ParametricEq.MostAdjustments).Select(a => a.Held()).ToList();
+        _adjustments[bank] = held;
+
+        var fitted = ParametricEq.Fit(held);
+        var live = LiveBands(state);
+        for (int i = 0; i < fitted.Length; i++)
+            if (live is null || live[i] != fitted[i]) SetBand(bank, i, fitted[i]);
     }
 
     /// <summary>Throw away unsaved edits and go back to the stored curve.</summary>
@@ -270,8 +332,17 @@ public sealed class PresetService
         }
         catch (Exception ex) { return ex.Message; }
 
+        // The slot has only the gains, so the adjustments behind them are
+        // kept here; a preset saved from the bands keeps none.
+        var adjustments = _adjustments.GetValueOrDefault(bank);
+        AppSettings.Update(settings =>
+        {
+            if (replacing is not null) settings.SetAdjustments(bank, replacing, null);
+            settings.SetAdjustments(bank, name, adjustments);
+        });
+
         await Load(bank);
-        _banks[bank].Baseline = _banks[bank].Custom.FirstOrDefault(p => p.Name == name);
+        Adopt(_banks[bank], _banks[bank].Custom.FirstOrDefault(p => p.Name == name));
         return null;
     }
 
@@ -279,6 +350,7 @@ public sealed class PresetService
     {
         try { await _headset.Post(client => { PresetStore.Delete(client, name, bank); return true; }); }
         catch (Exception ex) { return ex.Message; }
+        AppSettings.Update(settings => settings.SetAdjustments(bank, name, null));
         await Load(bank);
         return null;
     }
