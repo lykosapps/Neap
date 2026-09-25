@@ -285,6 +285,8 @@ public sealed partial class EqualiserPanel : UserControl
                 if (field.FindDescendant<TextBox>() is not { } box) return;
                 box.ContextFlyout = menu;
                 Typography.SetNumeralAlignment(box, FontNumeralAlignment.Tabular);
+                // The field's content alignment does not reach its text.
+                box.TextAlignment = TextAlignment.Center;
             };
 
             field.ValueChanged += (sender, args) =>
