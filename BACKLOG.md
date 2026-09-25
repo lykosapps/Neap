@@ -45,7 +45,9 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   sound and settings are on different transmitters.
 - **The parametric equaliser.** A tone sweep against the curve it shows,
   especially between bands; a parametric preset still sounding the same
-  with Neap closed; and its plot in light and high contrast themes.
+  with Neap closed; and its plot in light and high contrast themes. The
+  test tone: it plays on the headset, starts and stops without a click,
+  and stops on leaving the page or hiding the window.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
 - **Two chat apps at once**, Discord and Teams say: both follow the chat
