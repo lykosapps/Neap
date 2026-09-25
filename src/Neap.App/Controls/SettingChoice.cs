@@ -92,7 +92,7 @@ public sealed class SettingChoice : UserControl
         AutomationProperties.SetAutomationId(_options, key.Name);
         foreach (var option in key.Options ?? new Dictionary<int, string>())
         {
-            var button = new RadioButton { Content = option.Value, Tag = option.Key };
+            var button = new RadioButton { Content = OptionNames.For(key, option.Key), Tag = option.Key };
             button.Checked += (_, _) => _link.Write(option.Key);
             _options.Items.Add(button);
         }

@@ -1120,4 +1120,56 @@
   <data name="Equaliser_Unsaved" xml:space="preserve">
     <value>Your own curve</value>
   </data>
+  <data name="Shutoff_Off" xml:space="preserve">
+    <value>Off</value>
+    <comment>Auto shut-off: never.</comment>
+  </data>
+  <data name="Shutoff_FiveMinutes" xml:space="preserve">
+    <value>5 minutes</value>
+  </data>
+  <data name="Shutoff_TenMinutes" xml:space="preserve">
+    <value>10 minutes</value>
+  </data>
+  <data name="Shutoff_TwentyMinutes" xml:space="preserve">
+    <value>20 minutes</value>
+  </data>
+  <data name="Shutoff_ThirtyMinutes" xml:space="preserve">
+    <value>30 minutes</value>
+  </data>
+  <data name="Dial_MicMonitoring" xml:space="preserve">
+    <value>Mic monitoring volume</value>
+    <comment>What the headset's lower dial does.</comment>
+  </data>
+  <data name="Dial_Mix" xml:space="preserve">
+    <value>Game and chat mix</value>
+  </data>
+  <data name="Dial_Bass" xml:space="preserve">
+    <value>Bass boost level</value>
+  </data>
+  <data name="Dial_Treble" xml:space="preserve">
+    <value>Treble boost level</value>
+  </data>
+  <data name="Dial_NoiseGate" xml:space="preserve">
+    <value>Noise gate volume</value>
+  </data>
+  <data name="Mode_Noise" xml:space="preserve">
+    <value>Noise cancellation on/off</value>
+    <comment>What the headset's Mode button does.</comment>
+  </data>
+  <data name="Mode_NextPreset" xml:space="preserve">
+    <value>Next equaliser preset</value>
+  </data>
+  <data name="Mode_NoiseGate" xml:space="preserve">
+    <value>Noise gate on/off</value>
+  </data>
+  <data name="Shh_Legacy" xml:space="preserve">
+    <value>Legacy</value>
+    <comment>A kind of Superhuman Hearing.</comment>
+  </data>
+  <data name="Shh_Footsteps" xml:space="preserve">
+    <value>Footsteps</value>
+  </data>
+  <data name="Shh_Gunshots" xml:space="preserve">
+    <value>Gunshots</value>
+  </data>
 </root>

@@ -79,7 +79,7 @@ public sealed class ModeButtonChoice : UserControl
         AutomationProperties.SetAutomationId(_options, key.Name);
         foreach (var choice in ModeButton.Choices)
         {
-            string label = choice.Cycles ? Strings.Get("Mode_NoiseCycle") : Registry.ModeButtonOptions[choice.Function];
+            string label = choice.Cycles ? Strings.Get("Mode_NoiseCycle") : OptionNames.For(key, choice.Function);
             var button = new RadioButton { Content = label, Tag = choice };
             button.Checked += (_, _) => Choose(choice);
             _options.Items.Add(button);

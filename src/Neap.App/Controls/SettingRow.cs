@@ -127,7 +127,7 @@ public sealed class SettingRow : SettingsCard
     {
         _choice = new ComboBox { MinWidth = 160 };
         foreach (var option in key.Options ?? new Dictionary<int, string>())
-            _choice.Items.Add(new ComboBoxItem { Content = option.Value, Tag = option.Key });
+            _choice.Items.Add(new ComboBoxItem { Content = OptionNames.For(key, option.Key), Tag = option.Key });
         _choice.SelectionChanged += (_, _) =>
         {
             if (_choice.SelectedItem is ComboBoxItem { Tag: int value }) _link.Write(value);

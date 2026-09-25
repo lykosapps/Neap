@@ -103,10 +103,8 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 ## Last in line
 
-- **Other languages.** Lowest priority. When it comes, start with the Mode
-  button's, the dial's and Superhuman Hearing's option names, which are
-  written into the code rather than the resource file, so they can't be
-  translated.
+- **Other languages.** Lowest priority. Every word on screen is in the
+  resource file, ready for a translation.
 
 ## Ideas, not yet decided
 
