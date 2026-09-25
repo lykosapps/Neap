@@ -129,6 +129,7 @@ public sealed partial class MixPanel : UserControl
             AppList.Children.Add(box);
         }
         Notice.IsOpen = candidates.Count == 0;
+        MissingHint.Visibility = Notice.IsOpen ? Visibility.Collapsed : Visibility.Visible;
         Paint();
     }
 

@@ -93,6 +93,9 @@
   <data name="Mix_Refresh.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Look for chat apps again</value>
   </data>
+  <data name="Mix_MissingHint.Text" xml:space="preserve">
+    <value>Don't see your app? Start it, then look again.</value>
+  </data>
   <data name="Mix_RefreshText.Text" xml:space="preserve">
     <value>Look again</value>
   </data>

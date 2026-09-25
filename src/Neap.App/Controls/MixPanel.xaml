@@ -121,6 +121,16 @@
             </Expander.Header>
             <StackPanel Spacing="8">
                 <StackPanel x:Name="AppList" />
+                <!--
+                    Only applications with sound open on the headset are
+                    listed, so one not yet started is missing. The notice
+                    below says so instead when nothing is listed at all.
+                -->
+                <TextBlock
+                    x:Name="MissingHint"
+                    x:Uid="Mix_MissingHint"
+                    Style="{StaticResource SecondaryCaptionTextStyle}"
+                    TextWrapping="Wrap" />
                 <InfoBar
                     x:Name="Notice"
                     x:Uid="Mix_NothingPlaying"
