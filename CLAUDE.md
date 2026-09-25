@@ -44,6 +44,12 @@ preparing code for experienced reviewers.
   reporting, say which findings were confirmed by running and which were not.
 - **Sample, do not snapshot.** One reading after the fact shows where a value
   settled, not whether it moved.
+- **Read the app's folder from outside Claude.** The desktop app runs
+  Claude's tools in a package, and Windows gives a package its own copy of
+  `%LOCALAPPDATA%`. Reading the log from a tool shows that copy, and a Neap
+  started from a tool writes to it, so a copy started any other way seems to
+  log nothing. Read the real folder through a process Windows starts outside
+  the package, such as `Win32_Process.Create`.
 - **The headset is the last word.** Anything that changes how the app behaves
   with the hardware goes on a list of checks to run with the owner. It is not
   done until those pass. A transmitter answers from memory for a headset it

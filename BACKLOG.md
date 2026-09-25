@@ -7,11 +7,6 @@ to GitHub, these become issues.
 
 ## Bugs
 
-- **Neap's log sometimes wrote nothing.** On 25 September two copies, one
-  started at login and one by hand, ran normally but logged nothing, not even
-  that they started. The log hid its own failures, so why is not known. It
-  now retries, keeps what it could not write, and writes it later with the
-  reason. Check the log after the next login.
 - **A headset setting changed just after start can wait.** Every request to
   the headset queues in one line, so a change made while the presets are
   being read waits behind them, about four seconds. The microphone no longer
