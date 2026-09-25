@@ -9,14 +9,13 @@ namespace Neap.App.Controls;
 
 /// <summary>
 /// One on-or-off headset setting as a tile, the same tile Home uses, with the
-/// settings that go with it opening inside its card while it is on.
+/// settings that go with it laid out under it while it is on.
 /// </summary>
 /// <remarks>
 /// <para>
 /// The tile fills with the accent while the setting is on. What goes with it,
 /// such as how strong it is, matters only then, so it is shown only then,
-/// inside the tile's own card: shown as a card of its own under the tile, it
-/// read as a separate setting. Rows inside are <see cref="SettingRow.Inset"/>.
+/// in a drawer under the tile. Rows inside take NeapDrawerRowStyle.
 /// </para>
 /// <para>
 /// Disabled, with a dash for its state, until the headset reports the
@@ -85,7 +84,7 @@ public sealed partial class SettingTile : UserControl
 
     public static readonly DependencyProperty InsideProperty = DependencyProperty.Register(
         nameof(Inside), typeof(object), typeof(SettingTile),
-        new PropertyMetadata(null, (d, e) => ((SettingTile)d).InsideHost.Content = e.NewValue));
+        new PropertyMetadata(null, (d, e) => ((SettingTile)d).InsideHost.Child = e.NewValue as UIElement));
 
     /// <summary>Gets or sets what is shown under the tile while the setting is on.</summary>
     public object? Inside
@@ -116,8 +115,6 @@ public sealed partial class SettingTile : UserControl
         Face.IsEnabled = value is not null && _link.Key is { Writable: true };
         Face.IsChecked = value == 1;
         StateWord.Text = Word(value);
-        var open = value == 1 && Inside is not null ? Visibility.Visible : Visibility.Collapsed;
-        InsideHost.Visibility = open;
-        Tray.Visibility = open;
+        InsideHost.Visibility = value == 1 && Inside is not null ? Visibility.Visible : Visibility.Collapsed;
     }
 }

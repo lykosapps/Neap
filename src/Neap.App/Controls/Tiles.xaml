@@ -1,5 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <!--
         The tiles on Home: big buttons that press in, after Windows' Quick
@@ -355,5 +358,29 @@
         BasedOn="{StaticResource CaptionTextBlockStyle}"
         TargetType="TextBlock">
         <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+    </Style>
+
+    <!--
+        What a switch reveals, pulled out from under the tile or card it
+        belongs to like a drawer: a little narrower, its top tucked under
+        that edge and its bottom corners rounded, so it reads as part of the
+        switch rather than a setting of its own. Whatever it hangs from is
+        drawn over it (Canvas.ZIndex), so the join is that edge.
+    -->
+    <Style x:Key="NeapDrawerStyle" TargetType="Border">
+        <Setter Property="Margin" Value="12,-4,12,0" />
+        <Setter Property="Padding" Value="16,12,16,8" />
+        <Setter Property="Background" Value="{ThemeResource NeapPanelBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource NeapPanelStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1,0,1,1" />
+        <Setter Property="CornerRadius" Value="0,0,12,12" />
+    </Style>
+
+    <!--  A row inside a drawer: the drawer is its card, so it draws none of its own.  -->
+    <Style x:Key="NeapDrawerRowStyle" TargetType="tk:SettingsCard">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0,4" />
+        <Setter Property="MinHeight" Value="0" />
     </Style>
 </ResourceDictionary>

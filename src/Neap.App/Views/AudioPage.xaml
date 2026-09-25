@@ -47,15 +47,15 @@
                                 Grid.Column="1"
                                 Glyph="&#xF270;"
                                 Setting="superhuman_hearing">
-                                <StackPanel Spacing="4">
+                                <StackPanel>
                                     <c:SettingRow
                                         x:Uid="Audio_Type"
-                                        Inset="True"
-                                        Setting="shh_preset" />
+                                        Setting="shh_preset"
+                                        Style="{StaticResource NeapDrawerRowStyle}" />
                                     <c:SettingRow
                                         x:Uid="Audio_Intensity"
-                                        Inset="True"
-                                        Setting="shh_level" />
+                                        Setting="shh_level"
+                                        Style="{StaticResource NeapDrawerRowStyle}" />
                                 </StackPanel>
                             </c:SettingTile>
                         </Grid>

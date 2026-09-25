@@ -5,36 +5,50 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
-    <!--
-        The switch and the keys in one card: the keys open inside it while
-        they are on, and are set once and worth seeing while they work.
-    -->
-    <tk:SettingsExpander x:Name="Card" x:Uid="Mix_KeysCard">
-        <tk:SettingsExpander.HeaderIcon>
-            <FontIcon Glyph="&#xE765;" />
-        </tk:SettingsExpander.HeaderIcon>
-        <ToggleSwitch x:Name="KeysOn" />
-        <tk:SettingsExpander.Items>
-            <tk:SettingsCard x:Name="GameRow" x:Uid="Mix_GameRow">
-                <Button x:Name="GameKey" MinWidth="190" />
-            </tk:SettingsCard>
-            <tk:SettingsCard x:Name="ChatRow" x:Uid="Mix_ChatRow">
-                <Button x:Name="ChatKey" MinWidth="190" />
-            </tk:SettingsCard>
-            <tk:SettingsCard x:Name="CentreRow" x:Uid="Mix_CentreRow">
-                <Button x:Name="CentreKey" MinWidth="190" />
-            </tk:SettingsCard>
-            <tk:SettingsCard x:Name="ResetRow" x:Uid="Mix_KeysResetRow">
-                <Button x:Name="KeysReset" x:Uid="Mix_KeysReset" />
-            </tk:SettingsCard>
-        </tk:SettingsExpander.Items>
-        <tk:SettingsExpander.ItemsFooter>
-            <InfoBar
-                x:Name="Notice"
-                Margin="16,8"
-                IsClosable="False"
-                IsOpen="False"
-                Severity="Informational" />
-        </tk:SettingsExpander.ItemsFooter>
-    </tk:SettingsExpander>
+    <StackPanel>
+        <tk:SettingsCard x:Uid="Mix_KeysCard" Canvas.ZIndex="1">
+            <tk:SettingsCard.HeaderIcon>
+                <FontIcon Glyph="&#xE765;" />
+            </tk:SettingsCard.HeaderIcon>
+            <ToggleSwitch x:Name="KeysOn" />
+        </tk:SettingsCard>
+
+        <!--
+            The keys themselves, as rows rather than folded away, and only
+            while they are on, in a drawer under the switch: set once, and
+            worth seeing while they work.
+        -->
+        <Border x:Name="KeyRows" Style="{StaticResource NeapDrawerStyle}">
+            <StackPanel>
+                <tk:SettingsCard
+                    x:Name="GameRow"
+                    x:Uid="Mix_GameRow"
+                    Style="{StaticResource NeapDrawerRowStyle}">
+                    <Button x:Name="GameKey" MinWidth="190" />
+                </tk:SettingsCard>
+                <tk:SettingsCard
+                    x:Name="ChatRow"
+                    x:Uid="Mix_ChatRow"
+                    Style="{StaticResource NeapDrawerRowStyle}">
+                    <Button x:Name="ChatKey" MinWidth="190" />
+                </tk:SettingsCard>
+                <tk:SettingsCard
+                    x:Name="CentreRow"
+                    x:Uid="Mix_CentreRow"
+                    Style="{StaticResource NeapDrawerRowStyle}">
+                    <Button x:Name="CentreKey" MinWidth="190" />
+                </tk:SettingsCard>
+                <tk:SettingsCard x:Uid="Mix_KeysResetRow" Style="{StaticResource NeapDrawerRowStyle}">
+                    <Button x:Name="KeysReset" x:Uid="Mix_KeysReset" />
+                </tk:SettingsCard>
+            </StackPanel>
+        </Border>
+
+        <InfoBar
+            x:Name="Notice"
+            Margin="0,4,0,0"
+            IsClosable="False"
+            IsOpen="False"
+            Severity="Informational" />
+    </StackPanel>
 </UserControl>

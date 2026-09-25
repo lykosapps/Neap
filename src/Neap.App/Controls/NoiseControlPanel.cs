@@ -8,7 +8,7 @@ namespace Neap.App.Controls;
 
 /// <summary>
 /// Noise control with its three modes in view, and how much noise
-/// cancellation blocks under them, in the same card, while that is the mode.
+/// cancellation blocks in a drawer under it while that is the mode.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -31,6 +31,7 @@ public sealed class NoiseControlPanel : UserControl
 
     private readonly RadioButtons _modes = new() { IsEnabled = false };
     private readonly SettingRow _blocking;
+    private readonly Border _drawer;
     private bool _painting;
     private bool _listening;
 
@@ -65,17 +66,22 @@ public sealed class NoiseControlPanel : UserControl
             Minimum = NoiseControl.LeastBlocking,
             Header = Strings.Get("Noise_Blocking"),
             Description = Strings.Get("Noise_BlockingDescription"),
-            Inset = true,
+            Style = (Style)Application.Current.Resources["NeapDrawerRowStyle"],
+        };
+        _drawer = new Border
+        {
+            Style = (Style)Application.Current.Resources["NeapDrawerStyle"],
+            Child = _blocking,
             Visibility = Visibility.Collapsed,
         };
-
-        // One card, which fills the height it is given so it lines up with
-        // the tile beside it.
-        Content = new Border
+        var card = new Border
         {
             Style = (Style)Application.Current.Resources["QuickCardStyle"],
-            Child = new StackPanel { Spacing = 8, Children = { title, description, _modes, _blocking } },
+            Child = new StackPanel { Spacing = 8, Children = { title, description, _modes } },
         };
+        Canvas.SetZIndex(card, 1);
+
+        Content = new StackPanel { Children = { card, _drawer } };
 
         Loaded += (_, _) =>
         {
@@ -108,6 +114,6 @@ public sealed class NoiseControlPanel : UserControl
                 button.IsChecked = button.Tag is NoiseMode shown && shown == mode;
         }
         finally { _painting = false; }
-        _blocking.Visibility = mode == NoiseMode.Cancelling ? Visibility.Visible : Visibility.Collapsed;
+        _drawer.Visibility = mode == NoiseMode.Cancelling ? Visibility.Visible : Visibility.Collapsed;
     }
 }

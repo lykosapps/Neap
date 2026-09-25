@@ -5,26 +5,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!--
-        A setting's tile, as on Home. What only matters once it is on opens
-        under it inside the same card: the tile's outline carries on down
-        around it, so it reads as part of the tile rather than a card of its
-        own. The tile fills whatever height it is given, so beside a taller
-        card it grows to match rather than leaving a gap under it.
+        A setting's tile, as on Home, with what only matters once it is on
+        in a drawer pulled out from under it while it is on.
     -->
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Border
-            x:Name="Tray"
-            Grid.RowSpan="2"
-            Padding="0"
-            Style="{StaticResource QuickCardStyle}"
-            Visibility="Collapsed" />
+    <StackPanel>
         <ToggleButton
             x:Name="Face"
             MinHeight="96"
+            Canvas.ZIndex="1"
             IsEnabled="False"
             Style="{StaticResource NeapToggleTileStyle}">
             <Grid ColumnSpacing="16">
@@ -54,10 +42,9 @@
                     Style="{StaticResource NeapTileStateStyle}" />
             </Grid>
         </ToggleButton>
-        <ContentPresenter
+        <Border
             x:Name="InsideHost"
-            Grid.Row="1"
-            Margin="16,8,16,12"
+            Style="{StaticResource NeapDrawerStyle}"
             Visibility="Collapsed" />
-    </Grid>
+    </StackPanel>
 </UserControl>

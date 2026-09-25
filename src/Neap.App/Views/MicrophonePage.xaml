@@ -85,8 +85,8 @@
                                 Setting="noise_gate">
                                 <c:SettingRow
                                     x:Uid="Microphone_Threshold"
-                                    Inset="True"
-                                    Setting="noise_gate_threshold" />
+                                    Setting="noise_gate_threshold"
+                                    Style="{StaticResource NeapDrawerRowStyle}" />
                             </c:SettingTile>
                         </Grid>
 

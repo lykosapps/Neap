@@ -139,11 +139,10 @@ and date.
   tone's Cut here and Boost here sit on its first row, and nothing is cut
   off in a narrow window. The ten values sent to the headset fold away
   under the sliders.
-- Options that appear when something is switched on open inside its own
-  card: Superhuman Hearing's type and intensity, noise cancellation's
-  blocking, the noise gate's threshold and the mix's keyboard shortcuts.
-  Tiles side by side match heights, so no gap is left under the shorter
-  one.
+- Options that appear when something is switched on slide out from under
+  it like a drawer, so they read as part of that switch: Superhuman
+  Hearing's type and intensity, noise cancellation's blocking, the noise
+  gate's threshold and the mix's keyboard shortcuts.
 - Master volume sits beside voice prompts, and sensitivity beside mic
   monitoring, instead of each taking a wide, mostly empty row. They stack
   again in a narrow window.
