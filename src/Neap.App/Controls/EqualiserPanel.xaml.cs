@@ -200,7 +200,9 @@ public sealed partial class EqualiserPanel : UserControl
             _ => "",
         };
         Curve.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
-        Parametric.Visibility = Visibility.Collapsed;
+        // Hidden only while waiting, never blinked on a repaint: hiding the
+        // parametric panel stops its test tone.
+        if (waiting) Parametric.Visibility = Visibility.Collapsed;
         Mode.Visibility = !waiting && ParametricEq.Covers(Bank) ? Visibility.Visible : Visibility.Collapsed;
         PresetColumn.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;
         Actions.Visibility = waiting ? Visibility.Collapsed : Visibility.Visible;

@@ -84,6 +84,8 @@ public sealed partial class ParametricPanel : UserControl
     private readonly DispatcherQueueTimer _sweep;
     private readonly Stopwatch _swept = new();
     private IPlayingTone? _player;
+    private Task? _opening;
+    private int _stops;
     private Tone _tone;
     private double _frequency = Adjustment.LowestFrequency;
     private double _sweptFrom;
@@ -207,34 +209,37 @@ public sealed partial class ParametricPanel : UserControl
     private async Task<bool> Play(double frequency)
     {
         _frequency = frequency;
-        if (_player is not null)
-        {
-            _player.Frequency = frequency;
-            return true;
-        }
+        // One opening at a time: a slider dragged while the tone opens asks
+        // again at every step, and each would otherwise open a tone of its
+        // own that nothing could stop.
+        if (_player is null) await (_opening ??= Open());
+        if (_player is null) return false;
+        _player.Frequency = _frequency;
+        return true;
+    }
 
+    private async Task Open()
+    {
+        int stops = _stops;
+        double frequency = _frequency;
         ToneTrouble.Visibility = Visibility.Collapsed;
         try
         {
             // A pretend run leaves the real headset's sound alone.
             var player = await Task.Run(() => Pretend.Windows?.OpenTone(frequency) ?? TestTone.Open(frequency));
             // Stopped, or left, while it was opening.
-            if (!IsLoaded || Visibility != Visibility.Visible)
+            if (stops != _stops || !IsLoaded || Visibility != Visibility.Visible)
             {
                 player.Dispose();
-                return false;
+                return;
             }
             player.Stopped += fault => DispatcherQueue.TryEnqueue(() => Fail(fault.Message));
             player.Frequency = _frequency;
             player.Amplitude = ToneSweep.Amplitude(_level);
             _player = player;
-            return true;
         }
-        catch (WindowsAudioException e)
-        {
-            Fail(e.Message);
-            return false;
-        }
+        catch (WindowsAudioException e) { Fail(e.Message); }
+        finally { _opening = null; }
     }
 
     private void Fail(string trouble)
@@ -247,6 +252,7 @@ public sealed partial class ParametricPanel : UserControl
 
     private void StopTone()
     {
+        _stops++;
         _sweep.Stop();
         _player?.Dispose();
         _player = null;
