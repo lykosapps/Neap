@@ -138,11 +138,11 @@ public static class Registry
             // array, so they are readable; a parser that drops that reply makes
             // them look write-only.
             R(0x401, "led_brightness_1", "TX1", 0, 100,
-              note: "light 1: on the Charging Dock, the battery slot ring. Slot one's; "
-                  + "reads back as control[1] of that slot"),
+              note: "light 1: on the Charging Dock, the status ring, which turns purple "
+                  + "when the link is running high bandwidth. Slot one's; reads back as "
+                  + "control[1] of that slot"),
             R(0x402, "led_brightness_2", "TX1", 0, 100,
-              note: "light 2: on the Charging Dock, the status ring, which turns purple "
-                  + "when the link is running high bandwidth. Slot one's"),
+              note: "light 2: on the Charging Dock, the battery slot ring. Slot one's"),
 
             R(0x510, "game_chat_mix", "3DT", 0, 100,
               note: "the chat wheel reports its position here. The headset cannot mix on "

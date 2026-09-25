@@ -154,8 +154,8 @@ public sealed partial class TransmittersPanel : UserControl
         panel.Children.Add(new TextBlock { Text = Strings.Get("Device_LightsLabel"), Style = Styled("NeapLabelStyle") });
         if (lights == LightSet.Dock)
         {
-            panel.Children.Add(Light("led_brightness_1", "Device_DockRingName", "Device_DockRingNote"));
-            panel.Children.Add(Light("led_brightness_2", "Device_DockStatusName", "Device_DockStatusNote"));
+            panel.Children.Add(Light("led_brightness_1", "Device_DockStatusName", "Device_DockStatusNote"));
+            panel.Children.Add(Light("led_brightness_2", "Device_DockRingName", "Device_DockRingNote"));
         }
         else
         {

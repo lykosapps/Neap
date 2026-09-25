@@ -447,8 +447,9 @@ In `control`: entries 1 and 2 are that transmitter's two light brightnesses,
 0–100, readable and writable at slot + 1 and slot + 2 (`0x401`/`0x402` for
 slot one, `0x421`/`0x422` for slot two). Writing slot two's changed only the
 Dock's values, and its status ring visibly *(measured)*. On the Charging Dock,
-light 1 is the battery slot ring and light 2 the status ring, which turns
-purple when the link runs high bandwidth.
+light 1 is the status ring, which turns purple when the link runs high
+bandwidth, and light 2 the battery slot ring *(confirmed by the owner, moving
+each slider and watching which light changed)*.
 
 **Never write a slot's base address.** `control[0]` takes the same values as
 `info[0]`. Writing 2 to it once was followed minutes later by the headset
