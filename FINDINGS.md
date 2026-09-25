@@ -579,6 +579,10 @@ again, with the microphone still open, and it stays purple *(confirmed by
 the owner, three times, with Discord and Teams)*. Whether the sound itself
 changes while the ring is white is not known.
 
+Only the first recording turns it white. Joining a Discord call while
+another application already had the microphone open left the ring purple
+*(confirmed by the owner)*.
+
 ### Core Audio
 
 `S_FALSE` (1) is success: Core Audio returns it when a set changes nothing,
