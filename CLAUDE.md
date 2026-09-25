@@ -59,6 +59,8 @@ preparing code for experienced reviewers.
 
 - Small commits, each building and passing its tests, each message saying
   what changed and why.
+- Anything a person could notice gets a line in `CHANGELOG.md` under
+  Unreleased, in plain words, in the same commit.
 - Author `lykosapps <224482331+lykosapps@users.noreply.github.com>`, with
   times in UTC and no Co-Authored-By trailer. A local hook refuses anything
   else; fix the commit, never skip the hook.

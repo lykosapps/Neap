@@ -14,6 +14,8 @@ and Swarm II are trademarks of Turtle Beach Corporation.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — building, testing, and the checks
   that need a headset
 - [SECURITY.md](SECURITY.md) — reporting a security problem
+- [CHANGELOG.md](CHANGELOG.md) — what Neap does, how it differs from Swarm II,
+  and what changed
 - [BACKLOG.md](BACKLOG.md) — bugs, features and work still to do
 
 ## What it does
