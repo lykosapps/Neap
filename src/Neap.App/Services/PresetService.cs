@@ -231,7 +231,7 @@ public sealed class PresetService
     {
         if (!_banks.TryGetValue(bank, out var state)) return;
         if (index < 0 || index >= state.Spec.Bands.Count) return;
-        _headset.SetKey(state.Spec.Bands[index], Math.Clamp(tenths, BandFloor, BandCeiling));
+        _headset.SetKey(state.Spec.Bands[index], Math.Clamp(PresetStore.Snap(tenths), BandFloor, BandCeiling));
     }
 
     /// <summary>Select a preset.</summary>

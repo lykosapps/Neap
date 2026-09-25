@@ -54,6 +54,19 @@ public static class PresetStore
     /// </remarks>
     public const int MaxNameLength = 19;
 
+    /// <summary>The step the headset takes band values in, in tenths: half a decibel.</summary>
+    /// <remarks>
+    /// Values between steps are not stored as sent (measured): +2.7 dB left
+    /// the band where it was and +2.3 dB became +2.0, while +2.5, +2.0,
+    /// +0.5 and 0 were stored as written. The write still counts as an edit,
+    /// so nothing says it missed.
+    /// </remarks>
+    public const int BandStep = 5;
+
+    /// <summary>A band value moved to the nearest step the headset takes.</summary>
+    public static int Snap(int tenths) =>
+        (int)Math.Round(tenths / (double)BandStep, MidpointRounding.AwayFromZero) * BandStep;
+
     /// <summary>Whether this name fits one output report once escaped.</summary>
     /// <remarks>
     /// Counting characters is not enough: a quotation mark costs two bytes and

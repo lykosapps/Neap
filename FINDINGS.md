@@ -271,7 +271,10 @@ seen.
 The game bank is `0x1210` (selected preset id), `0x1220`–`0x12B0` (ten bands,
 step `0x10`) and `0x12C0` (preset name). The microphone bank is the same one
 block along, at `0x1310`, `0x1320`–`0x13B0` and `0x13C0`. Bands are tenths of a
-decibel, −90 to +90.
+decibel, −90 to +90, but the headset takes them only in half-decibel steps
+*(measured)*: writing 27 left the band at 20, and 23 became 20, while 25, 20,
+5 and 0 were stored as written. A write between steps still clears the
+selected preset, so nothing says it missed. Neap sends only whole steps.
 
 Band centres, read from Swarm's device plugin (`STEALTH_PRO_II.dll`)
 *(research)*:

@@ -60,6 +60,14 @@ public class ParametricEqTests
     }
 
     [Fact]
+    public void EveryGainIsAStepTheHeadsetTakes()
+    {
+        var bands = ParametricEq.Fit([new Adjustment(125, -45, 15), new Adjustment(5100, -60, 10),
+            new Adjustment(253, 35, 10), new Adjustment(15900, 90, 15)]);
+        Assert.All(bands, band => Assert.Equal(0, band % PresetStore.BandStep));
+    }
+
+    [Fact]
     public void NoBandPassesItsLimit()
     {
         var bands = ParametricEq.Fit([new Adjustment(1000, 90, 30), new Adjustment(2000, 90, 30)]);

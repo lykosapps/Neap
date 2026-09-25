@@ -273,7 +273,8 @@ public sealed class EqualiserCurve : UserControl
     private void OnPointerMoved(object sender, PointerRoutedEventArgs args)
     {
         if (_dragging < 0) return;
-        int tenths = TenthsAt(args.GetCurrentPoint(_canvas).Position.Y);
+        // In the headset's own steps, so a drag between them raises nothing.
+        int tenths = PresetStore.Snap(TenthsAt(args.GetCurrentPoint(_canvas).Position.Y));
         if (_dragging < _live.Length && _live[_dragging] == tenths) return;
         BandChanged?.Invoke(_dragging, tenths);
     }

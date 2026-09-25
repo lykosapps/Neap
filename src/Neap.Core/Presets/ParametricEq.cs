@@ -150,6 +150,10 @@ public static class ParametricEq
     /// again without it.
     /// </para>
     /// <para>
+    /// The gains come out in the headset's half-decibel steps; see
+    /// <see cref="PresetStore.BandStep"/>.
+    /// </para>
+    /// <para>
     /// The result is the same for the same adjustments every time, which is
     /// what lets a preset's stored adjustments be checked against the gains
     /// the headset holds for it.
@@ -181,7 +185,50 @@ public static class ParametricEq
                 free.RemoveAll(over.Contains);
             }
         }
-        return gains.Select(g => (int)Math.Round(g * 10, MidpointRounding.AwayFromZero)).ToArray();
+        return Settle(gains.Select(g => PresetStore.Snap((int)Math.Round(g * 10))).ToArray(), asked);
+    }
+
+    /// <summary>
+    /// Nudges gains already rounded to the headset's steps a step up or down
+    /// wherever that comes closer to what is asked for.
+    /// </summary>
+    /// <remarks>
+    /// The headset takes band values only in half-decibel steps, and rounding
+    /// each band alone can leave neighbours all erring the same way.
+    /// </remarks>
+    private static int[] Settle(int[] bands, double[] asked)
+    {
+        double Error(int[] candidate)
+        {
+            double sum = 0;
+            for (int k = 0; k < Judged.Length; k++)
+            {
+                double miss = asked[k] - Heard(candidate, Judged[k]);
+                sum += miss * miss;
+            }
+            return sum;
+        }
+
+        double best = Error(bands);
+        for (int pass = 0; pass < 3; pass++)
+        {
+            bool moved = false;
+            for (int band = 0; band < bands.Length; band++)
+            {
+                foreach (int step in new[] { -PresetStore.BandStep, PresetStore.BandStep })
+                {
+                    int was = bands[band];
+                    int next = was + step;
+                    if (Math.Abs(next) > BandLimit * 10) continue;
+                    bands[band] = next;
+                    double error = Error(bands);
+                    if (error < best - 1e-9) { best = error; moved = true; }
+                    else bands[band] = was;
+                }
+            }
+            if (!moved) break;
+        }
+        return bands;
     }
 
     /// <summary>One Gauss–Newton step for the free bands, the others held where they are.</summary>

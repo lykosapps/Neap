@@ -5,6 +5,17 @@ namespace Neap.Core.Tests.Presets;
 
 public class PresetStoreTests
 {
+    [Theory]
+    [InlineData(27, 25)]
+    [InlineData(23, 25)]
+    [InlineData(22, 20)]
+    [InlineData(-82, -80)]
+    [InlineData(-83, -85)]
+    [InlineData(0, 0)]
+    [InlineData(90, 90)]
+    public void BandValuesSnapToHalfDecibels(int tenths, int snapped) =>
+        Assert.Equal(snapped, PresetStore.Snap(tenths));
+
     private static readonly TimeSpan Window = TimeSpan.FromMilliseconds(50);
     private static readonly int[] Flat = new int[10];
 
