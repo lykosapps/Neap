@@ -103,8 +103,10 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 ## Last in line
 
-- **Other languages.** Lowest priority. Every word on screen is in the
-  resource file, ready for a translation.
+- **Other languages.** Lowest priority. The settings' option names are in
+  the resource file now. The transmitters' names (Charging Dock, USB
+  Transmitter, Headset) are still written into Core, where the rules for
+  what a screen says pick them, so they are next.
 
 ## Ideas, not yet decided
 
