@@ -27,11 +27,6 @@ None open.
 - **Renaming the headset**, as Swarm II can. Neap neither shows nor changes
   the headset's name. Needs the headset: that the new name is kept, and
   where else it appears.
-- **Spatial sound.** Choose Windows' spatial sound for the headset (off,
-  Windows Sonic, Dolby Atmos for Headphones, DTS) from the Audio page,
-  offering only what works on this PC. When Dolby is installed but not
-  licensed, say so and point to the Dolby Access app. Needs the headset:
-  games using Dolby's positional sound still follow the mix.
 - **An installer**, beyond the zip.
 - **Microsoft Store distribution.**
 - **Other Swarm II headsets.** The Stealth 600 Gen 3, 700 Gen 3, 500 and
@@ -60,6 +55,10 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   setting at once: it takes effect within about a second. Every saved
   preset is still listed on both equaliser pages, many times over: a read
   now waits a moment after a write, and a lost read would hide a preset.
+- **Spatial sound.** On Audio, choose Dolby Atmos: it switches on and is
+  heard, or, unlicensed, the dialog opens Dolby Access. Windows Sonic and
+  off work too. A game using Dolby's positional sound still follows the
+  mix.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
 - **Two chat apps at once**, Discord and Teams say: both follow the chat

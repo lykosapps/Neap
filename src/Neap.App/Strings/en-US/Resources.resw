@@ -1193,4 +1193,64 @@
   <data name="Shh_Gunshots" xml:space="preserve">
     <value>Gunshots</value>
   </data>
+  <data name="Audio_Spatial.Header" xml:space="preserve">
+    <value>Spatial sound</value>
+  </data>
+  <data name="Audio_Spatial.Description" xml:space="preserve">
+    <value>Windows' 3D sound for games and films.</value>
+  </data>
+  <data name="Spatial_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Spatial_WindowsSonic" xml:space="preserve">
+    <value>Windows Sonic</value>
+    <comment>A spatial sound format; a Microsoft name, not translated.</comment>
+  </data>
+  <data name="Spatial_DolbyAtmos" xml:space="preserve">
+    <value>Dolby Atmos</value>
+    <comment>A spatial sound format; a Dolby name, not translated.</comment>
+  </data>
+  <data name="Spatial_DtsHeadphoneX" xml:space="preserve">
+    <value>DTS Headphone:X</value>
+    <comment>A spatial sound format; a DTS name, not translated.</comment>
+  </data>
+  <data name="Spatial_DtsXUltra" xml:space="preserve">
+    <value>DTS:X Ultra</value>
+    <comment>A spatial sound format; a DTS name, not translated.</comment>
+  </data>
+  <data name="Spatial_DolbyApp" xml:space="preserve">
+    <value>Dolby Access</value>
+    <comment>The app that activates Dolby Atmos.</comment>
+  </data>
+  <data name="Spatial_DtsApp" xml:space="preserve">
+    <value>DTS Sound Unbound</value>
+    <comment>The app that activates DTS.</comment>
+  </data>
+  <data name="Spatial_NotActivatedTitle" xml:space="preserve">
+    <value>{0} isn't activated</value>
+  </data>
+  <data name="Spatial_NotActivated" xml:space="preserve">
+    <value>Activate it in the {0} app, then choose it again.</value>
+  </data>
+  <data name="Spatial_OpenApp" xml:space="preserve">
+    <value>Open {0}</value>
+  </data>
+  <data name="Spatial_CouldNotChange" xml:space="preserve">
+    <value>Couldn't change spatial sound</value>
+  </data>
+  <data name="Spatial_Refused" xml:space="preserve">
+    <value>Windows wouldn't switch the headset to {0}.</value>
+  </data>
+  <data name="Spatial_NoHeadset" xml:space="preserve">
+    <value>Connect the headset to choose its spatial sound.</value>
+  </data>
+  <data name="Spatial_NotSupported" xml:space="preserve">
+    <value>Windows doesn't offer spatial sound for this headset.</value>
+  </data>
+  <data name="Spatial_DolbyNeedsDriver" xml:space="preserve">
+    <value>Dolby Atmos needs the headset's Dolby Atmos driver, which Swarm II installs, and its licence activated in the Dolby Access app.</value>
+  </data>
+  <data name="Spatial_DolbyNotActivated" xml:space="preserve">
+    <value>Activate the headset's licence in the Dolby Access app, then choose Dolby Atmos again. The licence needs the headset's Dolby Atmos driver, which Swarm II installs.</value>
+  </data>
 </root>

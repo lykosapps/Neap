@@ -55,6 +55,10 @@ and date.
 
 ### Also in Neap
 
+- **Spatial sound** on the Audio page: off, Windows Sonic, and Dolby Atmos
+  or DTS where they are installed. The Stealth Pro II carries a Dolby Atmos
+  licence; Neap says what activating it takes, which is the headset's Dolby
+  Atmos driver (installed by Swarm II) and the Dolby Access app.
 - Every setting the headset exposes: noise cancellation, both ten-band
   equalisers, microphone, noise gate, Superhuman Hearing, button and dial
   assignment, transmitter lighting, battery, power.

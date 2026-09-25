@@ -120,6 +120,36 @@ public sealed class PretendWindows
         }
     }
 
+    // -- spatial sound ------------------------------------------------------
+
+    private Guid _spatial = Guid.Empty;
+
+    /// <summary>Whether the pretend headset takes a spatial format: Windows Sonic and Dolby Atmos.</summary>
+    public static bool SpatialSupported(Guid subtype) =>
+        subtype == SpatialSound.Subtypes[SpatialFormat.WindowsSonic]
+        || subtype == SpatialSound.Subtypes[SpatialFormat.DolbyAtmos];
+
+    /// <summary>The spatial format on, empty for off.</summary>
+    public Guid Spatial
+    {
+        get { lock (_gate) return _spatial; }
+    }
+
+    /// <summary>Gets or sets whether Dolby Atmos is licensed, so a script can see the note when it is not.</summary>
+    public bool DolbyLicensed { get; set; } = true;
+
+    public SpatialResult SetSpatial(Guid subtype)
+    {
+        lock (_gate)
+        {
+            if (subtype != Guid.Empty && !SpatialSupported(subtype)) return SpatialResult.NotSupportedOnAudioEndpoint;
+            if (subtype == SpatialSound.Subtypes[SpatialFormat.DolbyAtmos] && !DolbyLicensed)
+                return SpatialResult.LicenseNotValidForAudioEndpoint;
+            _spatial = subtype;
+            return SpatialResult.Succeeded;
+        }
+    }
+
     // -- the mix ------------------------------------------------------------
 
     /// <summary>The applications with audio open on the headset.</summary>

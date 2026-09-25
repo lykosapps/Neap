@@ -81,6 +81,8 @@
                                 Setting="voice_prompt_volume" />
                         </c:HeadsetSection>
                     </c:SideBySide>
+                    <!--  Windows' spatial sound on the headset, under its volume: both are Windows' settings.  -->
+                    <c:SpatialRow x:Uid="Audio_Spatial" Margin="0,4,0,0" />
                 </c:HeadsetSection>
 
             </StackPanel>

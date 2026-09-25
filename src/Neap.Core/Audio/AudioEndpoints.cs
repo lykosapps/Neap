@@ -79,6 +79,18 @@ public static class AudioEndpoints
             (int)Math.Round(endpoint.GetLevel() * 100), endpoint.GetMute());
     }
 
+    /// <summary>The headset's endpoint identifier, or null when it is not there.</summary>
+    /// <remarks>Never the Windows default in its place: a setting made on it would land on another device.</remarks>
+    public static string? HeadsetId(Flow flow = Flow.Output, string match = DefaultMatch)
+    {
+        try
+        {
+            using var endpoint = Endpoint.Open(match, flow, fallBackToDefault: false);
+            return endpoint.Id;
+        }
+        catch (WindowsAudioException) { return null; }
+    }
+
     /// <summary>The current peak level on an endpoint, from 0 to 1.</summary>
     /// <remarks>
     /// This shows whether audio is actually arriving at a device, as opposed
