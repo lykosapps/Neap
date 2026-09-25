@@ -78,7 +78,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 - A fast formatting check before each commit.
 - Build, tests and formatting required on every pull request, once on GitHub.
-- An automated contrast and theme check of every screen.
 - Sign the download, so Windows does not warn about it.
 - Publish on GitHub: the repository named "neap", private vulnerability
   reporting on, main only, and a first real CI run.

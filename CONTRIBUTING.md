@@ -29,8 +29,8 @@ request.
 The tests cover what needs no hardware: the frames sent to the headset, the
 parsing of its replies, which writes are allowed, the transmitter slots, the
 settings registry, presets against a scripted headset, the connection states,
-the routing warning, the mix and its volume journal, and the app's resource
-file. When you learn something
+the routing warning, the mix and its volume journal, the app's resource
+file, and the contrast of its colours in the dark and light themes. When you learn something
 new about the protocol, add a test that would have caught the old mistake.
 
 ## Testing the screens without the headset
