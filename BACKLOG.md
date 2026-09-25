@@ -7,10 +7,6 @@ to GitHub, these become issues.
 
 ## Bugs
 
-- **Windows can show Neap using the microphone after leaving the Microphone
-  page.** Seen once on 25 September: the indicator stayed on after a visit to
-  the page and a return to Home. Not reproduced since, with real or scripted
-  clicks, or by closing the window to the tray from that page.
 - **Neap's log sometimes wrote nothing.** On 25 September two copies, one
   started at login and one by hand, ran normally but logged nothing, not even
   that they started. The log hid its own failures, so why is not known. It
@@ -20,10 +16,6 @@ to GitHub, these become issues.
   the headset queues in one line, so a change made while the presets are
   being read waits behind them, about four seconds. The microphone no longer
   does: it mutes in Windows, measured at a tenth of a second mid-read.
-- **The mix once moved to 76% with nobody touching it.** Not seen since. The
-  chat wheel jump fix may have been the cause; check the log if it recurs.
-- **A screen-test check failed once and never again.** A "sends nothing back"
-  check. The test now names the control, so a repeat will say which.
 
 ### Known limits, recorded rather than fixed
 
