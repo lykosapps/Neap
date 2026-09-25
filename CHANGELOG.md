@@ -107,3 +107,5 @@ and date.
 - A tile that can't be changed, such as the microphone while the boom arm
   mutes it, keeps its state readable in the light theme instead of fading
   to faint grey.
+- A greyed-out Save in the preset naming dialog shows its label in the light
+  theme.
