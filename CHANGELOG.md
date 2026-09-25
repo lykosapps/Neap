@@ -109,3 +109,5 @@ and date.
   to faint grey.
 - A greyed-out Save in the preset naming dialog shows its label in the light
   theme.
+- A band's menu offers to put the band back, from the keyboard (Shift+F10) or
+  a right-click, instead of only cut, copy and paste.

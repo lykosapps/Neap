@@ -1,4 +1,5 @@
 using System.Globalization;
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
@@ -263,14 +264,23 @@ public sealed partial class EqualiserPanel : UserControl
             int index = i;
 
             // The keyboard and screen-reader equivalent of the ring on the
-            // curve: the field's own menu puts the band back.
+            // curve: the field's own menu puts the band back. The text box
+            // inside the field has a cut and paste menu of its own, which
+            // opens in place of the field's, so the menu goes on the text box.
             var revert = new MenuFlyoutItem { Icon = new FontIcon { Glyph = "\uE7A7" } };
             revert.Click += (_, _) =>
             {
                 AppServices.Presets.RevertBand(Bank, index);
                 Paint();
             };
-            field.ContextFlyout = new MenuFlyout { Items = { revert } };
+            var menu = new MenuFlyout { Items = { revert } };
+            field.ContextFlyout = menu;
+            field.Loaded += (_, _) =>
+            {
+                // The text box only exists once the field has its template.
+                field.ApplyTemplate();
+                if (field.FindDescendant<TextBox>() is { } box) box.ContextFlyout = menu;
+            };
 
             field.ValueChanged += (sender, args) =>
             {
