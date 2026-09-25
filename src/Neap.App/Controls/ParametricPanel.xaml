@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="Neap.App.Controls.ParametricPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.App.Controls">
+
+    <StackPanel Spacing="12">
+
+        <!--  The key to the two curves: which is asked for and which is heard.  -->
+        <StackPanel Orientation="Horizontal" Spacing="20">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Line
+                    VerticalAlignment="Center"
+                    Stroke="{ThemeResource TextFillColorSecondaryBrush}"
+                    StrokeDashArray="4,3"
+                    StrokeThickness="1.5"
+                    X1="0"
+                    X2="22" />
+                <TextBlock x:Uid="Parametric_Asked" Style="{StaticResource SecondaryCaptionTextStyle}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Line
+                    VerticalAlignment="Center"
+                    Stroke="{ThemeResource AccentFillColorDefaultBrush}"
+                    StrokeThickness="2"
+                    X1="0"
+                    X2="22" />
+                <TextBlock x:Uid="Parametric_Heard" Style="{StaticResource SecondaryCaptionTextStyle}" />
+            </StackPanel>
+        </StackPanel>
+
+        <c:ParametricCurve x:Name="Shape" Height="240" />
+
+        <!--  Only when the headset misses by enough to hear.  -->
+        <StackPanel
+            x:Name="Miss"
+            Orientation="Horizontal"
+            Spacing="8"
+            Visibility="Collapsed">
+            <FontIcon
+                VerticalAlignment="Center"
+                FontSize="14"
+                Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                Glyph="&#xE946;" />
+            <TextBlock
+                x:Uid="Parametric_Miss"
+                Style="{StaticResource SecondaryBodyTextStyle}"
+                TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!--  One button per adjustment, then adding and removing.  -->
+        <StackPanel Orientation="Horizontal" Spacing="6">
+            <StackPanel x:Name="Chips" Orientation="Horizontal" Spacing="6" />
+            <Button x:Name="AddButton" x:Uid="Parametric_Add">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon FontSize="12" Glyph="&#xE710;" />
+                    <TextBlock x:Uid="Parametric_AddLabel" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="RemoveButton" Padding="10,5">
+                <FontIcon FontSize="12" Glyph="&#xE74D;" />
+            </Button>
+        </StackPanel>
+
+        <TextBlock
+            x:Name="Empty"
+            x:Uid="Parametric_Empty"
+            Style="{StaticResource SecondaryBodyTextStyle}" />
+
+        <!--  The chosen adjustment, for the keyboard and for exact values.  -->
+        <Grid
+            x:Name="Fields"
+            ColumnSpacing="12"
+            RowSpacing="6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="90" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="110" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock
+                x:Uid="Parametric_Frequency"
+                VerticalAlignment="Center"
+                Style="{StaticResource SecondaryBodyTextStyle}" />
+            <Slider
+                x:Name="FrequencySlider"
+                x:Uid="Parametric_FrequencySlider"
+                Grid.Column="1"
+                IsThumbToolTipEnabled="False"
+                Maximum="1000"
+                Minimum="0"
+                StepFrequency="1"
+                SmallChange="10"
+                LargeChange="50" />
+            <NumberBox
+                x:Name="FrequencyField"
+                x:Uid="Parametric_FrequencyField"
+                Grid.Column="2"
+                VerticalAlignment="Center"
+                SpinButtonPlacementMode="Hidden"
+                ValidationMode="InvalidInputOverwritten" />
+
+            <TextBlock
+                x:Uid="Parametric_Gain"
+                Grid.Row="1"
+                VerticalAlignment="Center"
+                Style="{StaticResource SecondaryBodyTextStyle}" />
+            <Slider
+                x:Name="GainSlider"
+                x:Uid="Parametric_GainSlider"
+                Grid.Row="1"
+                Grid.Column="1"
+                IsThumbToolTipEnabled="False"
+                LargeChange="1"
+                Maximum="9"
+                Minimum="-9"
+                SmallChange="0.5"
+                StepFrequency="0.5" />
+            <TextBlock
+                x:Name="GainText"
+                Grid.Row="1"
+                Grid.Column="2"
+                VerticalAlignment="Center"
+                Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+            <TextBlock
+                x:Uid="Parametric_Width"
+                Grid.Row="2"
+                VerticalAlignment="Top"
+                Margin="0,6,0,0"
+                Style="{StaticResource SecondaryBodyTextStyle}" />
+            <StackPanel Grid.Row="2" Grid.Column="1">
+                <Slider
+                    x:Name="WidthSlider"
+                    x:Uid="Parametric_WidthSlider"
+                    IsThumbToolTipEnabled="False"
+                    LargeChange="0.5"
+                    Maximum="3"
+                    Minimum="1"
+                    SmallChange="0.1"
+                    StepFrequency="0.1" />
+                <!--  The narrow end is the headset's limit, and says so.  -->
+                <Grid>
+                    <TextBlock x:Uid="Parametric_Narrowest" Style="{StaticResource SecondaryCaptionTextStyle}" />
+                    <TextBlock
+                        x:Uid="Parametric_Wide"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource SecondaryCaptionTextStyle}" />
+                </Grid>
+            </StackPanel>
+            <TextBlock
+                x:Name="WidthText"
+                Grid.Row="2"
+                Grid.Column="2"
+                VerticalAlignment="Top"
+                Margin="0,6,0,0"
+                Style="{StaticResource BodyStrongTextBlockStyle}" />
+        </Grid>
+
+        <!--  What reaches the headset: the ten gains, nothing else.  -->
+        <StackPanel
+            Padding="0,12,0,0"
+            BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
+            BorderThickness="0,1,0,0"
+            Spacing="6">
+            <TextBlock x:Uid="Parametric_Sent" Style="{StaticResource NeapLabelStyle}" />
+            <Grid x:Name="Sent" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

@@ -119,6 +119,25 @@
 
 
                 <!--
+                    How the curve is shaped: band by band, or by adjustments
+                    fitted to the bands. Only the game bank has the second.
+                -->
+                <RadioButtons
+                    x:Name="Mode"
+                    x:Uid="Equaliser_Mode"
+                    MaxColumns="2"
+                    Visibility="Collapsed">
+                    <RadioButton x:Name="ModeBands" x:Uid="Equaliser_ModeBands" />
+                    <RadioButton x:Name="ModeParametric" x:Uid="Equaliser_ModeParametric" />
+                </RadioButtons>
+
+                <c:ParametricPanel
+                    x:Name="Parametric"
+                    MaxWidth="900"
+                    HorizontalAlignment="Stretch"
+                    Visibility="Collapsed" />
+
+                <!--
                     The curve and the readouts share one width and one set of
                     columns, so every point sits over its own number.
                 -->

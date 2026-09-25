@@ -973,4 +973,82 @@
   <data name="Mode_NoiseCycleNeedsApp" xml:space="preserve">
     <value>Works while Neap is running. Otherwise the button turns noise cancellation on and off.</value>
   </data>
+  <data name="Equaliser_Mode.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Shape the sound by</value>
+  </data>
+  <data name="Equaliser_ModeBands.Content" xml:space="preserve">
+    <value>Bands</value>
+  </data>
+  <data name="Equaliser_ModeParametric.Content" xml:space="preserve">
+    <value>Parametric</value>
+  </data>
+  <data name="Parametric_Asked.Text" xml:space="preserve">
+    <value>Your curve</value>
+  </data>
+  <data name="Parametric_Heard.Text" xml:space="preserve">
+    <value>What you'll hear</value>
+  </data>
+  <data name="Parametric_Miss.Text" xml:space="preserve">
+    <value>The headset can't match this exactly. The solid line is what you'll hear.</value>
+  </data>
+  <data name="Parametric_Add.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Add an adjustment</value>
+  </data>
+  <data name="Parametric_AddLabel.Text" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Parametric_Empty.Text" xml:space="preserve">
+    <value>Add an adjustment to shape the sound.</value>
+  </data>
+  <data name="Parametric_Frequency.Text" xml:space="preserve">
+    <value>Frequency</value>
+  </data>
+  <data name="Parametric_FrequencySlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Frequency</value>
+  </data>
+  <data name="Parametric_FrequencyField.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Frequency, typed</value>
+  </data>
+  <data name="Parametric_Gain.Text" xml:space="preserve">
+    <value>Gain</value>
+  </data>
+  <data name="Parametric_GainSlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Gain in decibels</value>
+  </data>
+  <data name="Parametric_Width.Text" xml:space="preserve">
+    <value>Width</value>
+  </data>
+  <data name="Parametric_WidthSlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Width in octaves</value>
+  </data>
+  <data name="Parametric_Narrowest.Text" xml:space="preserve">
+    <value>Narrowest possible</value>
+  </data>
+  <data name="Parametric_Wide.Text" xml:space="preserve">
+    <value>Wide</value>
+  </data>
+  <data name="Parametric_Sent.Text" xml:space="preserve">
+    <value>Sent to the headset</value>
+  </data>
+  <data name="Parametric_Hertz" xml:space="preserve">
+    <value>{0} Hz</value>
+  </data>
+  <data name="Parametric_KiloHertz" xml:space="preserve">
+    <value>{0} kHz</value>
+  </data>
+  <data name="Parametric_Decibels" xml:space="preserve">
+    <value>{0} dB</value>
+  </data>
+  <data name="Parametric_Octaves" xml:space="preserve">
+    <value>{0} oct</value>
+  </data>
+  <data name="Parametric_Chip" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Parametric_ChipName" xml:space="preserve">
+    <value>Adjustment {0}, {1}</value>
+  </data>
+  <data name="Parametric_RemoveNamed" xml:space="preserve">
+    <value>Remove adjustment {0}</value>
+  </data>
 </root>
