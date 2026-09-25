@@ -61,6 +61,9 @@ public sealed class PresetService
     /// <summary>The adjustments shaping each bank shaped parametrically; a bank not here is shaped by its bands.</summary>
     private readonly Dictionary<Bank, List<Adjustment>> _adjustments = new();
 
+    /// <summary>The adjustments put aside when a bank went back to its bands, until another preset is chosen.</summary>
+    private readonly Dictionary<Bank, List<Adjustment>> _setAside = new();
+
     /// <remarks>
     /// Follows the headset before any screen paints from it: the service
     /// subscribes first, so every screen sees the preset chosen on the
@@ -142,6 +145,7 @@ public sealed class PresetService
     private void Adopt(BankState state, Preset? preset)
     {
         state.Baseline = preset;
+        _setAside.Remove(state.Bank);
         var stored = preset is { Custom: true } && ParametricEq.Covers(state.Bank)
             ? AppSettings.Current.Adjustments(state.Bank, preset.Name)
             : null;
@@ -246,31 +250,53 @@ public sealed class PresetService
     public IReadOnlyList<Adjustment> Adjustments(Bank bank) =>
         _adjustments.TryGetValue(bank, out var adjustments) ? adjustments : [];
 
-    /// <summary>Shape the bank parametrically, starting flat.</summary>
+    /// <summary>Shape the bank parametrically, from where <see cref="ParametricEq.StartFrom"/> decides.</summary>
     /// <remarks>
     /// <para>
-    /// A curve made with the bands has no adjustments that describe it, so
-    /// shaping parametrically starts from flat. It is an edit like any other:
-    /// the preset it came from stays the baseline, and Discard puts it back.
+    /// A preset made parametrically comes back by choosing it again, one
+    /// write the headset always acts on, which takes its adjustments with it.
     /// </para>
     /// <para>
-    /// Flat is reached by choosing the headset's own flat preset, a single
-    /// write the headset always acts on. Setting the bands to zero one by
-    /// one showed flat on screen while the sound did not change.
+    /// A curve made with the bands has no adjustments that describe it, so it
+    /// starts from flat. That is an edit like any other: the preset it came
+    /// from stays the baseline, and Discard puts it back. Flat is reached by
+    /// choosing the headset's own flat preset for the same reason: setting
+    /// the bands to zero one by one showed flat on screen while the sound did
+    /// not change.
     /// </para>
     /// </remarks>
-    public void UseParametric(Bank bank)
+    public async Task UseParametric(Bank bank)
     {
         if (!ParametricEq.Covers(bank) || IsParametric(bank)
-            || !_banks.TryGetValue(bank, out var state)) return;
-        var flat = PresetStore.Factory(bank).First(p => p.Bands.All(band => band == 0));
-        _adjustments[bank] = [];
-        _headset.SetKey(state.Spec.Select, flat.Id);
-        foreach (int key in state.Spec.Bands) _headset.SetKeyLocally(key, 0);
+            || !_banks.TryGetValue(bank, out var state)
+            || LiveBands(state) is not { } live) return;
+
+        var baseline = state.Baseline;
+        var stored = baseline is { Custom: true } ? AppSettings.Current.Adjustments(bank, baseline.Name) : null;
+        switch (ParametricEq.StartFrom(_setAside.GetValueOrDefault(bank), live, stored, baseline?.Bands))
+        {
+            case ParametricStart.Resume:
+                _adjustments[bank] = _setAside[bank];
+                break;
+            case ParametricStart.Reopen:
+                await Select(bank, baseline!);
+                break;
+            default:
+                var flat = PresetStore.Factory(bank).First(p => p.Bands.All(band => band == 0));
+                _adjustments[bank] = [];
+                _headset.SetKey(state.Spec.Select, flat.Id);
+                foreach (int key in state.Spec.Bands) _headset.SetKeyLocally(key, 0);
+                break;
+        }
+        _setAside.Remove(bank);
     }
 
     /// <summary>Shape the bank by its bands again, leaving them where the adjustments put them.</summary>
-    public void UseBands(Bank bank) => _adjustments.Remove(bank);
+    /// <remarks>The adjustments are put aside, to come back if the bands are only looked at.</remarks>
+    public void UseBands(Bank bank)
+    {
+        if (_adjustments.Remove(bank, out var adjustments)) _setAside[bank] = adjustments;
+    }
 
     /// <summary>Shape the bank with these adjustments, writing whichever bands they move.</summary>
     public void SetAdjustments(Bank bank, IReadOnlyList<Adjustment> adjustments)

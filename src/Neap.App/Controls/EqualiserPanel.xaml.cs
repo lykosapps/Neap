@@ -124,10 +124,10 @@ public sealed partial class EqualiserPanel : UserControl
             AppServices.Presets.UseBands(Bank);
             Paint();
         };
-        ModeParametric.Checked += (_, _) =>
+        ModeParametric.Checked += async (_, _) =>
         {
             if (_painting) return;
-            AppServices.Presets.UseParametric(Bank);
+            await AppServices.Presets.UseParametric(Bank);
             Paint();
         };
         Parametric.Changed += Paint;

@@ -29,6 +29,19 @@ public readonly record struct Adjustment(int Frequency, int Gain, int Width)
         Math.Clamp(Width, Narrowest, Widest));
 }
 
+/// <summary>Where the parametric equaliser starts from when it is chosen.</summary>
+public enum ParametricStart
+{
+    /// <summary>The adjustments set aside when the bands were chosen, untouched since.</summary>
+    Resume,
+
+    /// <summary>The preset's own stored adjustments, by choosing the preset again.</summary>
+    Reopen,
+
+    /// <summary>Flat: the curve has no adjustments that describe it.</summary>
+    Flat,
+}
+
 /// <summary>
 /// The parametric equaliser's maths: what a set of adjustments asks for, what
 /// the headset's ten bands play, and the ten gains that come closest.
@@ -274,6 +287,24 @@ public static class ParametricEq
     /// </remarks>
     public static bool Matches(IReadOnlyList<Adjustment> adjustments, IReadOnlyList<int> bands) =>
         Fit(adjustments).SequenceEqual(bands);
+
+    /// <summary>Decides where the parametric equaliser starts from when it is chosen.</summary>
+    /// <remarks>
+    /// Adjustments set aside by a look at the bands come back while the bands
+    /// are still where they left them. Otherwise a preset made parametrically
+    /// comes back in that form, and anything else starts flat.
+    /// </remarks>
+    /// <param name="setAside">The adjustments in use when the bands were chosen, if any.</param>
+    /// <param name="live">The bands as they are now.</param>
+    /// <param name="stored">The baseline preset's stored adjustments, if any.</param>
+    /// <param name="preset">The baseline preset's bands, if there is one.</param>
+    public static ParametricStart StartFrom(IReadOnlyList<Adjustment>? setAside, IReadOnlyList<int> live,
+        IReadOnlyList<Adjustment>? stored, IReadOnlyList<int>? preset)
+    {
+        if (setAside is not null && Matches(setAside, live)) return ParametricStart.Resume;
+        if (stored is not null && preset is not null && Matches(stored, preset)) return ParametricStart.Reopen;
+        return ParametricStart.Flat;
+    }
 
     // -- the plot ----------------------------------------------------------
 

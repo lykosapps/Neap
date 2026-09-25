@@ -113,6 +113,46 @@ public class ParametricEqTests
         Assert.True(Math.Abs(Math.Log2((double)second.Frequency / first.Frequency)) > 1);
     }
 
+    private static readonly Adjustment[] Cut = [new Adjustment(4915, -60, 10)];
+    private static readonly int[] Flat = new int[10];
+    private static readonly int[] BassBoost = [50, 50, 35, 0, 0, 0, 0, 0, 0, 0];
+
+    [Fact]
+    public void ALookAtTheBandsComesBackAsItWas() =>
+        Assert.Equal(ParametricStart.Resume, ParametricEq.StartFrom(Cut, ParametricEq.Fit(Cut), null, null));
+
+    [Fact]
+    public void BandsMovedSinceGiveUpWhatWasSetAside()
+    {
+        var moved = ParametricEq.Fit(Cut);
+        moved[0] = 30;
+        Assert.Equal(ParametricStart.Flat, ParametricEq.StartFrom(Cut, moved, null, null));
+    }
+
+    [Fact]
+    public void APresetMadeParametricallyComesBackInThatForm()
+    {
+        var edited = ParametricEq.Fit(Cut);
+        edited[0] = 30;
+        Assert.Equal(ParametricStart.Reopen, ParametricEq.StartFrom(null, edited, Cut, ParametricEq.Fit(Cut)));
+    }
+
+    [Fact]
+    public void WhatWasSetAsideComesBeforeThePreset()
+    {
+        Adjustment[] unsaved = [new Adjustment(1000, 40, 20)];
+        Assert.Equal(ParametricStart.Resume,
+            ParametricEq.StartFrom(unsaved, ParametricEq.Fit(unsaved), Cut, ParametricEq.Fit(Cut)));
+    }
+
+    [Fact]
+    public void StoredAdjustmentsThatNoLongerFitThePresetAreIgnored() =>
+        Assert.Equal(ParametricStart.Flat, ParametricEq.StartFrom(null, Flat, Cut, BassBoost));
+
+    [Fact]
+    public void APresetMadeWithTheBandsStartsFlat() =>
+        Assert.Equal(ParametricStart.Flat, ParametricEq.StartFrom(null, Flat, null, BassBoost));
+
     [Fact]
     public void OnlyTheGameBankIsParametric()
     {
