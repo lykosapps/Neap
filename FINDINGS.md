@@ -9,7 +9,7 @@ one Windows 11 PC, unless marked:
 - *(research)*: from Turtle Beach's documentation, Swarm II's files, or other
   public sources.
 
-The settings registry in `dotnet/StealthPro.Core/Settings/Registry.cs` is the
+The settings registry in `src/Neap.Core/Settings/Registry.cs` is the
 authoritative list of keys. This document explains them.
 
 ## Contents
@@ -655,7 +655,7 @@ while capturing its USB traffic.
    `USBPcapCMD.exe -d \\.\USBPcap<n> -o out.pcap --devices <address> --inject-descriptors`.
    `tools/capture.ps1 -Interface <n> -Device <address>` wraps this, and its
    help says how to find both.
-3. Decode it with the probe: `StealthPro.Probe decode out.pcap` prints every
+3. Decode it with the probe: `Neap.Probe decode out.pcap` prints every
    command and reply, naming the keys already in the registry.
 
 Swarm II's own files are worth reading before capturing: its catalogue

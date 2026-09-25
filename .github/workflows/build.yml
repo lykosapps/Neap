@@ -24,13 +24,13 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore dotnet/StealthPro.sln
+        run: dotnet restore Neap.sln
 
       - name: Build
-        run: dotnet build dotnet/StealthPro.sln -c Release --no-restore -p:ContinuousIntegrationBuild=true
+        run: dotnet build Neap.sln -c Release --no-restore -p:ContinuousIntegrationBuild=true
 
       - name: Check formatting
-        run: dotnet format dotnet/StealthPro.sln --verify-no-changes --no-restore
+        run: dotnet format Neap.sln --verify-no-changes --no-restore
 
       - name: Check XAML formatting
         run: |
@@ -38,4 +38,4 @@ jobs:
           dotnet xstyler -p -f ((git ls-files '*.xaml') -join ',')
 
       - name: Test
-        run: dotnet test --project dotnet/StealthPro.Core.Tests -c Release --no-build
+        run: dotnet test --project tests/Neap.Core.Tests -c Release --no-build

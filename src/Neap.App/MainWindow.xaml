@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="Neap.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Neap.App.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tray="using:H.NotifyIcon"
+    mc:Ignorable="d">
+
+    <!--
+        Neap's own ground behind everything, title bar and menu included, in
+        place of Mica, which takes its tint from the desktop wallpaper. High
+        contrast uses the system's window colour.
+    -->
+    <Grid Background="{ThemeResource NeapGroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!--
+            The title bar carries the headset's connection state, the one
+            thing worth seeing from every tab; the readings are on Home.
+            Right-aligned, clear of the window buttons.
+        -->
+        <Grid x:Name="TitleBar" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!--
+                The app's mark beside its name, as Windows draws a title bar.
+                Decoration only: the name says it.
+            -->
+            <StackPanel
+                Grid.Column="0"
+                Margin="16,0,0,0"
+                Orientation="Horizontal"
+                Spacing="10">
+                <Image
+                    Width="16"
+                    Height="16"
+                    VerticalAlignment="Center"
+                    AutomationProperties.AccessibilityView="Raw"
+                    Source="ms-appx:///Assets/logo.png" />
+                <TextBlock
+                    x:Name="TitleText"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource CaptionTextBlockStyle}" />
+            </StackPanel>
+
+            <controls:HeadsetStatusStrip
+                x:Name="Status"
+                Grid.Column="2"
+                VerticalAlignment="Center" />
+        </Grid>
+
+        <NavigationView
+            x:Name="Nav"
+            Grid.Row="1"
+            CompactModeThresholdWidth="641"
+            ExpandedModeThresholdWidth="1008"
+            IsBackButtonVisible="Collapsed"
+            IsPaneOpen="False"
+            IsSettingsVisible="False"
+            IsTitleBarAutoPaddingEnabled="False"
+            OpenPaneLength="220"
+            PaneDisplayMode="Auto"
+            SelectionChanged="OnNavigate">
+            <!--  For the toolkit's settings rows; see Themes/Controls.xaml.  -->
+            <NavigationView.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceDictionary Source="ms-appx:///Themes/Controls.xaml" />
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </NavigationView.Resources>
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Uid="Main_NavHome" Tag="home">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE80F;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="Main_NavAudio" Tag="audio">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8D6;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="Main_NavMicrophone" Tag="mic">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE720;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="Main_NavControls" Tag="controls">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7FC;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Uid="Main_NavDevice" Tag="device">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE950;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem x:Uid="Main_NavSettings" Tag="settings">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+
+            <Frame x:Name="Body" />
+        </NavigationView>
+
+        <!--
+            Lives in the notification area so the chat wheel keeps working
+            with no window open. Closing the window hides it here rather
+            than stopping the mix.
+        -->
+        <tray:TaskbarIcon
+            x:Name="Tray"
+            IconSource="ms-appx:///Assets/app.ico"
+            NoLeftClickDelay="True">
+            <tray:TaskbarIcon.ContextFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem x:Name="TrayOpen" x:Uid="Main_TrayOpen" />
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem x:Name="TrayQuit" x:Uid="Main_TrayQuit" />
+                </MenuFlyout>
+            </tray:TaskbarIcon.ContextFlyout>
+        </tray:TaskbarIcon>
+    </Grid>
+</Window>
+

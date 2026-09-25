@@ -26,12 +26,12 @@ jobs:
           global-json-file: global.json
 
       - name: Test
-        run: dotnet test --project dotnet/StealthPro.Core.Tests -c Release
+        run: dotnet test --project tests/Neap.Core.Tests -c Release
 
       - name: Publish
         run: |
           $version = $env:TAG.TrimStart('v')
-          dotnet publish dotnet/StealthPro.App -c Release -r win-x64 -o publish `
+          dotnet publish src/Neap.App -c Release -r win-x64 -o publish `
             -p:Version=$version -p:ContinuousIntegrationBuild=true
 
       - name: Package
@@ -40,7 +40,7 @@ jobs:
           Copy-Item LICENSE, THIRD-PARTY-NOTICES.txt publish/
 
           # The Windows App SDK's own terms travel with its runtime.
-          [xml]$project = Get-Content dotnet/StealthPro.App/StealthPro.App.csproj
+          [xml]$project = Get-Content src/Neap.App/Neap.App.csproj
           $sdk = $project.Project.ItemGroup.PackageReference |
             Where-Object Include -eq 'Microsoft.WindowsAppSDK' | Select-Object -ExpandProperty Version
           $packages = (dotnet nuget locals global-packages --list) -replace '^global-packages:\s*', ''

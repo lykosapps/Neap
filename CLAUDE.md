@@ -13,7 +13,7 @@ preparing code for experienced reviewers.
   plain will do.
 - **Decisions live in Core.** Anything with a rule in it (connection state,
   routing, what a screen shows for a state, curve or dial maths) goes in
-  `StealthPro.Core` with xUnit tests. The app's screens only draw what Core
+  `Neap.Core` with xUnit tests. The app's screens only draw what Core
   decides. `StatusLook`, `RoutingCheck`, `TransmitterList` and `LinkTracker`
   are the pattern.
 - **Every write goes through the registry.** `Settings/Registry.cs` is the
@@ -63,8 +63,8 @@ preparing code for experienced reviewers.
 ## Commands
 
 ```
-dotnet build dotnet/StealthPro.sln -c Release
-dotnet test --project dotnet/StealthPro.Core.Tests -c Release
-dotnet format dotnet/StealthPro.sln --verify-no-changes
-dotnet publish dotnet/StealthPro.App -c Release
+dotnet build Neap.sln -c Release
+dotnet test --project tests/Neap.Core.Tests -c Release
+dotnet format Neap.sln --verify-no-changes
+dotnet publish src/Neap.App -c Release
 ```

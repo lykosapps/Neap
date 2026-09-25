@@ -75,7 +75,7 @@ anything.
 There are no downloadable builds yet. To build one:
 
 ```
-cd dotnet/StealthPro.App
+cd src/Neap.App
 dotnet publish -c Release -r win-x64
 ```
 
@@ -112,14 +112,13 @@ optional — the mix here works either way.
 
 ## The probe
 
-`StealthPro.Probe` is a console harness that talks to the headset without a
+`Neap.Probe` is a console harness that talks to the headset without a
 UI. It is how the protocol was worked out and it is still the fastest way to
 see what the hardware is actually saying:
 
 ```
-cd dotnet
-dotnet build StealthPro.Probe -c Release
-StealthPro.Probe/bin/Release/net10.0-windows/StealthPro.Probe.exe read
+dotnet build src/Neap.Probe -c Release
+src/Neap.Probe/bin/Release/net10.0-windows/Neap.Probe.exe read
 ```
 
 `devices`, `read`, `named`, `registry`, `presets`, `transmitters`, `json`,

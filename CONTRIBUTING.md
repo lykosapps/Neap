@@ -9,9 +9,9 @@ You need Windows 10 version 2004 or later and the .NET SDK version named in
 `global.json`.
 
 ```
-dotnet build dotnet/StealthPro.sln -c Release
-dotnet test --project dotnet/StealthPro.Core.Tests -c Release
-dotnet format dotnet/StealthPro.sln --verify-no-changes
+dotnet build Neap.sln -c Release
+dotnet test --project tests/Neap.Core.Tests -c Release
+dotnet format Neap.sln --verify-no-changes
 ```
 
 XAML is formatted by XAML Styler, installed as a tool of this repository. In

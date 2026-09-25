@@ -5,15 +5,15 @@ structural decision in this project.
 
 ## The projects
 
-- **`StealthPro.Core`** — the protocol, the settings registry, presets,
+- **`Neap.Core`** — the protocol, the settings registry, presets,
   Windows audio and the mix. No UI types at all, so the probe and the app get
   exactly the same behaviour.
-- **`StealthPro.App`** — Neap itself, the WinUI 3 application. The other
+- **`Neap.App`** — Neap itself, the WinUI 3 application. The other
   projects keep the headset's name because they are about the headset.
-- **`StealthPro.Probe`** — a console harness over the same core. It is how
+- **`Neap.Probe`** — a console harness over the same core. It is how
   the protocol was worked out and it is still the fastest way to ask the
   hardware a question.
-- **`StealthPro.Core.Tests`** — everything that can be checked without a
+- **`Neap.Core.Tests`** — everything that can be checked without a
   headset, against a scripted one.
 
 Both applications publish self-contained, so nothing has to be installed on
@@ -30,7 +30,7 @@ wake on motion, voice prompts. Every setting is in the registry,
 This needs **nothing installed** — no driver, no Turtle Beach software, no
 admin rights.
 
-See `StealthPro.Core/Hid/`, `Protocol/`, `Settings/` and `HeadsetClient.cs`.
+See `Neap.Core/Hid/`, `Protocol/`, `Settings/` and `HeadsetClient.cs`.
 
 ### The rule this half keeps breaking
 
@@ -79,7 +79,7 @@ endpoint to the game half. Nothing sits in the audio path.
 That means the only configuration is naming the chat application, and the app
 asks for it in one card.
 
-See `StealthPro.Core/Mix/SessionMix.cs`, which documents the measurements.
+See `Neap.Core/Mix/SessionMix.cs`, which documents the measurements.
 
 ### What this replaced, and why it is worth knowing
 

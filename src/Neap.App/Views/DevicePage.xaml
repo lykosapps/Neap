@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Neap.App.Views.DevicePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.App.Controls"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls">
+
+    <ScrollViewer
+        Padding="32,0,32,32"
+        HorizontalScrollBarVisibility="Disabled"
+        HorizontalScrollMode="Disabled">
+        <Grid>
+            <StackPanel Style="{StaticResource PageColumnStyle}">
+
+                <TextBlock x:Uid="Device_Title" Style="{StaticResource PageTitleStyle}" />
+
+                <c:HeadsetNotice />
+
+                <!--  Listed whenever anything answers, the headset on or off.  -->
+                <c:TransmittersPanel />
+
+                <!--
+                    With the headset off, the whole page is one card, the audio
+                    format included: see HeadsetSection.WhenOff.
+                -->
+                <c:HeadsetSection x:Uid="Device_Section" WhenOff="True">
+                    <TextBlock x:Uid="Device_AudioFormatHeading" Style="{StaticResource SectionHeaderStyle}" />
+                    <TextBlock x:Uid="Device_FormatNote" Style="{StaticResource SectionNoteStyle}" />
+                    <StackPanel Spacing="4">
+                        <c:FormatRow
+                            x:Uid="Device_HeadsetOutput"
+                            Capture="False"
+                            Glyph="&#xE7F5;" />
+                        <c:FormatRow
+                            x:Uid="Device_Microphone"
+                            Capture="True"
+                            Glyph="&#xE720;" />
+                    </StackPanel>
+
+                    <!--
+                        Firmware, serial number and everything the headset reports, looked
+                        up now and then, folded into one row at the end.
+                    -->
+                    <c:HeadsetSection x:Uid="Device_DetailsSection">
+                        <TextBlock x:Uid="Device_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
+                        <tk:SettingsExpander x:Uid="Device_Details">
+                            <tk:SettingsExpander.HeaderIcon>
+                                <FontIcon Glyph="&#xE950;" />
+                            </tk:SettingsExpander.HeaderIcon>
+                            <tk:SettingsExpander.Items>
+                                <c:SettingRow x:Uid="Device_Firmware" Setting="firmware_version" />
+                                <c:SettingRow x:Uid="Device_SerialNumber" Setting="serial_number" />
+                            </tk:SettingsExpander.Items>
+                            <tk:SettingsExpander.ItemsFooter>
+                                <StackPanel Padding="16,12" Spacing="6">
+                                    <TextBlock x:Uid="Device_ReportedHeading" Style="{StaticResource NeapLabelStyle}" />
+                                    <TextBlock
+                                        x:Uid="Device_RawNote"
+                                        Style="{StaticResource SecondaryCaptionTextStyle}"
+                                        TextWrapping="Wrap" />
+                                    <StackPanel x:Name="RawRows" Spacing="2" />
+                                </StackPanel>
+                            </tk:SettingsExpander.ItemsFooter>
+                        </tk:SettingsExpander>
+                    </c:HeadsetSection>
+                </c:HeadsetSection>
+
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>
+
+

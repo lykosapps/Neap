@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="Neap.App.Controls.SettingTile"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        A setting's tile, as on Home, with what only matters once it is on
+        laid out under it while it is on.
+    -->
+    <StackPanel Spacing="6">
+        <ToggleButton
+            x:Name="Face"
+            MinHeight="96"
+            IsEnabled="False"
+            Style="{StaticResource NeapToggleTileStyle}">
+            <Grid ColumnSpacing="14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <FontIcon
+                    x:Name="Icon"
+                    VerticalAlignment="Top"
+                    AutomationProperties.AccessibilityView="Raw"
+                    FontSize="22" />
+                <StackPanel
+                    Grid.Column="1"
+                    VerticalAlignment="Bottom"
+                    Spacing="2">
+                    <TextBlock x:Name="TitleText" Style="{StaticResource NeapTileTitleStyle}" />
+                    <TextBlock x:Name="DescriptionText" Style="{StaticResource NeapTileStateStyle}" />
+                </StackPanel>
+                <TextBlock
+                    x:Name="StateWord"
+                    Grid.Column="2"
+                    VerticalAlignment="Top"
+                    FontWeight="SemiBold"
+                    Style="{StaticResource NeapTileStateStyle}" />
+            </Grid>
+        </ToggleButton>
+        <ContentPresenter x:Name="InsideHost" Visibility="Collapsed" />
+    </StackPanel>
+</UserControl>

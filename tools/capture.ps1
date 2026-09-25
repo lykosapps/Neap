@@ -9,7 +9,7 @@ Start Swarm II and close Neap first: only one program can
 read the headset's replies at a time. Then operate the control you want to
 identify while the capture runs, and decode the result:
 
-    StealthPro.Probe decode <file.pcap>
+    Neap.Probe decode <file.pcap>
 
 Needs USBPcap (https://desowin.org/usbpcap/), installed and followed by a
 reboot, and an elevated PowerShell. To find the interface and device address,
