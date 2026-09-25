@@ -100,17 +100,20 @@ public sealed partial class SettingTile : UserControl
 
     private void Build(SettingKey key) => AutomationProperties.SetAutomationId(Face, key.Name);
 
+    /// <summary>What an on-or-off setting's tile says for its value: on, off, or a dash before the headset reports it.</summary>
+    internal static string Word(int? value) => value switch
+    {
+        null => Strings.Get("Reading_None"),
+        1 => Strings.Get("Switch_On"),
+        _ => Strings.Get("Switch_Off"),
+    };
+
     private void Paint()
     {
         int? value = _link.Value;
         Face.IsEnabled = value is not null && _link.Key is { Writable: true };
         Face.IsChecked = value == 1;
-        StateWord.Text = value switch
-        {
-            null => Strings.Get("Reading_None"),
-            1 => Strings.Get("Switch_On"),
-            _ => Strings.Get("Switch_Off"),
-        };
+        StateWord.Text = Word(value);
         InsideHost.Visibility = value == 1 ? Visibility.Visible : Visibility.Collapsed;
     }
 }

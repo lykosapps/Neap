@@ -949,6 +949,12 @@
   <data name="Quick_NoiseControl.Text" xml:space="preserve">
     <value>Noise control</value>
   </data>
+  <data name="Quick_ShhTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Superhuman Hearing</value>
+  </data>
+  <data name="Quick_Shh.Text" xml:space="preserve">
+    <value>Superhuman Hearing</value>
+  </data>
   <data name="Noise_Title" xml:space="preserve">
     <value>Noise control</value>
   </data>

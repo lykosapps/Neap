@@ -10,8 +10,8 @@ using Path = Microsoft.UI.Xaml.Shapes.Path;
 namespace Neap.App.Controls;
 
 /// <summary>
-/// The microphone, noise control and the equaliser preset, as tiles: the
-/// headset settings reached for mid-game or mid-call.
+/// The microphone, noise control, the equaliser preset and Superhuman
+/// Hearing, as tiles: the headset settings reached for mid-game or mid-call.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -31,6 +31,7 @@ public sealed partial class QuickSettings : UserControl
     private const double CurveWidth = 180, CurveHeight = 40;
     private const double ListCurveWidth = 72, ListCurveHeight = 22;
 
+    private readonly SettingLink _shh;
     private bool _painting;
 
     public QuickSettings()
@@ -38,6 +39,11 @@ public sealed partial class QuickSettings : UserControl
         InitializeComponent();
         NoiseWord.Text = Strings.Get("Reading_None");
         PresetName.Text = Strings.Get("Reading_None");
+        ShhWord.Text = Strings.Get("Reading_None");
+
+        _shh = new SettingLink(ShhTile, () => ShhSetting,
+            key => AutomationProperties.SetAutomationId(ShhTile, key.Name), PaintShh);
+        ShhTile.Click += (_, _) => _shh.Write(ShhTile.IsChecked == true ? 1 : 0);
 
         NoiseTile.Click += (_, _) =>
         {
@@ -77,6 +83,17 @@ public sealed partial class QuickSettings : UserControl
         NoiseTile.IsChecked = mode is not null and not NoiseMode.Off;
         NoiseWord.Text = mode is NoiseMode known ? Strings.Get(NoiseModeWord(known)) : Strings.Get("Reading_None");
         AutomationProperties.SetItemStatus(NoiseTile, NoiseWord.Text);
+    }
+
+    private const string ShhSetting = "superhuman_hearing";
+
+    private void PaintShh()
+    {
+        int? value = _shh.Value;
+        ShhTile.IsEnabled = value is not null && _shh.Key is { Writable: true };
+        ShhTile.IsChecked = value == 1;
+        ShhWord.Text = SettingTile.Word(value);
+        AutomationProperties.SetItemStatus(ShhTile, ShhWord.Text);
     }
 
     /// <summary>The resource naming a noise control mode.</summary>

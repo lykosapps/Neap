@@ -128,3 +128,5 @@ and date.
 - Settings sit where you'd look for them: auto shut-off and wake on motion
   on the Device page, voice prompts beside the volume on Audio, and the
   mix's keyboard shortcuts with the headset's controls on Controls.
+- Superhuman Hearing has a tile on Home, so it can be switched on mid-game
+  in one click.

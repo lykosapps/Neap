@@ -7,8 +7,9 @@
 
     <!--
         The headset's settings reached for mid-game or mid-call, as tiles:
-        the microphone and noise control side by side, and the
-        equaliser across the width under them, with its curve.
+        the microphone and noise control side by side, the equaliser
+        across the width under them with its curve, and Superhuman Hearing
+        across the width last.
     -->
     <Grid ColumnSpacing="12" RowSpacing="12">
         <Grid.ColumnDefinitions>
@@ -16,6 +17,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -119,5 +121,39 @@
                     Style="{StaticResource NeapMiniCurveStyle}" />
             </Grid>
         </Button>
+
+        <!--
+            The one Audio setting made for the middle of a game: footsteps
+            and quiet sounds. Its type and strength stay on Audio.
+        -->
+        <ToggleButton
+            x:Name="ShhTile"
+            x:Uid="Quick_ShhTile"
+            Grid.Row="2"
+            Grid.ColumnSpan="2"
+            IsEnabled="False"
+            Style="{StaticResource NeapToggleTileStyle}">
+            <Grid RowSpacing="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <FontIcon
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    AutomationProperties.AccessibilityView="Raw"
+                    FontSize="24"
+                    Glyph="&#xF270;" />
+                <TextBlock
+                    x:Uid="Quick_Shh"
+                    Grid.Row="1"
+                    Style="{StaticResource NeapTileTitleStyle}" />
+                <TextBlock
+                    x:Name="ShhWord"
+                    Grid.Row="2"
+                    Style="{StaticResource NeapTileStateStyle}" />
+            </Grid>
+        </ToggleButton>
     </Grid>
 </UserControl>
