@@ -36,8 +36,9 @@ internal static class Db
 /// </para>
 /// <para>
 /// A press anywhere in a band's column grabs that band, so a point does not
-/// have to be hit precisely. The value moves only once the pointer does, so a
-/// stray click changes nothing.
+/// have to be hit precisely. A drag moves it by the distance the pointer
+/// goes, from where it was, so a click or a twitch changes nothing; see
+/// <see cref="ResponseCurve.Dragged"/>.
 /// </para>
 /// </remarks>
 public sealed class EqualiserCurve : UserControl
@@ -60,6 +61,8 @@ public sealed class EqualiserCurve : UserControl
     private int[] _live = Array.Empty<int>();
     private int[]? _stored;
     private int _dragging = -1;
+    private double _pressedAt;
+    private int _pressed;
 
     public int Minimum { get; set; } = -90;
     public int Maximum { get; set; } = 90;
@@ -213,8 +216,6 @@ public sealed class EqualiserCurve : UserControl
 
     private double Y(double tenths) => ResponseCurve.Y(tenths, Minimum, Maximum, PlotTop, PlotBottom);
 
-    private int TenthsAt(double y) => ResponseCurve.TenthsAt(y, Minimum, Maximum, PlotTop, PlotBottom);
-
     private void Layout()
     {
         double width = _canvas.ActualWidth, height = _canvas.ActualHeight;
@@ -266,16 +267,18 @@ public sealed class EqualiserCurve : UserControl
     private void BeginDrag(int index, PointerRoutedEventArgs args)
     {
         _dragging = index;
+        _pressedAt = args.GetCurrentPoint(_canvas).Position.Y;
+        _pressed = index < _live.Length ? _live[index] : 0;
         _canvas.CapturePointer(args.Pointer);
         args.Handled = true;
     }
 
     private void OnPointerMoved(object sender, PointerRoutedEventArgs args)
     {
-        if (_dragging < 0) return;
-        // In the headset's own steps, so a drag between them raises nothing.
-        int tenths = PresetStore.Snap(TenthsAt(args.GetCurrentPoint(_canvas).Position.Y));
-        if (_dragging < _live.Length && _live[_dragging] == tenths) return;
+        if (_dragging < 0 || _dragging >= _live.Length) return;
+        double down = args.GetCurrentPoint(_canvas).Position.Y - _pressedAt;
+        int tenths = ResponseCurve.Dragged(_pressed, down, Minimum, Maximum, PlotBottom - PlotTop);
+        if (_live[_dragging] == tenths) return;
         BandChanged?.Invoke(_dragging, tenths);
     }
 

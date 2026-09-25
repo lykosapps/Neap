@@ -1,8 +1,8 @@
 namespace Neap.Core.Presets;
 
 /// <summary>
-/// The equaliser plot's maths: where a band sits, which value a height
-/// means, and the tangents of the smooth line through the bands.
+/// The equaliser plot's maths: where a band sits, how a drag moves it,
+/// and the tangents of the smooth line through the bands.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -31,12 +31,29 @@ public static class ResponseCurve
         return top + t * (bottom - top);
     }
 
-    /// <summary>The value at a height, rounded to a tenth and held inside the range.</summary>
-    public static int TenthsAt(double y, int minimum, int maximum, double top, double bottom)
+    /// <summary>How far, in pixels, the pointer has to move before a press on a point becomes a drag.</summary>
+    public const double DragThreshold = 4;
+
+    /// <summary>
+    /// Where a dragged band goes: moved by how far the pointer has gone since
+    /// the press, from where it was, in the headset's steps.
+    /// </summary>
+    /// <remarks>
+    /// Moved by the distance, not put under the pointer: a press anywhere in
+    /// a band's column grabs it, so putting it under the pointer would throw
+    /// it off its value at the first twitch. A movement too small to mean a
+    /// drag leaves it alone.
+    /// </remarks>
+    /// <param name="start">The band's value when pressed, in tenths.</param>
+    /// <param name="down">Pixels moved down since the press.</param>
+    /// <param name="minimum">The plot's lowest value, in tenths.</param>
+    /// <param name="maximum">The plot's highest value, in tenths.</param>
+    /// <param name="height">The plot's height, in pixels.</param>
+    public static int Dragged(int start, double down, int minimum, int maximum, double height)
     {
-        double height = bottom - top;
-        double t = height <= 0 ? 0 : (y - top) / height;
-        return (int)Math.Round(Math.Clamp(maximum - t * (maximum - minimum), minimum, maximum));
+        if (Math.Abs(down) < DragThreshold || height <= 0) return start;
+        int moved = PresetStore.Snap((int)Math.Round(start - down * (maximum - minimum) / height));
+        return Math.Clamp(moved, minimum, maximum);
     }
 
     /// <summary>The tangent at each point, for a cubic through them that never overshoots.</summary>

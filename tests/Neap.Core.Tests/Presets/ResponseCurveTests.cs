@@ -11,13 +11,24 @@ public class ResponseCurveTests
     public void TheRangeFillsThePlotTopToBottom(int tenths, double y) =>
         Assert.Equal(y, ResponseCurve.Y(tenths, -90, 90, 10, 110), 6);
 
-    [Theory]
-    [InlineData(10, 90)]
-    [InlineData(60, 0)]
-    [InlineData(0, 90)]
-    [InlineData(200, -90)]
-    public void AHeightMeansAValueHeldInsideTheRange(double y, int tenths) =>
-        Assert.Equal(tenths, ResponseCurve.TenthsAt(y, -90, 90, 10, 110));
+    [Fact]
+    public void APressWithoutAMoveLeavesTheBandWhereItIs()
+    {
+        Assert.Equal(-82, ResponseCurve.Dragged(-82, 0, -90, 90, 180));
+        Assert.Equal(-82, ResponseCurve.Dragged(-82, 3, -90, 90, 180));
+    }
+
+    [Fact]
+    public void ADragMovesTheBandByTheDistanceInSteps()
+    {
+        // 180 pixels span 18 dB, so 20 pixels up is 2 dB.
+        Assert.Equal(40, ResponseCurve.Dragged(20, -20, -90, 90, 180));
+        Assert.Equal(0, ResponseCurve.Dragged(20, -7, -90, 90, 180) % PresetStore.BandStep);
+    }
+
+    [Fact]
+    public void ADraggedBandStaysInsideTheRange() =>
+        Assert.Equal(90, ResponseCurve.Dragged(80, -100, -90, 90, 180));
 
     [Fact]
     public void EachBandSitsInTheMiddleOfItsColumn()

@@ -360,9 +360,6 @@ public static class ParametricEq
         width * Math.Log(frequency / Adjustment.LowestFrequency)
               / Math.Log((double)Adjustment.HighestFrequency / Adjustment.LowestFrequency);
 
-    /// <summary>How far, in pixels, the pointer has to move before a press on a point becomes a drag.</summary>
-    public const double DragThreshold = 4;
-
     /// <summary>
     /// Where a dragged adjustment goes: moved by how far the pointer has gone
     /// since the press, from where it was, with its gain in the headset's steps.
@@ -383,7 +380,8 @@ public static class ParametricEq
     public static Adjustment Dragged(Adjustment start, double across, double down,
         double width, double height, int range)
     {
-        if (Math.Sqrt(across * across + down * down) < DragThreshold || width <= 0 || height <= 0) return start;
+        if (Math.Sqrt(across * across + down * down) < ResponseCurve.DragThreshold || width <= 0 || height <= 0)
+            return start;
         int frequency = FrequencyAt(X(start.Frequency, width) + across, width);
         int gain = PresetStore.Snap((int)Math.Round(start.Gain - down * 2 * range / height));
         return (start with { Frequency = frequency, Gain = gain }).Held();
