@@ -92,6 +92,16 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - A trademark search for the name.
 - Screen checks pull Neap to the front, so they can't run while someone uses
   the machine.
+- Pretend mode can't show spatial sound, a missing Dolby licence or a second
+  transmitter, so a change to any of those can only be checked on the headset.
+- Pretend mode moves an old settings folder in the real app folder before it
+  switches to its own.
+- A second pretend copy wakes the first and brings it forward, even with
+  `--behind`, so only one can run at a time.
+- Pretend mode has no high-contrast option, and the screen check never uses
+  the spatial sound tile.
+- The formatting check before each commit isn't switched on on the owner's
+  machine.
 
 ## Smaller code items
 
@@ -100,6 +110,11 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - The band view draws a smooth line through the ten gains, not what plays.
   Neighbouring bands overlap, so ten bands at +9 dB play about +13.5 dB.
   The parametric view already draws what plays.
+- The headset's connection handle has no safety net if it is ever dropped
+  without being closed. Needs the headset.
+- Documentation comments aren't checked by the build, which lets unused
+  imports and half-documented methods through.
+- The Windows system calls don't say where their libraries are loaded from.
 
 ## Last in line
 
