@@ -191,7 +191,7 @@
             </Grid>
         </ToggleButton>
 
-        <!--  Windows' spatial sound on the headset: a Windows setting, reached from Home like the others.  -->
+        <!--  Windows' spatial sound on the headset: also on Audio, same as the equaliser's picker above.  -->
         <c:SpatialTile Grid.Row="2" Grid.Column="1" />
     </Grid>
 </UserControl>

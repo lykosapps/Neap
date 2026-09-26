@@ -59,8 +59,9 @@ and date.
 
 ### Also in Neap
 
-- **Spatial sound** as a tile on Home: off, Windows Sonic, and Dolby Atmos
-  where it's installed. The Stealth Pro II carries a Dolby Atmos
+- **Spatial sound**, as a tile on Home and on the Audio page: off, Windows
+  Sonic, and Dolby Atmos where it's installed. The Stealth Pro II carries a
+  Dolby Atmos
   licence; Neap says what activating it takes, which is the headset's Dolby
   Atmos driver (installed by Swarm II) and the Dolby Access app. While
   Dolby Atmos is on, Neap says to turn off the equaliser in the Dolby

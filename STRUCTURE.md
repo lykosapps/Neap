@@ -9,8 +9,8 @@ Who it's for: see [USERS.md](USERS.md).
   balance, and quick settings. What opens first; serves the at-a-glance check
   and the mix, the two most frequent tasks.
 - **Audio** — the game equaliser, noise cancellation/transparency/off with
-  Superhuman Hearing, and master and voice-prompt volume. Serves EQ and noise
-  control.
+  Superhuman Hearing, master and voice-prompt volume, and Windows' spatial
+  sound format. Serves EQ, noise control, and Windows-level audio format.
 - **Microphone** — mic on/off with a live meter, sensitivity, monitoring, AI
   noise reduction, the noise gate, and the microphone equaliser. Serves
   microphone settings.

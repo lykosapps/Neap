@@ -81,6 +81,14 @@
                                 Setting="voice_prompt_volume" />
                         </c:HeadsetSection>
                     </c:SideBySide>
+
+                    <!--
+                        Windows' spatial sound for the headset: also a Windows
+                        setting, kept beside Home's shortcut to it rather than
+                        only reachable from there. Same tile as Home's, so the
+                        two can never say something different.
+                    -->
+                    <c:SpatialTile />
                 </c:HeadsetSection>
 
             </StackPanel>
