@@ -58,7 +58,10 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - **Spatial sound.** From Home, choose Dolby Atmos: it switches on and is
   heard, or, unlicensed, the dialog opens Dolby Access. Windows Sonic and
   off work too. A game using Dolby's positional sound still follows the
-  mix.
+  mix. With both transmitters plugged in, choose a format, press CrossPlay,
+  and it should carry to the other one rather than silently reverting to
+  off; only proven in reasoning, since a pretend run cannot plug in a
+  second transmitter.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
 - **Two chat apps at once**, Discord and Teams say: both follow the chat

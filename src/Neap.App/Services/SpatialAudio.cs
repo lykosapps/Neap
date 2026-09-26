@@ -5,7 +5,12 @@ using Windows.Media.Audio;
 namespace Neap.App.Services;
 
 /// <summary>The spatial formats on offer for the headset and the one on, or why there are none.</summary>
-public sealed record SpatialPanel(IReadOnlyList<SpatialFormat> Offered, SpatialFormat? Active, string? Trouble)
+/// <param name="EndpointId">
+/// Which of the headset's endpoints this is, so a caller can tell a real
+/// transmitter switch from a re-read of the same one; null when unavailable.
+/// </param>
+public sealed record SpatialPanel(
+    IReadOnlyList<SpatialFormat> Offered, SpatialFormat? Active, string? Trouble, string? EndpointId = null)
 {
     public static SpatialPanel Unavailable(string trouble) => new([], null, trouble);
 }
@@ -27,21 +32,26 @@ public static class SpatialAudio
     /// <summary>The device interface class Windows gives every audio output.</summary>
     private const string RenderInterface = "{e6327cad-dcec-4949-ae8a-991e976a79d2}";
 
+    /// <remarks>
+    /// A pretend run has one endpoint and cannot simulate a second
+    /// transmitter, so <see cref="SpatialPanel.EndpointId"/> never changes.
+    /// </remarks>
     public static Task<SpatialPanel> Read() => Task.Run(() =>
     {
         if (Pretend.Windows is { } windows)
             return new SpatialPanel(SpatialSound.Offered(PretendWindows.SpatialSupported),
-                SpatialSound.Of(windows.Spatial), null);
+                SpatialSound.Of(windows.Spatial), null, PretendWindows.OutputName);
         try
         {
-            if (Configuration() is not { } configuration)
+            string? id = AudioEndpoints.HeadsetId(Flow.Output);
+            if (id is null || Configuration(id) is not { } configuration)
                 return SpatialPanel.Unavailable(Strings.Get("Spatial_NoHeadset"));
             if (!configuration.IsSpatialAudioSupported)
                 return SpatialPanel.Unavailable(Strings.Get("Spatial_NotSupported"));
             return new SpatialPanel(
                 SpatialSound.Offered(subtype => configuration.IsSpatialAudioFormatSupported(Text(subtype))),
                 SpatialSound.Of(Guid.TryParse(configuration.ActiveSpatialAudioFormat, out var active) ? active : Guid.Empty),
-                null);
+                null, id);
         }
         catch (Exception ex)
         {
@@ -56,7 +66,8 @@ public static class SpatialAudio
         if (Pretend.Windows is { } windows) return windows.SetSpatial(subtype);
         try
         {
-            var configuration = await Task.Run(Configuration);
+            var configuration = await Task.Run(() =>
+                AudioEndpoints.HeadsetId(Flow.Output) is { } id ? Configuration(id) : null);
             if (configuration is null) return SpatialResult.NotSupportedOnAudioEndpoint;
             var result = await configuration.SetDefaultSpatialAudioFormatAsync(Text(subtype));
             return result.Status switch
@@ -76,11 +87,9 @@ public static class SpatialAudio
         }
     }
 
-    /// <summary>The headset's spatial configuration, or null when the headset is not there.</summary>
-    private static SpatialAudioDeviceConfiguration? Configuration() =>
-        AudioEndpoints.HeadsetId(Flow.Output) is { } id
-            ? SpatialAudioDeviceConfiguration.GetForDeviceId($@"\\?\SWD#MMDEVAPI#{id}#{RenderInterface}")
-            : null;
+    /// <summary>The spatial configuration for one of the headset's endpoints.</summary>
+    private static SpatialAudioDeviceConfiguration Configuration(string endpointId) =>
+        SpatialAudioDeviceConfiguration.GetForDeviceId($@"\\?\SWD#MMDEVAPI#{endpointId}#{RenderInterface}");
 
     /// <summary>A format as Windows writes it: the identifier in braces.</summary>
     private static string Text(Guid subtype) => subtype.ToString("B").ToUpperInvariant();

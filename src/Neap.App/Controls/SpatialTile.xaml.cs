@@ -25,6 +25,15 @@ namespace Neap.App.Controls;
 /// Access activates only with the headset's Dolby Atmos driver installed,
 /// and Swarm II is what installs it; the dialog says so.
 /// </para>
+/// <para>
+/// The two transmitters are two separate Windows endpoints, so a format
+/// chosen on one is not there on the other; see
+/// <see cref="SpatialCarryOver"/>. Pressing CrossPlay would otherwise look
+/// like it silently turned Dolby Atmos off. The last format seen active is
+/// carried to a newly seen endpoint that does not already show it, through
+/// the same dialogs as choosing it by hand, so a licence problem on the new
+/// endpoint still says so rather than failing quietly.
+/// </para>
 /// </remarks>
 public sealed partial class SpatialTile : UserControl
 {
@@ -32,6 +41,8 @@ public sealed partial class SpatialTile : UserControl
     private const string DtsSoundUnbound = "ms-windows-store://pdp/?productid=9PJ0NKL8MCSJ";
 
     private bool _painting;
+    private string? _knownEndpointId;
+    private SpatialFormat? _known;
 
     public SpatialTile()
     {
@@ -44,7 +55,7 @@ public sealed partial class SpatialTile : UserControl
         {
             if (_painting || FormatList.SelectedItem is not ListViewItem { Tag: SpatialFormat wanted }) return;
             FormatFlyout.Hide();
-            await Apply(wanted);
+            await Choose(wanted);
         };
 
         Loaded += async (_, _) =>
@@ -60,6 +71,22 @@ public sealed partial class SpatialTile : UserControl
     private async Task Load()
     {
         var panel = await SpatialAudio.Read();
+
+        if (panel.EndpointId is { } id
+            && SpatialCarryOver.ShouldCarryOver(_knownEndpointId, id, _known, panel.Active)
+            && panel.Offered.Contains(_known!.Value))
+        {
+            await ApplyAndHandle(_known.Value);
+            panel = await SpatialAudio.Read();
+        }
+
+        Paint(panel);
+
+        if (panel.EndpointId is { } seen) { _knownEndpointId = seen; _known = panel.Active; }
+    }
+
+    private void Paint(SpatialPanel panel)
+    {
         _painting = true;
         try
         {
@@ -86,7 +113,14 @@ public sealed partial class SpatialTile : UserControl
         finally { _painting = false; }
     }
 
-    private async Task Apply(SpatialFormat wanted)
+    /// <summary>The person choosing a format from the flyout, as opposed to it being carried to a new endpoint.</summary>
+    private async Task Choose(SpatialFormat wanted)
+    {
+        await ApplyAndHandle(wanted);
+        await Load();
+    }
+
+    private async Task ApplyAndHandle(SpatialFormat wanted)
     {
         var result = await SpatialAudio.Apply(wanted);
         switch (SpatialSound.NoteFor(result))
@@ -99,7 +133,6 @@ public sealed partial class SpatialTile : UserControl
                 await Complain(wanted);
                 break;
         }
-        await Load();
     }
 
     private async Task AskToActivate(SpatialFormat format)
