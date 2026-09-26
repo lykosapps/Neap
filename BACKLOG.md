@@ -19,6 +19,15 @@ None open.
 
 - **Profiles.** Save and apply a set of settings, switch automatically when
   an app starts, and switch with hotkeys.
+- **Dolby Access's own profiles from Neap.** Offer Dolby Access's profiles
+  (Game, Movie, Music, Voice) from Neap, and turn each one's own equaliser
+  off when it's chosen, so it never doubles up with the headset's own.
+  Confirmed each profile keeps its own equaliser value, so this is worth
+  building. Parked for now: no public way in from an unpackaged app, and
+  the one working method needs a Windows permission this machine currently
+  refuses even to an administrator. Neap currently only asks the person to
+  turn Dolby Access's equaliser off themselves, wherever Dolby Atmos is
+  offered.
 - **Superhuman Hearing's type as buttons** rather than a drop-down, as the
   Mode button's jobs are shown.
 - **Quick panel from the taskbar.** A small panel for mid-game controls (mix,

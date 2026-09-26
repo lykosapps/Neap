@@ -1260,4 +1260,7 @@
   <data name="Spatial_DolbyNotActivated" xml:space="preserve">
     <value>Activate the headset's licence in the Dolby Access app, then choose Dolby Atmos again. The licence needs the headset's Dolby Atmos driver, which Swarm II installs.</value>
   </data>
+  <data name="Spatial_DolbyEqualizerNote" xml:space="preserve">
+    <value>Turn off the equaliser in the Dolby Access app, so it doesn't double up with the headset's own.</value>
+  </data>
 </root>

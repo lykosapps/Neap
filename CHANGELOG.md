@@ -58,7 +58,9 @@ and date.
 - **Spatial sound** as a tile on Home: off, Windows Sonic, and Dolby Atmos
   or DTS where they are installed. The Stealth Pro II carries a Dolby Atmos
   licence; Neap says what activating it takes, which is the headset's Dolby
-  Atmos driver (installed by Swarm II) and the Dolby Access app. Choosing a
+  Atmos driver (installed by Swarm II) and the Dolby Access app. While
+  Dolby Atmos is on, Neap says to turn off the equaliser in the Dolby
+  Access app, so it doesn't double up with the headset's own. Choosing a
   format follows the headset from one transmitter to the other, since
   Windows otherwise keeps it on the transmitter it was chosen on. Changing
   it from Sound settings itself, while Home is open, is picked up straight

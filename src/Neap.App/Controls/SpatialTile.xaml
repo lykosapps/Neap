@@ -28,6 +28,12 @@
                         Style="{StaticResource SecondaryCaptionTextStyle}"
                         TextWrapping="Wrap"
                         Visibility="Collapsed" />
+                    <!--  Dolby Access has its own equaliser, which can double up with the headset's; see EqualizerNote below.  -->
+                    <TextBlock
+                        x:Name="EqualizerNote"
+                        Style="{StaticResource SecondaryCaptionTextStyle}"
+                        TextWrapping="Wrap"
+                        Visibility="Collapsed" />
                 </StackPanel>
             </Flyout>
         </Button.Flyout>

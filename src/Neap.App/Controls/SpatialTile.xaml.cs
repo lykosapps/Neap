@@ -39,6 +39,11 @@ namespace Neap.App.Controls;
 /// by watching the current endpoint for it, rather than waiting for the
 /// headset to connect or disconnect.
 /// </para>
+/// <para>
+/// Dolby Access has its own equaliser, which Neap cannot see or change, so
+/// while Dolby Atmos is on the flyout says to turn it off there, rather
+/// than let it silently double up with the headset's own equaliser.
+/// </para>
 /// </remarks>
 public sealed partial class SpatialTile : UserControl
 {
@@ -136,6 +141,13 @@ public sealed partial class SpatialTile : UserControl
             bool needsDriver = panel.Offered.Count > 0 && !panel.Offered.Contains(SpatialFormat.DolbyAtmos);
             DriverNote.Text = needsDriver ? Strings.Get("Spatial_DolbyNeedsDriver") : "";
             DriverNote.Visibility = needsDriver ? Visibility.Visible : Visibility.Collapsed;
+
+            // Dolby Access has its own equaliser, separate from the
+            // headset's; say so while Dolby Atmos is on, since it is easy
+            // to end up with both applying an equaliser at once.
+            bool dolbyOn = panel.Active == SpatialFormat.DolbyAtmos;
+            EqualizerNote.Text = dolbyOn ? Strings.Get("Spatial_DolbyEqualizerNote") : "";
+            EqualizerNote.Visibility = dolbyOn ? Visibility.Visible : Visibility.Collapsed;
         }
         finally { _painting = false; }
     }
