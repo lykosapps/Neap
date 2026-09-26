@@ -9,21 +9,22 @@ namespace Neap.App.Controls;
 
 /// <summary>
 /// Windows' spatial sound for the headset, as a tile on Home: off, Windows
-/// Sonic, or whichever of Dolby Atmos and DTS this PC has installed.
+/// Sonic, or Dolby Atmos where this PC has it installed.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Only what Windows says the headset supports is offered, and the tile is
 /// re-read after every change rather than trusting it took, and whenever the
 /// headset connects or disconnects, since that changes what Windows offers.
+/// DTS is left out even where Windows offers it; see <see cref="SpatialSound"/>.
 /// </para>
 /// <para>
-/// Dolby Atmos and DTS each need a licence Windows does not report until the
-/// format is chosen. When it is missing, a dialog names the app that
-/// activates it and opens that app's Store page, which starts it when it is
-/// installed. The Stealth Pro II carries a Dolby Atmos licence, which Dolby
-/// Access activates only with the headset's Dolby Atmos driver installed,
-/// and Swarm II is what installs it; the dialog says so.
+/// Dolby Atmos needs a licence Windows does not report until the format is
+/// chosen. When it is missing, a dialog names Dolby Access and opens its
+/// Store page, which starts it when it is installed. The Stealth Pro II
+/// carries a Dolby Atmos licence, which Dolby Access activates only with the
+/// headset's Dolby Atmos driver installed, and Swarm II is what installs
+/// it; the dialog says so.
 /// </para>
 /// <para>
 /// The two transmitters are two separate Windows endpoints, so a format
@@ -48,7 +49,6 @@ namespace Neap.App.Controls;
 public sealed partial class SpatialTile : UserControl
 {
     private const string DolbyAccess = "ms-windows-store://pdp/?productid=9N0866FS04W8";
-    private const string DtsSoundUnbound = "ms-windows-store://pdp/?productid=9PJ0NKL8MCSJ";
 
     private bool _painting;
     private string? _knownEndpointId;
@@ -176,19 +176,18 @@ public sealed partial class SpatialTile : UserControl
 
     private async Task AskToActivate(SpatialFormat format)
     {
-        bool dolby = format == SpatialFormat.DolbyAtmos;
-        string app = Strings.Get(dolby ? "Spatial_DolbyApp" : "Spatial_DtsApp");
+        string app = Strings.Get("Spatial_DolbyApp");
         var answer = await new NeapDialog
         {
             XamlRoot = XamlRoot,
             Title = Strings.Format("Spatial_NotActivatedTitle", Label(format)),
-            Content = dolby ? Strings.Get("Spatial_DolbyNotActivated") : Strings.Format("Spatial_NotActivated", app),
+            Content = Strings.Get("Spatial_DolbyNotActivated"),
             PrimaryButtonText = Strings.Format("Spatial_OpenApp", app),
             CloseButtonText = Strings.Get("Dialog_Cancel"),
             DefaultButton = ContentDialogButton.Primary,
         }.ShowAsync();
         if (answer == ContentDialogResult.Primary)
-            await Windows.System.Launcher.LaunchUriAsync(new Uri(dolby ? DolbyAccess : DtsSoundUnbound));
+            await Windows.System.Launcher.LaunchUriAsync(new Uri(DolbyAccess));
     }
 
     private async Task Complain(SpatialFormat format) => await new NeapDialog
@@ -203,8 +202,6 @@ public sealed partial class SpatialTile : UserControl
     {
         SpatialFormat.WindowsSonic => Strings.Get("Spatial_WindowsSonic"),
         SpatialFormat.DolbyAtmos => Strings.Get("Spatial_DolbyAtmos"),
-        SpatialFormat.DtsHeadphoneX => Strings.Get("Spatial_DtsHeadphoneX"),
-        SpatialFormat.DtsXUltra => Strings.Get("Spatial_DtsXUltra"),
         _ => Strings.Get("Spatial_Off"),
     };
 }

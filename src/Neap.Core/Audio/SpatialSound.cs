@@ -6,8 +6,6 @@ public enum SpatialFormat
     Off,
     WindowsSonic,
     DolbyAtmos,
-    DtsHeadphoneX,
-    DtsXUltra,
 }
 
 /// <summary>What Windows answered when asked to change the spatial format.</summary>
@@ -37,9 +35,11 @@ public enum SpatialNote
 /// <summary>Which spatial formats to offer for the headset, and what a change's result means.</summary>
 /// <remarks>
 /// <para>
-/// Only the headphone formats are offered. Windows also lists Dolby Atmos
-/// and DTS:X for home theatre and speakers on a headset, where they render
-/// for speakers nobody is wearing.
+/// Only Dolby Atmos for headphones is offered, not the speaker or home
+/// theatre renderings Windows also lists under the same name for
+/// hardware nobody is wearing. DTS is left out entirely: Windows would
+/// offer it the same way, but nobody has confirmed it does anything on
+/// this headset.
 /// </para>
 /// <para>
 /// Windows says whether a format is installed, not whether it is licensed:
@@ -55,12 +55,9 @@ public static class SpatialSound
     {
         [SpatialFormat.WindowsSonic] = new("B53D940C-B846-4831-9F76-D102B9B725A0"),
         [SpatialFormat.DolbyAtmos] = new("1459AC38-3875-49BF-BB59-0FE80F4D395D"),
-        [SpatialFormat.DtsHeadphoneX] = new("4444ACB0-8DC0-4C2C-A0D8-2C76DB470F86"),
-        [SpatialFormat.DtsXUltra] = new("ADAFD3C6-AC4C-404A-836A-9615E9060564"),
     };
 
-    private static readonly SpatialFormat[] Order =
-        [SpatialFormat.WindowsSonic, SpatialFormat.DolbyAtmos, SpatialFormat.DtsHeadphoneX, SpatialFormat.DtsXUltra];
+    private static readonly SpatialFormat[] Order = [SpatialFormat.WindowsSonic, SpatialFormat.DolbyAtmos];
 
     /// <summary>Off, then each headphone format Windows says the headset supports, in a fixed order.</summary>
     public static IReadOnlyList<SpatialFormat> Offered(Func<Guid, bool> supported) =>
