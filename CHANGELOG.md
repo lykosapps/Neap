@@ -163,3 +163,7 @@ and date.
   again in a narrow window.
 - The menu has a solid background when a narrow window turns it into a
   pop-out, instead of showing the page through it.
+- The chat apps a game's mix can draw on were ticked with the same round
+  mark as an exclusive choice like noise control, so picking a second app
+  looked like it should replace the first. They now tick with a checkbox's
+  square mark.
