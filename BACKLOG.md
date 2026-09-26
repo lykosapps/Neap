@@ -100,8 +100,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   `--behind`, so only one can run at a time.
 - Pretend mode has no high-contrast option, and the screen check never uses
   the spatial sound tile.
-- The formatting check before each commit isn't switched on on the owner's
-  machine.
 
 ## Smaller code items
 
