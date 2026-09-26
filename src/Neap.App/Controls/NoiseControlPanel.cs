@@ -29,8 +29,13 @@ public sealed class NoiseControlPanel : UserControl
 {
     private static readonly NoiseMode[] Modes = [NoiseMode.Cancelling, NoiseMode.Transparency, NoiseMode.Off];
 
+    /// <summary>The corner radius <see cref="QuickCardStyle"/> gives the card, so its bottom can be squared to meet the drawer.</summary>
+    private static readonly CornerRadius CardRadius = new(16);
+    private static readonly CornerRadius CardRadiusOverDrawer = new(16, 16, 0, 0);
+
     private readonly RadioButtons _modes = new() { IsEnabled = false };
     private readonly SettingRow _blocking;
+    private readonly Border _card;
     private readonly Border _drawer;
     private bool _painting;
     private bool _listening;
@@ -71,17 +76,19 @@ public sealed class NoiseControlPanel : UserControl
         _drawer = new Border
         {
             Style = (Style)Application.Current.Resources["NeapDrawerStyle"],
+            CornerRadius = new CornerRadius(0, 0, 16, 16),
             Child = _blocking,
             Visibility = Visibility.Collapsed,
         };
-        var card = new Border
+        _card = new Border
         {
             Style = (Style)Application.Current.Resources["QuickCardStyle"],
+            CornerRadius = CardRadius,
             Child = new StackPanel { Spacing = 8, Children = { title, description, _modes } },
         };
-        Canvas.SetZIndex(card, 1);
+        Canvas.SetZIndex(_card, 1);
 
-        Content = new StackPanel { Children = { card, _drawer } };
+        Content = new StackPanel { Children = { _card, _drawer } };
 
         Loaded += (_, _) =>
         {
@@ -114,6 +121,8 @@ public sealed class NoiseControlPanel : UserControl
                 button.IsChecked = button.Tag is NoiseMode shown && shown == mode;
         }
         finally { _painting = false; }
-        _drawer.Visibility = mode == NoiseMode.Cancelling ? Visibility.Visible : Visibility.Collapsed;
+        bool open = mode == NoiseMode.Cancelling;
+        _drawer.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+        _card.CornerRadius = open ? CardRadiusOverDrawer : CardRadius;
     }
 }

@@ -16,6 +16,10 @@ namespace Neap.App.Controls;
 /// </remarks>
 public sealed partial class MixKeysPanel : UserControl
 {
+    /// <summary>The card's own corner radius, from ControlCornerRadius, so its bottom can be squared to meet the drawer.</summary>
+    private static readonly CornerRadius CardRadius = new(8);
+    private static readonly CornerRadius CardRadiusOverDrawer = new(8, 8, 0, 0);
+
     private MixKey? _capturing;
     private bool _painting;
 
@@ -118,6 +122,7 @@ public sealed partial class MixKeysPanel : UserControl
         KeysOn.IsOn = AppServices.Hotkeys.Enabled;
         _painting = false;
         KeyRows.Visibility = KeysOn.IsOn ? Visibility.Visible : Visibility.Collapsed;
+        KeysCard.CornerRadius = KeysOn.IsOn ? CardRadiusOverDrawer : CardRadius;
     }
 
     private static void Show(Button button, CommunityToolkit.WinUI.Controls.SettingsCard row, MixKey which)

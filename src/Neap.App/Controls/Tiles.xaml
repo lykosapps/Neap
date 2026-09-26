@@ -361,19 +361,21 @@
     </Style>
 
     <!--
-        What a switch reveals, pulled out from under the tile or card it
-        belongs to like a drawer: a little narrower, its top tucked under
-        that edge and its bottom corners rounded, so it reads as part of the
-        switch rather than a setting of its own. Whatever it hangs from is
-        drawn over it (Canvas.ZIndex), so the join is that edge.
+        What a switch or a card reveals: the same width as what it hangs
+        from, its top drawn flush against that card's own bottom edge so the
+        two read as one card split by a rule, not two stacked ones. The
+        control that owns it squares its own bottom corners to match while
+        this is showing, and restores them once it is hidden; the corner
+        radius here is the default control radius, so a card in
+        QuickCardStyle's wider radius sets this one to match instead.
     -->
     <Style x:Key="NeapDrawerStyle" TargetType="Border">
-        <Setter Property="Margin" Value="12,-4,12,0" />
-        <Setter Property="Padding" Value="16,12,16,8" />
+        <Setter Property="Margin" Value="0,-1,0,0" />
+        <Setter Property="Padding" Value="16,14,16,10" />
         <Setter Property="Background" Value="{ThemeResource NeapPanelBrush}" />
         <Setter Property="BorderBrush" Value="{ThemeResource NeapPanelStrokeBrush}" />
         <Setter Property="BorderThickness" Value="1,0,1,1" />
-        <Setter Property="CornerRadius" Value="0,0,12,12" />
+        <Setter Property="CornerRadius" Value="0,0,8,8" />
     </Style>
 
     <!--  A row inside a drawer: the drawer is its card, so it draws none of its own.  -->

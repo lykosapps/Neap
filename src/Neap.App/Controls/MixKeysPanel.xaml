@@ -6,7 +6,10 @@
     xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <StackPanel>
-        <tk:SettingsCard x:Uid="Mix_KeysCard" Canvas.ZIndex="1">
+        <tk:SettingsCard
+            x:Name="KeysCard"
+            x:Uid="Mix_KeysCard"
+            Canvas.ZIndex="1">
             <tk:SettingsCard.HeaderIcon>
                 <FontIcon Glyph="&#xE765;" />
             </tk:SettingsCard.HeaderIcon>

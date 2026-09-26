@@ -30,12 +30,17 @@ namespace Neap.App.Controls;
 [ContentProperty(Name = nameof(Inside))]
 public sealed partial class SettingTile : UserControl
 {
+    /// <summary>The tile's own corner radius, from NeapToggleTileStyle, so its bottom can be squared to meet the drawer.</summary>
+    private static readonly CornerRadius TileRadius = new(16);
+    private static readonly CornerRadius TileRadiusOverDrawer = new(16, 16, 0, 0);
+
     private readonly SettingLink _link;
 
     public SettingTile()
     {
         InitializeComponent();
         StateWord.Text = Strings.Get("Reading_None");
+        InsideHost.CornerRadius = new CornerRadius(0, 0, 16, 16);
         _link = new SettingLink(Face, () => Setting, Build, Paint);
         Face.Click += (_, _) => _link.Write(Face.IsChecked == true ? 1 : 0);
     }
@@ -115,6 +120,8 @@ public sealed partial class SettingTile : UserControl
         Face.IsEnabled = value is not null && _link.Key is { Writable: true };
         Face.IsChecked = value == 1;
         StateWord.Text = Word(value);
-        InsideHost.Visibility = value == 1 && Inside is not null ? Visibility.Visible : Visibility.Collapsed;
+        bool open = value == 1 && Inside is not null;
+        InsideHost.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+        Face.CornerRadius = open ? TileRadiusOverDrawer : TileRadius;
     }
 }
