@@ -1,5 +1,6 @@
 using Neap.Core.Audio;
 using Neap.Core.Pretend;
+using Windows.Foundation;
 using Windows.Media.Audio;
 
 namespace Neap.App.Services;
@@ -9,8 +10,13 @@ namespace Neap.App.Services;
 /// Which of the headset's endpoints this is, so a caller can tell a real
 /// transmitter switch from a re-read of the same one; null when unavailable.
 /// </param>
-public sealed record SpatialPanel(
-    IReadOnlyList<SpatialFormat> Offered, SpatialFormat? Active, string? Trouble, string? EndpointId = null)
+/// <param name="Unrecognised">
+/// Something is active that is not one of <see cref="SpatialFormat"/>: set
+/// from Sound settings directly, or a format Windows has added since. It is
+/// still a deliberate choice, just not one this shows by name.
+/// </param>
+public sealed record SpatialPanel(IReadOnlyList<SpatialFormat> Offered, SpatialFormat? Active, string? Trouble,
+    string? EndpointId = null, bool Unrecognised = false)
 {
     public static SpatialPanel Unavailable(string trouble) => new([], null, trouble);
 }
@@ -48,10 +54,11 @@ public static class SpatialAudio
                 return SpatialPanel.Unavailable(Strings.Get("Spatial_NoHeadset"));
             if (!configuration.IsSpatialAudioSupported)
                 return SpatialPanel.Unavailable(Strings.Get("Spatial_NotSupported"));
+            Guid activeSubtype = Guid.TryParse(configuration.ActiveSpatialAudioFormat, out var parsed) ? parsed : Guid.Empty;
+            var active = SpatialSound.Of(activeSubtype);
             return new SpatialPanel(
                 SpatialSound.Offered(subtype => configuration.IsSpatialAudioFormatSupported(Text(subtype))),
-                SpatialSound.Of(Guid.TryParse(configuration.ActiveSpatialAudioFormat, out var active) ? active : Guid.Empty),
-                null, id);
+                active, null, id, Unrecognised: active is null && activeSubtype != Guid.Empty);
         }
         catch (Exception ex)
         {
@@ -85,6 +92,36 @@ public static class SpatialAudio
             AppLog.Write($"spatial sound: could not set {format}: {ex.Message}");
             return SpatialResult.UnknownError;
         }
+    }
+
+    /// <summary>
+    /// Watches one endpoint for a change made outside Neap, such as from
+    /// Sound settings itself. Null when there is nothing to watch: a
+    /// pretend run, which has no such event, or the headset not being there.
+    /// </summary>
+    /// <remarks><paramref name="changed"/> arrives off the UI thread.</remarks>
+    public static IDisposable? Watch(string endpointId, Action changed)
+    {
+        if (Pretend.Windows is not null) return null;
+        try
+        {
+            var configuration = Configuration(endpointId);
+            TypedEventHandler<SpatialAudioDeviceConfiguration, object> handler = (_, _) => changed();
+            configuration.ConfigurationChanged += handler;
+            return new Subscription(configuration, handler);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"spatial sound: could not watch for changes: {ex.Message}");
+            return null;
+        }
+    }
+
+    private sealed class Subscription(
+        SpatialAudioDeviceConfiguration configuration,
+        TypedEventHandler<SpatialAudioDeviceConfiguration, object> handler) : IDisposable
+    {
+        public void Dispose() => configuration.ConfigurationChanged -= handler;
     }
 
     /// <summary>The spatial configuration for one of the headset's endpoints.</summary>

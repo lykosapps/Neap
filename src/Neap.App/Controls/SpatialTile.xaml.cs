@@ -34,6 +34,11 @@ namespace Neap.App.Controls;
 /// the same dialogs as choosing it by hand, so a licence problem on the new
 /// endpoint still says so rather than failing quietly.
 /// </para>
+/// <para>
+/// A change made from Sound settings itself, while Home is open, is caught
+/// by watching the current endpoint for it, rather than waiting for the
+/// headset to connect or disconnect.
+/// </para>
 /// </remarks>
 public sealed partial class SpatialTile : UserControl
 {
@@ -43,6 +48,8 @@ public sealed partial class SpatialTile : UserControl
     private bool _painting;
     private string? _knownEndpointId;
     private SpatialFormat? _known;
+    private IDisposable? _watch;
+    private Task? _loading;
 
     public SpatialTile()
     {
@@ -63,17 +70,26 @@ public sealed partial class SpatialTile : UserControl
             AppServices.Headset.StatusChanged += OnStatus;
             await Load();
         };
-        Unloaded += (_, _) => AppServices.Headset.StatusChanged -= OnStatus;
+        Unloaded += (_, _) =>
+        {
+            AppServices.Headset.StatusChanged -= OnStatus;
+            _watch?.Dispose();
+            _watch = null;
+            _knownEndpointId = null;
+        };
     }
 
     private async void OnStatus(HeadsetStatus status) => await Load();
 
-    private async Task Load()
+    /// <summary>A read already under way is shared rather than started again, since the watcher and a status change can both ask at once.</summary>
+    private Task Load() => _loading is { IsCompleted: false } running ? running : (_loading = LoadCore());
+
+    private async Task LoadCore()
     {
         var panel = await SpatialAudio.Read();
 
         if (panel.EndpointId is { } id
-            && SpatialCarryOver.ShouldCarryOver(_knownEndpointId, id, _known, panel.Active)
+            && SpatialCarryOver.ShouldCarryOver(_knownEndpointId, id, _known, panel.Active, panel.Unrecognised)
             && panel.Offered.Contains(_known!.Value))
         {
             await ApplyAndHandle(_known.Value);
@@ -81,8 +97,17 @@ public sealed partial class SpatialTile : UserControl
         }
 
         Paint(panel);
+        Rewatch(panel.EndpointId);
 
         if (panel.EndpointId is { } seen) { _knownEndpointId = seen; _known = panel.Active; }
+    }
+
+    /// <summary>Keeps the watch on whichever endpoint is now current, since a stale one would watch a transmitter no longer in use.</summary>
+    private void Rewatch(string? endpointId)
+    {
+        if (endpointId == _knownEndpointId) return;
+        _watch?.Dispose();
+        _watch = endpointId is null ? null : SpatialAudio.Watch(endpointId, () => DispatcherQueue.TryEnqueue(() => _ = Load()));
     }
 
     private void Paint(SpatialPanel panel)
@@ -100,7 +125,9 @@ public sealed partial class SpatialTile : UserControl
             FormatList.SelectedItem = FormatList.Items.OfType<ListViewItem>()
                 .FirstOrDefault(item => panel.Active is { } active && (SpatialFormat)item.Tag == active);
             Face.IsEnabled = panel.Offered.Count > 1;
-            Word.Text = panel.Active is { } active ? Label(active) : Strings.Get("Reading_None");
+            Word.Text = panel.Active is { } active ? Label(active)
+                : panel.Unrecognised ? Strings.Get("Spatial_Unrecognised")
+                : Strings.Get("Reading_None");
             AutomationProperties.SetItemStatus(Face, Word.Text);
 
             // Windows never offers Dolby Atmos without the headset's Dolby

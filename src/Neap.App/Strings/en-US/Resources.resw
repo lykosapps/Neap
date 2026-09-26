@@ -1205,6 +1205,10 @@
   <data name="Spatial_Off" xml:space="preserve">
     <value>Off</value>
   </data>
+  <data name="Spatial_Unrecognised" xml:space="preserve">
+    <value>Something else</value>
+    <comment>A spatial sound format is on, set outside Neap, that Neap does not know by name.</comment>
+  </data>
   <data name="Spatial_WindowsSonic" xml:space="preserve">
     <value>Windows Sonic</value>
     <comment>A spatial sound format; a Microsoft name, not translated.</comment>

@@ -27,4 +27,9 @@ public class SpatialCarryOverTests
     [Fact]
     public void OffIsCarriedOverLikeAnyOtherFormat() =>
         Assert.True(SpatialCarryOver.ShouldCarryOver("dock", "usb", SpatialFormat.Off, SpatialFormat.WindowsSonic));
+
+    [Fact]
+    public void AFormatNeapDoesNotRecogniseCountsAsAChoiceAlreadyMade() =>
+        Assert.False(SpatialCarryOver.ShouldCarryOver("dock", "usb", SpatialFormat.DolbyAtmos, null,
+            activeOnCurrentIsUnrecognised: true));
 }

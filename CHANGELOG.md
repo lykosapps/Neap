@@ -60,7 +60,10 @@ and date.
   licence; Neap says what activating it takes, which is the headset's Dolby
   Atmos driver (installed by Swarm II) and the Dolby Access app. Choosing a
   format follows the headset from one transmitter to the other, since
-  Windows otherwise keeps it on the transmitter it was chosen on.
+  Windows otherwise keeps it on the transmitter it was chosen on. Changing
+  it from Sound settings itself, while Home is open, is picked up straight
+  away, and a format Neap does not recognise is named as such rather than
+  shown as nothing chosen.
 - Every setting the headset exposes: noise cancellation, both ten-band
   equalisers, microphone, noise gate, Superhuman Hearing, button and dial
   assignment, transmitter lighting, battery, power.
