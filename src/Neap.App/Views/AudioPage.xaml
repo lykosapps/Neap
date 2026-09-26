@@ -36,15 +36,10 @@
                             while it is on.
                         -->
                         <TextBlock x:Uid="Audio_AroundYouHeading" Style="{StaticResource SectionHeaderStyle}" />
-                        <Grid ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+                        <c:SideBySide>
                             <c:NoiseControlPanel />
                             <c:SettingTile
                                 x:Uid="Audio_ShhTile"
-                                Grid.Column="1"
                                 Glyph="&#xF270;"
                                 Setting="superhuman_hearing">
                                 <StackPanel>
@@ -58,7 +53,7 @@
                                         Style="{StaticResource NeapDrawerRowStyle}" />
                                 </StackPanel>
                             </c:SettingTile>
-                        </Grid>
+                        </c:SideBySide>
                     </c:HeadsetSection>
 
                     <!--

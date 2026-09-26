@@ -168,3 +168,7 @@ and date.
   mark as an exclusive choice like noise control, so picking a second app
   looked like it should replace the first. They now tick with a checkbox's
   square mark.
+- A slider's reading could run off the edge of a narrow card and disappear
+  entirely, such as noise cancellation's blocking strength beside
+  Superhuman Hearing on Audio. The reading always stays in view now; the
+  slider gives way first.

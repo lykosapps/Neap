@@ -93,10 +93,13 @@ public sealed class SettingRow : SettingsCard
             Visibility = Visibility.Collapsed,
         };
 
-        Content = new StackPanel
+        // A Grid, not a StackPanel: only one of the two is ever visible at
+        // once (Known, below), and a Grid's cell narrows the range slider's
+        // Grid in turn when the row is tight for room. A StackPanel would
+        // hand the control its full desired width regardless, which is what
+        // let a reading run past the edge of a narrow card.
+        Content = new Grid
         {
-            Orientation = Orientation.Horizontal,
-            Spacing = 12,
             VerticalAlignment = VerticalAlignment.Center,
             Children = { _control, _absent },
         };
@@ -141,7 +144,8 @@ public sealed class SettingRow : SettingsCard
         {
             Minimum = double.IsNaN(Minimum) ? key.Minimum ?? 0 : Math.Max(Minimum, key.Minimum ?? 0),
             Maximum = key.Maximum ?? 100,
-            Width = SliderWidth,
+            MaxWidth = SliderWidth,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center,
             // No thumb tooltip: the number is in the row already, and the
             // tooltip covers the row above while dragging.
@@ -161,12 +165,17 @@ public sealed class SettingRow : SettingsCard
             Style = (Style)Application.Current.Resources["NumeralBodyTextStyle"],
         };
 
-        return new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = 12,
-            Children = { _slider, _readout },
-        };
+        // A Grid rather than a horizontal stack: the slider gives way as the
+        // row narrows, but the reading it belongs to never does. A row
+        // narrower than SliderWidth is common wherever one shares a card
+        // with something else, such as a two-up row of cards or a drawer.
+        var layout = new Grid { ColumnSpacing = 12 };
+        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        Grid.SetColumn(_readout, 1);
+        layout.Children.Add(_slider);
+        layout.Children.Add(_readout);
+        return layout;
     }
 
     private UIElement BuildReadout()
