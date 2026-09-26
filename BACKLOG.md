@@ -72,6 +72,8 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   plug in a second transmitter.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
+- **The spare battery** on the Charging Dock's panel: out, in, and gone
+  on the USB Transmitter.
 - **Two chat apps at once**, Discord and Teams say: both follow the chat
   side, and clearing the last puts every volume back.
 - **The chat app list on screen** in light and high contrast, and the screen

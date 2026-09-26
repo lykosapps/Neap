@@ -15,6 +15,10 @@ and date.
 
 - **Settings Swarm II's desktop app does not have:** wake on motion and
   voice prompt volume. Both were found through the phone app.
+- **The spare battery's charge.** While the headset is on the Charging
+  Dock, the dock's panel shows the spare battery charging in it, or that
+  its slot is empty, and follows a swap straight away. Swarm II shows this
+  only in its phone app.
 - **Transparency.** The headset has no transparency mode, but noise
   cancellation at zero lets the room in. Neap offers noise cancellation,
   transparency and off as three modes, and the Mode button can step

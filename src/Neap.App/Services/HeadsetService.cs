@@ -7,6 +7,7 @@ using Neap.Core;
 using Neap.Core.Audio;
 using Neap.Core.Connection;
 using Neap.Core.Hid;
+using Neap.Core.Protocol;
 using Neap.Core.Settings;
 
 namespace Neap.App.Services;
@@ -127,8 +128,9 @@ public sealed class HeadsetService : IDisposable
     public event Action<HeadsetStatus>? StatusChanged;
 
     /// <summary>
-    /// The transmitter slots were read and at least one was paired, so
-    /// <see cref="KnownTransmitters"/> was replaced. Raised on the UI thread.
+    /// <see cref="KnownTransmitters"/> was replaced, from a read of the slots
+    /// that found one paired or from a slot the headset sent. Raised on the UI
+    /// thread.
     /// </summary>
     public event Action? TransmittersChanged;
 
@@ -433,7 +435,11 @@ public sealed class HeadsetService : IDisposable
                 var events = client.ReadOnce();
                 if (events.Count > 0)
                 {
-                    foreach (var evt in events) Merge(evt.Values, authoritative: false);
+                    foreach (var evt in events)
+                    {
+                        Merge(evt.Values, authoritative: false);
+                        TakeSlot(evt);
+                    }
                     unanswered = 0;
                     nextBeat = Stopwatch.GetTimestamp() + BeatTicks;
                 }
@@ -689,6 +695,24 @@ public sealed class HeadsetService : IDisposable
         Route.DirectUsb => Strings.Get("Adapter_Cable"),
         _ => Strings.Get("Adapter_Transmitter"),
     };
+
+    /// <summary>Takes in a transmitter slot the headset sent on its own.</summary>
+    /// <remarks>
+    /// The slots are read only now and then, and the headset sends a slot
+    /// when it changes, so taking it in shows a spare battery going in or out
+    /// of the Charging Dock at once rather than minutes later.
+    /// </remarks>
+    private void TakeSlot(DeviceEvent evt)
+    {
+        if (!Verbs.TransmitterCategories.Contains(evt.Category)) return;
+        if (Transmitters.FromEvent(evt) is not { } slot)
+        {
+            AppLog.Write($"a {evt.Category} record from the headset did not parse, so the transmitter list was left as it was");
+            return;
+        }
+        _known = Transmitters.With(_known, slot);
+        _ui.TryEnqueue(() => TransmittersChanged?.Invoke());
+    }
 
     /// <summary>
     /// Which transmitter the headset has selected, and whether that is the one

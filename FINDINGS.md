@@ -438,10 +438,35 @@ The headset keeps a slot for each of up to four paired transmitters, at
 ```
 
 In `info`: the first field is 0 empty, 1 paired, 2 selected; then vendor and
-product id, firmware and Bluetooth address. The other fields are not known.
-Empty slots answer with zeros. "Selected" means the transmitter the headset
-is assigned to, not one that is carrying it: through the both-amber episode
-the USB Transmitter's slot said 2 with no link at all.
+product id, firmware and Bluetooth address. Empty slots answer with zeros.
+"Selected" means the transmitter the headset is assigned to, not one that
+is carrying it: through the both-amber episode the USB Transmitter's slot
+said 2 with no link at all.
+
+The fourth field (`info[3]`) is the **spare battery** in the Charging Dock's
+slot: its charge, 0–100, and 255 while the slot is empty *(measured)*. Taken
+out, put back and taken out again, it went 100, 255, 100, 255 in step. In
+Swarm II's log of a hot swap, it went to 255 as the full spare came out,
+then 37 as the headset's drained battery went in, and climbed to 100 over
+two hours while the headset reported 100. Nothing separate says it is
+charging; the dock charges whatever is in the slot. Swarm II's desktop app
+does not show it; its phone app shows it as the Charging Hub's battery
+*(research)*. The USB Transmitter, with no slot, reports 0.
+
+The second and third fields are 17 and 1 for the Charging Dock and 33 and
+0 for the USB Transmitter, on every reading. They look like the kind of
+transmitter and whether it has a battery slot, but nothing has moved them
+*(inferred)*. The fifth has only been seen as 1.
+
+The headset sends a slot's whole record, as an update, when something in
+it changes: the spare going in or out, and a light's brightness
+*(measured)*. The dock's slot kept its spare reading while the headset was
+on the USB Transmitter, but whether it is live then, or the last value the
+headset heard, is not known.
+
+`0x260` and `0x270` sit beside the headset's battery and charging flag and
+look like a second pair, but read 100 and 0 throughout ten days of Swarm
+II's logs and did not move with the spare. They are not it.
 
 In `control`: entries 1 and 2 are that transmitter's two light brightnesses,
 0–100, readable and writable at slot + 1 and slot + 2 (`0x401`/`0x402` for
@@ -691,3 +716,5 @@ categories were found) and its device plugin.
 4. Whether `0x250` is charging or cable power; see *General state*.
 5. Whether the microphone bank's delete register behaves like the game
    bank's (not exercised: there were no custom microphone presets).
+6. Whether the Charging Dock's slot reports the spare battery live while
+   the headset is on another transmitter; see *Transmitter slots*.

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using Neap.Core.Connection;
 using Neap.Core.Hid;
 using Neap.Core.Presets;
 using Neap.Core.Protocol;
@@ -71,6 +72,10 @@ public sealed class PretendHeadset : IDeviceSource
     private const int SlotBlock = 0x400;
     private const int SlotStride = 0x20;
 
+    // The Charging Dock's slot, and where in it the spare battery's charge sits.
+    private const int DockSlot = 0;
+    private const int SpareEntry = 3;
+
     private readonly object _gate = new();
     private readonly Dictionary<int, string> _values;
     private readonly Preset?[] _game = new Preset?[PresetStore.CustomSlots];
@@ -96,12 +101,13 @@ public sealed class PretendHeadset : IDeviceSource
         _values[PresetStore.Game.CountKey] = "2";
         _values[PresetStore.Microphone.CountKey] = "1";
 
-        // Slot one is the Charging Dock the headset is using, slot two a USB
-        // Transmitter it is paired with, and the others are empty.
+        // Slot one is the Charging Dock the headset is using, with a spare
+        // battery charging in it, slot two a USB Transmitter it is paired
+        // with, and the others are empty.
         _info =
         [
-            ["2", "17", "1", "100", "1", "10F5", "229B", "0.0.0.0", "02:00:00:00:00:01"],
-            ["1", "17", "1", "100", "1", "10F5", "229D", "0.0.0.0", "02:00:00:00:00:02"],
+            ["2", "17", "1", "64", "1", "10F5", "229B", "0.0.0.0", "02:00:00:00:00:01"],
+            ["1", "33", "0", "0", "1", "10F5", "229D", "0.0.0.0", "02:00:00:00:00:02"],
             ["0", "0", "0", "0", "0", "0", "0", "0", "00:00:00:00:00:00"],
             ["0", "0", "0", "0", "0", "0", "0", "0", "00:00:00:00:00:00"],
         ];
@@ -186,6 +192,26 @@ public sealed class PretendHeadset : IDeviceSource
         {
             _values[key] = wire;
             if (_on) Notify(new Dictionary<int, string> { [key] = wire });
+        }
+    }
+
+    /// <summary>
+    /// Puts a spare battery in the Charging Dock's slot, or takes it out, and
+    /// sends the dock's slot the way the headset does.
+    /// </summary>
+    /// <param name="percent">The spare's charge, or null for an empty slot.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The charge is outside 0 to 100.</exception>
+    public void Spare(int? percent)
+    {
+        if (percent is < 0 or > 100)
+            throw new ArgumentOutOfRangeException(nameof(percent), percent, "a spare battery's charge is 0 to 100");
+        lock (_gate)
+        {
+            _info[DockSlot][SpareEntry] = percent?.ToString(CultureInfo.InvariantCulture) ?? SpareBattery.EmptySlot;
+            if (!_on) return;
+            var kvp = new StringBuilder();
+            Append(kvp, Hex(SlotBlock), SlotRecord(DockSlot));
+            Enqueue($"{{\"UP\":\"TX1\",\"KVP\":{{{kvp}}}}}", reply: false);
         }
     }
 
@@ -305,9 +331,7 @@ public sealed class PretendHeadset : IDeviceSource
 
         if (Verbs.TransmitterCategories.Contains(category))
         {
-            int slot = category[2] - '1';
-            Append(kvp, Hex(Verbs.TransmitterKey(category)),
-                $"{{\"info\":{ArrayOf(_info[slot])},\"control\":{ArrayOf(_control[slot])}}}");
+            Append(kvp, Hex(Verbs.TransmitterKey(category)), SlotRecord(category[2] - '1'));
         }
         else if (Verbs.PresetSlotCategories.Contains(category))
         {
@@ -327,6 +351,9 @@ public sealed class PretendHeadset : IDeviceSource
 
         Enqueue($"{{\"OR\":\"{category}\",\"KVP\":{{{kvp}}}}}", reply: true);
     }
+
+    private string SlotRecord(int slot) =>
+        $"{{\"info\":{ArrayOf(_info[slot])},\"control\":{ArrayOf(_control[slot])}}}";
 
     /// <summary>The category a plain value is read in, or null for one that is part of a slot.</summary>
     private static string? CategoryOf(int key) =>

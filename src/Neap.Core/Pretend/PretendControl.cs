@@ -26,6 +26,7 @@ namespace Neap.Core.Pretend;
 ///   value KEY               what the headset holds for a key
 ///   report KEY VALUE        the headset changes a value itself and says so
 ///   on | off                switch the headset on or off
+///   spare PERCENT|empty     put a spare battery in the Charging Dock's slot, or take it out
 ///   presets game|mic        the custom presets' names, by slot
 ///   volume output|input     Windows' volume and mute for the headset
 ///   format output|input     the headset's format in Windows
@@ -113,6 +114,7 @@ public sealed class PretendControl : IDisposable
                 ("report", 3) => Done(() => _headset.Report(Key(words[1]), words[2])),
                 ("on", 1) => Done(() => _headset.On = true),
                 ("off", 1) => Done(() => _headset.On = false),
+                ("spare", 2) => Done(() => _headset.Spare(ChargeOf(words[1]))),
                 ("presets", 2) => new JsonArray(_headset.Customs(BankOf(words[1]))
                     .Select(p => (JsonNode?)p?.Name).ToArray()),
                 ("volume", 2) => Volume(FlowOf(words[1])),
@@ -156,6 +158,11 @@ public sealed class PretendControl : IDisposable
     };
 
     private static int Key(string text) => Registry.Resolve(text).Key;
+
+    private static int? ChargeOf(string text) =>
+        text == "empty" ? null
+        : int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out int percent) ? percent
+        : throw new ArgumentException($"a spare battery is a percentage or empty, not '{text}'");
 
     private static Bank BankOf(string text) => text switch
     {

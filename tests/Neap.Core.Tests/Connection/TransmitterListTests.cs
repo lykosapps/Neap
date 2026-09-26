@@ -7,13 +7,15 @@ public class TransmitterListTests
     private const string Dock = "229B";
     private const string Transmitter = "229D";
 
-    private static Transmitter Slot(int slot, string product, string kind) =>
-        new(slot, true, false, kind, product, "10F5", "4.107.703.0", "AA:BB:CC:DD:EE:FF", [], []);
+    private static readonly SpareReading HalfFull = new(SpareState.InSlot, 50);
+
+    private static Transmitter Slot(int slot, string product, string kind, SpareReading? spare = null) =>
+        new(slot, true, false, kind, product, "10F5", "4.107.703.0", "AA:BB:CC:DD:EE:FF", [], [], spare);
 
     private static readonly Transmitter[] Known =
     [
         Slot(1, Transmitter, "USB Transmitter"),
-        Slot(2, Dock, "Charging Dock"),
+        Slot(2, Dock, "Charging Dock", HalfFull),
     ];
 
     private static HeadsetStatus Connected(string product, bool noSound = false) =>
@@ -64,6 +66,31 @@ public class TransmitterListTests
 
         Assert.Equal(TransmitterState.CanSwitchTo, StateOf(rows, "USB Transmitter"));
         Assert.Equal("", rows.Single(r => r.Name == "USB Transmitter").Firmware);
+    }
+
+    [Fact]
+    public void TheDockInUseShowsItsSpareBattery()
+    {
+        var rows = TransmitterList.Rows(Connected(Dock), Known, [Dock, Transmitter], cable: false);
+
+        Assert.Equal(HalfFull, rows.Single(r => r.Name == "Charging Dock").Spare);
+        Assert.Null(rows.Single(r => r.Name == "USB Transmitter").Spare);
+    }
+
+    [Fact]
+    public void ADockNotInUseShowsNoSpareBattery()
+    {
+        var rows = TransmitterList.Rows(Connected(Transmitter), Known, [Dock, Transmitter], cable: false);
+
+        Assert.Null(rows.Single(r => r.Name == "Charging Dock").Spare);
+    }
+
+    [Fact]
+    public void OverTheCableNoSpareBatteryIsShown()
+    {
+        var rows = TransmitterList.Rows(Connected(Dock), Known, [Dock, Transmitter], cable: true);
+
+        Assert.All(rows, r => Assert.Null(r.Spare));
     }
 
     [Fact]

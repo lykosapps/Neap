@@ -1,5 +1,6 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Neap.App.Services;
@@ -10,13 +11,14 @@ namespace Neap.App.Controls;
 
 /// <summary>
 /// The transmitters the headset knows and the ones plugged in, each on a
-/// panel with what it is doing, the one in use with its lights, and whether
-/// Bluetooth is connected.
+/// panel with what it is doing, the one in use with its lights and, for the
+/// Charging Dock, its spare battery, and whether Bluetooth is connected.
 /// </summary>
 /// <remarks>
 /// <para>
-/// <see cref="TransmitterList"/> decides each one's state and
-/// <see cref="TransmitterLights"/> which lights can be set; this shows them.
+/// <see cref="TransmitterList"/> decides each one's state and whether it
+/// shows a spare battery, and <see cref="TransmitterLights"/> which lights
+/// can be set; this shows them.
 /// The lights sit inside the panel of the transmitter they belong to, named
 /// for it: under the Charging Dock's names, the USB Transmitter's one light
 /// would be called the ring around a battery slot it does not have.
@@ -142,10 +144,35 @@ public sealed partial class TransmittersPanel : UserControl
             _ => row.Firmware.Length > 0 ? Strings.Format("Transmitters_Firmware", row.Firmware) : "",
         };
         if (detail.Length > 0) body.Children.Add(Note(detail));
+        if (row.Spare is { } spare) body.Children.Add(SpareLine(spare));
         if (lights is not null) body.Children.Add(lights);
 
         // The outline on the one in use is a style, so it follows a change of theme.
         return new Border { Style = Styled(inUse ? "NeapInUsePanelStyle" : "QuickCardStyle"), Child = body };
+    }
+
+    /// <summary>The Charging Dock's spare battery: its charge, or that the slot is empty.</summary>
+    private static Grid SpareLine(SpareReading spare)
+    {
+        var line = new Grid { ColumnSpacing = 12, Margin = new Thickness(0, 8, 0, 0) };
+        line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var label = new TextBlock { Text = Strings.Get("Transmitters_SpareBattery"), Style = Styled("BodyTextBlockStyle") };
+        var value = new TextBlock
+        {
+            Text = spare.State switch
+            {
+                SpareState.InSlot => Strings.Format("Level_Percent", spare.Percent),
+                SpareState.Empty => Strings.Get("Transmitters_SpareEmpty"),
+                _ => Strings.Get("Reading_None"),
+            },
+            Style = Styled(spare.State == SpareState.Unreadable ? "TertiaryBodyTextStyle" : "NumeralBodyTextStyle"),
+        };
+        AutomationProperties.SetAutomationId(value, "SpareBattery");
+        Grid.SetColumn(value, 1);
+        line.Children.Add(label);
+        line.Children.Add(value);
+        return line;
     }
 
     /// <summary>The light settings of the transmitter in use, or nothing when none can be set.</summary>

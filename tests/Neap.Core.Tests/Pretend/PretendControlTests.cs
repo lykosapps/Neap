@@ -1,5 +1,6 @@
 using System.IO.Pipes;
 using System.Text.Json;
+using Neap.Core.Connection;
 using Neap.Core.Pretend;
 
 namespace Neap.Core.Tests.Pretend;
@@ -39,11 +40,28 @@ public class PretendControlTests
         Assert.Equal(("0", "20"), (headset.Value(0x750), headset.Value(0x760)));
     }
 
+    [Fact]
+    public void ASpareBatteryGoesInAndComesOut()
+    {
+        var (headset, control) = Make();
+        using var client = new HeadsetClient(transport: headset.Open());
+
+        Assert.True(Reply(control, "spare 20").GetProperty("ok").GetBoolean());
+        Assert.True(Reply(control, "spare empty").GetProperty("ok").GetBoolean());
+
+        // Each slot's record is longer than one report.
+        var charges = Enumerable.Range(0, 8).SelectMany(_ => client.ReadOnce())
+            .Select(e => Transmitters.FromEvent(e)?.Spare?.State).ToList();
+        Assert.Equal([SpareState.InSlot, SpareState.Empty], charges);
+    }
+
     [Theory]
     [InlineData("report anc 2")]        // not a toggle's value
     [InlineData("report nothing 1")]    // not a setting
     [InlineData("value")]               // no key
     [InlineData("presets both")]
+    [InlineData("spare full")]
+    [InlineData("spare 120")]
     [InlineData("jump")]
     public void AnythingItCannotDoIsAnErrorNotASilence(string line)
     {

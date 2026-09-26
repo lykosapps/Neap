@@ -17,10 +17,10 @@ checks the control follows. It also covers the options a switch opens
 while it is on, the equaliser bands and presets, starting and deleting a
 preset, Home's tiles and its way to the equaliser, the Windows-owned
 volume, mute and format controls (which must write nothing to the
-headset), the chat wheel driving the mix, the battery, and the headset
-switching off and on. At the end nothing may have
-been refused: no unconfirmed key, no value out of range, no slot base
-address, no firmware command.
+headset), the chat wheel driving the mix, the battery, the Charging Dock's
+spare battery, and the headset switching off and on. At the end nothing
+may have been refused: no unconfirmed key, no value out of range, no slot
+base address, no firmware command.
 
 A screenshot of every page goes in the output folder. Exits 1 if any
 check fails.
@@ -652,6 +652,17 @@ function Battery {
     Check (Until { $null -ne (Find $script:window 'NameProperty' '42%') }) 'Home shows the battery the headset reports'
 }
 
+function Spare {
+    Page 'Device'
+    $shown = { (Find $script:window 'AutomationIdProperty' 'SpareBattery').Current.Name }
+    Check (Until { (& $shown) -eq '64%' }) 'the Charging Dock shows its spare battery'
+    Screenshot 'device-spare'
+    Ask 'spare empty' | Out-Null
+    Check (Until { (& $shown) -eq 'Empty' }) 'the spare taken out shows at once as an empty slot'
+    Ask 'spare 30' | Out-Null
+    Check (Until { (& $shown) -eq '30%' }) 'a spare put back shows its charge'
+}
+
 function PowerCycle {
     Ask 'off' | Out-Null
     Check (Until { (Header) -ne 'Headset connected' } 40) "switched off, the header says $(Header)"
@@ -734,6 +745,7 @@ try {
 
     Write-Host 'Headset'
     Battery
+    Spare
     PowerCycle
 
     Write-Host 'Everything sent'

@@ -1,13 +1,15 @@
 using System.Globalization;
 using System.Text.Json;
+using Neap.Core.Connection;
 using Neap.Core.Protocol;
 
 namespace Neap.Core;
 
+/// <param name="Spare">A Charging Dock's spare battery; null for any other transmitter.</param>
 public sealed record Transmitter(
     int Slot, bool Paired, bool Active, string Kind, string ProductId,
     string VendorId, string Firmware, string Address,
-    IReadOnlyList<string> Info, IReadOnlyList<string> Control);
+    IReadOnlyList<string> Info, IReadOnlyList<string> Control, SpareReading? Spare = null);
 
 /// <summary>
 /// The headset pairs with up to four transmitters and keeps a slot for each.
@@ -77,7 +79,7 @@ public static class Transmitters
             StringComparer.OrdinalIgnoreCase);
 
     // Indices into "info" that are confirmed.
-    private const int InfoState = 0, InfoVendor = 5, InfoProduct = 6,
+    private const int InfoState = 0, InfoSpare = 3, InfoVendor = 5, InfoProduct = 6,
                       InfoFirmware = 7, InfoAddress = 8;
     // Indices into "control".
     private const int ControlLed1 = 1, ControlLed2 = 2;
@@ -137,8 +139,29 @@ public static class Transmitters
             // Kept whole so nothing is silently dropped while most of the
             // array is still unidentified.
             Info: info,
-            Control: control);
+            Control: control,
+            Spare: paired && PieceOf(product) == Piece.Dock ? SpareBattery.Parse(At(info, InfoSpare)) : null);
     }
+
+    /// <summary>The slot a pushed transmitter record describes, or null when the event carries none.</summary>
+    /// <remarks>
+    /// The headset pushes a slot's whole record when something in it changes,
+    /// such as the spare battery going in or out of the Charging Dock. A
+    /// record without an address is one that did not parse, and is not taken
+    /// for an empty slot.
+    /// </remarks>
+    public static Transmitter? FromEvent(DeviceEvent evt)
+    {
+        if (!Verbs.TransmitterCategories.Contains(evt.Category)
+            || !evt.Values.TryGetValue($"{Verbs.TransmitterKey(evt.Category):x}", out var block)) return null;
+        var slot = Describe(evt.Category[2] - '0', block);
+        return slot.Info.Count > InfoAddress ? slot : null;
+    }
+
+    /// <summary>The paired transmitters, with one slot's newer record in place of what it held.</summary>
+    public static IReadOnlyList<Transmitter> With(IEnumerable<Transmitter> known, Transmitter slot) =>
+        known.Where(t => t.Slot != slot.Slot).Append(slot)
+             .Where(t => t.Paired).OrderBy(t => t.Slot).ToList();
 
     /// <summary>Live lighting brightness, from whichever transmitter is active.</summary>
     /// <remarks>

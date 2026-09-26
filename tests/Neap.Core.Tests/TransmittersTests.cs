@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Neap.Core.Connection;
+using Neap.Core.Protocol;
 
 namespace Neap.Core.Tests;
 
@@ -56,6 +58,81 @@ public class TransmittersTests
         Assert.Equal("80", lighting["401"]);
         Assert.Equal("30", lighting["402"]);
     }
+
+    [Fact]
+    public void TheDockCarriesItsSpareBattery()
+    {
+        var dock = Transmitters.Describe(1, Slot(
+            "\"2\",\"17\",\"1\",\"57\",\"1\",\"10F5\",\"229B\",\"4.107.703.0\",\"AA:BB:CC:DD:EE:FF\""));
+
+        Assert.Equal(new SpareReading(SpareState.InSlot, 57), dock.Spare);
+    }
+
+    [Fact]
+    public void TheUsbTransmitterHasNoSpareBattery()
+    {
+        var transmitter = Transmitters.Describe(1, Slot(
+            "\"2\",\"33\",\"0\",\"0\",\"1\",\"10F5\",\"229D\",\"4.107.703.0\",\"AA:BB:CC:DD:EE:FF\""));
+
+        Assert.Null(transmitter.Spare);
+    }
+
+    [Fact]
+    public void AnEmptySlotHasNoSpareBattery()
+    {
+        Assert.Null(Transmitters.Describe(1, Empty).Spare);
+    }
+
+    [Fact]
+    public void APushedSlotIsReadAsThatSlot()
+    {
+        var evt = Event("TX2", "420", Dock.GetRawText());
+
+        var slot = Transmitters.FromEvent(evt);
+
+        Assert.NotNull(slot);
+        Assert.Equal(2, slot.Slot);
+        Assert.Equal("229B", slot.ProductId);
+    }
+
+    [Fact]
+    public void APushedSlotThatDoesNotParseIsNotTakenForAnEmptyOne()
+    {
+        Assert.Null(Transmitters.FromEvent(Event("TX1", "400", "\"garbled\"")));
+        Assert.Null(Transmitters.FromEvent(Event("TX1", "400", "{\"info\":[\"2\",\"17\"]}")));
+    }
+
+    [Fact]
+    public void AnythingButASlotIsNotOne()
+    {
+        Assert.Null(Transmitters.FromEvent(Event("GSI", "240", "\"80\"")));
+    }
+
+    [Fact]
+    public void ANewerRecordReplacesItsSlotAndKeepsTheOthers()
+    {
+        var usb = Transmitters.Describe(1, Slot(
+            "\"1\",\"33\",\"0\",\"0\",\"1\",\"10F5\",\"229D\",\"4.107.703.0\",\"11:22:33:44:55:66\""));
+        var known = new[] { usb, Transmitters.Describe(2, Dock) };
+        var newer = Transmitters.Describe(2, Slot(
+            "\"2\",\"17\",\"1\",\"255\",\"1\",\"10F5\",\"229B\",\"4.107.703.0\",\"AA:BB:CC:DD:EE:FF\""));
+
+        var list = Transmitters.With(known, newer);
+
+        Assert.Equal([1, 2], list.Select(t => t.Slot));
+        Assert.Equal(SpareState.Empty, list[1].Spare?.State);
+    }
+
+    [Fact]
+    public void ASlotThatEmptiedLeavesTheList()
+    {
+        var known = new[] { Transmitters.Describe(1, Dock) };
+
+        Assert.Empty(Transmitters.With(known, Transmitters.Describe(1, Empty)));
+    }
+
+    private static DeviceEvent Event(string category, string key, string value) =>
+        new("UP", category, new Dictionary<string, JsonElement> { [key] = JsonDocument.Parse(value).RootElement });
 
     [Theory]
     [InlineData((ushort)0x229B, Transmitters.Piece.Dock)]

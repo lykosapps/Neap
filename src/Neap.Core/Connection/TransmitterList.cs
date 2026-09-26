@@ -16,7 +16,8 @@ public enum TransmitterState
 }
 
 /// <param name="Firmware">Its firmware version, when the headset reported it; empty otherwise.</param>
-public sealed record TransmitterRow(string Name, string Firmware, TransmitterState State);
+/// <param name="Spare">The spare battery to show on it, or null when it shows none.</param>
+public sealed record TransmitterRow(string Name, string Firmware, TransmitterState State, SpareReading? Spare = null);
 
 /// <summary>
 /// Every transmitter worth listing, from what the headset reported and what
@@ -32,6 +33,11 @@ public sealed record TransmitterRow(string Name, string Firmware, TransmitterSta
 /// <para>
 /// There is deliberately no "not paired" state: the slots list the
 /// transmitters the headset has seen lately, not everything it is paired with.
+/// </para>
+/// <para>
+/// A Charging Dock's spare battery is shown only while the dock is in use.
+/// The headset learns it over its link to the dock, and for a dock it is not
+/// linked to, the slot holds whatever it last heard.
 /// </para>
 /// </remarks>
 public static class TransmitterList
@@ -62,7 +68,8 @@ public static class TransmitterList
                 : plugs && status.Link == Link.Connected && !cable ? TransmitterState.CanSwitchTo
                 : plugs ? TransmitterState.PluggedIn
                 : TransmitterState.NotPluggedIn;
-            rows.Add(new TransmitterRow(name, slot?.Firmware ?? "", state));
+            rows.Add(new TransmitterRow(name, slot?.Firmware ?? "", state,
+                state == TransmitterState.InUse ? slot?.Spare : null));
         }
 
         foreach (var slot in known) Add(slot.ProductId, slot);

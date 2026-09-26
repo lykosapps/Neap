@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Neap.Core.Connection;
 using Neap.Core.Hid;
 using Neap.Core.Presets;
 using Neap.Core.Pretend;
@@ -164,6 +165,36 @@ public class PretendHeadsetTests
         Assert.StartsWith("Pretend", headset.Value(0x220), StringComparison.Ordinal);
         // Locally administered: no manufacturer's address has this bit set.
         Assert.All(all.Where(t => t.Paired), t => Assert.StartsWith("02:", t.Address, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void TheDockHoldsASpareAndTheUsbTransmitterHasNoSlotForOne()
+    {
+        using var client = new HeadsetClient(transport: new PretendHeadset().Open());
+
+        var all = Transmitters.ReadAll(client, Window);
+
+        Assert.Equal(SpareState.InSlot, all.Single(t => t.ProductId == "229B").Spare?.State);
+        Assert.Null(all.Single(t => t.ProductId == "229D").Spare);
+    }
+
+    [Fact]
+    public void TakingTheSpareOutSendsTheDocksSlot()
+    {
+        var headset = new PretendHeadset();
+        using var client = new HeadsetClient(transport: headset.Open());
+
+        headset.Spare(null);
+        // A slot's record is longer than one report.
+        var update = Assert.Single(Enumerable.Range(0, 4).SelectMany(_ => client.ReadOnce()).ToList());
+
+        Assert.Equal(SpareState.Empty, Transmitters.FromEvent(update)?.Spare?.State);
+    }
+
+    [Fact]
+    public void ASparesChargeIsAPercentage()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => new PretendHeadset().Spare(101));
     }
 
     // -- finding it ----------------------------------------------------------

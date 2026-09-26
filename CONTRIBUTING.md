@@ -118,6 +118,10 @@ Run through this with the release build, not a debug one:
    transparency. From off, the press lands on noise cancellation with no
    transparency first. Close Neap: the button turns noise cancellation on
    and off.
+7. **Spare battery.** With the headset on the Charging Dock and the Device
+   page open, take the spare out of the dock's slot: the dock's panel says
+   *Empty* within a couple of seconds. Put it back: it shows the charge the
+   phone app shows. CrossPlay to the USB Transmitter: the line goes.
 
 ## Pull requests
 

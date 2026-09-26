@@ -943,6 +943,14 @@
   <data name="Transmitters_Firmware" xml:space="preserve">
     <value>Firmware {0}</value>
   </data>
+  <data name="Transmitters_SpareBattery" xml:space="preserve">
+    <value>Spare battery</value>
+    <comment>The second battery charging in the Charging Dock's slot, not the one in the headset.</comment>
+  </data>
+  <data name="Transmitters_SpareEmpty" xml:space="preserve">
+    <value>Empty</value>
+    <comment>No battery in the Charging Dock's slot.</comment>
+  </data>
   <data name="Settings_AboutNote.Text" xml:space="preserve">
     <value>A replacement for Swarm II, for the Stealth Pro II only. It has not been tested with any other Turtle Beach headset. Free software under the GNU GPL, version 3 or later, with no warranty. Not affiliated with or endorsed by Turtle Beach.</value>
   </data>
