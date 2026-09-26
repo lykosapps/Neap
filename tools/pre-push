@@ -1,0 +1,84 @@
+#!/bin/sh
+# Stops a push that would put this project under the wrong account, or put
+# commits carrying the wrong author into it. It checks, before anything
+# leaves the machine:
+#
+#   - the remote belongs to the project's account;
+#   - any account named in the remote's address is that account too;
+#   - every commit being pushed has the project's author, as author and as
+#     committer (commits GitHub made itself, as noreply@github.com, pass).
+#
+# The account and author come from the project's .tenon file:
+#
+#   windows
+#   account example-account
+#   author 1234+example-account@users.noreply.github.com
+#
+# or, in a repository without a .tenon file, from git config tenon.account
+# and tenon.author. With neither, every push is stopped: a project whose
+# account isn't recorded can't be checked.
+#
+# Install it once:
+#   cp tools/pre-push .git/hooks/pre-push
+
+remote="$1"
+url="$2"
+root=$(git rev-parse --show-toplevel)
+
+stop() {
+    echo "pre-push: stopped. $1" >&2
+    echo "pre-push: nothing was pushed." >&2
+    exit 1
+}
+
+setting() {
+    value=""
+    if [ -f "$root/.tenon" ]; then
+        value=$(sed -n "s/^$1[[:space:]]\{1,\}//p" "$root/.tenon" | head -n 1 | tr -d '[:space:]')
+    fi
+    [ -n "$value" ] || value=$(git config "tenon.$1")
+    echo "$value"
+}
+
+account=$(setting account)
+author=$(setting author)
+[ -n "$account" ] || stop "This project doesn't record its account. Add an 'account' line to .tenon."
+[ -n "$author" ] || stop "This project doesn't record its commit author. Add an 'author' line to .tenon."
+
+# The owner is the first part of the path: host/owner/repo or host:owner/repo.
+path=$(echo "$url" | sed -e 's#^[a-z+]*://##' -e 's#^[^/:]*[/:]##')
+[ "$path" != "$url" ] || stop "Can't read an owner from the remote address $url."
+owner=$(echo "$path" | cut -d/ -f1)
+lower() { echo "$1" | tr '[:upper:]' '[:lower:]'; }
+
+[ "$(lower "$owner")" = "$(lower "$account")" ] ||
+    stop "The remote '$remote' belongs to '$owner', but this project lives under '$account'."
+
+# An account in the address (https://name@host/...) decides which sign-in
+# is used. On a git@ address, git@ is the transport, not an account.
+case "$url" in
+    *://*@*)
+        signin=$(echo "$url" | sed -e 's#^[a-z+]*://##' -e 's#@.*##' -e 's#:.*##')
+        [ "$(lower "$signin")" = "$(lower "$account")" ] ||
+            stop "The remote address signs in as '$signin', but this project lives under '$account'."
+        ;;
+esac
+
+zero=0000000000000000000000000000000000000000
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # Deleting a branch sends no commits.
+    [ "$local_sha" = "$zero" ] && continue
+    if [ "$remote_sha" = "$zero" ]; then
+        range="$local_sha --not --remotes=$remote"
+    else
+        range="$remote_sha..$local_sha"
+    fi
+    # shellcheck disable=SC2086 # the range is several arguments
+    wrong=$(git log --format='%h %ae %ce' $range | awk -v a="$author" \
+        '$2 != a || ($3 != a && $3 != "noreply@github.com") { print $1 " (author " $2 ", committer " $3 ")" }')
+    [ -z "$wrong" ] ||
+        stop "These commits on $local_ref aren't by $author:
+$wrong"
+done
+
+exit 0

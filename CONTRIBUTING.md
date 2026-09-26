@@ -29,6 +29,10 @@ request.
 `tools/pre-commit` runs a fast version of both formatting checks on the
 files being committed. Copy it to `.git/hooks/pre-commit` to use it.
 
+`tools/pre-push` refuses a push to a remote under another account, or one
+carrying commits by another author; the account and author are in `.tenon`.
+Copy it to `.git/hooks/pre-push` to use it.
+
 The tests cover what needs no hardware: the frames sent to the headset, the
 parsing of its replies, which writes are allowed, the transmitter slots, the
 settings registry, presets against a scripted headset, the connection
