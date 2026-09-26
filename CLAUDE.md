@@ -5,6 +5,15 @@ Stealth Pro II headset in place of Swarm II. It is open source, GPL-3.0-or-later
 Every change is held to the standard below: work as a senior .NET engineer
 preparing code for experienced reviewers.
 
+## Project profile
+
+- **Team:** solo. Small commits straight to main, no pull requests.
+- **Autonomy:** commit and update the owner's try-it copy without asking; never push, publish or delete without asking.
+- **Accessibility target:** WCAG 2.2 level AA.
+- **Languages:** English only, written so it can be translated.
+- **Data and privacy:** no personal data kept, no analytics or tracking, nothing leaves the PC.
+- **Voice and brand:** Tenon's defaults: plain and restrained, no help text by default.
+
 ## The standard
 
 - **Conventions.** Microsoft C#/.NET and WinUI practice. Analyzers at
