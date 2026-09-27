@@ -7,7 +7,18 @@ to GitHub, these become issues.
 
 ## Bugs
 
-None open.
+- **A profile saved before the equaliser has been read has no equaliser.**
+  Open Neap and save a profile from Home straight away: it keeps no
+  equaliser preset. Switching to it later leaves whatever equaliser was on,
+  and the bar shows it as Edited at once, and stays so. The first profile
+  most people make is saved this way. Seen in pretend mode on the shipped
+  build; needs the headset to confirm. S3, P1: fix before Profiles ships.
+- **Switching profile with the headset off looks done but isn't.** The bar
+  shows the chosen profile and nothing says otherwise, but nothing is
+  applied. When the headset comes back it still has the old settings, and
+  the bar shows the profile as Edited. Seen in pretend mode on the shipped
+  build. S3, P1: fix before Profiles ships. What should happen instead
+  (apply on reconnect, or refuse while off) is the owner's call.
 
 ### Known limits, recorded rather than fixed
 
@@ -72,6 +83,9 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   plug in a second transmitter.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
+- **A profile saved straight after opening Neap.** Open Neap, save a
+  profile from Home at once, switch to another and back: does the
+  equaliser come back, and does the bar stay un-Edited?
 - **The spare battery** on the Charging Dock's panel: out, in, and gone
   on the USB Transmitter.
 - **Two chat apps at once**, Discord and Teams say: both follow the chat
