@@ -104,10 +104,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   the machine.
 - Pretend mode can't show spatial sound, a missing Dolby licence or a second
   transmitter, so a change to any of those can only be checked on the headset.
-- Pretend mode moves an old settings folder in the real app folder before it
-  switches to its own.
-- A second pretend copy wakes the first and brings it forward, even with
-  `--behind`, so only one can run at a time.
 - Pretend mode has no high-contrast option, and the screen check never uses
   the spatial sound tile.
 

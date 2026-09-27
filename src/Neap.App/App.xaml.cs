@@ -18,7 +18,8 @@ public partial class App : Application
     /// <para>
     /// A second launch asks the running copy to show its window and quits. A
     /// second launch at login (the app already running when Windows starts it)
-    /// just quits, because there is nothing to show anyone.
+    /// just quits, because there is nothing to show anyone. So does a pretend
+    /// launch behind every window, which a script makes while somebody works.
     /// </para>
     /// </remarks>
     private const string OneName = @"Local\Neap";
@@ -44,21 +45,22 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        AppFolder.MoveFromEarlierName();
+        bool pretend = Services.Pretend.Active;
+        if (!pretend) AppFolder.MoveFromEarlierName();
         Services.Pretend.Separate();
         bool atLogin = Services.Startup.LaunchedAtLogin;
-        bool pretend = Services.Pretend.Active;
+        bool quiet = atLogin || Services.Pretend.Behind;
         string wakeName = pretend ? PretendWakeName : WakeName;
 
         _one = new Mutex(initiallyOwned: true, pretend ? PretendOneName : OneName, out bool first);
         if (!first)
         {
-            if (!atLogin)
+            if (!quiet)
             {
                 try { EventWaitHandle.OpenExisting(wakeName).Set(); } catch { }
             }
-            Services.AppLog.Write(atLogin
-                ? "started at login, but already running: left the running copy alone"
+            Services.AppLog.Write(quiet
+                ? "started while already running: left the running copy alone"
                 : "started again while running: showed the running copy instead");
             Exit();
             return;
