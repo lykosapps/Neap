@@ -118,7 +118,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   without being closed. Needs the headset.
 - Documentation comments aren't checked by the build, which lets unused
   imports and half-documented methods through.
-- The Windows system calls don't say where their libraries are loaded from.
 
 ## Last in line
 

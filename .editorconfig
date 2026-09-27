@@ -33,6 +33,10 @@ csharp_style_var_when_type_is_apparent = true:suggestion
 # CA1859 offers is too small to be worth narrower signatures here.
 dotnet_diagnostic.CA1859.severity = none
 
+# Every native call names where its library loads from; see
+# Directory.Build.props.
+dotnet_diagnostic.CA5392.severity = warning
+
 # Constants and static read-only fields are PascalCase; other private fields
 # are _camelCase.
 dotnet_naming_rule.constants.symbols = constants
