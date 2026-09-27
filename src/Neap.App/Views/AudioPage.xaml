@@ -43,6 +43,7 @@
                                 <StackPanel>
                                     <c:SettingRow
                                         x:Uid="Audio_Type"
+                                        AsButtons="True"
                                         Setting="shh_preset"
                                         Style="{StaticResource NeapDrawerRowStyle}" />
                                     <c:SettingRow

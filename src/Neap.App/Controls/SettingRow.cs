@@ -2,7 +2,6 @@ using System.Globalization;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Neap.App.Services;
 using Neap.Core.Settings;
 
@@ -32,9 +31,11 @@ public sealed class SettingRow : SettingsCard
     private ToggleSwitch? _toggle;
     private Slider? _slider;
     private ComboBox? _choice;
+    private RadioButtons? _buttons;
     private TextBlock? _readout;
     private UIElement? _control;
     private TextBlock? _absent;
+    private bool _paintingButtons;
 
     public SettingRow() => _link = new SettingLink(this, () => Setting, Build, Paint);
 
@@ -65,6 +66,20 @@ public sealed class SettingRow : SettingsCard
     {
         get => (double)GetValue(MinimumProperty);
         set => SetValue(MinimumProperty, value);
+    }
+
+    public static readonly DependencyProperty AsButtonsProperty = DependencyProperty.Register(
+        nameof(AsButtons), typeof(bool), typeof(SettingRow), new PropertyMetadata(false));
+
+    /// <summary>
+    /// Gets or sets whether an <see cref="SettingKind.Enum"/> setting with few
+    /// options is offered as buttons, every option in view, rather than a
+    /// drop-down. For a setting whose options would not fit a row this way.
+    /// </summary>
+    public bool AsButtons
+    {
+        get => (bool)GetValue(AsButtonsProperty);
+        set => SetValue(AsButtonsProperty, value);
     }
 
     /// <summary>Builds the row's control for its setting, once.</summary>
@@ -109,7 +124,7 @@ public sealed class SettingRow : SettingsCard
         // returned. The automation id is the setting's registry name, so a
         // script can find the control by the setting it writes.
         string spoken = Header?.ToString() ?? key.Name;
-        foreach (UIElement? control in new UIElement?[] { _slider, _toggle, _choice })
+        foreach (UIElement? control in new UIElement?[] { _slider, _toggle, _choice, _buttons })
             if (control is not null)
             {
                 Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(control, spoken);
@@ -126,14 +141,32 @@ public sealed class SettingRow : SettingsCard
 
     private UIElement BuildChoice(SettingKey key)
     {
+        var options = key.Options ?? new Dictionary<int, string>();
+        if (AsButtons) return BuildButtons(key, options);
+
         _choice = new ComboBox { MinWidth = 160 };
-        foreach (var option in key.Options ?? new Dictionary<int, string>())
+        foreach (var option in options)
             _choice.Items.Add(new ComboBoxItem { Content = OptionNames.For(key, option.Key), Tag = option.Key });
         _choice.SelectionChanged += (_, _) =>
         {
             if (_choice.SelectedItem is ComboBoxItem { Tag: int value }) _link.Write(value);
         };
         return _choice;
+    }
+
+    private UIElement BuildButtons(SettingKey key, IReadOnlyDictionary<int, string> options)
+    {
+        _buttons = new RadioButtons { MaxColumns = options.Count };
+        foreach (var option in options)
+        {
+            var button = new RadioButton { Content = OptionNames.For(key, option.Key), Tag = option.Key };
+            button.Checked += (_, _) =>
+            {
+                if (!_paintingButtons) _link.Write((int)button.Tag);
+            };
+            _buttons.Items.Add(button);
+        }
+        return _buttons;
     }
 
     private UIElement BuildSlider(SettingKey key)
@@ -199,7 +232,7 @@ public sealed class SettingRow : SettingsCard
         // Disabled only where there is a control that cannot be used: a
         // reading with nothing to change is not unavailable, and greyed out it
         // reads as one.
-        bool readout = _toggle is null && _slider is null && _choice is null;
+        bool readout = _toggle is null && _slider is null && _choice is null && _buttons is null;
         IsEnabled = known && (readout || _link.Key is { Writable: true });
     }
 
@@ -230,6 +263,16 @@ public sealed class SettingRow : SettingsCard
         if (_choice is not null)
             foreach (ComboBoxItem item in _choice.Items)
                 if (item.Tag is int tag && tag == value) { _choice.SelectedItem = item; break; }
-        if (_choice is null && _slider is null && _toggle is null) ShowValue(value);
+        if (_buttons is not null)
+        {
+            _paintingButtons = true;
+            try
+            {
+                foreach (RadioButton button in _buttons.Items.OfType<RadioButton>())
+                    button.IsChecked = button.Tag is int tag && tag == value;
+            }
+            finally { _paintingButtons = false; }
+        }
+        if (_choice is null && _slider is null && _toggle is null && _buttons is null) ShowValue(value);
     }
 }
