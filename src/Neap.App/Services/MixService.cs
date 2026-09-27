@@ -23,14 +23,7 @@ public sealed record ChatCandidate(string Process, string Display, bool Playing)
 /// </para>
 /// <para>
 /// Which of the wheel's readings move the mix, and how far, is decided in
-/// <see cref="ChatWheel"/>.
-/// </para>
-/// <para>
-/// The centre has a detent. The wheel steps in fives and rarely lands on
-/// exactly 50. A plain snap window is not enough: a fast turn straight through
-/// centre skips it, and a value snapped to 50 slides off again on the next
-/// notch, so the beep and the number disagree. The detent catches a crossing,
-/// and it holds.
+/// <see cref="ChatWheel"/>. The centre detent is <see cref="MixDetent"/>.
 /// </para>
 /// <para>
 /// Everything here runs on the UI thread: the dial and keyboard directly,
@@ -39,15 +32,6 @@ public sealed record ChatCandidate(string Process, string Display, bool Playing)
 /// </remarks>
 public sealed class MixService : IDisposable
 {
-    /// <summary>Centre detent half-width, in mix points.</summary>
-    private const int Detent = 4;
-
-    /// <summary>
-    /// Biggest step still treated as a wheel notch. The dial dragged across
-    /// the whole range passes through centre rather than sticking to it.
-    /// </summary>
-    private const int NotchLimit = 15;
-
     private readonly HeadsetService _headset;
 
     private readonly ChatWheel _wheel;
@@ -146,22 +130,14 @@ public sealed class MixService : IDisposable
         int want = Math.Clamp(value, 0, 100);
         int? previous = _lastApplied;
 
-        bool crossed = previous is int was
-            && (was - 50) * (want - 50) < 0
-            && Math.Abs(want - was) <= NotchLimit;
-        bool near = Math.Abs(want - 50) <= Detent;
-
-        int target;
-        bool cue = false;
-        if ((near || crossed) && !_detentHeld) { target = 50; _detentHeld = true; cue = true; }
-        else if (near) target = 50;
-        else { target = want; _detentHeld = false; }
+        var snap = MixDetent.Apply(want, previous, _detentHeld);
+        _detentHeld = snap.Held;
 
         var engine = _mix;
         if (engine is null) return null;
 
-        int applied = engine.SetMix(target);
-        if (cue && applied == 50) CentreCue();
+        int applied = engine.SetMix(snap.Value);
+        if (snap.Cue && applied == 50) CentreCue();
         Note(why, previous, applied);
         _lastApplied = applied;
         Changed?.Invoke();
