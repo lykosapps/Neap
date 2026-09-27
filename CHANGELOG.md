@@ -170,11 +170,9 @@ and date.
   square mark.
 - A slider's reading could run off the edge of a narrow card and disappear
   entirely, such as noise cancellation's blocking strength beside
-  Superhuman Hearing on Audio. The reading always stays in view now; the
-  slider gives way first.
+  Superhuman Hearing on Audio. The reading always stays in view now, and
+  the slider is shorter only when its card is too narrow for it.
 - The drawer that slides out from under a switch, such as Superhuman
   Hearing's type and intensity or noise cancellation's blocking, now sits
   flush against it and shares its corners, so the two read as one card
-  split by a line rather than two stacked boxes. Superhuman Hearing's tile
-  also matches noise control's height on Audio instead of leaving empty
-  space beside a taller card.
+  split by a line rather than two stacked boxes.

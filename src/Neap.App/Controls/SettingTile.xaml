@@ -6,19 +6,13 @@
 
     <!--
         A setting's tile, as on Home, with what only matters once it is on
-        in a drawer pulled out from under it while it is on. The face is a
-        star row rather than a stack: beside a taller sibling, such as Audio's
-        noise control, it takes the extra height rather than leaving it
-        blank beside a short tile.
+        in a drawer pulled out from under it while it is on. It keeps its own
+        height beside a taller neighbour: stretched, it becomes a large empty
+        button that switches the setting wherever it is clicked.
     -->
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <StackPanel VerticalAlignment="Top">
         <ToggleButton
             x:Name="Face"
-            Grid.Row="0"
             MinHeight="96"
             Canvas.ZIndex="1"
             IsEnabled="False"
@@ -52,8 +46,7 @@
         </ToggleButton>
         <Border
             x:Name="InsideHost"
-            Grid.Row="1"
             Style="{StaticResource NeapDrawerStyle}"
             Visibility="Collapsed" />
-    </Grid>
+    </StackPanel>
 </UserControl>

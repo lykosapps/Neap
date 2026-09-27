@@ -161,7 +161,6 @@ public sealed class WindowsVolumeRow : SettingsCard
             {
                 Minimum = 0,
                 Maximum = 100,
-                Width = WithMute ? MutedSliderWidth : SliderWidth,
                 VerticalAlignment = VerticalAlignment.Center,
             };
             _slider.ValueChanged += (_, args) =>
@@ -176,15 +175,17 @@ public sealed class WindowsVolumeRow : SettingsCard
                 VerticalAlignment = VerticalAlignment.Center,
                 Style = (Style)Application.Current.Resources["NumeralBodyTextStyle"],
             };
-            var line = new StackPanel
+            var line = new SliderLine
             {
-                Orientation = Orientation.Horizontal,
-                Spacing = 12,
+                Preferred = WithMute ? MutedSliderWidth : SliderWidth,
+                Flexible = _slider,
                 Children = { _slider, _readout },
             };
             if (WithMute)
             {
-                _mute = new ToggleButton { Content = new FontIcon { Glyph = UnmutedGlyph, FontSize = 16 } };
+                // As tall as the buttons elsewhere on the page: it is the one
+                // pressed most often, and an icon alone leaves it shorter.
+                _mute = new ToggleButton { MinHeight = 32, Content = new FontIcon { Glyph = UnmutedGlyph, FontSize = 16 } };
                 Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_mute, Strings.Get("Volume_Mute"));
                 ToolTipService.SetToolTip(_mute, Strings.Get("Volume_MuteTip"));
                 _mute.Click += (_, _) =>
