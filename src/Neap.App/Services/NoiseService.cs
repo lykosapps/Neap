@@ -53,6 +53,14 @@ public sealed class NoiseService : IDisposable
         Changed?.Invoke();
     }
 
+    /// <summary>Put the headset in a mode, at this level when the mode is cancelling.</summary>
+    /// <remarks>A profile is the caller: elsewhere the level comes only from the headset itself.</remarks>
+    public void Choose(NoiseMode mode, int level)
+    {
+        if (mode == NoiseMode.Cancelling) _noise.SetBlocking(level);
+        Choose(mode);
+    }
+
     /// <summary>Set whether a press of the Mode button steps through all three modes.</summary>
     public void SetCycling(bool cycling)
     {

@@ -17,6 +17,7 @@
     <Grid Background="{ThemeResource NeapGroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -59,9 +60,23 @@
                 VerticalAlignment="Center" />
         </Grid>
 
+        <!--
+            The active profile: under the title bar and above every page, so
+            switching one is as constant as the connection dot beside it. See
+            DECISIONS.md.
+        -->
+        <Border
+            Grid.Row="1"
+            Padding="16,8"
+            Background="{ThemeResource NeapPanelBrush}"
+            BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
+            BorderThickness="0,0,0,1">
+            <controls:ProfileBar HorizontalAlignment="Left" />
+        </Border>
+
         <NavigationView
             x:Name="Nav"
-            Grid.Row="1"
+            Grid.Row="2"
             CompactModeThresholdWidth="641"
             ExpandedModeThresholdWidth="1008"
             IsBackButtonVisible="Collapsed"

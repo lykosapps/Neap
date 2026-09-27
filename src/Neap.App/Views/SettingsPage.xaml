@@ -27,6 +27,10 @@
 
                 </StackPanel>
 
+                <TextBlock x:Uid="Profiles_Heading" Style="{StaticResource SectionHeaderStyle}" />
+                <TextBlock x:Uid="Profiles_Note" Style="{StaticResource SectionNoteStyle}" />
+                <c:ProfilesSettings />
+
                 <TextBlock x:Uid="Settings_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
                 <!--  Neap itself, on the same lit panel as the headset's controls.  -->
                 <Border Style="{StaticResource QuickCardStyle}">

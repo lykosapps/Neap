@@ -1,7 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Neap.Core;
+using Neap.Core.Audio;
 using Neap.Core.Presets;
+using Neap.Core.Settings;
 
 namespace Neap.App.Services;
 
@@ -19,6 +21,11 @@ namespace Neap.App.Services;
 /// behind a preset, of which its slot holds only the result, which
 /// preset an edited curve came from, and whether to keep the Charging Dock's
 /// status ring purple.
+/// </para>
+/// <para>
+/// Profiles are the one deliberate exception: a full snapshot, kept here
+/// rather than on the headset, so a profile survives the headset being reset
+/// and does not compete with its own five equaliser slots.
 /// </para>
 /// <para>
 /// Kept separate from the mix's volume journal, which is recovery state
@@ -179,6 +186,38 @@ public sealed class AppSettings
         if (!ParametricPresets.TryGetValue(key, out var bankPresets))
             ParametricPresets[key] = bankPresets = new();
         bankPresets[name] = adjustments.Select(a => new[] { a.Frequency, a.Gain, a.Width }).ToArray();
+    }
+
+    /// <summary>Profiles saved on this PC, in the order they were made.</summary>
+    [JsonPropertyName("profiles")] public List<StoredProfile> Profiles { get; set; } = new();
+
+    /// <summary>The id of the profile the headset was last set to match, or null if none has been applied.</summary>
+    [JsonPropertyName("active_profile")] public string? ActiveProfileId { get; set; }
+
+    /// <summary>
+    /// A profile's fields as stored. <see cref="ProfileService"/> is the only
+    /// reader and writer, and maps every field to and from <see cref="Neap.Core.Profiles.ProfileSettings"/>.
+    /// </summary>
+    public sealed class StoredProfile
+    {
+        [JsonPropertyName("id")] public string Id { get; set; } = "";
+        [JsonPropertyName("name")] public string Name { get; set; } = "";
+        [JsonPropertyName("noise_mode")] public NoiseMode NoiseMode { get; set; }
+        [JsonPropertyName("noise_level")] public int NoiseLevel { get; set; }
+        [JsonPropertyName("shh")] public bool SuperhumanHearing { get; set; }
+        [JsonPropertyName("shh_preset")] public int ShhPreset { get; set; }
+        [JsonPropertyName("shh_level")] public int ShhLevel { get; set; }
+        [JsonPropertyName("noise_gate")] public bool NoiseGate { get; set; }
+        [JsonPropertyName("noise_gate_threshold")] public int NoiseGateThreshold { get; set; }
+        [JsonPropertyName("ai_noise_reduction")] public bool AiNoiseReduction { get; set; }
+        [JsonPropertyName("mic_monitoring")] public int MicMonitoring { get; set; }
+        [JsonPropertyName("game_preset")] public string? GamePreset { get; set; }
+        [JsonPropertyName("mic_preset")] public string? MicPreset { get; set; }
+        [JsonPropertyName("spatial")] public SpatialFormat Spatial { get; set; }
+        [JsonPropertyName("auto_shutoff")] public int AutoShutoff { get; set; }
+        [JsonPropertyName("mode_button_function")] public int ModeButtonFunction { get; set; }
+        [JsonPropertyName("mode_button_cycles")] public bool ModeButtonCycles { get; set; }
+        [JsonPropertyName("dial_function")] public int DialFunction { get; set; }
     }
 
     private static readonly string Path = System.IO.Path.Combine(AppFolder.Path, "app-settings.json");

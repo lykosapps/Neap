@@ -1,5 +1,69 @@
 # Decisions
 
+## 2026-09-27 — What a profile holds
+
+- **Options:** the narrow list first proposed (noise control, Superhuman
+  Hearing, the noise gate, AI noise reduction, mic monitoring, both
+  equaliser presets); adding spatial sound and the power/button settings;
+  leaving those two out for a later version.
+- **Chosen:** all of it — noise control (as a three-way mode: off,
+  cancelling, transparency, plus level), Superhuman Hearing, the noise
+  gate, AI noise reduction, mic monitoring, both equaliser presets, spatial
+  sound, and the Mode button, dial and auto-off settings. Mic volume was
+  dropped from the first proposal: it mirrors the Windows capture level
+  rather than being a real headset setting, the same reason every other
+  volume was already left out.
+- **Why:** a profile is a full sound-personality swap, not a partial one.
+  Spatial sound can occasionally need a follow-up step (a Dolby Atmos
+  licence prompt on a transmitter that hasn't activated it), which was
+  weighed and accepted as a smaller cost than leaving it out.
+- **Revisit if:** the Dolby Atmos prompt turns out to interrupt switching
+  often enough to be annoying.
+
+## 2026-09-27 — Where the profile switcher lives
+
+- **Options:** a tile on Home, near the other quick settings; in the title
+  bar next to the connection status; a persistent header bar under the
+  title bar, above every page.
+- **Chosen:** a full-width bar under the title bar, visible on every page.
+  The connection status stays exactly where it is, in the title bar, with
+  battery, signal and route staying on Home as already decided — the new
+  bar is about which profile is active, not a second status dashboard.
+- **Why:** the title bar strip is deliberately minimal (a dot and a word)
+  and had no room for a profile name too. Corsair, Razer and Logitech's own
+  software all give a profile switcher a dedicated, always-visible spot
+  rather than folding it into a status strip, and WinUI has a matching
+  built-in pattern for a persistent bar under the title bar.
+- **Revisit if:** the bar feels redundant once app-to-profile assignment
+  (a later version) makes manual switching rare.
+
+## 2026-09-27 — What happens after changing something post-profile
+
+- **Options:** save silently; warn before switching away from an unsaved
+  change; show an edited state with no silent saving, matching how the
+  equaliser already marks an edited curve.
+- **Chosen:** the same treatment as the equaliser: the active profile shows
+  as edited the moment anything it covers changes, until it's saved back or
+  discarded. Switching profiles while edited does not warn first, matching
+  the equaliser's own preset switch.
+- **Why:** reusing a pattern already shipped and understood, rather than
+  inventing a second way to say the same thing.
+
+## 2026-09-27 — Where profiles are stored
+
+- **Chosen:** on the PC, in Neap's own settings, not on the headset.
+- **Why:** profiles survive a factory reset or a different headset, and
+  don't compete with the headset's own five equaliser slots per bank.
+- **Revisit if:** someone asks to carry profiles between PCs; export/import
+  would cover it without changing where they live.
+
+## 2026-09-27 — A profile's saved equaliser preset, deleted since
+
+- **Chosen:** apply everything else the profile holds, and say which
+  preset(s) could not be found, rather than block the whole switch or fail
+  silently.
+- **Why:** matches the project's standing rule that nothing fails silently.
+
 Choices that shaped Neap, and why, so a later session doesn't reopen a settled question without knowing the reason.
 
 ## 2026-09-26 — Audio puts its everyday settings first and the equaliser last

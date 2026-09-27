@@ -17,6 +17,7 @@ public static class AppServices
     public static MixService Mix { get; private set; } = null!;
     public static NoiseService Noise { get; private set; } = null!;
     public static PresetService Presets { get; private set; } = null!;
+    public static ProfileService Profiles { get; private set; } = null!;
     public static HotkeyService Hotkeys { get; private set; } = null!;
     public static AudioRoute AudioRoute { get; private set; } = null!;
     public static RingService Ring { get; private set; } = null!;
@@ -45,6 +46,7 @@ public static class AppServices
         Mix = new MixService(Headset);
         Noise = new NoiseService(Headset);
         Presets = new PresetService(Headset);
+        Profiles = new ProfileService(Headset);
         Hotkeys = new HotkeyService(Mix);
         Hotkeys.Enable(AppSettings.Current.MixHotkeys && !Pretend.Active);
 

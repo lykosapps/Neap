@@ -59,6 +59,14 @@ and date.
 
 ### Also in Neap
 
+- **Profiles.** Save the headset's current setup — noise control,
+  Superhuman Hearing, the noise gate, AI noise reduction, mic monitoring,
+  both equaliser presets, spatial sound, and the Mode button, dial and
+  auto-off settings — under a name, and switch back to it in one move from
+  the bar under the title bar. A profile that no longer matches what's
+  applied shows as edited until it's saved or you switch away. A preset a
+  profile remembers, deleted since it was saved, is named rather than
+  silently skipped.
 - **Spatial sound**, as a tile on Home and on the Audio page: off, Windows
   Sonic, and Dolby Atmos where it's installed. The Stealth Pro II carries a
   Dolby Atmos

@@ -657,6 +657,72 @@
   <data name="Preset_Unreadable" xml:space="preserve">
     <value>Couldn't read the current equaliser.</value>
   </data>
+  <data name="Profile_GiveName" xml:space="preserve">
+    <value>A profile needs a name.</value>
+  </data>
+  <data name="Profile_NotRead" xml:space="preserve">
+    <value>The headset's settings haven't been read yet.</value>
+  </data>
+  <data name="Profile_NameTaken" xml:space="preserve">
+    <value>There's already a profile called {0}.</value>
+  </data>
+  <data name="Profile_Bar" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Profile_None" xml:space="preserve">
+    <value>No profile</value>
+  </data>
+  <data name="Profile_Edited" xml:space="preserve">
+    <value>Edited</value>
+  </data>
+  <data name="Profile_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Profile_Discard" xml:space="preserve">
+    <value>Discard</value>
+  </data>
+  <data name="Profile_New" xml:space="preserve">
+    <value>Save current settings as a new profile</value>
+  </data>
+  <data name="Profile_NewTitle" xml:space="preserve">
+    <value>New profile</value>
+  </data>
+  <data name="Profile_RenameTitle" xml:space="preserve">
+    <value>Rename profile</value>
+  </data>
+  <data name="Profile_NamePlaceholder" xml:space="preserve">
+    <value>Profile name</value>
+  </data>
+  <data name="Profile_MissingPresets" xml:space="preserve">
+    <value>Missing from the equaliser now: {0}. The rest of the profile was applied.</value>
+  </data>
+  <data name="Profile_PartiallyAppliedTitle" xml:space="preserve">
+    <value>Profile applied</value>
+  </data>
+  <data name="Profile_CouldNotSaveTitle" xml:space="preserve">
+    <value>Couldn't save the profile</value>
+  </data>
+  <data name="Profiles_Heading.Text" xml:space="preserve">
+    <value>Profiles</value>
+  </data>
+  <data name="Profiles_Note.Text" xml:space="preserve">
+    <value>Rename or delete a saved profile. Switch profiles from the bar at the top of the window.</value>
+  </data>
+  <data name="Profiles_Empty" xml:space="preserve">
+    <value>No profiles saved yet. Set the headset up the way you want, then save it as a profile from the bar at the top.</value>
+  </data>
+  <data name="Profile_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Profile_DeleteNamed" xml:space="preserve">
+    <value>Delete {0}</value>
+  </data>
+  <data name="Profile_KeepNamed" xml:space="preserve">
+    <value>Keep {0}</value>
+  </data>
+  <data name="Profile_RenameNamed" xml:space="preserve">
+    <value>Rename {0}</value>
+  </data>
   <data name="Audio_NoDevice" xml:space="preserve">
     <value>No audio device</value>
   </data>
