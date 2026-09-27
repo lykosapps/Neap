@@ -130,8 +130,11 @@ public sealed class ProfileService : IDisposable
     public async Task<IReadOnlyList<string>> Apply(Profile profile)
     {
         var s = profile.Settings;
-        var game = await AppServices.Presets.Load(Bank.Game);
-        var mic = await AppServices.Presets.Load(Bank.Mic);
+        // Already-loaded state is reused rather than asked for again: a full
+        // read costs about 1.2 seconds a bank, and switching or discarding a
+        // profile should feel as immediate as choosing a preset does.
+        var game = AppServices.Presets.State(Bank.Game) ?? await AppServices.Presets.Load(Bank.Game);
+        var mic = AppServices.Presets.State(Bank.Mic) ?? await AppServices.Presets.Load(Bank.Mic);
         var missing = ProfileCheck.Missing(s, game.Presets.Select(p => p.Name).ToList(),
             mic.Presets.Select(p => p.Name).ToList());
 

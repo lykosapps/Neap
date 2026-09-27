@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Neap.App.Services;
 
@@ -21,6 +22,8 @@ internal static class ProfileNaming
     public static async Task<string> Ask(XamlRoot root, string title, string suggested, string? excludingId)
     {
         var field = new TextBox { Text = suggested, PlaceholderText = Strings.Get("Profile_NamePlaceholder") };
+        // A placeholder alone is not a name a screen reader can rely on.
+        AutomationProperties.SetName(field, Strings.Get("Profile_NamePlaceholder"));
         var note = new TextBlock
         {
             Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],

@@ -663,6 +663,101 @@ function Spare {
     Check (Until { (& $shown) -eq '30%' }) 'a spare put back shows its charge'
 }
 
+# The profile bar (no profile, an active one, edited), and the Profiles
+# section on Settings: saving, editing after, renaming, assigning an app and
+# deleting. The bar sits outside every page's frame, so it is looked for in
+# the window rather than a particular page.
+function Profiles {
+    $script:step = 'the Profiles section with none saved'
+    Page 'Settings'
+    Screenshot 'settings-profiles-empty'
+
+    $script:step = 'the profile bar with no profile'
+    Page 'Home'
+    $bar = Control 'Profile' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -eq $bar) { Fail 'the window has a profile bar'; return }
+    Screenshot 'profile-none'
+
+    $script:step = 'saving the current settings as a new profile'
+    Ask 'clear' | Out-Null
+    (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
+    $newButton = { Control 'Save current settings as a new profile' ([System.Windows.Automation.ControlType]::Button) }
+    if (-not (Until { $null -ne (& $newButton) })) { Fail 'the profile bar offers to save the current settings as a new profile'; return }
+    Screenshot 'profile-flyout'
+    (Pattern (& $newButton) ([System.Windows.Automation.InvokePattern])).Invoke()
+
+    $field = { Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit) }
+    if (-not (Until { $null -ne (& $field) })) { Fail 'saving a new profile opens a name dialog'; return }
+    # The flyout's own close animation can still be mid-flight the instant the
+    # field exists, which shows both it and the dialog half-composited.
+    Start-Sleep -Milliseconds 500
+    Screenshot 'profile-new-dialog'
+    (Pattern (& $field) ([System.Windows.Automation.ValuePattern])).SetValue('Gaming')
+    $save = Control 'Save' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -eq $save) { Fail 'the name dialog has a Save button'; return }
+    (Pattern $save ([System.Windows.Automation.InvokePattern])).Invoke()
+    Check (Until { $null -ne (Control 'Gaming' ([System.Windows.Automation.ControlType]::TextBlock)) -or $null -ne (Find $script:window 'NameProperty' 'Gaming') }) 'saving names the profile Gaming'
+    Screenshot 'profile-active'
+
+    $script:step = 'the profile bar once something no longer matches it'
+    Page 'Microphone'
+    $ai = Find $script:window 'AutomationIdProperty' 'ai_noise_reduction'
+    if ($null -eq $ai) { Fail 'Microphone has an AI noise reduction control'; return }
+    Operate $ai $null
+    Page 'Home'
+    Check (Until { $null -ne (Find $script:window 'NameProperty' 'Edited') }) 'changing a setting the profile holds marks it edited'
+    Screenshot 'profile-edited'
+
+    $discard = Control 'Discard' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -ne $discard) {
+        (Pattern $discard ([System.Windows.Automation.InvokePattern])).Invoke()
+        Check (Until { $null -eq (Find $script:window 'NameProperty' 'Edited') }) 'discarding clears the edited mark'
+    }
+    else { Fail 'the bar offers Discard while edited' }
+
+    $script:step = 'the Profiles section on Settings'
+    Page 'Settings'
+    Screenshot 'settings-profiles'
+
+    $rename = Control 'Rename Gaming' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -ne $rename) {
+        (Pattern $rename ([System.Windows.Automation.InvokePattern])).Invoke()
+        if (Until { $null -ne (Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit)) }) {
+            Screenshot 'profile-rename-dialog'
+            $cancelRename = Control 'Cancel' ([System.Windows.Automation.ControlType]::Button)
+            if ($null -ne $cancelRename) { (Pattern $cancelRename ([System.Windows.Automation.InvokePattern])).Invoke() }
+        }
+        else { Fail 'renaming opens a name dialog' }
+    }
+    else { Fail 'the Gaming row offers to rename it' }
+
+    $apps = Control 'Apps for Gaming' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -ne $apps) {
+        (Pattern $apps ([System.Windows.Automation.InvokePattern])).Invoke()
+        Until { @(FindAll $script:window 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox)).Count -gt 0 } | Out-Null
+        Screenshot 'profile-apps-dialog'
+        $box = @(FindAll $script:window 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox)) | Select-Object -First 1
+        if ($null -ne $box) { (Pattern $box ([System.Windows.Automation.TogglePattern])).Toggle() }
+        $ok = Control 'OK' ([System.Windows.Automation.ControlType]::Button)
+        if ($null -ne $ok) { (Pattern $ok ([System.Windows.Automation.InvokePattern])).Invoke() }
+        Check (Until { $null -eq (Find $script:window 'NameProperty' 'Not assigned to any app') }) 'checking an app in the picker assigns it'
+        Screenshot 'settings-profiles-assigned'
+    }
+    else { Fail 'the Gaming row offers to choose its apps' }
+
+    $delete = Control 'Delete Gaming' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -ne $delete) {
+        (Pattern $delete ([System.Windows.Automation.InvokePattern])).Invoke()
+        if (Until { $null -ne (Control 'Keep Gaming' ([System.Windows.Automation.ControlType]::Button)) }) {
+            Screenshot 'profile-delete-confirm'
+            (Pattern (Control 'Keep Gaming' ([System.Windows.Automation.ControlType]::Button)) ([System.Windows.Automation.InvokePattern])).Invoke()
+        }
+        else { Fail 'deleting Gaming asks first' }
+    }
+    else { Fail 'the Gaming row offers to delete it' }
+    Collect
+}
+
 function PowerCycle {
     Ask 'off' | Out-Null
     Check (Until { (Header) -ne 'Headset connected' } 40) "switched off, the header says $(Header)"
@@ -742,6 +837,9 @@ try {
 
     Write-Host 'Noise control'
     NoiseControl
+
+    Write-Host 'Profiles'
+    Profiles
 
     Write-Host 'Headset'
     Battery

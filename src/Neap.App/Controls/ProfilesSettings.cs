@@ -78,7 +78,11 @@ public sealed class ProfilesSettings : UserControl
         var names = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Children = { name, caption } };
 
         var apps = new Button { Content = new FontIcon { Glyph = "", FontSize = 12 } };
-        AutomationProperties.SetName(apps, Strings.Format("Profile_AppsTitle", profile.Name));
+        string appsName = Strings.Format("Profile_AppsTitle", profile.Name);
+        AutomationProperties.SetName(apps, appsName);
+        // Unlike rename and delete, this icon has no meaning anyone already
+        // knows, so it gets the one exception to no help text: a tooltip.
+        ToolTipService.SetToolTip(apps, appsName);
         apps.Click += async (_, _) => await OpenAppPicker(profile);
 
         var rename = new Button { Content = new FontIcon { Glyph = "", FontSize = 12 } };

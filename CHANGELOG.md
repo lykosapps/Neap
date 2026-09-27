@@ -142,6 +142,9 @@ and date.
   its foot in the dark one.
 - A setting changed while the equaliser's presets are loading takes effect
   in under a second, rather than waiting up to four.
+- Switching to a profile, or discarding a change back to one, no longer
+  re-reads both equaliser banks first if they were already read: a couple
+  of seconds' wait, gone.
 - Tighter, more consistent wording: keyboard shortcuts, assignable and
   fixed controls, slot counts, refreshing the chat app list, and one way of
   saying couldn't, isn't and won't.
