@@ -723,6 +723,15 @@
   <data name="Profile_RenameNamed" xml:space="preserve">
     <value>Rename {0}</value>
   </data>
+  <data name="Profile_NoApps" xml:space="preserve">
+    <value>Not assigned to any app</value>
+  </data>
+  <data name="Profile_AppsTitle" xml:space="preserve">
+    <value>Apps for {0}</value>
+  </data>
+  <data name="Profile_AppsHint" xml:space="preserve">
+    <value>Nothing is running right now. Start the app you want, then open this again.</value>
+  </data>
   <data name="Audio_NoDevice" xml:space="preserve">
     <value>No audio device</value>
   </data>

@@ -28,8 +28,12 @@ public sealed record ProfileSettings(
     ModeChoice ModeButton,
     int DialFunction);
 
-/// <summary>A profile, saved under a name the person chose.</summary>
-public sealed record Profile(string Id, string Name, ProfileSettings Settings);
+/// <summary>
+/// A profile, saved under a name the person chose. <see cref="AssignedApps"/>
+/// is by process name, e.g. "witcher3.exe"; switching to it automatically is
+/// a later version's job, not this one's.
+/// </summary>
+public sealed record Profile(string Id, string Name, IReadOnlyList<string> AssignedApps, ProfileSettings Settings);
 
 /// <summary>Whether a profile's saved equaliser presets are still there to apply.</summary>
 public static class ProfileCheck
@@ -47,4 +51,29 @@ public static class ProfileCheck
         if (settings.MicPreset is { } mic && !micPresets.Contains(mic)) missing.Add(mic);
         return missing;
     }
+}
+
+/// <summary>Which profile an app belongs to, kept to at most one.</summary>
+public static class ProfileAssignment
+{
+    /// <summary>
+    /// Assigns an app to a profile, taking it away from whichever profile it
+    /// belonged to before: an app going to two profiles at once would leave
+    /// nothing to decide between them later.
+    /// </summary>
+    public static IReadOnlyList<Profile> Assign(IReadOnlyList<Profile> profiles, string profileId, string app) =>
+        profiles.Select(p => p.Id == profileId ? p with { AssignedApps = Added(p.AssignedApps, app) }
+            : p with { AssignedApps = Removed(p.AssignedApps, app) }).ToList();
+
+    /// <summary>Takes an app away from whichever profile holds it.</summary>
+    public static IReadOnlyList<Profile> Unassign(IReadOnlyList<Profile> profiles, string app) =>
+        profiles.Select(p => p with { AssignedApps = Removed(p.AssignedApps, app) }).ToList();
+
+    private static IReadOnlyList<string> Added(IReadOnlyList<string> apps, string app) =>
+        apps.Contains(app, StringComparer.OrdinalIgnoreCase) ? apps : [.. apps, app];
+
+    private static IReadOnlyList<string> Removed(IReadOnlyList<string> apps, string app) =>
+        apps.Any(a => string.Equals(a, app, StringComparison.OrdinalIgnoreCase))
+            ? apps.Where(a => !string.Equals(a, app, StringComparison.OrdinalIgnoreCase)).ToList()
+            : apps;
 }

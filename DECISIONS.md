@@ -57,6 +57,24 @@
 - **Revisit if:** someone asks to carry profiles between PCs; export/import
   would cover it without changing where they live.
 
+## 2026-09-27 — Assigning apps to a profile, without switching automatically yet
+
+- **Options:** build assignment and automatic switching together; build
+  assignment alone first, with automatic switching as a separate step.
+- **Chosen:** assignment alone. A profile can be given one or more apps in
+  Settings, by process name, but nothing yet switches to it on its own when
+  that app runs.
+- **Why:** automatic switching needs new plumbing Neap does not have yet
+  (watching which window is in front) and its own decisions (what counts as
+  "active," what it reverts to, whether a manual switch overrides it) that
+  are worth trying against assignment once that part is right, not guessing
+  at both together.
+- **An app belongs to at most one profile.** Assigning it to a second one
+  takes it away from the first, since two profiles both claiming the same
+  app would leave nothing to decide between them once switching is built.
+- **Revisit when:** automatic switching is built; the decisions above get
+  made then.
+
 ## 2026-09-27 — A profile's saved equaliser preset, deleted since
 
 - **Chosen:** apply everything else the profile holds, and say which

@@ -66,7 +66,9 @@ and date.
   the bar under the title bar. A profile that no longer matches what's
   applied shows as edited until it's saved or you switch away. A preset a
   profile remembers, deleted since it was saved, is named rather than
-  silently skipped.
+  silently skipped. A profile can also be given one or more apps, from its
+  row in Settings — switching to it automatically when that app runs is
+  still to come.
 - **Spatial sound**, as a tile on Home and on the Audio page: off, Windows
   Sonic, and Dolby Atmos where it's installed. The Stealth Pro II carries a
   Dolby Atmos

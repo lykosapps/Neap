@@ -176,7 +176,7 @@ public sealed class ProfileService : IDisposable
         string id = Guid.NewGuid().ToString("N");
         AppSettings.Update(a =>
         {
-            a.Profiles.Add(ToStored(new Profile(id, name, settings)));
+            a.Profiles.Add(ToStored(new Profile(id, name, [], settings)));
             a.ActiveProfileId = id;
         });
         Changed?.Invoke();
@@ -224,10 +224,31 @@ public sealed class ProfileService : IDisposable
         Changed?.Invoke();
     }
 
+    /// <summary>Assigns an app to a profile, taking it away from whichever profile had it.</summary>
+    public void Assign(string profileId, string app)
+    {
+        Persist(ProfileAssignment.Assign(All, profileId, app));
+        Changed?.Invoke();
+    }
+
+    /// <summary>Takes an app away from whichever profile it is assigned to.</summary>
+    public void Unassign(string app)
+    {
+        Persist(ProfileAssignment.Unassign(All, app));
+        Changed?.Invoke();
+    }
+
+    private static void Persist(IReadOnlyList<Profile> profiles) => AppSettings.Update(a =>
+    {
+        foreach (var profile in profiles)
+            if (a.Profiles.FirstOrDefault(p => p.Id == profile.Id) is { } stored)
+                stored.AssignedApps = profile.AssignedApps.ToList();
+    });
+
     private static bool Same(string a, string b) =>
         string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
 
-    private static Profile ToProfile(AppSettings.StoredProfile s) => new(s.Id, s.Name, new ProfileSettings(
+    private static Profile ToProfile(AppSettings.StoredProfile s) => new(s.Id, s.Name, s.AssignedApps, new ProfileSettings(
         s.NoiseMode, s.NoiseLevel, s.SuperhumanHearing, s.ShhPreset, s.ShhLevel,
         s.NoiseGate, s.NoiseGateThreshold, s.AiNoiseReduction, s.MicMonitoring,
         s.GamePreset, s.MicPreset, s.Spatial, s.AutoShutoff,
@@ -237,6 +258,7 @@ public sealed class ProfileService : IDisposable
     {
         Id = profile.Id,
         Name = profile.Name,
+        AssignedApps = profile.AssignedApps.ToList(),
         NoiseMode = profile.Settings.NoiseMode,
         NoiseLevel = profile.Settings.NoiseLevel,
         SuperhumanHearing = profile.Settings.SuperhumanHearing,
