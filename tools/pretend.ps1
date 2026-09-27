@@ -697,6 +697,7 @@ function Profiles {
     if ($null -eq $save) { Fail 'the name dialog has a Save button'; return }
     (Pattern $save ([System.Windows.Automation.InvokePattern])).Invoke()
     Check (Until { $null -ne (Control 'Gaming' ([System.Windows.Automation.ControlType]::TextBlock)) -or $null -ne (Find $script:window 'NameProperty' 'Gaming') }) 'saving names the profile Gaming'
+    Start-Sleep -Milliseconds 300
     Screenshot 'profile-active'
 
     $script:step = 'the profile bar once something no longer matches it'
@@ -735,12 +736,18 @@ function Profiles {
     if ($null -ne $apps) {
         (Pattern $apps ([System.Windows.Automation.InvokePattern])).Invoke()
         Until { @(FindAll $script:window 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox)).Count -gt 0 } | Out-Null
+        Start-Sleep -Milliseconds 300
         Screenshot 'profile-apps-dialog'
         $box = @(FindAll $script:window 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox)) | Select-Object -First 1
         if ($null -ne $box) { (Pattern $box ([System.Windows.Automation.TogglePattern])).Toggle() }
+        # The check mark has its own brief animation; screenshotting the
+        # instant the toggle call returns catches it still fading in.
+        Start-Sleep -Milliseconds 400
+        Screenshot 'profile-apps-checked'
         $ok = Control 'OK' ([System.Windows.Automation.ControlType]::Button)
         if ($null -ne $ok) { (Pattern $ok ([System.Windows.Automation.InvokePattern])).Invoke() }
         Check (Until { $null -eq (Find $script:window 'NameProperty' 'Not assigned to any app') }) 'checking an app in the picker assigns it'
+        Start-Sleep -Milliseconds 300
         Screenshot 'settings-profiles-assigned'
     }
     else { Fail 'the Gaming row offers to choose its apps' }
