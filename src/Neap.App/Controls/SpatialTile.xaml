@@ -6,18 +6,19 @@
     xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <!--
-        Windows' spatial sound for the headset, as a tile: the format on
-        shows as its word, and the flyout lists what Windows offers, the
-        same as the equaliser preset picker. As a row, the same flyout opens
-        from a button on the right, beside the other levels.
+        Windows' spatial sound for the headset, as a tile: lit while it is
+        anything but off, the same as every other tile that can be on. The
+        format shows as its word, and the flyout lists what Windows offers,
+        opened from the tile like the equaliser's, or from a row's button
+        beside the other levels.
     -->
     <Grid>
-        <Button
+        <ToggleButton
             x:Name="Face"
             x:Uid="Quick_SpatialTile"
             IsEnabled="False"
-            Style="{StaticResource NeapButtonTileStyle}">
-            <Button.Flyout>
+            Style="{StaticResource NeapToggleTileStyle}">
+            <FlyoutBase.AttachedFlyout>
                 <Flyout x:Name="FormatFlyout" Placement="BottomEdgeAlignedRight">
                     <StackPanel MaxWidth="240" Spacing="8">
                         <ListView
@@ -39,7 +40,7 @@
                             Visibility="Collapsed" />
                     </StackPanel>
                 </Flyout>
-            </Button.Flyout>
+            </FlyoutBase.AttachedFlyout>
             <Grid RowSpacing="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -61,7 +62,7 @@
                     Grid.Row="2"
                     Style="{StaticResource NeapTileStateStyle}" />
             </Grid>
-        </Button>
+        </ToggleButton>
 
         <tk:SettingsCard
             x:Name="Row"

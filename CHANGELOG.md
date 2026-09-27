@@ -194,3 +194,7 @@ and date.
   keep; before that, Duplicate is a plain button. Save is left out for the
   headset's own presets, which can't be overwritten, and on a wide window
   the curve lines up with the preset's name.
+- Spatial sound's tile lights up with the accent while it's on, the same
+  as every other tile that can be on. It read as off with Windows Sonic or
+  Dolby Atmos playing, since it borrowed the equaliser's tile, which is
+  never lit because the equaliser is never off.

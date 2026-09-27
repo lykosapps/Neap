@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Neap.App.Services;
 using Neap.Core.Audio;
 using Neap.Core.Connection;
@@ -62,6 +63,10 @@ public sealed partial class SpatialTile : UserControl
         Word.Text = Strings.Get("Reading_None");
         RowButton.Content = Word.Text;
 
+        // The tile only opens the list; whether it is lit is Paint's alone,
+        // from what is on, so a click here never needs to move it.
+        Face.Click += (_, _) => FlyoutBase.ShowAttachedFlyout(Face);
+
         FormatFlyout.Opened += (_, _) => (FormatList.ContainerFromItem(FormatList.SelectedItem) as ListViewItem
             ?? FormatList.ContainerFromIndex(0) as ListViewItem)?.Focus(FocusState.Programmatic);
         FormatList.SelectionChanged += async (_, _) =>
@@ -101,7 +106,6 @@ public sealed partial class SpatialTile : UserControl
     {
         Face.Visibility = asRow ? Visibility.Collapsed : Visibility.Visible;
         Row.Visibility = asRow ? Visibility.Visible : Visibility.Collapsed;
-        Face.Flyout = asRow ? null : FormatFlyout;
         RowButton.Flyout = asRow ? FormatFlyout : null;
     }
 
@@ -151,6 +155,9 @@ public sealed partial class SpatialTile : UserControl
             FormatList.SelectedItem = FormatList.Items.OfType<ListViewItem>()
                 .FirstOrDefault(item => panel.Active is { } active && (SpatialFormat)item.Tag == active);
             Face.IsEnabled = RowButton.IsEnabled = panel.Offered.Count > 1;
+            // Lit whenever anything but Off is chosen, the same as every
+            // other tile that can be on.
+            Face.IsChecked = panel.Active is { } chosen && chosen != SpatialFormat.Off;
             Word.Text = panel.Active is { } active ? Label(active)
                 : panel.Unrecognised ? Strings.Get("Spatial_Unrecognised")
                 : Strings.Get("Reading_None");
