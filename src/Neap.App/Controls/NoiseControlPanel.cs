@@ -29,7 +29,7 @@ public sealed class NoiseControlPanel : UserControl
 {
     private static readonly NoiseMode[] Modes = [NoiseMode.Cancelling, NoiseMode.Transparency, NoiseMode.Off];
 
-    /// <summary>The corner radius <see cref="QuickCardStyle"/> gives the card, so its bottom can be squared to meet the drawer.</summary>
+    /// <summary>The corner radius <c>QuickCardStyle</c> gives the card, so its bottom can be squared to meet the drawer.</summary>
     private static readonly CornerRadius CardRadius = new(16);
     private static readonly CornerRadius CardRadiusOverDrawer = new(16, 16, 0, 0);
 

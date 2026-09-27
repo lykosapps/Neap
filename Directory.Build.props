@@ -14,6 +14,15 @@
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!--
+      Checked, not just written: a doc comment that only half-covers a method
+      is a build warning, same as an unused import (below, in .editorconfig).
+      CS1591 (a public member with no comment at all) is left off; the rule
+      here is that what is written is complete, not that everything must be.
+    -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <!--

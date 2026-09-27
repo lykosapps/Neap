@@ -113,15 +113,12 @@ catch (TransportException error)
     return 1;
 }
 
-/// <summary>
-/// Opens the device the headset is actually behind, not just the first
-/// collection Windows offers.
-/// </summary>
-/// <remarks>
-/// With two transmitters plugged in only one has the headset on it; the other
-/// answers nothing, so reading from it reports empty values for a connected
-/// headset.
-/// </remarks>
+// Opens the device the headset is actually behind, not just the first
+// collection Windows offers.
+//
+// With two transmitters plugged in only one has the headset on it; the other
+// answers nothing, so reading from it reports empty values for a connected
+// headset.
 static HeadsetClient Ask()
 {
     var client = HeadsetClient.Behind(allowWrites: false, out int present);
@@ -133,16 +130,13 @@ static HeadsetClient Ask()
             : "it is plugged in, but the headset is not answering — switch it on");
 }
 
-/// <summary>
-/// Asks every device separately whether it answers for the headset.
-/// </summary>
-/// <remarks>
-/// The other commands open the first device that answers, which is right for
-/// talking to the headset but cannot say which transmitter carries its
-/// controls. That matters when two are plugged in, because the headset's
-/// sound and controls can be on different ones. Each device is asked for the
-/// general-state block and its transmitter slots.
-/// </remarks>
+// Asks every device separately whether it answers for the headset.
+//
+// The other commands open the first device that answers, which is right for
+// talking to the headset but cannot say which transmitter carries its
+// controls. That matters when two are plugged in, because the headset's
+// sound and controls can be on different ones. Each device is asked for the
+// general-state block and its transmitter slots.
 static int Who()
 {
     var candidates = HidTransport.Candidates();
@@ -696,21 +690,15 @@ static int SetFormat(int bits, int rate)
     return stored?.Rate == live?.Rate ? 0 : 1;
 }
 
-/// <summary>
-/// Reads everything the headset will answer, repeatedly, and prints only what
-/// changes.
-/// </summary>
-/// <remarks>
-/// <para>
-/// For naming an unidentified value: start it, operate the hardware, and each
-/// change is printed with the time it happened. Nothing is filtered, because a
-/// value assumed understood can be the one that carries the flag.
-/// </para>
-/// <para>
-/// The transmitter slots are read as well as the settings categories, because
-/// dock and charge state may sit in either.
-/// </para>
-/// </remarks>
+// Reads everything the headset will answer, repeatedly, and prints only what
+// changes.
+//
+// For naming an unidentified value: start it, operate the hardware, and each
+// change is printed with the time it happened. Nothing is filtered, because a
+// value assumed understood can be the one that carries the flag.
+//
+// The transmitter slots are read as well as the settings categories, because
+// dock and charge state may sit in either.
 static int Diff(double seconds)
 {
     using var client = Ask();
@@ -794,9 +782,7 @@ static int Diff(double seconds)
 static string Short(string value) =>
     value.Length <= 60 ? value : value[..57] + "...";
 
-/// <summary>
-/// Prints every report, pushed or asked for; see <see cref="Neap.Probe.RawListener"/>.
-/// </summary>
+// Prints every report, pushed or asked for; see Neap.Probe.RawListener.
 static int Raw(double seconds, ushort usagePage) =>
     Neap.Probe.RawListener.Run(seconds, usagePage);
 

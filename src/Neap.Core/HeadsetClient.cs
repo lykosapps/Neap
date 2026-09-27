@@ -42,6 +42,8 @@ public sealed class HeadsetClient : IDisposable
 
     public bool AllowWrites { get; }
 
+    /// <param name="allowWrites">Whether this client may write to the headset at all.</param>
+    /// <param name="transport">The channel to the device, or a real one opened by product id when none is given.</param>
     /// <param name="ownsTransport">
     /// Close <paramref name="transport"/> when this client is disposed. A
     /// transport handed in is otherwise the caller's to close.
@@ -75,6 +77,8 @@ public sealed class HeadsetClient : IDisposable
     /// while the headset is connected elsewhere.
     /// </para>
     /// </remarks>
+    /// <param name="allowWrites">Whether the returned client may write to the headset.</param>
+    /// <param name="present">How many candidate devices were found.</param>
     /// <param name="askLast">A product id to ask after the others, when its answer is in doubt.</param>
     /// <param name="devices">Where to look; what Windows has when not given.</param>
     /// <returns>

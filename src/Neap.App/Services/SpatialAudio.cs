@@ -15,6 +15,9 @@ namespace Neap.App.Services;
 /// from Sound settings directly, or a format Windows has added since. It is
 /// still a deliberate choice, just not one this shows by name.
 /// </param>
+/// <param name="Offered">Every format this endpoint offers; empty when none could be read.</param>
+/// <param name="Active">The format currently on, or null when none is, or none could be read.</param>
+/// <param name="Trouble">Why nothing could be read, or null when it could.</param>
 public sealed record SpatialPanel(IReadOnlyList<SpatialFormat> Offered, SpatialFormat? Active, string? Trouble,
     string? EndpointId = null, bool Unrecognised = false)
 {

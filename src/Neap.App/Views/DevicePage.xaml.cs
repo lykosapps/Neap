@@ -2,7 +2,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Neap.App.Services;
-using Neap.Core;
 using Neap.Core.Protocol;
 using Neap.Core.Settings;
 

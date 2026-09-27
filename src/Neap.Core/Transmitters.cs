@@ -5,6 +5,16 @@ using Neap.Core.Protocol;
 
 namespace Neap.Core;
 
+/// <param name="Slot">Which of the headset's four transmitter slots this is, 1 to 4.</param>
+/// <param name="Paired">Whether the slot holds a real address, rather than being empty.</param>
+/// <param name="Active">Whether the headset says it is actually using this one.</param>
+/// <param name="Kind">What to call it on screen, or empty for an empty slot.</param>
+/// <param name="ProductId">Its product id, as four hex digits.</param>
+/// <param name="VendorId">Its vendor id, as four hex digits.</param>
+/// <param name="Firmware">Its firmware version, as the headset reports it.</param>
+/// <param name="Address">Its radio address, or empty for an empty slot.</param>
+/// <param name="Info">The slot's "info" array, kept whole for whatever in it is not yet identified.</param>
+/// <param name="Control">The slot's "control" array, likewise.</param>
 /// <param name="Spare">A Charging Dock's spare battery; null for any other transmitter.</param>
 public sealed record Transmitter(
     int Slot, bool Paired, bool Active, string Kind, string ProductId,

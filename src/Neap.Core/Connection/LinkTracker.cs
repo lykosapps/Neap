@@ -44,9 +44,16 @@ public enum Route
 /// <summary>
 /// What is plugged in, and whether the headset behind it is talking.
 /// </summary>
+/// <param name="Link">How far the connection to the headset has got.</param>
+/// <param name="Route">How the headset is being reached.</param>
 /// <param name="Adapter">
 /// What to call the thing Windows has, which is not the headset: "Charging
 /// Dock", "USB Transmitter", or the headset itself when it is cabled up.
+/// </param>
+/// <param name="Detail">A longer phrase for the state, beyond what <paramref name="Adapter"/> names.</param>
+/// <param name="Product">
+/// The answering transmitter's product id, as four hex digits; empty when
+/// none has answered.
 /// </param>
 /// <param name="ControlVia">
 /// The transmitter carrying the headset's settings and chat wheel when it is

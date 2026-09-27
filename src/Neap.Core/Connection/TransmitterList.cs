@@ -15,7 +15,9 @@ public enum TransmitterState
     NotPluggedIn,
 }
 
+/// <param name="Name">What to call it: "Charging Dock" or "USB Transmitter".</param>
 /// <param name="Firmware">Its firmware version, when the headset reported it; empty otherwise.</param>
+/// <param name="State">What it is doing.</param>
 /// <param name="Spare">The spare battery to show on it, or null when it shows none.</param>
 public sealed record TransmitterRow(string Name, string Firmware, TransmitterState State, SpareReading? Spare = null);
 
@@ -42,6 +44,8 @@ public sealed record TransmitterRow(string Name, string Firmware, TransmitterSta
 /// </remarks>
 public static class TransmitterList
 {
+    /// <param name="status">The headset's current connection, for which transmitter is in use.</param>
+    /// <param name="known">Every transmitter the headset has reported in its slots.</param>
     /// <param name="plugged">Product ids of every Turtle Beach device plugged in.</param>
     /// <param name="cable">The headset is plugged in with its USB-C cable.</param>
     public static IReadOnlyList<TransmitterRow> Rows(HeadsetStatus status,

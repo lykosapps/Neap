@@ -42,6 +42,12 @@ public sealed record RoutingVerdict(IReadOnlyList<Misrouted> Wrong, bool Cabled,
 /// </remarks>
 public static class RoutingCheck
 {
+    /// <param name="status">The headset's current connection, judged against.</param>
+    /// <param name="output">Windows' default output, and the headset device behind it if it is one.</param>
+    /// <param name="calls">Windows' default output for communications, apart from <paramref name="output"/>.</param>
+    /// <param name="input">Windows' default microphone.</param>
+    /// <param name="callsInput">Windows' default microphone for communications.</param>
+    /// <param name="cable">The headset's own product id when it is plugged in with its USB-C cable, or empty.</param>
     /// <param name="belonging">
     /// The names of the headset's devices for a product id, output or not;
     /// the first is offered as the one to choose.

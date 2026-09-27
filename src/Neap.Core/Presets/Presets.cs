@@ -128,9 +128,11 @@ public static class PresetStore
     /// patterns, shortening the preset's own name if that is what it takes to
     /// fit.
     /// </summary>
+    /// <param name="name">The preset being copied.</param>
     /// <param name="first">The first copy's pattern, with {0} for the name, such as "{0} copy".</param>
     /// <param name="numbered">Later copies' pattern, with {1} for the number, such as "{0} copy {1}".</param>
     /// <param name="taken">Every name already in the bank, factory presets included.</param>
+    /// <param name="bank">Which bank, for its name-length limit and character set.</param>
     public static string CopyName(string name, string first, string numbered, IEnumerable<string> taken, Bank bank)
     {
         var used = taken.Select(t => t.Trim()).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -252,6 +254,10 @@ public static class PresetStore
     /// overwriting. To replace a preset, delete it and then save.
     /// </para>
     /// </remarks>
+    /// <param name="client">The headset to save it on.</param>
+    /// <param name="name">The preset's name.</param>
+    /// <param name="bands">Its band gains, in tenths of a decibel.</param>
+    /// <param name="bank">Which bank it belongs to.</param>
     /// <param name="hint">The slot id to write first; the headset may ignore it.</param>
     /// <exception cref="PresetException">
     /// The band count is wrong, or the name is empty or does not fit.

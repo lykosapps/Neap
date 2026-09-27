@@ -48,7 +48,10 @@ public sealed class PretendControl : IDisposable
     private readonly CancellationTokenSource _stopping = new();
     private Task? _serving;
 
+    /// <param name="headset">The pretend headset a script drives and reads.</param>
+    /// <param name="windows">The pretend Windows audio a script drives and reads.</param>
     /// <param name="log">Where a failure in the pipe itself is reported.</param>
+    /// <param name="pipe">The pipe's name.</param>
     public PretendControl(PretendHeadset headset, PretendWindows windows, Action<string> log,
         string pipe = DefaultPipe)
     {

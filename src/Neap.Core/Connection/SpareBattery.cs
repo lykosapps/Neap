@@ -14,6 +14,7 @@ public enum SpareState
 }
 
 /// <summary>The Charging Dock's spare battery, as the app shows it.</summary>
+/// <param name="State">What the slot holds.</param>
 /// <param name="Percent">Its charge; zero unless <paramref name="State"/> is <see cref="SpareState.InSlot"/>.</param>
 public readonly record struct SpareReading(SpareState State, int Percent);
 

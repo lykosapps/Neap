@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Text.Json;
 using Microsoft.UI.Dispatching;
 using Neap.Core;
-using Neap.Core.Audio;
 using Neap.Core.Connection;
 using Neap.Core.Hid;
 using Neap.Core.Protocol;

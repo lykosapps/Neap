@@ -116,8 +116,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   The parametric view already draws what plays.
 - The headset's connection handle has no safety net if it is ever dropped
   without being closed. Needs the headset.
-- Documentation comments aren't checked by the build, which lets unused
-  imports and half-documented methods through.
 
 ## Last in line
 

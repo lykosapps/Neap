@@ -37,6 +37,9 @@ dotnet_diagnostic.CA1859.severity = none
 # Directory.Build.props.
 dotnet_diagnostic.CA5392.severity = warning
 
+# An unused import is now a build warning; see Directory.Build.props.
+dotnet_diagnostic.IDE0005.severity = warning
+
 # Constants and static read-only fields are PascalCase; other private fields
 # are _camelCase.
 dotnet_naming_rule.constants.symbols = constants
