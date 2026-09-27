@@ -1,3 +1,4 @@
+using Microsoft.UI.Dispatching;
 using Neap.Core.Presets;
 using Neap.Core.Profiles;
 using Neap.Core.Settings;
@@ -26,13 +27,25 @@ namespace Neap.App.Services;
 /// screen that wants to know whether it is current calls <see cref="Refresh"/>
 /// itself, the same way <see cref="PresetService"/>'s callers ask it to load.
 /// </para>
+/// <para>
+/// Spatial sound can also change with nothing here asking for it: from
+/// Sound settings itself, or from <see cref="Controls.SpatialTile"/>. Every
+/// refresh rewatches whichever endpoint it just read, the same way
+/// <see cref="Controls.SpatialTile"/> does, so that catches up too rather
+/// than waiting for the next unrelated headset notification.
+/// </para>
 /// </remarks>
-public sealed class ProfileService
+public sealed class ProfileService : IDisposable
 {
     private readonly HeadsetService _headset;
+    private readonly DispatcherQueue _ui = DispatcherQueue.GetForCurrentThread();
     private Task? _refreshing;
+    private IDisposable? _spatialWatch;
+    private string? _watchedEndpoint;
 
     public ProfileService(HeadsetService headset) => _headset = headset;
+
+    public void Dispose() => _spatialWatch?.Dispose();
 
     /// <summary>The profiles, current settings or active profile changed.</summary>
     public event Action? Changed;
@@ -82,12 +95,24 @@ public sealed class ProfileService
         if (!_headset.TryGetNumber("mode_button_function", out int modeFunction)) return null;
 
         var spatial = await SpatialAudio.Read();
+        Rewatch(spatial.EndpointId);
         if (spatial.Active is not { } format) return null;
 
         return new ProfileSettings(mode, level, shh, shhPreset, shhLevel, gate, gateThreshold, ai,
             monitoring, AppServices.Presets.State(Bank.Game)?.Baseline?.Name,
             AppServices.Presets.State(Bank.Mic)?.Baseline?.Name, format, autoShutoff,
             new ModeChoice(modeFunction, AppServices.Noise.Cycling), dial);
+    }
+
+    /// <summary>Keeps the watch on whichever endpoint was just read, as <see cref="Controls.SpatialTile"/> does.</summary>
+    private void Rewatch(string? endpointId)
+    {
+        if (endpointId == _watchedEndpoint) return;
+        _spatialWatch?.Dispose();
+        _watchedEndpoint = endpointId;
+        _spatialWatch = endpointId is null
+            ? null
+            : SpatialAudio.Watch(endpointId, () => _ui.TryEnqueue(() => _ = Refresh()));
     }
 
     private bool Flag(string name, out bool value)

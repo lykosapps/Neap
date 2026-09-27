@@ -62,6 +62,7 @@ public static class AppServices
         Hotkeys?.Dispose();
         Mix?.Dispose();
         Noise?.Dispose();
+        Profiles?.Dispose();
         Headset?.Dispose();
         Ring?.Dispose();
         AudioRoute?.Dispose();
