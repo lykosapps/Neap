@@ -150,13 +150,18 @@ public sealed partial class EqualiserPanel : UserControl
             if (_painting) return;
             if (AppServices.Presets.ParametricChange(Bank) is { } change)
             {
-                // Stays on Bands until the answer is yes.
-                _painting = true;
-                ModeBands.IsChecked = true;
-                _painting = false;
                 ParametricQuestion.Text = Strings.Get(change == ParametricStart.Reopen
                     ? "Equaliser_ParametricReopens" : "Equaliser_ParametricStartsFlat");
                 FlyoutBase.ShowAttachedFlyout(ModeParametric);
+                // Set back to Bands once this click has finished changing the
+                // group's own selection: done from inside it, the group loses
+                // track and shows neither as chosen.
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    _painting = true;
+                    ModeBands.IsChecked = true;
+                    _painting = false;
+                });
                 return;
             }
             await AppServices.Presets.UseParametric(Bank);
