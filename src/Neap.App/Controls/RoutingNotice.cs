@@ -54,7 +54,7 @@ public sealed class RoutingNotice : InfoBar
         open.Click += async (_, _) =>
         {
             try { await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:sound")); }
-            catch { }
+            catch (Exception ex) { AppLog.Write($"could not open Sound settings: {ex.Message}"); }
         };
         ActionButton = open;
 
