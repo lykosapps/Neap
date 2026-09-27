@@ -176,3 +176,13 @@ and date.
   Hearing's type and intensity or noise cancellation's blocking, now sits
   flush against it and shares its corners, so the two read as one card
   split by a line rather than two stacked boxes.
+- Audio puts noise control, Superhuman Hearing and the volume first and
+  the equaliser last, as Microphone does, so on a laptop the settings
+  changed most are in view without scrolling. Home's way to the equaliser
+  scrolls down to it.
+- On Audio, master volume has an icon like the rows beside it, and
+  spatial sound is a row with its list on the right, like the other
+  levels, rather than a full-width button with its list opening far from
+  its name. Noise control's title is the size of the other cards' titles.
+- In a narrow window the page starts below the menu button, which no
+  longer sits against the page's title.

@@ -57,6 +57,7 @@ public sealed partial class QuickSettings : UserControl
         {
             PresetFlyout.Hide();
             MainWindow.Instance?.GoTo("audio");
+            (MainWindow.Instance?.CurrentPage as Views.AudioPage)?.ShowEqualiser();
         };
 
         PresetFlyout.Opened += (_, _) => (PresetList.ContainerFromItem(PresetList.SelectedItem) as ListViewItem

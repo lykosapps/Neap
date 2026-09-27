@@ -8,9 +8,10 @@ Who it's for: see [USERS.md](USERS.md).
   notice when Windows isn't sending sound to the headset, the game/chat mix
   balance, and quick settings. What opens first; serves the at-a-glance check
   and the mix, the two most frequent tasks.
-- **Audio** — the game equaliser, noise cancellation/transparency/off with
-  Superhuman Hearing, master and voice-prompt volume, and Windows' spatial
-  sound format. Serves EQ, noise control, and Windows-level audio format.
+- **Audio** — noise cancellation/transparency/off with Superhuman Hearing,
+  master and voice-prompt volume, Windows' spatial sound format, and the
+  game equaliser last, as on Microphone. Serves noise control, levels,
+  Windows-level audio format and EQ.
 - **Microphone** — mic on/off with a live meter, sensitivity, monitoring, AI
   noise reduction, the noise gate, and the microphone equaliser. Serves
   microphone settings.
@@ -30,7 +31,7 @@ A navigation rail, always on screen: Home, Audio, Microphone, Controls,
 Device, with Settings set apart in the footer. Six places, one level deep.
 Home is selected on launch. There's no back button because the rail is
 always there to move sideways instead. One shortcut: Home's quick settings
-can jump straight to Audio. Closing the window leaves a tray icon running,
+can jump straight to Audio's equaliser. Closing the window leaves a tray icon running,
 whose own menu only opens or quits the app — it doesn't expose any page.
 
 ## Where new things go

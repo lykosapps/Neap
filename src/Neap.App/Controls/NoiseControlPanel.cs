@@ -42,10 +42,12 @@ public sealed class NoiseControlPanel : UserControl
 
     public NoiseControlPanel()
     {
+        // The tiles' title size, like the tile beside it: a bigger title would
+        // outrank the section heading above it.
         var title = new TextBlock
         {
             Text = Strings.Get("Noise_Title"),
-            Style = (Style)Application.Current.Resources["SubtitleTextBlockStyle"],
+            Style = (Style)Application.Current.Resources["NeapTileTitleStyle"],
         };
         var description = new TextBlock
         {

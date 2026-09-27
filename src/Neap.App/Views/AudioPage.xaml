@@ -21,20 +21,18 @@
                     With the headset off, the whole page is one card: Windows'
                     volume goes on working without it, but on nothing the person
                     can hear. See HeadsetSection.WhenOff.
+                    
+                    The settings changed from one moment to the next come first
+                    and the equaliser last, as on Microphone: it is changed now
+                    and then, and first it would fill a laptop's whole view.
                 -->
                 <c:HeadsetSection x:Uid="Audio_Section" WhenOff="True">
                     <!--
-                        The equaliser first, since it is what this page is opened for.
+                        Noise control with its three modes, and Superhuman Hearing as
+                        Home's tile, side by side, with how strong each is under it
+                        while it is on.
                     -->
                     <c:HeadsetSection x:Uid="Audio_HeadsetSection">
-                        <TextBlock x:Uid="Audio_EqualiserHeading" Style="{StaticResource SectionHeaderStyle}" />
-                        <c:EqualiserPanel Bank="Game" />
-
-                        <!--
-                            Noise control with its three modes, and Superhuman Hearing as
-                            Home's tile, side by side, with how strong each is under it
-                            while it is on.
-                        -->
                         <TextBlock x:Uid="Audio_AroundYouHeading" Style="{StaticResource SectionHeaderStyle}" />
                         <c:SideBySide>
                             <c:NoiseControlPanel />
@@ -57,16 +55,19 @@
                     </c:HeadsetSection>
 
                     <!--
-                        Windows' own volume, with its mute beside it on one line, last:
-                        the headset's wheel is the everyday way to change it. The
-                        headset's spoken alerts beside it, so every level is in one
-                        place, and neither row is a wide card with a short slider.
+                        Windows' own volume, with its mute beside it on one line,
+                        and the headset's spoken alerts beside it, so every level
+                        is in one place and neither row is a wide card with a
+                        short slider. Windows' spatial sound under them, as a row
+                        like theirs: the same control as Home's tile, so the two
+                        can never say something different.
                     -->
                     <TextBlock x:Uid="Audio_VolumeHeading" Style="{StaticResource SectionHeaderStyle}" />
                     <c:RoutingNotice Margin="0,0,0,8" Microphone="False" />
                     <c:SideBySide>
                         <c:WindowsVolumeRow
                             x:Uid="Audio_MasterVolume"
+                            Glyph="&#xE767;"
                             Kind="Volume"
                             WithMute="True" />
                         <c:HeadsetSection Explain="False">
@@ -76,18 +77,22 @@
                                 Setting="voice_prompt_volume" />
                         </c:HeadsetSection>
                     </c:SideBySide>
+                    <c:SpatialTile Margin="0,4,0,0" AsRow="True" />
 
                     <!--
-                        Windows' spatial sound for the headset: also a Windows
-                        setting, kept beside Home's shortcut to it rather than
-                        only reachable from there. Same tile as Home's, so the
-                        two can never say something different.
+                        Folds without a card of its own: the card that stands in
+                        for noise control above already names the equaliser.
                     -->
-                    <c:SpatialTile />
+                    <c:HeadsetSection Explain="False">
+                        <TextBlock
+                            x:Name="EqualiserHeading"
+                            x:Uid="Audio_EqualiserHeading"
+                            Style="{StaticResource SectionHeaderStyle}" />
+                        <c:EqualiserPanel Bank="Game" />
+                    </c:HeadsetSection>
                 </c:HeadsetSection>
 
             </StackPanel>
         </Grid>
     </ScrollViewer>
 </Page>
-

@@ -177,6 +177,12 @@
   <data name="Audio_Intensity.Header" xml:space="preserve">
     <value>Intensity</value>
   </data>
+  <data name="Spatial_Row.Header" xml:space="preserve">
+    <value>Spatial sound</value>
+  </data>
+  <data name="Spatial_RowButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Spatial sound</value>
+  </data>
   <data name="Audio_EqualiserHeading.Text" xml:space="preserve">
     <value>Equaliser</value>
   </data>

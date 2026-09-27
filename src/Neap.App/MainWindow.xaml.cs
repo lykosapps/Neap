@@ -28,6 +28,9 @@ public sealed partial class MainWindow : Window
     /// </remarks>
     public static MainWindow? Instance { get; private set; }
 
+    /// <summary>Gets the page on show.</summary>
+    public Page? CurrentPage => Body.Content as Page;
+
     /// <summary>Selects the page with this rail tag, as though it had been clicked.</summary>
     public void GoTo(string tag)
     {
@@ -63,6 +66,12 @@ public sealed partial class MainWindow : Window
 
         Nav.SelectedItem = Nav.MenuItems[0];
         if (Pretend.Page is { } page) GoTo(page);
+
+        // In a narrow window the menu folds into a button over the page's top
+        // corner. The page moves down clear of it rather than have the button
+        // sit against its title.
+        Nav.DisplayModeChanged += (_, args) =>
+            Body.Margin = args.DisplayMode == NavigationViewDisplayMode.Minimal ? new Thickness(0, 40, 0, 0) : new Thickness(0);
 
         // Alt and a page's letter goes to that page. A menu item has no
         // action of its own for an access key to invoke, so selecting it is

@@ -8,8 +8,8 @@ using Neap.Core.Connection;
 namespace Neap.App.Controls;
 
 /// <summary>
-/// Windows' spatial sound for the headset, as a tile on Home: off, Windows
-/// Sonic, or Dolby Atmos where this PC has it installed.
+/// Windows' spatial sound for the headset, as Home's tile or a settings row:
+/// off, Windows Sonic, or Dolby Atmos where this PC has it installed.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -60,6 +60,7 @@ public sealed partial class SpatialTile : UserControl
     {
         InitializeComponent();
         Word.Text = Strings.Get("Reading_None");
+        RowButton.Content = Word.Text;
 
         FormatFlyout.Opened += (_, _) => (FormatList.ContainerFromItem(FormatList.SelectedItem) as ListViewItem
             ?? FormatList.ContainerFromIndex(0) as ListViewItem)?.Focus(FocusState.Programmatic);
@@ -82,6 +83,26 @@ public sealed partial class SpatialTile : UserControl
             _watch = null;
             _knownEndpointId = null;
         };
+    }
+
+    public static readonly DependencyProperty AsRowProperty = DependencyProperty.Register(
+        nameof(AsRow), typeof(bool), typeof(SpatialTile),
+        new PropertyMetadata(false, (d, e) => ((SpatialTile)d).Present((bool)e.NewValue)));
+
+    /// <summary>Gets or sets whether it shows as a settings row, with the list on its button, rather than as Home's tile.</summary>
+    /// <remarks>One control either way, so a page's row and Home's tile can never say different things.</remarks>
+    public bool AsRow
+    {
+        get => (bool)GetValue(AsRowProperty);
+        set => SetValue(AsRowProperty, value);
+    }
+
+    private void Present(bool asRow)
+    {
+        Face.Visibility = asRow ? Visibility.Collapsed : Visibility.Visible;
+        Row.Visibility = asRow ? Visibility.Visible : Visibility.Collapsed;
+        Face.Flyout = asRow ? null : FormatFlyout;
+        RowButton.Flyout = asRow ? FormatFlyout : null;
     }
 
     private async void OnStatus(HeadsetStatus status) => await Load();
@@ -129,11 +150,13 @@ public sealed partial class SpatialTile : UserControl
             }
             FormatList.SelectedItem = FormatList.Items.OfType<ListViewItem>()
                 .FirstOrDefault(item => panel.Active is { } active && (SpatialFormat)item.Tag == active);
-            Face.IsEnabled = panel.Offered.Count > 1;
+            Face.IsEnabled = RowButton.IsEnabled = panel.Offered.Count > 1;
             Word.Text = panel.Active is { } active ? Label(active)
                 : panel.Unrecognised ? Strings.Get("Spatial_Unrecognised")
                 : Strings.Get("Reading_None");
+            RowButton.Content = Word.Text;
             AutomationProperties.SetItemStatus(Face, Word.Text);
+            AutomationProperties.SetItemStatus(RowButton, Word.Text);
 
             // Windows never offers Dolby Atmos without the headset's Dolby
             // Atmos driver, which Swarm II installs; say so rather than
