@@ -202,3 +202,5 @@ and date.
   instead of 4 px beneath it.
 - Fixed: asking whether to switch to Parametric could leave both Bands and
   Parametric showing unchosen until the question was answered.
+- Superhuman Hearing's type is three buttons, Legacy, Footsteps and
+  Gunshots, all in view, instead of a drop-down.
