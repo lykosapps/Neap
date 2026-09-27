@@ -56,6 +56,9 @@ public sealed class NoiseControl(int? blocking)
     /// <summary>Gets or sets whether a press of the Mode button steps through all three modes.</summary>
     public bool Cycling { get; set; }
 
+    /// <summary>Sets the level noise cancellation comes back at, such as one a profile saved.</summary>
+    public void SetBlocking(int level) => Blocking = Math.Clamp(level, LeastBlocking, 100);
+
     /// <summary>Gets the mode the headset is in, or null until it has reported both keys.</summary>
     public NoiseMode? Mode => Of(_anc, _level);
 

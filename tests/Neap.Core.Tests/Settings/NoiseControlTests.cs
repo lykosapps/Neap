@@ -134,4 +134,22 @@ public class NoiseControlTests
         Assert.Empty(noise.Observe(1, 0));
         Assert.Equal(NoiseMode.Transparency, noise.Mode);
     }
+
+    [Fact]
+    public void BlockingCanBeSetDirectly()
+    {
+        var noise = new NoiseControl(50);
+        noise.SetBlocking(80);
+        Assert.Equal(80, noise.Blocking);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(200)]
+    public void SetBlockingKeepsItInRange(int given)
+    {
+        var noise = new NoiseControl(50);
+        noise.SetBlocking(given);
+        Assert.InRange(noise.Blocking, NoiseControl.LeastBlocking, 100);
+    }
 }
