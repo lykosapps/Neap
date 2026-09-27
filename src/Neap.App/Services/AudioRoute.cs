@@ -139,7 +139,9 @@ public sealed class AudioRoute : IDisposable
     public void Dispose()
     {
         _poll.Dispose();
-        try { _watch?.Dispose(); } catch { }
-        try { _devices.Dispose(); } catch { }
+        try { _watch?.Dispose(); }
+        catch (Exception ex) { AppLog.Write($"could not stop watching Windows' devices: {ex.Message}"); }
+        try { _devices.Dispose(); }
+        catch (Exception ex) { AppLog.Write($"could not let go of Windows' devices: {ex.Message}"); }
     }
 }

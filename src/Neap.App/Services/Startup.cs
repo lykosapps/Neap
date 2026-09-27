@@ -96,7 +96,11 @@ public static class Startup
             RemoveEarlier();
             return Enabled == enabled;
         }
-        catch { return false; }
+        catch (Exception ex)
+        {
+            AppLog.Write($"could not {(enabled ? "add Neap to" : "remove Neap from")} the Startup folder: {ex.Message}");
+            return false;
+        }
     }
 
     private static void WriteShortcut()

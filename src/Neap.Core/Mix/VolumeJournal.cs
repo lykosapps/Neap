@@ -89,16 +89,21 @@ internal sealed class VolumeJournal
 
     /// <summary>The one the app uses, in the user's local app data.</summary>
     internal static VolumeJournal Shared { get; } =
-        new(System.IO.Path.Combine(AppFolder.Path, "session-mix-journal.json"));
+        new(System.IO.Path.Combine(AppFolder.Path, "session-mix-journal.json"),
+            line => SessionMix.Trouble?.Invoke(line));
 
     private readonly string _path;
+    private readonly Action<string>? _trouble;
     private readonly object _gate = new();
     private readonly Record _record;
 
-    internal VolumeJournal(string path)
+    /// <param name="path">The journal's file.</param>
+    /// <param name="trouble">Told when the journal cannot be read or written.</param>
+    internal VolumeJournal(string path, Action<string>? trouble = null)
     {
         _path = path;
-        _record = Load(path);
+        _trouble = trouble;
+        _record = Load(path, trouble);
     }
 
     /// <summary>Every session held, on every device.</summary>
@@ -199,7 +204,7 @@ internal sealed class VolumeJournal
                     // for the next launch.
                     done.Add(id);
                 }
-                catch { }
+                catch (Exception ex) { _trouble?.Invoke($"could not put a volume back yet: {ex.Message}"); }
             }
             foreach (string id in done) held.Remove(id);
             if (held.Count == 0) _record.Devices.Remove(deviceId);
@@ -207,14 +212,19 @@ internal sealed class VolumeJournal
         }
     }
 
-    private static Record Load(string path)
+    private static Record Load(string path, Action<string>? trouble)
     {
+        if (!File.Exists(path)) return new Record();
         Record record;
         try
         {
             record = JsonSerializer.Deserialize<Record>(File.ReadAllText(path)) ?? new Record();
         }
-        catch { return new Record(); }
+        catch (Exception ex)
+        {
+            trouble?.Invoke($"could not read the volume journal, so no volumes can be put back: {ex.Message}");
+            return new Record();
+        }
 
         // An older single-device journal. Windows starts every session
         // identifier with the id of the device it plays on, so each entry can
@@ -248,6 +258,10 @@ internal sealed class VolumeJournal
             Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
             File.WriteAllText(_path, JsonSerializer.Serialize(_record));
         }
-        catch { /* a journal we cannot write is bad; throwing here is worse */ }
+        catch (Exception ex)
+        {
+            // A journal that cannot be written is bad; throwing here is worse.
+            _trouble?.Invoke($"could not save the volume journal: {ex.Message}");
+        }
     }
 }

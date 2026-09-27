@@ -41,8 +41,8 @@ public static class WindowsAudio
         }
     });
 
-    // A set that fails is not reported: the rows re-read Windows every second,
-    // so the control goes back to the real value on its own.
+    // A set that fails is logged but not shown: the rows re-read Windows every
+    // second, so the control goes back to the real value on its own.
     public static Task SetVolume(int percent, Flow flow = Flow.Output) => Task.Run(() =>
     {
         try
@@ -50,7 +50,7 @@ public static class WindowsAudio
             if (Pretend.Windows is { } windows) windows.SetPercent(percent, flow);
             else AudioEndpoints.SetPercent(percent, AudioEndpoints.DefaultMatch, flow);
         }
-        catch { }
+        catch (Exception ex) { AppLog.Write($"could not set Windows' {flow} volume: {ex.Message}"); }
     });
 
     public static Task SetMuted(bool muted, Flow flow = Flow.Output) => Task.Run(() =>
@@ -60,7 +60,7 @@ public static class WindowsAudio
             if (Pretend.Windows is { } windows) windows.SetMuted(muted, flow);
             else AudioEndpoints.SetMuted(muted, AudioEndpoints.DefaultMatch, flow);
         }
-        catch { }
+        catch (Exception ex) { AppLog.Write($"could not set Windows' {flow} mute: {ex.Message}"); }
     });
 
     /// <summary>What Windows will accept on this endpoint, and what it is on now.</summary>

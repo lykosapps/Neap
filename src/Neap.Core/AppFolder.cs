@@ -23,14 +23,11 @@ public static class AppFolder
     /// in it, and losing that would lose the record of other applications'
     /// volumes after a crash.
     /// </remarks>
+    /// <exception cref="IOException">The folder could not be moved.</exception>
+    /// <exception cref="UnauthorizedAccessException">The folder could not be moved.</exception>
     public static void MoveFromEarlierName()
     {
         string earlier = System.IO.Path.Combine(LocalData, "StealthProIIControl");
-        try
-        {
-            if (Directory.Exists(earlier) && !Directory.Exists(Path)) Directory.Move(earlier, Path);
-        }
-        catch (IOException) { }
-        catch (UnauthorizedAccessException) { }
+        if (Directory.Exists(earlier) && !Directory.Exists(Path)) Directory.Move(earlier, Path);
     }
 }

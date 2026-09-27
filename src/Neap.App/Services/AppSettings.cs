@@ -208,8 +208,13 @@ public sealed class AppSettings
 
     private static AppSettings Load()
     {
+        if (!File.Exists(Path)) return new AppSettings();
         try { return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(Path)) ?? new(); }
-        catch { return new AppSettings(); }
+        catch (Exception ex)
+        {
+            AppLog.Write($"could not read the app's settings, so it starts from its defaults: {ex.Message}");
+            return new AppSettings();
+        }
     }
 
     private static void Save(AppSettings settings)
@@ -219,6 +224,10 @@ public sealed class AppSettings
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path)!);
             File.WriteAllText(Path, JsonSerializer.Serialize(settings, Indented));
         }
-        catch { /* a preference we cannot save is not worth failing over */ }
+        catch (Exception ex)
+        {
+            // A preference that cannot be saved is not worth failing over.
+            AppLog.Write($"could not save the app's settings: {ex.Message}");
+        }
     }
 }

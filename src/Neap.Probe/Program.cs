@@ -58,6 +58,8 @@ if (args.Length == 0 || args[0] is "-h" or "--help")
     return 0;
 }
 
+Neap.Core.Mix.SessionMix.Trouble = line => Console.Error.WriteLine($"[mix] {line}");
+
 try
 {
     switch (args[0])

@@ -154,6 +154,28 @@ public sealed class VolumeJournalTests : IDisposable
     }
 
     [Fact]
+    public void AJournalThatCannotBeReadIsReported()
+    {
+        File.WriteAllText(_path, "{ not json");
+        var told = new List<string>();
+
+        var journal = new VolumeJournal(_path, told.Add);
+
+        Assert.Equal(0, journal.Count);
+        Assert.Single(told);
+    }
+
+    [Fact]
+    public void NoJournalYetIsNotTrouble()
+    {
+        var told = new List<string>();
+
+        _ = new VolumeJournal(_path, told.Add);
+
+        Assert.Empty(told);
+    }
+
+    [Fact]
     public void AnOldJournalIsSplitByDevice()
     {
         // The older single-record format: everything under the last device

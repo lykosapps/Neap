@@ -64,6 +64,13 @@ public sealed class SessionMix : IMixEngine
     /// <summary>Set to have Apply report what it actually managed to change.</summary>
     public static bool Diagnostics { get; set; }
 
+    /// <summary>Where the mix and its journal report a failure. Unset, nothing is reported.</summary>
+    /// <remarks>
+    /// The mix works on pool threads and on the way out, where there is nobody
+    /// to throw to, so a failure is handed here instead.
+    /// </remarks>
+    public static Action<string>? Trouble { get; set; }
+
     private List<string> _chatApps;
     private int _mix = 50;
     private bool _running;
@@ -170,7 +177,7 @@ public sealed class SessionMix : IMixEngine
             catch (Exception ex)
             {
                 // Raised on a pool thread, where anything thrown ends the process.
-                if (Diagnostics) Console.Error.WriteLine($"[mix] pass failed: {ex}");
+                Trouble?.Invoke($"a pass failed: {ex.Message}");
             }
         }
     }
@@ -337,7 +344,12 @@ public sealed class SessionMix : IMixEngine
                 device.AudioSessionManager.RefreshSessions();
                 VolumeJournal.Shared.RestoreInto(id, Volumes(device.AudioSessionManager.Sessions));
             }
-            catch { /* devices come and go; never fail on the way out */ }
+            catch (Exception ex)
+            {
+                // Devices come and go; never fail on the way out. The journal
+                // keeps the record for the next try.
+                Trouble?.Invoke($"could not put volumes back yet: {ex.Message}");
+            }
         }
     }
 

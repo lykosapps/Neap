@@ -46,7 +46,14 @@ public partial class App : Application
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         bool pretend = Services.Pretend.Active;
-        if (!pretend) AppFolder.MoveFromEarlierName();
+        if (!pretend)
+        {
+            try { AppFolder.MoveFromEarlierName(); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Services.AppLog.Write($"could not move the folder kept under the app's earlier name: {ex.Message}");
+            }
+        }
         Services.Pretend.Separate();
         bool atLogin = Services.Startup.LaunchedAtLogin;
         bool quiet = atLogin || Services.Pretend.Behind;
@@ -57,7 +64,11 @@ public partial class App : Application
         {
             if (!quiet)
             {
-                try { EventWaitHandle.OpenExisting(wakeName).Set(); } catch { }
+                try { EventWaitHandle.OpenExisting(wakeName).Set(); }
+                catch (Exception ex) when (ex is WaitHandleCannotBeOpenedException or UnauthorizedAccessException)
+                {
+                    Services.AppLog.Write($"could not show the running copy: {ex.Message}");
+                }
             }
             Services.AppLog.Write(quiet
                 ? "started while already running: left the running copy alone"

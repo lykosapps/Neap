@@ -98,6 +98,12 @@ public sealed class MixService : IDisposable
 
     // -- lifecycle ---------------------------------------------------------
 
+    /// <remarks>
+    /// Before anything touches the mix, so a volume journal that cannot be
+    /// read on the way in is in the log.
+    /// </remarks>
+    static MixService() => SessionMix.Trouble = line => AppLog.Write($"mix: {line}");
+
     /// <summary>
     /// Put back anything a previous run left turned down, before anything
     /// else. An unclean exit is the one case where somebody is left with a
@@ -281,7 +287,7 @@ public sealed class MixService : IDisposable
                 }
             }
         }
-        catch { }
+        catch (Exception ex) { AppLog.Write($"could not list the apps playing on the headset: {ex.Message}"); }
     }
 
     /// <summary>The process name, and something a person would recognise.</summary>
