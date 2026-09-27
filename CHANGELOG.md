@@ -186,3 +186,11 @@ and date.
   its name. Noise control's title is the size of the other cards' titles.
 - In a narrow window the page starts below the menu button, which no
   longer sits against the page's title.
+- Choosing Parametric asks first when it would change what you hear,
+  instead of flattening the curve straight away.
+- In a narrow window the equaliser's ten values move onto two rows of
+  five instead of being cut off.
+- The equaliser's filled button is Save as new, once there is an edit to
+  keep; before that, Duplicate is a plain button. Save is left out for the
+  headset's own presets, which can't be overwritten, and on a wide window
+  the curve lines up with the preset's name.

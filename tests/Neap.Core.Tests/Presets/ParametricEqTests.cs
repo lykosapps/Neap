@@ -161,6 +161,30 @@ public class ParametricEqTests
     public void APresetMadeWithTheBandsStartsFlat() =>
         Assert.Equal(ParametricStart.Flat, ParametricEq.StartFrom(null, Flat, null, BassBoost));
 
+    [Fact]
+    public void StartingFlatFromACurveChangesTheSound() =>
+        Assert.True(ParametricEq.StartChangesSound(ParametricStart.Flat, BassBoost, BassBoost));
+
+    [Fact]
+    public void StartingFlatFromFlatChangesNothing() =>
+        Assert.False(ParametricEq.StartChangesSound(ParametricStart.Flat, Flat, null));
+
+    [Fact]
+    public void ResumingChangesNothing() =>
+        Assert.False(ParametricEq.StartChangesSound(ParametricStart.Resume, ParametricEq.Fit(Cut), null));
+
+    [Fact]
+    public void ReopeningAnUnchangedPresetChangesNothing() =>
+        Assert.False(ParametricEq.StartChangesSound(ParametricStart.Reopen, ParametricEq.Fit(Cut), ParametricEq.Fit(Cut)));
+
+    [Fact]
+    public void ReopeningAPresetMovedSinceChangesTheSound()
+    {
+        var edited = ParametricEq.Fit(Cut);
+        edited[0] = 30;
+        Assert.True(ParametricEq.StartChangesSound(ParametricStart.Reopen, edited, ParametricEq.Fit(Cut)));
+    }
+
     private static readonly Adjustment Pressed = new(4915, -60, 10);
 
     private static Adjustment Drag(double across, double down) =>

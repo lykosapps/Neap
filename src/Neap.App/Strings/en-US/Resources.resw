@@ -66,6 +66,18 @@
   <data name="Equaliser_OverwriteYes.Content" xml:space="preserve">
     <value>Replace</value>
   </data>
+  <data name="Equaliser_ParametricStartsFlat" xml:space="preserve">
+    <value>Parametric starts from a flat curve, so what you hear changes now.</value>
+  </data>
+  <data name="Equaliser_ParametricReopens" xml:space="preserve">
+    <value>Parametric goes back to this preset as saved, so what you hear changes now.</value>
+  </data>
+  <data name="Equaliser_ParametricYes.Content" xml:space="preserve">
+    <value>Switch</value>
+  </data>
+  <data name="Equaliser_ParametricNo.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
   <data name="Equaliser_OverwriteNo.Content" xml:space="preserve">
     <value>Cancel</value>
   </data>

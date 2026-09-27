@@ -3,6 +3,7 @@ using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Neap.App.Services;
@@ -147,10 +148,30 @@ public sealed partial class EqualiserPanel : UserControl
         ModeParametric.Checked += async (_, _) =>
         {
             if (_painting) return;
+            if (AppServices.Presets.ParametricChange(Bank) is { } change)
+            {
+                // Stays on Bands until the answer is yes.
+                _painting = true;
+                ModeBands.IsChecked = true;
+                _painting = false;
+                ParametricQuestion.Text = Strings.Get(change == ParametricStart.Reopen
+                    ? "Equaliser_ParametricReopens" : "Equaliser_ParametricStartsFlat");
+                FlyoutBase.ShowAttachedFlyout(ModeParametric);
+                return;
+            }
+            await AppServices.Presets.UseParametric(Bank);
+            Paint();
+        };
+        ParametricConfirm.Opened += (_, _) => ParametricNo.Focus(FocusState.Programmatic);
+        ParametricNo.Click += (_, _) => ParametricConfirm.Hide();
+        ParametricYes.Click += async (_, _) =>
+        {
+            ParametricConfirm.Hide();
             await AppServices.Presets.UseParametric(Bank);
             Paint();
         };
         Parametric.Changed += Paint;
+        Bands.SizeChanged += (_, _) => FoldBands();
         Response.BandReverted += index =>
         {
             AppServices.Presets.RevertBand(Bank, index);
@@ -239,13 +260,15 @@ public sealed partial class EqualiserPanel : UserControl
         Response.Frequencies = spec.Frequencies;
 
         Bands.ColumnDefinitions.Clear();
+        Bands.RowDefinitions.Clear();
         Bands.Children.Clear();
         _cells.Clear();
+        _folded = false;
 
         for (int i = 0; i < spec.Frequencies.Count; i++)
         {
-            // Star columns, so the readouts stay under their own points at
-            // any window width.
+            // Star columns, so the readouts stay under their own points
+            // until the panel is too narrow for them; see FoldBands.
             Bands.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
             var field = new NumberBox
@@ -320,6 +343,40 @@ public sealed partial class EqualiserPanel : UserControl
             Grid.SetColumn(column, i);
             Bands.Children.Add(column);
             _cells.Add(new BandCell(field, revert));
+        }
+        FoldBands();
+    }
+
+    /// <summary>The narrowest a band's column can be and still show a value such as "+4.5" whole.</summary>
+    private const double NarrowestBand = 56;
+
+    private bool _folded;
+
+    /// <summary>
+    /// Puts the values on one row under their points, or on two rows of five
+    /// when the panel is too narrow for ten readable values.
+    /// </summary>
+    /// <remarks>Decided on the panel's width only, so the height the fold adds never undoes it.</remarks>
+    private void FoldBands()
+    {
+        int count = Bands.Children.Count;
+        if (count == 0 || Bands.ActualWidth <= 0) return;
+        bool fold = Bands.ActualWidth < count * NarrowestBand;
+        if (fold == _folded) return;
+        _folded = fold;
+
+        int columns = fold ? (count + 1) / 2 : count;
+        Bands.ColumnDefinitions.Clear();
+        for (int c = 0; c < columns; c++)
+            Bands.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        Bands.RowDefinitions.Clear();
+        for (int r = 0; r < (fold ? 2 : 1); r++)
+            Bands.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        for (int i = 0; i < count; i++)
+        {
+            var column = (FrameworkElement)Bands.Children[i];
+            Grid.SetColumn(column, i % columns);
+            Grid.SetRow(column, i / columns);
         }
     }
 
@@ -642,6 +699,11 @@ public sealed partial class EqualiserPanel : UserControl
             DiscardButton.IsEnabled = can.Discard;
             SaveButton.IsEnabled = can.Save;
             SaveButton.Content = Strings.Get(can.Duplicate ? "Equaliser_Duplicate" : "Equaliser_SaveAsNew");
+            // Set only on a change: a new style re-templates the button, and
+            // this runs on every step of a dragged band.
+            var saveStyle = can.SaveLeads ? (Style)Application.Current.Resources["AccentButtonStyle"] : null;
+            if (SaveButton.Style != saveStyle) SaveButton.Style = saveStyle;
+            OverwriteButton.Visibility = can.OfferOverwrite ? Visibility.Visible : Visibility.Collapsed;
             OverwriteButton.IsEnabled = can.Overwrite;
             // Named for the preset it replaces whenever there is one of yours
             // behind the curve, so it says what it would do before it can.

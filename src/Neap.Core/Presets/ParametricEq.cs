@@ -353,6 +353,23 @@ public static class ParametricEq
         return ParametricStart.Flat;
     }
 
+    /// <summary>Whether starting from here changes what is heard, so the person is asked first.</summary>
+    /// <remarks>
+    /// Starting flat changes a curve that is not flat already, and reopening a
+    /// preset changes a curve moved away from it. Resuming puts back the
+    /// adjustments that made the curve as it is, so it changes nothing.
+    /// </remarks>
+    /// <param name="start">Where it would start, from <see cref="StartFrom"/>.</param>
+    /// <param name="live">The bands as they are now.</param>
+    /// <param name="preset">The baseline preset's bands, if there is one.</param>
+    public static bool StartChangesSound(ParametricStart start, IReadOnlyList<int> live, IReadOnlyList<int>? preset) =>
+        start switch
+        {
+            ParametricStart.Flat => live.Any(band => band != 0),
+            ParametricStart.Reopen => preset is not null && !live.SequenceEqual(preset),
+            _ => false,
+        };
+
     // -- the plot ----------------------------------------------------------
 
     /// <summary>Where a frequency sits across a plot of this width, on a logarithmic scale.</summary>

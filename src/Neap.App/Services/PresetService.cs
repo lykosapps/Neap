@@ -327,19 +327,15 @@ public sealed class PresetService
     /// </remarks>
     public async Task UseParametric(Bank bank)
     {
-        if (!ParametricEq.Covers(bank) || IsParametric(bank)
-            || !_banks.TryGetValue(bank, out var state)
-            || LiveBands(state) is not { } live) return;
-
-        var baseline = state.Baseline;
-        var stored = baseline is { Custom: true } ? AppSettings.Current.Adjustments(bank, baseline.Name) : null;
-        switch (ParametricEq.StartFrom(_setAside.GetValueOrDefault(bank), live, stored, baseline?.Bands))
+        if (Starting(bank) is not { } starting) return;
+        var (start, _, state) = starting;
+        switch (start)
         {
             case ParametricStart.Resume:
                 _adjustments[bank] = _setAside[bank];
                 break;
             case ParametricStart.Reopen:
-                await Select(bank, baseline!);
+                await Select(bank, state.Baseline!);
                 break;
             default:
                 _adjustments[bank] = [];
@@ -348,6 +344,24 @@ public sealed class PresetService
         }
         _setAside.Remove(bank);
         LeaveSoon();
+    }
+
+    /// <summary>Where shaping the bank parametrically now would start, when that changes what is heard; otherwise null.</summary>
+    public ParametricStart? ParametricChange(Bank bank) =>
+        Starting(bank) is { } starting
+        && ParametricEq.StartChangesSound(starting.Start, starting.Live, starting.State.Baseline?.Bands)
+            ? starting.Start : null;
+
+    /// <summary>Where shaping the bank parametrically would start, or null when it can't be.</summary>
+    private (ParametricStart Start, int[] Live, BankState State)? Starting(Bank bank)
+    {
+        if (!ParametricEq.Covers(bank) || IsParametric(bank)
+            || !_banks.TryGetValue(bank, out var state)
+            || LiveBands(state) is not { } live) return null;
+
+        var baseline = state.Baseline;
+        var stored = baseline is { Custom: true } ? AppSettings.Current.Adjustments(bank, baseline.Name) : null;
+        return (ParametricEq.StartFrom(_setAside.GetValueOrDefault(bank), live, stored, baseline?.Bands), live, state);
     }
 
     /// <summary>Starts a new preset: flat, belonging to no preset, in whichever form the bank is shaped.</summary>
