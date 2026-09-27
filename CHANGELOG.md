@@ -198,3 +198,7 @@ and date.
   as every other tile that can be on. It read as off with Windows Sonic or
   Dolby Atmos playing, since it borrowed the equaliser's tile, which is
   never lit because the equaliser is never off.
+- Spatial sound on Audio sits properly clear of the volume row above it,
+  instead of 4 px beneath it.
+- Fixed: asking whether to switch to Parametric could leave both Bands and
+  Parametric showing unchosen until the question was answered.
