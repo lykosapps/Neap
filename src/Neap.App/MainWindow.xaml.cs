@@ -84,9 +84,15 @@ public sealed partial class MainWindow : Window
             };
 
         // Logged so a game that misbehaves around an alt-tab can be matched
-        // against whether Neap came to the front then, and what it did.
-        Activated += (_, args) => AppLog.Write(args.WindowActivationState == WindowActivationState.Deactivated
-            ? "window: went behind another" : "window: came to the front");
+        // against whether Neap came to the front then, and what it did. A
+        // pretend run kept behind on purpose counts as in front, since its
+        // pages are what the script is checking.
+        Activated += (_, args) =>
+        {
+            bool inFront = args.WindowActivationState != WindowActivationState.Deactivated;
+            AppLog.Write(inFront ? "window: came to the front" : "window: went behind another");
+            if (!Pretend.Behind) WindowPresence.Set(inFront);
+        };
 
         // Closing the window puts the app in the notification area instead of
         // stopping it. The mix, the chat wheel and the headset's own controls

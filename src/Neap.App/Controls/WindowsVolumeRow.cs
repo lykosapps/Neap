@@ -72,14 +72,28 @@ public sealed class WindowsVolumeRow : SettingsCard
         if (on)
         {
             if (_slider is not null) AppServices.Headset.Changed += Paint;
-            _poll!.Start();
+            WindowPresence.Changed += OnPresence;
+            if (WindowPresence.InFront) _poll!.Start();
             _ = Refresh();
         }
         else
         {
             AppServices.Headset.Changed -= Paint;
+            WindowPresence.Changed -= OnPresence;
             _poll?.Stop();
         }
+    }
+
+    /// <summary>Polls Windows only while the window is in front; see <see cref="WindowPresence"/>.</summary>
+    private void OnPresence()
+    {
+        if (!WindowPresence.InFront)
+        {
+            _poll?.Stop();
+            return;
+        }
+        _poll?.Start();
+        _ = Refresh();
     }
 
     public static readonly DependencyProperty KindProperty = DependencyProperty.Register(

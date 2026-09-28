@@ -43,7 +43,9 @@ and date.
   still says 24-bit/96 kHz. Neap restores it a moment later, and the ring
   turns purple again, including after something only touches the
   microphone for a second, such as passing through Neap's own microphone
-  meter. There is a switch for it on the Device page.
+  meter. While a game is full-screen it waits, so the game's sound is never
+  restarted under it, and turns the ring purple once the game has gone.
+  There is a switch for it on the Device page.
 - **Says what is actually happening.** Connected, no sound, settings out of
   reach, switched off, out of range: each is its own state, with what still
   works and the one thing to do.
@@ -52,8 +54,9 @@ and date.
   names the right one. The Charging Dock, the USB Transmitter and the
   headset's USB-C cable all work, alone or together.
 - **A microphone meter** that shows what the other person hears. It uses
-  the microphone only while its page is on screen, and lets go of it as
-  soon as you move on, however quickly.
+  the microphone only while its page is on screen and Neap is in front,
+  and lets go of it as soon as you move on or switch to another window,
+  however quickly.
 - **The audio format** for the headset and the microphone, set from inside
   the app.
 

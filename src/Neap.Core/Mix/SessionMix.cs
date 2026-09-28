@@ -386,15 +386,7 @@ public sealed class SessionMix : IMixEngine
         return false;
     }
 
-    private static string ProcessName(uint pid)
-    {
-        try
-        {
-            using var process = Process.GetProcessById((int)pid);
-            return process.ProcessName;
-        }
-        catch { return ""; }
-    }
+    private static string ProcessName(uint pid) => Programs.NameOf(pid);
 
     /// <summary>
     /// The headset endpoint the person is actually listening on: the default

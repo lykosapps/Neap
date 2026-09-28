@@ -24,6 +24,13 @@ namespace Neap.Core.Audio;
 /// taken as that, not as someone starting a call; otherwise one reset would
 /// lead to the next.
 /// </para>
+/// <para>
+/// So nothing resets the device while a game is full-screen on it: a game's
+/// sound can stutter, or the game fail, when its device restarts under it.
+/// A microphone that opens meanwhile, such as the game's own voice chat, has
+/// still turned the ring white, so the reset it is owed happens once the
+/// game has gone.
+/// </para>
 /// </remarks>
 public sealed class RingRefresh
 {
@@ -34,6 +41,7 @@ public sealed class RingRefresh
     public static readonly TimeSpan Quiet = TimeSpan.FromSeconds(10);
 
     private bool _wasOpen;
+    private bool _owed;
     private DateTime? _due;
     private DateTime _quietUntil = DateTime.MinValue;
 
@@ -44,7 +52,8 @@ public sealed class RingRefresh
     /// playing to the Charging Dock, and at a rate that turns the ring purple.
     /// </param>
     /// <param name="now">The time of this look.</param>
-    public bool Next(bool micOpen, bool wanted, DateTime now)
+    /// <param name="held">Whether a game, or anything else, is full-screen, when nothing may reset the device.</param>
+    public bool Next(bool micOpen, bool wanted, DateTime now, bool held = false)
     {
         // Becoming wanted with the microphone already open counts as an
         // opening: switched on mid-call, or sound moved to the dock.
@@ -52,8 +61,21 @@ public sealed class RingRefresh
         bool opened = open && !_wasOpen;
         _wasOpen = open;
 
+        if (held)
+        {
+            if (opened || _due is not null) _owed = true;
+            _due = null;
+            return false;
+        }
+
         bool reset;
-        if (open)
+        if (_owed)
+        {
+            // Sound that has left the dock meanwhile has nothing to turn purple.
+            _owed = false;
+            reset = wanted;
+        }
+        else if (open)
         {
             if (opened && now >= _quietUntil) _due = now + Settle;
             reset = _due is { } due && now >= due;

@@ -14,6 +14,10 @@ namespace Neap.App.Services;
 /// do anything, since that means walking its sessions.
 /// </para>
 /// <para>
+/// While something is full-screen, which is how a game is found, the reset
+/// waits until it has gone; see <see cref="RingRefresh"/> for why.
+/// </para>
+/// <para>
 /// Not run in a pretend run, whose sound is not the headset's.
 /// </para>
 /// </remarks>
@@ -28,6 +32,7 @@ public sealed class RingService : IDisposable
     private readonly RingRefresh _refresh = new();
     private readonly Timer? _look;
     private int _looking;
+    private bool _held;
     private volatile bool _on = AppSettings.Current.KeepRingPurple;
 
     public RingService(AudioRoute route)
@@ -55,7 +60,15 @@ public sealed class RingService : IDisposable
         {
             bool wanted = On && OnDock() && AtHighRate();
             bool micOpen = wanted && Routing.Recording(AudioEndpoints.DefaultMatch);
-            if (_refresh.Next(micOpen, wanted, DateTime.UtcNow)) Reset();
+            bool held = wanted && FullScreen.Now();
+            if (held != _held)
+            {
+                _held = held;
+                AppLog.Write(held
+                    ? "dock ring: something is full-screen, so the output format is left alone until it isn't"
+                    : "dock ring: nothing is full-screen now");
+            }
+            if (_refresh.Next(micOpen, wanted, DateTime.UtcNow, held)) Reset();
         }
         catch (Exception ex)
         {

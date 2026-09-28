@@ -1,5 +1,28 @@
 # Decisions
 
+## 2026-09-28 — Nothing of Neap's reaches into a running game
+
+- **The Charging Dock's ring is left white while a game is full-screen.**
+  Keeping it purple means setting the output format again whenever a
+  microphone opens, which restarts the audio device the game is playing
+  through; a game's voice chat can open the microphone several times a
+  session. The ring catches up once nothing is full-screen. Windows' own
+  "a full-screen app is running" signal decides, the one it uses to hold
+  notifications back.
+- **Neap names other programs with the least access Windows has:** asking
+  where the program's file is, and reading its description from the file
+  on disk, never from the running program's memory, which anti-cheat
+  software watches for. The mix names each program once rather than every
+  two seconds.
+- **A page's polling and the microphone meter pause whenever Neap's window
+  isn't in front,** not only when it is hidden to the notification area.
+  A reading on a second monitor stops updating while another window is
+  active; it catches up the moment Neap is clicked.
+- **Why:** a game closed after an alt-tab. The log showed Neap wasn't the
+  cause, but an audit found these were the places it touched a game at all.
+- **Still to do, with the headset:** the connection to the headset asks for
+  news about 200 times a second instead of waiting to be told.
+
 ## 2026-09-28 — Profiles switch as their apps start and close
 
 - **Options for "when":** the app coming to the front and going behind;

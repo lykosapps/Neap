@@ -54,12 +54,15 @@ public sealed partial class MicTile : UserControl
         _poll.Tick += async (_, _) => await ReadWindows();
         Loaded += async (_, _) =>
         {
-            _poll.Start();
+            WindowPresence.Changed += OnPresence;
+            if (WindowPresence.InFront) _poll.Start();
             await ReadWindows();
         };
         Unloaded += (_, _) =>
         {
-            if (!IsLoaded) _poll.Stop();
+            if (IsLoaded) return;
+            WindowPresence.Changed -= OnPresence;
+            _poll.Stop();
         };
 
         Face.Click += async (_, _) =>
@@ -74,6 +77,18 @@ public sealed partial class MicTile : UserControl
 
     /// <summary>Reads whether Windows has the headset's microphone muted.</summary>
     /// <remarks>A microphone Windows cannot find, or that is not the headset's, is not known to be either.</remarks>
+    /// <summary>Polls Windows only while the window is in front; see <see cref="WindowPresence"/>.</summary>
+    private async void OnPresence()
+    {
+        if (!WindowPresence.InFront)
+        {
+            _poll.Stop();
+            return;
+        }
+        _poll.Start();
+        await ReadWindows();
+    }
+
     private async Task ReadWindows()
     {
         var read = await WindowsAudio.Read(Flow.Input);

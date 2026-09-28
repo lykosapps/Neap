@@ -110,4 +110,62 @@ public sealed class RingRefreshTests
         refresh.Next(micOpen: true, wanted: true, At(40));
         Assert.True(refresh.Next(micOpen: true, wanted: true, At(42)));
     }
+
+    [Fact]
+    public void NothingResetsWhileAGameIsFullScreen()
+    {
+        var refresh = new RingRefresh();
+        for (int second = 0; second < 60; second++)
+            Assert.False(refresh.Next(micOpen: second > 5, wanted: true, At(second), held: true));
+    }
+
+    [Fact]
+    public void AnOpeningDuringTheGameResetsOnceItHasGone()
+    {
+        var refresh = new RingRefresh();
+        refresh.Next(micOpen: false, wanted: true, At(0), held: true);
+        refresh.Next(micOpen: true, wanted: true, At(1), held: true);
+        refresh.Next(micOpen: true, wanted: true, At(30), held: true);
+        Assert.True(refresh.Next(micOpen: true, wanted: true, At(31)));
+        for (int second = 32; second < 90; second++)
+            Assert.False(refresh.Next(micOpen: true, wanted: true, At(second)));
+    }
+
+    [Fact]
+    public void AMicrophoneThatOpenedAndClosedDuringTheGameIsStillOwedItsReset()
+    {
+        var refresh = new RingRefresh();
+        refresh.Next(micOpen: true, wanted: true, At(1), held: true);
+        refresh.Next(micOpen: false, wanted: true, At(20), held: true);
+        Assert.True(refresh.Next(micOpen: false, wanted: true, At(40)));
+        Assert.False(refresh.Next(micOpen: false, wanted: true, At(41)));
+    }
+
+    [Fact]
+    public void AResetDueWhenTheGameGoesFullScreenWaitsForIt()
+    {
+        var refresh = new RingRefresh();
+        refresh.Next(micOpen: true, wanted: true, At(0));
+        Assert.False(refresh.Next(micOpen: true, wanted: true, At(1), held: true));
+        Assert.False(refresh.Next(micOpen: true, wanted: true, At(10), held: true));
+        Assert.True(refresh.Next(micOpen: true, wanted: true, At(11)));
+    }
+
+    [Fact]
+    public void AGameWithNoMicrophoneOwesNothing()
+    {
+        var refresh = new RingRefresh();
+        for (int second = 0; second < 30; second++)
+            refresh.Next(micOpen: false, wanted: true, At(second), held: true);
+        Assert.False(refresh.Next(micOpen: false, wanted: true, At(30)));
+    }
+
+    [Fact]
+    public void WhatIsOwedLapsesIfSoundHasLeftTheDock()
+    {
+        var refresh = new RingRefresh();
+        refresh.Next(micOpen: true, wanted: true, At(1), held: true);
+        Assert.False(refresh.Next(micOpen: true, wanted: false, At(20)));
+        Assert.False(refresh.Next(micOpen: false, wanted: true, At(21)));
+    }
 }

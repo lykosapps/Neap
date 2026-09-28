@@ -3,6 +3,7 @@ using System.Globalization;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
+using Neap.Core;
 using Neap.Core.Connection;
 using Neap.Core.Mix;
 using Neap.Core.Pretend;
@@ -89,7 +90,7 @@ public sealed class MixService : IDisposable
     static MixService()
     {
         SessionMix.Trouble = line => AppLog.Write($"mix: {line}");
-        SessionMix.LookedUp = name => AppLog.Write($"mix: looked up the name of {name}, playing to the headset");
+        SessionMix.LookedUp = name => AppLog.Write($"mix: named {name}, playing to the headset");
     }
 
     /// <summary>
@@ -225,8 +226,9 @@ public sealed class MixService : IDisposable
     /// </summary>
     /// <param name="purpose">What the list is for, as the log says it.</param>
     /// <remarks>
-    /// Opens each program playing to read its description, a game included,
-    /// so each call is logged with what it was for and which programs it read.
+    /// Asks Windows which program is behind each one playing, a game included,
+    /// so each call is logged with what it was for and which programs it asked
+    /// about.
     /// </remarks>
     public Task<IReadOnlyList<ChatCandidate>> Candidates(string purpose) => Task.Run<IReadOnlyList<ChatCandidate>>(() =>
     {
@@ -239,7 +241,7 @@ public sealed class MixService : IDisposable
         else
         {
             AddSessions(found);
-            AppLog.Write($"apps: read the programs playing to the headset, for {purpose}: "
+            AppLog.Write($"apps: named the programs playing to the headset, for {purpose}: "
                 + (found.Count == 0 ? "none" : string.Join(", ", found.Keys.Order(StringComparer.OrdinalIgnoreCase))));
         }
 
@@ -278,17 +280,15 @@ public sealed class MixService : IDisposable
     }
 
     /// <summary>The process name, and something a person would recognise.</summary>
+    /// <remarks>The description is read from the program's file, not from the running program; see <see cref="Programs"/>.</remarks>
     private static (string Process, string Display) Name(uint pid)
     {
-        try
-        {
-            using var process = Process.GetProcessById((int)pid);
-            string name = process.ProcessName;
-            string? described = null;
-            try { described = process.MainModule?.FileVersionInfo.FileDescription; } catch { }
-            return (name, string.IsNullOrWhiteSpace(described) ? name : described!);
-        }
-        catch { return ("", ""); }
+        if (Programs.PathOf(pid) is not { } path) return ("", "");
+        string name = Path.GetFileNameWithoutExtension(path);
+        string? described = null;
+        try { described = FileVersionInfo.GetVersionInfo(path).FileDescription; }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+        return (name, string.IsNullOrWhiteSpace(described) ? name : described!);
     }
 
     // -- the centre cue ----------------------------------------------------

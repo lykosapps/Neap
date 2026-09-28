@@ -12,10 +12,11 @@ namespace Neap.App.Controls;
 /// </summary>
 /// <remarks>
 /// <para>
-/// It listens only while it is on screen: the microphone opens when the
-/// meter loads and closes when it unloads, which includes the window being
-/// hidden to the notification area. Windows shows its microphone in use
-/// indicator for exactly that long. What <see cref="MicrophoneListener"/>
+/// It listens only while it is on screen and the window is in front: the
+/// microphone opens when the meter loads or the window comes to the front,
+/// and closes when it unloads or the window goes behind, which includes it
+/// being hidden to the notification area. Windows shows its microphone in
+/// use indicator for exactly that long. What <see cref="MicrophoneListener"/>
 /// hears is reduced to one number and nothing else is kept.
 /// </para>
 /// <para>
@@ -48,11 +49,14 @@ public sealed class MicMeter : UserControl
         Loaded += async (_, _) =>
         {
             BuildBars();
-            await Open();
+            WindowPresence.Changed += OnPresence;
+            if (WindowPresence.InFront) await Open();
         };
         Unloaded += (_, _) =>
         {
-            if (!IsLoaded) Close();
+            if (IsLoaded) return;
+            WindowPresence.Changed -= OnPresence;
+            Close();
         };
     }
 
@@ -90,6 +94,12 @@ public sealed class MicMeter : UserControl
             _meter.Children.Add(bar);
         }
         Paint(0);
+    }
+
+    private async void OnPresence()
+    {
+        if (!WindowPresence.InFront) Close();
+        else if (IsLoaded) await Open();
     }
 
     private async Task Open()
