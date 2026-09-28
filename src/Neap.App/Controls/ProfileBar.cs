@@ -30,7 +30,7 @@ public sealed class ProfileBar : UserControl
     private readonly TextBlock _name = new() { Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"] };
     private readonly TextBlock _editedWord = new() { Style = (Style)Application.Current.Resources["NeapTagTextStyle"] };
     private readonly Border _editedPill;
-    private readonly Button _face;
+    private readonly DropDownButton _face;
     private readonly Button _saveButton;
     private readonly Button _discardButton;
     private readonly ListView _list = new() { SelectionMode = ListViewSelectionMode.Single };
@@ -130,7 +130,10 @@ public sealed class ProfileBar : UserControl
         faceContent.Children.Add(_editedPill);
         faceContent.Children.Add(_working);
 
-        _face = new Button { Flyout = _flyout, Content = faceContent, HorizontalAlignment = HorizontalAlignment.Left };
+        // A DropDownButton, not a plain Button: its built-in chevron is the
+        // only hint, in the empty "No profile" state, that this is a menu
+        // and not a status label.
+        _face = new DropDownButton { Flyout = _flyout, Content = faceContent, HorizontalAlignment = HorizontalAlignment.Left };
         AutomationProperties.SetName(_face, Strings.Get("Profile_Bar"));
 
         _saveButton = new Button { Content = Strings.Get("Profile_Save"), Visibility = Visibility.Collapsed };
@@ -138,6 +141,10 @@ public sealed class ProfileBar : UserControl
         {
             AppServices.Profiles.SaveOverActive();
             Paint();
+            // Save and Discard vanish the moment they're clicked; keep focus
+            // with the profile control they belonged to rather than let it
+            // fall back to whatever is next in tab order.
+            _face.Focus(FocusState.Programmatic);
         };
 
         _discardButton = new Button { Content = Strings.Get("Profile_Discard"), Visibility = Visibility.Collapsed };
@@ -152,6 +159,7 @@ public sealed class ProfileBar : UserControl
             {
                 _busy = false;
                 Paint();
+                _face.Focus(FocusState.Programmatic);
             }
         };
 

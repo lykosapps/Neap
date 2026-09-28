@@ -238,3 +238,7 @@ and date.
   Parametric showing unchosen until the question was answered.
 - Superhuman Hearing's type is three buttons, Legacy, Footsteps and
   Gunshots, all in view, instead of a drop-down.
+- The profile bar shows a chevron, so "No profile" reads as a menu to open
+  rather than a status label, especially before any profile is saved.
+- After Save or Discard on the profile bar, the keyboard stays with the
+  profile button instead of jumping to the menu toggle in the corner.
