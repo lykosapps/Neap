@@ -1,4 +1,5 @@
 using Microsoft.UI.Dispatching;
+using Neap.Core.Connection;
 using Neap.Core.Presets;
 using Neap.Core.Profiles;
 using Neap.Core.Settings;
@@ -65,7 +66,10 @@ public sealed class ProfileService : IDisposable
     public ProfileSettings? Current { get; private set; }
 
     /// <summary>Whether the current settings differ from the active profile's.</summary>
-    public bool IsEdited => Active is { } active && Current is { } live && live != active.Settings;
+    public bool IsEdited => Active is { } active && Current is { } live && ProfileEdits.IsEdited(active.Settings, live);
+
+    /// <summary>Whether a profile can be switched to or saved now, and if not, why.</summary>
+    public ProfileReadiness Ready => ProfileGate.Of(_headset.Status.Link, Current is not null);
 
     /// <summary>
     /// Re-reads the current settings. A read already under way is shared
@@ -94,6 +98,16 @@ public sealed class ProfileService : IDisposable
         if (!_headset.TryGetNumber("dial_function", out int dial)) return null;
         if (!_headset.TryGetNumber("mode_button_function", out int modeFunction)) return null;
 
+        // Both equaliser banks are read here, in the background, rather than
+        // on the first switch: saving without them stores no preset, and
+        // switching waits several seconds for them with nothing on screen.
+        try { await EnsureBanks(); }
+        catch (Exception ex)
+        {
+            AppLog.Write($"profiles: could not read the equalisers: {ex.Message}");
+            return null;
+        }
+
         var spatial = await SpatialAudio.Read();
         Rewatch(spatial.EndpointId);
         if (spatial.Active is not { } format) return null;
@@ -103,6 +117,10 @@ public sealed class ProfileService : IDisposable
             AppServices.Presets.State(Bank.Mic)?.Baseline?.Name, format, autoShutoff,
             new ModeChoice(modeFunction, AppServices.Noise.Cycling), dial);
     }
+
+    private static async Task<(BankState Game, BankState Mic)> EnsureBanks() => (
+        AppServices.Presets.State(Bank.Game) ?? await AppServices.Presets.Load(Bank.Game),
+        AppServices.Presets.State(Bank.Mic) ?? await AppServices.Presets.Load(Bank.Mic));
 
     /// <summary>Keeps the watch on whichever endpoint was just read, as <see cref="Controls.SpatialTile"/> does.</summary>
     private void Rewatch(string? endpointId)
@@ -129,12 +147,14 @@ public sealed class ProfileService : IDisposable
     /// <returns>The names of any saved presets that could not be found, applied or not.</returns>
     public async Task<IReadOnlyList<string>> Apply(Profile profile)
     {
+        if (_headset.Status.Link != Link.Connected)
+            throw new HeadsetUnavailableException(Strings.Get("Profile_NeedsHeadset"));
+
         var s = profile.Settings;
         // Already-loaded state is reused rather than asked for again: a full
         // read costs about 1.2 seconds a bank, and switching or discarding a
         // profile should feel as immediate as choosing a preset does.
-        var game = AppServices.Presets.State(Bank.Game) ?? await AppServices.Presets.Load(Bank.Game);
-        var mic = AppServices.Presets.State(Bank.Mic) ?? await AppServices.Presets.Load(Bank.Mic);
+        var (game, mic) = await EnsureBanks();
         var missing = ProfileCheck.Missing(s, game.Presets.Select(p => p.Name).ToList(),
             mic.Presets.Select(p => p.Name).ToList());
 
@@ -228,11 +248,20 @@ public sealed class ProfileService : IDisposable
     }
 
     /// <summary>Assigns an app to a profile, taking it away from whichever profile had it.</summary>
-    public void Assign(string profileId, string app)
+    /// <param name="profileId">The profile.</param>
+    /// <param name="app">The app's process name.</param>
+    /// <param name="display">What a person would call it, kept for when it is not running to say so.</param>
+    public void Assign(string profileId, string app, string display)
     {
+        AppSettings.Update(a => a.AppNames[app] = display);
         Persist(ProfileAssignment.Assign(All, profileId, app));
         Changed?.Invoke();
     }
+
+    /// <summary>What a person would call an assigned app, or its process name if it was never seen running.</summary>
+#pragma warning disable CA1822
+    public string DisplayName(string app) => AppSettings.Current.AppNames.GetValueOrDefault(app, app);
+#pragma warning restore CA1822
 
     /// <summary>Takes an app away from whichever profile it is assigned to.</summary>
     public void Unassign(string app)

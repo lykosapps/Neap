@@ -1,5 +1,28 @@
 # Decisions
 
+## 2026-09-28 — Profiles, after a flow review
+
+- **Switching away from unsaved changes now asks**, with Save and switch,
+  Switch without saving, and Cancel. This reverses the earlier choice to
+  match the equaliser, which discards without asking: a profile's changes
+  can span several pages, so losing them costs more than losing one curve.
+  It only asks when something was changed, so an ordinary switch is still
+  two clicks.
+- **Saving and switching are unavailable while the headset is off or its
+  settings are still being read**, and the list says why. Before, saving
+  refused only after a name was typed, and switching did nothing and said
+  nothing.
+- **Both equaliser banks are read in the background once the headset
+  connects**, so a saved profile always holds its presets, "Edited" only
+  means edited, and the first switch takes a second instead of about eight.
+- **A program can be added by browsing for its file**, and every app already
+  assigned to a profile stays in its list so it can be taken away, running
+  or not. Assigning still doesn't switch anything automatically; the
+  Settings note says so.
+- **Why:** a UI review and a flow review of the first version; the flow
+  review also missed the browse gap until the owner pointed it out.
+- **Revisit if:** the warning turns out to be a nuisance when tuning.
+
 ## 2026-09-27 — What a profile holds
 
 - **Options:** the narrow list first proposed (noise control, Superhuman

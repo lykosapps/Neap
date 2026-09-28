@@ -706,7 +706,7 @@
     <value>Profiles</value>
   </data>
   <data name="Profiles_Note.Text" xml:space="preserve">
-    <value>Rename or delete a saved profile. Switch profiles from the bar at the top of the window.</value>
+    <value>Switch profiles from the bar at the top of the window. Choosing apps for a profile doesn't switch it automatically yet.</value>
   </data>
   <data name="Profiles_Empty" xml:space="preserve">
     <value>No profiles saved yet. Set the headset up the way you want, then save it as a profile from the bar at the top.</value>
@@ -723,6 +723,33 @@
   <data name="Profile_RenameNamed" xml:space="preserve">
     <value>Rename {0}</value>
   </data>
+  <data name="Profile_Browse" xml:space="preserve">
+    <value>Browse for a program…</value>
+  </data>
+  <data name="Profile_NeedsHeadset" xml:space="preserve">
+    <value>Turn the headset on to switch profiles or save one.</value>
+  </data>
+  <data name="Profile_Reading" xml:space="preserve">
+    <value>Reading the headset's settings…</value>
+  </data>
+  <data name="Profile_Working" xml:space="preserve">
+    <value>Working</value>
+  </data>
+  <data name="Profile_CouldNotSwitchTitle" xml:space="preserve">
+    <value>Couldn't switch profiles</value>
+  </data>
+  <data name="Profile_SwitchTitle" xml:space="preserve">
+    <value>Switch profiles?</value>
+  </data>
+  <data name="Profile_SwitchUnsaved" xml:space="preserve">
+    <value>{0} has changes you haven't saved.</value>
+  </data>
+  <data name="Profile_SaveAndSwitch" xml:space="preserve">
+    <value>Save and switch</value>
+  </data>
+  <data name="Profile_SwitchAnyway" xml:space="preserve">
+    <value>Switch without saving</value>
+  </data>
   <data name="Profile_NoApps" xml:space="preserve">
     <value>Not assigned to any app</value>
   </data>
@@ -730,7 +757,7 @@
     <value>Apps for {0}</value>
   </data>
   <data name="Profile_AppsHint" xml:space="preserve">
-    <value>Nothing is running right now. Start the app you want, then open this again.</value>
+    <value>Nothing is making sound right now. Start the app, or browse for it.</value>
   </data>
   <data name="Audio_NoDevice" xml:space="preserve">
     <value>No audio device</value>

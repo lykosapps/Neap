@@ -737,6 +737,7 @@ function Profiles {
         (Pattern $apps ([System.Windows.Automation.InvokePattern])).Invoke()
         Until { @(FindAll $script:window 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox)).Count -gt 0 } | Out-Null
         Start-Sleep -Milliseconds 300
+        Check ($null -ne (Control "Browse for a program$([char]0x2026)" ([System.Windows.Automation.ControlType]::Button))) 'the apps picker offers to browse for a program'
         Screenshot 'profile-apps-dialog'
         $box = @(FindAll $script:window 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox)) | Select-Object -First 1
         if ($null -ne $box) { (Pattern $box ([System.Windows.Automation.TogglePattern])).Toggle() }
@@ -769,6 +770,17 @@ function PowerCycle {
     Ask 'off' | Out-Null
     Check (Until { (Header) -ne 'Headset connected' } 40) "switched off, the header says $(Header)"
     Screenshot 'home-off'
+    $script:step = 'the profile bar with the headset off'
+    $bar = Control 'Profile' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -ne $bar) {
+        (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
+        Check (Until { $null -ne (Find $script:window 'NameProperty' 'Turn the headset on to switch profiles or save one.') }) 'with the headset off, the profile list says why it is unavailable'
+        $save = Control 'Save current settings as a new profile' ([System.Windows.Automation.ControlType]::Button)
+        Check ($null -ne $save -and -not $save.Current.IsEnabled) 'with the headset off, saving a new profile is not offered'
+        Screenshot 'profile-off'
+        try { (Pattern $bar ([System.Windows.Automation.ExpandCollapsePattern])).Collapse() } catch { }
+    }
+    else { Fail 'the window has a profile bar while the headset is off' }
     Ask 'on' | Out-Null
     Check (Until { (Header) -eq 'Headset connected' } 40) 'switched back on, the header says Headset connected'
 }

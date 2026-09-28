@@ -1,4 +1,5 @@
 using Neap.Core.Audio;
+using Neap.Core.Connection;
 using Neap.Core.Settings;
 
 namespace Neap.Core.Profiles;
@@ -51,6 +52,48 @@ public static class ProfileCheck
         if (settings.MicPreset is { } mic && !micPresets.Contains(mic)) missing.Add(mic);
         return missing;
     }
+}
+
+/// <summary>Whether the headset now differs from a saved profile.</summary>
+public static class ProfileEdits
+{
+    /// <summary>
+    /// Whether the live settings differ from the saved ones. An equaliser
+    /// preset the profile never saved, because the equaliser had not been read
+    /// when it was, is not something the person can have changed.
+    /// </summary>
+    public static bool IsEdited(ProfileSettings saved, ProfileSettings live) =>
+        saved with { GamePreset = saved.GamePreset ?? live.GamePreset, MicPreset = saved.MicPreset ?? live.MicPreset } != live;
+}
+
+/// <summary>Whether a profile can be switched to or saved right now, and if not, why.</summary>
+public enum ProfileReadiness
+{
+    Ready,
+
+    /// <summary>The headset is off, out of range or unplugged: nothing can be written to it or read from it.</summary>
+    HeadsetNotAnswering,
+
+    /// <summary>The headset answers, but its settings have not all been read yet.</summary>
+    Reading,
+}
+
+/// <summary>What makes a profile switchable.</summary>
+public static class ProfileGate
+{
+    public static ProfileReadiness Of(Link link, bool settingsRead) => link switch
+    {
+        Link.Connected when settingsRead => ProfileReadiness.Ready,
+        Link.Connected => ProfileReadiness.Reading,
+        _ => ProfileReadiness.HeadsetNotAnswering,
+    };
+}
+
+/// <summary>How an app is named in a profile: the way the running one is, by its process name.</summary>
+public static class ProgramName
+{
+    /// <summary>The process name of a program picked as a file, "witcher3" for "C:\Games\witcher3.exe".</summary>
+    public static string Of(string path) => Path.GetFileNameWithoutExtension(path);
 }
 
 /// <summary>Which profile an app belongs to, kept to at most one.</summary>

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Neap.App.Services;
 using Neap.Core.Profiles;
+using Windows.Storage.Pickers;
 
 namespace Neap.App.Controls;
 
@@ -123,6 +124,12 @@ public sealed class ProfilesSettings : UserControl
     /// one's, and a flyout closes when the button that owns it is rebuilt out
     /// from under it. A dialog sits on the window itself and is not.
     /// </summary>
+    /// <remarks>
+    /// Lists what is making sound now, and every app already assigned to this
+    /// profile whether it is running or not, so it can always be taken away.
+    /// A program that is not running, such as a game about to be started, is
+    /// picked as a file.
+    /// </remarks>
     private async Task OpenAppPicker(Profile profile)
     {
         await LoadNames();
@@ -131,37 +138,72 @@ public sealed class ProfilesSettings : UserControl
         var candidates = await AppServices.Mix.Candidates();
 
         var list = new StackPanel { Spacing = 8 };
-        foreach (var candidate in candidates)
+        var listed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        void Add(string process, string display, bool isChecked)
         {
-            var box = new CheckBox
-            {
-                Content = candidate.Display,
-                IsChecked = assigned.Contains(candidate.Process, StringComparer.OrdinalIgnoreCase),
-            };
-            string process = candidate.Process;
-            box.Checked += (_, _) => AppServices.Profiles.Assign(profile.Id, process);
+            if (!listed.Add(process)) return;
+            var box = new CheckBox { Content = display, Tag = process, IsChecked = isChecked };
+            box.Checked += (_, _) => AppServices.Profiles.Assign(profile.Id, process, display);
             box.Unchecked += (_, _) => AppServices.Profiles.Unassign(process);
             list.Children.Add(box);
         }
+
+        foreach (var candidate in candidates)
+            Add(candidate.Process, candidate.Display, assigned.Contains(candidate.Process, StringComparer.OrdinalIgnoreCase));
+        foreach (string process in assigned)
+            Add(process, Named(process), true);
 
         var hint = new TextBlock
         {
             Text = Strings.Get("Profile_AppsHint"),
             TextWrapping = TextWrapping.Wrap,
             Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
-            Visibility = candidates.Count == 0 ? Visibility.Visible : Visibility.Collapsed,
+            Visibility = listed.Count == 0 ? Visibility.Visible : Visibility.Collapsed,
+        };
+
+        var browse = new Button { Content = Strings.Get("Profile_Browse") };
+        browse.Click += async (_, _) =>
+        {
+            if (await PickProgram() is not { } picked) return;
+            hint.Visibility = Visibility.Collapsed;
+            _names[picked.Process] = picked.Display;
+            Add(picked.Process, picked.Display, isChecked: false);
+
+            // Picking a program means assigning it, whether or not it was already listed.
+            list.Children.OfType<CheckBox>().First(b => (string)b.Tag == picked.Process).IsChecked = true;
         };
 
         await new NeapDialog
         {
             XamlRoot = XamlRoot,
             Title = Strings.Format("Profile_AppsTitle", profile.Name),
-            Content = new StackPanel { MinWidth = 260, Spacing = 8, Children = { list, hint } },
+            Content = new StackPanel { MinWidth = 260, Spacing = 12, Children = { list, hint, browse } },
             CloseButtonText = Strings.Get("Dialog_OK"),
         }.ShowAsync();
     }
 
-    private string Named(string process) => _names.GetValueOrDefault(process, process);
+    /// <summary>Asks for a program as a file, and names it the way a running one is named.</summary>
+    private static async Task<(string Process, string Display)?> PickProgram()
+    {
+        var picker = new FileOpenPicker();
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(MainWindow.Instance!));
+        picker.FileTypeFilter.Add(".exe");
+        var file = await picker.PickSingleFileAsync();
+        if (file is null) return null;
+
+        string process = ProgramName.Of(file.Path);
+        string display = process;
+        try
+        {
+            string? described = System.Diagnostics.FileVersionInfo.GetVersionInfo(file.Path).FileDescription;
+            if (!string.IsNullOrWhiteSpace(described)) display = described;
+        }
+        catch (Exception ex) { AppLog.Write($"profiles: could not read the description of {file.Name}: {ex.Message}"); }
+        return (process, display);
+    }
+
+    private string Named(string process) => _names.GetValueOrDefault(process) ?? AppServices.Profiles.DisplayName(process);
 
     /// <summary>
     /// The in-place confirmation that replaces a profile's row while its

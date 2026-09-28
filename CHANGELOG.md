@@ -67,8 +67,10 @@ and date.
   applied shows as edited until it's saved or you switch away. A preset a
   profile remembers, deleted since it was saved, is named rather than
   silently skipped. A profile can also be given one or more apps, from its
-  row in Settings — switching to it automatically when that app runs is
-  still to come.
+  row in Settings, chosen from what is making sound or by browsing for a
+  program's file — switching to it automatically when that app runs is
+  still to come. Switching away from a profile with unsaved changes asks
+  first, and while the headset is off the bar says so instead of failing.
 - **Spatial sound**, as a tile on Home and on the Audio page: off, Windows
   Sonic, and Dolby Atmos where it's installed. The Stealth Pro II carries a
   Dolby Atmos
@@ -142,6 +144,10 @@ and date.
   its foot in the dark one.
 - A setting changed while the equaliser's presets are loading takes effect
   in under a second, rather than waiting up to four.
+- A profile saved before the equalisers had been read no longer shows
+  "Edited" straight after switching to it, and the first switch after
+  opening Neap takes a second, not about eight.
+- The profile list no longer closes by itself while it is open.
 - Switching to a profile, or discarding a change back to one, no longer
   re-reads both equaliser banks first if they were already read: a couple
   of seconds' wait, gone.

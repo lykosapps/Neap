@@ -21,7 +21,7 @@ internal static class ProfileNaming
     /// <returns>The trimmed name, or an empty string if the dialog was cancelled.</returns>
     public static async Task<string> Ask(XamlRoot root, string title, string suggested, string? excludingId)
     {
-        var field = new TextBox { Text = suggested, PlaceholderText = Strings.Get("Profile_NamePlaceholder") };
+        var field = new TextBox { Text = suggested, PlaceholderText = Strings.Get("Profile_NamePlaceholder"), MaxLength = 40 };
         // A placeholder alone is not a name a screen reader can rely on.
         AutomationProperties.SetName(field, Strings.Get("Profile_NamePlaceholder"));
         var note = new TextBlock

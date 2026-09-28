@@ -71,7 +71,7 @@
             Background="{ThemeResource NeapPanelBrush}"
             BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
             BorderThickness="0,0,0,1">
-            <controls:ProfileBar HorizontalAlignment="Left" />
+            <controls:ProfileBar />
         </Border>
 
         <NavigationView
