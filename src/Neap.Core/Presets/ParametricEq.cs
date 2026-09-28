@@ -382,11 +382,10 @@ public static class ParametricEq
     /// since the press, from where it was, with its gain in the headset's steps.
     /// </summary>
     /// <remarks>
-    /// Moved by the distance, not put under the pointer: a point is drawn on
-    /// the curve asked for, which neighbouring adjustments add to, and a
-    /// press lands anywhere within reach of it, so putting it under the
-    /// pointer would throw it off its value the moment it was pressed. A
-    /// movement too small to mean a drag leaves it alone.
+    /// Moved by the distance, not put under the pointer: a press lands
+    /// anywhere within reach of a point, so putting it under the pointer
+    /// would throw it off its value the moment it was pressed. A movement too
+    /// small to mean a drag leaves it alone.
     /// </remarks>
     /// <param name="start">The adjustment as it was when pressed.</param>
     /// <param name="across">Pixels moved to the right since the press.</param>

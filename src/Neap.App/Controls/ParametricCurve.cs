@@ -27,6 +27,13 @@ namespace Neap.App.Controls;
 /// it meets the curve heard.
 /// </para>
 /// <para>
+/// A point sits at its own adjustment's frequency and gain, not on the
+/// curve asked for, where neighbouring adjustments add to it. Every
+/// adjustment's gain is inside the plot's range, so every point stays on
+/// the plot and within reach however they are stacked. The curve asked
+/// for can still pass the plot's range, so nothing is drawn outside it.
+/// </para>
+/// <para>
 /// Dragging a point moves its adjustment's frequency and gain; the mouse
 /// wheel over it changes its width. The fields under the plot do all of this
 /// from the keyboard, so the plot is hidden from screen readers.
@@ -220,6 +227,7 @@ public sealed class ParametricCurve : UserControl
     {
         double width = _canvas.ActualWidth, height = _canvas.ActualHeight;
         if (width <= 0 || height <= 0 || _bands.Length == 0) return;
+        _canvas.Clip = new RectangleGeometry { Rect = new Rect(0, 0, width, height) };
 
         foreach (var line in _grid)
         {
@@ -256,7 +264,7 @@ public sealed class ParametricCurve : UserControl
         {
             var adjustment = _adjustments[i];
             double x = X(adjustment.Frequency);
-            double y = Y(ParametricEq.Asked(_adjustments, adjustment.Frequency));
+            double y = Y(adjustment.Gain / 10.0);
             var (grab, dot, number) = _handles[i];
             Canvas.SetLeft(dot, x - HandleRadius);
             Canvas.SetTop(dot, y - HandleRadius);

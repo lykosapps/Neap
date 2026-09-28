@@ -252,3 +252,6 @@ and date.
   starting a new profile is a short "New profile" above the list of saved
   ones, not a full sentence below it that sank further down as the list
   grew.
+- On the parametric plot, each point sits at its own adjustment's gain, as
+  in other parametric equalisers, so stacked adjustments no longer push
+  their points off the plot and over the test tone's controls.
