@@ -123,15 +123,26 @@ public sealed class AppSettings
     /// </summary>
     /// <remarks>
     /// The headset's slot holds only the ten gains they fit to, so a preset
-    /// still plays as made without Neap. See <see cref="ParametricEq.Matches"/>
-    /// for how a preset changed elsewhere since is recognised.
+    /// still plays as made without Neap.
     /// </remarks>
     [JsonPropertyName("parametric_presets")]
     public Dictionary<string, Dictionary<string, int[][]>> ParametricPresets { get; set; } = new();
 
     /// <summary>
+    /// The ten gains each preset in <see cref="ParametricPresets"/> was saved
+    /// with, by bank and then by preset name.
+    /// </summary>
+    /// <remarks>
+    /// A preset whose slot no longer holds these has been changed elsewhere
+    /// since, and its adjustments no longer describe it. A preset stored
+    /// without them is fitted again.
+    /// </remarks>
+    [JsonPropertyName("parametric_bands")]
+    public Dictionary<string, Dictionary<string, int[]>> ParametricBands { get; set; } = new();
+
+    /// <summary>
     /// The curve each bank was left on: the preset it was an edit of and, if
-    /// it was shaped parametrically, its adjustments.
+    /// it was shaped parametrically, its adjustments and the gains they came to.
     /// </summary>
     /// <remarks>
     /// The headset forgets which preset an edit came from, so after a restart
@@ -145,47 +156,61 @@ public sealed class AppSettings
     {
         [JsonPropertyName("preset")] public string? Preset { get; set; }
         [JsonPropertyName("adjustments")] public int[][]? Adjustments { get; set; }
+        [JsonPropertyName("bands")] public int[]? Bands { get; set; }
     }
 
-    /// <summary>The preset a bank was left on an edit of, and its adjustments, if any and well formed.</summary>
-    public (string? Preset, IReadOnlyList<Adjustment>? Adjustments) LeftOnFor(Bank bank)
+    /// <summary>The preset a bank was left on an edit of, and its shape, if it had one and it is well formed.</summary>
+    public (string? Preset, ParametricShape? Shape) LeftOnFor(Bank bank)
     {
         if (!EqualiserLeftOn.TryGetValue(bank.ToString(), out var left)) return (null, null);
-        var adjustments = left.Adjustments is { } stored && stored.All(a => a is { Length: 3 })
-            ? stored.Select(a => new Adjustment(a[0], a[1], a[2])).ToList()
-            : null;
-        return (left.Preset, adjustments);
+        return (left.Preset, Shape(left.Adjustments, left.Bands));
     }
 
     /// <summary>Records where a bank was left.</summary>
-    public void SetLeftOn(Bank bank, string? preset, IReadOnlyList<Adjustment>? adjustments) =>
+    public void SetLeftOn(Bank bank, string? preset, ParametricShape? shape) =>
         EqualiserLeftOn[bank.ToString()] = new LeftOn
         {
             Preset = preset,
-            Adjustments = adjustments?.Select(a => new[] { a.Frequency, a.Gain, a.Width }).ToArray(),
+            Adjustments = shape is null ? null : Stored(shape.Adjustments),
+            Bands = shape?.Bands.ToArray(),
         };
 
-    /// <summary>A preset's stored adjustments, or null if it has none or they are malformed.</summary>
-    public IReadOnlyList<Adjustment>? Adjustments(Bank bank, string name)
-    {
-        if (!ParametricPresets.TryGetValue(bank.ToString(), out var presets)
-            || !presets.TryGetValue(name, out var stored)
-            || stored.Any(a => a is not { Length: 3 })) return null;
-        return stored.Select(a => new Adjustment(a[0], a[1], a[2])).ToList();
-    }
-
-    /// <summary>Stores a preset's adjustments, or forgets them when given null.</summary>
-    public void SetAdjustments(Bank bank, string name, IReadOnlyList<Adjustment>? adjustments)
+    /// <summary>A preset's stored shape, or null if it has none or it is malformed.</summary>
+    public ParametricShape? Shape(Bank bank, string name)
     {
         string key = bank.ToString();
-        if (adjustments is null)
+        if (!ParametricPresets.TryGetValue(key, out var presets) || !presets.TryGetValue(name, out var stored))
+            return null;
+        return Shape(stored, ParametricBands.GetValueOrDefault(key)?.GetValueOrDefault(name));
+    }
+
+    /// <summary>Stores a preset's shape, or forgets it when given null.</summary>
+    public void SetShape(Bank bank, string name, ParametricShape? shape)
+    {
+        string key = bank.ToString();
+        if (shape is null)
         {
-            if (ParametricPresets.TryGetValue(key, out var presets)) presets.Remove(name);
+            ParametricPresets.GetValueOrDefault(key)?.Remove(name);
+            ParametricBands.GetValueOrDefault(key)?.Remove(name);
             return;
         }
-        if (!ParametricPresets.TryGetValue(key, out var bankPresets))
-            ParametricPresets[key] = bankPresets = new();
-        bankPresets[name] = adjustments.Select(a => new[] { a.Frequency, a.Gain, a.Width }).ToArray();
+        if (!ParametricPresets.TryGetValue(key, out var adjustments))
+            ParametricPresets[key] = adjustments = new();
+        if (!ParametricBands.TryGetValue(key, out var bands))
+            ParametricBands[key] = bands = new();
+        adjustments[name] = Stored(shape.Adjustments);
+        bands[name] = shape.Bands.ToArray();
+    }
+
+    private static int[][] Stored(IReadOnlyList<Adjustment> adjustments) =>
+        adjustments.Select(a => new[] { a.Frequency, a.Gain, a.Width }).ToArray();
+
+    /// <summary>A shape from its stored form, or null if there is none or it is malformed.</summary>
+    private static ParametricShape? Shape(int[][]? stored, int[]? bands)
+    {
+        if (stored is null || stored.Any(a => a is not { Length: 3 })) return null;
+        var adjustments = stored.Select(a => new Adjustment(a[0], a[1], a[2])).ToList();
+        return new ParametricShape(adjustments, bands ?? ParametricEq.Fit(adjustments));
     }
 
     /// <summary>Profiles saved on this PC, in the order they were made.</summary>

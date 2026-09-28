@@ -60,8 +60,8 @@ public sealed class PresetService
     /// <summary>The adjustments shaping each bank shaped parametrically; a bank not here is shaped by its bands.</summary>
     private readonly Dictionary<Bank, List<Adjustment>> _adjustments = new();
 
-    /// <summary>The adjustments put aside when a bank went back to its bands, until another preset is chosen.</summary>
-    private readonly Dictionary<Bank, List<Adjustment>> _setAside = new();
+    /// <summary>The shape put aside when a bank went back to its bands, until another preset is chosen.</summary>
+    private readonly Dictionary<Bank, ParametricShape> _setAside = new();
 
     /// <summary>Banks that chose the flat preset as a starting point rather than as a preset, until another is chosen.</summary>
     private readonly HashSet<Bank> _flatStart = new();
@@ -160,10 +160,10 @@ public sealed class PresetService
         // An edit from before a restart: the headset has forgotten its
         // preset, so take the one it was left on, and its adjustments while
         // they still fit what plays.
-        var (preset, adjustments) = AppSettings.Current.LeftOnFor(state.Bank);
+        var (preset, shape) = AppSettings.Current.LeftOnFor(state.Bank);
         Adopt(state, state.Presets.FirstOrDefault(p => p.Name == preset));
-        if (adjustments is not null && ParametricEq.Covers(state.Bank) && ParametricEq.Matches(adjustments, live))
-            _adjustments[state.Bank] = adjustments.ToList();
+        if (shape is not null && ParametricEq.Covers(state.Bank) && shape.Describes(live))
+            _adjustments[state.Bank] = shape.Adjustments.ToList();
         else
             _adjustments.Remove(state.Bank);
         LeaveSoon();
@@ -179,17 +179,23 @@ public sealed class PresetService
     {
         var leaving = _banks.Values.ToDictionary(
             state => state.Bank,
-            state => (state.Baseline?.Name, _adjustments.GetValueOrDefault(state.Bank)?.ToList()));
+            state => (state.Baseline?.Name, Shape(state)));
         int note = Interlocked.Increment(ref _leaves);
         Task.Delay(TimeSpan.FromSeconds(1)).ContinueWith(_ =>
         {
             if (note != Volatile.Read(ref _leaves)) return;
             AppSettings.Update(settings =>
             {
-                foreach (var (bank, (preset, adjustments)) in leaving) settings.SetLeftOn(bank, preset, adjustments);
+                foreach (var (bank, (preset, shape)) in leaving) settings.SetLeftOn(bank, preset, shape);
             });
         }, TaskScheduler.Default);
     }
+
+    /// <summary>The bank's adjustments with the gains the headset holds for them, or null when it is shaped by its bands.</summary>
+    private ParametricShape? Shape(BankState state) =>
+        _adjustments.TryGetValue(state.Bank, out var adjustments) && LiveBands(state) is { } live
+            ? new ParametricShape(adjustments.ToList(), live)
+            : null;
 
     /// <summary>Takes a preset as the baseline, with its adjustments if it was made parametrically.</summary>
     /// <remarks>
@@ -204,10 +210,10 @@ public sealed class PresetService
         _flatStart.Remove(state.Bank);
         _new.Remove(state.Bank);
         var stored = preset is { Custom: true } && ParametricEq.Covers(state.Bank)
-            ? AppSettings.Current.Adjustments(state.Bank, preset.Name)
+            ? AppSettings.Current.Shape(state.Bank, preset.Name)
             : null;
-        if (stored is not null && ParametricEq.Matches(stored, preset!.Bands))
-            _adjustments[state.Bank] = stored.ToList();
+        if (stored is not null && stored.Describes(preset!.Bands))
+            _adjustments[state.Bank] = stored.Adjustments.ToList();
         else
             _adjustments.Remove(state.Bank);
         LeaveSoon();
@@ -305,8 +311,8 @@ public sealed class PresetService
 
     /// <summary>Whether a preset was saved from adjustments that still describe its bands.</summary>
     public static bool MadeParametrically(Preset preset) =>
-        preset.Custom && AppSettings.Current.Adjustments(preset.Bank, preset.Name) is { } stored
-        && ParametricEq.Matches(stored, preset.Bands);
+        preset.Custom && AppSettings.Current.Shape(preset.Bank, preset.Name) is { } stored
+        && stored.Describes(preset.Bands);
 
     /// <summary>The adjustments shaping the bank, or none when it is shaped by its bands.</summary>
     public IReadOnlyList<Adjustment> Adjustments(Bank bank) =>
@@ -331,7 +337,7 @@ public sealed class PresetService
         switch (start)
         {
             case ParametricStart.Resume:
-                _adjustments[bank] = _setAside[bank];
+                _adjustments[bank] = _setAside[bank].Adjustments.ToList();
                 break;
             case ParametricStart.Reopen:
                 await Select(bank, state.Baseline!);
@@ -359,7 +365,7 @@ public sealed class PresetService
             || LiveBands(state) is not { } live) return null;
 
         var baseline = state.Baseline;
-        var stored = baseline is { Custom: true } ? AppSettings.Current.Adjustments(bank, baseline.Name) : null;
+        var stored = baseline is { Custom: true } ? AppSettings.Current.Shape(bank, baseline.Name) : null;
         return (ParametricEq.StartFrom(_setAside.GetValueOrDefault(bank), live, stored, baseline?.Bands), live, state);
     }
 
@@ -399,7 +405,8 @@ public sealed class PresetService
     /// <remarks>The adjustments are put aside, to come back if the bands are only looked at.</remarks>
     public void UseBands(Bank bank)
     {
-        if (_adjustments.Remove(bank, out var adjustments)) _setAside[bank] = adjustments;
+        if (_banks.TryGetValue(bank, out var state) && Shape(state) is { } shape) _setAside[bank] = shape;
+        _adjustments.Remove(bank);
         LeaveSoon();
     }
 
@@ -466,7 +473,9 @@ public sealed class PresetService
         // Taken now, with the bands: replacing the chosen preset has the
         // headset choose the flat one while the old is deleted, which is
         // followed as a new baseline and drops the adjustments mid-save.
-        var adjustments = _adjustments.GetValueOrDefault(bank)?.ToList();
+        var shape = _adjustments.TryGetValue(bank, out var adjustments)
+            ? new ParametricShape(adjustments.ToList(), bands)
+            : null;
 
         try
         {
@@ -491,8 +500,8 @@ public sealed class PresetService
         // kept here; a preset saved from the bands keeps none.
         AppSettings.Update(settings =>
         {
-            if (replacing is not null) settings.SetAdjustments(bank, replacing, null);
-            settings.SetAdjustments(bank, name, adjustments);
+            if (replacing is not null) settings.SetShape(bank, replacing, null);
+            settings.SetShape(bank, name, shape);
         });
 
         await Load(bank);
@@ -504,7 +513,7 @@ public sealed class PresetService
     {
         try { await _headset.Post(client => { PresetStore.Delete(client, name, bank); return true; }); }
         catch (Exception ex) { return ex.Message; }
-        AppSettings.Update(settings => settings.SetAdjustments(bank, name, null));
+        AppSettings.Update(settings => settings.SetShape(bank, name, null));
         await Load(bank);
         return null;
     }

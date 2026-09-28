@@ -255,3 +255,6 @@ and date.
 - On the parametric plot, each point sits at its own adjustment's gain, as
   in other parametric equalisers, so stacked adjustments no longer push
   their points off the plot and over the test tone's controls.
+- A preset saved from the parametric equaliser keeps opening with its
+  adjustments after Neap is updated, instead of turning back into plain
+  bands whenever the way adjustments become bands changes.

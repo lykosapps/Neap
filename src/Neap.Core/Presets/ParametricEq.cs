@@ -29,6 +29,19 @@ public readonly record struct Adjustment(int Frequency, int Gain, int Width)
         Math.Clamp(Width, Narrowest, Widest));
 }
 
+/// <summary>A parametric curve as it was made: its adjustments and the ten band gains they came to.</summary>
+/// <remarks>
+/// The gains are kept rather than fitted again, so the adjustments are
+/// recognised by what the headset holds whatever the fit does since.
+/// </remarks>
+/// <param name="Adjustments">The adjustments.</param>
+/// <param name="Bands">The ten band gains, in tenths, that played them.</param>
+public sealed record ParametricShape(IReadOnlyList<Adjustment> Adjustments, IReadOnlyList<int> Bands)
+{
+    /// <summary>Whether these band gains are the ones this shape came to, so the adjustments still describe them.</summary>
+    public bool Describes(IReadOnlyList<int> bands) => Bands.SequenceEqual(bands);
+}
+
 /// <summary>Where the parametric equaliser starts from when it is chosen.</summary>
 public enum ParametricStart
 {
@@ -152,11 +165,6 @@ public static class ParametricEq
     /// <para>
     /// The gains come out in the headset's half-decibel steps; see
     /// <see cref="PresetStore.BandStep"/>.
-    /// </para>
-    /// <para>
-    /// The result is the same for the same adjustments every time, which is
-    /// what lets a preset's stored adjustments be checked against the gains
-    /// the headset holds for it.
     /// </para>
     /// </remarks>
     public static int[] Fit(IReadOnlyList<Adjustment> adjustments)
@@ -326,30 +334,22 @@ public static class ParametricEq
         return new Adjustment(frequency, 0, 15);
     }
 
-    /// <summary>Whether ten band gains are what these adjustments fit to.</summary>
-    /// <remarks>
-    /// A preset's adjustments are kept in Neap and its gains on the headset.
-    /// If the gains have been changed elsewhere since, the adjustments no
-    /// longer describe the preset and are not shown for it.
-    /// </remarks>
-    public static bool Matches(IReadOnlyList<Adjustment> adjustments, IReadOnlyList<int> bands) =>
-        Fit(adjustments).SequenceEqual(bands);
-
     /// <summary>Decides where the parametric equaliser starts from when it is chosen.</summary>
     /// <remarks>
     /// Adjustments set aside by a look at the bands come back while the bands
     /// are still where they left them. Otherwise a preset made parametrically
-    /// comes back in that form, and anything else starts flat.
+    /// comes back in that form, unless its gains have been changed elsewhere
+    /// since, and anything else starts flat.
     /// </remarks>
-    /// <param name="setAside">The adjustments in use when the bands were chosen, if any.</param>
+    /// <param name="setAside">The shape in use when the bands were chosen, if any.</param>
     /// <param name="live">The bands as they are now.</param>
-    /// <param name="stored">The baseline preset's stored adjustments, if any.</param>
+    /// <param name="stored">The baseline preset's stored shape, if any.</param>
     /// <param name="preset">The baseline preset's bands, if there is one.</param>
-    public static ParametricStart StartFrom(IReadOnlyList<Adjustment>? setAside, IReadOnlyList<int> live,
-        IReadOnlyList<Adjustment>? stored, IReadOnlyList<int>? preset)
+    public static ParametricStart StartFrom(ParametricShape? setAside, IReadOnlyList<int> live,
+        ParametricShape? stored, IReadOnlyList<int>? preset)
     {
-        if (setAside is not null && Matches(setAside, live)) return ParametricStart.Resume;
-        if (stored is not null && preset is not null && Matches(stored, preset)) return ParametricStart.Reopen;
+        if (setAside is not null && setAside.Describes(live)) return ParametricStart.Resume;
+        if (stored is not null && preset is not null && stored.Describes(preset)) return ParametricStart.Reopen;
         return ParametricStart.Flat;
     }
 

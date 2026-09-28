@@ -76,20 +76,28 @@ public class ParametricEqTests
     }
 
     [Fact]
-    public void TheSameAdjustmentsAlwaysFitTheSameGains()
+    public void AShapeDescribesTheGainsItWasMadeWith()
     {
-        Adjustment[] asked = [new Adjustment(4915, -60, 12), new Adjustment(120, 40, 25)];
-        Assert.Equal(ParametricEq.Fit(asked), ParametricEq.Fit(asked));
-        Assert.True(ParametricEq.Matches(asked, ParametricEq.Fit(asked)));
+        var shape = Shaped(Cut);
+        Assert.True(shape.Describes(ParametricEq.Fit(Cut)));
     }
 
     [Fact]
-    public void GainsChangedElsewhereNoLongerMatch()
+    public void AShapeIsKnownByItsGainsNotByFittingAgain()
     {
-        Adjustment[] asked = [new Adjustment(4915, -60, 10)];
-        var bands = ParametricEq.Fit(asked);
+        // As a preset saved before a change to the fit: its gains are no
+        // longer what its adjustments fit to, but still what it was made with.
+        int[] saved = [0, 0, 0, 0, 0, 0, 0, -45, -20, 0];
+        Assert.NotEqual(saved, ParametricEq.Fit(Cut));
+        Assert.True(new ParametricShape(Cut, saved).Describes(saved));
+    }
+
+    [Fact]
+    public void GainsChangedElsewhereAreNoLongerDescribed()
+    {
+        var bands = ParametricEq.Fit(Cut);
         bands[0] += 10;
-        Assert.False(ParametricEq.Matches(asked, bands));
+        Assert.False(Shaped(Cut).Describes(bands));
     }
 
     [Fact]
@@ -122,19 +130,21 @@ public class ParametricEqTests
     }
 
     private static readonly Adjustment[] Cut = [new Adjustment(4915, -60, 10)];
+
+    private static ParametricShape Shaped(Adjustment[] adjustments) => new(adjustments, ParametricEq.Fit(adjustments));
     private static readonly int[] Flat = new int[10];
     private static readonly int[] BassBoost = [50, 50, 35, 0, 0, 0, 0, 0, 0, 0];
 
     [Fact]
     public void ALookAtTheBandsComesBackAsItWas() =>
-        Assert.Equal(ParametricStart.Resume, ParametricEq.StartFrom(Cut, ParametricEq.Fit(Cut), null, null));
+        Assert.Equal(ParametricStart.Resume, ParametricEq.StartFrom(Shaped(Cut), ParametricEq.Fit(Cut), null, null));
 
     [Fact]
     public void BandsMovedSinceGiveUpWhatWasSetAside()
     {
         var moved = ParametricEq.Fit(Cut);
         moved[0] = 30;
-        Assert.Equal(ParametricStart.Flat, ParametricEq.StartFrom(Cut, moved, null, null));
+        Assert.Equal(ParametricStart.Flat, ParametricEq.StartFrom(Shaped(Cut), moved, null, null));
     }
 
     [Fact]
@@ -142,7 +152,7 @@ public class ParametricEqTests
     {
         var edited = ParametricEq.Fit(Cut);
         edited[0] = 30;
-        Assert.Equal(ParametricStart.Reopen, ParametricEq.StartFrom(null, edited, Cut, ParametricEq.Fit(Cut)));
+        Assert.Equal(ParametricStart.Reopen, ParametricEq.StartFrom(null, edited, Shaped(Cut), ParametricEq.Fit(Cut)));
     }
 
     [Fact]
@@ -150,12 +160,12 @@ public class ParametricEqTests
     {
         Adjustment[] unsaved = [new Adjustment(1000, 40, 20)];
         Assert.Equal(ParametricStart.Resume,
-            ParametricEq.StartFrom(unsaved, ParametricEq.Fit(unsaved), Cut, ParametricEq.Fit(Cut)));
+            ParametricEq.StartFrom(Shaped(unsaved), ParametricEq.Fit(unsaved), Shaped(Cut), ParametricEq.Fit(Cut)));
     }
 
     [Fact]
     public void StoredAdjustmentsThatNoLongerFitThePresetAreIgnored() =>
-        Assert.Equal(ParametricStart.Flat, ParametricEq.StartFrom(null, Flat, Cut, BassBoost));
+        Assert.Equal(ParametricStart.Flat, ParametricEq.StartFrom(null, Flat, Shaped(Cut), BassBoost));
 
     [Fact]
     public void APresetMadeWithTheBandsStartsFlat() =>
