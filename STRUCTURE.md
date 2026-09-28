@@ -22,8 +22,10 @@ Who it's for: see [USERS.md](USERS.md).
 - **Device** — connected transmitter(s), audio format, ring lighting,
   auto shut-off, wake on motion, and firmware/serial/raw values behind an
   expander. Serves transmitter and device information.
-- **Settings** (footer) — start with Windows, and About. App housekeeping,
-  not a headset function.
+- **Settings** (footer) — start with Windows, About, and Profiles' upkeep:
+  naming, deleting, assigning apps to switch to a profile automatically, and
+  setting the default profile. App housekeeping, plus the one piece of
+  profile management too infrequent for the always-visible bar.
 
 ## How people move
 
@@ -34,11 +36,23 @@ always there to move sideways instead. One shortcut: Home's quick settings
 can jump straight to Audio's equaliser. Closing the window leaves a tray icon running,
 whose own menu only opens or quits the app — it doesn't expose any page.
 
+A profile bar sits under the title bar, above every page, riding along with
+whichever place is open rather than being a place of its own. It shows the
+active profile and an edited mark, and is where switching to another saved
+profile or saving the current setup as a new one happens — the profile
+task's frequent moves, reachable without leaving the page someone's on.
+Naming, deleting, assigning apps and setting the default stay in Settings,
+so the bar never grows past what fits under a title bar. Once a profile has
+apps assigned, its own switch also happens automatically as those apps
+start and close, with no screen to visit at all.
+
 ## Where new things go
 
 - A new headset setting joins whichever of Audio, Microphone, Controls or
   Device already matches its function.
 - A new app-level preference (not about the headset) joins Settings.
+- A new everyday move for profiles (switching, saving) joins the profile
+  bar; a new occasional one (managing what's saved) joins Settings.
 - A seventh rail item only if something has no honest home in the five
   above — which hasn't happened yet.
 
