@@ -14,6 +14,9 @@ One person: the owner, on one Windows machine, with one Stealth Pro II
 - Manage microphone settings. Occasionally. *(known — README)*
 - Remap the Mode button or dial, or check what a control does. Rarely, after
   setup. *(known — README)*
+- Switch the headset between saved setups, such as a game one and a call one,
+  in one move; save a new one after tuning; adjust or tidy them rarely.
+  *(known — the owner's request for profiles; how often is assumed)*
 - Check transmitter or device details (firmware, serial, format). Rarely,
   when troubleshooting. *(known — README, ARCHITECTURE)*
 
