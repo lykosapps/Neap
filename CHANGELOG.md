@@ -258,3 +258,6 @@ and date.
 - A preset saved from the parametric equaliser keeps opening with its
   adjustments after Neap is updated, instead of turning back into plain
   bands whenever the way adjustments become bands changes.
+- Dragging a parametric point no longer flicks bands far from it up and
+  down by half a decibel, so the curve and the ten values stay still
+  away from what you're moving.

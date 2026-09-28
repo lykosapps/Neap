@@ -68,6 +68,22 @@ public class ParametricEqTests
     }
 
     [Fact]
+    public void DraggingAPointLeavesDistantBandsAlone()
+    {
+        // A deep, narrow cut dragged across two octaves, a step at a time.
+        for (int i = 0; i <= 200; i++)
+        {
+            int frequency = (int)Math.Round(300 * Math.Pow(2, i / 100.0));
+            var bands = ParametricEq.Fit([new Adjustment(frequency, -90, 10)]);
+            for (int band = 0; band < bands.Length; band++)
+            {
+                if (Math.Abs(Math.Log2(frequency / ParametricEq.Centres[band])) > 2)
+                    Assert.Equal(0, bands[band]);
+            }
+        }
+    }
+
+    [Fact]
     public void NoBandPassesItsLimit()
     {
         var bands = ParametricEq.Fit([new Adjustment(1000, 90, 30), new Adjustment(2000, 90, 30)]);
