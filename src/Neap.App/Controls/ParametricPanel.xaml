@@ -19,8 +19,8 @@
             <StackPanel Spacing="8">
                 <!--
                     One row when there is room, with Cut here and Boost here
-                    beside the frequency they act on; under it when there is
-                    not. See Arrange.
+                    beside the tone's other controls; under them when there
+                    is not. See Arrange.
                 -->
                 <Grid
                     x:Name="ToneRow"
@@ -30,9 +30,8 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="80" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="100" />
                     </Grid.ColumnDefinitions>
@@ -60,25 +59,9 @@
                         VerticalAlignment="Stretch">
                         <FontIcon FontSize="16" Glyph="&#xE71A;" />
                     </Button>
-                    <Slider
-                        x:Name="ToneSlider"
-                        x:Uid="Tone_Frequency"
-                        Grid.Column="3"
-                        VerticalAlignment="Center"
-                        IsThumbToolTipEnabled="False"
-                        LargeChange="50"
-                        Maximum="1000"
-                        Minimum="0"
-                        SmallChange="5"
-                        StepFrequency="1" />
-                    <TextBlock
-                        x:Name="ToneText"
-                        Grid.Column="4"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource NumeralBodyStrongTextStyle}" />
                     <StackPanel
                         x:Name="Marks"
-                        Grid.Column="5"
+                        Grid.Column="3"
                         Orientation="Horizontal"
                         Spacing="8">
                         <Button x:Name="CutButton" x:Uid="Tone_Cut">
@@ -95,7 +78,7 @@
                         </Button>
                     </StackPanel>
                     <FontIcon
-                        Grid.Column="6"
+                        Grid.Column="5"
                         VerticalAlignment="Center"
                         FontSize="16"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -103,12 +86,38 @@
                     <Slider
                         x:Name="LevelSlider"
                         x:Uid="Tone_Level"
-                        Grid.Column="7"
+                        Grid.Column="6"
                         VerticalAlignment="Center"
                         IsThumbToolTipEnabled="False"
                         Maximum="100"
                         Minimum="0"
                         StepFrequency="1" />
+                </Grid>
+                <!--
+                    The tone's frequency across the panel's whole width, so a
+                    pixel moves it a small step. An arrow key moves it about
+                    1 %, Page Up and Page Down half an octave.
+                -->
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="80" />
+                    </Grid.ColumnDefinitions>
+                    <Slider
+                        x:Name="ToneSlider"
+                        x:Uid="Tone_Frequency"
+                        VerticalAlignment="Center"
+                        IsThumbToolTipEnabled="False"
+                        LargeChange="100"
+                        Maximum="2000"
+                        Minimum="0"
+                        SmallChange="3"
+                        StepFrequency="1" />
+                    <TextBlock
+                        x:Name="ToneText"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource NumeralBodyStrongTextStyle}" />
                 </Grid>
                 <TextBlock
                     x:Name="ToneTrouble"

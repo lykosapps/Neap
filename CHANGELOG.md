@@ -261,3 +261,6 @@ and date.
 - Dragging a parametric point no longer flicks bands far from it up and
   down by half a decibel, so the curve and the ten values stay still
   away from what you're moving.
+- The test tone's frequency slider runs the full width of the panel, on a
+  row of its own, so it moves in finer steps; an arrow key moves the tone
+  about 1 % instead of 3.5 %.

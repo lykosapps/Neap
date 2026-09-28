@@ -66,8 +66,8 @@ public sealed partial class ParametricPanel : UserControl
 {
     private const Bank Game = Bank.Game;
 
-    /// <summary>The narrowest tone row that holds Cut here and Boost here and still leaves the frequency slider room to move.</summary>
-    private const double MarksBeside = 780;
+    /// <summary>The narrowest tone row that holds Cut here and Boost here beside the tone's other controls.</summary>
+    private const double MarksBeside = 640;
 
     private readonly FrequencyFormatter _frequencies = new();
     private readonly List<TextBlock> _sent = new();
@@ -171,14 +171,15 @@ public sealed partial class ParametricPanel : UserControl
     // -- the test tone -----------------------------------------------------
 
     /// <summary>
-    /// Puts Cut here and Boost here beside the frequency when the row has
-    /// room for them, and on a row of their own under it when it has not.
+    /// Puts Cut here and Boost here beside the tone's other controls when the
+    /// row has room for them, and on a row of their own under them when it
+    /// has not.
     /// </summary>
     private void Arrange()
     {
         bool beside = ToneRow.ActualWidth >= MarksBeside;
         Grid.SetRow(Marks, beside ? 0 : 1);
-        Grid.SetColumn(Marks, beside ? 5 : 0);
+        Grid.SetColumn(Marks, beside ? 3 : 0);
         Grid.SetColumnSpan(Marks, beside ? 1 : ToneRow.ColumnDefinitions.Count);
     }
 
