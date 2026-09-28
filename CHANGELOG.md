@@ -242,3 +242,8 @@ and date.
   rather than a status label, especially before any profile is saved.
 - After Save or Discard on the profile bar, the keyboard stays with the
   profile button instead of jumping to the menu toggle in the corner.
+- Save and Discard have moved into the profile menu, off the bar itself.
+  Before, both sat beside the profile name on every page the moment
+  anything it holds changed, which meant being asked to keep or drop a
+  change on every tweak, even while just trying things. The "Edited" mark
+  alone still says a change hasn't been kept.

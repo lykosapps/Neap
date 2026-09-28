@@ -1,5 +1,21 @@
 # Decisions
 
+## 2026-09-28 — Save and Discard move into the profile menu
+
+- **Chosen:** Save and Discard no longer sit as buttons in the bar itself.
+  They now live in the profile menu, above the list of saved profiles,
+  and only the "Edited" mark stays on the bar.
+- **Why:** a UI review of Profiles found the pair naggy for someone just
+  trying things — every setting changed while a profile is active showed
+  both buttons, on every page, for a case the switch-time prompt (Save and
+  switch / Switch without saving / Cancel) already covers. This was the
+  exact case the 2026-09-27 "What happens after changing something
+  post-profile" decision flagged to revisit if it turned out to be a
+  nuisance.
+- **Revisit if:** tucking them away costs more than it saves — for
+  instance if saving a tuning change turns out to be frequent enough that
+  the extra click to open the menu grates.
+
 ## 2026-09-28 — Nothing of Neap's reaches into a running game
 
 - **The Charging Dock's ring is left white while a game is full-screen.**

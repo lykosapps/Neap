@@ -24,6 +24,12 @@ namespace Neap.App.Controls;
 /// exception is saving the current settings as a brand new profile, which
 /// belongs wherever the settings just got made, not a page away.
 /// </para>
+/// <para>
+/// Save and Discard live in the menu, not as buttons sitting permanently in
+/// the bar: the "Edited" mark alone is enough to notice while tuning, and a
+/// person who is only trying things does not need to be asked on every
+/// change whether to keep it. See DECISIONS.md.
+/// </para>
 /// </remarks>
 public sealed class ProfileBar : UserControl
 {
@@ -56,6 +62,7 @@ public sealed class ProfileBar : UserControl
         Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
         Visibility = Visibility.Collapsed,
     };
+    private readonly Border _editSection;
     private readonly Flyout _flyout;
     private bool _building;
     private bool _busy;
@@ -78,6 +85,25 @@ public sealed class ProfileBar : UserControl
 
         _new.Content = Strings.Get("Profile_New");
 
+        _saveButton = new Button { Content = Strings.Get("Profile_Save") };
+        _discardButton = new Button { Content = Strings.Get("Profile_Discard") };
+
+        // Save and Discard, together, above the list: they answer the
+        // Edited mark on the face, before choosing another saved profile.
+        _editSection = new Border
+        {
+            Padding = new Thickness(0, 0, 0, 8),
+            BorderThickness = new Thickness(0, 0, 0, 1),
+            BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["NeapPanelStrokeBrush"],
+            Visibility = Visibility.Collapsed,
+            Child = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 8,
+                Children = { _saveButton, _discardButton },
+            },
+        };
+
         _flyout = new Flyout
         {
             Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
@@ -88,6 +114,7 @@ public sealed class ProfileBar : UserControl
                 Children =
                 {
                     _notice,
+                    _editSection,
                     _list,
                     new Border
                     {
@@ -136,21 +163,20 @@ public sealed class ProfileBar : UserControl
         _face = new DropDownButton { Flyout = _flyout, Content = faceContent, HorizontalAlignment = HorizontalAlignment.Left };
         AutomationProperties.SetName(_face, Strings.Get("Profile_Bar"));
 
-        _saveButton = new Button { Content = Strings.Get("Profile_Save"), Visibility = Visibility.Collapsed };
         _saveButton.Click += (_, _) =>
         {
+            _flyout.Hide();
             AppServices.Profiles.SaveOverActive();
             Paint();
-            // Save and Discard vanish the moment they're clicked; keep focus
-            // with the profile control they belonged to rather than let it
-            // fall back to whatever is next in tab order.
+            // The menu is already closing; keep focus on the face rather
+            // than let it fall back to whatever is next in tab order.
             _face.Focus(FocusState.Programmatic);
         };
 
-        _discardButton = new Button { Content = Strings.Get("Profile_Discard"), Visibility = Visibility.Collapsed };
         _discardButton.Click += async (_, _) =>
         {
             if (_busy) return;
+            _flyout.Hide();
             _busy = true;
             Paint();
             try { await AppServices.Profiles.Discard(); }
@@ -163,14 +189,14 @@ public sealed class ProfileBar : UserControl
             }
         };
 
-        // Save, Discard and what is waiting sit beside the name they belong
-        // to; the name shortens only when the window has no more room (Fit).
+        // What is waiting sits beside the name it belongs to; the name
+        // shortens only when the window has no more room (Fit).
         AutomationProperties.SetAutomationId(_waiting, "profile_waiting");
         Content = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = Gap,
-            Children = { _face, _saveButton, _discardButton, _waiting },
+            Children = { _face, _waiting },
         };
         SizeChanged += (_, _) => Fit();
 
@@ -203,8 +229,7 @@ public sealed class ProfileBar : UserControl
         _name.Text = active?.Name ?? Strings.Get("Profile_None");
         _editedPill.Visibility = edited ? Visibility.Visible : Visibility.Collapsed;
         bool offerActions = edited && active is not null;
-        _saveButton.Visibility = offerActions ? Visibility.Visible : Visibility.Collapsed;
-        _discardButton.Visibility = offerActions ? Visibility.Visible : Visibility.Collapsed;
+        _editSection.Visibility = offerActions ? Visibility.Visible : Visibility.Collapsed;
         AutomationProperties.SetItemStatus(_face, edited ? $"{_name.Text}, {_editedWord.Text}" : _name.Text);
         // Only when it changes: setting a tooltip on the button its list hangs from closes the list.
         if (ToolTipService.GetToolTip(_face) as string != _name.Text) ToolTipService.SetToolTip(_face, _name.Text);
@@ -229,15 +254,14 @@ public sealed class ProfileBar : UserControl
 
     private const double Gap = 8;
 
-    /// <summary>Gives the name whatever width the buttons and the waiting line leave.</summary>
+    /// <summary>Gives the name whatever width the waiting line leaves.</summary>
     private void Fit()
     {
         double others = 0;
-        foreach (var beside in new FrameworkElement[] { _saveButton, _discardButton, _waiting })
+        if (_waiting.Visibility == Visibility.Visible)
         {
-            if (beside.Visibility != Visibility.Visible) continue;
-            beside.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
-            others += beside.DesiredSize.Width + Gap;
+            _waiting.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            others = _waiting.DesiredSize.Width + Gap;
         }
         if (ActualWidth > 0) _face.MaxWidth = Math.Max(96, ActualWidth - others);
     }
