@@ -247,3 +247,8 @@ and date.
   anything it holds changed, which meant being asked to keep or drop a
   change on every tweak, even while just trying things. The "Edited" mark
   alone still says a change hasn't been kept.
+- In the profile menu, Save and Discard now share their row evenly instead
+  of leaving empty space beside them, Save is the filled button, and
+  starting a new profile is a short "New profile" above the list of saved
+  ones, not a full sentence below it that sank further down as the list
+  grew.

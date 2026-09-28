@@ -30,6 +30,11 @@ namespace Neap.App.Controls;
 /// person who is only trying things does not need to be asked on every
 /// change whether to keep it. See DECISIONS.md.
 /// </para>
+/// <para>
+/// New profile sits above the list of saved ones, not below: it answers the
+/// current settings, not a choice from the list, and its spot shouldn't
+/// depend on how many profiles happen to be saved.
+/// </para>
 /// </remarks>
 public sealed class ProfileBar : UserControl
 {
@@ -39,6 +44,7 @@ public sealed class ProfileBar : UserControl
     private readonly DropDownButton _face;
     private readonly Button _saveButton;
     private readonly Button _discardButton;
+    private readonly Grid _editRow;
     private readonly ListView _list = new() { SelectionMode = ListViewSelectionMode.Single };
     private readonly ProgressRing _working = new() { Width = 16, Height = 16, IsActive = false, Visibility = Visibility.Collapsed };
     private readonly TextBlock _notice = new()
@@ -62,7 +68,7 @@ public sealed class ProfileBar : UserControl
         Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
         Visibility = Visibility.Collapsed,
     };
-    private readonly Border _editSection;
+    private readonly Border _actionsSection;
     private readonly Flyout _flyout;
     private bool _building;
     private bool _busy;
@@ -85,23 +91,41 @@ public sealed class ProfileBar : UserControl
 
         _new.Content = Strings.Get("Profile_New");
 
-        _saveButton = new Button { Content = Strings.Get("Profile_Save") };
-        _discardButton = new Button { Content = Strings.Get("Profile_Discard") };
+        _saveButton = new Button
+        {
+            Content = Strings.Get("Profile_Save"),
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+            // Save always leads here: Discard is the one time it isn't the
+            // likely choice, and this is the only place either button shows.
+            Style = (Style)Application.Current.Resources["AccentButtonStyle"],
+        };
+        _discardButton = new Button
+        {
+            Content = Strings.Get("Profile_Discard"),
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+        };
 
-        // Save and Discard, together, above the list: they answer the
-        // Edited mark on the face, before choosing another saved profile.
-        _editSection = new Border
+        // Save and Discard share the row evenly, rather than sitting at
+        // their own width with empty space beside them.
+        _editRow = new Grid { ColumnSpacing = 8, Visibility = Visibility.Collapsed };
+        _editRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        _editRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        Grid.SetColumn(_discardButton, 1);
+        _editRow.Children.Add(_saveButton);
+        _editRow.Children.Add(_discardButton);
+
+        // Everything that acts on the current settings, above the list of
+        // saved profiles to switch to: Save and Discard answer the Edited
+        // mark on the face when there's something to answer; New profile is
+        // always here, at a stable spot the list below can't push down.
+        _actionsSection = new Border
         {
             Padding = new Thickness(0, 0, 0, 8),
             BorderThickness = new Thickness(0, 0, 0, 1),
             BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["NeapPanelStrokeBrush"],
-            Visibility = Visibility.Collapsed,
-            Child = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                Spacing = 8,
-                Children = { _saveButton, _discardButton },
-            },
+            Child = new StackPanel { Spacing = 8, Children = { _editRow, _new } },
         };
 
         _flyout = new Flyout
@@ -111,19 +135,7 @@ public sealed class ProfileBar : UserControl
             {
                 MinWidth = 220,
                 Spacing = 4,
-                Children =
-                {
-                    _notice,
-                    _editSection,
-                    _list,
-                    new Border
-                    {
-                        Padding = new Thickness(0, 4, 0, 0),
-                        BorderThickness = new Thickness(0, 1, 0, 0),
-                        BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["NeapPanelStrokeBrush"],
-                        Child = _new,
-                    },
-                },
+                Children = { _notice, _actionsSection, _list },
             },
         };
         _flyout.Opened += (_, _) =>
@@ -229,7 +241,7 @@ public sealed class ProfileBar : UserControl
         _name.Text = active?.Name ?? Strings.Get("Profile_None");
         _editedPill.Visibility = edited ? Visibility.Visible : Visibility.Collapsed;
         bool offerActions = edited && active is not null;
-        _editSection.Visibility = offerActions ? Visibility.Visible : Visibility.Collapsed;
+        _editRow.Visibility = offerActions ? Visibility.Visible : Visibility.Collapsed;
         AutomationProperties.SetItemStatus(_face, edited ? $"{_name.Text}, {_editedWord.Text}" : _name.Text);
         // Only when it changes: setting a tooltip on the button its list hangs from closes the list.
         if (ToolTipService.GetToolTip(_face) as string != _name.Text) ToolTipService.SetToolTip(_face, _name.Text);

@@ -16,6 +16,20 @@
   instance if saving a tuning change turns out to be frequent enough that
   the extra click to open the menu grates.
 
+## 2026-09-28 — The profile menu's own layout, after a screenshot review
+
+- **Save and Discard share their row evenly,** instead of sitting at their
+  own width with empty space beside them, and Save is the filled button:
+  the one people are more often choosing.
+- **"Save current settings as a new profile" is "New profile", moved above
+  the list of saved profiles instead of below it.** The full sentence read
+  as an explanation rather than a label, next to buttons that are a word
+  each. Below the list, its place depended on how many profiles happened
+  to be saved, for a task that isn't rare.
+- **Why:** the owner caught both from a screenshot of the shipped menu,
+  after the move into the menu above made them visible in a way they
+  weren't before.
+
 ## 2026-09-28 — Nothing of Neap's reaches into a running game
 
 - **The Charging Dock's ring is left white while a game is full-screen.**

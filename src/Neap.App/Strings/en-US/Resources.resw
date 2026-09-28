@@ -682,7 +682,7 @@
     <value>Discard</value>
   </data>
   <data name="Profile_New" xml:space="preserve">
-    <value>Save current settings as a new profile</value>
+    <value>New profile</value>
   </data>
   <data name="Profile_NewTitle" xml:space="preserve">
     <value>New profile</value>
