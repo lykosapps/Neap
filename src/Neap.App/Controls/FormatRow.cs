@@ -22,15 +22,33 @@ namespace Neap.App.Controls;
 /// the new format while nothing changes: the audio does not drop out and the
 /// headset's high-bandwidth light stays off.
 /// </para>
+/// <para>
+/// The format is read again whenever the window comes back to the front, so
+/// a change made in Sound settings, or by anything else, shows here.
+/// </para>
 /// </remarks>
 public sealed class FormatRow : SettingsCard
 {
     private ComboBox? _picker;
     private bool _painting;
+    private bool _applying;
 
     public FormatRow()
     {
-        Loaded += async (_, _) => await Build();
+        Loaded += async (_, _) =>
+        {
+            WindowPresence.Changed += OnPresence;
+            await Build();
+        };
+        Unloaded += (_, _) =>
+        {
+            if (!IsLoaded) WindowPresence.Changed -= OnPresence;
+        };
+    }
+
+    private async void OnPresence()
+    {
+        if (WindowPresence.InFront && _picker is not null && !_applying) await Load();
     }
 
     public static readonly DependencyProperty CaptureProperty = DependencyProperty.Register(
@@ -105,9 +123,11 @@ public sealed class FormatRow : SettingsCard
     private async Task Apply()
     {
         if (_painting || _picker?.SelectedItem is not ComboBoxItem { Tag: AudioFormat wanted }) return;
+        _applying = true;
         _picker.IsEnabled = false;
         string? trouble = await WindowsAudio.ApplyFormat(wanted, Flow);
         _picker.IsEnabled = true;
+        _applying = false;
         if (trouble is not null) await Complain(trouble);
         // Re-read rather than assume the write took effect; for this setting
         // the stored value can change while the device does not.

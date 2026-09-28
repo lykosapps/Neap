@@ -10,7 +10,6 @@ internal static class Com
     internal const uint ClsCtxAll = 23;
     internal const uint DeviceStateActive = 0x1;
     internal const uint StgmRead = 0;
-    internal const uint StgmReadWrite = 2;
     internal const ushort VtBlob = 65;
 
     internal const int SOk = 0;

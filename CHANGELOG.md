@@ -153,6 +153,14 @@ and date.
   "Edited" straight after switching to it, and the first switch after
   opening Neap takes a second, not about eight.
 - The profile list no longer closes by itself while it is open.
+- Choosing the headset's format on the Device page takes effect even with
+  nothing playing. Before, Windows only noted the choice, and the page showed
+  a change that hadn't happened.
+- A format Windows won't switch to, such as 16 kHz for the microphone while
+  apps are using it, now says so, and the page goes back to the format the
+  device is really running at.
+- The Device page picks up a format changed in Sound settings once Neap is
+  back in front.
 - The Profiles list in Settings is no longer rebuilt every time the headset
   reports something, which moved the keyboard off whatever row it was on.
 - Switching to a profile, or discarding a change back to one, no longer

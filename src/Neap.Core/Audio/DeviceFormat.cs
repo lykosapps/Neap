@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Neap.Core.Audio;
@@ -41,7 +42,9 @@ public sealed record FormatReport(
 /// Writing the property store does not change the format. The value
 /// persists and every dialog reads it back, but the endpoint carries on at
 /// the old rate. The Sound control panel instead asks the audio service to
-/// adopt the format through IPolicyConfig, and so does this class.
+/// adopt the format through IPolicyConfig, and so does this class, with no
+/// fallback to writing the store: a setting that says one thing while the
+/// device does another is worse than a refusal that says so.
 /// </para>
 /// <para>
 /// IPolicyConfig only reconfigures a live endpoint. With nothing playing it
@@ -140,6 +143,41 @@ public static class DeviceFormat
             throw new FormatException(
                 $"{new AudioFormat(bits, rate, 2).Label} is not supported by {endpoint.Name}");
         Write(endpoint, format);
+    }
+
+    /// <summary>How long a device is given to come up at a new format.</summary>
+    private static readonly TimeSpan FollowWait = TimeSpan.FromSeconds(2);
+
+    /// <summary>
+    /// Sets a format and checks the device is running at it: what choosing a
+    /// format should do.
+    /// </summary>
+    /// <remarks>
+    /// A stream is held open meanwhile, a silent tone for the output and the
+    /// microphone itself for the input, so there is a live endpoint for
+    /// IPolicyConfig to reconfigure. Without one it records the format and
+    /// changes nothing, and reports success; see the class remarks.
+    /// </remarks>
+    /// <exception cref="FormatException">Windows refused the format, or the device stayed at another rate.</exception>
+    /// <exception cref="WindowsAudioException">The headset has no such device in Windows.</exception>
+    public static void Switch(string match, int bits, int rate, Flow flow = Flow.Output)
+    {
+        var was = Current(match, flow);
+        using (IDisposable live = flow == Flow.Output ? TestTone.Open(frequency: 1000, match) : MicrophoneListener.Open(match))
+        {
+            Apply(match, bits, rate, flow);
+            var clock = Stopwatch.StartNew();
+            while (MixFormat(match, flow)?.Rate != rate && clock.Elapsed < FollowWait) Thread.Sleep(100);
+        }
+        if (MixFormat(match, flow) is not { } engine || engine.Rate == rate) return;
+
+        // Put the setting back, so it says what the device does rather than
+        // what it refused. The microphone refuses: measured, it stays at 48 kHz.
+        string refused = $"Windows kept the device at {engine.Rate / 1000.0:0.#} kHz";
+        if (was is null) throw new FormatException(refused);
+        try { Apply(match, was.Bits, was.Rate, flow); }
+        catch (FormatException ex) { throw new FormatException($"{refused}, and the setting could not be put back: {ex.Message}"); }
+        throw new FormatException(refused);
     }
 
     /// <summary>
@@ -271,56 +309,30 @@ public static class DeviceFormat
 
     private static void Write(Endpoint endpoint, WaveFormatExtensible format)
     {
-        if (PolicySetFormat(endpoint.Id, format)) return;
-        // Fallback where IPolicyConfig is unavailable. This only changes what
-        // the setting says, not what the device does.
-        WritePropertyStore(endpoint, format);
+        if (PolicySetFormat(endpoint.Id, format) is { } why)
+            throw new FormatException($"Windows would not switch {endpoint.Name} to that format: {why}");
     }
 
-    private static bool PolicySetFormat(string deviceId, WaveFormatExtensible format)
+    /// <returns>Null when Windows took the format, or why it didn't.</returns>
+    private static string? PolicySetFormat(string deviceId, WaveFormatExtensible format)
     {
-        if (string.IsNullOrEmpty(deviceId)) return false;
-        IPolicyConfig? policy;
+        if (string.IsNullOrEmpty(deviceId)) return "the device has no id";
+        IPolicyConfig policy;
         try { policy = Com.Create<IPolicyConfig>(PolicyConfigClsid); }
-        catch (Exception) { return false; }
+        catch (Exception ex) { return $"its audio settings could not be reached ({ex.Message})"; }
 
         IntPtr block = Marshal.AllocHGlobal(Marshal.SizeOf<WaveFormatExtensible>());
         try
         {
             Marshal.StructureToPtr(format, block, false);
-            return !Com.Failed(policy.SetDeviceFormat(deviceId, block, block));
+            int hr = policy.SetDeviceFormat(deviceId, block, block);
+            return Com.Failed(hr) ? $"it was refused (0x{hr:x8})" : null;
         }
-        catch (Exception) { return false; }
+        catch (Exception ex) { return ex.Message; }
         finally
         {
             Marshal.FreeHGlobal(block);
             Marshal.ReleaseComObject(policy);
-        }
-    }
-
-    private static void WritePropertyStore(Endpoint endpoint, WaveFormatExtensible format)
-    {
-        if (Com.Failed(endpoint.Device.OpenPropertyStore(Com.StgmReadWrite, out var store)))
-            throw new FormatException("Windows would not let the app change this device's format");
-        IntPtr block = Marshal.AllocHGlobal(Marshal.SizeOf<WaveFormatExtensible>());
-        try
-        {
-            Marshal.StructureToPtr(format, block, false);
-            var key = Com.DeviceFormatKey;
-            var value = new PropVariant
-            {
-                Type = Com.VtBlob,
-                BlobSize = (uint)Marshal.SizeOf<WaveFormatExtensible>(),
-                BlobData = block,
-            };
-            int hr = store.SetValue(ref key, ref value);
-            if (Com.Failed(hr)) throw new FormatException($"the device refused the format (0x{hr:x})");
-            if (Com.Failed(store.Commit())) throw new FormatException("the change could not be saved");
-        }
-        finally
-        {
-            Marshal.FreeHGlobal(block);
-            Marshal.ReleaseComObject(store);
         }
     }
 

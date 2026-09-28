@@ -49,6 +49,7 @@ if (args.Length == 0 || args[0] is "-h" or "--help")
                              measure how loud each of the headset's mics is
           formats [mic]      what the endpoint accepts, and what it is on
           setformat B R      set the headset output format, and check it took
+          switch B R [mic]   the app's way: hold a stream open, set, and check
           loopback <pid>     does process capture tap before or after session volume?
           mixapp <app> [demo|abandon]
                              the real SessionMix class - demo sweeps, abandon
@@ -94,6 +95,10 @@ try
         case "setformat":
             return SetFormat(int.Parse(args[1], CultureInfo.InvariantCulture),
                 int.Parse(args[2], CultureInfo.InvariantCulture));
+        case "switch":
+            return Switch(int.Parse(args[1], CultureInfo.InvariantCulture),
+                int.Parse(args[2], CultureInfo.InvariantCulture),
+                args.Length > 3 && args[3] == "mic" ? Flow.Input : Flow.Output);
         case "formats":
             return Formats(
                 args.Length > 1 && args[1].StartsWith("mic", StringComparison.Ordinal) ? Flow.Input : Flow.Output);
@@ -688,6 +693,16 @@ static int SetFormat(int bits, int rate)
     Console.WriteLine($"stored {stored?.Bits}-bit/{stored?.Rate}Hz  engine {live?.Rate}Hz  "
                     + $"{(stored?.Rate == live?.Rate ? "AGREE" : "DISAGREE - the setting is a decoration")}");
     return stored?.Rate == live?.Rate ? 0 : 1;
+}
+
+static int Switch(int bits, int rate, Flow flow)
+{
+    var before = DeviceFormat.MixFormat(AudioEndpoints.DefaultMatch, flow);
+    try { DeviceFormat.Switch(AudioEndpoints.DefaultMatch, bits, rate, flow); }
+    catch (Neap.Core.Audio.FormatException ex) { Console.WriteLine($"refused: {ex.Message}"); return 1; }
+    var live = DeviceFormat.MixFormat(AudioEndpoints.DefaultMatch, flow);
+    Console.WriteLine($"engine was {before?.Rate}Hz, now {live?.Rate}Hz");
+    return 0;
 }
 
 // Reads everything the headset will answer, repeatedly, and prints only what

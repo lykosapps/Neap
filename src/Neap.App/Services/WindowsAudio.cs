@@ -80,24 +80,25 @@ public static class WindowsAudio
     });
 
     /// <summary>
-    /// Change the endpoint format for real: write the property store, then
-    /// tell Windows to reconfigure the device.
+    /// Change the endpoint format for real, and check the device is running
+    /// at it; see <see cref="DeviceFormat.Switch"/>.
     /// </summary>
-    /// <remarks>
-    /// Writing the store alone changes what Sound settings displays and nothing
-    /// else: the endpoint stays at its old rate, so at 24-bit/96 kHz the
-    /// Charging Dock's status ring does not turn purple.
-    /// </remarks>
     /// <returns>Null on success, or the reason it failed.</returns>
     public static Task<string?> ApplyFormat(AudioFormat format, Flow flow = Flow.Output) =>
         Task.Run<string?>(() =>
         {
+            string device = flow == Flow.Output ? "headset output" : "microphone";
             try
             {
                 if (Pretend.Windows is { } windows) windows.ApplyFormat(format.Bits, format.Rate, flow);
-                else DeviceFormat.Apply(AudioEndpoints.DefaultMatch, format.Bits, format.Rate, flow);
+                else DeviceFormat.Switch(AudioEndpoints.DefaultMatch, format.Bits, format.Rate, flow);
+                AppLog.Write($"format: {device} set to {format.Label}");
                 return null;
             }
-            catch (Exception ex) { return ex.Message; }
+            catch (Exception ex)
+            {
+                AppLog.Write($"format: could not set the {device} to {format.Label}: {ex.Message}");
+                return ex.Message;
+            }
         });
 }
