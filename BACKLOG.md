@@ -92,6 +92,12 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   side, and clearing the last puts every volume back.
 - **The chat app list on screen** in light and high contrast, and the screen
   checks' new steps for it, which have not had a full run.
+- **Does the parametric curve heard match the headset?** The solid line
+  is worked out from a description of the headset's filters taken from its
+  settings file, never measured. With a phone's spectrum analyser in the
+  ear cup, play the test tone at a few frequencies, flat and then with a
+  known curve, and compare the differences with the solid line. Also:
+  does the most boost the bands allow together, about +13.5 dB, distort?
 
 ## Protocol unknowns
 
@@ -130,6 +136,10 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   The parametric view already draws what plays.
 - The headset's connection handle has no safety net if it is ever dropped
   without being closed. Needs the headset.
+- Typing "20" in the parametric frequency field gives 20 Hz, even over
+  "20 kHz", and "1,500 Hz" gives 20 Hz.
+- The parametric "can't match this exactly" note ignores the range above
+  18 kHz, where a boost at 20 kHz misses by about 8 dB on the plot.
 
 ## Last in line
 
