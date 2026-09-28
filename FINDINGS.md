@@ -309,16 +309,19 @@ game bank, recorded by a separate microphone against the sealed ear cup,
 and compared with the flat preset, so the microphone's and the cup's own
 response cancel. The recording held from about 60 Hz to 6 kHz; the
 microphone's chain cut both ends, so nothing outside that was measured.
-Inside it:
+The ear cup was held against a desk microphone, not sealed on a coupler:
+two flat runs, before and after, agreed to 0.6 dB (median) and 2.2 dB at
+worst from 100 Hz to 5 kHz, so differences under about 2 dB are within the
+setup's own error. Inside it:
 
 | Setting | Measured against the model |
 |---|---|
-| One band, +9 or −9 dB | Centre within 1 dB; the skirts an octave out fall about 1.5 dB faster than a Q 1.414 peaking filter |
+| One band, +9 or −9 dB | Centre within 1 dB; the skirts an octave out about 1.5 dB lower than a Q 1.414 peaking filter, inside the setup's error |
 | Neap's fitted curves | Within about 1 dB (rms) of the curve drawn as heard |
-| All ten bands at +9 dB | About +8 to +11 dB, 2.6 dB below the model's +11 to +13.5 |
+| All ten bands at +9 dB | About +8 to +11 dB, 2.6 dB below the model's +11 to +13.5, at every frequency measured |
 
-So the filters are close to the model, a little narrower, and neighbouring
-bands add up to less than the model says.
+So the filters match the model within what this setup can tell, except
+that neighbouring bands add up to less than the model says.
 
 Writing any band sets the selected preset (`0x1210`) to 0 and empties its name
 *(measured)*: the curve is no longer that preset. Which preset an edit
