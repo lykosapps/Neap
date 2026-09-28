@@ -134,4 +134,25 @@ public class PretendControlTests
 
         Assert.Equal("{\"ok\":true,\"result\":\"76\"}", reply);
     }
+
+    [Fact]
+    public void ProgramsStartAndCloseByName()
+    {
+        var (_, control) = Make();
+
+        Assert.True(Reply(control, "start Some Game").GetProperty("ok").GetBoolean());
+        Assert.Contains("Some Game", Reply(control, "programs").GetProperty("result").EnumerateArray().Select(p => p.GetString()));
+
+        Assert.True(Reply(control, "stop some game").GetProperty("ok").GetBoolean());
+        Assert.DoesNotContain("Some Game", Reply(control, "programs").GetProperty("result").EnumerateArray().Select(p => p.GetString()));
+    }
+
+    [Fact]
+    public void ClosingAProgramThatIsNotRunningIsRefused() =>
+        Assert.False(Reply(Make().Item2, "stop Nothing").GetProperty("ok").GetBoolean());
+
+    [Fact]
+    public void TheProgramsPlayingToTheHeadsetAreRunning() =>
+        Assert.Equal(PretendWindows.Sessions.Select(s => s.Process).Order(StringComparer.OrdinalIgnoreCase),
+            new PretendWindows().Programs());
 }

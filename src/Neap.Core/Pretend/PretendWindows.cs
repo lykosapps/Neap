@@ -150,6 +150,32 @@ public sealed class PretendWindows
         }
     }
 
+    // -- running programs ---------------------------------------------------
+
+    private readonly HashSet<string> _programs = new(Sessions.Select(s => s.Process), StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Every program running, by process name: those playing to the headset, and whatever a script started.</summary>
+    public IReadOnlyList<string> Programs()
+    {
+        lock (_gate) return _programs.Order(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    /// <summary>A program starts, as far as the app can tell.</summary>
+    public void Start(string process)
+    {
+        lock (_gate) _programs.Add(process);
+    }
+
+    /// <summary>A program closes.</summary>
+    /// <exception cref="ArgumentException">Nothing by that name is running.</exception>
+    public void Stop(string process)
+    {
+        lock (_gate)
+        {
+            if (!_programs.Remove(process)) throw new ArgumentException($"no program called '{process}' is running");
+        }
+    }
+
     // -- the mix ------------------------------------------------------------
 
     /// <summary>The applications with audio open on the headset.</summary>

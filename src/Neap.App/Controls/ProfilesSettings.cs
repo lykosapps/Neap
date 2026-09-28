@@ -9,12 +9,14 @@ namespace Neap.App.Controls;
 
 /// <summary>
 /// Every saved profile, for renaming, deleting, and choosing which apps it
-/// belongs to. Switching is the header bar's job, not this list's; see
-/// <see cref="ProfileBar"/>.
+/// belongs to, and which one is the default. Switching by hand is the header
+/// bar's job, not this list's; see <see cref="ProfileBar"/>. Switching as apps
+/// start and close is <see cref="AutoSwitchService"/>'s.
 /// </summary>
 /// <remarks>
-/// Assigning an app here only records it; nothing yet switches a profile on
-/// its own when that app is running. See DECISIONS.md.
+/// The rows are rebuilt only when something they show has changed. The
+/// profiles change on every read of the headset, and rebuilding each time
+/// would take the keyboard's place out from under whoever is on a row.
 /// </remarks>
 public sealed class ProfilesSettings : UserControl
 {
@@ -27,15 +29,38 @@ public sealed class ProfilesSettings : UserControl
         Style = (Style)Application.Current.Resources["SecondaryBodyTextStyle"],
     };
 
+    private readonly ComboBox _default = new() { MinWidth = 180 };
+    private readonly CommunityToolkit.WinUI.Controls.SettingsCard _defaultCard;
+
     /// <summary>The profile whose delete is pending confirmation, if any.</summary>
     private string? _confirmingDeleteId;
+
+    /// <summary>What the rows and the default were last built from; see the remarks.</summary>
+    private string _shown = "";
+
+    /// <summary>The profiles the default's list was last filled with.</summary>
+    private string _offered = "";
+    private bool _painting;
 
     /// <summary>An app's display name, by process, learned whenever the app picker loads candidates.</summary>
     private readonly Dictionary<string, string> _names = new(StringComparer.OrdinalIgnoreCase);
 
     public ProfilesSettings()
     {
-        Content = new StackPanel { Spacing = 8, Children = { _rows, _empty } };
+        string header = Strings.Get("Profiles_DefaultHeader");
+        AutomationProperties.SetName(_default, header);
+        _defaultCard = new CommunityToolkit.WinUI.Controls.SettingsCard { Header = header, Content = _default };
+        // After the list has finished choosing, not during: setting the default
+        // repaints, and a list changed while it is still choosing brings the
+        // whole app down.
+        _default.SelectionChanged += (_, _) =>
+        {
+            if (_painting || _default.SelectedItem is not ComboBoxItem chosen) return;
+            string? id = chosen.Tag as string;
+            DispatcherQueue.TryEnqueue(() => AppServices.Profiles.SetDefault(id));
+        };
+
+        Content = new StackPanel { Spacing = 8, Children = { _defaultCard, _rows, _empty } };
         Loaded += async (_, _) =>
         {
             AppServices.Profiles.Changed += Paint;
@@ -55,10 +80,34 @@ public sealed class ProfilesSettings : UserControl
     private void Paint()
     {
         var profiles = AppServices.Profiles.All;
+        string? defaultId = AppServices.Profiles.DefaultId;
+        string shown = string.Join("\n", profiles.Select(p => $"{p.Id}|{p.Name}|{string.Join(",", p.AssignedApps.Select(Named))}"))
+            + $"\n{_confirmingDeleteId}\n{defaultId}";
+        if (shown == _shown) return;
+        _shown = shown;
+
         _empty.Visibility = profiles.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        _defaultCard.Visibility = profiles.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
         _rows.Children.Clear();
         foreach (var profile in profiles)
             _rows.Children.Add(_confirmingDeleteId == profile.Id ? ConfirmRow(profile) : Row(profile));
+
+        _painting = true;
+        try
+        {
+            string offered = string.Join("\n", profiles.Select(p => $"{p.Id}|{p.Name}"));
+            if (offered != _offered)
+            {
+                _offered = offered;
+                _default.Items.Clear();
+                _default.Items.Add(new ComboBoxItem { Content = Strings.Get("Profile_DefaultNone") });
+                foreach (var profile in profiles)
+                    _default.Items.Add(new ComboBoxItem { Content = profile.Name, Tag = profile.Id });
+            }
+            var chosen = _default.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Tag as string == defaultId);
+            if (!ReferenceEquals(_default.SelectedItem, chosen)) _default.SelectedItem = chosen;
+        }
+        finally { _painting = false; }
     }
 
     /// <summary>

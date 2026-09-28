@@ -194,6 +194,9 @@ public sealed class AppSettings
     /// <summary>The id of the profile the headset was last set to match, or null if none has been applied.</summary>
     [JsonPropertyName("active_profile")] public string? ActiveProfileId { get; set; }
 
+    /// <summary>The id of the profile for the desktop, which comes back when the last app with a profile of its own closes; null if none is set.</summary>
+    [JsonPropertyName("default_profile")] public string? DefaultProfileId { get; set; }
+
     /// <summary>What an app assigned to a profile is called, by process name, so it is named when it is not running.</summary>
     [JsonPropertyName("app_names")] public Dictionary<string, string> AppNames { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 

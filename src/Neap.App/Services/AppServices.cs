@@ -18,6 +18,7 @@ public static class AppServices
     public static NoiseService Noise { get; private set; } = null!;
     public static PresetService Presets { get; private set; } = null!;
     public static ProfileService Profiles { get; private set; } = null!;
+    public static AutoSwitchService AutoSwitch { get; private set; } = null!;
     public static HotkeyService Hotkeys { get; private set; } = null!;
     public static AudioRoute AudioRoute { get; private set; } = null!;
     public static RingService Ring { get; private set; } = null!;
@@ -47,6 +48,8 @@ public static class AppServices
         Noise = new NoiseService(Headset);
         Presets = new PresetService(Headset);
         Profiles = new ProfileService(Headset);
+        AutoSwitch = new AutoSwitchService(Profiles, Headset,
+            Pretend.Windows is { } windows ? windows.Programs : AutoSwitchService.RunningPrograms);
         Hotkeys = new HotkeyService(Mix);
         Hotkeys.Enable(AppSettings.Current.MixHotkeys && !Pretend.Active);
 
@@ -62,6 +65,7 @@ public static class AppServices
         Hotkeys?.Dispose();
         Mix?.Dispose();
         Noise?.Dispose();
+        AutoSwitch?.Dispose();
         Profiles?.Dispose();
         Headset?.Dispose();
         Ring?.Dispose();

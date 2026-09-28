@@ -68,8 +68,10 @@ and date.
   profile remembers, deleted since it was saved, is named rather than
   silently skipped. A profile can also be given one or more apps, from its
   row in Settings, chosen from what is making sound or by browsing for a
-  program's file — switching to it automatically when that app runs is
-  still to come. Switching away from a profile with unsaved changes asks
+  program's file. It comes on when one of them starts, and a default
+  profile, set in Settings, comes back when it closes; tabbing out of a
+  game doesn't switch anything. A switch that would lose unsaved changes
+  waits until they are saved or discarded, and says so in the bar. Switching away from a profile with unsaved changes asks
   first, and while the headset is off the bar says so instead of failing.
 - **Spatial sound**, as a tile on Home and on the Audio page: off, Windows
   Sonic, and Dolby Atmos where it's installed. The Stealth Pro II carries a
@@ -148,6 +150,8 @@ and date.
   "Edited" straight after switching to it, and the first switch after
   opening Neap takes a second, not about eight.
 - The profile list no longer closes by itself while it is open.
+- The Profiles list in Settings is no longer rebuilt every time the headset
+  reports something, which moved the keyboard off whatever row it was on.
 - Switching to a profile, or discarding a change back to one, no longer
   re-reads both equaliser banks first if they were already read: a couple
   of seconds' wait, gone.

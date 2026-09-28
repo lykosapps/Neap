@@ -1,5 +1,30 @@
 # Decisions
 
+## 2026-09-28 — Profiles switch as their apps start and close
+
+- **Options for "when":** the app coming to the front and going behind;
+  the app starting and closing.
+- **Chosen:** starting and closing. Tabbing out of a game to Discord or a
+  browser doesn't switch anything; only closing the game does. This replaces
+  the earlier suggestion of following the window in front, made before
+  assignment was split out and never confirmed.
+- **A default profile, set in Settings,** comes back when the last app with
+  a profile closes. With none set, the profile from before the first app
+  started comes back.
+- **Two apps at once:** the one that started last decides, and when it
+  closes the other's profile comes back.
+- **A profile chosen by hand while an app runs holds:** closing apps then
+  changes nothing, and the next app to start switches as usual.
+- **Unsaved changes make the switch wait,** with "Waiting to switch to …"
+  in the bar, and it happens the moment they are saved or discarded. It
+  never asks, since a game may be in front. The same wait covers the
+  headset being off.
+- **How:** the running programs are listed every two seconds, matched by
+  process name. Windows' process events need administrator rights, which
+  Neap doesn't ask for, and nothing is listed while no app is assigned.
+- **Revisit if:** two seconds feels slow, or a game's launcher and the game
+  are separate programs often enough that assigning the right one confuses.
+
 ## 2026-09-28 — Profiles, after a flow review
 
 - **Switching away from unsaved changes now asks**, with Save and switch,

@@ -706,7 +706,7 @@
     <value>Profiles</value>
   </data>
   <data name="Profiles_Note.Text" xml:space="preserve">
-    <value>Switch profiles from the bar at the top of the window. Choosing apps for a profile doesn't switch it automatically yet.</value>
+    <value>Switch profiles from the bar at the top of the window. A profile with apps comes on when one of them starts, and the default comes back when it closes.</value>
   </data>
   <data name="Profiles_Empty" xml:space="preserve">
     <value>No profiles saved yet. Set the headset up the way you want, then save it as a profile from the bar at the top.</value>
@@ -749,6 +749,18 @@
   </data>
   <data name="Profile_SwitchAnyway" xml:space="preserve">
     <value>Switch without saving</value>
+  </data>
+  <data name="Profiles_DefaultHeader" xml:space="preserve">
+    <value>Default profile</value>
+  </data>
+  <data name="Profile_DefaultNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Profile_DefaultTag" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="Profile_Waiting" xml:space="preserve">
+    <value>Waiting to switch to {0}</value>
   </data>
   <data name="Profile_NoApps" xml:space="preserve">
     <value>Not assigned to any app</value>

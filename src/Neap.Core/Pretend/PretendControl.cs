@@ -31,6 +31,8 @@ namespace Neap.Core.Pretend;
 ///   volume output|input     Windows' volume and mute for the headset
 ///   format output|input     the headset's format in Windows
 ///   mix                     the mix being applied, or null
+///   programs                every program running, by process name
+///   start NAME | stop NAME  a program starts or closes
 ///   registry                every confirmed setting, its limits and its options' labels
 /// </code>
 /// <para>
@@ -124,6 +126,9 @@ public sealed class PretendControl : IDisposable
                 ("format", 2) => _windows.Formats(FlowOf(words[1])).Current is { } f
                     ? $"{f.Bits}/{f.Rate.ToString(CultureInfo.InvariantCulture)}" : null,
                 ("mix", 1) => _windows.Mix,
+                ("programs", 1) => new JsonArray(_windows.Programs().Select(p => (JsonNode?)p).ToArray()),
+                ("start", >= 2) => Done(() => _windows.Start(Rest(line))),
+                ("stop", >= 2) => Done(() => _windows.Stop(Rest(line))),
                 ("registry", 1) => new JsonArray(Registry.All.Select(Describe).ToArray()),
                 _ => throw new ArgumentException($"not a command: '{line}'"),
             };
@@ -161,6 +166,9 @@ public sealed class PretendControl : IDisposable
     };
 
     private static int Key(string text) => Registry.Resolve(text).Key;
+
+    /// <summary>Everything after the command, since a program's name can have spaces in it.</summary>
+    private static string Rest(string line) => line.Trim().Split(' ', 2)[1].Trim();
 
     private static int? ChargeOf(string text) =>
         text == "empty" ? null

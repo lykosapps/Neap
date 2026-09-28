@@ -51,6 +51,10 @@ public sealed class ProfileService : IDisposable
     /// <summary>The profiles, current settings or active profile changed.</summary>
     public event Action? Changed;
 
+    /// <summary>The person chose a profile themselves: switched to one, or saved a new one.</summary>
+    /// <remarks>Not raised for a switch the apps made, nor for discarding back to the same profile.</remarks>
+    public event Action? Chosen;
+
     // Both read the settings file only, with nothing of the instance's own to
     // touch, but stay instance members so every caller reaches profiles the
     // same way, through AppServices.Profiles.
@@ -58,6 +62,9 @@ public sealed class ProfileService : IDisposable
     public IReadOnlyList<Profile> All => AppSettings.Current.Profiles.Select(ToProfile).ToList();
 
     public string? ActiveId => AppSettings.Current.ActiveProfileId;
+
+    /// <summary>The profile for the desktop, which comes back when the last app with a profile of its own closes; null if none is set.</summary>
+    public string? DefaultId => AppSettings.Current.DefaultProfileId;
 #pragma warning restore CA1822
 
     public Profile? Active => All.FirstOrDefault(p => p.Id == ActiveId);
@@ -141,11 +148,21 @@ public sealed class ProfileService : IDisposable
     }
 
     /// <summary>
-    /// Applies a profile: every setting it holds, then whichever of its saved
-    /// equaliser presets are still there.
+    /// Switches to a profile the person chose: every setting it holds, then
+    /// whichever of its saved equaliser presets are still there.
     /// </summary>
     /// <returns>The names of any saved presets that could not be found, applied or not.</returns>
-    public async Task<IReadOnlyList<string>> Apply(Profile profile)
+    public Task<IReadOnlyList<string>> Apply(Profile profile)
+    {
+        Chosen?.Invoke();
+        return ApplyCore(profile);
+    }
+
+    /// <summary>Switches to a profile because an app started or closed.</summary>
+    /// <returns>The names of any saved presets that could not be found, applied or not.</returns>
+    public Task<IReadOnlyList<string>> ApplyAutomatically(Profile profile) => ApplyCore(profile);
+
+    private async Task<IReadOnlyList<string>> ApplyCore(Profile profile)
     {
         if (_headset.Status.Link != Link.Connected)
             throw new HeadsetUnavailableException(Strings.Get("Profile_NeedsHeadset"));
@@ -184,7 +201,7 @@ public sealed class ProfileService : IDisposable
 
     /// <summary>Puts the headset back to the active profile, undoing whatever changed since.</summary>
     public Task<IReadOnlyList<string>> Discard() =>
-        Active is { } active ? Apply(active) : Task.FromResult<IReadOnlyList<string>>([]);
+        Active is { } active ? ApplyCore(active) : Task.FromResult<IReadOnlyList<string>>([]);
 
     /// <summary>Saves the current settings as a new profile, and makes it the active one.</summary>
     /// <returns>Null on success, or what went wrong.</returns>
@@ -202,6 +219,7 @@ public sealed class ProfileService : IDisposable
             a.Profiles.Add(ToStored(new Profile(id, name, [], settings)));
             a.ActiveProfileId = id;
         });
+        Chosen?.Invoke();
         Changed?.Invoke();
         return null;
     }
@@ -236,14 +254,23 @@ public sealed class ProfileService : IDisposable
         return null;
     }
 
-    /// <summary>Deletes a saved profile. Deleting the active one leaves none active.</summary>
+    /// <summary>Deletes a saved profile. Deleting the active one leaves none active, and deleting the default leaves none set.</summary>
     public void Delete(string id)
     {
         AppSettings.Update(a =>
         {
             a.Profiles.RemoveAll(p => p.Id == id);
             if (a.ActiveProfileId == id) a.ActiveProfileId = null;
+            if (a.DefaultProfileId == id) a.DefaultProfileId = null;
         });
+        Changed?.Invoke();
+    }
+
+    /// <summary>Sets the profile for the desktop, or clears it with null.</summary>
+    public void SetDefault(string? id)
+    {
+        if (id == DefaultId) return;
+        AppSettings.Update(a => a.DefaultProfileId = id);
         Changed?.Invoke();
     }
 

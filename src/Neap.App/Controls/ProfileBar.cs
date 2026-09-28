@@ -10,7 +10,8 @@ namespace Neap.App.Controls;
 
 /// <summary>
 /// The active profile, on every page: its name, an "Edited" mark while the
-/// headset no longer matches it, and the way to switch, save or discard.
+/// headset no longer matches it, the way to switch, save or discard, and the
+/// profile an app asked for while that switch waits.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -45,6 +46,15 @@ public sealed class ProfileBar : UserControl
     {
         HorizontalAlignment = HorizontalAlignment.Stretch,
         HorizontalContentAlignment = HorizontalAlignment.Left,
+    };
+    private readonly TextBlock _waiting = new()
+    {
+        MaxWidth = 240,
+        VerticalAlignment = VerticalAlignment.Center,
+        TextTrimming = TextTrimming.CharacterEllipsis,
+        TextWrapping = TextWrapping.NoWrap,
+        Style = (Style)Application.Current.Resources["SecondaryCaptionTextStyle"],
+        Visibility = Visibility.Collapsed,
     };
     private readonly Flyout _flyout;
     private bool _building;
@@ -109,8 +119,7 @@ public sealed class ProfileBar : UserControl
             await ApplyChosen(chosen);
         };
 
-        // A grid, not a stack: a long name has to shorten to the room there is
-        // rather than push Save and Discard out of the window.
+        // A grid, so the name shortens within whatever width Fit gives it.
         var faceContent = new Grid { ColumnSpacing = 8 };
         faceContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         faceContent.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -146,20 +155,21 @@ public sealed class ProfileBar : UserControl
             }
         };
 
-        var row = new Grid { ColumnSpacing = 8 };
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        Grid.SetColumn(_saveButton, 1);
-        Grid.SetColumn(_discardButton, 2);
-        row.Children.Add(_face);
-        row.Children.Add(_saveButton);
-        row.Children.Add(_discardButton);
-        Content = row;
+        // Save, Discard and what is waiting sit beside the name they belong
+        // to; the name shortens only when the window has no more room (Fit).
+        AutomationProperties.SetAutomationId(_waiting, "profile_waiting");
+        Content = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = Gap,
+            Children = { _face, _saveButton, _discardButton, _waiting },
+        };
+        SizeChanged += (_, _) => Fit();
 
         Loaded += async (_, _) =>
         {
             AppServices.Profiles.Changed += Paint;
+            AppServices.AutoSwitch.Changed += Paint;
             AppServices.Headset.Changed += OnHeadsetChanged;
             AppServices.Headset.StatusChanged += OnStatusChanged;
             Paint();
@@ -168,6 +178,7 @@ public sealed class ProfileBar : UserControl
         Unloaded += (_, _) =>
         {
             AppServices.Profiles.Changed -= Paint;
+            AppServices.AutoSwitch.Changed -= Paint;
             AppServices.Headset.Changed -= OnHeadsetChanged;
             AppServices.Headset.StatusChanged -= OnStatusChanged;
         };
@@ -201,6 +212,26 @@ public sealed class ProfileBar : UserControl
             _ => "",
         };
         _notice.Visibility = ready == ProfileReadiness.Ready ? Visibility.Collapsed : Visibility.Visible;
+
+        var waiting = AppServices.AutoSwitch.Waiting;
+        _waiting.Text = waiting is null ? "" : Strings.Format("Profile_Waiting", waiting.Name);
+        _waiting.Visibility = waiting is null ? Visibility.Collapsed : Visibility.Visible;
+        Fit();
+    }
+
+    private const double Gap = 8;
+
+    /// <summary>Gives the name whatever width the buttons and the waiting line leave.</summary>
+    private void Fit()
+    {
+        double others = 0;
+        foreach (var beside in new FrameworkElement[] { _saveButton, _discardButton, _waiting })
+        {
+            if (beside.Visibility != Visibility.Visible) continue;
+            beside.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            others += beside.DesiredSize.Width + Gap;
+        }
+        if (ActualWidth > 0) _face.MaxWidth = Math.Max(96, ActualWidth - others);
     }
 
     private void BuildList()
@@ -210,9 +241,30 @@ public sealed class ProfileBar : UserControl
         {
             _list.Items.Clear();
             string? activeId = AppServices.Profiles.ActiveId;
+            string? defaultId = AppServices.Profiles.DefaultId;
             foreach (var profile in AppServices.Profiles.All)
             {
                 var item = new ListViewItem { Content = profile.Name, Tag = profile };
+                AutomationProperties.SetName(item, profile.Name);
+                if (profile.Id == defaultId)
+                {
+                    string tag = Strings.Get("Profile_DefaultTag");
+                    item.Content = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Spacing = 8,
+                        Children =
+                        {
+                            new TextBlock { Text = profile.Name, VerticalAlignment = VerticalAlignment.Center },
+                            new Border
+                            {
+                                Style = (Style)Application.Current.Resources["NeapTagStyle"],
+                                Child = new TextBlock { Text = tag, Style = (Style)Application.Current.Resources["NeapTagTextStyle"] },
+                            },
+                        },
+                    };
+                    AutomationProperties.SetItemStatus(item, tag);
+                }
                 _list.Items.Add(item);
                 if (profile.Id == activeId) _list.SelectedItem = item;
             }

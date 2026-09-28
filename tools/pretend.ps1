@@ -18,7 +18,8 @@ while it is on, the equaliser bands and presets, starting and deleting a
 preset, Home's tiles and its way to the equaliser, the Windows-owned
 volume, mute and format controls (which must write nothing to the
 headset), the chat wheel driving the mix, the battery, the Charging Dock's
-spare battery, and the headset switching off and on. At the end nothing
+spare battery, profiles and switching them as apps start and close, and
+the headset switching off and on. At the end nothing
 may have been refused: no unconfirmed key, no value out of range, no slot
 base address, no firmware command.
 
@@ -766,6 +767,42 @@ function Profiles {
     Collect
 }
 
+# Switching as apps start and close. Profiles leaves Gaming on, with Pretend
+# Chat assigned and running; this adds Desk as the default, then closes and
+# starts Pretend Chat through the pretend Windows.
+function AutoSwitching {
+    $script:step = 'switching profiles as apps start and close'
+    Page 'Settings'
+    $bar = Control 'Profile' ([System.Windows.Automation.ControlType]::Button)
+    $on = { $bar.Current.ItemStatus -replace ', Edited$', '' }
+    (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
+    $newButton = { Control 'Save current settings as a new profile' ([System.Windows.Automation.ControlType]::Button) }
+    if (-not (Until { $null -ne (& $newButton) -and (& $newButton).Current.IsEnabled })) { Fail 'the profile bar offers to save Desk'; return }
+    (Pattern (& $newButton) ([System.Windows.Automation.InvokePattern])).Invoke()
+    if (-not (Until { $null -ne (Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit)) })) { Fail 'saving Desk opens a name dialog'; return }
+    Start-Sleep -Milliseconds 500
+    (Pattern (Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit)) ([System.Windows.Automation.ValuePattern])).SetValue('Desk')
+    (Pattern (Control 'Save' ([System.Windows.Automation.ControlType]::Button)) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Check (Until { (& $on) -eq 'Desk' }) 'saving Desk puts it on'
+
+    $default = Control 'Default profile' ([System.Windows.Automation.ControlType]::ComboBox)
+    if ($null -eq $default) { Fail 'Settings offers a default profile'; return }
+    Choose $default 'Desk'
+    Check (Until { (Shown $default) -eq 'Desk' }) 'Desk is the default profile'
+    Screenshot 'settings-profiles-default'
+
+    Ask 'stop PretendChat' | Out-Null
+    Start-Sleep -Seconds 4
+    Check ((& $on) -eq 'Desk') 'Desk, chosen by hand while Pretend Chat ran, stays on when it closes'
+    Ask 'start PretendChat' | Out-Null
+    Check (Until { (& $on) -eq 'Gaming' } 8) 'Pretend Chat starting puts its profile, Gaming, on'
+    Ask 'stop PretendChat' | Out-Null
+    Check (Until { (& $on) -eq 'Desk' } 8) 'Pretend Chat closing puts the default, Desk, back on'
+    Ask 'start PretendChat' | Out-Null
+    Check (Until { (& $on) -eq 'Gaming' } 8) 'Pretend Chat starting again puts Gaming back on'
+    Collect
+}
+
 function PowerCycle {
     Ask 'off' | Out-Null
     Check (Until { (Header) -ne 'Headset connected' } 40) "switched off, the header says $(Header)"
@@ -859,6 +896,7 @@ try {
 
     Write-Host 'Profiles'
     Profiles
+    AutoSwitching
 
     Write-Host 'Headset'
     Battery
