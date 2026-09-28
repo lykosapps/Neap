@@ -92,19 +92,17 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   side, and clearing the last puts every volume back.
 - **The chat app list on screen** in light and high contrast, and the screen
   checks' new steps for it, which have not had a full run.
-- **Does the parametric curve heard match the headset?** The solid line
-  is worked out from a description of the headset's filters taken from its
-  settings file, never measured. With a phone's spectrum analyser in the
-  ear cup, play the test tone at a few frequencies, flat and then with a
-  known curve, and compare the differences with the solid line. Also:
-  does the most boost the bands allow together, about +13.5 dB, distort?
+- **The parametric curve heard, at the ends.** Measured from 60 Hz to
+  6 kHz on 28 Sep (see FINDINGS.md); below and above that the recording
+  microphone's own processing cut the signal. Still owed: the same
+  measurement with that processing off, to cover the lowest and top bands,
+  and whether the most boost the bands allow together distorts.
 
 ## Protocol unknowns
 
 - Seventeen values the headset reports are not yet matched to anything; see
   [FINDINGS.md](FINDINGS.md).
 - Whether the charging flag means charging, or only powered by the cable.
-- Two of the microphone equaliser's band frequencies are inferred, not read.
 - 32-bit audio formats are assumed to be floating point.
 
 ## Tooling and release

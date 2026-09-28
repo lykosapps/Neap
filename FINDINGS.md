@@ -285,8 +285,40 @@ Band centres, read from Swarm's device plugin (`STEALTH_PRO_II.dll`)
 | Microphone | 100, 160, 250, 400, 630 Hz, 1, 1.6, 2.5, 4, 6.3 kHz |
 
 Eight microphone labels appear literally in the plugin. The 250 Hz and 1 kHz
-placements are inferred: Qt pools identical strings, so labels already used
-by the game bank appear once.
+placements were inferred, since Qt pools identical strings, and are
+confirmed by the filter tables below.
+
+The filters themselves are in the headset's NV key file that Swarm II ships
+for firmware 4.107.703 (`CORONA_RX_MASTER_NVkey_v4_107_703.xml`) *(research)*.
+Each table is a count, then per filter four little-endian floats (frequency,
+Q, gain, sample rate) and a 16-bit type:
+
+| Key | What | Filters |
+|---|---|---|
+| `0x500B` game GEQ | ten of type 4 | 31.5 Hz to 16 kHz, Q 1.414, 48 kHz |
+| `0x5059` mic GEQ | ten of type 4 | 100 Hz to 6.3 kHz, Q 2.167, 16 kHz |
+| `0x500A` headphone compensation | fixed | 120 Hz type 6 +1.5 dB Q 0.5; 300 Hz +3 Q 0.7; 4.2 kHz +2 Q 1.7; 5.5 kHz type 7 −2.2 Q 0.7 |
+
+Type 4 is taken to be a peaking filter, and 6 and 7 low and high shelves;
+the codes are not documented. The game path's input level control
+(`0x5008`) sits at −12 dB, which reads as headroom for the equaliser's
+boosts. The equaliser's own level (`0x5003`) is 0 dB.
+
+Measured on the headset *(measured, 28 Sep 2026)*: tones played through the
+game bank, recorded by a separate microphone against the sealed ear cup,
+and compared with the flat preset, so the microphone's and the cup's own
+response cancel. The recording held from about 60 Hz to 6 kHz; the
+microphone's chain cut both ends, so nothing outside that was measured.
+Inside it:
+
+| Setting | Measured against the model |
+|---|---|
+| One band, +9 or −9 dB | Centre within 1 dB; the skirts an octave out fall about 1.5 dB faster than a Q 1.414 peaking filter |
+| Neap's fitted curves | Within about 1 dB (rms) of the curve drawn as heard |
+| All ten bands at +9 dB | About +8 to +11 dB, 2.6 dB below the model's +11 to +13.5 |
+
+So the filters are close to the model, a little narrower, and neighbouring
+bands add up to less than the model says.
 
 Writing any band sets the selected preset (`0x1210`) to 0 and empties its name
 *(measured)*: the curve is no longer that preset. Which preset an edit
