@@ -70,6 +70,14 @@ public sealed class SessionMix : IMixEngine
     /// </remarks>
     public static Action<string>? Trouble { get; set; }
 
+    /// <summary>Where the mix says it looked up another program's name. Unset, nothing is said.</summary>
+    public static Action<string>? LookedUp { get; set; }
+
+    private static readonly Stopwatch Clock = Stopwatch.StartNew();
+
+    /// <summary>Shared by every mix, so a program is looked up once however many times the mix restarts.</summary>
+    private static readonly ProcessNames Names = new(ProcessName, () => Clock.Elapsed, name => LookedUp?.Invoke(name));
+
     private List<string> _chatApps;
     private int _mix = 50;
     private bool _running;
@@ -307,7 +315,7 @@ public sealed class SessionMix : IMixEngine
                     {
                         var session = sessions[i];
                         if (!IsChat(session.GetProcessID, chatApps)) continue;
-                        seen.Add(new ChatSession(ProcessName(session.GetProcessID),
+                        seen.Add(new ChatSession(Names.Of(session.GetProcessID),
                             device.FriendlyName,
                             session.State == AudioSessionState.AudioSessionStateActive));
                     }
@@ -371,17 +379,20 @@ public sealed class SessionMix : IMixEngine
     private static bool IsChat(uint pid, List<string> chatApps)
     {
         if (chatApps.Count == 0) return false;
-        string name = ProcessName(pid);
+        string name = Names.Of(pid);
         if (name.Length == 0) return false;
         foreach (string app in chatApps)
             if (name.Contains(app, StringComparison.OrdinalIgnoreCase)) return true;
         return false;
     }
 
-    internal static string ProcessName(uint pid)
+    private static string ProcessName(uint pid)
     {
-        if (pid == 0) return "";
-        try { return System.Diagnostics.Process.GetProcessById((int)pid).ProcessName; }
+        try
+        {
+            using var process = Process.GetProcessById((int)pid);
+            return process.ProcessName;
+        }
         catch { return ""; }
     }
 

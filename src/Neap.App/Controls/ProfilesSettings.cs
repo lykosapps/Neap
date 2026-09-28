@@ -73,7 +73,7 @@ public sealed class ProfilesSettings : UserControl
 
     private async Task LoadNames()
     {
-        foreach (var candidate in await AppServices.Mix.Candidates())
+        foreach (var candidate in await AppServices.Mix.Candidates("the names in the profiles list"))
             _names[candidate.Process] = candidate.Display;
     }
 
@@ -184,7 +184,7 @@ public sealed class ProfilesSettings : UserControl
         await LoadNames();
         var assigned = AppServices.Profiles.All.FirstOrDefault(p => p.Id == profile.Id)?.AssignedApps
             ?? Array.Empty<string>();
-        var candidates = await AppServices.Mix.Candidates();
+        var candidates = await AppServices.Mix.Candidates("a profile's apps picker");
 
         var list = new StackPanel { Spacing = 8 };
         var listed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

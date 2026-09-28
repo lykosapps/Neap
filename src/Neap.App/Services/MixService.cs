@@ -86,7 +86,11 @@ public sealed class MixService : IDisposable
     /// Before anything touches the mix, so a volume journal that cannot be
     /// read on the way in is in the log.
     /// </remarks>
-    static MixService() => SessionMix.Trouble = line => AppLog.Write($"mix: {line}");
+    static MixService()
+    {
+        SessionMix.Trouble = line => AppLog.Write($"mix: {line}");
+        SessionMix.LookedUp = name => AppLog.Write($"mix: looked up the name of {name}, playing to the headset");
+    }
 
     /// <summary>
     /// Put back anything a previous run left turned down, before anything
@@ -219,7 +223,12 @@ public sealed class MixService : IDisposable
     /// now, plus whatever is already chosen so a chat app that is not
     /// running does not vanish from its own setting.
     /// </summary>
-    public Task<IReadOnlyList<ChatCandidate>> Candidates() => Task.Run<IReadOnlyList<ChatCandidate>>(() =>
+    /// <param name="purpose">What the list is for, as the log says it.</param>
+    /// <remarks>
+    /// Opens each program playing to read its description, a game included,
+    /// so each call is logged with what it was for and which programs it read.
+    /// </remarks>
+    public Task<IReadOnlyList<ChatCandidate>> Candidates(string purpose) => Task.Run<IReadOnlyList<ChatCandidate>>(() =>
     {
         var found = new Dictionary<string, ChatCandidate>(StringComparer.OrdinalIgnoreCase);
         if (Pretend.Active)
@@ -230,6 +239,8 @@ public sealed class MixService : IDisposable
         else
         {
             AddSessions(found);
+            AppLog.Write($"apps: read the programs playing to the headset, for {purpose}: "
+                + (found.Count == 0 ? "none" : string.Join(", ", found.Keys.Order(StringComparer.OrdinalIgnoreCase))));
         }
 
         foreach (string chosen in ChatApps)

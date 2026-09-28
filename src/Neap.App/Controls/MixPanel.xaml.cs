@@ -107,7 +107,7 @@ public sealed partial class MixPanel : UserControl
     /// </remarks>
     private async Task LoadCandidates()
     {
-        var candidates = await AppServices.Mix.Candidates();
+        var candidates = await AppServices.Mix.Candidates("the list of chat apps");
         var chosen = AppServices.Mix.ChatApps;
 
         AppList.Children.Clear();

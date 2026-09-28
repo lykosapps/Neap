@@ -83,6 +83,11 @@ public sealed partial class MainWindow : Window
                 args.Handled = true;
             };
 
+        // Logged so a game that misbehaves around an alt-tab can be matched
+        // against whether Neap came to the front then, and what it did.
+        Activated += (_, args) => AppLog.Write(args.WindowActivationState == WindowActivationState.Deactivated
+            ? "window: went behind another" : "window: came to the front");
+
         // Closing the window puts the app in the notification area instead of
         // stopping it. The mix, the chat wheel and the headset's own controls
         // are the point of running, and none of them need a window. Quit is on
@@ -231,6 +236,7 @@ public sealed partial class MainWindow : Window
 
     private void Hide()
     {
+        AppLog.Write("window: closed to the notification area");
         Remember();
         AppWindow.Hide();
 
@@ -276,6 +282,7 @@ public sealed partial class MainWindow : Window
 
     private void Show()
     {
+        AppLog.Write("window: opened from the notification area");
         _trim?.Stop();
         if (Body.Content is null && Nav.SelectedItem is NavigationViewItem item)
             Body.Navigate(PageFor(item.Tag as string), null, new SuppressNavigationTransitionInfo());
