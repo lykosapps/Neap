@@ -101,14 +101,34 @@ public sealed class RingRefreshTests
     }
 
     [Fact]
-    public void ResetsForTheNextCallOnceThingsAreQuiet()
+    public void AnOpeningLongAfterAResetInTheSameCallIsLeftAlone()
+    {
+        // A chat app reopening the microphone some seconds after each reset
+        // gave four resets in under a minute.
+        var refresh = new RingRefresh();
+        refresh.Next(micOpen: true, wanted: true, At(0));
+        Assert.True(refresh.Next(micOpen: true, wanted: true, At(2)));
+        for (int second = 3; second < 17; second++)
+            refresh.Next(micOpen: false, wanted: true, At(second));
+        for (int second = 17; second < 120; second++)
+            Assert.False(refresh.Next(micOpen: true, wanted: true, At(second)));
+    }
+
+    [Fact]
+    public void ResetsForTheNextCallOnceTheMicrophoneHasStayedClosedAMinute()
     {
         var refresh = new RingRefresh();
         refresh.Next(micOpen: true, wanted: true, At(0));
         Assert.True(refresh.Next(micOpen: true, wanted: true, At(2)));
-        refresh.Next(micOpen: false, wanted: true, At(30));
-        refresh.Next(micOpen: true, wanted: true, At(40));
-        Assert.True(refresh.Next(micOpen: true, wanted: true, At(42)));
+
+        refresh.Next(micOpen: false, wanted: true, At(10));
+        refresh.Next(micOpen: true, wanted: true, At(60));
+        Assert.False(refresh.Next(micOpen: true, wanted: true, At(62)));
+
+        refresh.Next(micOpen: false, wanted: true, At(63));
+        refresh.Next(micOpen: false, wanted: true, At(123));
+        refresh.Next(micOpen: true, wanted: true, At(124));
+        Assert.True(refresh.Next(micOpen: true, wanted: true, At(126)));
     }
 
     [Fact]

@@ -59,7 +59,7 @@ public sealed class RingService : IDisposable
         try
         {
             bool wanted = On && OnDock() && AtHighRate();
-            bool micOpen = wanted && Routing.Recording(AudioEndpoints.DefaultMatch);
+            var recorders = wanted ? Routing.Recorders(AudioEndpoints.DefaultMatch) : [];
             bool held = wanted && FullScreen.Now();
             if (held != _held)
             {
@@ -68,7 +68,7 @@ public sealed class RingService : IDisposable
                     ? "dock ring: something is full-screen, so the output format is left alone until it isn't"
                     : "dock ring: nothing is full-screen now");
             }
-            if (_refresh.Next(micOpen, wanted, DateTime.UtcNow, held)) Reset();
+            if (_refresh.Next(recorders.Count > 0, wanted, DateTime.UtcNow, held)) Reset(recorders);
         }
         catch (Exception ex)
         {
@@ -88,12 +88,18 @@ public sealed class RingService : IDisposable
         catch (WindowsAudioException) { return false; }
     }
 
-    private static void Reset()
+    /// <param name="recorders">The applications recording from the microphone, empty when it has closed.</param>
+    /// <remarks>Names them, so a run of resets can be traced to what opened the microphone.</remarks>
+    private static void Reset(IReadOnlyList<uint> recorders)
     {
+        string by = recorders.Count == 0 ? "closed again since"
+            : "by " + string.Join(", ", recorders
+                .Select(pid => Programs.NameOf(pid) is { Length: > 0 } name ? name : $"process {pid}")
+                .Distinct(StringComparer.OrdinalIgnoreCase));
         try
         {
             DeviceFormat.Refresh(AudioEndpoints.DefaultMatch);
-            AppLog.Write("dock ring: set the output format again after the microphone opened");
+            AppLog.Write($"dock ring: set the output format again after the microphone opened ({by})");
         }
         catch (Exception ex) when (ex is Core.Audio.FormatException or WindowsAudioException)
         {

@@ -161,6 +161,9 @@ and date.
   device is really running at.
 - The Device page picks up a format changed in Sound settings once Neap is
   back in front.
+- Keeping high-resolution audio restores it once per call. A chat app that
+  reopened the microphone after each restore could set off several in a
+  row, each one a short gap in all sound.
 - The Profiles list in Settings is no longer rebuilt every time the headset
   reports something, which moved the keyboard off whatever row it was on.
 - Switching to a profile, or discarding a change back to one, no longer

@@ -123,22 +123,23 @@ public static class Routing
         return found;
     }
 
-    /// <summary>Whether any application is recording from the headset's microphone.</summary>
-    /// <returns>False as well when there is no headset microphone or Windows cannot be asked.</returns>
-    public static bool Recording(string match = "Stealth Pro")
+    /// <summary>The process ids of the applications recording from the headset's microphone.</summary>
+    /// <returns>Empty as well when there is no headset microphone or Windows cannot be asked.</returns>
+    public static IReadOnlyList<uint> Recorders(string match = "Stealth Pro")
     {
+        var found = new List<uint>();
         try
         {
             using var devices = new MMDeviceEnumerator();
             using var microphone = Headset(devices, output: false, match);
-            if (microphone is null) return false;
+            if (microphone is null) return found;
             microphone.AudioSessionManager.RefreshSessions();
             var sessions = microphone.AudioSessionManager.Sessions;
             for (int i = 0; i < sessions.Count; i++)
-                if (sessions[i].State == AudioSessionState.AudioSessionStateActive) return true;
-            return false;
+                if (sessions[i].State == AudioSessionState.AudioSessionStateActive) found.Add(sessions[i].GetProcessID);
         }
-        catch (COMException) { return false; }
+        catch (COMException) { found.Clear(); }
+        return found;
     }
 
     /// <summary>
