@@ -7,19 +7,6 @@ to GitHub, these become issues.
 
 ## Bugs
 
-- **A profile saved before the equaliser has been read has no equaliser.**
-  Open Neap and save a profile from Home straight away: it keeps no
-  equaliser preset. Switching to it later leaves whatever equaliser was on,
-  and the bar shows it as Edited at once, and stays so. The first profile
-  most people make is saved this way. Seen in pretend mode on the shipped
-  build; needs the headset to confirm. S3, P1: fix before Profiles ships.
-- **Switching profile with the headset off looks done but isn't.** The bar
-  shows the chosen profile and nothing says otherwise, but nothing is
-  applied. When the headset comes back it still has the old settings, and
-  the bar shows the profile as Edited. Seen in pretend mode on the shipped
-  build. S3, P1: fix before Profiles ships. What should happen instead
-  (apply on reconnect, or refuse while off) is the owner's call.
-
 ### Known limits, recorded rather than fixed
 
 - With both transmitter lights amber, no sound can still show as connected.
