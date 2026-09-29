@@ -92,6 +92,10 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   side, and clearing the last puts every volume back.
 - **The chat app list on screen** in light and high contrast, and the screen
   checks' new steps for it, which have not had a full run.
+- **96 kHz through calls.** The Charging Dock went silent at 96 kHz until
+  unplugged, after many format resets. With one reset per call, use 96 kHz
+  for a few days of calls: does it stay audible? If it goes silent again,
+  the log names the apps behind each reset.
 - **The parametric curve heard, at the ends.** Measured from 60 Hz to
   6 kHz on 28 Sep (see FINDINGS.md); below and above that the recording
   microphone's own processing cut the signal. Still owed: the same

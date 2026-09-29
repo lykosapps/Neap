@@ -643,6 +643,20 @@ Only the first recording turns it white. Joining a Discord call while
 another application already had the microphone open left the ring purple
 *(confirmed by the owner)*.
 
+**The Charging Dock can go silent at 96 kHz.** Windows was mixing at
+96 kHz, playing to the dock at a healthy level, with the sound link at 2,
+and nothing was heard; 48 kHz played, and so did the Sound dialog's own
+setting of 96 kHz once the dock had been unplugged and plugged back in
+*(confirmed by the owner)*. Nothing Neap or Windows reads marks the silent
+state. It followed days of Neap setting the format again after each
+microphone opening, at times four in under a minute, which is the
+suspected cause and is not proven.
+
+A leftover of Swarm II's Waves driver stays on the headset's output after
+the driver is removed: Waves MaxxAudio named as its effects, pointing at
+components no longer registered. Windows offers no Audio enhancements
+switch for it, so it is taken to be inert *(measured)*.
+
 ### Core Audio
 
 `S_FALSE` (1) is success: Core Audio returns it when a set changes nothing,
