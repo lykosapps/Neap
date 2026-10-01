@@ -147,6 +147,13 @@ public sealed class ChatWheel(Func<TimeSpan> clock)
     /// the same toward chat. Both arrive at the end together, with no jump, and
     /// once the two agree this is exactly the difference.
     /// </para>
+    /// <para>
+    /// From centre, a step moves the mix at least a whole notch. A smaller
+    /// share lands inside <see cref="MixDetent"/>, which puts it back to centre,
+    /// and the next step starts from centre again, so the wheel does nothing.
+    /// With the count near the end it is turning away from, as it is after the
+    /// headset is switched on, that lasted nine notches.
+    /// </para>
     /// </remarks>
     public static int Follow(int mix, WheelStep step)
     {
@@ -154,8 +161,15 @@ public sealed class ChatWheel(Func<TimeSpan> clock)
         double next = to < from
             ? (from <= 0 ? mix : mix * (double)to / from)
             : (from >= 100 ? mix : 100 - (100 - mix) * (100.0 - to) / (100 - from));
-        return (int)Math.Round(Math.Clamp(next, 0, 100));
+        int followed = (int)Math.Round(Math.Clamp(next, 0, 100));
+        if (mix != 50 || to == from) return followed;
+        return to > from
+            ? Math.Max(followed, 50 + LeaveCentre)
+            : Math.Min(followed, 50 - LeaveCentre);
     }
+
+    /// <summary>The least a step from centre moves the mix: just past the detent.</summary>
+    private const int LeaveCentre = MixDetent.Width + 1;
 
     private void Start(int count)
     {

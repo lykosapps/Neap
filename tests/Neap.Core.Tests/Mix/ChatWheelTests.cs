@@ -144,4 +144,24 @@ public class ChatWheelTests
     [InlineData(60, 50, 45, 54)]
     public void EachStepCoversTheSameShareOfWhatIsLeft(int mix, int from, int to, int next) =>
         Assert.Equal(next, ChatWheel.Follow(mix, new WheelStep(from, to)));
+
+    [Theory]
+    [InlineData(0, 5, 55)]
+    [InlineData(100, 95, 45)]
+    public void FromCentreANotchMovesAWholeNotch(int from, int to, int next) =>
+        Assert.Equal(next, ChatWheel.Follow(50, new WheelStep(from, to)));
+
+    [Theory]
+    [InlineData(5)]
+    [InlineData(-5)]
+    public void TheFirstNotchLeavesTheCentreDetentWhereverTheCountIs(int notch)
+    {
+        // The count reads 0 after the headset is switched on, so turning toward
+        // chat from there covers the smallest share of what is left.
+        int count = notch > 0 ? 0 : 100;
+        var snap = MixDetent.Apply(ChatWheel.Follow(50, new WheelStep(count, count + notch)), previous: 50, held: true);
+
+        Assert.NotEqual(50, snap.Value);
+        Assert.False(snap.Held);
+    }
 }

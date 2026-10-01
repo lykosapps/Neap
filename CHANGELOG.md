@@ -132,6 +132,9 @@ and date.
   reported.
 - A chat wheel reading far from the last one is held until the next reading
   confirms it, so the mix no longer jumps.
+- The chat wheel moves the mix off centre on the first notch either way.
+  It could do nothing for up to nine notches, most often turning toward
+  chat after the headset was switched on.
 - Open and Quit on the tray menu work.
 - A failure to list recording devices is reported instead of closing the
   app.
