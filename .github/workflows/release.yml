@@ -68,7 +68,18 @@ jobs:
             "Unzip $env:ZIP into a folder you will keep and run Neap.exe. It is not signed, so Windows may say it protected your PC: choose More info, then Run anyway."
             ''
           )
-          $install + $lines[($start + 1)..($end - 1)] | Out-File -Encoding utf8 notes.md
+          # Release pages keep every line break, so the changelog's wrapped
+          # lines are joined back into one line per paragraph or list item.
+          $notes = New-Object System.Collections.Generic.List[string]
+          foreach ($line in $install + $lines[($start + 1)..($end - 1)]) {
+            $previous = if ($notes.Count) { $notes[$notes.Count - 1] } else { '' }
+            if ($line.Trim() -and $previous.Trim() -and $line -notmatch '^\s*(#|- |\d+\. )') {
+              $notes[$notes.Count - 1] = "$previous $($line.Trim())"
+            } else {
+              $notes.Add($line)
+            }
+          }
+          $notes | Out-File -Encoding utf8 notes.md
 
       - name: Release
         env:
