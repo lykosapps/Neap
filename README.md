@@ -5,6 +5,11 @@
 Quiet control for the Turtle Beach Stealth Pro II on Windows. A third-party
 app, written to replace Swarm II.
 
+**For the Stealth Pro II only, for now.** The Stealth 600 Gen 3, 700 Gen 3,
+500 and Atlas Air share its platform, and [the probe](#the-probe) is how a
+new headset's settings get mapped, so support for them could follow with
+help from someone who owns one.
+
 Not affiliated with or endorsed by Turtle Beach. Turtle Beach, Stealth Pro II
 and Swarm II are trademarks of Turtle Beach Corporation.
 
