@@ -2,153 +2,145 @@
 
 # Neap
 
-Quiet control for the Turtle Beach Stealth Pro II on Windows. A third-party
-app, written to replace Swarm II.
+Quiet control for the Turtle Beach Stealth Pro II on Windows, in place of
+Swarm II. No driver, no Turtle Beach software, no admin rights.
 
-**For the Stealth Pro II only, for now.** The Stealth 600 Gen 3, 700 Gen 3,
-500 and Atlas Air share its platform, and [the probe](#the-probe) is how a
-new headset's settings get mapped, so support for them could follow with
-help from someone who owns one.
+**[Download the latest release](https://github.com/lykosapps/Neap/releases/latest)**
+· Windows 10 version 2004 or later, 64-bit
 
-Tested on the Xbox edition. The PlayStation edition should work but hasn't
-been tried, so reports are welcome.
+**For the Stealth Pro II only, for now.** Tested on the Xbox edition. The
+PlayStation edition should work but hasn't been tried, so reports are
+welcome. The Stealth 600 Gen 3, 700 Gen 3, 500 and Atlas Air share its
+platform, and [the probe](#the-probe) is how a new headset's settings get
+mapped, so support for them could follow with help from someone who owns
+one.
 
 Not affiliated with or endorsed by Turtle Beach. Turtle Beach, Stealth Pro II
 and Swarm II are trademarks of Turtle Beach Corporation.
 
-- [FINDINGS.md](FINDINGS.md) — the headset's protocol and behaviour, as measured
-- [ARCHITECTURE.md](ARCHITECTURE.md) — the two halves, and why the audio one
-  is the awkward part
-- [CONTRIBUTING.md](CONTRIBUTING.md) — building, testing, and the checks
-  that need a headset
-- [SECURITY.md](SECURITY.md) — reporting a security problem
-- [CHANGELOG.md](CHANGELOG.md) — what Neap does, how it differs from Swarm II,
-  and what changed
-- [BACKLOG.md](BACKLOG.md) — bugs, features and work still to do
-
 ## What it does
 
-**The headset, with nothing installed.** Every setting it exposes, over its
-own HID protocol: noise cancellation, both ten-band equalisers, microphone,
-noise gate, Superhuman Hearing, button and dial assignment, transmitter
-lighting, battery, power, wake on motion, voice prompts. No driver, no
-Turtle Beach software, no admin rights. Two of those — wake on motion and
-voice prompt volume — are not in Swarm II's desktop app at all.
+### A game and chat mix, with nothing to install
 
-**Transparency, which the headset does not offer.** Noise control has three
-modes: noise cancellation, transparency and off. Transparency is noise
-cancellation at zero, which lets the room through. The Mode button can step
-through all three while Neap is running.
+Pick the apps that carry chat, such as Discord or Teams, and Neap turns them
+against everything else. No virtual audio cable, driver or reboot, and it
+works on the Xbox edition, where Swarm II's mix isn't officially supported.
 
-![The Audio page, with noise control set to transparency.](docs/screenshots/transparency.png)
-
-**A game and chat mix that needs no setup.** The transmitter gives Windows a
-single stereo output, so the headset cannot split game from chat on a PC. It
-has to be done on the PC, and every other way of doing it asks you to install
-a virtual audio cable, or a driver, or to own a spare output device. This one
-asks a single question — which application carries your chat — and mixes that
-application's audio against everything else. Nothing to install, nothing to
-reboot.
-
-Move it with the headset's chat wheel, with the dial on Home, or with the keyboard
-from inside a game: Ctrl + Alt + Page Down, Page Up and Home, all rebindable.
+Move it with the headset's chat wheel, the dial on Home, or the keyboard
+from inside a game: Ctrl + Alt + Page Down, Page Up and Home, all
+rebindable.
 
 ![Home, with the game and chat dial turned toward chat.](docs/screenshots/mix.png)
 
-**Equaliser presets stored on the headset**, for both the game and microphone
-banks. Names and curves come straight off the device, so nothing is cached
-and nothing goes stale. Browse them, switch between them, save your own into
-one of five custom slots per bank, and delete ones you no longer want.
-Because they live on the headset, they also appear in the phone app and
-survive uninstalling everything.
+### Transparency
+
+Choose noise cancellation, transparency or off. The headset has no
+transparency mode of its own; transparency is noise cancellation at zero,
+which lets the room in. The Mode button steps through all three while Neap
+is running.
+
+![The Audio page, with noise control set to transparency.](docs/screenshots/transparency.png)
+
+### An equaliser you can tune by ear
+
+- **Parametric equaliser** for game audio: up to four adjustments, fitted to
+  the headset's ten bands, with a plot of what you'll actually hear.
+- **Test tone.** Find a frequency that stands out, then cut or boost it on
+  the spot.
+- **Presets stored on the headset**, for game and microphone, so they also
+  appear in the phone app and survive uninstalling everything.
 
 ![The parametric equaliser, with four adjustments and the test tone.](docs/screenshots/equaliser.png)
 
-**The transmitters.** The headset pairs with up to four and reports each
-slot: which piece of hardware, its firmware, its address, and which one it is
-using. Each transmitter's light brightnesses live in its slot, readable and
-writable.
+### Everything else
 
-**It says what is actually happening.** Connected, no sound, settings out of
-reach, switched off, out of range — each is its own state with its own words,
-worked out from what the headset and Windows report rather than assumed, and
-each says what still works and the one thing to do. When Windows is sending
-sound or taking the microphone from a device the headset is not listening to,
-it names the right one. The Charging Dock, the USB Transmitter and the
-headset's own USB-C cable all work, alone or together.
+- **Profiles** save your whole setup under a name, and can switch on by
+  themselves when a game starts.
+- **Clear status.** Connected, no sound, switched off or out of range, each
+  with what still works and the one thing to do.
+- **Catches the wrong device.** When Windows sends sound or the microphone
+  somewhere the headset isn't listening, Neap names the right one.
+- **The spare battery's charge** while the headset is on the Charging Dock.
+- **Settings Swarm II's desktop app doesn't have:** wake on motion and voice
+  prompt volume.
+- **Every other setting** the headset has: microphone, noise gate,
+  Superhuman Hearing, spatial sound, buttons and dial, lighting and power.
+- **Runs from the notification area**, with the mix and chat wheel still
+  working, and can start with Windows.
+- **Works from the keyboard and with screen readers**, in light, dark and
+  high contrast themes.
 
-**It stays out of the way.** Closing the window keeps the mix and the chat
-wheel running from the notification area, and it can start with Windows
-without ever opening a window.
+The [changelog](CHANGELOG.md) has the full list, and what's not included.
 
-## Download
+## Install
 
-**Windows 10 version 2004 (build 19041) or later, 64-bit.** Nothing else.
-No .NET runtime, no Windows App SDK, no driver — it is self-contained,
-which costs about 260 MB on disk and saves a stranger from installing
-anything.
-
-1. From [Releases](https://github.com/lykosapps/Neap/releases), download
-   `Neap-<version>-win-x64.zip`.
+1. From the [latest release](https://github.com/lykosapps/Neap/releases/latest),
+   download `Neap-<version>-win-x64.zip`.
 2. Unzip it to a folder of its own, such as `C:\Users\<you>\Apps\Neap`.
 3. Run `Neap.exe`.
 
-The download is not signed, so the first time, Windows says it protected
+The download is not signed yet, so the first time, Windows says it protected
 your PC. Choose **More info**, then **Run anyway**.
 
-Each release is built on GitHub from the tagged commit, and has a `.sha256`
-file beside the zip. To check a download against it, in PowerShell:
+It needs nothing else: no .NET runtime, no Windows App SDK, no driver. That
+makes it about 260 MB on disk.
+
+**To update,** close Neap from the notification area, replace the contents
+of its folder with the new release, and run it again. Settings are kept.
+
+**To remove it,** turn off **Start with Windows** in its settings if you
+turned it on, close it from the notification area, and delete its folder
+and `%LOCALAPPDATA%\Neap`, where it keeps its settings and log.
+
+**To check a download,** each release is built on GitHub from the tagged
+commit and has a `.sha256` file beside the zip. Compare it with:
 
 ```
 Get-FileHash Neap-<version>-win-x64.zip
 ```
 
-To update, close Neap from the notification area, replace the contents of
-its folder with the new release, and run it again. Settings are kept.
+## Alongside Swarm II
 
-To remove Neap, turn off **Start with Windows** in its settings if you
-turned it on, close it from the notification area, and delete its folder
-and `%LOCALAPPDATA%\Neap`, where it keeps its settings and log.
+1. **Keep Swarm II, for firmware updates and pairing.** Neap deliberately
+   does neither.
+2. **Stop Swarm II starting with Windows.** In Swarm II: Settings (the cog,
+   bottom left) → App Settings → turn off **Autostart Swarm II**. The two
+   apps fight over the headset when both are open, and Neap says so when
+   they do.
+3. **Skip the Waves audio driver.** Neap's mix doesn't need it. If it's
+   already installed, it shows in Windows Settings → Apps as **Turtle Beach
+   Audio Driver** by Waves Audio Ltd. Removing it is optional.
 
-## Building it
+## Status
+
+Working and in daily use, but young. Everything has been exercised on one
+headset on one Windows machine. There is no installer yet, and it was
+written with AI assistance.
+
+Found a problem? [Open an issue](https://github.com/lykosapps/Neap/issues).
+For a security problem, see [SECURITY.md](SECURITY.md).
+
+## For developers
+
+- [CONTRIBUTING.md](CONTRIBUTING.md): building, testing, and the checks
+  that need a headset
+- [FINDINGS.md](FINDINGS.md): the headset's protocol and behaviour, as
+  measured
+- [ARCHITECTURE.md](ARCHITECTURE.md): the two halves, and why the audio one
+  is the awkward part
+- [BACKLOG.md](BACKLOG.md): bugs, features and work still to do
+
+### Building it
 
 ```
 cd src/Neap.App
 dotnet publish -c Release -r win-x64
 ```
 
-Then run `Neap.exe` from the `publish` folder. You need the .NET 10
-SDK to build, but not to run the result.
+Then run `Neap.exe` from the `publish` folder. You need the .NET 10 SDK to
+build, but not to run the result.
 
-## Living with Swarm II
-
-The headset presents itself to Windows as an ordinary USB audio device and an
-ordinary HID device. Both work with no Turtle Beach software at all, and this
-app talks to the HID device directly — confirmed by running the whole thing
-with the Waves driver uninstalled.
-
-Even so, it is worth keeping Swarm installed, set up like this:
-
-**1. Keep Swarm II, for firmware updates.** This app deliberately does not
-touch firmware or pair transmitters. Those are the one thing worth leaving to
-the vendor's own tool.
-
-**2. Stop Swarm launching at startup.** In Swarm: Settings (the cog,
-bottom-left) → App Settings → turn off **Autostart Swarm II**. Swarm polls
-the headset thousands of times a second and takes the replies, so the two
-fight over the connection whenever both are open. This app says so plainly
-rather than appearing broken.
-
-**3. Do not install the Waves audio driver.** Swarm does not add it unless
-you click "Install Waves Audio Driver" in its driver menu, so simply never
-click it. This app's mix does not use it, and on the Xbox edition Swarm's
-mix through Waves is not officially supported anyway.
-
-If an earlier setup already added it, it appears in Windows Settings → Apps
-as **"Turtle Beach Audio Driver" by Waves Audio Ltd**. Removing it is
-optional — the mix here works either way.
-
-## The probe
+### The probe
 
 `Neap.Probe` is a console harness that talks to the headset without a
 UI. It is how the protocol was worked out and it is still the fastest way to
@@ -185,7 +177,7 @@ A few more matter when something is not behaving:
   registry. This is how anything new gets learned — the registry was built
   by watching the vendor's app. Capture with `tools/capture.ps1`.
 
-## Safety
+### Safety
 
 Read-first. The client writes nothing unless it is made with writes allowed,
 and even then it sends only settings in the confirmed registry, within their
@@ -198,16 +190,6 @@ questions about a headset it can no longer reach, with stale values, and the
 chip vendor's own firmware commands reach only the USB device you are plugged
 into, never the headset behind it. Confirm which device answered before
 trusting a result.
-
-## Status
-
-Working and in daily use, but young, and honest about which is which:
-
-- Everything above has been exercised on real hardware, on **one** Stealth
-  Pro II (Xbox edition) on **one** Windows machine. Other editions share the
-  protocol and the product ids are known, but none has been tested.
-- There is no installer, and the download is not signed.
-- It was written with AI assistance.
 
 ## Licence
 
