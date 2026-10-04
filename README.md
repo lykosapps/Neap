@@ -40,6 +40,8 @@ modes: noise cancellation, transparency and off. Transparency is noise
 cancellation at zero, which lets the room through. The Mode button can step
 through all three while Neap is running.
 
+![The Audio page, with noise control set to transparency.](docs/screenshots/transparency.png)
+
 **A game and chat mix that needs no setup.** The transmitter gives Windows a
 single stereo output, so the headset cannot split game from chat on a PC. It
 has to be done on the PC, and every other way of doing it asks you to install
@@ -51,12 +53,16 @@ reboot.
 Move it with the headset's chat wheel, with the dial on Home, or with the keyboard
 from inside a game: Ctrl + Alt + Page Down, Page Up and Home, all rebindable.
 
+![Home, with the game and chat dial turned toward chat.](docs/screenshots/mix.png)
+
 **Equaliser presets stored on the headset**, for both the game and microphone
 banks. Names and curves come straight off the device, so nothing is cached
 and nothing goes stale. Browse them, switch between them, save your own into
 one of five custom slots per bank, and delete ones you no longer want.
 Because they live on the headset, they also appear in the phone app and
 survive uninstalling everything.
+
+![The parametric equaliser, with four adjustments and the test tone.](docs/screenshots/equaliser.png)
 
 **The transmitters.** The headset pairs with up to four and reports each
 slot: which piece of hardware, its firmware, its address, and which one it is
