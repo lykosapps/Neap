@@ -192,11 +192,7 @@ Working and in daily use, but young, and honest about which is which:
 - Everything above has been exercised on real hardware, on **one** Stealth
   Pro II (Xbox edition) on **one** Windows machine. Other editions share the
   protocol and the product ids are known, but none has been tested.
-<<<<<<< HEAD
-- There is no installer and the download is not signed.
-=======
 - There is no installer, and the download is not signed.
->>>>>>> origin/main
 - It was written with AI assistance.
 
 ## Licence
