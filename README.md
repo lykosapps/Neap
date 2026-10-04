@@ -67,14 +67,33 @@ headset's own USB-C cable all work, alone or together.
 wheel running from the notification area, and it can start with Windows
 without ever opening a window.
 
-## Running it
+## Download
 
 **Windows 10 version 2004 (build 19041) or later, 64-bit.** Nothing else.
-No .NET runtime, no Windows App SDK, no driver — it publishes self-contained,
+No .NET runtime, no Windows App SDK, no driver — it is self-contained,
 which costs about 260 MB on disk and saves a stranger from installing
 anything.
 
-There are no downloadable builds yet. To build one:
+1. From [Releases](https://github.com/lykosapps/Neap/releases), download
+   `Neap-<version>-win-x64.zip`.
+2. Unzip it to a folder of its own, such as `C:\Users\<you>\Apps\Neap`.
+3. Run `Neap.exe`.
+
+The download is not signed, so the first time, Windows says it protected
+your PC. Choose **More info**, then **Run anyway**.
+
+Each release is built on GitHub from the tagged commit, and has a `.sha256`
+file beside the zip. To check a download against it, in PowerShell:
+
+```
+Get-FileHash Neap-<version>-win-x64.zip
+```
+
+To remove Neap, turn off **Start with Windows** in its settings if you
+turned it on, close it from the notification area, and delete its folder
+and `%LOCALAPPDATA%\Neap`, where it keeps its settings and log.
+
+## Building it
 
 ```
 cd src/Neap.App
@@ -170,7 +189,7 @@ Working and in daily use, but young, and honest about which is which:
 - Everything above has been exercised on real hardware, on **one** Stealth
   Pro II (Xbox edition) on **one** Windows machine. Other editions share the
   protocol and the product ids are known, but none has been tested.
-- There is no installer and no signed binary. You build it yourself.
+- There is no installer, and the download is not signed.
 - It was written with AI assistance.
 
 ## Licence
