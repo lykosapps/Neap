@@ -30,7 +30,7 @@ Move it with the headset's chat wheel, the dial on Home, or the keyboard
 from inside a game: Ctrl + Alt + Page Down, Page Up and Home, all
 rebindable.
 
-![Home, with the game and chat dial turned toward chat.](docs/screenshots/mix.png)
+![Home, with the game and chat dial mixing Discord and Teams against the game, and noise control in transparency.](docs/screenshots/mix.png)
 
 ### Transparency
 
@@ -52,15 +52,29 @@ is running.
 
 ![The parametric equaliser, with four adjustments and the test tone.](docs/screenshots/equaliser.png)
 
+### Profiles for each game
+
+Save your whole setup under a name, from noise control to both equalisers.
+Give a profile one or more games, and it comes on when one of them starts,
+then goes back to your default when it closes.
+
+![Settings, with a default profile and a gaming profile assigned to two games.](docs/screenshots/profiles.png)
+
+### The Charging Dock
+
+See the spare battery's charge while the headset is docked, set the
+brightness of both lights, and choose the audio format. Neap can also put
+the dock back into high-resolution audio after an app has used the
+microphone.
+
+![The Device page, with the Charging Dock in use, the spare battery at 100% and the audio format at 24-bit, 96 kHz.](docs/screenshots/dock.png)
+
 ### Everything else
 
-- **Profiles** save your whole setup under a name, and can switch on by
-  themselves when a game starts.
 - **Clear status.** Connected, no sound, switched off or out of range, each
   with what still works and the one thing to do.
 - **Catches the wrong device.** When Windows sends sound or the microphone
   somewhere the headset isn't listening, Neap names the right one.
-- **The spare battery's charge** while the headset is on the Charging Dock.
 - **Settings Swarm II's desktop app doesn't have:** wake on motion and voice
   prompt volume.
 - **Every other setting** the headset has: microphone, noise gate,
