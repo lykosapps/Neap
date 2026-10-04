@@ -58,7 +58,7 @@ Save your whole setup under a name, from noise control to both equalisers.
 Give a profile one or more games, and it comes on when one of them starts,
 then goes back to your default when it closes.
 
-![Settings, with a default profile and a gaming profile assigned to two games.](docs/screenshots/profiles.png)
+![Settings, with a default profile and a second profile for gaming.](docs/screenshots/profiles.png)
 
 ### The Charging Dock
 
@@ -67,7 +67,7 @@ brightness of both lights, and choose the audio format. Neap can also put
 the dock back into high-resolution audio after an app has used the
 microphone.
 
-![The Device page, with the Charging Dock in use, the spare battery at 100% and the audio format at 24-bit, 96 kHz.](docs/screenshots/dock.png)
+![The Device page, with the Charging Dock in use, its spare battery at 100% and the brightness of both its lights.](docs/screenshots/dock.png)
 
 ### Everything else
 
