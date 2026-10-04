@@ -76,6 +76,8 @@ jobs:
             "1. Download **$env:ZIP** below. Windows 10 version 2004 or later, 64-bit."
             '2. Unzip it into a folder you will keep, and run **Neap.exe**.'
             '3. The download is not signed yet. If Windows says it protected your PC, choose **More info**, then **Run anyway**.'
+            '4. Make sure Swarm II is not running in the background, and turn off its Autostart in its App Settings. The two apps fight over the headset when both are open.'
+            '5. Remove the Waves audio driver: in Windows Settings, under Apps, uninstall **Turtle Beach Audio Driver** by Waves Audio Ltd. Neap does not need it.'
             ''
           )
           # Release pages keep every line break, so the changelog's wrapped

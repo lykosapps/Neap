@@ -78,6 +78,8 @@ The [changelog](CHANGELOG.md) has the full list, and what's not included.
    download `Neap-<version>-win-x64.zip`.
 2. Unzip it to a folder of its own, such as `C:\Users\<you>\Apps\Neap`.
 3. Run `Neap.exe`.
+4. Close Swarm II and remove the Waves audio driver, as described in
+   [Alongside Swarm II](#alongside-swarm-ii).
 
 The download is not signed yet, so the first time, Windows says it protected
 your PC. Choose **More info**, then **Run anyway**.
@@ -103,13 +105,14 @@ Get-FileHash Neap-<version>-win-x64.zip
 
 1. **Keep Swarm II, for firmware updates and pairing.** Neap deliberately
    does neither.
-2. **Stop Swarm II starting with Windows.** In Swarm II: Settings (the cog,
-   bottom left) → App Settings → turn off **Autostart Swarm II**. The two
-   apps fight over the headset when both are open, and Neap says so when
-   they do.
-3. **Skip the Waves audio driver.** Neap's mix doesn't need it. If it's
-   already installed, it shows in Windows Settings → Apps as **Turtle Beach
-   Audio Driver** by Waves Audio Ltd. Removing it is optional.
+2. **Make sure Swarm II isn't running in the background.** The two apps
+   fight over the headset when both are open. In Swarm II: Settings (the
+   cog, bottom left) → App Settings → turn off **Autostart Swarm II**, then
+   close it, including from the notification area. Open it only for a
+   firmware update, and close it again afterwards.
+3. **Remove the Waves audio driver.** Neap's mix doesn't need it. In
+   Windows Settings → Apps, uninstall **Turtle Beach Audio Driver** by Waves
+   Audio Ltd, and don't reinstall it from Swarm II's driver menu.
 
 ## Status
 
