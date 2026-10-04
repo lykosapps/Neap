@@ -9,7 +9,7 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
-## Unreleased — 0.1.0, the first release
+## 0.1.0 — 2026-10-04, the first release
 
 ### Beyond Swarm II
 

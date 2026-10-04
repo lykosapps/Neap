@@ -54,7 +54,23 @@ jobs:
           "$hash  $zip" | Out-File -Encoding ascii "$zip.sha256"
           "ZIP=$zip" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
 
+      # The release page carries the version's changelog section, so it says
+      # what Neap does in the same words as the repository.
+      - name: Notes
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          $lines = Get-Content CHANGELOG.md
+          $start = [array]::FindIndex($lines, [Predicate[string]]{ param($l) $l -match "^## $([regex]::Escape($version))\b" })
+          if ($start -lt 0) { throw "CHANGELOG.md has no section for $version." }
+          $end = [array]::FindIndex($lines, $start + 1, [Predicate[string]]{ param($l) $l -match '^## ' })
+          if ($end -lt 0) { $end = $lines.Count }
+          $install = @(
+            "Unzip $env:ZIP into a folder you will keep and run Neap.exe. It is not signed, so Windows may say it protected your PC: choose More info, then Run anyway."
+            ''
+          )
+          $install + $lines[($start + 1)..($end - 1)] | Out-File -Encoding utf8 notes.md
+
       - name: Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create $env:TAG $env:ZIP "$env:ZIP.sha256" --title $env:TAG --generate-notes
+        run: gh release create $env:TAG $env:ZIP "$env:ZIP.sha256" --title "Neap $($env:TAG.TrimStart('v'))" --notes-file notes.md

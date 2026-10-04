@@ -74,7 +74,25 @@ No .NET runtime, no Windows App SDK, no driver — it publishes self-contained,
 which costs about 260 MB on disk and saves a stranger from installing
 anything.
 
-There are no downloadable builds yet. To build one:
+### Installing
+
+1. Download `Neap-<version>-win-x64.zip` from the
+   [latest release](https://github.com/lykosapps/Neap/releases/latest).
+2. Unzip it into a folder you will keep, such as one under Documents.
+3. Run `Neap.exe`.
+
+The download is not signed, so the first time you run it Windows may say it
+protected your PC. Choose **More info**, then **Run anyway**. Each release
+lists a SHA-256 checksum beside the zip, and is built on GitHub from the
+tagged commit, so anyone can check what they are running.
+
+To update, quit Neap from the notification area, replace the folder's
+contents with the new release, and run it again. Settings are kept. To
+remove it, turn off **Start with Windows** if it is on, quit, and delete
+the folder, along with `%LOCALAPPDATA%\Neap`, where its settings and log
+are kept.
+
+### Building it yourself
 
 ```
 cd src/Neap.App
@@ -170,7 +188,7 @@ Working and in daily use, but young, and honest about which is which:
 - Everything above has been exercised on real hardware, on **one** Stealth
   Pro II (Xbox edition) on **one** Windows machine. Other editions share the
   protocol and the product ids are known, but none has been tested.
-- There is no installer and no signed binary. You build it yourself.
+- There is no installer and the download is not signed.
 - It was written with AI assistance.
 
 ## Licence
