@@ -10,6 +10,9 @@ app, written to replace Swarm II.
 new headset's settings get mapped, so support for them could follow with
 help from someone who owns one.
 
+Tested on the Xbox edition. The PlayStation edition should work but hasn't
+been tried, so reports are welcome.
+
 Not affiliated with or endorsed by Turtle Beach. Turtle Beach, Stealth Pro II
 and Swarm II are trademarks of Turtle Beach Corporation.
 
