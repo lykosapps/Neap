@@ -26,7 +26,8 @@ and date.
 - **A game and chat mix with nothing to install.** Pick the apps that
   carry chat, such as Discord or Teams, and Neap turns them against
   everything else. No virtual audio cable, driver or reboot. Swarm II's mix
-  relies on the Waves driver, which is broken on the Xbox edition. Move the
+  relies on the Waves driver, and is not officially supported on the Xbox
+  edition: it works for some people, but most don't get it. Move the
   mix with the headset's chat wheel, the dial on Home, or keyboard shortcuts
   that work inside games.
 - **More than one chat app at once.**

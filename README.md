@@ -135,8 +135,8 @@ rather than appearing broken.
 
 **3. Do not install the Waves audio driver.** Swarm does not add it unless
 you click "Install Waves Audio Driver" in its driver menu, so simply never
-click it. This app's mix does not use it, and on the Xbox edition Waves is
-the component whose chat mix is broken in the first place.
+click it. This app's mix does not use it, and on the Xbox edition Swarm's
+mix through Waves is not officially supported anyway.
 
 If an earlier setup already added it, it appears in Windows Settings → Apps
 as **"Turtle Beach Audio Driver" by Waves Audio Ltd**. Removing it is
