@@ -3,7 +3,6 @@
     x:Class="Neap.App.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:c="using:Neap.App.Controls"
     xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
     <ScrollViewer
@@ -15,21 +14,92 @@
 
                 <TextBlock x:Uid="Settings_Title" Style="{StaticResource PageTitleStyle}" />
 
-                <TextBlock x:Uid="Settings_RunningHeading" Style="{StaticResource SectionHeaderStyle}" />
-                <TextBlock x:Uid="Settings_RunningNote" Style="{StaticResource SectionNoteStyle}" />
-                <StackPanel Spacing="4">
+                <!--
+                    Neap itself, and whether it is up to date, first: the
+                    update banner and the notice by the clock both lead
+                    here, so what they promise is the first thing seen. On
+                    the same lit panel as the headset's controls.
+                -->
+                <Border Style="{StaticResource QuickCardStyle}">
+                    <Grid
+                        x:Name="NeapCard"
+                        RowSpacing="16"
+                        SizeChanged="OnCardSizeChanged">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Image
+                                Width="56"
+                                Height="56"
+                                VerticalAlignment="Top"
+                                AutomationProperties.AccessibilityView="Raw"
+                                Source="ms-appx:///Assets/logo.png" />
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <TextBlock
+                                        x:Name="AppName"
+                                        VerticalAlignment="Bottom"
+                                        Style="{StaticResource SubtitleTextBlockStyle}" />
+                                    <TextBlock
+                                        x:Name="AppVersion"
+                                        Margin="0,0,0,4"
+                                        VerticalAlignment="Bottom"
+                                        Style="{StaticResource NeapLabelStyle}"
+                                        Visibility="Collapsed" />
+                                </StackPanel>
+
+                                <!--  Said when it changes, not as a download's percentage ticks over.  -->
+                                <TextBlock
+                                    x:Name="UpdateStatus"
+                                    Margin="0,6,0,0"
+                                    AutomationProperties.LiveSetting="Polite"
+                                    Style="{StaticResource SecondaryBodyTextStyle}"
+                                    TextWrapping="Wrap"
+                                    Visibility="Collapsed" />
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel
+                            x:Name="UpdateActions"
+                            Grid.Row="1"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <Button
+                                x:Name="WhatsNew"
+                                x:Uid="Settings_UpdateNotes"
+                                Visibility="Collapsed" />
+                            <Button x:Name="DownloadPage" Visibility="Collapsed" />
+                            <Button x:Name="UpdateButton" />
+                        </StackPanel>
+
+                    </Grid>
+                </Border>
+
+                <StackPanel Margin="0,4,0,0" Spacing="4">
+                    <tk:SettingsCard x:Uid="Settings_CheckForUpdates">
+                        <tk:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE895;" />
+                        </tk:SettingsCard.HeaderIcon>
+                        <ToggleSwitch x:Name="CheckForUpdates" />
+                    </tk:SettingsCard>
                     <tk:SettingsCard x:Uid="Settings_StartWithWindows">
                         <tk:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE7E8;" />
                         </tk:SettingsCard.HeaderIcon>
                         <ToggleSwitch x:Name="StartWithWindows" />
                     </tk:SettingsCard>
-
                 </StackPanel>
-
-                <TextBlock x:Uid="Profiles_Heading" Style="{StaticResource SectionHeaderStyle}" />
-                <TextBlock x:Uid="Profiles_Note" Style="{StaticResource SectionNoteStyle}" />
-                <c:ProfilesSettings />
 
                 <TextBlock x:Uid="Settings_DiagnosticsHeading" Style="{StaticResource SectionHeaderStyle}" />
                 <StackPanel Spacing="4">
@@ -61,55 +131,14 @@
                     </tk:SettingsCard>
                 </StackPanel>
 
-                <TextBlock x:Uid="Settings_AboutHeading" Style="{StaticResource SectionHeaderStyle}" />
-                <!--  Neap itself, on the same lit panel as the headset's controls.  -->
-                <Border Style="{StaticResource QuickCardStyle}">
-                    <Grid ColumnSpacing="20">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Image
-                            Width="56"
-                            Height="56"
-                            VerticalAlignment="Top"
-                            AutomationProperties.AccessibilityView="Raw"
-                            Source="ms-appx:///Assets/logo.png" />
-                        <StackPanel Grid.Column="1" Spacing="4">
-                            <TextBlock x:Name="AppName" Style="{StaticResource SubtitleTextBlockStyle}" />
-                            <TextBlock
-                                x:Name="AppVersion"
-                                Style="{StaticResource NeapLabelStyle}"
-                                Visibility="Collapsed" />
-                            <TextBlock
-                                x:Uid="Settings_AboutNote"
-                                Margin="0,4,0,0"
-                                Style="{StaticResource SecondaryBodyTextStyle}"
-                                TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Grid>
-                </Border>
-                <StackPanel Margin="0,4,0,0" Spacing="4">
-                    <tk:SettingsCard x:Name="Updates" x:Uid="Settings_Updates">
-                        <tk:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE895;" />
-                        </tk:SettingsCard.HeaderIcon>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button
-                                x:Name="WhatsNew"
-                                x:Uid="Settings_UpdateNotes"
-                                Visibility="Collapsed" />
-                            <Button x:Name="DownloadPage" Visibility="Collapsed" />
-                            <Button x:Name="UpdateButton" />
-                        </StackPanel>
-                    </tk:SettingsCard>
-                    <tk:SettingsCard x:Uid="Settings_CheckForUpdates">
-                        <tk:SettingsCard.HeaderIcon>
-                            <FontIcon Glyph="&#xE7BA;" />
-                        </tk:SettingsCard.HeaderIcon>
-                        <ToggleSwitch x:Name="CheckForUpdates" />
-                    </tk:SettingsCard>
-                </StackPanel>
+                <!--  What has to be said and nothing a card could say instead, last and quiet.  -->
+                <TextBlock
+                    x:Uid="Settings_Legal"
+                    MaxWidth="760"
+                    Margin="0,24,0,0"
+                    HorizontalAlignment="Left"
+                    Style="{StaticResource SecondaryCaptionTextStyle}"
+                    TextWrapping="Wrap" />
 
             </StackPanel>
         </Grid>

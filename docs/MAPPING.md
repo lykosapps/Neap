@@ -20,7 +20,7 @@ Recording only listens. It doesn't change anything on your headset.
 ## Record
 
 1. Open Neap and go to **Settings**.
-2. Under **Diagnostics**, next to **Record headset activity**, choose
+2. Under **Problems and other headsets**, next to **Record headset activity**, choose
    **Start**.
 3. Do everything in the list below, in order. After each one, **count
    slowly to five** before doing the next. You don't need to write anything

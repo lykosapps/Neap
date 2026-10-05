@@ -27,8 +27,8 @@ From this version on, Neap updates itself.
 
 ### Help support another headset
 
-- **Record it in Neap.** In Settings, under Diagnostics, choose Start next
-  to Record headset activity. The ? button beside it lists the steps: a
+- **Record it in Neap.** In Settings, under Problems and other headsets,
+  choose Start next to Record headset activity. The ? button beside it lists the steps: a
   few buttons and dials to work through, counting to five between each.
 - **See what Neap found.** Before you send it, Neap shows which of its
   functions it found on your headset, which it didn't, and which changed
@@ -48,9 +48,8 @@ From this version on, Neap updates itself.
   Settings. Update and restart downloads the new version, checks it is the
   published file, puts it in place and starts it again. Your settings and
   profiles are kept.
-- **Read what's new first.** What's new, in the banner and in Settings
-  under About, shows the release's notes in Neap, without opening a web
-  page.
+- **Read what's new first.** What's new, in the banner and at the top of
+  Settings, shows the release's notes in Neap, without opening a web page.
 - **Put the banner away.** Remind me tomorrow hides it for a day. Skip this
   version hides it until a newer version is out. Updating is still there
   in Settings either way.
@@ -61,6 +60,17 @@ From this version on, Neap updates itself.
 - **Where Neap can't update itself,** such as a folder you can't write to
   without being an administrator, Settings says so and links to the
   download.
+
+### Profiles and Settings
+
+- **Profiles have their own page.** Between Controls and Device in the
+  list on the left: save the headset's settings as a new profile, rename or
+  delete one, choose which apps bring it on, and pick the default. Switching
+  is still in the bar at the top of every window.
+- **Settings is tidier.** Neap's version and whether it is up to date come
+  first, with What's new and Update and restart beside them. Then Start with
+  Windows, then Problems and other headsets, which was called Diagnostics.
+- **The update banner is at the very top,** above the profile selector.
 
 ### Reporting a problem
 

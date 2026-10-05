@@ -36,6 +36,12 @@
   <data name="Main_NavControls.AccessKey" xml:space="preserve">
     <value>C</value>
   </data>
+  <data name="Main_NavProfiles.Content" xml:space="preserve">
+    <value>Profiles</value>
+  </data>
+  <data name="Main_NavProfiles.AccessKey" xml:space="preserve">
+    <value>P</value>
+  </data>
   <data name="Main_NavDevice.Content" xml:space="preserve">
     <value>Device</value>
   </data>
@@ -414,20 +420,11 @@
   <data name="Settings_Title.Text" xml:space="preserve">
     <value>Settings</value>
   </data>
-  <data name="Settings_RunningHeading.Text" xml:space="preserve">
-    <value>Running</value>
-  </data>
-  <data name="Settings_RunningNote.Text" xml:space="preserve">
-    <value>Closing the window keeps Neap running in the notification area, so the chat wheel keeps working. Quit from there.</value>
-  </data>
   <data name="Settings_StartWithWindows.Description" xml:space="preserve">
     <value>Starts in the notification area when you sign in.</value>
   </data>
   <data name="Settings_StartWithWindows.Header" xml:space="preserve">
     <value>Start with Windows</value>
-  </data>
-  <data name="Settings_AboutHeading.Text" xml:space="preserve">
-    <value>About</value>
   </data>
   <data name="State_Connected" xml:space="preserve">
     <value>Headset connected</value>
@@ -702,14 +699,14 @@
   <data name="Profile_CouldNotSaveTitle" xml:space="preserve">
     <value>Couldn't save the profile</value>
   </data>
-  <data name="Profiles_Heading.Text" xml:space="preserve">
+  <data name="Profiles_Title.Text" xml:space="preserve">
     <value>Profiles</value>
   </data>
   <data name="Profiles_Note.Text" xml:space="preserve">
-    <value>Switch profiles from the bar at the top of the window. A profile with apps comes on when one of them starts, and the default comes back when it closes.</value>
+    <value>Switch profiles from the bar at the top of the window. A profile with apps comes on when one of them starts, and the default comes back when the last of them closes.</value>
   </data>
   <data name="Profiles_Empty" xml:space="preserve">
-    <value>No profiles saved yet. Set the headset up the way you want, then save it as a profile from the bar at the top.</value>
+    <value>No profiles yet. Set the headset up the way you want, then choose New profile.</value>
   </data>
   <data name="Profile_Delete" xml:space="preserve">
     <value>Delete</value>
@@ -1083,14 +1080,11 @@
     <value>Empty</value>
     <comment>No battery in the Charging Dock's slot.</comment>
   </data>
-  <data name="Settings_AboutNote.Text" xml:space="preserve">
-    <value>A replacement for Swarm II, for the Stealth Pro II only. It has not been tested with any other Turtle Beach headset. Free software under the GNU GPL, version 3 or later, with no warranty. Not affiliated with or endorsed by Turtle Beach.</value>
+  <data name="Settings_Legal.Text" xml:space="preserve">
+    <value>Free software under the GNU GPL, version 3 or later, with no warranty. Not affiliated with or endorsed by Turtle Beach.</value>
   </data>
   <data name="Settings_AboutVersion" xml:space="preserve">
     <value>Version {0}</value>
-  </data>
-  <data name="Settings_Updates.Header" xml:space="preserve">
-    <value>Updates</value>
   </data>
   <data name="Settings_UpdateCheck" xml:space="preserve">
     <value>Check now</value>
@@ -1108,8 +1102,7 @@
     <value>Checking…</value>
   </data>
   <data name="Settings_UpdateUpToDate" xml:space="preserve">
-    <value>{0} is up to date.</value>
-    <comment>{0} is the app's name.</comment>
+    <value>You have the latest version.</value>
   </data>
   <data name="Settings_UpdateCheckFailed" xml:space="preserve">
     <value>Couldn't check for updates.</value>
@@ -1161,7 +1154,7 @@
     <value>Update from Settings.</value>
   </data>
   <data name="Settings_DiagnosticsHeading.Text" xml:space="preserve">
-    <value>Diagnostics</value>
+    <value>Problems and other headsets</value>
   </data>
   <data name="Settings_Record.Header" xml:space="preserve">
     <value>Record headset activity</value>
@@ -1189,6 +1182,9 @@
   <data name="Settings_RecordFailed" xml:space="preserve">
     <value>The recording couldn't be saved: {0}</value>
     <comment>{0} is Windows' reason, such as a full disk.</comment>
+  </data>
+  <data name="Settings_MapHeadset.Description" xml:space="preserve">
+    <value>Neap has only been tested with the Stealth Pro II.</value>
   </data>
   <data name="Settings_MapHeadset.Header" xml:space="preserve">
     <value>Help support another headset</value>

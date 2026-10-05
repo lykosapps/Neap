@@ -1,5 +1,42 @@
 # Decisions
 
+## 2026-10-05 — Profiles get a page of their own, and Settings is reordered
+
+- **Options:** leave Profiles as a section of Settings; give it a rail item;
+  give it a rail item and a way to save a profile from its own page.
+- **Chosen:** a **Profiles** rail item between Controls and Device, with
+  **New profile** at the top of its page, then the default and every saved
+  profile. Switching stays in the profile bar above every page.
+- **Why:** with its list, default choice and per-profile app picker, the
+  profiles section had become most of the Settings page, and someone looking
+  after their profiles would not look under app housekeeping. A page that
+  can list profiles but not add one would send people back to the bar, so
+  New profile is on the page too, using the same dialog as the bar's menu.
+  It is the same action in two places, not a second behaviour.
+- **Settings, reordered:** Neap's own version and update status are first,
+  with What's new and Update and restart beside them. The update banner and
+  the notice by the clock both lead to Settings, so what they promise is
+  the first thing there. Then the two switches, start with Windows and
+  check for updates, then Problems and other headsets, then the licence
+  line. "Updates" no longer sits under About below a paragraph of licence
+  text.
+- **Words cut:** the note under Running said closing the window keeps Neap
+  running; the notice shown the first time the window is closed already says
+  so, and the Start with Windows line says it starts in the notification
+  area. "Diagnostics" became "Problems and other headsets", since the first
+  word is the developers'. That Neap has only been tested with the Stealth
+  Pro II moved from the licence paragraph to beside the invitation to help
+  support another headset, which is where it matters.
+- **The banner moved above the profile bar,** to the very top under the
+  title bar, as the owner asked: it is about the app, not about the
+  headset's setup, so it goes above the profile bar rather than between it
+  and the page. The cost is that the profile selector drops one row while a
+  banner shows, where before the page did.
+- **The rail is seven long,** the most it should be. The next thing without a
+  home needs a closer look at what is in the rail before it gets one.
+- **Revisit if:** the Profiles page stays nearly empty for most people, which
+  would say it should have stayed a section.
+
 ## 2026-10-05 — Neap updates itself from GitHub
 
 - **Options:** keep updating by hand (download, quit, unzip over the

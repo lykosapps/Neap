@@ -389,6 +389,7 @@ public sealed partial class MainWindow : Window
         "audio" => typeof(AudioPage),
         "mic" => typeof(MicrophonePage),
         "controls" => typeof(ControlsPage),
+        "profiles" => typeof(ProfilesPage),
         "device" => typeof(DevicePage),
         "settings" => typeof(SettingsPage),
         _ => typeof(HomePage),

@@ -22,7 +22,7 @@ public static class UpdateCopy
         return (forBanner ? updates.Shown : updates.Stage) switch
         {
             UpdateStage.Checking => Strings.Get("Settings_UpdateChecking"),
-            UpdateStage.UpToDate => Strings.Format("Settings_UpdateUpToDate", AppInfo.Name),
+            UpdateStage.UpToDate => Strings.Get("Settings_UpdateUpToDate"),
             UpdateStage.CheckFailed => Strings.Get("Settings_UpdateCheckFailed"),
             UpdateStage.Available => Strings.Format("Settings_UpdateAvailable", version),
             UpdateStage.CannotUpdateHere => Strings.Format("Settings_UpdateCannotHere", version, AppInfo.Name),

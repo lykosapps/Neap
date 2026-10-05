@@ -147,7 +147,7 @@ public sealed class ProfileBar : UserControl
         _new.Click += async (_, _) =>
         {
             _flyout.Hide();
-            await SaveCurrentAsNew();
+            await ProfileDialogs.SaveCurrentAsNew(XamlRoot);
         };
 
         _list.SelectionChanged += async (_, _) =>
@@ -192,7 +192,7 @@ public sealed class ProfileBar : UserControl
             _busy = true;
             Paint();
             try { await AppServices.Profiles.Discard(); }
-            catch (HeadsetUnavailableException ex) { await Complain(Strings.Get("Profile_CouldNotSwitchTitle"), ex.Message); }
+            catch (HeadsetUnavailableException ex) { await ProfileDialogs.Complain(XamlRoot, Strings.Get("Profile_CouldNotSwitchTitle"), ex.Message); }
             finally
             {
                 _busy = false;
@@ -343,7 +343,7 @@ public sealed class ProfileBar : UserControl
         try { missing = await AppServices.Profiles.Apply(chosen); }
         catch (HeadsetUnavailableException ex)
         {
-            await Complain(Strings.Get("Profile_CouldNotSwitchTitle"), ex.Message);
+            await ProfileDialogs.Complain(XamlRoot, Strings.Get("Profile_CouldNotSwitchTitle"), ex.Message);
         }
         finally
         {
@@ -351,23 +351,7 @@ public sealed class ProfileBar : UserControl
             Paint();
         }
         if (missing.Count > 0)
-            await Complain(Strings.Get("Profile_PartiallyAppliedTitle"),
+            await ProfileDialogs.Complain(XamlRoot, Strings.Get("Profile_PartiallyAppliedTitle"),
                 Strings.Format("Profile_MissingPresets", Strings.List(missing)));
     }
-
-    private async Task SaveCurrentAsNew()
-    {
-        string name = await ProfileNaming.Ask(XamlRoot, Strings.Get("Profile_NewTitle"), "", excludingId: null);
-        if (name.Length == 0) return;
-        if (AppServices.Profiles.SaveNew(name) is { } trouble)
-            await Complain(Strings.Get("Profile_CouldNotSaveTitle"), trouble);
-    }
-
-    private async Task Complain(string title, string message) => await new NeapDialog
-    {
-        XamlRoot = XamlRoot,
-        Title = title,
-        Content = message,
-        CloseButtonText = Strings.Get("Dialog_OK"),
-    }.ShowAsync();
 }

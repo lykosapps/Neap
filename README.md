@@ -108,8 +108,8 @@ your PC. Choose **More info**, then **Run anyway**.
 It needs nothing else: no .NET runtime, no Windows App SDK, no driver. That
 makes it about 260 MB on disk.
 
-**To update,** choose **Update and restart** in Neap's settings, under
-About, when a newer version is out. Neap checks once a day and says so by
+**To update,** choose **Update and restart** at the top of Neap's settings
+when a newer version is out. Neap checks once a day and says so by
 the clock. Settings are kept. To update by hand instead, or from 0.1.0,
 close Neap from the notification area, replace the contents of its folder
 with the new release, and run it again.
@@ -144,7 +144,7 @@ Working and in daily use, but young. Everything has been exercised on one
 headset on one Windows machine. There is no installer yet, and it was
 written with AI assistance.
 
-Found a problem? In **Settings → Diagnostics**, record while it happens,
+Found a problem? In **Settings → Problems and other headsets**, record while it happens,
 then choose **Report on GitHub**. You can also
 [open an issue](https://github.com/lykosapps/Neap/issues) directly. Have
 another Turtle Beach headset? [Help support it](docs/MAPPING.md).
