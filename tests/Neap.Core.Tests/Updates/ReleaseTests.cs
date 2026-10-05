@@ -1,0 +1,119 @@
+using Neap.Core.Updates;
+
+namespace Neap.Core.Tests.Updates;
+
+public class ReleaseTests
+{
+    private const string Hash = "8f14e45fceea167a5a36dedd4bea2543a1b3c9d5e8f7a6b5c4d3e2f1a0b9c8d7";
+
+    /// <summary>GitHub's description of a release, cut to the fields Neap reads, as the workflow publishes one.</summary>
+    private static string Json(
+        string tag = "v0.3.0",
+        bool draft = false,
+        bool prerelease = false,
+        string host = "github.com",
+        string? zipName = null)
+    {
+        string version = tag.TrimStart('v');
+        zipName ??= $"Neap-{version}-win-x64.zip";
+        string download = $"https://{host}/lykosapps/Neap/releases/download/{tag}";
+        return $$"""
+            {
+              "tag_name": "{{tag}}",
+              "html_url": "https://github.com/lykosapps/Neap/releases/tag/{{tag}}",
+              "draft": {{(draft ? "true" : "false")}},
+              "prerelease": {{(prerelease ? "true" : "false")}},
+              "assets": [
+                { "name": "{{zipName}}", "browser_download_url": "{{download}}/{{zipName}}" },
+                { "name": "{{zipName}}.sha256", "browser_download_url": "{{download}}/{{zipName}}.sha256" }
+              ]
+            }
+            """;
+    }
+
+    [Fact]
+    public void AReleaseAsTheWorkflowPublishesItIsRead()
+    {
+        var release = Release.Parse(Json());
+
+        Assert.Equal(new Version(0, 3, 0), release.Version);
+        Assert.Equal("Neap-0.3.0-win-x64.zip", release.ZipName);
+        Assert.EndsWith("/v0.3.0/Neap-0.3.0-win-x64.zip", release.Zip.AbsoluteUri, StringComparison.Ordinal);
+        Assert.EndsWith("/v0.3.0/Neap-0.3.0-win-x64.zip.sha256", release.Hash.AbsoluteUri, StringComparison.Ordinal);
+        Assert.Equal("https://github.com/lykosapps/Neap/releases/tag/v0.3.0", release.Page.AbsoluteUri);
+    }
+
+    [Theory]
+    [InlineData("0.2.0", true)]
+    [InlineData("0.2.9", true)]
+    [InlineData("0.3.0", false)]
+    [InlineData("0.3.1", false)]
+    [InlineData("1.0.0", false)]
+    public void OnlyANewerVersionIsNewer(string running, bool newer)
+    {
+        Assert.Equal(newer, Release.Parse(Json(tag: "v0.3.0")).IsNewerThan(Version.Parse(running)));
+    }
+
+    [Fact]
+    public void TheBuildsFourthPartDoesNotMakeItOlder()
+    {
+        // The running app's version comes from its assembly, as 0.3.0.0.
+        Assert.False(Release.Parse(Json(tag: "v0.3.0")).IsNewerThan(new Version(0, 3, 0, 0)));
+    }
+
+    [Theory]
+    [InlineData("0.3")]
+    [InlineData("v0.3")]
+    [InlineData("v0.3.0-beta")]
+    [InlineData("release-1")]
+    public void ATagThatIsNotAVersionIsRefused(string tag)
+    {
+        Assert.Throws<FormatException>(() => Release.Parse(Json(tag: tag)));
+    }
+
+    [Fact]
+    public void ADraftOrAPreReleaseIsRefused()
+    {
+        Assert.Throws<FormatException>(() => Release.Parse(Json(draft: true)));
+        Assert.Throws<FormatException>(() => Release.Parse(Json(prerelease: true)));
+    }
+
+    [Fact]
+    public void ADownloadFromAnywhereButGitHubIsRefused()
+    {
+        Assert.Throws<FormatException>(() => Release.Parse(Json(host: "github.com.example.net")));
+    }
+
+    [Fact]
+    public void AReleaseWithoutTheZipForItsVersionIsRefused()
+    {
+        Assert.Throws<FormatException>(() => Release.Parse(Json(tag: "v0.3.0", zipName: "Neap-0.2.0-win-x64.zip")));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("not json")]
+    [InlineData("""{ "message": "API rate limit exceeded" }""")]
+    [InlineData("""{ "tag_name": 3, "draft": false, "prerelease": false }""")]
+    public void AnAnswerThatIsNotAReleaseIsRefused(string json)
+    {
+        Assert.Throws<FormatException>(() => Release.Parse(json));
+    }
+
+    [Fact]
+    public void TheHashFileGivesTheHashInLowerCase()
+    {
+        var release = Release.Parse(Json());
+        Assert.Equal(Hash, release.HashFrom($"{Hash.ToUpperInvariant()}  Neap-0.3.0-win-x64.zip\r\n"));
+    }
+
+    [Theory]
+    [InlineData(Hash + "  Neap-0.2.0-win-x64.zip")]
+    [InlineData("abc  Neap-0.3.0-win-x64.zip")]
+    [InlineData(Hash)]
+    [InlineData("")]
+    public void AHashFileForAnythingElseIsRefused(string file)
+    {
+        Assert.Throws<FormatException>(() => Release.Parse(Json()).HashFrom(file));
+    }
+}
