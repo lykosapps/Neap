@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using Microsoft.Win32.SafeHandles;
 using Neap.Core.Hid;
 
@@ -40,6 +41,27 @@ internal static class RawListener
     private const uint OpenExisting = 3;
     private const uint FlagOverlapped = 0x40000000;
 
+    /// <summary>Opens a device to read what it pushes, or says why it could not.</summary>
+    private static SafeFileHandle? OpenToListen(string path, out string? trouble)
+    {
+        trouble = null;
+        if (OperatingSystem.IsWindows())
+        {
+            var handle = CreateFileW(path, GenericRead, ShareReadWrite, IntPtr.Zero, OpenExisting, FlagOverlapped, IntPtr.Zero);
+            if (!handle.IsInvalid) return handle;
+            trouble = $"error {Marshal.GetLastWin32Error()}";
+            handle.Dispose();
+            return null;
+        }
+        try { return File.OpenHandle(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, FileOptions.Asynchronous); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            trouble = ex.Message;
+            return null;
+        }
+    }
+
+    [SupportedOSPlatform("windows")]
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern SafeFileHandle CreateFileW(
         string name, uint access, uint share, IntPtr security,
@@ -83,12 +105,10 @@ internal static class RawListener
     /// <summary>Prints what the device sends unasked, by reading on the handle.</summary>
     private static void Listen(HidDeviceInfo device, Printer printer, CancellationToken stop)
     {
-        using var handle = CreateFileW(device.Path, GenericRead, ShareReadWrite,
-            IntPtr.Zero, OpenExisting, FlagOverlapped, IntPtr.Zero);
-        if (handle.IsInvalid)
+        using var handle = OpenToListen(device.Path, out string? trouble);
+        if (handle is null)
         {
-            printer.Note("pushed", "could not open for listening (error "
-                + Marshal.GetLastWin32Error() + ") — this path is blind here, not quiet");
+            printer.Note("pushed", $"could not open for listening ({trouble}) — this path is blind here, not quiet");
             return;
         }
 
@@ -114,8 +134,8 @@ internal static class RawListener
     /// <summary>Prints what the device answers when asked with GET_REPORT, as the app does.</summary>
     private static void Ask(HidDeviceInfo device, Printer printer, CancellationToken stop)
     {
-        HidTransport transport;
-        try { transport = new HidTransport(device.Path); }
+        IHidTransport transport;
+        try { transport = SystemDevices.Instance.Open(device); }
         catch (Exception ex)
         {
             printer.Note("asked", "could not open (" + ex.Message + ")");

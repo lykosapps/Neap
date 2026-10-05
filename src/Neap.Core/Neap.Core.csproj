@@ -5,6 +5,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Neap.Core.Tests" />
+    <InternalsVisibleTo Include="Neap.Probe" />
   </ItemGroup>
 
   <ItemGroup>
