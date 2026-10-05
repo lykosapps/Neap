@@ -101,6 +101,13 @@ public sealed record HeadsetStatus(
     /// battery reading is real.
     /// </remarks>
     public bool SwitchedOff => Link == Link.Quiet && Route == Route.DirectUsb;
+
+    /// <summary>The state in one line for a record, such as "Connected via Charging Dock, no sound".</summary>
+    /// <remarks>The detail is left out: it is wording, and changes without the state changing.</remarks>
+    public string Summary => Link
+        + (Adapter.Length > 0 ? $" via {Adapter}" : "")
+        + (ControlVia.Length > 0 ? $", settings via {ControlVia}" : "")
+        + (NoSound ? ", no sound" : "");
 }
 
 /// <summary>The sentences a status carries. They belong to the interface, not here.</summary>

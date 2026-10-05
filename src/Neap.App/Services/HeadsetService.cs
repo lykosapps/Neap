@@ -852,10 +852,7 @@ public sealed class HeadsetService : IDisposable
         if (was.Link != next.Link || was.Route != next.Route || was.Adapter != next.Adapter
             || was.Product != next.Product || was.ControlVia != next.ControlVia
             || was.NoSound != next.NoSound)
-            AppLog.Write("headset: " + next.Link
-                + (next.Adapter.Length > 0 ? $" via {next.Adapter}" : "")
-                + (next.ControlVia.Length > 0 ? $", settings via {next.ControlVia}" : "")
-                + (next.NoSound ? ", no sound" : ""));
+            AppLog.Write("headset: " + next.Summary);
 
         _status = next;
         _ui.TryEnqueue(() => StatusChanged?.Invoke(next));
