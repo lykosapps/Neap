@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>The app's own name and version, from the build, so they are set in one place.</summary>
 public static class AppInfo

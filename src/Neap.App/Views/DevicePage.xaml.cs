@@ -1,7 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Neap.App.Services;
 using Neap.Core.Protocol;
 using Neap.Core.Settings;
 
@@ -12,8 +11,8 @@ public sealed partial class DevicePage : Page
     public DevicePage()
     {
         InitializeComponent();
-        KeepRing.IsOn = AppServices.Ring.On;
-        KeepRing.Toggled += (_, _) => AppServices.Ring.On = KeepRing.IsOn;
+        KeepRing.IsOn = AppServices.Ring.KeepPurple;
+        KeepRing.Toggled += (_, _) => AppServices.Ring.KeepPurple = KeepRing.IsOn;
         Loaded += (_, _) =>
         {
             AppServices.Headset.Changed += PaintRaw;

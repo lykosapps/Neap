@@ -1,8 +1,7 @@
 using System.Globalization;
-using Microsoft.UI.Dispatching;
 using Neap.Core.Hid;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// Watches which of the headset's USB devices are plugged in, for a page
@@ -23,19 +22,15 @@ public sealed class PluggedWatch
 {
     private static readonly TimeSpan Interval = TimeSpan.FromSeconds(3);
 
-    private readonly DispatcherQueueTimer _timer;
+    private readonly IDisposable _timer;
     private readonly Action _changed;
     private bool _failing;
 
-    /// <param name="ui">The page's dispatcher; <paramref name="changed"/> is raised on it.</param>
-    /// <param name="changed">Called after the first look, and whenever what is plugged in changes.</param>
-    public PluggedWatch(DispatcherQueue ui, Action changed)
+    /// <param name="changed">Called on the UI thread after the first look, and whenever what is plugged in changes.</param>
+    public PluggedWatch(Action changed)
     {
         _changed = changed;
-        _timer = ui.CreateTimer();
-        _timer.Interval = Interval;
-        _timer.Tick += async (_, _) => await Look();
-        _timer.Start();
+        _timer = Platform.Current.Ui.Every(Interval, () => _ = Look());
         _ = Look();
     }
 
@@ -67,5 +62,5 @@ public sealed class PluggedWatch
         _changed();
     }
 
-    public void Stop() => _timer.Stop();
+    public void Stop() => _timer.Dispose();
 }

@@ -90,6 +90,22 @@ internal sealed class WindowsPlayback : IPlayback
 
         public string Program => Names.Of(session.GetProcessID);
 
+        /// <remarks>The description is read from the program's file, not from the running program; see <see cref="Programs"/>.</remarks>
+        public string Display
+        {
+            get
+            {
+                string name = Program;
+                if (Programs.PathOf(session.GetProcessID) is not { } path) return name;
+                try
+                {
+                    return FileVersionInfo.GetVersionInfo(path).FileDescription is { } described
+                           && !string.IsNullOrWhiteSpace(described) ? described : name;
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return name; }
+            }
+        }
+
         public bool Ours => session.GetProcessID == Environment.ProcessId;
 
         public bool Playing => session.State == AudioSessionState.AudioSessionStateActive;

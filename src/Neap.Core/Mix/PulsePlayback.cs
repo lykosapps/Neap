@@ -73,6 +73,8 @@ internal sealed class PulsePlayback : IPlayback
 
         public string Program => program;
 
+        public string Display => streams.Select(s => s.Name).FirstOrDefault(n => n.Length > 0) ?? program;
+
         public bool Ours => streams.Exists(s => s.ProcessId == Environment.ProcessId);
 
         public bool Playing => streams.Exists(s => s.Playing);

@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
-using Neap.App.Services;
 using Neap.Core.Presets;
 using Windows.Foundation;
 using Path = Microsoft.UI.Xaml.Shapes.Path;

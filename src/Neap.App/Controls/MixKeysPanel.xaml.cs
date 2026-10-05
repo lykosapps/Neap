@@ -1,7 +1,6 @@
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Neap.App.Services;
 using Windows.System;
 
 namespace Neap.App.Controls;

@@ -5,7 +5,7 @@ using Neap.Core.Audio;
 using Neap.Core.Presets;
 using Neap.Core.Settings;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// The handful of things the app has to remember between launches.

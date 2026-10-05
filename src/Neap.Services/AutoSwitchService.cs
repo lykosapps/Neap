@@ -1,8 +1,7 @@
 using System.Diagnostics;
-using Microsoft.UI.Dispatching;
 using Neap.Core.Profiles;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// Switches profiles as the apps assigned to them start and close.
@@ -35,7 +34,7 @@ public sealed class AutoSwitchService : IDisposable
     private readonly HeadsetService _headset;
     private readonly Func<IReadOnlyCollection<string>> _programs;
     private readonly AutoSwitch _rule = new();
-    private readonly DispatcherQueueTimer _timer;
+    private readonly IDisposable _timer;
     private string? _waiting;
     private bool _looking;
     private bool _applying;
@@ -52,10 +51,7 @@ public sealed class AutoSwitchService : IDisposable
         _profiles.Changed += OnProfilesChanged;
         _profiles.Chosen += OnChosen;
         _headset.StatusChanged += OnStatus;
-        _timer = DispatcherQueue.GetForCurrentThread().CreateTimer();
-        _timer.Interval = Every;
-        _timer.Tick += async (_, _) => await Look();
-        _timer.Start();
+        _timer = Platform.Current.Ui.Every(Every, () => _ = Look());
     }
 
     /// <summary>A switch started waiting, or stopped.</summary>
@@ -163,7 +159,7 @@ public sealed class AutoSwitchService : IDisposable
 
     public void Dispose()
     {
-        _timer.Stop();
+        _timer.Dispose();
         _profiles.Changed -= OnProfilesChanged;
         _profiles.Chosen -= OnChosen;
         _headset.StatusChanged -= OnStatus;

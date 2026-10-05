@@ -40,6 +40,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Neap.Core\Neap.Core.csproj" />
+    <ProjectReference Include="..\Neap.Services\Neap.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Neap.Services" />
   </ItemGroup>
 
   <ItemGroup>

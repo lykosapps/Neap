@@ -1,7 +1,7 @@
 using System.Globalization;
 using Neap.Core.Settings;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// Noise control on the headset: noise cancellation, transparency and off.

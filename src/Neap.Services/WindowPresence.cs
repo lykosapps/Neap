@@ -1,4 +1,4 @@
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>Whether Neap's window is the one in front.</summary>
 /// <remarks>
@@ -14,7 +14,7 @@ public static class WindowPresence
     /// <summary>The window came to the front or went behind. Raised on the UI thread.</summary>
     public static event Action? Changed;
 
-    internal static void Set(bool inFront)
+    public static void Set(bool inFront)
     {
         if (inFront == InFront) return;
         InFront = inFront;

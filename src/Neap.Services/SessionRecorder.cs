@@ -1,14 +1,12 @@
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using Neap.Core;
 using Neap.Core.Audio;
 using Neap.Core.Diagnostics;
 using Neap.Core.Hid;
 using Neap.Core.Protocol;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// Records what the headset and Windows do while a person makes a problem
@@ -160,7 +158,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
     }
 
     private SoundSurvey Survey() =>
-        Pretend.Windows?.Survey() ?? Routing.Survey(Listen, pid => _names.GetOrAdd(pid, Programs.NameOf));
+        Pretend.Windows?.Survey() ?? Platform.Current.Survey(Listen, pid => _names.GetOrAdd(pid, Platform.Current.ProgramName));
 
     /// <summary>What the headset, its transmitters and Windows show now, with whatever could not be read said.</summary>
     private async Task<Snapshot> Snap()
@@ -190,7 +188,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
     /// <summary>Writes the file under a name of its own, in Downloads, or in the pretend folder on a pretend run.</summary>
     private static async Task<string> Save(string text)
     {
-        string folder = Pretend.Active ? AppFolder.Path : Downloads();
+        string folder = Pretend.Active ? AppFolder.Path : Platform.Current.Downloads();
         Directory.CreateDirectory(folder);
         string name = string.Create(CultureInfo.InvariantCulture, $"Neap recording {DateTime.Now:yyyy-MM-dd HH.mm.ss}");
         for (int copy = 1; ; copy++)
@@ -221,22 +219,9 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
     public async Task Report()
     {
         if (Saved is not { } saved || Issue is not { } issue) return;
-        try { await Windows.System.Launcher.LaunchUriAsync(issue); }
+        try { await Platform.Current.Open(issue); }
         catch (Exception ex) { AppLog.Write($"recording: could not open the report form: {ex.Message}"); }
-        try { Process.Start("explorer.exe", $"/select,\"{saved}\""); }
+        try { Platform.Current.Reveal(saved); }
         catch (Exception ex) { AppLog.Write($"recording: could not show {Path.GetFileName(saved)}: {ex.Message}"); }
     }
-
-    /// <summary>The person's Downloads folder, wherever they have moved it.</summary>
-    private static string Downloads()
-    {
-        var id = new Guid("374DE290-123F-4565-9164-39C4925E467B");
-        if (SHGetKnownFolderPath(id, 0, IntPtr.Zero, out string? path) == 0 && !string.IsNullOrEmpty(path)) return path;
-        string fallback = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-        AppLog.Write("recording: Windows did not say where Downloads is, so the usual place is used");
-        return fallback;
-    }
-
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
-    private static extern int SHGetKnownFolderPath(in Guid id, uint flags, IntPtr token, out string? path);
 }

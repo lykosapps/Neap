@@ -12,6 +12,7 @@ public sealed class SessionMixTests : IDisposable
     {
         public string? Id => program;
         public string Program => program;
+        public string Display => program;
         public bool Ours => ours;
         public bool Playing { get; set; } = true;
         public float Volume { get; set; } = volume;

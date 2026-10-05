@@ -5,25 +5,6 @@ using Windows.Media.Audio;
 
 namespace Neap.App.Services;
 
-/// <summary>The spatial formats on offer for the headset and the one on, or why there are none.</summary>
-/// <param name="EndpointId">
-/// Which of the headset's endpoints this is, so a caller can tell a real
-/// transmitter switch from a re-read of the same one; null when unavailable.
-/// </param>
-/// <param name="Unrecognised">
-/// Something is active that is not one of <see cref="SpatialFormat"/>: set
-/// from Sound settings directly, or a format Windows has added since. It is
-/// still a deliberate choice, just not one this shows by name.
-/// </param>
-/// <param name="Offered">Every format this endpoint offers; empty when none could be read.</param>
-/// <param name="Active">The format currently on, or null when none is, or none could be read.</param>
-/// <param name="Trouble">Why nothing could be read, or null when it could.</param>
-public sealed record SpatialPanel(IReadOnlyList<SpatialFormat> Offered, SpatialFormat? Active, string? Trouble,
-    string? EndpointId = null, bool Unrecognised = false)
-{
-    public static SpatialPanel Unavailable(string trouble) => new([], null, trouble);
-}
-
 /// <summary>Windows' spatial sound for the headset, off the UI thread.</summary>
 /// <remarks>
 /// <para>

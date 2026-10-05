@@ -1,7 +1,7 @@
 using System.Globalization;
 using Neap.Core.Presets;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>One equaliser bank as the UI needs it.</summary>
 public sealed class BankState

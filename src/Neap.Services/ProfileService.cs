@@ -1,10 +1,9 @@
-using Microsoft.UI.Dispatching;
 using Neap.Core.Connection;
 using Neap.Core.Presets;
 using Neap.Core.Profiles;
 using Neap.Core.Settings;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// Profiles: switched from the header bar, edited from Settings. Saved on this
@@ -18,28 +17,28 @@ namespace Neap.App.Services;
 /// <see cref="NoiseService"/> so a profile's write is never taken for a press
 /// of the Mode button, the equaliser presets go through
 /// <see cref="PresetService"/> so the baseline it tracks stays right, and
-/// spatial sound goes through <see cref="SpatialAudio"/>, which is Windows'
+/// spatial sound goes through <see cref="ISpatialAudio"/>, which is the system's
 /// setting rather than the headset's.
 /// </para>
 /// <para>
 /// <see cref="Current"/> is read fresh by <see cref="Refresh"/> rather than
-/// kept live from every headset notification: reading it touches Windows for
+/// kept live from every headset notification: reading it touches the system for
 /// the spatial format, which is not cheap enough to do on every change. A
 /// screen that wants to know whether it is current calls <see cref="Refresh"/>
 /// itself, the same way <see cref="PresetService"/>'s callers ask it to load.
 /// </para>
 /// <para>
 /// Spatial sound can also change with nothing here asking for it: from
-/// Sound settings itself, or from <see cref="Controls.SpatialTile"/>. Every
+/// Sound settings itself, or from the spatial sound tile. Every
 /// refresh rewatches whichever endpoint it just read, the same way
-/// <see cref="Controls.SpatialTile"/> does, so that catches up too rather
+/// the tile does, so that catches up too rather
 /// than waiting for the next unrelated headset notification.
 /// </para>
 /// </remarks>
 public sealed class ProfileService : IDisposable
 {
     private readonly HeadsetService _headset;
-    private readonly DispatcherQueue _ui = DispatcherQueue.GetForCurrentThread();
+    private readonly IUiThread _ui = Platform.Current.Ui;
     private Task? _refreshing;
     private IDisposable? _spatialWatch;
     private string? _watchedEndpoint;
@@ -115,7 +114,7 @@ public sealed class ProfileService : IDisposable
             return null;
         }
 
-        var spatial = await SpatialAudio.Read();
+        var spatial = await Platform.Current.Spatial.Read();
         Rewatch(spatial.EndpointId);
         if (spatial.Active is not { } format) return null;
 
@@ -129,7 +128,7 @@ public sealed class ProfileService : IDisposable
         AppServices.Presets.State(Bank.Game) ?? await AppServices.Presets.Load(Bank.Game),
         AppServices.Presets.State(Bank.Mic) ?? await AppServices.Presets.Load(Bank.Mic));
 
-    /// <summary>Keeps the watch on whichever endpoint was just read, as <see cref="Controls.SpatialTile"/> does.</summary>
+    /// <summary>Keeps the watch on whichever endpoint was just read, as the spatial sound tile does.</summary>
     private void Rewatch(string? endpointId)
     {
         if (endpointId == _watchedEndpoint) return;
@@ -137,7 +136,7 @@ public sealed class ProfileService : IDisposable
         _watchedEndpoint = endpointId;
         _spatialWatch = endpointId is null
             ? null
-            : SpatialAudio.Watch(endpointId, () => _ui.TryEnqueue(() => _ = Refresh()));
+            : Platform.Current.Spatial.Watch(endpointId, () => _ui.Post(() => _ = Refresh()));
     }
 
     private bool Flag(string name, out bool value)
@@ -192,7 +191,7 @@ public sealed class ProfileService : IDisposable
         _headset.Set("dial_function", s.DialFunction);
         _headset.Set("mode_button_function", s.ModeButton.Function);
         AppServices.Noise.SetCycling(s.ModeButton.Cycles);
-        await SpatialAudio.Apply(s.Spatial);
+        await Platform.Current.Spatial.Apply(s.Spatial);
 
         AppSettings.Update(a => a.ActiveProfileId = profile.Id);
         await Refresh();

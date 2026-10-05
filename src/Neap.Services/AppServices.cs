@@ -1,6 +1,6 @@
 using Neap.Core.Hid;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// The app's long-lived services, in one place.
@@ -19,9 +19,9 @@ public static class AppServices
     public static PresetService Presets { get; private set; } = null!;
     public static ProfileService Profiles { get; private set; } = null!;
     public static AutoSwitchService AutoSwitch { get; private set; } = null!;
-    public static HotkeyService Hotkeys { get; private set; } = null!;
+    public static IHotkeys Hotkeys { get; private set; } = null!;
     public static AudioRoute AudioRoute { get; private set; } = null!;
-    public static RingService Ring { get; private set; } = null!;
+    public static IRing Ring { get; private set; } = null!;
     public static SessionRecorder Recorder { get; private set; } = null!;
 
     /// <summary>Where the headset's transmitters are looked for.</summary>
@@ -36,14 +36,10 @@ public static class AppServices
         // a quiet application and no idea why.
         _ = MixService.Recover();
 
-        // If the app has been moved since "start with Windows" was switched
-        // on, point the entry at where it is now. A pretend run is not the
-        // copy Windows should start.
-        if (!Pretend.Active) Startup.Refresh();
         Pretend.Start();
 
         AudioRoute = new AudioRoute();
-        Ring = new RingService(AudioRoute);
+        Ring = Platform.Current.CreateRing(AudioRoute);
         Headset = new HeadsetService(Devices, cabled: () => AudioRoute.Cable.Length > 0);
         Mix = new MixService(Headset);
         Noise = new NoiseService(Headset);
@@ -52,8 +48,8 @@ public static class AppServices
         AutoSwitch = new AutoSwitchService(Profiles, Headset,
             Pretend.Windows is { } windows ? windows.Programs : AutoSwitchService.RunningPrograms);
         Recorder = new SessionRecorder(Headset);
-        Hotkeys = new HotkeyService(Mix);
-        Hotkeys.Enable(AppSettings.Current.MixHotkeys && !Pretend.Active);
+        Hotkeys = Platform.Current.CreateHotkeys(Mix);
+        Hotkeys.Enable(Hotkeys.Supported && AppSettings.Current.MixHotkeys && !Pretend.Active);
 
         // Pick up where the last run left off. Otherwise the mix starts only
         // when somebody opens Home and chooses an application

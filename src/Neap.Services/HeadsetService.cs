@@ -2,14 +2,13 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
-using Microsoft.UI.Dispatching;
 using Neap.Core;
 using Neap.Core.Connection;
 using Neap.Core.Hid;
 using Neap.Core.Protocol;
 using Neap.Core.Settings;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>Work asked of the headset while nothing is answering for it.</summary>
 public sealed class HeadsetUnavailableException(string message) : Exception(message);
@@ -71,7 +70,7 @@ public sealed class HeadsetService : IDisposable
 
     private static long BeatTicks => (long)(Beat.TotalSeconds * Stopwatch.Frequency);
 
-    private readonly DispatcherQueue _ui;
+    private readonly IUiThread _ui;
     private readonly BlockingCollection<Job> _jobs = new(new ConcurrentQueue<Job>());
     private readonly CancellationTokenSource _stopping = new();
     private readonly ConcurrentDictionary<string, JsonElement> _values = new();
@@ -115,7 +114,7 @@ public sealed class HeadsetService : IDisposable
         _link = new LinkTracker(Words, () => running.Elapsed, cabled ?? (() => false));
         if (AppSettings.Current.SettingsLeftWith is ushort left) _link.SettingsLeftEarlierWith(left);
         _status = _link.Status;
-        _ui = DispatcherQueue.GetForCurrentThread();
+        _ui = Platform.Current.Ui;
         _worker = new Thread(Run) { IsBackground = true, Name = "headset" };
         _worker.Start();
     }
@@ -616,7 +615,7 @@ public sealed class HeadsetService : IDisposable
             if (pair.Key == wheel)
             {
                 if (TryRead(pair.Value, out int position))
-                    _ui.TryEnqueue(() => WheelMoved?.Invoke(position));
+                    _ui.Post(() => WheelMoved?.Invoke(position));
                 continue;
             }
             if (!authoritative && _owned.TryGetValue(pair.Key, out long until) && until > now)
@@ -722,7 +721,7 @@ public sealed class HeadsetService : IDisposable
             return;
         }
         _known = Transmitters.With(_known, slot);
-        _ui.TryEnqueue(() => TransmittersChanged?.Invoke());
+        _ui.Post(() => TransmittersChanged?.Invoke());
     }
 
     /// <summary>
@@ -739,7 +738,7 @@ public sealed class HeadsetService : IDisposable
         if (all.Any(t => t.Paired))
         {
             _known = all.Where(t => t.Paired).ToList();
-            _ui.TryEnqueue(() => TransmittersChanged?.Invoke());
+            _ui.Post(() => TransmittersChanged?.Invoke());
         }
 
         // The dock's two lighting brightnesses come back inside its slot and
@@ -867,7 +866,7 @@ public sealed class HeadsetService : IDisposable
             AppLog.Write("headset: " + next.Summary);
 
         _status = next;
-        _ui.TryEnqueue(() => StatusChanged?.Invoke(next));
+        _ui.Post(() => StatusChanged?.Invoke(next));
     }
 
     /// <summary>Tell the UI, at most once per coalesce window.</summary>
@@ -886,8 +885,8 @@ public sealed class HeadsetService : IDisposable
             Changed?.Invoke();
         }
 
-        if (delay <= 0) _ui.TryEnqueue(Fire);
-        else _ = Task.Delay(delay).ContinueWith(_ => _ui.TryEnqueue(Fire));
+        if (delay <= 0) _ui.Post(Fire);
+        else _ = Task.Delay(delay).ContinueWith(_ => _ui.Post(Fire));
     }
 
     public void Dispose()

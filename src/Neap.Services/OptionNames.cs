@@ -1,6 +1,6 @@
 using Neap.Core.Settings;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>The words shown for a setting's options, from the resource file.</summary>
 /// <remarks>

@@ -1,63 +1,5 @@
 using System.Runtime.InteropServices;
-using Microsoft.UI.Dispatching;
-
 namespace Neap.App.Services;
-
-/// <summary>Which way a shortcut moves the mix.</summary>
-public enum MixKey { TowardGame, TowardChat, Balanced }
-
-/// <summary>
-/// One key combination. Modifiers are the RegisterHotKey flags; Key is a
-/// virtual-key code.
-/// </summary>
-public sealed record Shortcut(uint Modifiers, uint Key)
-{
-    public const uint Alt = 0x0001, Control = 0x0002, Shift = 0x0004, Windows = 0x0008;
-
-    /// <summary>Whether the shortcut has at least one modifier. One without is not offered.</summary>
-    /// <remarks>
-    /// These are global: binding a bare key takes it away from every other
-    /// program on the machine, and the person who did it would have no idea
-    /// why their game stopped responding to it.
-    /// </remarks>
-    public bool Sane => (Modifiers & (Alt | Control | Shift | Windows)) != 0;
-
-    public override string ToString()
-    {
-        var parts = new List<string>();
-        if ((Modifiers & Control) != 0) parts.Add(Strings.Get("Key_Ctrl"));
-        if ((Modifiers & Alt) != 0) parts.Add(Strings.Get("Key_Alt"));
-        if ((Modifiers & Shift) != 0) parts.Add(Strings.Get("Key_Shift"));
-        if ((Modifiers & Windows) != 0) parts.Add(Strings.Get("Key_Win"));
-        parts.Add(Name(Key));
-        return string.Join(" + ", parts);
-    }
-
-    /// <summary>Readable names for the keys people actually pick.</summary>
-    private static string Name(uint key) => key switch
-    {
-        0x21 => Strings.Get("Key_PageUp"),
-        0x22 => Strings.Get("Key_PageDown"),
-        0x24 => Strings.Get("Key_Home"),
-        0x23 => Strings.Get("Key_End"),
-        0x25 => Strings.Get("Key_Left"),
-        0x26 => Strings.Get("Key_Up"),
-        0x27 => Strings.Get("Key_Right"),
-        0x28 => Strings.Get("Key_Down"),
-        0x2D => Strings.Get("Key_Insert"),
-        0x2E => Strings.Get("Key_Delete"),
-        0x20 => Strings.Get("Key_Space"),
-        0xBC => ",",
-        0xBE => ".",
-        0xBF => "/",
-        0xDB => "[",
-        0xDD => "]",
-        >= 0x30 and <= 0x39 => ((char)key).ToString(),
-        >= 0x41 and <= 0x5A => ((char)key).ToString(),
-        >= 0x70 and <= 0x87 => $"F{key - 0x6F}",
-        _ => Strings.Format("Key_Other", key),
-    };
-}
 
 /// <summary>
 /// Global keyboard shortcuts that move the mix from inside a game, without a
@@ -87,7 +29,7 @@ public sealed record Shortcut(uint Modifiers, uint Key)
 /// for.
 /// </para>
 /// </remarks>
-public sealed class HotkeyService : IDisposable
+public sealed class HotkeyService : IHotkeys
 {
     private const uint ModNoRepeat = 0x4000;
     private const uint WmHotkey = 0x0312, WmQuit = 0x0012;
@@ -96,16 +38,7 @@ public sealed class HotkeyService : IDisposable
     /// <summary>How far one press moves the mix, on the same 0-100 scale.</summary>
     private const int Step = 10;
 
-    public static readonly IReadOnlyDictionary<MixKey, Shortcut> Defaults =
-        new Dictionary<MixKey, Shortcut>
-        {
-            [MixKey.TowardGame] = new(Shortcut.Control | Shortcut.Alt, 0x22),   // Page Down
-            [MixKey.TowardChat] = new(Shortcut.Control | Shortcut.Alt, 0x21),   // Page Up
-            [MixKey.Balanced] = new(Shortcut.Control | Shortcut.Alt, 0x24),     // Home
-        };
-
     private readonly MixService _mix;
-    private readonly DispatcherQueue _ui;
     private readonly object _gate = new();
     private readonly Dictionary<MixKey, Shortcut> _keys = new();
     private readonly Dictionary<MixKey, string> _trouble = new();
@@ -116,14 +49,15 @@ public sealed class HotkeyService : IDisposable
     public HotkeyService(MixService mix)
     {
         _mix = mix;
-        _ui = DispatcherQueue.GetForCurrentThread();
-        foreach (var (which, shortcut) in Defaults) _keys[which] = shortcut;
+        foreach (var (which, shortcut) in MixShortcuts.Defaults) _keys[which] = shortcut;
         foreach (var (which, shortcut) in AppSettings.Current.Shortcuts())
             if (shortcut.Sane) _keys[which] = shortcut;
     }
 
     /// <summary>A key was registered, refused, changed, or given up.</summary>
     public event Action? Changed;
+
+    public bool Supported => true;
 
     public bool Enabled => _pump is not null;
 
@@ -138,10 +72,10 @@ public sealed class HotkeyService : IDisposable
         lock (_gate) return _trouble.GetValueOrDefault(which);
     }
 
-    public void Enable(bool on)
+    public void Enable(bool enabled)
     {
-        if (on == Enabled) return;
-        if (on) Begin(); else End();
+        if (enabled == Enabled) return;
+        if (enabled) Begin(); else End();
     }
 
     /// <summary>
@@ -164,7 +98,7 @@ public sealed class HotkeyService : IDisposable
         bool was = Enabled;
         if (was) End();
         lock (_gate)
-            foreach (var (which, shortcut) in Defaults) _keys[which] = shortcut;
+            foreach (var (which, shortcut) in MixShortcuts.Defaults) _keys[which] = shortcut;
         AppSettings.Update(s => s.ClearShortcuts());
         if (was) Begin(); else Changed?.Invoke();
     }
@@ -200,7 +134,7 @@ public sealed class HotkeyService : IDisposable
                 {
                     // The id given to RegisterHotKey above, one more than the key.
                     var which = (MixKey)(message.WParam.ToInt64() - 1);
-                    if (Enum.IsDefined(which)) _ui.TryEnqueue(() => Move(which));
+                    if (Enum.IsDefined(which)) Platform.Post(() => Move(which));
                 }
 
             foreach (var which in wanted.Keys) UnregisterHotKey(IntPtr.Zero, (int)which + 1);

@@ -16,6 +16,9 @@ public sealed partial class AppStringsTests
 {
     private static readonly string App = AppSource.Folder;
 
+    /// <summary>Every folder of the app's sources: the screens, and the services they share.</summary>
+    private static readonly string[] Folders = [App, Path.Combine(App, "..", "Neap.Services")];
+
     private static readonly HashSet<string> Names = XDocument
         .Load(Path.Combine(App, "Strings", "en-US", "Resources.resw"))
         .Root!.Elements("data")
@@ -59,7 +62,7 @@ public sealed partial class AppStringsTests
             .Distinct();
 
     private static IEnumerable<string> Sources(string pattern) =>
-        Directory.EnumerateFiles(App, pattern, SearchOption.AllDirectories)
+        Folders.SelectMany(folder => Directory.EnumerateFiles(folder, pattern, SearchOption.AllDirectories))
             .Where(f => !Under(f, "obj") && !Under(f, "bin"))
             .Select(File.ReadAllText);
 

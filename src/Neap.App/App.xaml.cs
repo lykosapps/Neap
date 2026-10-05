@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Neap.App.Services;
 using Neap.Core;
 
 namespace Neap.App;
@@ -39,24 +40,25 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        if (Services.Pretend.Theme is ApplicationTheme theme) RequestedTheme = theme;
-        UnhandledException += (_, e) => Services.AppLog.Write($"crashed: {e.Exception}");
+        if (Pretend.Theme is { } theme)
+            RequestedTheme = theme == PretendTheme.Dark ? ApplicationTheme.Dark : ApplicationTheme.Light;
+        UnhandledException += (_, e) => AppLog.Write($"crashed: {e.Exception}");
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        bool pretend = Services.Pretend.Active;
+        bool pretend = Pretend.Active;
         if (!pretend)
         {
             try { AppFolder.MoveFromEarlierName(); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                Services.AppLog.Write($"could not move the folder kept under the app's earlier name: {ex.Message}");
+                AppLog.Write($"could not move the folder kept under the app's earlier name: {ex.Message}");
             }
         }
-        Services.Pretend.Separate();
-        bool atLogin = Services.Startup.LaunchedAtLogin;
-        bool quiet = atLogin || Services.Pretend.Behind;
+        Pretend.Separate();
+        bool atLogin = Startup.LaunchedAtLogin;
+        bool quiet = atLogin || Pretend.Behind;
         string wakeName = pretend ? PretendWakeName : WakeName;
 
         _one = new Mutex(initiallyOwned: true, pretend ? PretendOneName : OneName, out bool first);
@@ -67,22 +69,22 @@ public partial class App : Application
                 try { EventWaitHandle.OpenExisting(wakeName).Set(); }
                 catch (Exception ex) when (ex is WaitHandleCannotBeOpenedException or UnauthorizedAccessException)
                 {
-                    Services.AppLog.Write($"could not show the running copy: {ex.Message}");
+                    AppLog.Write($"could not show the running copy: {ex.Message}");
                 }
             }
-            Services.AppLog.Write(quiet
+            AppLog.Write(quiet
                 ? "started while already running: left the running copy alone"
                 : "started again while running: showed the running copy instead");
             Exit();
             return;
         }
 
-        Services.AppLog.Write(pretend ? "started with the pretend headset"
+        AppLog.Write(pretend ? "started with the pretend headset"
             : atLogin ? "started at login" : "started");
 
         _wake = new EventWaitHandle(false, EventResetMode.AutoReset, wakeName);
         Window = new MainWindow();
-        if (Services.Pretend.Behind) Window.ShowBehind();
+        if (Pretend.Behind) Window.ShowBehind();
         else Window.Activate();
         if (atLogin) Window.HideToTray();
 

@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Neap.App.Services;
 using Neap.Core.Connection;
 using Neap.Core.Settings;
 
@@ -47,7 +46,7 @@ public sealed partial class TransmittersPanel : UserControl
             AppServices.AudioRoute.Changed += Paint;
             // A move can load the control again before unloading it.
             _plugged?.Stop();
-            _plugged = new PluggedWatch(DispatcherQueue, Paint);
+            _plugged = new PluggedWatch(Paint);
             Paint();
         };
         Unloaded += (_, _) =>

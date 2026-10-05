@@ -7,7 +7,6 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Documents;
-using Neap.App.Services;
 using Neap.Core.Audio;
 using Neap.Core.Presets;
 using Windows.Globalization.NumberFormatting;

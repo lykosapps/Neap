@@ -1,17 +1,22 @@
 using System.Globalization;
-using Microsoft.Windows.ApplicationModel.Resources;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
-/// The app's words, from Strings/en-US/Resources.resw. The XAML takes its
-/// text from the same file through x:Uid, so one translation covers both.
+/// The app's words, from Strings/en-US/Resources.resw. The screens take their
+/// text from the same file, so one translation covers both.
 /// </summary>
+/// <remarks>
+/// The file is read by whatever the app was built on: set <see cref="Source"/>
+/// once at launch, before any service starts.
+/// </remarks>
 public static class Strings
 {
-    private static readonly ResourceLoader Loader = new();
+    /// <summary>Looks a key up in the resource file.</summary>
+    public static Func<string, string> Source { get; set; } =
+        key => throw new InvalidOperationException($"no string source was set, so '{key}' cannot be read");
 
-    public static string Get(string key) => Loader.GetString(key);
+    public static string Get(string key) => Source(key);
 
     /// <summary>A sentence with the parts that vary put into it, as {0}, {1}.</summary>
     public static string Format(string key, params object?[] args) =>

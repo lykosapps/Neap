@@ -42,7 +42,18 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         Instance = this;
+
+        // Before anything draws or starts: the words and the system underneath.
+        var words = new Microsoft.Windows.ApplicationModel.Resources.ResourceLoader();
+        Strings.Source = words.GetString;
+        Platform.Use(new WindowsPlatform(DispatcherQueue));
+
         InitializeComponent();
+
+        // If the app has been moved since "start with Windows" was switched
+        // on, point the entry at where it is now. A pretend run is not the
+        // copy Windows should start.
+        if (!Pretend.Active) Startup.Refresh();
         AppServices.Start();
 
         // A pretend run says so wherever the app's name appears, so it is

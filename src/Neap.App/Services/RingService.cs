@@ -21,7 +21,7 @@ namespace Neap.App.Services;
 /// Not run in a pretend run, whose sound is not the headset's.
 /// </para>
 /// </remarks>
-public sealed class RingService : IDisposable
+public sealed class RingService : IRing
 {
     private static readonly TimeSpan LookEvery = TimeSpan.FromSeconds(1);
 
@@ -41,8 +41,10 @@ public sealed class RingService : IDisposable
         if (!Pretend.Active) _look = new Timer(_ => Look(), null, LookEvery, LookEvery);
     }
 
+    public bool Supported => true;
+
     /// <summary>Gets or sets whether the ring is kept purple.</summary>
-    public bool On
+    public bool KeepPurple
     {
         get => _on;
         set
@@ -58,7 +60,7 @@ public sealed class RingService : IDisposable
         if (Interlocked.Exchange(ref _looking, 1) == 1) return;
         try
         {
-            bool wanted = On && OnDock() && AtHighRate();
+            bool wanted = KeepPurple && OnDock() && AtHighRate();
             var recorders = wanted ? Routing.Recorders(AudioEndpoints.DefaultMatch) : [];
             bool held = wanted && FullScreen.Now();
             if (held != _held)

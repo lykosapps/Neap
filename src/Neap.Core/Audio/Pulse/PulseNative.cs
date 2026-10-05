@@ -187,6 +187,28 @@ internal static class PulseNative
     /// <summary>A string the library owns, or empty for none.</summary>
     internal static string Text(IntPtr text) => text == IntPtr.Zero ? "" : Marshal.PtrToStringUTF8(text) ?? "";
 
+    private const string SimpleLibrary = "libpulse-simple.so.0";
+
+    /// <summary>PA_SAMPLE_S16LE: signed 16-bit, little-endian.</summary>
+    internal const int SampleS16Le = 3;
+
+    /// <summary>PA_STREAM_PLAYBACK.</summary>
+    internal const int StreamPlayback = 1;
+
+    [DllImport(SimpleLibrary, EntryPoint = "pa_simple_new")]
+    internal static extern IntPtr SimpleNew(
+        IntPtr server, byte[] name, int direction, byte[] device, byte[] streamName,
+        ref SampleSpec spec, IntPtr channelMap, IntPtr attributes, out int error);
+
+    [DllImport(SimpleLibrary, EntryPoint = "pa_simple_write")]
+    internal static extern int SimpleWrite(IntPtr stream, byte[] data, nuint bytes, out int error);
+
+    [DllImport(SimpleLibrary, EntryPoint = "pa_simple_drain")]
+    internal static extern int SimpleDrain(IntPtr stream, out int error);
+
+    [DllImport(SimpleLibrary, EntryPoint = "pa_simple_free")]
+    internal static extern void SimpleFree(IntPtr stream);
+
     /// <summary>A string as the library takes one: UTF-8, ending in a zero byte.</summary>
     internal static byte[] Utf8(string text) => Encoding.UTF8.GetBytes(text + '\0');
 

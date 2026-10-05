@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Text.Json;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Neap.App.Services;
 using Neap.Core.Connection;
 using Neap.Core.Settings;
 
@@ -57,7 +56,7 @@ public sealed partial class QuickControls : UserControl
             // here, so it follows what is plugged in as well as the status.
             // A move can load the control again before unloading it.
             _plugged?.Stop();
-            _plugged = new PluggedWatch(DispatcherQueue, Paint);
+            _plugged = new PluggedWatch(Paint);
             Paint();
         };
         Unloaded += (_, _) =>

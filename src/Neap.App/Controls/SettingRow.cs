@@ -2,7 +2,6 @@ using System.Globalization;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Neap.App.Services;
 using Neap.Core.Settings;
 
 namespace Neap.App.Controls;

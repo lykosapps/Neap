@@ -38,8 +38,9 @@ internal sealed record PulseSink(uint Index, string Name, string Description, st
 /// <param name="Volume">Its volume as a linear gain, the average of its channels.</param>
 /// <param name="Channels">How many channels it has, each of which is set to the same volume.</param>
 /// <param name="Playing">Whether it is playing rather than paused.</param>
+/// <param name="Name">The name it gives itself, which is what a person would recognise; empty when it gives none.</param>
 internal sealed record PulseStream(
-    uint Index, uint Sink, string Program, uint ProcessId, float Volume, byte Channels, bool Playing);
+    uint Index, uint Sink, string Program, uint ProcessId, float Volume, byte Channels, bool Playing, string Name);
 
 /// <summary>
 /// A connection to the sound server: PulseAudio, or PipeWire through its
@@ -263,7 +264,8 @@ internal sealed class PulseClient : IDisposable
         double sum = 0;
         for (int i = 0; i < stream.Volume.Channels; i++) sum += VolumeToLinear(stream.Volume.Values[i]);
         _streams.Add(new PulseStream(stream.Index, stream.Sink, program, pid,
-            (float)(sum / stream.Volume.Channels), stream.Volume.Channels, stream.Corked == 0));
+            (float)(sum / stream.Volume.Channels), stream.Volume.Channels, stream.Corked == 0,
+            Property(stream.Proplist, "application.name")));
     }
 
     private void OnSuccess(IntPtr context, int success, IntPtr userdata) => _succeeded = success != 0;

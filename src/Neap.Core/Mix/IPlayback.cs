@@ -37,6 +37,9 @@ internal interface IPlaybackSession : ISessionVolume
     /// <summary>The program's name, "Discord" say; empty when it cannot be told.</summary>
     string Program { get; }
 
+    /// <summary>What a person would recognise it as; the program's name when nothing better is known.</summary>
+    string Display { get; }
+
     /// <summary>Whether it is this process's own sound.</summary>
     bool Ours { get; }
 

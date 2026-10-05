@@ -1,6 +1,6 @@
 using Neap.Core.Connection;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// The words for each state the headset can be in, kept in one place.

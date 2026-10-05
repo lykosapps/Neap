@@ -1,7 +1,6 @@
 using System.Globalization;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Neap.App.Services;
 using Neap.Core.Diagnostics;
 
 namespace Neap.App.Controls;

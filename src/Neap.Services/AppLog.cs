@@ -1,6 +1,6 @@
 using Neap.Core;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// A short record of what the app did and why: launches, connection changes,

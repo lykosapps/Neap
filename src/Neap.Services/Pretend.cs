@@ -1,9 +1,11 @@
-using Microsoft.UI.Xaml;
 using Neap.Core;
 using Neap.Core.Presets;
 using Neap.Core.Pretend;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
+
+/// <summary>A theme a pretend run is shown in whatever the system is set to.</summary>
+public enum PretendTheme { Light, Dark }
 
 /// <summary>
 /// Whether the app was launched against the pretend headset, and the
@@ -66,10 +68,10 @@ public static class Pretend
     /// other theme they are drawn for it; only a real switch of theme shows
     /// them right.
     /// </remarks>
-    public static ApplicationTheme? Theme { get; } =
+    public static PretendTheme? Theme { get; } =
         !Active ? null
-        : Given(LightFlag) ? ApplicationTheme.Light
-        : Given(DarkFlag) ? ApplicationTheme.Dark
+        : Given(LightFlag) ? PretendTheme.Light
+        : Given(DarkFlag) ? PretendTheme.Dark
         : null;
 
     /// <summary>The rail tag of the page the app opens on, or null for Home.</summary>
