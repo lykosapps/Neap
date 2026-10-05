@@ -356,7 +356,11 @@ public sealed class SessionMix : IMixEngine
             using var playback = Playback.ForThisSystem();
             RestoreDevices(playback, VolumeJournal.Shared);
         }
-        catch { /* no audio system to ask; the journal keeps it for next time */ }
+        catch (Exception ex)
+        {
+            // No sound system to ask; the journal keeps it for next time.
+            Trouble?.Invoke($"could not put volumes back yet: {ex.Message}");
+        }
     }
 
     public void Dispose()

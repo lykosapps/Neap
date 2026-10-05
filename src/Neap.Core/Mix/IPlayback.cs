@@ -49,8 +49,8 @@ internal static class Playback
 {
     /// <exception cref="PlatformNotSupportedException">This operating system has no way in.</exception>
     internal static IPlayback ForThisSystem() =>
-        OperatingSystem.IsWindows()
-            ? new WindowsPlayback()
-            : throw new PlatformNotSupportedException(
-                $"{Environment.OSVersion.Platform} has no per-application volumes the mix can reach yet");
+        OperatingSystem.IsWindows() ? new WindowsPlayback()
+        : OperatingSystem.IsLinux() ? new PulsePlayback()
+        : throw new PlatformNotSupportedException(
+            $"{Environment.OSVersion.Platform} has no per-application volumes the mix can reach");
 }
