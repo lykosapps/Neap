@@ -64,4 +64,14 @@ public class IssueFormTests
                 Assert.Contains($"id: {id}", definition, StringComparison.Ordinal);
         }
     }
+
+    [Fact]
+    public void TheHeadsetFormHasAPlaceForWhatNeapFound()
+    {
+        string definition = File.ReadAllText(Path.Combine(
+            Resources.AppSource.Folder, "..", "..", ".github", "ISSUE_TEMPLATE", IssueForm.Headset));
+
+        Assert.Contains("id: found", definition, StringComparison.Ordinal);
+        Assert.Equal("Found: Battery", Fields(IssueForm.For(["2201"], "Neap", "10", "Found: Battery"))["found"]);
+    }
 }
