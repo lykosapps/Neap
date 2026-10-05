@@ -61,6 +61,7 @@ if (args.Length == 0 || args[0] is "-h" or "--help")
 }
 
 Neap.Core.Mix.SessionMix.Trouble = line => Console.Error.WriteLine($"[mix] {line}");
+SystemDevices.Trouble = line => Console.Error.WriteLine($"[hid] {line}");
 
 try
 {

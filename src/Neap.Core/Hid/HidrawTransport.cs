@@ -147,9 +147,9 @@ public sealed class HidrawTransport : IHidTransport
             string node = "/dev/" + System.IO.Path.GetFileName(folder);
             try
             {
-                if (Hidraw.Ids(File.ReadAllText(System.IO.Path.Combine(folder, "device", "uevent")))
+                if (Hidraw.Ids(Hidraw.ReadAll(System.IO.Path.Combine(folder, "device", "uevent")))
                     is not { } ids || ids.Vendor != vendorId) continue;
-                byte[] descriptor = File.ReadAllBytes(System.IO.Path.Combine(folder, "device", "report_descriptor"));
+                byte[] descriptor = Hidraw.ReadBytes(System.IO.Path.Combine(folder, "device", "report_descriptor"));
                 foreach (var collection in ReportDescriptor.Collections(descriptor))
                     if (usagePage is null || collection.UsagePage == usagePage)
                         found.Add(new HidDeviceInfo(node, ids.Vendor, ids.Product, collection.UsagePage,
@@ -167,6 +167,23 @@ public sealed class HidrawTransport : IHidTransport
 /// <summary>What Linux's hidraw driver says about a device, read without opening it.</summary>
 public static class Hidraw
 {
+    /// <summary>A whole file of the kernel's, read to its end.</summary>
+    /// <remarks>
+    /// Not File.ReadAllBytes: sysfs reports a file as 4096 bytes whatever its
+    /// real length, a descriptor of 68 included, and a read that trusts the
+    /// reported length stops short of it or fails.
+    /// </remarks>
+    public static byte[] ReadBytes(string path)
+    {
+        using var file = File.OpenRead(path);
+        using var all = new MemoryStream();
+        file.CopyTo(all);
+        return all.ToArray();
+    }
+
+    /// <summary>A whole text file of the kernel's; see <see cref="ReadBytes"/>.</summary>
+    public static string ReadAll(string path) => System.Text.Encoding.UTF8.GetString(ReadBytes(path));
+
     /// <summary>The vendor and product ids in a hidraw device's uevent, or null when it has none.</summary>
     /// <remarks>
     /// The line reads <c>HID_ID=0003:000010F5:0000229B</c>: the bus, then the
