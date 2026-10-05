@@ -151,7 +151,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
             }
             catch (Exception ex)
             {
-                recording.Failed(DateTime.Now, $"Windows sound: {ex.Message}");
+                recording.Failed(DateTime.Now, $"Sound: {ex.Message}");
             }
             if (!listened) stopping.WaitHandle.WaitOne(Listen);
         }
@@ -180,7 +180,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
 
         SoundSurvey? sound = null;
         try { sound = await Task.Run(Survey); }
-        catch (Exception ex) { unread.Add($"Windows sound: {ex.Message}"); }
+        catch (Exception ex) { unread.Add($"Sound: {ex.Message}"); }
 
         return new Snapshot(at, headset.Status.Summary, plugged, slots, values, sound, unread);
     }

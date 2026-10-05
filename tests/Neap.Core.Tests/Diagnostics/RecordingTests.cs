@@ -109,13 +109,13 @@ public class RecordingTests
     {
         var recording = new Recording("Neap", "10");
         recording.Began(At(Start, Values(), unread: ["headset values: the headset is not answering"]));
-        recording.Failed(Start.AddSeconds(1), "Windows sound: no audio device available");
+        recording.Failed(Start.AddSeconds(1), "Sound: no audio device available");
 
         string text = Written(recording);
 
         Assert.Contains("Could not read:\n  headset values: the headset is not answering",
             text.ReplaceLineEndings("\n"), StringComparison.Ordinal);
-        Assert.Contains("failed   Windows sound: no audio device available", text, StringComparison.Ordinal);
+        Assert.Contains("failed   Sound: no audio device available", text, StringComparison.Ordinal);
     }
 
     [Fact]

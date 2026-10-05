@@ -269,7 +269,7 @@ public sealed class Recording(string app, string windows)
 
         if (snapshot.Sound is { } sound)
         {
-            text.AppendLine("Windows sound:");
+            text.AppendLine("Sound:");
             foreach (var role in sound.Defaults) text.AppendLine(Culture, $"  {Default(role)}");
             text.AppendLine(Culture, $"  headset output format: {sound.OutputFormat}");
             text.AppendLine(Culture, $"  headset microphone format: {sound.InputFormat}");

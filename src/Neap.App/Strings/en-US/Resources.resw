@@ -301,7 +301,7 @@
     <value>Audio format</value>
   </data>
   <data name="Device_FormatNote.Text" xml:space="preserve">
-    <value>The same setting as in Windows Sound settings.</value>
+    <value>The same setting as in your system's sound settings.</value>
   </data>
   <data name="Device_KeepRing.Header" xml:space="preserve">
     <value>Keep high-resolution audio</value>
@@ -370,7 +370,7 @@
     <value>Microphone level</value>
   </data>
   <data name="Microphone_MeterUnavailable" xml:space="preserve">
-    <value>The level can't be shown. Check that apps may use the microphone in Windows privacy settings.</value>
+    <value>The level can't be shown. Check that apps may use the microphone in your system's privacy settings.</value>
   </data>
   <data name="Microphone_Sensitivity.Description" xml:space="preserve">
     <value>How loud you come through.</value>
@@ -421,10 +421,10 @@
     <value>Closing the window keeps Neap running in the notification area, so the chat wheel keeps working. Quit from there.</value>
   </data>
   <data name="Settings_StartWithWindows.Description" xml:space="preserve">
-    <value>Starts in the notification area when you sign in.</value>
+    <value>Starts in the notification area.</value>
   </data>
   <data name="Settings_StartWithWindows.Header" xml:space="preserve">
-    <value>Start with Windows</value>
+    <value>Start when you sign in</value>
   </data>
   <data name="Settings_AboutHeading.Text" xml:space="preserve">
     <value>About</value>
@@ -490,25 +490,25 @@
     <value>Open Sound settings</value>
   </data>
   <data name="Routing_TitleSound" xml:space="preserve">
-    <value>Windows is playing to the {0}</value>
+    <value>Your system is playing to the {0}</value>
   </data>
   <data name="Routing_TitleCalls" xml:space="preserve">
-    <value>Windows is sending calls to the {0}</value>
+    <value>Your system is sending calls to the {0}</value>
   </data>
   <data name="Routing_TitleMicrophone" xml:space="preserve">
-    <value>Windows is using the {0}'s microphone</value>
+    <value>Your system is using the {0}'s microphone</value>
   </data>
   <data name="Routing_TitleSoundCalls" xml:space="preserve">
-    <value>Windows is sending sound and calls to the {0}</value>
+    <value>Your system is sending sound and calls to the {0}</value>
   </data>
   <data name="Routing_TitleSoundMicrophone" xml:space="preserve">
-    <value>Windows is sending sound and the microphone to the {0}</value>
+    <value>Your system is sending sound and the microphone to the {0}</value>
   </data>
   <data name="Routing_TitleCallsMicrophone" xml:space="preserve">
-    <value>Windows is sending calls and the microphone to the {0}</value>
+    <value>Your system is sending calls and the microphone to the {0}</value>
   </data>
   <data name="Routing_TitleAll" xml:space="preserve">
-    <value>Windows is sending sound, calls and the microphone to the {0}</value>
+    <value>Your system is sending sound, calls and the microphone to the {0}</value>
   </data>
   <data name="Routing_Choose" xml:space="preserve">
     <value>In Sound settings, choose {0}.</value>
@@ -637,7 +637,7 @@
     <value>Another program already uses this. Pick another.</value>
   </data>
   <data name="Key_Refused" xml:space="preserve">
-    <value>Windows won't allow this one. Pick another.</value>
+    <value>Your system won't allow this one. Pick another.</value>
   </data>
   <data name="Preset_NotRead" xml:space="preserve">
     <value>The presets haven't been read yet.</value>
@@ -871,7 +871,7 @@
     <value>Audio format</value>
   </data>
   <data name="Format_NoneOffered" xml:space="preserve">
-    <value>Windows isn't offering any formats for this device.</value>
+    <value>Your system isn't offering any formats for this device.</value>
   </data>
   <data name="Format_CouldNotChange" xml:space="preserve">
     <value>Couldn't change the format</value>
@@ -1117,7 +1117,7 @@
   </data>
   <data name="Settings_RecordFailed" xml:space="preserve">
     <value>The recording couldn't be saved: {0}</value>
-    <comment>{0} is Windows' reason, such as a full disk.</comment>
+    <comment>{0} is the system's reason, such as a full disk.</comment>
   </data>
   <data name="Settings_MapHeadset.Header" xml:space="preserve">
     <value>Help support another headset</value>
@@ -1243,7 +1243,7 @@
     <value>Wake on motion</value>
   </data>
   <data name="State_SoundElsewhere" xml:space="preserve">
-    <value>Windows is sending sound to a device your headset isn't listening on. Home says which one to choose.</value>
+    <value>Your system is sending sound to a device your headset isn't listening on. Home says which one to choose.</value>
   </data>
   <data name="Startup_Description" xml:space="preserve">
     <value>Starts {0} in the notification area.</value>
@@ -1524,13 +1524,13 @@
     <value>Couldn't change spatial sound</value>
   </data>
   <data name="Spatial_Refused" xml:space="preserve">
-    <value>Windows wouldn't switch the headset to {0}.</value>
+    <value>Your system wouldn't switch the headset to {0}.</value>
   </data>
   <data name="Spatial_NoHeadset" xml:space="preserve">
     <value>Connect the headset to choose its spatial sound.</value>
   </data>
   <data name="Spatial_NotSupported" xml:space="preserve">
-    <value>Windows doesn't offer spatial sound for this headset.</value>
+    <value>Your system doesn't offer spatial sound for this headset.</value>
   </data>
   <data name="Spatial_DolbyNeedsDriver" xml:space="preserve">
     <value>Dolby Atmos needs the headset's Dolby Atmos driver, which Swarm II installs, and its licence activated in the Dolby Access app.</value>
@@ -1543,35 +1543,5 @@
   </data>
   <data name="State_MixWithDial" xml:space="preserve">
     <value>You can still move the mix with the dial.</value>
-  </data>
-  <data name="Linux_Routing_TitleSound" xml:space="preserve">
-    <value>Your system is playing to the {0}</value>
-  </data>
-  <data name="Linux_Routing_TitleCalls" xml:space="preserve">
-    <value>Your system is sending calls to the {0}</value>
-  </data>
-  <data name="Linux_Routing_TitleMicrophone" xml:space="preserve">
-    <value>Your system is using the {0}'s microphone</value>
-  </data>
-  <data name="Linux_Routing_TitleSoundCalls" xml:space="preserve">
-    <value>Your system is sending sound and calls to the {0}</value>
-  </data>
-  <data name="Linux_Routing_TitleSoundMicrophone" xml:space="preserve">
-    <value>Your system is sending sound and the microphone to the {0}</value>
-  </data>
-  <data name="Linux_Routing_TitleCallsMicrophone" xml:space="preserve">
-    <value>Your system is sending calls and the microphone to the {0}</value>
-  </data>
-  <data name="Linux_Routing_TitleAll" xml:space="preserve">
-    <value>Your system is sending sound, calls and the microphone to the {0}</value>
-  </data>
-  <data name="Linux_Routing_Choose" xml:space="preserve">
-    <value>In your system's sound settings, choose {0}.</value>
-  </data>
-  <data name="Linux_Routing_PressOrChoose" xml:space="preserve">
-    <value>Press CrossPlay on the headset to switch it to the {0}, or to stay on the {1}, choose {2} in your system's sound settings.</value>
-  </data>
-  <data name="Linux_State_SoundElsewhere" xml:space="preserve">
-    <value>Your system is sending sound to a device your headset isn't listening on. Home says which one to choose.</value>
   </data>
 </root>

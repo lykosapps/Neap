@@ -35,14 +35,6 @@ public static class ResourceStrings
                 yield return new KeyValuePair<string, string>(key[prefix.Length..], text);
     }
 
-    /// <summary>What an entry's name starts with when its words are for Linux in place of the usual ones.</summary>
-    /// <remarks>
-    /// A sentence that names Windows says something else on Linux, so the file
-    /// holds a second one, <c>Linux_Key</c> beside <c>Key</c>. The Windows app
-    /// never asks for it, and here it stands in for the first.
-    /// </remarks>
-    private const string ForLinux = "Linux_";
-
     private static IReadOnlyDictionary<string, string> Load()
     {
         using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Resources.resw")
@@ -50,12 +42,6 @@ public static class ResourceStrings
         var entries = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var data in XDocument.Load(stream).Root!.Elements("data"))
             entries[(string)data.Attribute("name")!] = data.Element("value")?.Value ?? "";
-
-        foreach (string name in entries.Keys.Where(k => k.StartsWith(ForLinux, StringComparison.Ordinal)).ToList())
-        {
-            if (OperatingSystem.IsLinux()) entries[name[ForLinux.Length..]] = entries[name];
-            entries.Remove(name);
-        }
         return entries;
     }
 }

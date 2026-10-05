@@ -124,7 +124,7 @@ public static class SystemTools
         {
             var id = new Guid("374DE290-123F-4565-9164-39C4925E467B");
             if (SHGetKnownFolderPath(in id, 0, IntPtr.Zero, out string? path) == 0 && !string.IsNullOrEmpty(path)) return path;
-            AppLog.Write("recording: Windows did not say where Downloads is, so the usual place is used");
+            AppLog.Write("recording: the system did not say where Downloads is, so the usual place is used");
         }
         else if (OperatingSystem.IsLinux())
         {
