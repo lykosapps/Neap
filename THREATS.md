@@ -50,7 +50,7 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
     Already true, confirmed today. The manifest asks for no elevation (Windows defaults it to run as the person, not an administrator), and only the app's real connection to the headset ever asks to write; the probe defaults to read-only.
 
 11. **A recording made for a bug report identifies the person or their hardware once it is posted.**
-    Mitigated. The file blanks the headset's serial number, anything shaped like a radio address, the Windows account and PC names and the profile folder, and leaves out the time zone (`Redaction`, with tests). It lists the programs playing sound, which is the point of it, and it is plain text the person can read before sending. Neap sends nothing itself. A USB capture for mapping another headset is not blanked; the guide says not to post one publicly.
+    Mitigated. The file blanks the headset's serial number, anything shaped like a radio address, the Windows account and PC names and the profile folder, and leaves out the time zone (`Redaction`, with tests). It lists the programs playing sound, which is the point of it, and keeps the headset's own name, which a person may have changed; the owner chose to keep it (2026-10-05). It is plain text the person can read before sending. Neap sends nothing itself. A USB capture for mapping another headset is not blanked; the guide says not to post one publicly.
 
 ## What wasn't examined
 
