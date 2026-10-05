@@ -56,6 +56,12 @@ preparing code for experienced reviewers.
 - **Check by running, not by reading.** Drive the app through UI Automation
   (injected clicks do not reach WinUI content) and take screenshots. When
   reporting, say which findings were confirmed by running and which were not.
+- **Screen checks go through `tools/ui/run.ps1`.** `run.ps1 banner` publishes
+  if a source file is newer than the build, then runs the check from outside
+  the package, where the screen is drawn: from inside it every picture comes
+  out black. Logs and pictures land in `TestResults/ui`. It takes about 30
+  seconds, and only one practice run of the app can be open at a time, so run
+  one check at a time. A new check is a script beside it that uses `Ui.ps1`.
 - **Sample, do not snapshot.** One reading after the fact shows where a value
   settled, not whether it moved.
 - **Read the app's folder from outside Claude.** The desktop app runs
