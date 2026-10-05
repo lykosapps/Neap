@@ -144,18 +144,24 @@ if ($Parts.Contains('A') -or $Parts.Contains('B') -or $Parts.Contains('D') -or $
                     Press $act
                     $clock = [Diagnostics.Stopwatch]::StartNew(); $last = ''; $sawProgress = $false; $sawInstalling = $false; $offeredDuring = @()
                     while ($clock.Elapsed.TotalSeconds -lt 20) {
+                        # Read the sentence, the controls, then the sentence again: the update can end
+                        # between the readings, and only a reading with the update running on both
+                        # sides says anything about the controls.
+                        $before = @(Get-Texts) -match 'Downloading|Installing' | Select-Object -First 1
                         $now = Find-Named 'Update and restart'
+                        $enabled = $now.Current.IsEnabled
+                        $others = @(Get-Shown | Where-Object { $_ -ne 'Update and restart' })
                         $bar = $script:Window.FindFirst($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::ProgressBar)))
                         $say = @(Get-Texts) -match 'Downloading|Installing' | Select-Object -First 1
-                        if ($bar -and $say) { $sawProgress = $true }
-                        if ($say -match 'Installing') { $sawInstalling = $true }
-                        if ($say) {
-                            $offeredDuring += @(Get-Shown | Where-Object { $_ -ne 'Update and restart' })
-                            $line = "act enabled {0}; text '{1}'" -f $now.Current.IsEnabled, ($say -replace '\d+%', 'N%')
+                        if ($before -match 'Installing' -or $say -match 'Installing') { $sawInstalling = $true }
+                        if ($before -and $say) {
+                            if ($bar) { $sawProgress = $true }
+                            $offeredDuring += $others
+                            $line = "act enabled {0}; text '{1}'" -f $enabled, ($say -replace '\d+%', 'N%')
                             if ($line -ne $last) { Note $line; $last = $line }
-                            if ($now.Current.IsEnabled) { Check $false 'Update and restart is off while an update runs' }
+                            if ($enabled) { Check $false 'Update and restart is off while an update runs' }
                         }
-                        if ($sawInstalling -and -not $say -and $now.Current.IsEnabled) { break }
+                        if ($sawInstalling -and -not $say -and $enabled) { break }
                         Start-Sleep -Milliseconds 250
                     }
                     Check $sawProgress 'a progress bar is shown while an update runs'

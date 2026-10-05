@@ -34,6 +34,8 @@ public static class NeapUi {
     [DllImport("user32.dll")] public static extern bool MoveWindow(IntPtr w, int x, int y, int cx, int cy, bool repaint);
     [DllImport("user32.dll")] public static extern uint GetDpiForWindow(IntPtr w);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] public static extern int GetCurrentPackageFullName(ref int length, StringBuilder name);
+    [DllImport("kernel32.dll")] public static extern uint SetThreadExecutionState(uint flags);
+    [DllImport("user32.dll")] public static extern void mouse_event(uint flags, int dx, int dy, uint data, UIntPtr extra);
 }
 '@
 [NeapUi]::SetProcessDPIAware() | Out-Null
@@ -50,6 +52,32 @@ $script:Proc = $null; $script:Window = $null; $script:Handle = [IntPtr]::Zero
 function Test-InPackage {
     $length = 0
     [NeapUi]::GetCurrentPackageFullName([ref]$length, $null) -ne 15700
+}
+
+# A screen that is off is captured as pure black, so a picture, and anything
+# measured from one, is worthless. The display turns itself off after a few
+# idle minutes, and a check run from a script touches nothing to stop it.
+function Test-ScreenLit {
+    Add-Type -AssemblyName System.Windows.Forms
+    $bitmap = New-Object System.Drawing.Bitmap 800, 500
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    $graphics.CopyFromScreen(100, 100, 0, 0, $bitmap.Size)
+    $graphics.Dispose()
+    $lit = 0
+    foreach ($x in 50..750 | Where-Object { $_ % 100 -eq 50 }) { foreach ($y in 50..450 | Where-Object { $_ % 100 -eq 50 }) { if ($bitmap.GetPixel($x, $y).ToArgb() -band 0xFFFFFF) { $lit++ } } }
+    $bitmap.Dispose()
+    $lit -ge 3
+}
+
+# Keeps the display on for as long as this process lives, and wakes it if it
+# is off with an input event that moves nothing. Stops the check, saying why, if
+# the screen will not light.
+function Wake-Screen {
+    # Continuous, system and display required.
+    [NeapUi]::SetThreadExecutionState([Convert]::ToUInt32('80000003', 16)) | Out-Null
+    if (Test-ScreenLit) { return }
+    [NeapUi]::mouse_event(0x0001, 0, 0, 0, [UIntPtr]::Zero)
+    if (-not (Wait-Until { Test-ScreenLit } 10)) { throw 'the screen is off and would not wake; screen checks need it on' }
 }
 
 function Check([bool]$ok, [string]$what) {
@@ -86,6 +114,18 @@ function New-Condition([string]$Property, $Value) {
 }
 function Find-Named([string]$Name) { $script:Window.FindFirst($Scope::Descendants, (New-Condition NameProperty $Name)) }
 function Find-Id([string]$Id) { $script:Window.FindFirst($Scope::Descendants, (New-Condition AutomationIdProperty $Id)) }
+function Find-All([string]$Name) { @($script:Window.FindAll($Scope::Descendants, (New-Condition NameProperty $Name))) }
+
+# The element of this name that is lowest on the screen, for when the banner and
+# the page both say the same thing.
+function Find-Lowest([string]$Name) { Find-All $Name | Where-Object { -not $_.Current.IsOffscreen } | Sort-Object { $_.Current.BoundingRectangle.Y } | Select-Object -Last 1 }
+
+# A piece of text of this name, not the card or button it sits in, so that a
+# measurement of its colours is not a measurement of everything behind it.
+function Find-Text([string]$Name) {
+    $both = New-Object System.Windows.Automation.AndCondition((New-Condition NameProperty $Name), (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Text)))
+    $script:Window.FindAll($Scope::Descendants, $both) | Where-Object { -not $_.Current.IsOffscreen } | Sort-Object { $_.Current.BoundingRectangle.Y } | Select-Object -Last 1
+}
 function Test-Present($Element) { $null -ne $Element -and -not $Element.Current.IsOffscreen }
 function Get-Texts {
     @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Text)))) |
@@ -109,6 +149,7 @@ function Close-Menu($Element) {
 # takes nothing from whoever is at the machine.
 function Start-NeapPretend {
     param([string]$Theme = 'dark', [string]$Page = 'home', [switch]$KeepSettings, [string[]]$Flags = @('--update'))
+    Wake-Screen
     $already = Get-CimInstance Win32_Process -Filter "Name='Neap.exe'" | Where-Object { $_.CommandLine -match '--pretend' }
     if ($already) { throw 'a practice run of Neap is already open; only one can run at a time' }
     if (-not $KeepSettings) { Remove-Item (Join-Path $env:LOCALAPPDATA 'Neap\Pretend') -Recurse -Force -ErrorAction SilentlyContinue }

@@ -13,13 +13,17 @@ Only one practice run of the app can be open at a time, so run one check at a
 time.
 
 .PARAMETER Check
-The check to run: the name of a script in this folder, such as banner.
+The check to run: the name of a script in this folder, such as banner, or all
+for every one of them.
 
 .PARAMETER Parts
 Which parts of the check to run, if it has parts. All by default.
 
 .PARAMETER TimeoutSeconds
 How long to follow the check before giving up on it.
+
+.EXAMPLE
+powershell -ExecutionPolicy Bypass -File tools\ui\run.ps1 all
 
 .EXAMPLE
 powershell -ExecutionPolicy Bypass -File tools\ui\run.ps1 banner
@@ -36,6 +40,19 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+
+# Every check, one after another. Only one practice run of the app can be open
+# at a time, so they never overlap.
+if ($Check -eq 'all') {
+    $worst = 0
+    foreach ($name in 'banner', 'settings', 'profiles') {
+        Write-Host "### $name"
+        & $PSCommandPath $name -TimeoutSeconds $TimeoutSeconds
+        $worst = [Math]::Max($worst, $LASTEXITCODE)
+    }
+    exit $worst
+}
+
 $script = Join-Path $PSScriptRoot "$Check.ps1"
 if (-not (Test-Path $script)) { throw "there is no check named $Check in tools\ui" }
 
