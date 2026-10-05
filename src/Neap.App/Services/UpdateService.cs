@@ -47,14 +47,24 @@ public sealed class UpdateService : IDisposable
 
     private readonly DispatcherQueueTimer _due;
 
+    /// <summary>How the newer version was offered when it was found.</summary>
+    private UpdateStage _offered = UpdateStage.Available;
+
     public UpdateStage Stage { get; private set; }
 
     /// <summary>The newer version found, or null if none has been.</summary>
     public Release? Newer { get; private set; }
 
+    /// <summary>The stage the banner and the buttons follow.</summary>
+    /// <remarks>
+    /// The same as <see cref="Stage"/> except that a check running or failing
+    /// doesn't take the offer of a newer version away; see <see cref="UpdateReminder.Shown"/>.
+    /// </remarks>
+    public UpdateStage Shown => Newer is null ? Stage : UpdateReminder.Shown(Stage, _offered);
+
     /// <summary>Whether the banner about the newer version is on show.</summary>
     public bool ReminderShown => Newer is { } release && UpdateReminder.Shows(
-        Stage, release.Version, AppSettings.Current.SkippedVersion, AppSettings.Current.UpdateHiddenUntil, DateTimeOffset.Now);
+        Shown, release.Version, AppSettings.Current.SkippedVersion, AppSettings.Current.UpdateHiddenUntil, DateTimeOffset.Now);
 
     /// <summary>How much of the download has arrived, out of a hundred.</summary>
     public int Percent { get; private set; }
@@ -133,7 +143,7 @@ public sealed class UpdateService : IDisposable
             if (AppInfo.Version is { } running && release.IsNewerThan(running))
             {
                 Newer = release;
-                Stage = CanWriteHere() ? UpdateStage.Available : UpdateStage.CannotUpdateHere;
+                _offered = Stage = CanWriteHere() ? UpdateStage.Available : UpdateStage.CannotUpdateHere;
                 AppLog.Write($"updates: version {release.Version.ToString(3)} is still available");
                 return;
             }
@@ -177,7 +187,8 @@ public sealed class UpdateService : IDisposable
             bool here = Pretend.Active || CanWriteHere();
             AppLog.Write(here ? $"updates: version {version} is available"
                 : $"updates: version {version} is available, but this folder cannot be written to");
-            Set(here ? UpdateStage.Available : UpdateStage.CannotUpdateHere);
+            _offered = here ? UpdateStage.Available : UpdateStage.CannotUpdateHere;
+            Set(_offered);
 
             if (onItsOwn && !Pretend.Active && AppSettings.Current.ToldAboutVersion != version
                 && AppSettings.Current.SkippedVersion != version)

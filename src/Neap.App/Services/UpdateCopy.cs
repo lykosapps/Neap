@@ -11,10 +11,15 @@ namespace Neap.App.Services;
 public static class UpdateCopy
 {
     /// <summary>The sentence for the stage, or null where there is nothing to say.</summary>
-    public static string? Of(UpdateService updates)
+    /// <param name="updates">The updater.</param>
+    /// <param name="forBanner">
+    /// Whether the banner is asking: it goes on saying a newer version is
+    /// available while a check runs or fails, where Settings says the check.
+    /// </param>
+    public static string? Of(UpdateService updates, bool forBanner = false)
     {
         string version = updates.Newer?.Version.ToString(3) ?? "";
-        return updates.Stage switch
+        return (forBanner ? updates.Shown : updates.Stage) switch
         {
             UpdateStage.Checking => Strings.Get("Settings_UpdateChecking"),
             UpdateStage.UpToDate => Strings.Format("Settings_UpdateUpToDate", AppInfo.Name),

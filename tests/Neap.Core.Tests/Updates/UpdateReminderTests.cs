@@ -32,6 +32,28 @@ public class UpdateReminderTests
         Assert.False(UpdateReminder.Shows(UpdateStage.Available, null, null, null, Noon));
     }
 
+    [Theory]
+    [InlineData(UpdateStage.Checking)]
+    [InlineData(UpdateStage.CheckFailed)]
+    public void ACheckRunningOrFailingLeavesTheOfferStanding(UpdateStage stage)
+    {
+        Assert.Equal(UpdateStage.Available, UpdateReminder.Shown(stage, UpdateStage.Available));
+        Assert.Equal(UpdateStage.CannotUpdateHere, UpdateReminder.Shown(stage, UpdateStage.CannotUpdateHere));
+        Assert.True(UpdateReminder.Shows(UpdateReminder.Shown(stage, UpdateStage.Available), Newer, null, null, Noon));
+    }
+
+    [Theory]
+    [InlineData(UpdateStage.Available)]
+    [InlineData(UpdateStage.CannotUpdateHere)]
+    [InlineData(UpdateStage.Downloading)]
+    [InlineData(UpdateStage.Installing)]
+    [InlineData(UpdateStage.UpdateFailed)]
+    [InlineData(UpdateStage.UpToDate)]
+    public void EveryOtherStageIsShownAsItIs(UpdateStage stage)
+    {
+        Assert.Equal(stage, UpdateReminder.Shown(stage, UpdateStage.Available));
+    }
+
     [Fact]
     public void ASkippedVersionIsNotOnShow()
     {

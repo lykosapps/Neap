@@ -67,7 +67,7 @@ public sealed partial class SettingsPage : Page
         AutomationProperties.SetLiveSetting(_updateState, AutomationLiveSetting.Polite);
         UpdateButton.Click += async (_, _) =>
         {
-            var look = UpdateLook.Of(AppServices.Updates.Stage);
+            var look = UpdateLook.Of(AppServices.Updates.Shown);
             if (look.Busy) return;
             if (look.Action == UpdateAction.Update) await AppServices.Updates.Update();
             else await AppServices.Updates.Check();
@@ -160,7 +160,10 @@ public sealed partial class SettingsPage : Page
     private void PaintUpdates()
     {
         var updates = AppServices.Updates;
-        var look = UpdateLook.Of(updates.Stage);
+
+        // The buttons follow the offer, so a check that fails doesn't take
+        // Update and restart away; the sentence says what the check did.
+        var look = UpdateLook.Of(updates.Shown);
 
         UpdateButton.Content = Strings.Get(look.Action == UpdateAction.Update ? "Settings_UpdateInstall" : "Settings_UpdateCheck");
         Lead(UpdateButton, look.Leads);

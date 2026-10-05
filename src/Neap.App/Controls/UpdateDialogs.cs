@@ -38,7 +38,7 @@ public static class UpdateDialogs
         var body = new StackPanel { Spacing = 8 };
         foreach (var block in blocks) body.Children.Add(Draw(block));
 
-        var look = UpdateLook.Of(updates.Stage);
+        var look = UpdateLook.Of(updates.Shown);
         var dialog = new NeapDialog
         {
             XamlRoot = root,

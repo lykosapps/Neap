@@ -50,7 +50,7 @@ public sealed partial class UpdateBar : UserControl
     private static async Task Update()
     {
         var updates = AppServices.Updates;
-        var look = UpdateLook.Of(updates.Stage);
+        var look = UpdateLook.Of(updates.Shown);
         if (look.Busy) return;
         if (look.Download && updates.Newer is { } release)
         {
@@ -70,16 +70,16 @@ public sealed partial class UpdateBar : UserControl
             return;
         }
 
-        var look = UpdateLook.Of(updates.Stage);
-        Message.Text = UpdateCopy.Of(updates) ?? "";
+        var look = UpdateLook.Of(updates.Shown);
+        Message.Text = UpdateCopy.Of(updates, forBanner: true) ?? "";
         Act.Content = Strings.Get(look.Download ? "Settings_UpdateDownload" : "Settings_UpdateInstall");
         Notes.Visibility = look.Notes ? Visibility.Visible : Visibility.Collapsed;
         Visibility = Visibility.Visible;
 
         // Said when the banner appears or its stage changes, not as the
         // download's percentage ticks over.
-        bool moved = _painted != updates.Stage;
-        _painted = updates.Stage;
+        bool moved = _painted != updates.Shown;
+        _painted = updates.Shown;
         if (moved)
             FrameworkElementAutomationPeer.CreatePeerForElement(Message)?
                 .RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
