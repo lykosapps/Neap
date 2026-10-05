@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace Neap.Core.Audio;
 
@@ -30,6 +31,7 @@ public sealed record EndpointInfo(string Name, bool MatchedHeadset, int Percent,
 /// unmutes. That is expected Windows behaviour, not a fault.
 /// </para>
 /// </remarks>
+[SupportedOSPlatform("windows")]
 public static class AudioEndpoints
 {
     /// <summary>The name fragment that identifies the headset's own endpoints.</summary>
@@ -130,6 +132,7 @@ public static class AudioEndpoints
 }
 
 /// <summary>One open endpoint, with its volume interface.</summary>
+[SupportedOSPlatform("windows")]
 internal sealed class Endpoint : IDisposable
 {
     private IMMDevice _device;

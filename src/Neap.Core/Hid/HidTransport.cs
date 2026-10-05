@@ -1,46 +1,22 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace Neap.Core.Hid;
 
-public class DeviceNotFoundException : Exception
-{
-    public DeviceNotFoundException(string message) : base(message) { }
-}
-
-public class TransportException : Exception
-{
-    public TransportException(string message) : base(message) { }
-}
-
-/// <summary>Everything we can learn about a control collection before opening it.</summary>
-public readonly record struct HidDeviceInfo(
-    string Path, ushort VendorId, ushort ProductId, ushort UsagePage,
-    int OutputLength, int FeatureLength, int InputLength);
-
 /// <summary>
-/// An open handle to the Stealth Pro II's vendor control collection.
+/// An open handle to the Stealth Pro II's vendor control collection, through
+/// Windows' HID class driver.
 /// </summary>
 /// <remarks>
-/// <para>
-/// Replies are read with GET_REPORT of type Input on report id 7. The
-/// collection declares no feature reports, so HidD_GetFeature fails; Swarm II
-/// uses the input path too.
-/// </para>
-/// <para>
-/// More than one matching collection can be present. The transmitter is
-/// always there, and plugging the headset in with the USB-C cable adds a
-/// second. They speak the same protocol but are different devices with
-/// different storage, so anything that writes must know which one it has.
-/// </para>
+/// Windows gives each top-level collection a device of its own, so the vendor
+/// collection is found by its usage page, and HidD_GetFeature fails on it
+/// because it declares no feature reports. <see cref="HidControl"/>
+/// describes the reports themselves.
 /// </remarks>
+[SupportedOSPlatform("windows")]
 public sealed class HidTransport : IHidTransport
 {
-    public const ushort DefaultVendorId = 0x10F5;
-    public const ushort VendorUsagePage = 0xFF13;
-    public const byte OutReportId = 0x06;
-    public const byte InReportId = 0x07;
-
     private IntPtr _handle;
 
     public string Path { get; }
@@ -50,11 +26,11 @@ public sealed class HidTransport : IHidTransport
     public int OutputLength { get; }
     public int InputLength { get; }
 
-    public HidTransport(string? path = null, ushort? productId = null)
+    /// <exception cref="DeviceNotFoundException">Nothing at that path can be described.</exception>
+    /// <exception cref="TransportException">The device could not be opened.</exception>
+    public HidTransport(string path)
     {
-        HidDeviceInfo info = path is null
-            ? FindDevice(productId: productId)
-            : Describe(path) ?? throw new DeviceNotFoundException(path);
+        HidDeviceInfo info = Describe(path) ?? throw new DeviceNotFoundException(path);
 
         Path = info.Path;
         VendorId = info.VendorId;
@@ -96,7 +72,7 @@ public sealed class HidTransport : IHidTransport
     }
 
     /// <summary>Reads one report from the headset, report id included.</summary>
-    public byte[] GetInput(byte reportId = InReportId)
+    public byte[] GetInput(byte reportId = HidControl.InReportId)
     {
         var buffer = new byte[InputLength];
         buffer[0] = reportId;
@@ -119,7 +95,7 @@ public sealed class HidTransport : IHidTransport
 
     /// <summary>Every collection present from one vendor, on one usage page or, given null, on any.</summary>
     public static IReadOnlyList<HidDeviceInfo> ListDevices(
-        ushort vendorId = DefaultVendorId, ushort? usagePage = VendorUsagePage)
+        ushort vendorId = HidControl.VendorId, ushort? usagePage = HidControl.UsagePage)
     {
         var found = new List<HidDeviceInfo>();
         foreach (var path in EnumeratePaths())
@@ -129,53 +105,6 @@ public sealed class HidTransport : IHidTransport
                 found.Add(d);
         }
         return found;
-    }
-
-    /// <summary>
-    /// The order in which devices are asked: the headset itself, then a USB
-    /// Transmitter, then a Charging Dock, then anything unrecognised.
-    /// </summary>
-    /// <remarks>
-    /// This is a tie-break, not a decision. Which devices are present says
-    /// nothing about which one the headset is on: two transmitters can be
-    /// plugged in at once, the headset pairs with one at a time, and the other
-    /// opens cleanly and answers nothing. A caller must ask each one, as
-    /// <see cref="HeadsetClient.Behind"/> does.
-    /// </remarks>
-    private static int Rank(HidDeviceInfo device) => Transmitters.PieceOf(device.ProductId) switch
-    {
-        Transmitters.Piece.Headset => 0,
-        Transmitters.Piece.Transmitter => 1,
-        Transmitters.Piece.Dock => 2,
-        _ => 3,
-    };
-
-    /// <summary>Every matching control collection present, in the order to ask them.</summary>
-    public static IReadOnlyList<HidDeviceInfo> Candidates(
-        ushort vendorId = DefaultVendorId, ushort usagePage = VendorUsagePage)
-    {
-        return ListDevices(vendorId, usagePage).OrderBy(Rank).ToList();
-    }
-
-    public static HidDeviceInfo FindDevice(
-        ushort vendorId = DefaultVendorId, ushort usagePage = VendorUsagePage,
-        ushort? productId = null)
-    {
-        var found = ListDevices(vendorId, usagePage);
-        if (productId is not null)
-        {
-            foreach (var info in found)
-                if (info.ProductId == productId) return info;
-        }
-        else if (found.Count > 0)
-        {
-            return found.OrderBy(Rank).First();
-        }
-
-        var want = productId is null ? "" : $", product 0x{productId:x4}";
-        throw new DeviceNotFoundException(
-            $"no HID collection with vendor 0x{vendorId:x4}{want} and usage page "
-            + $"0x{usagePage:x4} — is the transmitter plugged in?");
     }
 
     private static IEnumerable<string> EnumeratePaths()

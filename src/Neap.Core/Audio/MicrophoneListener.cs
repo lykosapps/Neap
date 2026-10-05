@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
@@ -30,6 +31,7 @@ namespace Neap.Core.Audio;
 /// does exactly that, so opening returns only once recording has begun.
 /// </para>
 /// </remarks>
+[SupportedOSPlatform("windows")]
 public sealed class MicrophoneListener : IDisposable
 {
     private readonly object _gate = new();

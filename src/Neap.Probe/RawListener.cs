@@ -47,7 +47,7 @@ internal static class RawListener
 
     public static int Run(double seconds, ushort usagePage)
     {
-        var candidates = HidTransport.Candidates(usagePage: usagePage);
+        var candidates = HidControl.InAskingOrder(SystemDevices.List(usagePage));
         if (candidates.Count == 0)
         {
             Console.WriteLine($"nothing of the headset's is plugged in on usage page 0x{usagePage:x4}");

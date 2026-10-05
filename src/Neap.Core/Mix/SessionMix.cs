@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using NAudio.CoreAudioApi;
-using NAudio.CoreAudioApi.Interfaces;
 
 namespace Neap.Core.Mix;
 
@@ -14,20 +12,20 @@ public sealed record SessionMixStatus(
 public sealed record ChatElsewhere(string App, string Device);
 
 /// <summary>
-/// The game/chat crossfade, applied through per-application session volumes
-/// with nothing in the audio path.
+/// The game/chat crossfade, applied through per-application volumes with
+/// nothing in the audio path.
 /// </summary>
 /// <remarks>
 /// <para>
 /// The chat application and the game both play natively to the headset, as
 /// they would with no software running at all. The mix sets the chat
-/// application's session volumes to the chat half of the crossfade and every
-/// other session on that endpoint to the game half. Session volume is already
-/// a working per-application gain, so no virtual cable, driver or real-time
-/// capture and render path is needed, and there is nothing to configure,
-/// because the chat application is already on its default output. Measured on
-/// hardware with a call and music playing at once: endpoint peak 1.0000 with
-/// both, 0.8529 with chat alone, 0.6876 with game alone.
+/// application's volumes to the chat half of the crossfade and every other
+/// application on that output to the game half. Per-application volume is
+/// already a working gain, so no virtual cable, driver or real-time capture
+/// and render path is needed, and there is nothing to configure, because the
+/// chat application is already on its default output. Measured on hardware
+/// with a call and music playing at once: endpoint peak 1.0000 with both,
+/// 0.8529 with chat alone, 0.6876 with game alone.
 /// </para>
 /// <para>
 /// Routing by application means the chat application has to be its own
@@ -54,11 +52,11 @@ public sealed class SessionMix : IMixEngine
     private const int SweepMs = 2000;
 
     private readonly object _gate = new();
-    /// <summary>How often to go looking; walking every endpoint is not free.</summary>
+    /// <summary>How often to go looking; walking every output is not free.</summary>
     private static readonly TimeSpan LookGap = TimeSpan.FromSeconds(4);
 
-    private readonly string _headsetMatch;
-    private readonly MMDeviceEnumerator _devices = new();
+    private readonly IPlayback _playback;
+    private readonly VolumeJournal _journal;
 
     /// <summary>Set to have Apply report what it actually managed to change.</summary>
     public static bool Diagnostics { get; set; }
@@ -72,11 +70,6 @@ public sealed class SessionMix : IMixEngine
 
     /// <summary>Where the mix says it looked up another program's name. Unset, nothing is said.</summary>
     public static Action<string>? LookedUp { get; set; }
-
-    private static readonly Stopwatch Clock = Stopwatch.StartNew();
-
-    /// <summary>Shared by every mix, so a program is looked up once however many times the mix restarts.</summary>
-    private static readonly ProcessNames Names = new(ProcessName, () => Clock.Elapsed, name => LookedUp?.Invoke(name));
 
     private List<string> _chatApps;
     private int _mix = 50;
@@ -94,14 +87,17 @@ public sealed class SessionMix : IMixEngine
     private ChatElsewhere? _elsewhere;
     private long _lastLook;
 
-    public SessionMix(IEnumerable<string> chatApps, string headsetMatch = "Stealth Pro")
-    {
-        _chatApps = chatApps.Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
-        _headsetMatch = headsetMatch;
-    }
+    /// <summary>A mix over this operating system's per-application volumes.</summary>
+    /// <exception cref="PlatformNotSupportedException">The operating system has none the mix can reach.</exception>
+    public SessionMix(IEnumerable<string> chatApps)
+        : this(Playback.ForThisSystem(), chatApps, VolumeJournal.Shared) { }
 
-    public SessionMix(string chatApp, string headsetMatch = "Stealth Pro")
-        : this(new[] { chatApp }, headsetMatch) { }
+    internal SessionMix(IPlayback playback, IEnumerable<string> chatApps, VolumeJournal journal)
+    {
+        _playback = playback;
+        _journal = journal;
+        _chatApps = chatApps.Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
+    }
 
     public IReadOnlyList<string> ChatApps
     {
@@ -115,7 +111,7 @@ public sealed class SessionMix : IMixEngine
         {
             lock (_gate)
                 return new SessionMixStatus(_running, _mix, _chatCount, _gameCount,
-                    VolumeJournal.Shared.Count, _headsetIsOutput, string.Join(", ", _chatApps),
+                    _journal.Count, _headsetIsOutput, string.Join(", ", _chatApps),
                     _elsewhere);
         }
     }
@@ -162,8 +158,11 @@ public sealed class SessionMix : IMixEngine
 
         // Wait out a pass already under way. Otherwise it could hold volumes
         // down again just after they were put back.
-        lock (_pass) RestoreDevices(_devices);
+        lock (_pass) RestoreDevices(_playback, _journal);
     }
+
+    /// <summary>Applies the mix now, on the caller's thread.</summary>
+    internal void ApplyNow() => Pass();
 
     /// <summary>Applies the mix soon. Asking again before it runs costs nothing.</summary>
     private void Poke()
@@ -201,60 +200,47 @@ public sealed class SessionMix : IMixEngine
         // has switched to speakers — or to the other transmitter — the mix
         // applies to nothing they can hear, and levels left pinned on an
         // unused device are found later with no explanation.
-        using var headset = FindHeadset();
+        using var headset = _playback.Headset();
         if (headset is null)
         {
             lock (_gate) _headsetIsOutput = false;
-            RestoreDevices(_devices);
+            RestoreDevices(_playback, _journal);
             _lastDevice = null;
             return;
         }
-        // FindHeadset only returns the default output, so reaching here
-        // means the person is listening on the headset.
         lock (_gate) _headsetIsOutput = true;
 
         // Moved from one of the headset's devices to another, the Charging
         // Dock to the USB Transmitter say. What was held down on the one left
         // behind goes back now, not whenever the mix next runs there.
-        if (_lastDevice is { } previous && previous != headset.ID)
-            RestoreDevices(_devices, previous);
-        _lastDevice = headset.ID;
+        if (_lastDevice is { } previous && previous != headset.Id)
+            RestoreDevices(_playback, _journal, previous);
+        _lastDevice = headset.Id;
 
         float chatScale = MixLevels.ChatScale(mix), gameScale = MixLevels.GameScale(mix);
-        int ours = Environment.ProcessId;
         int chatSeen = 0, gameSeen = 0;
         bool chatPlaying = false;
 
-        // Refresh every time, never cache. NAudio hands back the same
-        // collection until asked again, so an application that starts playing
-        // after the mix is set stays invisible and plays at full volume
-        // through a full chat mix.
-        headset.AudioSessionManager.RefreshSessions();
-        var sessions = headset.AudioSessionManager.Sessions;
-
-        var pending = new List<(AudioSessionControl Session, string Id, float Wanted, float Scale)>();
-        for (int i = 0; i < sessions.Count; i++)
+        var pending = new List<(IPlaybackSession Session, string Id, float Wanted, float Scale)>();
+        foreach (var session in headset.Sessions())
         {
-            var session = sessions[i];
-            if (session.GetProcessID == ours) continue;
-            if (session.State == AudioSessionState.AudioSessionStateExpired) continue;
+            if (session.Ours) continue;
             // No identifier means nothing we could put back later.
-            string? id = session.GetSessionIdentifier;
+            string? id = session.Id;
             if (string.IsNullOrEmpty(id)) continue;
 
-            bool isChat = IsChat(session.GetProcessID, chatApps);
+            bool isChat = IsChat(session, chatApps);
             if (isChat) chatSeen++; else gameSeen++;
-            if (isChat && session.State == AudioSessionState.AudioSessionStateActive) chatPlaying = true;
+            if (isChat && session.Playing) chatPlaying = true;
 
             float scale = isChat ? chatScale : gameScale;
-            if (VolumeJournal.Shared.Wanted(headset.ID, id, session.SimpleAudioVolume.Volume, scale)
-                is float wanted)
+            if (_journal.Wanted(headset.Id, id, session.Volume, scale) is float wanted)
                 pending.Add((session, id, wanted, scale));
         }
 
         lock (_gate) { _chatCount = chatSeen; _gameCount = gameSeen; }
 
-        // The mix can only reach sessions on the endpoint being listened to.
+        // The mix can only reach sessions on the output being listened to.
         // A chat application pointed at a different device is invisible to it
         // and silent to the person, and nothing about that says so: the wheel
         // simply stops doing anything to chat. Discord keeps its own output
@@ -262,19 +248,19 @@ public sealed class SessionMix : IMixEngine
         //
         // Only looked for when chat is not playing here, which is the only
         // time it can be true, and at most every few seconds because it means
-        // walking every endpoint's sessions.
-        if (!chatPlaying && chatApps.Count > 0) LookElsewhere(chatApps, headset.ID);
+        // walking every output's sessions.
+        if (!chatPlaying && chatApps.Count > 0) LookElsewhere(chatApps, headset);
         else lock (_gate) _elsewhere = null;
         if (pending.Count == 0) return;
 
         // Write down what we are about to do before doing it. A kill between
         // the two costs nothing; a kill the other way round loses the
         // originals and the person's other applications stay quiet for good.
-        VolumeJournal.Shared.Commit(headset.ID, pending.Select(p => (p.Id, p.Wanted, p.Scale)));
+        _journal.Commit(headset.Id, pending.Select(p => (p.Id, p.Wanted, p.Scale)));
         int set = 0; string? trouble = null;
         foreach (var (session, _, wanted, _) in pending)
         {
-            try { session.SimpleAudioVolume.Volume = wanted; set++; }
+            try { session.Volume = wanted; set++; }
             catch (Exception ex) { trouble ??= ex.Message; }
         }
         if (Diagnostics)
@@ -284,14 +270,14 @@ public sealed class SessionMix : IMixEngine
 
     /// <summary>Finds where the chat application is playing instead.</summary>
     /// <remarks>
-    /// Only a playing (Active) session counts, here and elsewhere. An
-    /// application keeps idle sessions on every device it has played to, so
-    /// counting those put Discord "here" on the Charging Dock while it was
-    /// playing to the USB Transmitter, and the warning never appeared. Between
-    /// sounds, when chat is idle everywhere, nothing is reported: there is
-    /// nothing for the mix to miss.
+    /// Only a playing session counts, here and elsewhere. An application keeps
+    /// idle sessions on every device it has played to, so counting those put
+    /// Discord "here" on the Charging Dock while it was playing to the USB
+    /// Transmitter, and the warning never appeared. Between sounds, when chat
+    /// is idle everywhere, nothing is reported: there is nothing for the mix
+    /// to miss.
     /// </remarks>
-    private void LookElsewhere(List<string> chatApps, string headsetId)
+    private void LookElsewhere(List<string> chatApps, IPlaybackDevice headset)
     {
         long now = Stopwatch.GetTimestamp();
         lock (_gate)
@@ -304,22 +290,11 @@ public sealed class SessionMix : IMixEngine
         var seen = new List<ChatSession>();
         try
         {
-            foreach (var device in _devices.EnumerateAudioEndPoints(
-                         DataFlow.Render, DeviceState.Active))
+            foreach (var device in _playback.Others(headset))
                 using (device)
-                {
-                    if (device.ID == headsetId) continue;
-                    device.AudioSessionManager.RefreshSessions();
-                    var sessions = device.AudioSessionManager.Sessions;
-                    for (int i = 0; i < sessions.Count; i++)
-                    {
-                        var session = sessions[i];
-                        if (!IsChat(session.GetProcessID, chatApps)) continue;
-                        seen.Add(new ChatSession(Names.Of(session.GetProcessID),
-                            device.FriendlyName,
-                            session.State == AudioSessionState.AudioSessionStateActive));
-                    }
-                }
+                    foreach (var session in device.Sessions())
+                        if (IsChat(session, chatApps))
+                            seen.Add(new ChatSession(session.Program, device.Name, session.Playing));
         }
         catch { /* a device that will not answer is not where chat is */ }
 
@@ -340,16 +315,15 @@ public sealed class SessionMix : IMixEngine
     /// anything for, or only on <paramref name="only"/>.
     /// </summary>
     /// <remarks>A device that is not plugged in keeps its record for when it is.</remarks>
-    private static void RestoreDevices(MMDeviceEnumerator devices, string? only = null)
+    private static void RestoreDevices(IPlayback playback, VolumeJournal journal, string? only = null)
     {
-        foreach (string id in only is null ? VolumeJournal.Shared.Devices : [only])
+        foreach (string id in only is null ? journal.Devices : [only])
         {
             try
             {
-                using var device = devices.GetDevice(id);
-                if (device.State != DeviceState.Active) continue;
-                device.AudioSessionManager.RefreshSessions();
-                VolumeJournal.Shared.RestoreInto(id, Volumes(device.AudioSessionManager.Sessions));
+                using var device = playback.Find(id);
+                if (device is null) continue;
+                journal.RestoreInto(id, device.Sessions());
             }
             catch (Exception ex)
             {
@@ -360,64 +334,15 @@ public sealed class SessionMix : IMixEngine
         }
     }
 
-    private static IEnumerable<ISessionVolume> Volumes(SessionCollection sessions)
-    {
-        for (int i = 0; i < sessions.Count; i++) yield return new SessionVolume(sessions[i]);
-    }
-
-    private sealed class SessionVolume(AudioSessionControl session) : ISessionVolume
-    {
-        public string? Id => session.GetSessionIdentifier;
-
-        public float Volume
-        {
-            get => session.SimpleAudioVolume.Volume;
-            set => session.SimpleAudioVolume.Volume = value;
-        }
-    }
-
-    private static bool IsChat(uint pid, List<string> chatApps)
+    /// <remarks>The program is named only once there is a chat application to compare it with.</remarks>
+    private static bool IsChat(IPlaybackSession session, List<string> chatApps)
     {
         if (chatApps.Count == 0) return false;
-        string name = Names.Of(pid);
-        if (name.Length == 0) return false;
+        string program = session.Program;
+        if (program.Length == 0) return false;
         foreach (string app in chatApps)
-            if (name.Contains(app, StringComparison.OrdinalIgnoreCase)) return true;
+            if (program.Contains(app, StringComparison.OrdinalIgnoreCase)) return true;
         return false;
-    }
-
-    private static string ProcessName(uint pid) => Programs.NameOf(pid);
-
-    /// <summary>
-    /// The headset endpoint the person is actually listening on: the default
-    /// output, when it is the headset; otherwise null.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// Not the first endpoint whose name matches. Two transmitters plugged in
-    /// at once give two endpoints that both answer to "Stealth Pro", the
-    /// Charging Dock's and the USB Transmitter's, and the first match can
-    /// leave the mix holding levels on one device while the person listens to
-    /// the other, with nothing to show for it.
-    /// </para>
-    /// <para>
-    /// The default output is the only endpoint the mix has any business
-    /// touching, so this asks for that one and checks it is the headset,
-    /// rather than finding a headset and then asking whether it is the default.
-    /// </para>
-    /// </remarks>
-    private MMDevice? FindHeadset()
-    {
-        try
-        {
-            var current = _devices.GetDefaultAudioEndpoint(
-                DataFlow.Render, NAudio.CoreAudioApi.Role.Multimedia);
-            if (current.FriendlyName.Contains(_headsetMatch, StringComparison.OrdinalIgnoreCase))
-                return current;
-            current.Dispose();
-            return null;
-        }
-        catch { return null; }
     }
 
     /// <summary>
@@ -428,8 +353,8 @@ public sealed class SessionMix : IMixEngine
     {
         try
         {
-            using var devices = new MMDeviceEnumerator();
-            RestoreDevices(devices);
+            using var playback = Playback.ForThisSystem();
+            RestoreDevices(playback, VolumeJournal.Shared);
         }
         catch { /* no audio system to ask; the journal keeps it for next time */ }
     }
@@ -437,6 +362,6 @@ public sealed class SessionMix : IMixEngine
     public void Dispose()
     {
         Stop();
-        _devices.Dispose();
+        _playback.Dispose();
     }
 }

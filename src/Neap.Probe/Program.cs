@@ -80,7 +80,7 @@ try
         case "raw":
             return Raw(
                 args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 20,
-                args.Length > 2 ? Convert.ToUInt16(args[2], 16) : HidTransport.VendorUsagePage);
+                args.Length > 2 ? Convert.ToUInt16(args[2], 16) : HidControl.UsagePage);
         case "decode":
             return Neap.Probe.Capture.Decode(
                 args[1], args.Length > 2 ? int.Parse(args[2], CultureInfo.InvariantCulture) : 1);
@@ -144,7 +144,7 @@ static HeadsetClient Ask()
 // general-state block and its transmitter slots.
 static int Who()
 {
-    var candidates = HidTransport.Candidates();
+    var candidates = SystemDevices.Instance.Candidates();
     if (candidates.Count == 0) { Console.WriteLine("nothing plugged in"); return 1; }
 
     foreach (var device in candidates)
@@ -154,7 +154,7 @@ static int Who()
             ? called : $"0x{device.ProductId:x4}";
         try
         {
-            using var client = new HeadsetClient(false, new HidTransport(device.Path), ownsTransport: true);
+            using var client = new HeadsetClient(false, SystemDevices.Instance.Open(device), ownsTransport: true);
             client.Drain();
             var state = client.ReadCategory("GSI", TimeSpan.FromMilliseconds(1500));
             if (state.Count == 0)
@@ -178,7 +178,7 @@ static int Who()
 
 static int Devices()
 {
-    var found = HidTransport.ListDevices();
+    var found = SystemDevices.List(HidControl.UsagePage);
     if (found.Count == 0) { Console.WriteLine("none found"); return 1; }
     foreach (var d in found)
         Console.WriteLine($"0x{d.VendorId:x4}:0x{d.ProductId:x4}  usage page 0x{d.UsagePage:x4}  "
@@ -476,7 +476,7 @@ static int MixApp(string chatApp, string what)
     if (headset is null) { Console.WriteLine("headset not found"); return 1; }
 
     Neap.Core.Mix.SessionMix.Diagnostics = true;
-    var mix = new Neap.Core.Mix.SessionMix(chatApp);
+    var mix = new Neap.Core.Mix.SessionMix([chatApp]);
     mix.Start();
     Console.WriteLine($"  {mix.Status}");
 

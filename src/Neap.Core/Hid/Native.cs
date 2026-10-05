@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace Neap.Core.Hid;
 
@@ -9,6 +10,7 @@ namespace Neap.Core.Hid;
 /// <remarks>
 /// <see cref="HidTransport"/> documents how these are used and why.
 /// </remarks>
+[SupportedOSPlatform("windows")]
 internal static class Native
 {
     internal const uint GenericRead = 0x80000000;

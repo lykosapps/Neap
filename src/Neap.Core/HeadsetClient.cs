@@ -43,7 +43,7 @@ public sealed class HeadsetClient : IDisposable
     public bool AllowWrites { get; }
 
     /// <param name="allowWrites">Whether this client may write to the headset at all.</param>
-    /// <param name="transport">The channel to the device, or a real one opened by product id when none is given.</param>
+    /// <param name="transport">The channel to the device, or the first plugged in to ask when none is given.</param>
     /// <param name="ownsTransport">
     /// Close <paramref name="transport"/> when this client is disposed. A
     /// transport handed in is otherwise the caller's to close.
@@ -53,7 +53,7 @@ public sealed class HeadsetClient : IDisposable
     {
         AllowWrites = allowWrites;
         _ownsTransport = transport is null || ownsTransport;
-        _transport = transport ?? new HidTransport();
+        _transport = transport ?? SystemDevices.Instance.Open(HidControl.Pick(SystemDevices.Instance.Candidates()));
     }
 
     /// <summary>How long to give a device to prove it has the headset.</summary>
@@ -80,7 +80,7 @@ public sealed class HeadsetClient : IDisposable
     /// <param name="allowWrites">Whether the returned client may write to the headset.</param>
     /// <param name="present">How many candidate devices were found.</param>
     /// <param name="askLast">A product id to ask after the others, when its answer is in doubt.</param>
-    /// <param name="devices">Where to look; what Windows has when not given.</param>
+    /// <param name="devices">Where to look; what the operating system has when not given.</param>
     /// <returns>
     /// The client for the device that answered, or null when devices are
     /// present but none has the headset.

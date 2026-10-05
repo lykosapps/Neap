@@ -4,8 +4,8 @@ namespace Neap.Core.Hid;
 /// The output and input report pair the headset is reached through.
 /// </summary>
 /// <remarks>
-/// <see cref="HidTransport"/> is the real device; tests substitute recorded
-/// replies.
+/// <see cref="SystemDevices"/> opens the real device; tests substitute
+/// recorded replies.
 /// </remarks>
 public interface IHidTransport : IDisposable
 {
@@ -18,5 +18,5 @@ public interface IHidTransport : IDisposable
     void SendOutput(ReadOnlySpan<byte> report);
 
     /// <summary>Reads one input report, report id included.</summary>
-    byte[] GetInput(byte reportId = HidTransport.InReportId);
+    byte[] GetInput(byte reportId = HidControl.InReportId);
 }

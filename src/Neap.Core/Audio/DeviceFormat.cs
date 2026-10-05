@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace Neap.Core.Audio;
 
@@ -10,12 +11,29 @@ public class FormatException : Exception
 
 public sealed record AudioFormat(int Bits, int Rate, int Channels)
 {
+    /// <summary>Windows' own words for each rate, so the app and the Sound dialog agree.</summary>
+    /// <remarks>
+    /// Confirmed against the Sound dialog for 16000, 48000 and 96000. Rates
+    /// not listed, 96000 included, are "Studio quality".
+    /// </remarks>
+    private static readonly IReadOnlyDictionary<int, string> Quality =
+        new Dictionary<int, string>
+        {
+            [8000] = "Telephone quality",
+            [11025] = "Telephone quality",
+            [16000] = "Tape recorder quality",
+            [22050] = "AM radio quality",
+            [32000] = "FM radio quality",
+            [44100] = "CD quality",
+            [48000] = "DVD quality",
+        };
+
     public string Label
     {
         get
         {
             double khz = Rate / 1000.0;
-            string quality = DeviceFormat.Quality.TryGetValue(Rate, out var name)
+            string quality = Quality.TryGetValue(Rate, out var name)
                 ? name : "Studio quality";
             return $"{Bits}-bit, {khz:0.##} kHz ({quality})";
         }
@@ -53,6 +71,7 @@ public sealed record FormatReport(
 /// before writing.
 /// </para>
 /// </remarks>
+[SupportedOSPlatform("windows")]
 public static class DeviceFormat
 {
     private const ushort WaveFormatExtensibleTag = 0xFFFE;
@@ -74,23 +93,6 @@ public static class DeviceFormat
     };
 
     public static readonly IReadOnlyList<int> Depths = new[] { 16, 24, 32 };
-
-    /// <summary>Windows' own words for each rate, so the app and the Sound dialog agree.</summary>
-    /// <remarks>
-    /// Confirmed against the Sound dialog for 16000, 48000 and 96000. Rates
-    /// not listed, 96000 included, are "Studio quality".
-    /// </remarks>
-    public static readonly IReadOnlyDictionary<int, string> Quality =
-        new Dictionary<int, string>
-        {
-            [8000] = "Telephone quality",
-            [11025] = "Telephone quality",
-            [16000] = "Tape recorder quality",
-            [22050] = "AM radio quality",
-            [32000] = "FM radio quality",
-            [44100] = "CD quality",
-            [48000] = "DVD quality",
-        };
 
     // -- reading -----------------------------------------------------------
 

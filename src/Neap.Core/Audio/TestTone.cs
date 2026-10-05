@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -20,6 +21,7 @@ namespace Neap.Core.Audio;
 /// the stream closes, so it never starts or stops with a click.
 /// </para>
 /// </remarks>
+[SupportedOSPlatform("windows")]
 public sealed class TestTone : IPlayingTone
 {
     private readonly MMDeviceEnumerator _devices;

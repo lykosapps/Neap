@@ -1,7 +1,10 @@
+using System.Runtime.Versioning;
 using Neap.Core.Audio;
 
 namespace Neap.Core.Tests.Audio;
 
+/// <summary>Windows' description of a device format, built to be handed to Windows.</summary>
+[SupportedOSPlatform("windows")]
 public class DeviceFormatTests
 {
     [Fact]

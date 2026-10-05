@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using NFlow = NAudio.CoreAudioApi.DataFlow;
@@ -28,6 +29,7 @@ public sealed record Routed(string Endpoint, string Product);
 /// microphone still on the USB Transmitter the headset had left.
 /// </para>
 /// </remarks>
+[SupportedOSPlatform("windows")]
 public static class Routing
 {
     private static readonly NKey FilterPath =

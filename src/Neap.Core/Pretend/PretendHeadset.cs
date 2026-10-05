@@ -224,8 +224,8 @@ public sealed class PretendHeadset : IDeviceSource
     // -- the device source -------------------------------------------------
 
     public IReadOnlyList<HidDeviceInfo> Candidates() =>
-        [new HidDeviceInfo("pretend:229B", HidTransport.DefaultVendorId, DockProduct,
-            HidTransport.VendorUsagePage, Frames.ReportLength, 0, Frames.ReportLength)];
+        [new HidDeviceInfo("pretend:229B", HidControl.VendorId, DockProduct,
+            HidControl.UsagePage, Frames.ReportLength, 0, Frames.ReportLength)];
 
     public IHidTransport Open(HidDeviceInfo device) =>
         device.ProductId == DockProduct
@@ -240,11 +240,11 @@ public sealed class PretendHeadset : IDeviceSource
     {
         public ushort ProductId => DockProduct;
 
-        public string Describe() => $"pretend 0x{HidTransport.DefaultVendorId:x4}:0x{DockProduct:x4}";
+        public string Describe() => $"pretend 0x{HidControl.VendorId:x4}:0x{DockProduct:x4}";
 
         public void SendOutput(ReadOnlySpan<byte> report) => headset.Receive(report);
 
-        public byte[] GetInput(byte reportId = HidTransport.InReportId) => headset.NextReport(reportId);
+        public byte[] GetInput(byte reportId = HidControl.InReportId) => headset.NextReport(reportId);
 
         public void Dispose() { }
     }

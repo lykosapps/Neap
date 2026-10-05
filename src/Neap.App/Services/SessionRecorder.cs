@@ -177,7 +177,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
         catch (Exception ex) { unread.Add($"transmitter slots: {ex.Message}"); }
 
         IReadOnlyList<HidDeviceInfo> plugged = [];
-        try { plugged = Pretend.Active ? AppServices.Devices.Candidates() : HidTransport.ListDevices(usagePage: null); }
+        try { plugged = Pretend.Active ? AppServices.Devices.Candidates() : SystemDevices.List(usagePage: null); }
         catch (Exception ex) { unread.Add($"plugged-in devices: {ex.Message}"); }
 
         SoundSurvey? sound = null;

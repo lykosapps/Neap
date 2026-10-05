@@ -1,9 +1,12 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace Neap.Core.Audio;
 
 internal enum DataFlow { Render = 0, Capture = 1, All = 2 }
 internal enum Role { Console = 0, Multimedia = 1, Communications = 2 }
+
+[SupportedOSPlatform("windows")]
 
 internal static class Com
 {
