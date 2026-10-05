@@ -9,7 +9,14 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
-## Unreleased
+## 0.2.0 — 2026-10-05
+
+Reporting a problem gets easier: record what your headset and Windows do
+while it happens, and send it to GitHub from Neap. Owners of other Turtle
+Beach headsets can help add support the same way.
+
+To update from 0.1.0, quit Neap from its icon by the clock, then unzip
+this version over your Neap folder. Your settings and profiles are kept.
 
 ### Reporting a problem
 
