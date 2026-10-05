@@ -1,5 +1,7 @@
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
+using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Neap.App.Services;
@@ -22,6 +24,14 @@ public static class UpdateDialogs
     /// Update and restart, or Download where Neap can't update itself, and
     /// nothing while an update is already running.
     /// </para>
+    /// <para>
+    /// The notes can be longer than the dialog, and a scroll area is not a
+    /// stop for the Tab key unless it is made one, so without that the
+    /// keyboard could reach only the buttons. It is made one, named for the
+    /// dialog, and focus starts on it, so the arrow keys and Page Down read the
+    /// notes at once. Enter does not start the update from there: there is no
+    /// default button, so an update begins only when its own button is chosen.
+    /// </para>
     /// </remarks>
     public static async Task ShowNotes(XamlRoot root)
     {
@@ -39,23 +49,27 @@ public static class UpdateDialogs
         foreach (var block in blocks) body.Children.Add(Draw(block));
 
         var look = UpdateLook.Of(updates.Shown);
+        string title = Strings.Format("Notes_Title", AppInfo.Name, release.Version.ToString(3));
+        var notes = new ScrollViewer
+        {
+            Content = body,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            IsTabStop = true,
+            UseSystemFocusVisuals = true,
+        };
+        AutomationProperties.SetName(notes, title);
+
         var dialog = new NeapDialog
         {
             XamlRoot = root,
-            Title = Strings.Format("Notes_Title", AppInfo.Name, release.Version.ToString(3)),
-            Content = new ScrollViewer
-            {
-                Content = body,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            },
+            Title = title,
+            Content = notes,
             CloseButtonText = Strings.Get("Dialog_Close"),
         };
         if (!look.Busy)
-        {
             dialog.PrimaryButtonText = Strings.Get(look.Download ? "Settings_UpdateDownload" : "Settings_UpdateInstall");
-            dialog.DefaultButton = ContentDialogButton.Primary;
-        }
+        dialog.Opened += (_, _) => notes.Focus(FocusState.Programmatic);
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
         if (look.Download) await OpenPage(release);
@@ -84,8 +98,7 @@ public static class UpdateDialogs
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
                 var dot = new TextBlock { Text = "•" };
-                Microsoft.UI.Xaml.Automation.AutomationProperties.SetAccessibilityView(
-                    dot, Microsoft.UI.Xaml.Automation.Peers.AccessibilityView.Raw);
+                AutomationProperties.SetAccessibilityView(dot, AccessibilityView.Raw);
                 row.Children.Add(dot);
                 var item = Text(block);
                 Grid.SetColumn(item, 1);
