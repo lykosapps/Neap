@@ -347,6 +347,18 @@ public sealed class HeadsetService : IDisposable
         return true;
     });
 
+    /// <summary>Reads one settings category and keeps what it says.</summary>
+    /// <remarks>
+    /// For a value the headset does not announce. Through the USB Transmitter
+    /// it sends nothing when the boom arm moves, though it says where the arm
+    /// is whenever it is asked, so a screen that shows the arm asks.
+    /// </remarks>
+    public Task ReadCategory(string category) => Post(client =>
+    {
+        Merge(client.ReadCategory(category, BeatWindow), authoritative: false);
+        return true;
+    });
+
     // -- the owner thread --------------------------------------------------
 
     private void Run()
