@@ -712,16 +712,26 @@ finding above proves nothing either way.
   reasonable cost.
 - **Switching Bluetooth from software.** No writable key found.
 
-Firmware images are signed and encrypted. Studying Swarm II's copies is
-fine; sending anything down the update path is not.
+Studying Swarm II's copies is fine; sending anything down the update path is
+not.
 
-What a copy shows *(research, 4.107.703)*: only the first 4 KB of each image
-is readable. It holds a 32-byte digest, the version, the chip and design
-names, a small table of flash regions, and a 68-byte block that is likely
-the signature. Everything after it is encrypted, near 8 bits of entropy per
-byte, with no readable text. There is no code, no strings and no LED or
-button table to read. The settings dictionaries beside each image are the
-only part with meaning.
+What a copy shows *(research, 4.107.703)*: each image is an Airoha update
+package. The first 4 KB is a plain header — a digest, the version, the chip
+and design names, and a table saying where each part loads. The body after
+it is **compressed, not encrypted**, and decompresses to the real firmware:
+Airoha's Bluetooth-audio SDK for this chip family, the headset and
+transmitter built from Airoha's own reference designs. The earlier reading
+of this as encrypted was wrong; the high randomness was compression.
+
+This is still a dead end for changing behaviour, for the reasons already
+given: the settings the firmware stores are outputs, not inputs, and Neap
+writes no flash and never touches the update path. Being able to read the
+firmware explains *why* the headset behaves as it does; it does not give a
+way to change it. The one new fact worth keeping is that the chip carries a
+vendor diagnostic channel that can read and write its memory directly. It is
+the same channel behind the 2025 "RACE" Bluetooth headphone vulnerabilities
+across many brands. Neap stays away from it, which the no-flash rule already
+ensures.
 
 ## Pitfalls
 
