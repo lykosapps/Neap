@@ -17,7 +17,8 @@ public sealed partial class AppStringsTests
     private static readonly string App = AppSource.Folder;
 
     /// <summary>Every folder of the app's sources: the screens, and the services they share.</summary>
-    private static readonly string[] Folders = [App, Path.Combine(App, "..", "Neap.Services")];
+    private static readonly string[] Folders =
+        [App, Path.Combine(App, "..", "Neap.Services"), Path.Combine(App, "..", "Neap.Desktop")];
 
     private static readonly HashSet<string> Names = XDocument
         .Load(Path.Combine(App, "Strings", "en-US", "Resources.resw"))
@@ -58,7 +59,9 @@ public sealed partial class AppStringsTests
             .Distinct();
 
     private static IEnumerable<string> Uids() =>
-        Sources("*.xaml").SelectMany(text => Uid().Matches(text).Select(m => m.Groups[1].Value))
+        Sources("*.xaml").SelectMany(text => Uid().Matches(text))
+            .Concat(Sources("*.axaml").SelectMany(text => AvaloniaUid().Matches(text)))
+            .Select(m => m.Groups[1].Value)
             .Distinct();
 
     private static IEnumerable<string> Sources(string pattern) =>
@@ -75,4 +78,8 @@ public sealed partial class AppStringsTests
 
     [GeneratedRegex("x:Uid=\"([^\"]+)\"")]
     private static partial Regex Uid();
+
+    /// <summary>The cross-platform app's way of saying the same: <c>loc:Uid.Value="Mix_Title"</c>.</summary>
+    [GeneratedRegex("Uid\\.Value=\"([^\"]+)\"")]
+    private static partial Regex AvaloniaUid();
 }

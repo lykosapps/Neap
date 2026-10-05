@@ -1,0 +1,25 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.Notice"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        A sentence the screen has to say in words, outlined in the tone it
+        speaks in. The icon and the outline both carry the severity, so the
+        words are never the only thing telling a warning from a note.
+    -->
+    <Border x:Name="Frame" Classes="notice" Padding="16,12">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <PathIcon
+                x:Name="Mark"
+                Width="20"
+                Height="20"
+                VerticalAlignment="Top"
+                Data="{StaticResource IconInfo}" />
+            <StackPanel Grid.Column="1" Spacing="2">
+                <TextBlock x:Name="TitleText" Classes="bodystrong" IsVisible="False" />
+                <TextBlock x:Name="MessageText" IsVisible="False" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

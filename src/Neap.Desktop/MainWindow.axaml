@@ -1,0 +1,90 @@
+<Window
+    x:Class="Neap.Desktop.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization"
+    Width="1100"
+    Height="780"
+    MinWidth="640"
+    MinHeight="480"
+    Background="{DynamicResource NeapGroundBrush}"
+    Icon="avares://Neap.Desktop/Assets/app.ico">
+
+    <!--
+        Neap's own ground behind everything, in place of the system's grey.
+    -->
+    <Grid RowDefinitions="48,Auto,*">
+
+        <!--
+            The title row carries the headset's connection state, the one
+            thing worth seeing from every tab; the readings are on Home.
+            Right-aligned.
+        -->
+        <Grid ColumnDefinitions="Auto,*,Auto">
+            <!-- The app's mark beside its name. Decoration only: the name says it. -->
+            <StackPanel Margin="16,0,0,0" Orientation="Horizontal" Spacing="12">
+                <Image
+                    Width="16"
+                    Height="16"
+                    VerticalAlignment="Center"
+                    Source="avares://Neap.Desktop/Assets/logo.png" />
+                <TextBlock x:Name="TitleText" Classes="caption" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <c:HeadsetStatusStrip
+                x:Name="Status"
+                Grid.Column="2"
+                Margin="0,0,16,0"
+                VerticalAlignment="Center" />
+        </Grid>
+
+        <SplitView
+            x:Name="Rail"
+            Grid.Row="2"
+            CompactPaneLength="52"
+            DisplayMode="CompactInline"
+            IsPaneOpen="True"
+            OpenPaneLength="220"
+            PaneBackground="Transparent">
+            <SplitView.Pane>
+                <DockPanel>
+                    <!-- Settings sits apart at the foot, as the Windows app has it. -->
+                    <ListBox
+                        x:Name="Foot"
+                        Background="Transparent"
+                        DockPanel.Dock="Bottom">
+                        <c:NavItem
+                            loc:Uid.Value="Main_NavSettings"
+                            Icon="{StaticResource IconSettings}"
+                            Page="settings" />
+                    </ListBox>
+                    <ListBox x:Name="Places" Background="Transparent">
+                        <c:NavItem
+                            loc:Uid.Value="Main_NavHome"
+                            Icon="{StaticResource IconHome}"
+                            Page="home" />
+                        <c:NavItem
+                            loc:Uid.Value="Main_NavAudio"
+                            Icon="{StaticResource IconAudio}"
+                            Page="audio" />
+                        <c:NavItem
+                            loc:Uid.Value="Main_NavMicrophone"
+                            Icon="{StaticResource IconMicrophone}"
+                            Page="mic" />
+                        <c:NavItem
+                            loc:Uid.Value="Main_NavControls"
+                            Icon="{StaticResource IconControls}"
+                            Page="controls" />
+                        <c:NavItem
+                            loc:Uid.Value="Main_NavDevice"
+                            Icon="{StaticResource IconDevice}"
+                            Page="device" />
+                    </ListBox>
+                </DockPanel>
+            </SplitView.Pane>
+
+            <ContentControl x:Name="Body" />
+        </SplitView>
+    </Grid>
+</Window>

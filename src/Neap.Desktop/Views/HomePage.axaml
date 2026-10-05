@@ -1,0 +1,20 @@
+<UserControl
+    x:Class="Neap.Desktop.Views.HomePage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="32,0,32,32">
+            <StackPanel
+                Margin="0,24,0,0"
+                Classes="pagecolumn"
+                Spacing="16">
+
+                <!-- Nothing plugged in is said first, in words. -->
+                <c:HeadsetNotice />
+
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

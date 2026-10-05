@@ -1,0 +1,223 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Neap's own look, the same on every system: a twilight ground and
+        panels in place of the platform's grey, a violet-leaning dark in the
+        dark theme and a pale lavender in the light one, so every page reads
+        as the same product. The accent marks only what is on, in use or
+        playing.
+
+        Game and chat, from the half moon in the mark: game is the twilight
+        wave, chat is the moon, silver on dark and ink on light, so the two
+        sides differ in lightness as well as in hue and neither reads as a
+        status colour. Fills are at least 3:1 against the window and text at
+        least 4.5:1.
+    -->
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="NeapGroundBrush" Color="#110E19" />
+                    <RadialGradientBrush x:Key="NeapPanelBrush" Center="50%,0%" GradientOrigin="50%,0%" RadiusX="120%" RadiusY="90%">
+                        <GradientStop Offset="0" Color="#2E2742" />
+                        <GradientStop Offset="1" Color="#1E1929" />
+                    </RadialGradientBrush>
+                    <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#3B3351" />
+                    <SolidColorBrush x:Key="NeapRuleBrush" Color="#2B2440" />
+                    <SolidColorBrush x:Key="NeapGameBrush" Color="#9D8CFF" />
+                    <SolidColorBrush x:Key="NeapGameTextBrush" Color="#B2A5FF" />
+                    <SolidColorBrush x:Key="NeapChatBrush" Color="#E6E8EC" />
+                    <SolidColorBrush x:Key="NeapChatTextBrush" Color="#E6E8EC" />
+                    <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#1FFFFFFF" />
+                    <SolidColorBrush x:Key="NeapInUseStrokeBrush" Color="#C8BEFF" />
+                    <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#12FFFFFF" />
+                    <SolidColorBrush x:Key="NeapTextBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="NeapTextSecondaryBrush" Color="#C5FFFFFF" />
+                    <SolidColorBrush x:Key="NeapTextTertiaryBrush" Color="#87FFFFFF" />
+                    <SolidColorBrush x:Key="NeapTextDisabledBrush" Color="#5DFFFFFF" />
+                    <SolidColorBrush x:Key="NeapToneGoodBrush" Color="#6CCB5F" />
+                    <SolidColorBrush x:Key="NeapToneCautionBrush" Color="#FCE100" />
+                    <SolidColorBrush x:Key="NeapToneNeutralBrush" Color="#8B8B8B" />
+                    <SolidColorBrush x:Key="NeapToneCriticalBrush" Color="#FF99A4" />
+                    <SolidColorBrush x:Key="NeapTileBrush" Color="#0DFFFFFF" />
+                    <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#16FFFFFF" />
+                    <SolidColorBrush x:Key="NeapTileOnBrush" Color="#9D8CFF" />
+                    <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#110E19" />
+                    <Color x:Key="SystemAccentColor">#9D8CFF</Color>
+                    <Color x:Key="SystemAccentColorLight1">#B2A5FF</Color>
+                    <Color x:Key="SystemAccentColorLight2">#C8BEFF</Color>
+                    <Color x:Key="SystemAccentColorLight3">#E1DBFF</Color>
+                    <Color x:Key="SystemAccentColorDark1">#6D5AD9</Color>
+                    <Color x:Key="SystemAccentColorDark2">#5845BD</Color>
+                    <Color x:Key="SystemAccentColorDark3">#40309A</Color>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="NeapGroundBrush" Color="#EFECF6" />
+                    <RadialGradientBrush x:Key="NeapPanelBrush" Center="50%,0%" GradientOrigin="50%,0%" RadiusX="120%" RadiusY="90%">
+                        <GradientStop Offset="0" Color="#FFFFFF" />
+                        <GradientStop Offset="1" Color="#F0EDF7" />
+                    </RadialGradientBrush>
+                    <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#DDD8E8" />
+                    <SolidColorBrush x:Key="NeapRuleBrush" Color="#E2DEEC" />
+                    <SolidColorBrush x:Key="NeapGameBrush" Color="#6D5AD9" />
+                    <SolidColorBrush x:Key="NeapGameTextBrush" Color="#5845BD" />
+                    <SolidColorBrush x:Key="NeapChatBrush" Color="#15171C" />
+                    <SolidColorBrush x:Key="NeapChatTextBrush" Color="#15171C" />
+                    <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#17000000" />
+                    <SolidColorBrush x:Key="NeapInUseStrokeBrush" Color="#6D5AD9" />
+                    <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#0F000000" />
+                    <SolidColorBrush x:Key="NeapTextBrush" Color="#E4000000" />
+                    <SolidColorBrush x:Key="NeapTextSecondaryBrush" Color="#9E000000" />
+                    <SolidColorBrush x:Key="NeapTextTertiaryBrush" Color="#72000000" />
+                    <SolidColorBrush x:Key="NeapTextDisabledBrush" Color="#5C000000" />
+                    <SolidColorBrush x:Key="NeapToneGoodBrush" Color="#0F7B0F" />
+                    <SolidColorBrush x:Key="NeapToneCautionBrush" Color="#9D5D00" />
+                    <SolidColorBrush x:Key="NeapToneNeutralBrush" Color="#8A8A8A" />
+                    <SolidColorBrush x:Key="NeapToneCriticalBrush" Color="#C42B1C" />
+                    <SolidColorBrush x:Key="NeapTileBrush" Color="#B3FFFFFF" />
+                    <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#FFFFFFFF" />
+                    <SolidColorBrush x:Key="NeapTileOnBrush" Color="#6D5AD9" />
+                    <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#FFFFFF" />
+                    <Color x:Key="SystemAccentColor">#9D8CFF</Color>
+                    <Color x:Key="SystemAccentColorLight1">#B2A5FF</Color>
+                    <Color x:Key="SystemAccentColorLight2">#C8BEFF</Color>
+                    <Color x:Key="SystemAccentColorLight3">#E1DBFF</Color>
+                    <Color x:Key="SystemAccentColorDark1">#6D5AD9</Color>
+                    <Color x:Key="SystemAccentColorDark2">#5845BD</Color>
+                    <Color x:Key="SystemAccentColorDark3">#40309A</Color>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <!-- The type ramp. Sizes and weights match the Windows app's, so a page reads the same on either. -->
+    <Style Selector="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextBrush}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="TextBlock.caption">
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="TextBlock.bodystrong">
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.bodylarge">
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.secondary">
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextSecondaryBrush}" />
+    </Style>
+    <Style Selector="TextBlock.tertiary">
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextTertiaryBrush}" />
+    </Style>
+
+    <!-- A small label over what it names: a panel's title, a reading's name. -->
+    <Style Selector="TextBlock.label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="LetterSpacing" Value="1.2" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextSecondaryBrush}" />
+    </Style>
+
+    <!-- A reading worth a glance, such as the battery or the mix levels: a big number. -->
+    <Style Selector="TextBlock.reading">
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontFeatures" Value="tnum" />
+    </Style>
+
+    <!-- A panel on Home, lit from the top edge like a piece of gear on a desk. -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource NeapPanelBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapPanelStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
+
+    <!-- The dot beside the headset's state, one colour per tone. -->
+    <Style Selector="Ellipse.good">
+        <Setter Property="Fill" Value="{DynamicResource NeapToneGoodBrush}" />
+    </Style>
+    <Style Selector="Ellipse.caution">
+        <Setter Property="Fill" Value="{DynamicResource NeapToneCautionBrush}" />
+    </Style>
+    <Style Selector="Ellipse.neutral">
+        <Setter Property="Fill" Value="{DynamicResource NeapToneNeutralBrush}" />
+    </Style>
+    <Style Selector="Ellipse.critical">
+        <Setter Property="Fill" Value="{DynamicResource NeapToneCriticalBrush}" />
+    </Style>
+
+    <!-- A notice: outlined in the tone it speaks in, with an icon that says the same. -->
+    <Style Selector="Border.notice">
+        <Setter Property="Background" Value="{DynamicResource NeapTileBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapPanelStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+    </Style>
+    <Style Selector="Border.notice.warning">
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapToneCautionBrush}" />
+    </Style>
+    <Style Selector="Border.notice PathIcon">
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextBrush}" />
+    </Style>
+    <Style Selector="Border.notice.warning PathIcon">
+        <Setter Property="Foreground" Value="{DynamicResource NeapToneCautionBrush}" />
+    </Style>
+
+    <!-- Every page's column, held to a width that reads on a wide screen. -->
+    <Style Selector="StackPanel.pagecolumn">
+        <Setter Property="MaxWidth" Value="1040" />
+    </Style>
+
+    <!-- The icons: Material Design's, drawn from one path each and coloured by the text they sit beside. -->
+    <Style Selector="PathIcon">
+        <Setter Property="Width" Value="24" />
+        <Setter Property="Height" Value="24" />
+    </Style>
+
+    <!--
+        The navigation rail: an icon and a name, the chosen place marked by a
+        bar on its edge in the accent as well as by its fill, so it never
+        rests on colour alone.
+    -->
+    <Style Selector="c|NavItem">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="4,2" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="{TemplateBinding Background}">
+                    <Border x:Name="Marker" Width="3" Height="18" CornerRadius="2"
+                            HorizontalAlignment="Left" VerticalAlignment="Center" IsVisible="False"
+                            Background="{DynamicResource SystemAccentColorLight1}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="14,0,12,0" VerticalAlignment="Center">
+                        <PathIcon Data="{TemplateBinding Icon}" Width="20" Height="20"
+                                  Foreground="{DynamicResource NeapTextBrush}" />
+                        <ContentPresenter x:Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                          VerticalAlignment="Center" TextElement.Foreground="{DynamicResource NeapTextBrush}" />
+                    </StackPanel>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="c|NavItem:pointerover">
+        <Setter Property="Background" Value="{DynamicResource NeapTileHoverBrush}" />
+    </Style>
+    <Style Selector="c|NavItem:selected">
+        <Setter Property="Background" Value="{DynamicResource NeapTileBrush}" />
+    </Style>
+    <Style Selector="c|NavItem:selected /template/ Border#Marker">
+        <Setter Property="IsVisible" Value="True" />
+    </Style>
+</Styles>

@@ -1,0 +1,21 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.HeadsetStatusStrip"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        A dot and a word, and nothing else. Link, route, Bluetooth, signal
+        and battery belong on Home: in a strip this size each added fact
+        makes the others harder to read. The title row says only whether to
+        go and look.
+    -->
+    <StackPanel x:Name="ConnectionGroup" Orientation="Horizontal" Spacing="8">
+        <Ellipse
+            x:Name="ConnectionDot"
+            Width="8"
+            Height="8"
+            VerticalAlignment="Center"
+            Classes="caution" />
+        <TextBlock x:Name="ConnectionText" Classes="caption" VerticalAlignment="Center" />
+    </StackPanel>
+</UserControl>
