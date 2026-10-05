@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Neap.App.Services;
 using Neap.App.Views;
 using Neap.Core;
+using H.NotifyIcon.Core;
 using Neap.Core.Connection;
 using Windows.Graphics;
 
@@ -19,6 +20,9 @@ public sealed partial class MainWindow : Window
     private const int MinimumWidth = 500, MinimumHeight = 480;
 
     private bool _quitting;
+
+    /// <summary>Whether the notification on show, if any, is the one about an update.</summary>
+    private bool _updateNoticeShown;
     private Microsoft.UI.Dispatching.DispatcherQueueTimer? _trim;
 
     /// <summary>
@@ -114,6 +118,11 @@ public sealed partial class MainWindow : Window
         TrayOpen.Command = new Do(Show);
         TrayQuit.Command = new Do(Quit);
 
+        Tray.TrayIcon.MessageWindow.MouseEventReceived += (_, args) =>
+        {
+            if (args.MouseEvent == MouseEvent.BalloonToolTipClicked)
+                DispatcherQueue.TryEnqueue(OpenUpdate);
+        };
         AppServices.Updates.Found += TellAboutUpdate;
         AppServices.Updates.Installed += Restart;
 
@@ -282,6 +291,7 @@ public sealed partial class MainWindow : Window
     {
         if (AppSettings.Current.ToldAboutTray) return;
         AppSettings.Update(s => s.ToldAboutTray = true);
+        _updateNoticeShown = false;
         try
         {
             Tray.ShowNotification(
@@ -292,19 +302,35 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>Says a newer version is out, for someone whose window is closed.</summary>
-    /// <remarks>
-    /// It says where to update rather than opening Settings when selected:
-    /// the tray library raises nothing when a notification is selected.
-    /// </remarks>
+    /// <remarks>Selecting it opens Settings, where updating is; see <see cref="OpenUpdate"/>.</remarks>
     private void TellAboutUpdate(Neap.Core.Updates.Release release)
     {
         try
         {
+            _updateNoticeShown = true;
             Tray.ShowNotification(
                 Strings.Format("Tray_UpdateTitle", AppInfo.Name, release.Version.ToString(3)),
                 Strings.Get("Tray_Update"));
         }
-        catch (Exception ex) { AppLog.Write($"could not show the update notification: {ex.Message}"); }
+        catch (Exception ex)
+        {
+            _updateNoticeShown = false;
+            AppLog.Write($"could not show the update notification: {ex.Message}");
+        }
+    }
+
+    /// <summary>Opens Settings when the update notification is selected.</summary>
+    /// <remarks>
+    /// Windows reports a selected notification without saying which it was,
+    /// so this answers only while the one on show is the update's.
+    /// </remarks>
+    private void OpenUpdate()
+    {
+        if (!_updateNoticeShown) return;
+        _updateNoticeShown = false;
+        AppLog.Write("window: opened from the update notification");
+        Show();
+        GoTo("settings");
     }
 
     private void Show()
