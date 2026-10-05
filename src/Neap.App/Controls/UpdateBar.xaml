@@ -7,15 +7,16 @@
     Visibility="Collapsed">
 
     <!--
-        The profile bar's own ground, with an accent edge down its left so
-        the news reads as temporary, not as part of the profile bar beneath
-        it. One row at any width: the message wraps, and the buttons give
+        A flat wash of the accent hue, with an accent edge down its left, so
+        the news reads as temporary and not as part of the profile bar
+        beneath it, whose own ground fades from the top. High contrast keeps
+        the window's plain colour and the edge. One row at any width: the message wraps, and the buttons give
         way to a menu when the window is narrow.
     -->
     <Grid>
         <Border
             Padding="16,8"
-            Background="{ThemeResource NeapPanelBrush}"
+            Background="{ThemeResource NeapNoticeBrush}"
             BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
             BorderThickness="0,0,0,1">
             <Grid ColumnSpacing="12">

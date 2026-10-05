@@ -84,8 +84,11 @@
   half of a narrow window's height. While an update downloads or installs,
   Update and restart stays on screen, off, with a progress bar under the
   message, and What's new and Not now are not offered, since neither would
-  change anything. A thin accent edge on its left marks it as news, not as
-  part of the profile bar beneath it.
+  change anything. A flat wash of the accent hue and a thin accent edge on
+  its left mark it as news, not as part of the profile bar beneath it; the
+  profile bar's own ground fades from its top, so a second fade below the
+  banner would have shown as two bands. High contrast keeps the plain
+  window colour.
 - **Release notes are read in Neap,** in a dialog, not on a web page: the
   notes come with the version check, so reading them asks for nothing more,
   and the person is deciding whether to update inside the app. The install
