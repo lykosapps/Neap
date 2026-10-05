@@ -708,8 +708,8 @@ finding above proves nothing either way.
   reasonable cost.
 - **Switching Bluetooth from software.** No writable key found.
 
-Firmware images are signed and encrypted. Stay out of the update path
-entirely.
+Firmware images are signed and encrypted. Studying Swarm II's copies is
+fine; sending anything down the update path is not.
 
 ## Pitfalls
 

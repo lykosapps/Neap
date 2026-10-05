@@ -67,9 +67,14 @@ parametric mode with every adjustment in use.
 - **Prove which device you are talking to.** A transmitter answers questions
   about a headset it can no longer reach, with stale values. The probe's `who`
   command asks each one separately.
-- **Never touch the firmware update path**, and never write a transmitter
-  slot's base address (0x400, 0x420, 0x440, 0x460). Writing one once left a
-  headset selected onto the wrong transmitter. See FINDINGS.md.
+- **Never send anything down the firmware update path or read a device's
+  flash**, and never write a transmitter slot's base address (0x400, 0x420,
+  0x440, 0x460). Writing one once left a headset selected onto the wrong
+  transmitter. See FINDINGS.md.
+- **Study firmware from files, not the device.** Swarm II installs its
+  firmware files under `Data/Firmware/STEALTH_PRO_II`. Copy them somewhere
+  outside the repository and work on the copy. They are Turtle Beach's and
+  are never committed; what you learn from them goes in FINDINGS.md.
 
 ## Before a release
 

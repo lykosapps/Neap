@@ -27,7 +27,12 @@ preparing code for experienced reviewers.
   are the pattern.
 - **Every write goes through the registry.** `Settings/Registry.cs` is the
   list of confirmed settings; the client refuses anything else. Never write a
-  transmitter slot's base address. Never touch the firmware update path.
+  transmitter slot's base address. Never send anything down the firmware
+  update path, and never read a device's flash.
+- **Firmware files are for study.** Swarm II's firmware files may be read
+  from a copy kept outside the repository. Findings from them go in
+  `FINDINGS.md` marked *(research)*; the files themselves are Turtle Beach's
+  and are never committed.
 - **Text lives in the resource file.** All interface text is in
   `Strings/en-US/Resources.resw`, through `x:Uid` in XAML and `Strings` in
   code. Whole sentences, never fragments joined in code. The tests check that

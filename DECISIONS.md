@@ -1,5 +1,20 @@
 # Decisions
 
+## 2026-10-05 — Firmware is studied from Swarm II's files, never the headset
+
+- **Options:** read the firmware off the headset's chip; study the copies
+  Swarm II already installs; leave firmware alone entirely.
+- **Chosen:** study Swarm II's copies, kept outside the repository.
+- **Why not the headset:** the commands that read its flash sit beside the
+  ones that erase and rewrite it, and one wrong byte could leave a headset
+  only Swarm II can recover, if anything can. Swarm II's files are the same
+  firmware at no risk.
+- **Never committed:** the files are Turtle Beach's, and this repository is
+  public.
+- **What it can and can't do:** the images are signed and encrypted, so a
+  changed image won't install. Studying them can explain behaviour and point
+  at settings worth testing; it can't fix the firmware itself.
+
 ## 2026-10-05 — Players can record diagnostics for a bug report
 
 - **Options for what players can run:** the developer's own tools and

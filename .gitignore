@@ -8,6 +8,10 @@ evidence/
 *.pcap
 *.pcapng
 
+# Turtle Beach's firmware files, studied locally and never published
+*fota_package*.bin
+*NVkey*.xml
+
 # Logs
 *.log
 *.log.prev
