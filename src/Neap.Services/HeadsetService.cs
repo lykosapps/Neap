@@ -65,6 +65,22 @@ public sealed class HeadsetService : IDisposable
 
     private static readonly TimeSpan BeatWindow = TimeSpan.FromMilliseconds(700);
 
+    /// <summary>How often to ask for the values the headset may not announce, one category each time.</summary>
+    /// <remarks>
+    /// Through the USB Transmitter the headset says nothing when the boom arm
+    /// moves or the Mode button is pressed, though it answers correctly when
+    /// asked (measured on a Steam Deck). Asking the microphone and the noise
+    /// categories in turn keeps both within two seconds. It is the service's
+    /// job, not a screen's, so the answer is current whichever screen shows
+    /// it, or none does.
+    /// </remarks>
+    private static readonly TimeSpan WatchEvery = TimeSpan.FromSeconds(1);
+
+    private static readonly string[] Watched = ["Mic", "SAF"];
+
+    /// <summary>Closest together two requests to the headset are sent; it drops one sent straight after another.</summary>
+    private static readonly TimeSpan AskGap = TimeSpan.FromMilliseconds(300);
+
     /// <summary>How long to leave a silent transmitter alone before asking again.</summary>
     private static readonly TimeSpan SilentRetry = TimeSpan.FromSeconds(3);
 
@@ -347,18 +363,6 @@ public sealed class HeadsetService : IDisposable
         return true;
     });
 
-    /// <summary>Reads one settings category and keeps what it says.</summary>
-    /// <remarks>
-    /// For a value the headset does not announce. Through the USB Transmitter
-    /// it sends nothing when the boom arm moves, though it says where the arm
-    /// is whenever it is asked, so a screen that shows the arm asks.
-    /// </remarks>
-    public Task ReadCategory(string category) => Post(client =>
-    {
-        Merge(client.ReadCategory(category, BeatWindow), authoritative: false);
-        return true;
-    });
-
     // -- the owner thread --------------------------------------------------
 
     private void Run()
@@ -368,6 +372,8 @@ public sealed class HeadsetService : IDisposable
         long nextBeat = 0;
         int unanswered = 0;
         int beats = 0;
+        long nextWatch = 0, lastAsk = 0;
+        int watches = 0;
         string carrying = "";
         string product = "";
         bool elsewhere = false;
@@ -490,7 +496,8 @@ public sealed class HeadsetService : IDisposable
                     // beat is soon enough.
                     var beat = client.ReadCategory(
                         ++beats % 2 == 0 ? "Inf" : "GSI", BeatWindow);
-                    nextBeat = Stopwatch.GetTimestamp() + BeatTicks;
+                    nextBeat = lastAsk = Stopwatch.GetTimestamp();
+                    nextBeat += BeatTicks;
 
                     // Whatever it said on the way past is worth keeping —
                     // battery and volume live in the GSI block, 0x150 in Inf.
@@ -532,6 +539,18 @@ public sealed class HeadsetService : IDisposable
                         // again after four seconds of "Connecting" on screen.
                         Publish(_link.Answering(elsewhere, route, adapter, carrying, client.Device, product));
                     }
+                }
+
+                // The values the headset may not announce, asked for in turn.
+                // Not straight after another request, which it would drop.
+                long asking = Stopwatch.GetTimestamp();
+                if (primed && client is not null && asking >= nextWatch
+                    && asking - lastAsk >= AskGap.TotalSeconds * Stopwatch.Frequency)
+                {
+                    var seen = client.ReadCategory(Watched[watches++ % Watched.Length], BeatWindow);
+                    lastAsk = Stopwatch.GetTimestamp();
+                    nextWatch = lastAsk + (long)(WatchEvery.TotalSeconds * Stopwatch.Frequency);
+                    if (seen.Count > 0) Merge(seen, authoritative: false);
                 }
             }
             catch (DeviceNotFoundException)

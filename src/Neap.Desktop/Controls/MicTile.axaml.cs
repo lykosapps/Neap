@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Neap.Core.Audio;
-using Neap.Core.Connection;
 using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
@@ -24,9 +23,7 @@ namespace Neap.Desktop.Controls;
 /// A click mutes or unmutes the microphone in the system, since the headset
 /// ignores a mute written to it; see <see cref="Microphone"/>. The system says
 /// nothing when its mute changes, so the tile reads it every second while it
-/// is on screen, which also follows a mute set anywhere else. The boom arm is asked for
-/// at the same time, because through the USB Transmitter the headset does not
-/// announce it.
+/// is on screen, which also follows a mute set anywhere else.
 /// </para>
 /// <para>
 /// It follows the boom arm: flipping it up mutes the headset, and the tile
@@ -43,7 +40,6 @@ public partial class MicTile : UserControl
     private readonly SettingLink _link;
     private IDisposable? _poll;
     private bool? _mutedInSystem;
-    private bool _armFailing;
 
     public MicTile()
     {
@@ -101,31 +97,13 @@ public partial class MicTile : UserControl
         await ReadSystem();
     }
 
-    /// <summary>Reads where the boom arm is, and whether the system has the headset's microphone muted.</summary>
+    /// <summary>Reads whether the system has the headset's microphone muted.</summary>
     /// <remarks>A microphone the system cannot find, or that is not the headset's, is not known to be either.</remarks>
     private async Task ReadSystem()
     {
-        await ReadArm();
         var read = await SoundVolume.Read(Flow.Input);
         _mutedInSystem = read.FoundHeadset ? read.Muted : null;
         Paint();
-    }
-
-    /// <summary>Asks the headset where the boom arm is, since it may not say when it moves.</summary>
-    private async Task ReadArm()
-    {
-        if (AppServices.Headset.Status.Link != Link.Connected) return;
-        try
-        {
-            await AppServices.Headset.ReadCategory("Mic");
-            _armFailing = false;
-        }
-        catch (Exception ex)
-        {
-            // Once, not every second for as long as it keeps failing.
-            if (!_armFailing) AppLog.Write($"could not ask the headset where the boom arm is: {ex.Message}");
-            _armFailing = true;
-        }
     }
 
     private void Paint()
