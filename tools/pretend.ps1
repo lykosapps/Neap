@@ -665,13 +665,13 @@ function Spare {
 }
 
 # The profile bar (no profile, an active one, edited), and the Profiles
-# section on Settings: saving, editing after, renaming, assigning an app and
+# page: saving, editing after, renaming, assigning an app and
 # deleting. The bar sits outside every page's frame, so it is looked for in
 # the window rather than a particular page.
 function Profiles {
-    $script:step = 'the Profiles section with none saved'
-    Page 'Settings'
-    Screenshot 'settings-profiles-empty'
+    $script:step = 'the Profiles page with none saved'
+    Page 'Profiles'
+    Screenshot 'profiles-empty'
 
     $script:step = 'the profile bar with no profile'
     Page 'Home'
@@ -682,7 +682,7 @@ function Profiles {
     $script:step = 'saving the current settings as a new profile'
     Ask 'clear' | Out-Null
     (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
-    $newButton = { Control 'Save current settings as a new profile' ([System.Windows.Automation.ControlType]::Button) }
+    $newButton = { Control 'New profile' ([System.Windows.Automation.ControlType]::Button) }
     if (-not (Until { $null -ne (& $newButton) })) { Fail 'the profile bar offers to save the current settings as a new profile'; return }
     Screenshot 'profile-flyout'
     (Pattern (& $newButton) ([System.Windows.Automation.InvokePattern])).Invoke()
@@ -710,6 +710,9 @@ function Profiles {
     Check (Until { $null -ne (Find $script:window 'NameProperty' 'Edited') }) 'changing a setting the profile holds marks it edited'
     Screenshot 'profile-edited'
 
+    # Save and Discard live in the profile menu, so it is opened to find them.
+    (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
+    Until { $null -ne (Control 'Discard' ([System.Windows.Automation.ControlType]::Button)) } | Out-Null
     $discard = Control 'Discard' ([System.Windows.Automation.ControlType]::Button)
     if ($null -ne $discard) {
         (Pattern $discard ([System.Windows.Automation.InvokePattern])).Invoke()
@@ -717,9 +720,9 @@ function Profiles {
     }
     else { Fail 'the bar offers Discard while edited' }
 
-    $script:step = 'the Profiles section on Settings'
-    Page 'Settings'
-    Screenshot 'settings-profiles'
+    $script:step = 'the Profiles page'
+    Page 'Profiles'
+    Screenshot 'profiles'
 
     $rename = Control 'Rename Gaming' ([System.Windows.Automation.ControlType]::Button)
     if ($null -ne $rename) {
@@ -750,7 +753,7 @@ function Profiles {
         if ($null -ne $ok) { (Pattern $ok ([System.Windows.Automation.InvokePattern])).Invoke() }
         Check (Until { $null -eq (Find $script:window 'NameProperty' 'Not assigned to any app') }) 'checking an app in the picker assigns it'
         Start-Sleep -Milliseconds 300
-        Screenshot 'settings-profiles-assigned'
+        Screenshot 'profiles-assigned'
     }
     else { Fail 'the Gaming row offers to choose its apps' }
 
@@ -772,11 +775,11 @@ function Profiles {
 # starts Pretend Chat through the pretend Windows.
 function AutoSwitching {
     $script:step = 'switching profiles as apps start and close'
-    Page 'Settings'
+    Page 'Profiles'
     $bar = Control 'Profile' ([System.Windows.Automation.ControlType]::Button)
     $on = { $bar.Current.ItemStatus -replace ', Edited$', '' }
     (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
-    $newButton = { Control 'Save current settings as a new profile' ([System.Windows.Automation.ControlType]::Button) }
+    $newButton = { Control 'New profile' ([System.Windows.Automation.ControlType]::Button) }
     if (-not (Until { $null -ne (& $newButton) -and (& $newButton).Current.IsEnabled })) { Fail 'the profile bar offers to save Desk'; return }
     (Pattern (& $newButton) ([System.Windows.Automation.InvokePattern])).Invoke()
     if (-not (Until { $null -ne (Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit)) })) { Fail 'saving Desk opens a name dialog'; return }
@@ -786,10 +789,10 @@ function AutoSwitching {
     Check (Until { (& $on) -eq 'Desk' }) 'saving Desk puts it on'
 
     $default = Control 'Default profile' ([System.Windows.Automation.ControlType]::ComboBox)
-    if ($null -eq $default) { Fail 'Settings offers a default profile'; return }
+    if ($null -eq $default) { Fail 'the Profiles page offers a default profile'; return }
     Choose $default 'Desk'
     Check (Until { (Shown $default) -eq 'Desk' }) 'Desk is the default profile'
-    Screenshot 'settings-profiles-default'
+    Screenshot 'profiles-default'
 
     Ask 'stop PretendChat' | Out-Null
     Start-Sleep -Seconds 4
@@ -812,7 +815,7 @@ function PowerCycle {
     if ($null -ne $bar) {
         (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
         Check (Until { $null -ne (Find $script:window 'NameProperty' 'Turn the headset on to switch profiles or save one.') }) 'with the headset off, the profile list says why it is unavailable'
-        $save = Control 'Save current settings as a new profile' ([System.Windows.Automation.ControlType]::Button)
+        $save = Control 'New profile' ([System.Windows.Automation.ControlType]::Button)
         Check ($null -ne $save -and -not $save.Current.IsEnabled) 'with the headset off, saving a new profile is not offered'
         Screenshot 'profile-off'
         try { (Pattern $bar ([System.Windows.Automation.ExpandCollapsePattern])).Collapse() } catch { }
@@ -859,7 +862,7 @@ try {
     Check ($script:window.Current.Name -like '*pretend*') 'the window says it is a pretend run'
 
     Write-Host 'Pages'
-    foreach ($page in 'Home', 'Audio', 'Microphone', 'Controls', 'Device', 'Settings') {
+    foreach ($page in 'Home', 'Audio', 'Microphone', 'Controls', 'Profiles', 'Device', 'Settings') {
         Page $page
         Start-Sleep -Seconds 1
         Screenshot $page.ToLowerInvariant()
