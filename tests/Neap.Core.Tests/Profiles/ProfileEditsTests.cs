@@ -42,9 +42,9 @@ public class ProfileEditsTests
         Assert.Equal(expected, ProfileGate.Of(link, read));
 
     [Theory]
-    [InlineData(@"C:\Games\witcher3.exe", "witcher3")]
-    [InlineData(@"D:\Steam\steamapps\common\Some Game\Some Game.exe", "Some Game")]
-    [InlineData("chrome.exe", "chrome")]
-    public void APickedProgramIsNamedByItsProcess(string path, string process) =>
-        Assert.Equal(process, ProgramName.Of(path));
+    [InlineData("Games", "witcher3.exe", "witcher3")]
+    [InlineData("Steam/steamapps/common/Some Game", "Some Game.exe", "Some Game")]
+    [InlineData("", "chrome.exe", "chrome")]
+    public void APickedProgramIsNamedByItsProcess(string folder, string file, string process) =>
+        Assert.Equal(process, ProgramName.Of(Path.Combine(folder.Length == 0 ? "" : Path.GetTempPath(), folder, file)));
 }

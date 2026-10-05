@@ -92,7 +92,7 @@ public static class ProfileGate
 /// <summary>How an app is named in a profile: the way the running one is, by its process name.</summary>
 public static class ProgramName
 {
-    /// <summary>The process name of a program picked as a file, "witcher3" for "C:\Games\witcher3.exe".</summary>
+    /// <summary>The process name of a program picked as a file, "witcher3" for a file called witcher3.exe.</summary>
     public static string Of(string path) => Path.GetFileNameWithoutExtension(path);
 }
 

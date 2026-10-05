@@ -66,38 +66,57 @@ public sealed class PretendControl : IDisposable
     /// <summary>Starts answering on the pipe, one script at a time.</summary>
     public void Start() => _serving ??= Task.Run(Serve);
 
+    /// <remarks>
+    /// The next script's end of the pipe is opened before the current script
+    /// is served. On Linux a pipe is a socket, and one closed with nothing
+    /// listening behind it resets a script that connects as the last one
+    /// leaves; on Windows a script connecting then simply waits its turn.
+    /// </remarks>
     private async Task Serve()
     {
-        while (!_stopping.IsCancellationRequested)
+        NamedPipeServerStream? next = null;
+        try
         {
-            try
+            while (!_stopping.IsCancellationRequested)
             {
-                await using var server = new NamedPipeServerStream(_pipe, PipeDirection.InOut, 1,
-                    PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
+                next ??= Listen();
+                await using var server = next;
                 await server.WaitForConnectionAsync(_stopping.Token).ConfigureAwait(false);
-                using var reader = new StreamReader(server);
-                // Replies go straight to the pipe: a StreamWriter flushes when
-                // disposed, and that flush fails once the script has closed its end.
-                while (await reader.ReadLineAsync(_stopping.Token).ConfigureAwait(false) is string line)
-                    await server.WriteAsync(Encoding.UTF8.GetBytes(Handle(line) + "\n"), _stopping.Token).ConfigureAwait(false);
+                next = Listen();
+                await Answer(server).ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
-            catch (IOException ex)
-            {
-                // A script that goes away mid-line is ordinary; the next one
-                // gets a fresh pipe.
-                _log($"pretend control: a script's connection ended: {ex.Message}");
-                try { await Task.Delay(500, _stopping.Token).ConfigureAwait(false); }
-                catch (OperationCanceledException) { return; }
-            }
-            catch (Exception ex) when (ex is UnauthorizedAccessException or InvalidOperationException)
-            {
-                _log($"pretend control: the pipe cannot be served, so no script can reach the headset: {ex.Message}");
-                return;
-            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or InvalidOperationException or IOException)
+        {
+            _log($"pretend control: the pipe cannot be served, so no script can reach the headset: {ex.Message}");
+        }
+        finally
+        {
+            if (next is not null) await next.DisposeAsync().ConfigureAwait(false);
+        }
+    }
+
+    private NamedPipeServerStream Listen() =>
+        new(_pipe, PipeDirection.InOut, 2, PipeTransmissionMode.Byte,
+            PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
+
+    /// <summary>Answers one script until it leaves.</summary>
+    private async Task Answer(NamedPipeServerStream server)
+    {
+        try
+        {
+            using var reader = new StreamReader(server);
+            // Replies go straight to the pipe: a StreamWriter flushes when
+            // disposed, and that flush fails once the script has closed its end.
+            while (await reader.ReadLineAsync(_stopping.Token).ConfigureAwait(false) is string line)
+                await server.WriteAsync(Encoding.UTF8.GetBytes(Handle(line) + "\n"), _stopping.Token).ConfigureAwait(false);
+        }
+        catch (IOException ex)
+        {
+            // A script that goes away mid-line is ordinary; the next one is
+            // already waiting on a pipe of its own.
+            _log($"pretend control: a script's connection ended: {ex.Message}");
         }
     }
 
