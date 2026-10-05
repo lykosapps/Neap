@@ -47,6 +47,9 @@ public static class Pretend
     /// <summary>With <see cref="Flag"/> and a page's rail tag after it, opens the app on that page.</summary>
     public const string PageFlag = "--page";
 
+    /// <summary>With <see cref="Flag"/> and a file name after it, saves a picture of the window there once it has settled, and exits.</summary>
+    public const string SnapshotFlag = "--snapshot";
+
     /// <summary>With <see cref="Flag"/>, opens the game equaliser in parametric mode with <see cref="SampleAdjustments"/>.</summary>
     public const string ParametricFlag = "--parametric";
 
@@ -81,6 +84,13 @@ public static class Pretend
     /// somebody sees each page by launching on it instead.
     /// </remarks>
     public static string? Page { get; } = Active ? After(PageFlag) : null;
+
+    /// <summary>The file a picture of the window is saved to, or null to run on as usual.</summary>
+    /// <remarks>
+    /// The picture is the app's own rendering of its window, so it needs no
+    /// screen and nothing in front of it, and is the same on every system.
+    /// </remarks>
+    public static string? Snapshot { get; } = Active ? After(SnapshotFlag) : null;
 
     /// <summary>
     /// Whether the game equaliser opens in parametric mode, with every

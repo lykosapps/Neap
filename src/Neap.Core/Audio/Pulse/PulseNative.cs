@@ -59,6 +59,7 @@ internal static class PulseNative
         public IntPtr ServerName;
         public SampleSpec SampleSpec;
         public IntPtr DefaultSinkName;
+        public IntPtr DefaultSourceName;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -155,6 +156,9 @@ internal static class PulseNative
 
     [DllImport(Library, EntryPoint = "pa_context_get_sink_info_list")]
     internal static extern IntPtr ContextGetSinkInfoList(IntPtr context, InfoListCallback callback, IntPtr userdata);
+
+    [DllImport(Library, EntryPoint = "pa_context_get_source_info_list")]
+    internal static extern IntPtr ContextGetSourceInfoList(IntPtr context, InfoListCallback callback, IntPtr userdata);
 
     [DllImport(Library, EntryPoint = "pa_context_get_sink_input_info_list")]
     internal static extern IntPtr ContextGetSinkInputInfoList(IntPtr context, InfoListCallback callback, IntPtr userdata);

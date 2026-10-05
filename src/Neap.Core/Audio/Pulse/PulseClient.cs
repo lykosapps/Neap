@@ -79,11 +79,14 @@ internal sealed class PulseClient : IDisposable
     // Held for as long as the library might call them.
     private readonly ServerInfoCallback _onServer;
     private readonly InfoListCallback _onSink;
+    private readonly InfoListCallback _onSource;
     private readonly InfoListCallback _onStream;
     private readonly SuccessCallback _onSuccess;
 
     private string _defaultSink = "";
     private readonly List<PulseSink> _sinks = new();
+    private readonly List<PulseSink> _sources = new();
+    private string _defaultSource = "";
     private readonly List<PulseStream> _streams = new();
     private bool _succeeded;
 
@@ -91,6 +94,7 @@ internal sealed class PulseClient : IDisposable
     {
         _onServer = OnServer;
         _onSink = OnSink;
+        _onSource = OnSource;
         _onStream = OnStream;
         _onSuccess = OnSuccess;
     }
@@ -115,6 +119,29 @@ internal sealed class PulseClient : IDisposable
             _sinks.Clear();
             Run(c => ContextGetSinkInfoList(c, _onSink, IntPtr.Zero), "the outputs");
             return _sinks.ToList();
+        }
+    }
+
+    /// <summary>The name of the microphone sound is taken from unless an application says otherwise.</summary>
+    /// <exception cref="PulseException">The server could not be reached or did not answer.</exception>
+    internal string DefaultSource()
+    {
+        lock (_gate)
+        {
+            Run(c => ContextGetServerInfo(c, _onServer, IntPtr.Zero), "the server's defaults");
+            return _defaultSource;
+        }
+    }
+
+    /// <summary>Every microphone, not counting the monitors the server makes of outputs.</summary>
+    /// <exception cref="PulseException">The server could not be reached or did not answer.</exception>
+    internal IReadOnlyList<PulseSink> Sources()
+    {
+        lock (_gate)
+        {
+            _sources.Clear();
+            Run(c => ContextGetSourceInfoList(c, _onSource, IntPtr.Zero), "the microphones");
+            return _sources.ToList();
         }
     }
 
@@ -239,7 +266,9 @@ internal sealed class PulseClient : IDisposable
 
     private void OnServer(IntPtr context, IntPtr info, IntPtr userdata)
     {
-        _defaultSink = info == IntPtr.Zero ? "" : Text(Marshal.PtrToStructure<ServerInfo>(info).DefaultSinkName);
+        var server = info == IntPtr.Zero ? default : Marshal.PtrToStructure<ServerInfo>(info);
+        _defaultSink = Text(server.DefaultSinkName);
+        _defaultSource = Text(server.DefaultSourceName);
     }
 
     private void OnSink(IntPtr context, IntPtr info, int eol, IntPtr userdata)
@@ -249,6 +278,21 @@ internal sealed class PulseClient : IDisposable
         _sinks.Add(new PulseSink(sink.Index, Text(sink.Name), Text(sink.Description),
             PulseSink.UsbId(Property(sink.Proplist, "device.vendor.id")),
             PulseSink.UsbId(Property(sink.Proplist, "device.product.id"))));
+    }
+
+    /// <remarks>
+    /// A microphone is described by the same structure as an output, with the
+    /// output it listens to in the place of its monitor; a monitor of an
+    /// output is no microphone and is left out.
+    /// </remarks>
+    private void OnSource(IntPtr context, IntPtr info, int eol, IntPtr userdata)
+    {
+        if (eol != 0 || info == IntPtr.Zero) return;
+        var source = Marshal.PtrToStructure<SinkInfo>(info);
+        if (source.MonitorSource != uint.MaxValue) return;
+        _sources.Add(new PulseSink(source.Index, Text(source.Name), Text(source.Description),
+            PulseSink.UsbId(Property(source.Proplist, "device.vendor.id")),
+            PulseSink.UsbId(Property(source.Proplist, "device.product.id"))));
     }
 
     private void OnStream(IntPtr context, IntPtr info, int eol, IntPtr userdata)
