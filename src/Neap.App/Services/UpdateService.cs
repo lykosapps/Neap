@@ -130,13 +130,24 @@ public sealed class UpdateService : IDisposable
 
     private bool Busy => Stage is UpdateStage.Checking or UpdateStage.Downloading or UpdateStage.Installing;
 
-    /// <summary>Picks up the newer version found before this launch, if it is still newer.</summary>
+    /// <summary>
+    /// Picks up what the last check found, so Settings says so from the start
+    /// rather than staying blank until the next check, which may be hours away.
+    /// </summary>
     /// <remarks>
-    /// A pretend run keeps none, so each starts from what its flags say.
+    /// A newer version found is offered again if it is still newer. A check
+    /// made with nothing newer found leaves Neap up to date. A pretend run
+    /// keeps none, so each starts from what its flags say.
     /// </remarks>
     private void Remember()
     {
-        if (Pretend.Active || AppSettings.Current.FoundRelease is not { } kept) return;
+        if (Pretend.Active) return;
+        if (AppSettings.Current.FoundRelease is not { } kept)
+        {
+            if (AppSettings.Current.CheckedForUpdates is not null) Stage = UpdateStage.UpToDate;
+            return;
+        }
+
         try
         {
             var release = Release.Parse(kept);
@@ -153,6 +164,7 @@ public sealed class UpdateService : IDisposable
             AppLog.Write($"updates: could not read the version found earlier: {ex.Message}");
         }
         AppSettings.Update(s => s.FoundRelease = null);
+        Stage = UpdateStage.UpToDate;
     }
 
     private void CheckIfDue()
