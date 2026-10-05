@@ -14,6 +14,8 @@
                 <!-- Nothing plugged in is said first, in words. -->
                 <c:HeadsetNotice />
 
+                <c:QuickControls />
+
             </StackPanel>
         </Grid>
     </ScrollViewer>

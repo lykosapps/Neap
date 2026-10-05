@@ -1,0 +1,82 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.QuickControls"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls">
+
+    <StackPanel Spacing="16">
+
+        <!--
+            The headset, how it is connected, and the two readings worth a
+            glance. The title row says the state on every page; this says
+            which transmitter and how much battery is left.
+        -->
+        <Border
+            Padding="0,0,0,16"
+            BorderBrush="{DynamicResource NeapRuleBrush}"
+            BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
+                <StackPanel VerticalAlignment="Bottom" Spacing="4">
+                    <TextBlock x:Name="HeadsetName" Classes="label" AutomationProperties.HeadingLevel="1" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse
+                            x:Name="StateDot"
+                            Width="8"
+                            Height="8"
+                            Margin="0,8,0,0"
+                            VerticalAlignment="Top"
+                            Classes="caution" />
+                        <TextBlock
+                            x:Name="HowConnected"
+                            Classes="bodylarge bodystrong"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel
+                    x:Name="Readings"
+                    Grid.Column="1"
+                    VerticalAlignment="Bottom"
+                    Orientation="Horizontal"
+                    Spacing="32" />
+            </Grid>
+        </Border>
+
+        <!-- The system playing somewhere the headset is not listening. -->
+        <c:RoutingNotice />
+
+        <!--
+            One note for every state that needs explaining, filled from
+            StateCopy: what is happening, what still moves the mix, the one
+            thing to do, and a fallback last. The mix leaves the chat wheel to
+            this note, so the problem is said once. It sits where the controls
+            it replaces were, so nothing moves under the pointer.
+        -->
+        <Border x:Name="NotePanel" Classes="card" IsVisible="False">
+            <StackPanel Spacing="8">
+                <TextBlock x:Name="NoteWhat" Classes="bodystrong" />
+                <TextBlock x:Name="NoteMix" Classes="secondary" />
+                <TextBlock x:Name="NoteFix" />
+                <TextBlock x:Name="NoteFallback" Classes="caption secondary" />
+            </StackPanel>
+        </Border>
+
+        <!--
+            The controls, side by side when there is room for both and one
+            above the other when there is not; see Arrange. The mix goes on
+            working with only the headset's settings out of reach, so it
+            folds only when the headset is away. The settings fold whenever
+            they cannot be reached.
+        -->
+        <Grid
+            x:Name="Block"
+            ColumnDefinitions="*,*"
+            ColumnSpacing="16"
+            RowDefinitions="Auto,Auto"
+            RowSpacing="16">
+            <Border x:Name="MixCard" Classes="card">
+                <c:MixPanel ExplainsWheel="False" />
+            </Border>
+        </Grid>
+
+    </StackPanel>
+</UserControl>

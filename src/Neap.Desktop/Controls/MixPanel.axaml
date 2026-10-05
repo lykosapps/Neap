@@ -1,0 +1,128 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.MixPanel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <StackPanel Spacing="12">
+
+        <TextBlock loc:Uid.Value="Mix_Title" Classes="label" />
+
+        <!--
+            The chat wheel cannot reach the app, with what still moves the
+            mix. Inside the mix, not in a note elsewhere, so wherever the mix
+            is shown the reason comes with it.
+        -->
+        <c:Notice x:Name="WheelBar" loc:Uid.Value="Mix_WheelBar" />
+
+        <!--
+            The chat application is playing somewhere the mix cannot reach.
+            Without this the wheel stops affecting chat and nothing says
+            why.
+        -->
+        <c:Notice x:Name="ElsewhereBar" loc:Uid.Value="Mix_ElsewhereBar" Severity="Warning" />
+
+        <!--
+            Nothing chosen yet: only the question. The dial means nothing
+            until it is answered, so it is absent rather than disabled.
+        -->
+        <TextBlock
+            x:Name="SetupLine"
+            loc:Uid.Value="Mix_Setup"
+            Classes="secondary"
+            IsVisible="False" />
+
+        <!-- Chosen: the knob, with how loud each side plays on its cap. -->
+        <Grid
+            x:Name="DialArea"
+            Margin="0,0,0,14"
+            HorizontalAlignment="Center"
+            IsVisible="False">
+            <c:GameChatDial x:Name="Dial" loc:Uid.Value="Mix_Dial" />
+            <StackPanel
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsHitTestVisible="False"
+                Spacing="2">
+                <TextBlock
+                    x:Name="LeanText"
+                    HorizontalAlignment="Center"
+                    Classes="caption secondary"
+                    LetterSpacing="0.6" />
+                <StackPanel
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="12">
+                    <TextBlock
+                        x:Name="GameLevel"
+                        MinWidth="56"
+                        Classes="reading"
+                        Foreground="{DynamicResource NeapGameTextBrush}"
+                        TextAlignment="Right" />
+                    <TextBlock
+                        x:Name="ChatLevel"
+                        MinWidth="56"
+                        Classes="reading"
+                        Foreground="{DynamicResource NeapChatTextBrush}"
+                        TextAlignment="Left" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Under each end of the ring: which side is which. -->
+            <TextBlock
+                loc:Uid.Value="Mix_Game"
+                Margin="36,0,0,-14"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Classes="caption bodystrong"
+                Foreground="{DynamicResource NeapGameTextBrush}"
+                LetterSpacing="0.8" />
+            <TextBlock
+                loc:Uid.Value="Mix_Chat"
+                Margin="0,0,36,-14"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Classes="caption bodystrong"
+                Foreground="{DynamicResource NeapChatTextBrush}"
+                LetterSpacing="0.8" />
+        </Grid>
+
+        <!--
+            Which applications carry chat: the only thing the mix needs to
+            know. Folded to a line naming them once chosen, and open until
+            then, because the choice is the question the panel is asking.
+        -->
+        <Expander
+            x:Name="ChatFrom"
+            HorizontalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch">
+            <Expander.Header>
+                <StackPanel Margin="0,8" Spacing="2">
+                    <TextBlock loc:Uid.Value="Mix_ChatFrom" Classes="caption secondary" />
+                    <TextBlock x:Name="ChosenText" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Expander.Header>
+            <StackPanel Spacing="8">
+                <StackPanel x:Name="AppList" Spacing="4" />
+                <!--
+                    Only applications with sound open on the headset are
+                    listed, so one not yet started is missing. The notice
+                    below says so instead when nothing is listed at all.
+                -->
+                <TextBlock
+                    x:Name="MissingHint"
+                    loc:Uid.Value="Mix_MissingHint"
+                    Classes="caption secondary" />
+                <c:Notice x:Name="Nothing" loc:Uid.Value="Mix_NothingPlaying" />
+                <Button x:Name="Refresh" loc:Uid.Value="Mix_Refresh">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <PathIcon Width="16" Height="16" Data="{StaticResource IconRefresh}" />
+                        <TextBlock loc:Uid.Value="Mix_RefreshText" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Expander>
+
+    </StackPanel>
+</UserControl>

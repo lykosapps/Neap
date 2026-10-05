@@ -58,6 +58,40 @@ public static class SystemTools
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return ""; }
     }
 
+    /// <summary>Opens the system's own sound settings, where the default output and microphone are chosen.</summary>
+    /// <remarks>
+    /// The app does not change the default device itself: that is too
+    /// unreliable to do on anyone's behalf. Linux has no one settings app,
+    /// so this tries the ones desktops ship, in order.
+    /// </remarks>
+    /// <exception cref="PlatformNotSupportedException">No sound settings could be found to open.</exception>
+    public static void OpenSoundSettings()
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            Process.Start(new ProcessStartInfo("ms-settings:sound") { UseShellExecute = true })?.Dispose();
+            return;
+        }
+        string[][] known =
+        [
+            ["kcmshell6", "kcm_pulseaudio"], ["kcmshell5", "kcm_pulseaudio"],
+            ["gnome-control-center", "sound"], ["pavucontrol"],
+        ];
+        foreach (var command in known)
+            if (OnPath(command[0]))
+            {
+                var start = new ProcessStartInfo(command[0]) { UseShellExecute = false };
+                foreach (string argument in command.Skip(1)) start.ArgumentList.Add(argument);
+                Process.Start(start)?.Dispose();
+                return;
+            }
+        throw new PlatformNotSupportedException("no sound settings were found to open");
+    }
+
+    private static bool OnPath(string program) =>
+        (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator)
+            .Any(folder => folder.Length > 0 && File.Exists(Path.Combine(folder, program)));
+
     /// <summary>Opens a link in the default browser.</summary>
     public static Task Open(Uri link)
     {

@@ -1541,4 +1541,37 @@
   <data name="Spatial_DolbyEqualizerNote" xml:space="preserve">
     <value>Turn off the equaliser in the Dolby Access app, so it doesn't double up with the headset's own.</value>
   </data>
+  <data name="State_MixWithDial" xml:space="preserve">
+    <value>You can still move the mix with the dial.</value>
+  </data>
+  <data name="Linux_Routing_TitleSound" xml:space="preserve">
+    <value>Your system is playing to the {0}</value>
+  </data>
+  <data name="Linux_Routing_TitleCalls" xml:space="preserve">
+    <value>Your system is sending calls to the {0}</value>
+  </data>
+  <data name="Linux_Routing_TitleMicrophone" xml:space="preserve">
+    <value>Your system is using the {0}'s microphone</value>
+  </data>
+  <data name="Linux_Routing_TitleSoundCalls" xml:space="preserve">
+    <value>Your system is sending sound and calls to the {0}</value>
+  </data>
+  <data name="Linux_Routing_TitleSoundMicrophone" xml:space="preserve">
+    <value>Your system is sending sound and the microphone to the {0}</value>
+  </data>
+  <data name="Linux_Routing_TitleCallsMicrophone" xml:space="preserve">
+    <value>Your system is sending calls and the microphone to the {0}</value>
+  </data>
+  <data name="Linux_Routing_TitleAll" xml:space="preserve">
+    <value>Your system is sending sound, calls and the microphone to the {0}</value>
+  </data>
+  <data name="Linux_Routing_Choose" xml:space="preserve">
+    <value>In your system's sound settings, choose {0}.</value>
+  </data>
+  <data name="Linux_Routing_PressOrChoose" xml:space="preserve">
+    <value>Press CrossPlay on the headset to switch it to the {0}, or to stay on the {1}, choose {2} in your system's sound settings.</value>
+  </data>
+  <data name="Linux_State_SoundElsewhere" xml:space="preserve">
+    <value>Your system is sending sound to a device your headset isn't listening on. Home says which one to choose.</value>
+  </data>
 </root>

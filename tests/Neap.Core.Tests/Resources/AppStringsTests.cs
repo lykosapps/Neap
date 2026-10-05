@@ -42,12 +42,25 @@ public sealed partial class AppStringsTests
     }
 
     [Fact]
+    public void EveryLinuxEntryReplacesAnEntryThatIsThere()
+    {
+        var orphans = Names.Where(n => n.StartsWith("Linux_", StringComparison.Ordinal) && !Names.Contains(Asked(n)))
+            .ToList();
+        Assert.Empty(orphans);
+    }
+
+    [Fact]
     public void EveryEntryInTheResourceFileIsUsed()
     {
         var used = CodeKeys().Concat(Uids()).ToHashSet(StringComparer.Ordinal);
-        var unused = Names.Where(n => !used.Contains(n.Split('.')[0])).ToList();
+        // A Linux_ entry is the Linux words for the entry it is named after.
+        var unused = Names.Where(n => !used.Contains(Asked(n))).ToList();
         Assert.Empty(unused);
     }
+
+    /// <summary>The key a file entry answers to: its name before any property, and for Linux words the name they replace.</summary>
+    private static string Asked(string entry) =>
+        entry.Split('.')[0] is var name && name.StartsWith("Linux_", StringComparison.Ordinal) ? name["Linux_".Length..] : name;
 
     /// <summary>Every resource key used in the app's C# sources.</summary>
     /// <remarks>

@@ -26,9 +26,13 @@ public partial class Notice : UserControl
     public static readonly StyledProperty<Severity> SeverityProperty =
         AvaloniaProperty.Register<Notice, Severity>(nameof(Severity));
 
+    public static readonly StyledProperty<string?> ActionTextProperty =
+        AvaloniaProperty.Register<Notice, string?>(nameof(ActionText));
+
     public Notice()
     {
         InitializeComponent();
+        Action.Click += (_, _) => ActionInvoked?.Invoke(this, EventArgs.Empty);
         IsVisible = false;
     }
 
@@ -56,6 +60,16 @@ public partial class Notice : UserControl
         set => SetValue(SeverityProperty, value);
     }
 
+    /// <summary>The words of a link after the message that does something about it; none for no link.</summary>
+    public string? ActionText
+    {
+        get => GetValue(ActionTextProperty);
+        set => SetValue(ActionTextProperty, value);
+    }
+
+    /// <summary>The link after the message was chosen.</summary>
+    public event EventHandler? ActionInvoked;
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -69,6 +83,11 @@ public partial class Notice : UserControl
             MessageText.Text = Message;
             MessageText.IsVisible = !string.IsNullOrEmpty(Message);
         }
+        else if (change.Property == ActionTextProperty)
+        {
+            Action.Content = ActionText;
+            Action.IsVisible = !string.IsNullOrEmpty(ActionText);
+        }
         else if (change.Property == IsOpenProperty)
         {
             IsVisible = IsOpen;
@@ -76,7 +95,7 @@ public partial class Notice : UserControl
         else if (change.Property == SeverityProperty)
         {
             Frame.Classes.Set("warning", Severity == Severity.Warning);
-            Mark.Data = (Geometry)this.FindResource(Severity == Severity.Warning ? "IconWarning" : "IconInfo")!;
+            Mark.Data = (Geometry)Application.Current!.FindResource(Severity == Severity.Warning ? "IconWarning" : "IconInfo")!;
         }
     }
 }

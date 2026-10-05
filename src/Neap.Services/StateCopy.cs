@@ -89,6 +89,7 @@ public static class StateCopy
     public static string MixWithoutWheel()
     {
         var keys = AppServices.Hotkeys;
+        if (!keys.Supported) return Strings.Get("State_MixWithDial");
         return keys.Enabled
             ? Strings.Format("State_MixWithKeys", keys.Key(MixKey.TowardGame), keys.Key(MixKey.TowardChat))
             : Strings.Get("State_MixKeysInSettings");
