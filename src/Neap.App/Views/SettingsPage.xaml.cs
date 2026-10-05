@@ -23,6 +23,13 @@ public sealed partial class SettingsPage : Page
 
     private readonly DispatcherTimer _ticking = new() { Interval = TimeSpan.FromSeconds(1) };
 
+    /// <summary>Gives a button the accent style, or takes it away.</summary>
+    private static void Lead(Button button, bool leads)
+    {
+        if (leads) button.Style = (Style)Application.Current.Resources["AccentButtonStyle"];
+        else button.ClearValue(StyleProperty);
+    }
+
     public SettingsPage()
     {
         InitializeComponent();
@@ -50,10 +57,7 @@ public sealed partial class SettingsPage : Page
             if (AppServices.Recorder.Since is null) AppServices.Recorder.Start();
             else await AppServices.Recorder.Stop();
         };
-        ShowRecording.Click += (_, _) =>
-        {
-            if (AppServices.Recorder.Saved is { } saved) SessionRecorder.Show(saved);
-        };
+        ReportRecording.Click += async (_, _) => await AppServices.Recorder.Report();
         _ticking.Tick += (_, _) => PaintRecording(announce: false);
         MapHeadset.Click += async (_, _) =>
         {
@@ -89,7 +93,13 @@ public sealed partial class SettingsPage : Page
         // Left enabled while saving, where a press does nothing: disabling it
         // would throw keyboard focus on to the next card.
         RecordButton.Content = Strings.Get(recording ? "Settings_RecordStop" : "Settings_RecordStart");
-        ShowRecording.Visibility = !recording && recorder.Saved is not null ? Visibility.Visible : Visibility.Collapsed;
+
+        // Once a recording is saved, reporting it is the next step, so that
+        // button leads instead of starting another.
+        bool reportable = !recording && recorder.Issue is not null;
+        ReportRecording.Visibility = reportable ? Visibility.Visible : Visibility.Collapsed;
+        Lead(ReportRecording, reportable);
+        Lead(RecordButton, !reportable);
 
         string? state =
             recorder.Saving ? Strings.Get("Settings_RecordSaving")

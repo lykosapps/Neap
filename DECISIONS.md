@@ -1,5 +1,22 @@
 # Decisions
 
+## 2026-10-05 — Recordings are sent through GitHub, not uploaded by Neap
+
+- **Options:** an upload from the app to a small service that emails the
+  file on; a form on another website that needs no account; GitHub issues.
+- **Chosen:** GitHub. After a recording, **Report on GitHub** opens a form
+  with Neap's version, Windows' version and the hardware filled in, and
+  opens the folder with the file selected, so the person only drags it
+  across. Two forms, a problem report and a request to support a headset,
+  are picked by whether Neap knows the hardware plugged in.
+- **Why not an upload:** it means running a service, an address anyone can
+  send junk to because the code is open, and changing the promise that
+  nothing leaves the PC.
+- **The cost:** a GitHub account, free, made once. Reports are public,
+  which the blanking in the file allows for.
+- **Revisit if:** people who would report a problem are put off by needing
+  an account.
+
 ## 2026-10-05 — Firmware is studied from Swarm II's files, never the headset
 
 - **Options:** read the firmware off the headset's chip; study the copies
@@ -45,8 +62,7 @@
   app as an optional step for confident testers.
 - **A section in Settings, not a seventh rail item:** reporting a problem is
   rare, and Settings is where the app's own housekeeping lives.
-- **Still open:** a private way to receive USB recordings, and whether
-  "Report a problem" should open a form that needs no GitHub account.
+- **Still open:** a private way to receive USB recordings.
 
 ## 2026-09-28 — Save and Discard move into the profile menu
 

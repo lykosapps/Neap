@@ -54,6 +54,9 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
     /// <summary>Why the last recording could not be saved, or null when it was.</summary>
     public string? Trouble { get; private set; }
 
+    /// <summary>The GitHub form to send the last recording with, filled in, or null when none was saved.</summary>
+    public Uri? Issue { get; private set; }
+
     /// <summary>A recording started, began saving, or finished. Raised on the UI thread.</summary>
     public event Action? Changed;
 
@@ -69,6 +72,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
         Since = DateTime.Now;
         Saved = null;
         Trouble = null;
+        Issue = null;
 
         headset.Heard += Hear;
         _began = Task.Run(async () => recording.Began(await Snap()));
@@ -100,6 +104,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
             }
 
             Saved = await Save(recording.Write(log, Redaction.ForThisPc(recording.Secrets)));
+            Issue = recording.Issue();
             AppLog.Write($"recording: saved as {Path.GetFileName(Saved)}");
         }
         catch (Exception ex)
@@ -200,11 +205,21 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
         }
     }
 
-    /// <summary>Opens File Explorer on the folder with the file selected.</summary>
-    public static void Show(string path)
+    /// <summary>
+    /// Opens the GitHub form for the last recording, filled in, then File
+    /// Explorer with the file selected.
+    /// </summary>
+    /// <remarks>
+    /// Explorer opens second so it lands in front of the browser, with the
+    /// file ready to drag into the form.
+    /// </remarks>
+    public async Task Report()
     {
-        try { Process.Start("explorer.exe", $"/select,\"{path}\""); }
-        catch (Exception ex) { AppLog.Write($"recording: could not show {Path.GetFileName(path)}: {ex.Message}"); }
+        if (Saved is not { } saved || Issue is not { } issue) return;
+        try { await Windows.System.Launcher.LaunchUriAsync(issue); }
+        catch (Exception ex) { AppLog.Write($"recording: could not open the report form: {ex.Message}"); }
+        try { Process.Start("explorer.exe", $"/select,\"{saved}\""); }
+        catch (Exception ex) { AppLog.Write($"recording: could not show {Path.GetFileName(saved)}: {ex.Message}"); }
     }
 
     /// <summary>The person's Downloads folder, wherever they have moved it.</summary>

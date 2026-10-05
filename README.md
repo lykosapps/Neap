@@ -134,10 +134,10 @@ Working and in daily use, but young. Everything has been exercised on one
 headset on one Windows machine. There is no installer yet, and it was
 written with AI assistance.
 
-Found a problem? [Open an issue](https://github.com/lykosapps/Neap/issues),
-and attach a recording from **Settings → Diagnostics** made while it
-happens. Have another Turtle Beach headset?
-[Help support it](docs/MAPPING.md).
+Found a problem? In **Settings → Diagnostics**, record while it happens,
+then choose **Report on GitHub**. You can also
+[open an issue](https://github.com/lykosapps/Neap/issues) directly. Have
+another Turtle Beach headset? [Help support it](docs/MAPPING.md).
 For a security problem, see [SECURITY.md](SECURITY.md).
 
 ## For developers

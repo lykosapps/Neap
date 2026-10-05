@@ -25,7 +25,7 @@ Recording only listens. It doesn't change anything on your headset.
 3. Do everything in the list below, in order. After each one, **count
    slowly to five** before doing the next. You don't need to write anything
    down: the order and the pauses show which is which.
-4. Choose **Stop and save**, then **Show in folder** to find the file.
+4. Choose **Stop and save**.
 
 If Neap says it can't find your headset, record anyway. That tells us
 something too.
@@ -46,11 +46,15 @@ Skip anything your headset doesn't have.
 
 ## Send it
 
-1. [Open a new issue](https://github.com/lykosapps/Neap/issues/new) on
-   GitHub. You'll need a free GitHub account.
-2. Make the title the name of your headset, as it appears on the box, for
-   example "Stealth 700 Gen 3".
-3. Drag the recording file into the box, and say which steps you skipped.
+1. In Neap, choose **Report on GitHub**. Your browser opens a form with
+   some details already filled in, and the folder with your recording
+   opens in front of it.
+2. Sign in to GitHub. If you don't have an account, creating one is free
+   and takes a minute or two.
+3. Type your headset's name as it appears on the box, for example
+   "Stealth 700 Gen 3".
+4. Drag the recording from the folder into the box marked **Recording**,
+   say which steps you skipped, and submit it.
 
 The file doesn't contain your headset's serial number or anything else
 that identifies you. Open it in Notepad if you'd like to check before

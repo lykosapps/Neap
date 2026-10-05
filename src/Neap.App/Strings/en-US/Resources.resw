@@ -1101,8 +1101,8 @@
   <data name="Settings_RecordStop" xml:space="preserve">
     <value>Stop and save</value>
   </data>
-  <data name="Settings_RecordShow.Content" xml:space="preserve">
-    <value>Show in folder</value>
+  <data name="Settings_RecordReport.Content" xml:space="preserve">
+    <value>Report on GitHub</value>
   </data>
   <data name="Settings_RecordRecording" xml:space="preserve">
     <value>Recording, {0}</value>

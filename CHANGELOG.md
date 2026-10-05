@@ -15,9 +15,11 @@ and date.
 
 - **Record headset activity.** In Settings, start a recording, make the
   problem happen, then stop. Neap saves a text file to Downloads with what
-  the headset and Windows reported meanwhile, to attach to a bug report. It
-  only listens, and leaves out the headset's serial number and radio
-  addresses.
+  the headset and Windows reported meanwhile. It only listens, and leaves
+  out the headset's serial number and radio addresses.
+- **Report on GitHub.** After a recording, one button opens a GitHub form
+  with Neap's version, Windows' version and the headset hardware filled
+  in, and opens the folder with the recording ready to drag in.
 - **Help support another headset.** A guide for owners of other Turtle Beach
   headsets: record in Neap while pressing each button, with nothing else to
   install, so support can be added. Recording Swarm II, for settings only
