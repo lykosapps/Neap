@@ -50,9 +50,12 @@ whose own menu only opens or quits the app — it doesn't expose any page.
 
 When a newer version of Neap is out, a banner sits at the very top, under
 the title bar and above the profile bar, above every page: the news,
-What's new, Update and restart, and ways to put it away for a day or for
-good. It is gone when there is nothing to say. The full account lives at the
-top of Settings, so putting the banner away loses nothing.
+What's new, Update and restart, and one Not now menu that puts it away for a
+day or for good. In a narrow window What's new and Not now fold into one
+more-options menu, so it stays one row. While an update runs it shows
+progress and offers nothing else. It is gone when there is nothing to say.
+The full account lives at the top of Settings, so putting the banner away
+loses nothing.
 
 A profile bar sits under the title bar, above every page, riding along with
 whichever place is open rather than being a place of its own. It shows the

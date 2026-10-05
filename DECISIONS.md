@@ -68,14 +68,24 @@
   switched off, and a card in Settings is somewhere people only go to look.
   The banner leads with **Update and restart** and has **What's new**, and
   is the only thing that shows there. It goes when there is nothing to say.
-- **Putting it away is two choices, written out:** **Remind me tomorrow**
-  hides it for a day, even across a restart, and **Skip this version** hides
-  it until a newer version is out, so someone who doesn't want 0.3.0 is
-  still told about 0.4.0. There is no way to hide updates for good short of
-  turning the check off; that would leave people on old bugs without
-  knowing. Settings always shows what is available, so putting the banner
-  away loses nothing. There is no close button, because it wouldn't say
-  which of the two it meant.
+- **Putting it away is one Not now menu holding two choices, written out:**
+  **Remind me tomorrow** hides it for a day, even across a restart, and
+  **Skip this version** hides it until a newer version is out, so someone
+  who doesn't want 0.3.0 is still told about 0.4.0. They share a menu
+  because ignoring the banner is what people do most, and two buttons as
+  large as Update and restart gave putting it away as much room as updating.
+  There is no way to hide updates for good short of turning the check off;
+  that would leave people on old bugs without knowing. Settings always shows
+  what is available, so putting the banner away loses nothing. There is no
+  close button, because it wouldn't say which of the two it meant.
+- **The banner is one row at any width.** Below 720 pixels at the app's own
+  scale, What's new and Not now fold into one more-options menu beside
+  Update and restart: wrapping the buttons under the message took nearly
+  half of a narrow window's height. While an update downloads or installs,
+  Update and restart stays on screen, off, with a progress bar under the
+  message, and What's new and Not now are not offered, since neither would
+  change anything. A thin accent edge on its left marks it as news, not as
+  part of the profile bar beneath it.
 - **Release notes are read in Neap,** in a dialog, not on a web page: the
   notes come with the version check, so reading them asks for nothing more,
   and the person is deciding whether to update inside the app. The install

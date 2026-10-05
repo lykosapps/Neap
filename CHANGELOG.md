@@ -50,9 +50,14 @@ From this version on, Neap updates itself.
   profiles are kept.
 - **Read what's new first.** What's new, in the banner and at the top of
   Settings, shows the release's notes in Neap, without opening a web page.
-- **Put the banner away.** Remind me tomorrow hides it for a day. Skip this
-  version hides it until a newer version is out. Updating is still there
-  in Settings either way.
+- **Put the banner away.** Not now in the banner holds Remind me tomorrow,
+  which hides it for a day, and Skip this version, which hides it until a
+  newer version is out. Updating is still there in Settings either way.
+- **The banner fits the window.** In a narrow window it stays one row, with
+  What's new and Not now in a menu beside Update and restart. While an
+  update downloads, a progress bar shows how far it has got and Update and
+  restart is off. A thin coloured edge on its left tells it from the
+  profile selector below.
 - **Only a version check.** Neap sends GitHub the request and nothing
   else, nothing from your PC or your headset. GitHub sees the request, as
   any website does. Turn off Check for updates automatically to keep Neap
@@ -70,7 +75,8 @@ From this version on, Neap updates itself.
 - **Settings is tidier.** Neap's version and whether it is up to date come
   first, with What's new and Update and restart beside them. Then Start with
   Windows, then Problems and other headsets, which was called Diagnostics.
-- **The update banner is at the very top,** above the profile selector.
+- **The update banner is at the very top,** above the profile selector,
+  with a coloured edge so it reads as news.
 
 ### Reporting a problem
 

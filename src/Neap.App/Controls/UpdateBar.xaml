@@ -3,40 +3,79 @@
     x:Class="Neap.App.Controls.UpdateBar"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:tk="using:CommunityToolkit.WinUI.Controls"
     HorizontalContentAlignment="Stretch"
     Visibility="Collapsed">
 
     <!--
-        The profile bar's own ground, so the two read as one header. One row
-        while it fits, wrapping the buttons under the message when the
-        window is narrow.
+        The profile bar's own ground, with an accent edge down its left so
+        the news reads as temporary, not as part of the profile bar beneath
+        it. One row at any width: the message wraps, and the buttons give
+        way to a menu when the window is narrow.
     -->
-    <Border
-        Padding="16,8"
-        Background="{ThemeResource NeapPanelBrush}"
-        BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
-        BorderThickness="0,0,0,1">
-        <tk:WrapPanel HorizontalSpacing="12" VerticalSpacing="8">
-            <StackPanel
-                VerticalAlignment="Center"
-                Orientation="Horizontal"
-                Spacing="12">
+    <Grid>
+        <Border
+            Padding="16,8"
+            Background="{ThemeResource NeapPanelBrush}"
+            BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
+            BorderThickness="0,0,0,1">
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
                 <FontIcon
+                    VerticalAlignment="Center"
                     AutomationProperties.AccessibilityView="Raw"
                     FontSize="16"
                     Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
                     Glyph="&#xE946;" />
-                <TextBlock
-                    x:Name="Message"
+
+                <!--
+                    The message and the download's progress. Takes keyboard
+                    focus, while an update runs, from the buttons it takes away.
+                -->
+                <ContentControl
+                    x:Name="Status"
+                    Grid.Column="1"
+                    Margin="-6,0,0,0"
+                    Padding="6,2"
                     VerticalAlignment="Center"
-                    AutomationProperties.LiveSetting="Polite"
-                    TextWrapping="Wrap" />
-            </StackPanel>
-            <HyperlinkButton x:Name="Notes" x:Uid="Settings_UpdateNotes" />
-            <Button x:Name="Act" Style="{StaticResource AccentButtonStyle}" />
-            <Button x:Name="Later" x:Uid="Banner_UpdateRemind" />
-            <Button x:Name="Skip" x:Uid="Banner_UpdateSkip" />
-        </tk:WrapPanel>
-    </Border>
+                    HorizontalContentAlignment="Stretch"
+                    IsTabStop="False"
+                    UseSystemFocusVisuals="True">
+                    <StackPanel Spacing="6">
+                        <TextBlock
+                            x:Name="Message"
+                            AutomationProperties.LiveSetting="Polite"
+                            TextWrapping="Wrap" />
+                        <ProgressBar
+                            x:Name="Progress"
+                            Maximum="100"
+                            Visibility="Collapsed" />
+                    </StackPanel>
+                </ContentControl>
+
+                <StackPanel
+                    x:Name="Actions"
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button x:Name="Notes" x:Uid="Settings_UpdateNotes" />
+                    <Button x:Name="Act" Style="{StaticResource AccentButtonStyle}" />
+                    <DropDownButton x:Name="NotNow" x:Uid="Banner_UpdateNotNow" />
+                    <Button x:Name="More" x:Uid="Banner_UpdateMore">
+                        <FontIcon FontSize="16" Glyph="&#xE712;" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border
+            Width="4"
+            HorizontalAlignment="Left"
+            Background="{ThemeResource AccentFillColorDefaultBrush}" />
+    </Grid>
 </UserControl>
