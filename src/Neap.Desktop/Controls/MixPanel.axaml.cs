@@ -74,7 +74,8 @@ public partial class MixPanel : UserControl
         AppServices.Headset.StatusChanged += OnHeadset;
         // The wheel's notice names the keys once they are on.
         AppServices.Hotkeys.Changed += Paint;
-        ChatFrom.IsExpanded = AppServices.Mix.ChatApps.Count == 0;
+        // After the expander has its template: set before it, it can come up folded.
+        Platform.Post(() => ChatFrom.IsExpanded = AppServices.Mix.ChatApps.Count == 0);
         Paint();
         _ = LoadCandidates();
     }
