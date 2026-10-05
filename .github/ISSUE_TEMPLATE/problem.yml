@@ -1,0 +1,31 @@
+name: Something isn't working
+description: Neap or your headset isn't doing what it should.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you were doing, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: recording
+    attributes:
+      label: Recording
+      description: >-
+        Drag your recording from Neap here. To make one, go to Settings in
+        Neap, choose Start next to Record headset activity, make the problem
+        happen, then choose Stop and save.
+  - type: input
+    id: hardware
+    attributes:
+      label: Headset hardware plugged in
+  - type: input
+    id: version
+    attributes:
+      label: Neap version
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version

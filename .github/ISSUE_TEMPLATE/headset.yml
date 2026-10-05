@@ -1,0 +1,41 @@
+name: Support my headset
+description: Help Neap work with another Turtle Beach headset.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Thanks for helping. If you haven't made a recording yet, the
+        [guide](https://github.com/lykosapps/Neap/blob/main/docs/MAPPING.md)
+        shows how. It takes about ten minutes.
+  - type: input
+    id: headset
+    attributes:
+      label: Your headset
+      description: Its name as it appears on the box, for example Stealth 700 Gen 3.
+    validations:
+      required: true
+  - type: textarea
+    id: recording
+    attributes:
+      label: Recording
+      description: Drag your recording from Neap here.
+    validations:
+      required: true
+  - type: textarea
+    id: skipped
+    attributes:
+      label: Anything you skipped?
+      description: Steps from the guide's list your headset doesn't have, or that didn't seem to do anything.
+  - type: input
+    id: hardware
+    attributes:
+      label: Headset hardware plugged in
+  - type: input
+    id: version
+    attributes:
+      label: Neap version
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version

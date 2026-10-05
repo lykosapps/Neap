@@ -137,6 +137,19 @@ public sealed class Recording(string app, string windows)
         _timeline.Add(Invariant($"{at:HH:mm:ss.f}  {line}"));
     }
 
+    /// <summary>The form on GitHub to send this recording with, filled in; see <see cref="IssueForm"/>.</summary>
+    public Uri Issue()
+    {
+        lock (_gate)
+        {
+            var plugged = new[] { _start, _end }
+                .SelectMany(s => s?.Plugged ?? [])
+                .Select(d => d.ProductId.ToString("X4", CultureInfo.InvariantCulture))
+                .ToList();
+            return IssueForm.For(plugged, app, windows);
+        }
+    }
+
     /// <summary>The recording as text, with everything that identifies the person blanked.</summary>
     /// <param name="log">The app's log, oldest line first.</param>
     /// <param name="redaction">What to blank; built from <see cref="Secrets"/> and the PC.</param>
