@@ -62,24 +62,25 @@
         </Grid>
 
         <!--
-            The active profile: under the title bar and above every page, so
-            switching one is as constant as the connection dot beside it. See
+            A newer version of Neap, at the very top under the title bar,
+            above every page until it is installed or put away. See
             DECISIONS.md.
         -->
+        <controls:UpdateBar Grid.Row="1" />
+
+        <!--
+            The active profile: under the title bar, and under the update
+            banner when there is one, above every page, so switching one is
+            as constant as the connection dot beside it. See DECISIONS.md.
+        -->
         <Border
-            Grid.Row="1"
+            Grid.Row="2"
             Padding="16,8"
             Background="{ThemeResource NeapPanelBrush}"
             BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
             BorderThickness="0,0,0,1">
             <controls:ProfileBar />
         </Border>
-
-        <!--
-            A newer version of Neap, above every page until it is installed
-            or put away. See DECISIONS.md.
-        -->
-        <controls:UpdateBar Grid.Row="2" />
 
         <NavigationView
             x:Name="Nav"
