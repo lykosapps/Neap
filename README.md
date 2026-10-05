@@ -84,6 +84,9 @@ microphone.
   Superhuman Hearing, spatial sound, buttons and dial, lighting and power.
 - **Runs from the notification area**, with the mix and chat wheel still
   working, and can start with Windows.
+- **Updates itself.** Neap asks GitHub once a day for a newer version, and
+  updating is one button in Settings. It sends nothing about you, and the
+  check can be turned off.
 - **Works from the keyboard and with screen readers**, in light, dark and
   high contrast themes.
 
@@ -104,8 +107,11 @@ your PC. Choose **More info**, then **Run anyway**.
 It needs nothing else: no .NET runtime, no Windows App SDK, no driver. That
 makes it about 260 MB on disk.
 
-**To update,** close Neap from the notification area, replace the contents
-of its folder with the new release, and run it again. Settings are kept.
+**To update,** choose **Update and restart** in Neap's settings, under
+About, when a newer version is out. Neap checks once a day and says so by
+the clock. Settings are kept. To update by hand instead, or from 0.1.0,
+close Neap from the notification area, replace the contents of its folder
+with the new release, and run it again.
 
 **To remove it,** turn off **Start with Windows** in its settings if you
 turned it on, close it from the notification area, and delete its folder

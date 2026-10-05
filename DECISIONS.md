@@ -1,5 +1,30 @@
 # Decisions
 
+## 2026-10-05 — Neap updates itself from GitHub
+
+- **Options:** keep updating by hand (download, quit, unzip over the
+  folder); tell people a new version is out and leave the rest to them; a
+  built-in updater.
+- **Chosen:** a built-in updater. Neap asks GitHub for its latest release
+  once a day, shows "Version X is available" in Settings under About with
+  **What's new** and **Update and restart**, and says so once in a
+  notification by the clock. Updating downloads the zip, checks it against
+  the published SHA-256, puts it in place and restarts. Settings are kept.
+- **The promise changes** from "nothing leaves the PC" to "nothing about
+  you leaves the PC". The check carries only the app's name. **Check for
+  updates automatically** turns it off for anyone who wants Neap offline,
+  and **Check now** still works.
+- **How the files are swapped:** each file being replaced is renamed aside
+  and the new one moved in, all on one drive, so nothing is copied while
+  the app is half replaced, and a failure undoes every move. Neap does this
+  itself, so any newer release works as the new version, including ones
+  that know nothing of updating.
+- **The cost:** until the download is signed, updating this way is as safe
+  as downloading by hand, no safer. A folder the person can't write to
+  can't be updated; Settings says so and links to the download.
+- **Revisit when** the download is signed: the updater should check the
+  signature too.
+
 ## 2026-10-05 — Recordings are sent through GitHub, not uploaded by Neap
 
 - **Options:** an upload from the app to a small service that emails the

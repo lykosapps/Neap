@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Neap.App.Controls;
 using Neap.App.Services;
+using Neap.Core.Updates;
 
 namespace Neap.App.Views;
 
@@ -22,6 +23,12 @@ public sealed partial class SettingsPage : Page
     /// </remarks>
     private readonly TextBlock _recordState = new() { TextWrapping = TextWrapping.Wrap };
 
+    /// <summary>Where updating has got to, shown under the update card's header once there is something to say.</summary>
+    /// <remarks>Announced when the stage changes, not as the download's progress ticks over.</remarks>
+    private readonly TextBlock _updateState = new() { TextWrapping = TextWrapping.Wrap };
+
+    private UpdateStage? _paintedStage;
+
     private readonly DispatcherTimer _ticking = new() { Interval = TimeSpan.FromSeconds(1) };
 
     /// <summary>Gives a button the accent style, or takes it away.</summary>
@@ -37,6 +44,7 @@ public sealed partial class SettingsPage : Page
 
         _painting = true;
         StartWithWindows.IsOn = Startup.Enabled;
+        CheckForUpdates.IsOn = AppServices.Updates.Automatic;
         _painting = false;
 
         // The Startup folder belongs to the real copy of the app.
@@ -50,6 +58,25 @@ public sealed partial class SettingsPage : Page
             _painting = true;
             StartWithWindows.IsOn = Startup.Enabled;
             _painting = false;
+        };
+
+        CheckForUpdates.Toggled += (_, _) =>
+        {
+            if (!_painting) AppServices.Updates.Automatic = CheckForUpdates.IsOn;
+        };
+        AutomationProperties.SetLiveSetting(_updateState, AutomationLiveSetting.Polite);
+        UpdateButton.Click += async (_, _) =>
+        {
+            var look = UpdateLook.Of(AppServices.Updates.Stage);
+            if (look.Busy) return;
+            if (look.Action == UpdateAction.Update) await AppServices.Updates.Update();
+            else await AppServices.Updates.Check();
+        };
+        ReleasePage.Click += async (_, _) =>
+        {
+            if (AppServices.Updates.Newer is not { } release) return;
+            try { await Windows.System.Launcher.LaunchUriAsync(release.Page); }
+            catch (Exception ex) { AppLog.Write($"could not open the release page: {ex.Message}"); }
         };
 
         AutomationProperties.SetLiveSetting(_recordState, AutomationLiveSetting.Polite);
@@ -76,10 +103,14 @@ public sealed partial class SettingsPage : Page
         {
             AppServices.Recorder.Changed += OnRecorderChanged;
             PaintRecording(announce: false);
+            AppServices.Updates.Changed += PaintUpdates;
+            _paintedStage = null;
+            PaintUpdates();
         };
         Unloaded += (_, _) =>
         {
             AppServices.Recorder.Changed -= OnRecorderChanged;
+            AppServices.Updates.Changed -= PaintUpdates;
             _ticking.Stop();
         };
 
@@ -124,6 +155,41 @@ public sealed partial class SettingsPage : Page
 
         if (announce && state is not null)
             FrameworkElementAutomationPeer.CreatePeerForElement(_recordState)?
+                .RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
+    }
+
+    private void PaintUpdates()
+    {
+        var updates = AppServices.Updates;
+        var look = UpdateLook.Of(updates.Stage);
+
+        UpdateButton.Content = Strings.Get(look.Action == UpdateAction.Update ? "Settings_UpdateInstall" : "Settings_UpdateCheck");
+        Lead(UpdateButton, look.Leads);
+        ReleasePage.Visibility = look.Link == UpdateLink.None ? Visibility.Collapsed : Visibility.Visible;
+        if (look.Link != UpdateLink.None)
+            ReleasePage.Content = Strings.Get(look.Link == UpdateLink.Download ? "Settings_UpdateDownload" : "Settings_UpdateNotes");
+
+        string version = updates.Newer?.Version.ToString(3) ?? "";
+        string? state = updates.Stage switch
+        {
+            UpdateStage.Checking => Strings.Get("Settings_UpdateChecking"),
+            UpdateStage.UpToDate => Strings.Format("Settings_UpdateUpToDate", AppInfo.Name),
+            UpdateStage.CheckFailed => Strings.Get("Settings_UpdateCheckFailed"),
+            UpdateStage.Available => Strings.Format("Settings_UpdateAvailable", version),
+            UpdateStage.CannotUpdateHere => Strings.Format("Settings_UpdateCannotHere", version, AppInfo.Name),
+            UpdateStage.Downloading => Strings.Format("Settings_UpdateDownloading", version, updates.Percent),
+            UpdateStage.Installing => Strings.Format("Settings_UpdateInstalling", version),
+            UpdateStage.UpdateFailed => Strings.Format("Settings_UpdateFailed", version),
+            _ => null,
+        };
+        _updateState.Text = state ?? "";
+        if (state is null) Updates.ClearValue(SettingsCard.DescriptionProperty);
+        else Updates.Description = _updateState;
+
+        bool moved = _paintedStage is { } painted && painted != updates.Stage;
+        _paintedStage = updates.Stage;
+        if (moved && state is not null)
+            FrameworkElementAutomationPeer.CreatePeerForElement(_updateState)?
                 .RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
     }
 

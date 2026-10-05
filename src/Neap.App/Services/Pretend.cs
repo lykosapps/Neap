@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Neap.Core;
 using Neap.Core.Presets;
 using Neap.Core.Pretend;
+using Neap.Core.Updates;
 
 namespace Neap.App.Services;
 
@@ -48,6 +49,9 @@ public static class Pretend
     /// <summary>With <see cref="Flag"/>, opens the game equaliser in parametric mode with <see cref="SampleAdjustments"/>.</summary>
     public const string ParametricFlag = "--parametric";
 
+    /// <summary>With <see cref="Flag"/>, finds a newer version when checking for updates.</summary>
+    public const string UpdateFlag = "--update";
+
     public static bool Active { get; } = Given(Flag);
 
     /// <summary>
@@ -90,6 +94,18 @@ public static class Pretend
     /// <summary>The adjustments <see cref="ParametricFlag"/> opens with: the most allowed, one too narrow for the bands to match.</summary>
     public static IReadOnlyList<Adjustment> SampleAdjustments { get; } =
         [new(100, 30, 20), new(1000, -15, 15), new(4900, -40, 10), new(12000, 25, 15)];
+
+    /// <summary>
+    /// The newer version a check finds, or null for up to date. A pretend
+    /// run never asks GitHub, so a script can see the update card in every
+    /// state without the network.
+    /// </summary>
+    public static Release? Release { get; } = Active && Given(UpdateFlag)
+        ? new Release(new Version(9, 9, 9),
+            new Uri("https://github.com/lykosapps/Neap/releases/latest"),
+            new Uri("https://github.com/lykosapps/Neap/releases/download/v9.9.9/Neap-9.9.9-win-x64.zip"),
+            new Uri("https://github.com/lykosapps/Neap/releases/download/v9.9.9/Neap-9.9.9-win-x64.zip.sha256"))
+        : null;
 
     private static bool Given(string flag) => Environment.GetCommandLineArgs().Skip(1)
         .Any(a => string.Equals(a, flag, StringComparison.OrdinalIgnoreCase));

@@ -11,7 +11,7 @@ preparing code for experienced reviewers.
 - **Autonomy:** commit and update the owner's try-it copy without asking; never push, publish or delete without asking.
 - **Accessibility target:** WCAG 2.2 level AA.
 - **Languages:** English only, written so it can be translated.
-- **Data and privacy:** no personal data kept, no analytics or tracking, nothing leaves the PC.
+- **Data and privacy:** no personal data kept, no analytics or tracking, nothing about the person leaves the PC. The one network call is the update check: asking GitHub for the latest release, and downloading it when asked. It can be turned off.
 - **Voice and brand:** Tenon's defaults: plain and restrained, no help text by default.
 
 ## The standard

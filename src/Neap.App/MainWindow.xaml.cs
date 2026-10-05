@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -111,6 +113,9 @@ public sealed partial class MainWindow : Window
         Tray.LeftClickCommand = new Do(Show);
         TrayOpen.Command = new Do(Show);
         TrayQuit.Command = new Do(Quit);
+
+        AppServices.Updates.Found += TellAboutUpdate;
+        AppServices.Updates.Installed += Restart;
 
         AppServices.Headset.StatusChanged += _ => PaintTray();
         AppServices.Headset.Changed += PaintTray;
@@ -286,6 +291,22 @@ public sealed partial class MainWindow : Window
         catch { /* notifications can be off; the setting is still recorded */ }
     }
 
+    /// <summary>Says a newer version is out, for someone whose window is closed.</summary>
+    /// <remarks>
+    /// It says where to update rather than opening Settings when selected:
+    /// the tray library raises nothing when a notification is selected.
+    /// </remarks>
+    private void TellAboutUpdate(Neap.Core.Updates.Release release)
+    {
+        try
+        {
+            Tray.ShowNotification(
+                Strings.Format("Tray_UpdateTitle", AppInfo.Name, release.Version.ToString(3)),
+                Strings.Get("Tray_Update"));
+        }
+        catch (Exception ex) { AppLog.Write($"could not show the update notification: {ex.Message}"); }
+    }
+
     private void Show()
     {
         AppLog.Write("window: opened from the notification area");
@@ -299,11 +320,34 @@ public sealed partial class MainWindow : Window
     private void Quit()
     {
         AppLog.Write("quit from the notification area");
+        StopRunning();
+        Close();
+    }
+
+    /// <summary>Stops this version and starts the one just put in its place.</summary>
+    /// <remarks>
+    /// The one-copy lock is let go first, or the new version would find this
+    /// one still running and hand over to it.
+    /// </remarks>
+    private void Restart(string program)
+    {
+        StopRunning();
+        App.LetGo();
+        try { Process.Start(new ProcessStartInfo(program) { WorkingDirectory = Path.GetDirectoryName(program) }); }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
+        {
+            AppLog.Write($"could not start the new version, so Neap needs starting again by hand: {ex.Message}");
+        }
+        Close();
+    }
+
+    /// <summary>Puts the volumes back, lets go of the headset and takes the icon away, before the window closes.</summary>
+    private void StopRunning()
+    {
         _quitting = true;
         Remember();
         Tray.Dispose();
         AppServices.Stop();
-        Close();
     }
 
     private void OnNavigate(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

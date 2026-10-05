@@ -1089,6 +1089,64 @@
   <data name="Settings_AboutVersion" xml:space="preserve">
     <value>Version {0}</value>
   </data>
+  <data name="Settings_Updates.Header" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="Settings_UpdateCheck" xml:space="preserve">
+    <value>Check now</value>
+  </data>
+  <data name="Settings_UpdateInstall" xml:space="preserve">
+    <value>Update and restart</value>
+  </data>
+  <data name="Settings_UpdateNotes" xml:space="preserve">
+    <value>What's new</value>
+  </data>
+  <data name="Settings_UpdateDownload" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Settings_UpdateChecking" xml:space="preserve">
+    <value>Checking…</value>
+  </data>
+  <data name="Settings_UpdateUpToDate" xml:space="preserve">
+    <value>{0} is up to date.</value>
+    <comment>{0} is the app's name.</comment>
+  </data>
+  <data name="Settings_UpdateCheckFailed" xml:space="preserve">
+    <value>Couldn't check for updates.</value>
+  </data>
+  <data name="Settings_UpdateAvailable" xml:space="preserve">
+    <value>Version {0} is available.</value>
+    <comment>{0} is a version number, such as 0.3.0.</comment>
+  </data>
+  <data name="Settings_UpdateCannotHere" xml:space="preserve">
+    <value>Version {0} is available, but {1} can't update itself in this folder.</value>
+    <comment>{0} is a version number, such as 0.3.0. {1} is the app's name.</comment>
+  </data>
+  <data name="Settings_UpdateDownloading" xml:space="preserve">
+    <value>Downloading version {0}, {1}%</value>
+    <comment>{0} is a version number, such as 0.3.0. {1} is how much has downloaded, from 0 to 100.</comment>
+  </data>
+  <data name="Settings_UpdateInstalling" xml:space="preserve">
+    <value>Installing version {0}…</value>
+    <comment>{0} is a version number, such as 0.3.0. The app restarts straight after.</comment>
+  </data>
+  <data name="Settings_UpdateFailed" xml:space="preserve">
+    <value>Couldn't update to version {0}.</value>
+    <comment>{0} is a version number, such as 0.3.0.</comment>
+  </data>
+  <data name="Settings_CheckForUpdates.Header" xml:space="preserve">
+    <value>Check for updates automatically</value>
+  </data>
+  <data name="Settings_CheckForUpdates.Description" xml:space="preserve">
+    <value>Asks GitHub once a day.</value>
+  </data>
+  <data name="Tray_UpdateTitle" xml:space="preserve">
+    <value>{0} {1} is available</value>
+    <comment>{0} is the app's name, {1} a version number, such as 0.3.0.</comment>
+  </data>
+  <data name="Tray_Update" xml:space="preserve">
+    <value>Update from Settings.</value>
+  </data>
   <data name="Settings_DiagnosticsHeading.Text" xml:space="preserve">
     <value>Diagnostics</value>
   </data>

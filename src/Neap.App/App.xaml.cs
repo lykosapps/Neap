@@ -43,6 +43,15 @@ public partial class App : Application
         UnhandledException += (_, e) => Services.AppLog.Write($"crashed: {e.Exception}");
     }
 
+    /// <summary>Lets go of the one-copy lock, so a copy started now runs instead of handing over to this one.</summary>
+    /// <remarks>Call on the UI thread, which took the lock, and only once the app has stopped its work.</remarks>
+    public static void LetGo()
+    {
+        _one?.ReleaseMutex();
+        _one?.Dispose();
+        _one = null;
+    }
+
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         bool pretend = Services.Pretend.Active;

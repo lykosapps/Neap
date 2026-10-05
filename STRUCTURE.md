@@ -22,7 +22,7 @@ Who it's for: see [USERS.md](USERS.md).
 - **Device** — connected transmitter(s), audio format, ring lighting,
   auto shut-off, wake on motion, and firmware/serial/raw values behind an
   expander. Serves transmitter and device information.
-- **Settings** (footer) — start with Windows, About, and Profiles' upkeep:
+- **Settings** (footer) — start with Windows, About with updating Neap, and Profiles' upkeep:
   naming, deleting, assigning apps to switch to a profile automatically, and
   setting the default profile. App housekeeping, plus the one piece of
   profile management too infrequent for the always-visible bar.

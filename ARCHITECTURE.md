@@ -156,3 +156,21 @@ using, not the first whose name matches.
 what the device is configured for. The format Windows actually shows in Sound
 settings is a device property, and reading it is the only way to report the
 truth. See `Audio/DeviceFormat.cs`.
+
+## Updating the app itself
+
+The one thing that goes over a network. `Core/Updates` holds the rules:
+reading GitHub's latest release and refusing anything that isn't exactly
+what the release workflow publishes (`Release`), once a day at most
+(`UpdateSchedule`), what the Settings card offers at each stage
+(`UpdateLook`), and putting the new files in place (`FolderSwap`). The app's
+`Services/UpdateService.cs` does the downloading and checking.
+
+Windows won't let a running program's files be overwritten, but will let
+them be renamed. So the running version unzips the new one into a hidden
+`.update` folder inside its own, renames each file it replaces aside, moves
+the new one in, lets go of its one-copy lock and starts the new version.
+Because the old version does all of it, the new version needs no part in
+the swap; it only clears the `.update` folder when it starts. This is Neap's
+own update and nothing to do with the headset's firmware, which stays with
+Swarm II.

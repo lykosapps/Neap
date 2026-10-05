@@ -19,8 +19,8 @@ namespace Neap.App.Services;
 /// left, whether the tray notice has been shown, the two halves of noise
 /// control the headset has no place for, the parametric adjustments
 /// behind a preset, of which its slot holds only the result, which
-/// preset an edited curve came from, and whether to keep the Charging Dock's
-/// status ring purple.
+/// preset an edited curve came from, whether to keep the Charging Dock's
+/// status ring purple, and whether and when to look for a newer version.
 /// </para>
 /// <para>
 /// Profiles are the one deliberate exception: a full snapshot, kept here
@@ -81,6 +81,20 @@ public sealed class AppSettings
     /// in the sound, and for telling the dock's behaviour from Neap's.
     /// </remarks>
     [JsonPropertyName("keep_ring_purple")] public bool KeepRingPurple { get; set; } = true;
+
+    /// <summary>Whether Neap asks GitHub once a day for a newer version.</summary>
+    /// <remarks>
+    /// On by default: an app that never says it is out of date leaves people
+    /// on old bugs. The switch is there for anyone who wants Neap entirely
+    /// offline.
+    /// </remarks>
+    [JsonPropertyName("check_for_updates")] public bool CheckForUpdates { get; set; } = true;
+
+    /// <summary>When Neap last asked GitHub for a newer version, or null if never.</summary>
+    [JsonPropertyName("checked_for_updates")] public DateTimeOffset? CheckedForUpdates { get; set; }
+
+    /// <summary>The newest version a notification has announced, so each is announced once.</summary>
+    [JsonPropertyName("told_about_version")] public string? ToldAboutVersion { get; set; }
 
     /// <summary>Where the window was left: left, top, width and height, in physical pixels.</summary>
     /// <remarks>

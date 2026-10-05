@@ -23,6 +23,7 @@ do while it happens, and send it to GitHub from Neap.
 
 To update from 0.1.0, quit Neap from its icon by the clock, then unzip
 this version over your Neap folder. Your settings and profiles are kept.
+From this version on, Neap updates itself.
 
 ### Help support another headset
 
@@ -38,6 +39,19 @@ this version over your Neap folder. Your settings and profiles are kept.
 - **Going further.** For settings only Swarm II can change, such as the
   equaliser, the guide shows how to record Swarm II as well. Optional, and
   more technical.
+
+### Updates
+
+- **Neap updates itself.** It asks GitHub once a day for a newer version
+  and says so by the clock when there is one. In Settings, under About,
+  Update and restart downloads it, checks it is the published file, puts it
+  in place and starts it again. Your settings and profiles are kept.
+- **Only a version check.** Nothing about you, your PC or your headset is
+  sent. Turn off Check for updates automatically to keep Neap offline, and
+  use Check now whenever you like.
+- **Where Neap can't update itself,** such as a folder you can't write to
+  without being an administrator, Settings says so and links to the
+  download.
 
 ### Reporting a problem
 
