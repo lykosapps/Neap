@@ -149,6 +149,17 @@ public sealed class HeadsetService : IDisposable
     /// </summary>
     public event Action<int>? WheelMoved;
 
+    /// <summary>
+    /// The headset said something without being asked. Raised on the headset
+    /// thread, so a handler must be quick and must not touch the interface.
+    /// </summary>
+    /// <remarks>
+    /// Raised before the value store takes it in, and for values the store
+    /// keeps out, such as the chat wheel's counter: a recording needs what was
+    /// said, not what the store made of it.
+    /// </remarks>
+    public event Action<DeviceEvent>? Heard;
+
     /// <summary>The chat wheel's absolute counter.</summary>
     /// <remarks>
     /// Kept out of the value store. It is a free-spinning encoder whose counter
@@ -436,6 +447,7 @@ public sealed class HeadsetService : IDisposable
                 {
                     foreach (var evt in events)
                     {
+                        Heard?.Invoke(evt);
                         Merge(evt.Values, authoritative: false);
                         TakeSlot(evt);
                     }

@@ -26,6 +26,10 @@ Who it's for: see [USERS.md](USERS.md).
   naming, deleting, assigning apps to switch to a profile automatically, and
   setting the default profile. App housekeeping, plus the one piece of
   profile management too infrequent for the always-visible bar.
+  Diagnostics sits there too: recording headset activity to send with a bug
+  report, and a link to the guide for helping support another headset.
+  Serves reporting a problem, which happens rarely and is about the app as
+  much as the headset, so it gets a section rather than a rail item.
 
 ## How people move
 

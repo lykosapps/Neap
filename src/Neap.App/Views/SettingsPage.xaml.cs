@@ -1,4 +1,7 @@
+using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
+using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Neap.App.Services;
 
@@ -6,7 +9,19 @@ namespace Neap.App.Views;
 
 public sealed partial class SettingsPage : Page
 {
+    /// <summary>The guide for someone with a headset Neap does not support yet.</summary>
+    private const string MappingGuide = "https://github.com/lykosapps/Neap/blob/main/docs/MAPPING.md";
+
     private bool _painting;
+
+    /// <summary>The recording's state, shown under its card's header only while there is one to show.</summary>
+    /// <remarks>
+    /// Announced by screen readers when the recording starts, saves or fails,
+    /// not as its time ticks over.
+    /// </remarks>
+    private readonly TextBlock _recordState = new() { TextWrapping = TextWrapping.Wrap };
+
+    private readonly DispatcherTimer _ticking = new() { Interval = TimeSpan.FromSeconds(1) };
 
     public SettingsPage()
     {
@@ -29,6 +44,33 @@ public sealed partial class SettingsPage : Page
             _painting = false;
         };
 
+        AutomationProperties.SetLiveSetting(_recordState, AutomationLiveSetting.Polite);
+        RecordButton.Click += async (_, _) =>
+        {
+            if (AppServices.Recorder.Since is null) AppServices.Recorder.Start();
+            else await AppServices.Recorder.Stop();
+        };
+        ShowRecording.Click += (_, _) =>
+        {
+            if (AppServices.Recorder.Saved is { } saved) SessionRecorder.Show(saved);
+        };
+        _ticking.Tick += (_, _) => PaintRecording(announce: false);
+        MapHeadset.Click += async (_, _) =>
+        {
+            try { await Windows.System.Launcher.LaunchUriAsync(new Uri(MappingGuide)); }
+            catch (Exception ex) { AppLog.Write($"could not open the mapping guide: {ex.Message}"); }
+        };
+        Loaded += (_, _) =>
+        {
+            AppServices.Recorder.Changed += OnRecorderChanged;
+            PaintRecording(announce: false);
+        };
+        Unloaded += (_, _) =>
+        {
+            AppServices.Recorder.Changed -= OnRecorderChanged;
+            _ticking.Stop();
+        };
+
         AppName.Text = AppInfo.Name;
         if (AppInfo.Version is { } version)
         {
@@ -36,4 +78,36 @@ public sealed partial class SettingsPage : Page
             AppVersion.Visibility = Visibility.Visible;
         }
     }
+
+    private void OnRecorderChanged() => PaintRecording(announce: true);
+
+    private void PaintRecording(bool announce)
+    {
+        var recorder = AppServices.Recorder;
+        bool recording = recorder.Since is not null;
+
+        // Left enabled while saving, where a press does nothing: disabling it
+        // would throw keyboard focus on to the next card.
+        RecordButton.Content = Strings.Get(recording ? "Settings_RecordStop" : "Settings_RecordStart");
+        ShowRecording.Visibility = !recording && recorder.Saved is not null ? Visibility.Visible : Visibility.Collapsed;
+
+        string? state =
+            recorder.Saving ? Strings.Get("Settings_RecordSaving")
+            : recorder.Since is { } since ? Strings.Format("Settings_RecordRecording", Elapsed(DateTime.Now - since))
+            : recorder.Trouble is { } trouble ? Strings.Format("Settings_RecordFailed", trouble)
+            : recorder.Saved is { } saved ? Strings.Format("Settings_RecordSaved", Path.GetFileName(saved))
+            : null;
+        _recordState.Text = state ?? "";
+        if (state is null) Record.ClearValue(SettingsCard.DescriptionProperty);
+        else Record.Description = _recordState;
+
+        if (recording && !recorder.Saving) _ticking.Start();
+        else _ticking.Stop();
+
+        if (announce && state is not null)
+            FrameworkElementAutomationPeer.CreatePeerForElement(_recordState)?
+                .RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
+    }
+
+    private static string Elapsed(TimeSpan length) => $"{(int)length.TotalMinutes}:{length.Seconds:00}";
 }

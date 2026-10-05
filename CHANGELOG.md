@@ -9,6 +9,18 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
+## Unreleased
+
+### Reporting a problem
+
+- **Record headset activity.** In Settings, start a recording, make the
+  problem happen, then stop. Neap saves a text file to Downloads with what
+  the headset and Windows reported meanwhile, to attach to a bug report. It
+  only listens, and leaves out the headset's serial number and radio
+  addresses.
+- **Help support another headset.** A guide for owners of other Turtle Beach
+  headsets to record what Swarm II sends, so support can be added.
+
 ## 0.1.0 — 2026-10-04, the first release
 
 A Windows app for the Turtle Beach Stealth Pro II, in place of Swarm II.

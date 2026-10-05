@@ -19,6 +19,9 @@ One person: the owner, on one Windows machine, with one Stealth Pro II
   *(known — the owner's request for profiles; how often is assumed)*
 - Check transmitter or device details (firmware, serial, format). Rarely,
   when troubleshooting. *(known — README, ARCHITECTURE)*
+- Report a problem with a recording of what the headset and Windows did,
+  for the developer to diagnose. Rarely, once others use the release.
+  *(known — the owner's request for diagnostics; how often is assumed)*
 
 ## Where and how
 

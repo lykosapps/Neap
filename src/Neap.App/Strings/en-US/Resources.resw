@@ -1089,6 +1089,39 @@
   <data name="Settings_AboutVersion" xml:space="preserve">
     <value>Version {0}</value>
   </data>
+  <data name="Settings_DiagnosticsHeading.Text" xml:space="preserve">
+    <value>Diagnostics</value>
+  </data>
+  <data name="Settings_Record.Header" xml:space="preserve">
+    <value>Record headset activity</value>
+  </data>
+  <data name="Settings_RecordStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Settings_RecordStop" xml:space="preserve">
+    <value>Stop and save</value>
+  </data>
+  <data name="Settings_RecordShow.Content" xml:space="preserve">
+    <value>Show in folder</value>
+  </data>
+  <data name="Settings_RecordRecording" xml:space="preserve">
+    <value>Recording, {0}</value>
+    <comment>{0} is the time recorded so far, in minutes and seconds, such as 2:05.</comment>
+  </data>
+  <data name="Settings_RecordSaving" xml:space="preserve">
+    <value>Saving</value>
+  </data>
+  <data name="Settings_RecordSaved" xml:space="preserve">
+    <value>Saved as {0}</value>
+    <comment>{0} is the file's name.</comment>
+  </data>
+  <data name="Settings_RecordFailed" xml:space="preserve">
+    <value>The recording couldn't be saved: {0}</value>
+    <comment>{0} is Windows' reason, such as a full disk.</comment>
+  </data>
+  <data name="Settings_MapHeadset.Header" xml:space="preserve">
+    <value>Help support another headset</value>
+  </data>
   <data name="State_SoundElsewhere" xml:space="preserve">
     <value>Windows is sending sound to a device your headset isn't listening on. Home says which one to choose.</value>
   </data>

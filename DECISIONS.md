@@ -1,5 +1,34 @@
 # Decisions
 
+## 2026-10-05 — Players can record diagnostics for a bug report
+
+- **Options for what players can run:** the developer's own tools and
+  scripts, sent to them as needed; a fixed set of tests built into the app;
+  both.
+- **Chosen:** a fixed recording built into the app, under Settings →
+  Diagnostics. It covers what debugging here relies on: which devices are
+  plugged in and which one answered, every value the headset holds,
+  everything it reports while the recording runs, and where Windows sends
+  sound and how loud, second by second. New tests arrive with updates.
+- **Why not scripts sent to players:** if the app runs whatever it is
+  given, anyone pretending to be the developer can send something harmful,
+  and some of the local tools need administrator rights the app never asks
+  for.
+- **It only listens.** Probing settings nobody has confirmed stays out of
+  the app, because a wrong value could leave someone's headset in a bad
+  state. Reading every setting the headset already answers for is in.
+- **Saved, not sent.** The file goes to Downloads with identifying values
+  blanked, and the player attaches it themselves. Sending from the app would
+  break "nothing leaves the PC", and an address built into open-source code
+  can't be hidden.
+- **Supporting another headset** needs a USB recording of Swarm II, which
+  needs a driver, a restart and administrator rights, so it stays outside
+  the app as a guide for keen testers (docs/MAPPING.md).
+- **A section in Settings, not a seventh rail item:** reporting a problem is
+  rare, and Settings is where the app's own housekeeping lives.
+- **Still open:** a private way to receive USB recordings, and whether
+  "Report a problem" should open a form that needs no GitHub account.
+
 ## 2026-09-28 — Save and Discard move into the profile menu
 
 - **Chosen:** Save and Discard no longer sit as buttons in the bar itself.

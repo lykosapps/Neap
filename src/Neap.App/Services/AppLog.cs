@@ -45,4 +45,9 @@ public static class AppLog
     /// belongs, so the record still reads in order.
     /// </param>
     public static void Write(string what, DateTime? at = null) => File.Write(what, at ?? DateTime.Now);
+
+    /// <summary>Every line kept, oldest first.</summary>
+    /// <exception cref="IOException">The log could not be read.</exception>
+    /// <exception cref="UnauthorizedAccessException">The log could not be read.</exception>
+    public static IReadOnlyList<string> Read() => File.Read();
 }
