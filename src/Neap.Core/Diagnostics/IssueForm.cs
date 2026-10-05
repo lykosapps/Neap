@@ -7,9 +7,10 @@ namespace Neap.Core.Diagnostics;
 /// <remarks>
 /// <para>
 /// A person reporting a problem is spared every field the app already
-/// knows: its version, the Windows version and the hardware plugged in.
-/// GitHub fills a form's fields from the link that opens it, by each
-/// field's id in the form's definition under .github/ISSUE_TEMPLATE.
+/// knows: its version, the Windows version, the hardware plugged in and,
+/// for another headset, what Neap found on it. GitHub fills a form's fields
+/// from the link that opens it, by each field's id in the form's definition
+/// under .github/ISSUE_TEMPLATE.
 /// </para>
 /// <para>
 /// Which form depends on what is plugged in, not on whether the headset
@@ -31,23 +32,28 @@ public static class IssueForm
     /// <summary>The form for supporting another headset.</summary>
     public const string Headset = "headset.yml";
 
+    /// <summary>Whether what is plugged in is Turtle Beach hardware, none of which Neap knows.</summary>
+    /// <param name="plugged">The product ids of the Turtle Beach devices plugged in, as four hex digits.</param>
+    public static bool SupportRequest(IReadOnlyCollection<string> plugged) =>
+        plugged.Count > 0 && plugged.All(p => Transmitters.PieceOf(p) == Transmitters.Piece.Unknown);
+
     /// <summary>The link that opens the right form, filled in.</summary>
     /// <param name="plugged">The product ids of the Turtle Beach devices plugged in, as four hex digits.</param>
     /// <param name="app">The app's name and version.</param>
     /// <param name="windows">The Windows version.</param>
-    public static Uri For(IReadOnlyCollection<string> plugged, string app, string windows)
+    /// <param name="found">What Neap found on another headset, or null for none to fill in.</param>
+    public static Uri For(IReadOnlyCollection<string> plugged, string app, string windows, string? found = null)
     {
         var products = plugged.Select(p => p.ToUpperInvariant()).Distinct().ToList();
-        bool unknownOnly = products.Count > 0
-                           && products.All(p => Transmitters.PieceOf(p) == Transmitters.Piece.Unknown);
 
         var fields = new List<(string Id, string Value)>
         {
-            ("template", unknownOnly ? Headset : Problem),
+            ("template", SupportRequest(products) ? Headset : Problem),
             ("version", app),
             ("windows", windows),
         };
         if (products.Count > 0) fields.Add(("hardware", string.Join(", ", products.Select(Named))));
+        if (found is not null) fields.Add(("found", found));
 
         return new Uri(NewIssue + "?" + string.Join("&",
             fields.Select(f => $"{f.Id}={Uri.EscapeDataString(f.Value)}")));

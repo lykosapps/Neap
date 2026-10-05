@@ -23,6 +23,11 @@ body:
     validations:
       required: true
   - type: textarea
+    id: found
+    attributes:
+      label: What Neap found
+      description: Filled in by Neap from your recording.
+  - type: textarea
     id: skipped
     attributes:
       label: Anything you skipped?

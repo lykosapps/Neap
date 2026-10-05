@@ -139,6 +139,37 @@ public class RecordingTests
         Assert.Equal(["2026-10-05 14:31:58.2  headset: Connected via Charging Dock"], Section(Written(recording), "App log"));
     }
 
+    [Fact]
+    public void FindingsCountWhatTheHeadsetSaidAndWhatChangedByTheEnd()
+    {
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values(("240", "76"), ("2a0", "45"))));
+        recording.Heard(Start.AddSeconds(1), new DeviceEvent("UP", "3DT", Values(("510", "7"))));
+        recording.Ended(At(Start.AddSeconds(2), Values(("240", "76"), ("2a0", "50"))));
+
+        var findings = recording.Findings();
+
+        Assert.Contains(Feature.ChatWheel, findings.Found);
+        Assert.Equal([Feature.MasterVolume, Feature.ChatWheel], findings.Moved);
+    }
+
+    [Fact]
+    public void OnlyARequestToSupportAnotherHeadsetCarriesTheFindings()
+    {
+        static Snapshot With(ushort product) => new(Start, "Quiet", [new HidDeviceInfo("", 0x10F5, product, 0xFF13, 64, 0, 64)],
+            [], Values(("240", "76")), null, []);
+
+        var known = new Recording("Neap", "10");
+        known.Began(With(0x229B));
+        var other = new Recording("Neap", "10");
+        other.Began(With(0x2201));
+
+        Assert.False(known.ForAnotherHeadset);
+        Assert.DoesNotContain("found=", known.Issue().AbsoluteUri, StringComparison.Ordinal);
+        Assert.True(other.ForAnotherHeadset);
+        Assert.Contains("found=Found%3A%20Battery", other.Issue().AbsoluteUri, StringComparison.Ordinal);
+    }
+
     /// <summary>The lines under one heading, up to the blank line before the next.</summary>
     private static string[] Section(string text, string heading) =>
         text.ReplaceLineEndings("\n").Split("\n")

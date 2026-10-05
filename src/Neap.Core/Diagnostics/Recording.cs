@@ -53,6 +53,7 @@ public sealed class Recording(string app, string windows)
 
     private readonly object _gate = new();
     private readonly List<string> _timeline = [];
+    private readonly HashSet<string> _heard = [];
     private bool _full;
     private Snapshot? _start;
     private Snapshot? _end;
@@ -94,7 +95,10 @@ public sealed class Recording(string app, string windows)
     {
         lock (_gate)
             foreach (var pair in evt.Values.OrderBy(p => p.Key, StringComparer.Ordinal))
+            {
+                _heard.Add(pair.Key);
                 Add(at, $"headset  {evt.Kind}/{evt.Category}  {Value(pair.Key, pair.Value)}");
+            }
     }
 
     /// <summary>Notes the levels Windows showed, and any change to where it sends sound.</summary>
@@ -137,18 +141,49 @@ public sealed class Recording(string app, string windows)
         _timeline.Add(Invariant($"{at:HH:mm:ss.f}  {line}"));
     }
 
+    /// <summary>Whether the hardware plugged in is Turtle Beach's but none of it is hardware Neap knows; see <see cref="IssueForm.SupportRequest"/>.</summary>
+    public bool ForAnotherHeadset
+    {
+        get
+        {
+            lock (_gate) return IssueForm.SupportRequest(Plugged());
+        }
+    }
+
+    /// <summary>Which of Neap's functions the headset reported the values for; see <see cref="HeadsetCheck"/>.</summary>
+    public HeadsetFindings Findings()
+    {
+        lock (_gate)
+        {
+            var reported = new HashSet<string>(_heard, StringComparer.Ordinal);
+            var moved = new HashSet<string>(_heard, StringComparer.Ordinal);
+            foreach (var snapshot in new[] { _start, _end })
+                if (snapshot is not null) reported.UnionWith(snapshot.Values.Keys);
+            if (_start is { } start && _end is { } end)
+                foreach (var (key, value) in end.Values)
+                    if (start.Values.TryGetValue(key, out var was) && DeviceEvent.Render(was) != DeviceEvent.Render(value))
+                        moved.Add(key);
+            return HeadsetCheck.Of(reported, moved);
+        }
+    }
+
     /// <summary>The form on GitHub to send this recording with, filled in; see <see cref="IssueForm"/>.</summary>
+    /// <remarks>A request to support another headset carries the <see cref="Findings"/> with it.</remarks>
     public Uri Issue()
     {
         lock (_gate)
         {
-            var plugged = new[] { _start, _end }
-                .SelectMany(s => s?.Plugged ?? [])
-                .Select(d => d.ProductId.ToString("X4", CultureInfo.InvariantCulture))
-                .ToList();
-            return IssueForm.For(plugged, app, windows);
+            var plugged = Plugged();
+            return IssueForm.For(plugged, app, windows,
+                IssueForm.SupportRequest(plugged) ? Findings().Summary : null);
         }
     }
+
+    /// <summary>The product ids plugged in at the start or the end. Under the gate.</summary>
+    private List<string> Plugged() => new[] { _start, _end }
+        .SelectMany(s => s?.Plugged ?? [])
+        .Select(d => d.ProductId.ToString("X4", CultureInfo.InvariantCulture))
+        .ToList();
 
     /// <summary>The recording as text, with everything that identifies the person blanked.</summary>
     /// <param name="log">The app's log, oldest line first.</param>
