@@ -224,6 +224,7 @@ public sealed class UpdateService : IDisposable
         if (Pretend.Active)
         {
             AppLog.Write($"pretend: version {version} would download and install now");
+            await Rehearse();
             return;
         }
 
@@ -252,6 +253,28 @@ public sealed class UpdateService : IDisposable
             Set(UpdateStage.UpdateFailed);
             await Task.Run(ClearDownload);
         }
+    }
+
+    /// <summary>Steps through downloading and installing without doing either, then offers the update again.</summary>
+    /// <remarks>
+    /// A pretend run installs nothing, but a screen walk still has to see
+    /// the banner and the card while an update runs, so each stage lasts a
+    /// few seconds.
+    /// </remarks>
+    private async Task Rehearse()
+    {
+        Percent = 0;
+        Set(UpdateStage.Downloading);
+        for (int step = 1; step <= 20; step++)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(250));
+            Percent = step * 5;
+            Changed?.Invoke();
+        }
+
+        Set(UpdateStage.Installing);
+        await Task.Delay(TimeSpan.FromSeconds(3));
+        Set(_offered);
     }
 
     /// <summary>Downloads a file, reporting progress, and gives its SHA-256 in lower case.</summary>
