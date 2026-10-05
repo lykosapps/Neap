@@ -22,20 +22,25 @@ public sealed class SystemDevices : IDeviceSource
 {
     public static SystemDevices Instance { get; } = new();
 
+    /// <summary>Where a device that is present but cannot be described is reported. Unset, nothing is.</summary>
+    public static Action<string>? Trouble { get; set; }
+
     private SystemDevices() { }
 
     public IReadOnlyList<HidDeviceInfo> Candidates() =>
         HidControl.InAskingOrder(List(HidControl.UsagePage));
 
     public IHidTransport Open(HidDeviceInfo device) =>
-        OperatingSystem.IsWindows() ? new HidTransport(device.Path) : throw Unsupported();
+        OperatingSystem.IsWindows() ? new HidTransport(device.Path)
+        : OperatingSystem.IsLinux() ? new HidrawTransport(device)
+        : throw Unsupported();
 
     /// <summary>Every Turtle Beach collection present, on one usage page or, given null, on any.</summary>
     public static IReadOnlyList<HidDeviceInfo> List(ushort? usagePage) =>
-        OperatingSystem.IsWindows()
-            ? HidTransport.ListDevices(HidControl.VendorId, usagePage)
-            : throw Unsupported();
+        OperatingSystem.IsWindows() ? HidTransport.ListDevices(HidControl.VendorId, usagePage)
+        : OperatingSystem.IsLinux() ? HidrawTransport.ListDevices(HidControl.VendorId, usagePage, Trouble)
+        : throw Unsupported();
 
     private static PlatformNotSupportedException Unsupported() =>
-        new($"{Environment.OSVersion.Platform} has no way to reach the headset yet");
+        new($"{Environment.OSVersion.Platform} has no way to reach the headset");
 }
