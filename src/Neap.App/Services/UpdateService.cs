@@ -13,8 +13,9 @@ namespace Neap.App.Services;
 /// <remarks>
 /// <para>
 /// The only thing Neap sends over a network. A check asks GitHub for its
-/// latest release and sends nothing about the person, their PC or their
-/// headset; an update downloads that release's zip. Neither happens in a
+/// latest release and sends nothing from the PC or the headset, only the
+/// request, which GitHub sees as it sees any website visit; an update
+/// downloads that release's zip. Neither happens in a
 /// pretend run, which finds the release <see cref="Pretend.Release"/> gives,
 /// if any, and installs nothing.
 /// </para>

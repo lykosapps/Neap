@@ -85,8 +85,9 @@ microphone.
 - **Runs from the notification area**, with the mix and chat wheel still
   working, and can start with Windows.
 - **Updates itself.** Neap asks GitHub once a day for a newer version, and
-  updating is one button in Settings. It sends nothing about you, and the
-  check can be turned off.
+  updating is one button in Settings. It sends nothing from your PC or
+  headset, only the request, which GitHub sees as any website does, and
+  the check can be turned off.
 - **Works from the keyboard and with screen readers**, in light, dark and
   high contrast themes.
 

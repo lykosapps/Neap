@@ -8,7 +8,7 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
 
 **Kept:** locally, under the person's own profile. Nothing about the person; see the project profile in `CLAUDE.md`.
 
-**Out:** writes to the headset over HID, every one checked against `Settings/Registry.cs`; writes to Windows' own volume, mute and format controls; a shortcut in the Startup folder, only if that is turned on. Over a network, only the update check: a request for GitHub's latest release, once a day unless turned off, carrying nothing but the app's name, and the download of that release when asked.
+**Out:** writes to the headset over HID, every one checked against `Settings/Registry.cs`; writes to Windows' own volume, mute and format controls; a shortcut in the Startup folder, only if that is turned on. Over a network, only the update check: a request for GitHub's latest release, once a day unless turned off, carrying nothing but the app's name, which GitHub sees with the PC's internet address as with any website visit, and the download of that release when asked.
 
 **Where trust changes:**
 
@@ -59,7 +59,7 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
     Fixed, 2026-10-05. Found in the first review: links only had to be on github.com. Every link must now start with Neap's repository, whether it comes from GitHub or from the settings file, and the check is tested against other owners, other repositories, a lookalike name and `..` in the path.
 
 14. **The privacy wording says more than is true.**
-    Open, wording, 2026-10-05. A check is a request to GitHub, which sees the PC's address and the app's name, as any website visit does. The changelog and the decision record say "nothing about you"; Settings only says "Asks GitHub once a day". The wording should say what is sent: the request itself, and nothing from the PC or the headset.
+    Fixed, 2026-10-05. A check is a request to GitHub, which sees the PC's internet address and the app's name, as any website visit does. The changelog, README, decision record and project profile said "nothing about you"; they now say what is sent: the request itself, and nothing from the PC or the headset.
 
 15. **An update is cut off part-way.**
     Partly mitigated, accepted, 2026-10-05. A failed move is undone. Power loss or a killed process during the few seconds of the swap can leave a mix of two versions that may not start; the replaced files stay in the hidden update folder until the next start that works. Recovery is a download by hand. Not worth code that would itself have to run from a broken install. Related and deferred (BACKLOG.md): if the new version won't start after a good swap, the app has already closed with only a line in the log to say so; and a download has no size limit or overall time limit.

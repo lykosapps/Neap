@@ -10,10 +10,12 @@
   **What's new** and **Update and restart**, and says so once in a
   notification by the clock. Updating downloads the zip, checks it against
   the published SHA-256, puts it in place and restarts. Settings are kept.
-- **The promise changes** from "nothing leaves the PC" to "nothing about
-  you leaves the PC". The check carries only the app's name. **Check for
-  updates automatically** turns it off for anyone who wants Neap offline,
-  and **Check now** still works.
+- **The promise changes** from "nothing leaves the PC" to "nothing from
+  the PC or the headset is sent". The check is a plain request to GitHub,
+  which sees the PC's internet address and the app's name, as any website
+  does; it says so rather than "nothing about you", which would not be
+  true. **Check for updates automatically** turns it off for anyone who
+  wants Neap offline, and **Check now** still works.
 - **How the files are swapped:** each file being replaced is renamed aside
   and the new one moved in, all on one drive, so nothing is copied while
   the app is half replaced, and a failure undoes every move. Neap does this

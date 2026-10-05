@@ -54,9 +54,10 @@ From this version on, Neap updates itself.
 - **Put the banner away.** Remind me tomorrow hides it for a day. Skip this
   version hides it until a newer version is out. Updating is still there
   in Settings either way.
-- **Only a version check.** Nothing about you, your PC or your headset is
-  sent. Turn off Check for updates automatically to keep Neap offline, and
-  use Check now whenever you like.
+- **Only a version check.** Neap sends GitHub the request and nothing
+  else, nothing from your PC or your headset. GitHub sees the request, as
+  any website does. Turn off Check for updates automatically to keep Neap
+  offline, and use Check now whenever you like.
 - **Where Neap can't update itself,** such as a folder you can't write to
   without being an administrator, Settings says so and links to the
   download.
