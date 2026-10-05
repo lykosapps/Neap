@@ -27,6 +27,8 @@ Recording only listens. It doesn't change anything on your headset.
    down: the order and the pauses show which is which.
 4. Choose **Stop and save**.
 
+The same steps are in Neap: choose the **?** button next to **Start**.
+
 If Neap says it can't find your headset, record anyway. That tells us
 something too.
 
@@ -46,9 +48,9 @@ Skip anything your headset doesn't have.
 
 ## Send it
 
-1. In Neap, choose **Report on GitHub**. Your browser opens a form with
-   some details already filled in, and the folder with your recording
-   opens in front of it.
+1. In Neap, choose **Report on GitHub**. Neap first shows what it found on
+   your headset. Then your browser opens a form with some details already
+   filled in, and the folder with your recording opens in front of it.
 2. Sign in to GitHub. If you don't have an account, creating one is free
    and takes a minute or two.
 3. Type your headset's name as it appears on the box, for example

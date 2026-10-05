@@ -1122,6 +1122,126 @@
   <data name="Settings_MapHeadset.Header" xml:space="preserve">
     <value>Help support another headset</value>
   </data>
+  <data name="Settings_RecordHelp.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>How to record</value>
+  </data>
+  <data name="Settings_RecordHelp.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>How to record</value>
+  </data>
+  <data name="Record_HowTitle" xml:space="preserve">
+    <value>How to record</value>
+  </data>
+  <data name="Record_ProblemHeading" xml:space="preserve">
+    <value>To report a problem</value>
+  </data>
+  <data name="Record_ProblemSteps" xml:space="preserve">
+    <value>Choose Start, make the problem happen, then choose Stop and save. Choose Report on GitHub to send it.</value>
+  </data>
+  <data name="Record_HeadsetHeading" xml:space="preserve">
+    <value>To help support another headset</value>
+  </data>
+  <data name="Record_HeadsetStart" xml:space="preserve">
+    <value>Close Swarm II, then choose Start. Do each of these in turn, counting slowly to five after each one. Skip anything your headset doesn't have.</value>
+  </data>
+  <data name="Record_StepVolume" xml:space="preserve">
+    <value>Turn the volume down a few steps, then back up.</value>
+  </data>
+  <data name="Record_StepBalance" xml:space="preserve">
+    <value>Turn the game and chat balance dial one way, then back.</value>
+  </data>
+  <data name="Record_StepMute" xml:space="preserve">
+    <value>Mute the microphone, then unmute it.</value>
+  </data>
+  <data name="Record_StepMode" xml:space="preserve">
+    <value>Press the noise-cancelling or mode button until it's back where it started.</value>
+  </data>
+  <data name="Record_StepButton" xml:space="preserve">
+    <value>Press any other button once, then again. Don't hold it down.</value>
+  </data>
+  <data name="Record_StepPower" xml:space="preserve">
+    <value>Switch the headset off, wait ten seconds, then switch it back on.</value>
+  </data>
+  <data name="Record_HeadsetEnd" xml:space="preserve">
+    <value>Then choose Stop and save, and Report on GitHub.</value>
+  </data>
+  <data name="Record_Private" xml:space="preserve">
+    <value>Recording only listens. It doesn't change anything on your headset, and the file leaves out its serial number and anything else that identifies you.</value>
+  </data>
+  <data name="Found_Title" xml:space="preserve">
+    <value>What Neap found on your headset</value>
+  </data>
+  <data name="Found_Note" xml:space="preserve">
+    <value>Found means Neap can see it, not that it works with Neap yet.</value>
+  </data>
+  <data name="Found_FoundHeading" xml:space="preserve">
+    <value>Found</value>
+  </data>
+  <data name="Found_MissingHeading" xml:space="preserve">
+    <value>Not found</value>
+  </data>
+  <data name="Found_MovedHeading" xml:space="preserve">
+    <value>Changed while you recorded</value>
+  </data>
+  <data name="Found_None" xml:space="preserve">
+    <value>Nothing</value>
+  </data>
+  <data name="Found_NoAnswer" xml:space="preserve">
+    <value>Your headset didn't answer, so Neap can't talk to it yet. Sending the recording still helps.</value>
+  </data>
+  <data name="Found_Send" xml:space="preserve">
+    <value>Report on GitHub</value>
+  </data>
+  <data name="Feature_Battery" xml:space="preserve">
+    <value>Battery</value>
+  </data>
+  <data name="Feature_MasterVolume" xml:space="preserve">
+    <value>Master volume</value>
+  </data>
+  <data name="Feature_VoicePrompts" xml:space="preserve">
+    <value>Voice prompts</value>
+  </data>
+  <data name="Feature_NoiseControl" xml:space="preserve">
+    <value>Noise control</value>
+  </data>
+  <data name="Feature_SuperhumanHearing" xml:space="preserve">
+    <value>Superhuman Hearing</value>
+  </data>
+  <data name="Feature_GameEqualiser" xml:space="preserve">
+    <value>Game equaliser</value>
+  </data>
+  <data name="Feature_Microphone" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="Feature_MicMonitoring" xml:space="preserve">
+    <value>Mic monitoring</value>
+  </data>
+  <data name="Feature_AiNoiseReduction" xml:space="preserve">
+    <value>AI noise reduction</value>
+  </data>
+  <data name="Feature_NoiseGate" xml:space="preserve">
+    <value>Noise gate</value>
+  </data>
+  <data name="Feature_MicrophoneEqualiser" xml:space="preserve">
+    <value>Microphone equaliser</value>
+  </data>
+  <data name="Feature_ModeButton" xml:space="preserve">
+    <value>Mode button</value>
+  </data>
+  <data name="Feature_LowerDial" xml:space="preserve">
+    <value>Lower dial</value>
+  </data>
+  <data name="Feature_ChatWheel" xml:space="preserve">
+    <value>Chat wheel</value>
+  </data>
+  <data name="Feature_Lights" xml:space="preserve">
+    <value>Lights</value>
+  </data>
+  <data name="Feature_AutoShutOff" xml:space="preserve">
+    <value>Auto shut-off</value>
+  </data>
+  <data name="Feature_WakeOnMotion" xml:space="preserve">
+    <value>Wake on motion</value>
+  </data>
   <data name="State_SoundElsewhere" xml:space="preserve">
     <value>Windows is sending sound to a device your headset isn't listening on. Home says which one to choose.</value>
   </data>

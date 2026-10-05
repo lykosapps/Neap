@@ -16,6 +16,16 @@
   which the blanking in the file allows for.
 - **Revisit if:** people who would report a problem are put off by needing
   an account.
+- **Before a request to support another headset is sent,** Neap shows which
+  of its functions it found on the headset, which it didn't, and which
+  changed while recording, and puts the same list in the form. It says
+  "found", never "works": Neap only reads from a headset it doesn't know,
+  and the same key can mean something else on another model. It covers
+  headsets that speak the Stealth Pro II's command language; one that
+  doesn't is told Neap can't talk to it yet.
+- **The steps are in the app** behind a help button beside Start, as well
+  as in the guide, because the people who most need them won't go looking
+  for a web page. The two lists have to be kept the same.
 
 ## 2026-10-05 — Firmware is studied from Swarm II's files, never the headset
 

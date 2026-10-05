@@ -20,6 +20,11 @@ and date.
 - **Report on GitHub.** After a recording, one button opens a GitHub form
   with Neap's version, Windows' version and the headset hardware filled
   in, and opens the folder with the recording ready to drag in.
+- **What Neap found.** For a headset Neap doesn't know yet, reporting first
+  shows which of Neap's functions it found on the headset, which it didn't,
+  and which changed while recording. The same list goes in the report.
+- **How to record.** A help button beside Start shows the steps, for
+  reporting a problem and for helping support another headset.
 - **Help support another headset.** A guide for owners of other Turtle Beach
   headsets: record in Neap while pressing each button, with nothing else to
   install, so support can be added. Recording Swarm II, for settings only

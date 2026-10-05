@@ -38,6 +38,9 @@
                             <FontIcon Glyph="&#xE7C8;" />
                         </tk:SettingsCard.HeaderIcon>
                         <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button x:Name="RecordHelp" x:Uid="Settings_RecordHelp">
+                                <FontIcon Glyph="&#xE897;" />
+                            </Button>
                             <Button
                                 x:Name="ReportRecording"
                                 x:Uid="Settings_RecordReport"

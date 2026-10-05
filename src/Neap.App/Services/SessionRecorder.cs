@@ -57,6 +57,9 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
     /// <summary>The GitHub form to send the last recording with, filled in, or null when none was saved.</summary>
     public Uri? Issue { get; private set; }
 
+    /// <summary>What the last recording found, when it was of a headset Neap does not know; otherwise null.</summary>
+    public HeadsetFindings? Findings { get; private set; }
+
     /// <summary>A recording started, began saving, or finished. Raised on the UI thread.</summary>
     public event Action? Changed;
 
@@ -73,6 +76,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
         Saved = null;
         Trouble = null;
         Issue = null;
+        Findings = null;
 
         headset.Heard += Hear;
         _began = Task.Run(async () => recording.Began(await Snap()));
@@ -105,6 +109,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
 
             Saved = await Save(recording.Write(log, Redaction.ForThisPc(recording.Secrets)));
             Issue = recording.Issue();
+            Findings = recording.ForAnotherHeadset ? recording.Findings() : null;
             AppLog.Write($"recording: saved as {Path.GetFileName(Saved)}");
         }
         catch (Exception ex)

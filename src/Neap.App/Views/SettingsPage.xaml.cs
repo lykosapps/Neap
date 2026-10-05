@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
+using Neap.App.Controls;
 using Neap.App.Services;
 
 namespace Neap.App.Views;
@@ -57,7 +58,14 @@ public sealed partial class SettingsPage : Page
             if (AppServices.Recorder.Since is null) AppServices.Recorder.Start();
             else await AppServices.Recorder.Stop();
         };
-        ReportRecording.Click += async (_, _) => await AppServices.Recorder.Report();
+        ReportRecording.Click += async (_, _) =>
+        {
+            // Someone with another headset sees what Neap found before sending.
+            if (AppServices.Recorder.Findings is { } findings
+                && !await RecordingDialogs.ConfirmFindings(XamlRoot, findings)) return;
+            await AppServices.Recorder.Report();
+        };
+        RecordHelp.Click += async (_, _) => await RecordingDialogs.ShowHowTo(XamlRoot);
         _ticking.Tick += (_, _) => PaintRecording(announce: false);
         MapHeadset.Click += async (_, _) =>
         {
