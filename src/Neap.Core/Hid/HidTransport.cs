@@ -117,14 +117,15 @@ public sealed class HidTransport : IHidTransport
 
     // -- enumeration -------------------------------------------------------
 
+    /// <summary>Every collection present from one vendor, on one usage page or, given null, on any.</summary>
     public static IReadOnlyList<HidDeviceInfo> ListDevices(
-        ushort vendorId = DefaultVendorId, ushort usagePage = VendorUsagePage)
+        ushort vendorId = DefaultVendorId, ushort? usagePage = VendorUsagePage)
     {
         var found = new List<HidDeviceInfo>();
         foreach (var path in EnumeratePaths())
         {
             var info = Describe(path);
-            if (info is { } d && d.VendorId == vendorId && d.UsagePage == usagePage)
+            if (info is { } d && d.VendorId == vendorId && (usagePage is null || d.UsagePage == usagePage))
                 found.Add(d);
         }
         return found;
