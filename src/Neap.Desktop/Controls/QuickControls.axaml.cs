@@ -106,6 +106,7 @@ public partial class QuickControls : UserControl
 
         PaintNote(StateNote.For(status));
         Fold(MixCard, SectionFold.For(status, whenOff: true));
+        Fold(SettingsCard, SectionFold.For(status, whenOff: false));
         Arrange();
     }
 

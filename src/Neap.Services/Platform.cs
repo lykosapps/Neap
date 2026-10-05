@@ -23,6 +23,9 @@ public interface IPlatform
     /// <summary>Where sound is going, and which transmitter owns it.</summary>
     IRouteSource Routes { get; }
 
+    /// <summary>The system's volume and mute for the headset.</summary>
+    IVolumes Volumes { get; }
+
     /// <summary>Spatial sound for the headset.</summary>
     ISpatialAudio Spatial { get; }
 

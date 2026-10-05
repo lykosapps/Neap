@@ -26,6 +26,9 @@ internal static class PulseNative
 
     internal const int ChannelsMax = 32;
 
+    /// <summary>PA_VOLUME_NORM: a volume of 100% as the desktop's mixer shows it.</summary>
+    internal const uint NormalVolume = 0x10000;
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct SampleSpec
     {
@@ -159,6 +162,22 @@ internal static class PulseNative
 
     [DllImport(Library, EntryPoint = "pa_context_get_source_info_list")]
     internal static extern IntPtr ContextGetSourceInfoList(IntPtr context, InfoListCallback callback, IntPtr userdata);
+
+    [DllImport(Library, EntryPoint = "pa_context_set_sink_volume_by_name")]
+    internal static extern IntPtr ContextSetSinkVolumeByName(
+        IntPtr context, byte[] name, ref ChannelVolumes volume, SuccessCallback callback, IntPtr userdata);
+
+    [DllImport(Library, EntryPoint = "pa_context_set_source_volume_by_name")]
+    internal static extern IntPtr ContextSetSourceVolumeByName(
+        IntPtr context, byte[] name, ref ChannelVolumes volume, SuccessCallback callback, IntPtr userdata);
+
+    [DllImport(Library, EntryPoint = "pa_context_set_sink_mute_by_name")]
+    internal static extern IntPtr ContextSetSinkMuteByName(
+        IntPtr context, byte[] name, int mute, SuccessCallback callback, IntPtr userdata);
+
+    [DllImport(Library, EntryPoint = "pa_context_set_source_mute_by_name")]
+    internal static extern IntPtr ContextSetSourceMuteByName(
+        IntPtr context, byte[] name, int mute, SuccessCallback callback, IntPtr userdata);
 
     [DllImport(Library, EntryPoint = "pa_context_get_sink_input_info_list")]
     internal static extern IntPtr ContextGetSinkInputInfoList(IntPtr context, InfoListCallback callback, IntPtr userdata);

@@ -14,6 +14,8 @@ public sealed class WindowsPlatform(DispatcherQueue dispatcher) : IPlatform
 
     public IRouteSource Routes { get; } = new WindowsRoutes();
 
+    public IVolumes Volumes => SystemVolumes.Instance;
+
     public ISpatialAudio Spatial { get; } = new WindowsSpatial();
 
     public IHotkeys CreateHotkeys(MixService mix) => new HotkeyService(mix);

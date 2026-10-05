@@ -1,0 +1,153 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.QuickSettings"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <!--
+        The settings reached for mid-game or mid-call, as tiles: the
+        microphone and noise control side by side, the equaliser across the
+        width under them with its curve, then Superhuman Hearing last.
+        Spatial sound is a tile on systems that have it.
+    -->
+    <Grid
+        ColumnDefinitions="*,*"
+        ColumnSpacing="12"
+        RowDefinitions="Auto,Auto,Auto"
+        RowSpacing="12">
+
+        <c:MicTile />
+
+        <!--
+            Noise control steps through its three modes in the order the Mode
+            button does, and is lit for either mode that is not off.
+        -->
+        <ToggleButton
+            x:Name="NoiseTile"
+            loc:Uid.Value="Quick_NoiseTile"
+            Grid.Column="1"
+            Classes="tile"
+            IsEnabled="False">
+            <Grid RowDefinitions="*,Auto,Auto" RowSpacing="2">
+                <PathIcon
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Data="{StaticResource IconNoise}" />
+                <TextBlock
+                    loc:Uid.Value="Quick_NoiseControl"
+                    Grid.Row="1"
+                    Classes="tiletitle" />
+                <TextBlock x:Name="NoiseWord" Grid.Row="2" Classes="tilestate" />
+            </Grid>
+        </ToggleButton>
+
+        <!--
+            The equaliser is not on or off, so its tile never fills. It shows
+            the curve it is on, says when that curve comes from adjustments,
+            and opens the presets, each with its own curve, to pick one
+            directly. Tuning is a sit-down job, so the list ends with the way
+            to the equaliser rather than any of its controls.
+        -->
+        <Button
+            x:Name="PresetPicker"
+            loc:Uid.Value="Quick_PresetPicker"
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            Classes="tile"
+            IsEnabled="False">
+            <Button.Flyout>
+                <Flyout Placement="BottomEdgeAlignedRight">
+                    <StackPanel MinWidth="260" Spacing="4">
+                        <ListBox x:Name="PresetList" loc:Uid.Value="Quick_PresetList" />
+                        <Border
+                            Padding="0,4,0,0"
+                            BorderBrush="{DynamicResource NeapPanelStrokeBrush}"
+                            BorderThickness="0,1,0,0">
+                            <Button
+                                x:Name="OpenEqualiser"
+                                loc:Uid.Value="Quick_OpenEqualiserButton"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Background="Transparent">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                                    <TextBlock loc:Uid.Value="Quick_OpenEqualiser" VerticalAlignment="Center" />
+                                    <PathIcon
+                                        Grid.Column="1"
+                                        Width="12"
+                                        Height="12"
+                                        Data="{StaticResource IconChevronRight}" />
+                                </Grid>
+                            </Button>
+                        </Border>
+                    </StackPanel>
+                </Flyout>
+            </Button.Flyout>
+            <Grid
+                ColumnDefinitions="*,Auto"
+                ColumnSpacing="16"
+                RowDefinitions="*,Auto,Auto">
+                <PathIcon
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Data="{StaticResource IconEqualiser}" />
+                <PathIcon
+                    Grid.Column="1"
+                    Width="12"
+                    Height="12"
+                    Margin="0,6,0,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Data="{StaticResource IconChevronDown}" />
+                <TextBlock
+                    loc:Uid.Value="Quick_Preset"
+                    Grid.Row="1"
+                    Classes="tiletitle" />
+                <StackPanel
+                    Grid.Row="2"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <TextBlock
+                        x:Name="PresetName"
+                        VerticalAlignment="Center"
+                        Classes="tilestate" />
+                    <Border x:Name="ParametricTag" Classes="tag" IsVisible="False">
+                        <TextBlock x:Name="ParametricWord" />
+                    </Border>
+                </StackPanel>
+                <Path
+                    x:Name="PresetCurve"
+                    Grid.Row="1"
+                    Grid.RowSpan="2"
+                    Grid.Column="1"
+                    Width="180"
+                    Height="40"
+                    VerticalAlignment="Bottom"
+                    Classes="minicurve" />
+            </Grid>
+        </Button>
+
+        <!--
+            The one Audio setting made for the middle of a game: footsteps
+            and quiet sounds. Its type and strength stay on Audio.
+        -->
+        <ToggleButton
+            x:Name="ShhTile"
+            loc:Uid.Value="Quick_ShhTile"
+            Grid.Row="2"
+            Classes="tile"
+            IsEnabled="False">
+            <Grid RowDefinitions="*,Auto,Auto" RowSpacing="2">
+                <PathIcon
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Data="{StaticResource IconHearing}" />
+                <TextBlock
+                    loc:Uid.Value="Quick_Shh"
+                    Grid.Row="1"
+                    Classes="tiletitle" />
+                <TextBlock x:Name="ShhWord" Grid.Row="2" Classes="tilestate" />
+            </Grid>
+        </ToggleButton>
+    </Grid>
+</UserControl>

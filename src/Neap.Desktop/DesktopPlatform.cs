@@ -15,6 +15,8 @@ public sealed class DesktopPlatform : IPlatform
 
     public IRouteSource Routes => SystemRoutes.Instance;
 
+    public IVolumes Volumes => SystemVolumes.Instance;
+
     public ISpatialAudio Spatial => Unsupported.Spatial;
 
     public IHotkeys CreateHotkeys(MixService mix) => Unsupported.Hotkeys(mix);

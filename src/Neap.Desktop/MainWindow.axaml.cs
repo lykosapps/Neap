@@ -29,6 +29,9 @@ public partial class MainWindow : Window
         Title = title;
         TitleText.Text = title;
 
+        Activated += (_, _) => WindowPresence.Set(true);
+        Deactivated += (_, _) => WindowPresence.Set(false);
+
         Places.SelectionChanged += (_, _) => OnChosen(Places, Foot);
         Foot.SelectionChanged += (_, _) => OnChosen(Foot, Places);
         SizeChanged += (_, e) => Rail.IsPaneOpen = e.NewSize.Width >= Roomy;

@@ -13,5 +13,6 @@
         <FluentTheme />
         <StyleInclude Source="avares://Neap.Desktop/Themes/Neap.axaml" />
         <StyleInclude Source="avares://Neap.Desktop/Themes/Dial.axaml" />
+        <StyleInclude Source="avares://Neap.Desktop/Themes/Tiles.axaml" />
     </Application.Styles>
 </Application>

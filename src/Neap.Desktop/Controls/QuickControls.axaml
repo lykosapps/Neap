@@ -76,6 +76,7 @@
             <Border x:Name="MixCard" Classes="card">
                 <c:MixPanel ExplainsWheel="False" />
             </Border>
+            <c:QuickSettings x:Name="SettingsCard" VerticalAlignment="Top" />
         </Grid>
 
     </StackPanel>

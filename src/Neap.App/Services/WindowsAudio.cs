@@ -2,8 +2,6 @@ using Neap.Core.Audio;
 
 namespace Neap.App.Services;
 
-public sealed record VolumeState(int Percent, bool Muted, string DeviceName, bool FoundHeadset);
-
 public sealed record FormatPanel(
     string DeviceName, AudioFormat? Current, IReadOnlyList<AudioFormat> Options, string? Trouble)
 {
@@ -28,40 +26,11 @@ public sealed record FormatPanel(
 /// </remarks>
 public static class WindowsAudio
 {
-    public static Task<VolumeState> Read(Flow flow = Flow.Output) => Task.Run(() =>
-    {
-        try
-        {
-            var info = Pretend.Windows?.Describe(flow) ?? AudioEndpoints.Describe(AudioEndpoints.DefaultMatch, flow);
-            return new VolumeState(info.Percent, info.Muted, info.Name, info.MatchedHeadset);
-        }
-        catch (Exception)
-        {
-            return new VolumeState(0, false, Strings.Get("Audio_NoDevice"), false);
-        }
-    });
+    public static Task<VolumeState> Read(Flow flow = Flow.Output) => SoundVolume.Read(flow);
 
-    // A set that fails is logged but not shown: the rows re-read Windows every
-    // second, so the control goes back to the real value on its own.
-    public static Task SetVolume(int percent, Flow flow = Flow.Output) => Task.Run(() =>
-    {
-        try
-        {
-            if (Pretend.Windows is { } windows) windows.SetPercent(percent, flow);
-            else AudioEndpoints.SetPercent(percent, AudioEndpoints.DefaultMatch, flow);
-        }
-        catch (Exception ex) { AppLog.Write($"could not set Windows' {flow} volume: {ex.Message}"); }
-    });
+    public static Task SetVolume(int percent, Flow flow = Flow.Output) => SoundVolume.SetVolume(percent, flow);
 
-    public static Task SetMuted(bool muted, Flow flow = Flow.Output) => Task.Run(() =>
-    {
-        try
-        {
-            if (Pretend.Windows is { } windows) windows.SetMuted(muted, flow);
-            else AudioEndpoints.SetMuted(muted, AudioEndpoints.DefaultMatch, flow);
-        }
-        catch (Exception ex) { AppLog.Write($"could not set Windows' {flow} mute: {ex.Message}"); }
-    });
+    public static Task SetMuted(bool muted, Flow flow = Flow.Output) => SoundVolume.SetMuted(muted, flow);
 
     /// <summary>What Windows will accept on this endpoint, and what it is on now.</summary>
     /// <remarks>

@@ -1,0 +1,21 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.MicTile"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <ToggleButton x:Name="Face" Classes="tile" IsEnabled="False">
+        <Grid RowDefinitions="*,Auto,Auto" RowSpacing="2">
+            <PathIcon
+                x:Name="Icon"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Data="{StaticResource IconMicrophone}" />
+            <TextBlock
+                loc:Uid.Value="Quick_Microphone"
+                Grid.Row="1"
+                Classes="tiletitle" />
+            <TextBlock x:Name="Word" Grid.Row="2" Classes="tilestate" />
+        </Grid>
+    </ToggleButton>
+</UserControl>

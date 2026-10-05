@@ -12,7 +12,12 @@ namespace Neap.Core.Audio.Pulse;
 /// <param name="Description">What the person sees it called.</param>
 /// <param name="Vendor">The USB vendor id behind it as four hex digits, or empty when it is not USB.</param>
 /// <param name="Product">The USB product id behind it as four hex digits, or empty when it is not USB.</param>
-internal sealed record PulseSink(uint Index, string Name, string Description, string Vendor, string Product)
+/// <param name="Volume">Its volume as the desktop's own mixer shows it, from 0 to 1 and beyond.</param>
+/// <param name="Muted">Whether it is muted.</param>
+/// <param name="Channels">How many channels it has, each of which is set to the same volume.</param>
+internal sealed record PulseSink(
+    uint Index, string Name, string Description, string Vendor, string Product,
+    float Volume = 0, bool Muted = false, byte Channels = 2)
 {
     /// <summary>Whether it is one of the headset's outputs: the headset itself, a transmitter or a dock.</summary>
     /// <remarks>
@@ -175,6 +180,48 @@ internal sealed class PulseClient : IDisposable
         }
     }
 
+    /// <summary>Sets an output's volume, as the desktop's mixer shows it, on every channel.</summary>
+    /// <exception cref="PulseException">The server could not be reached, or refused.</exception>
+    internal void SetSinkVolume(PulseSink sink, float volume) =>
+        SetDevice(sink, volume, (c, name, v) => ContextSetSinkVolumeByName(c, name, ref v, _onSuccess, IntPtr.Zero));
+
+    /// <summary>Sets a microphone's volume, as the desktop's mixer shows it, on every channel.</summary>
+    /// <exception cref="PulseException">The server could not be reached, or refused.</exception>
+    internal void SetSourceVolume(PulseSink source, float volume) =>
+        SetDevice(source, volume, (c, name, v) => ContextSetSourceVolumeByName(c, name, ref v, _onSuccess, IntPtr.Zero));
+
+    /// <summary>Mutes or unmutes an output.</summary>
+    /// <exception cref="PulseException">The server could not be reached, or refused.</exception>
+    internal void SetSinkMute(PulseSink sink, bool muted) =>
+        Change(sink.Name, c => ContextSetSinkMuteByName(c, Utf8(sink.Name), muted ? 1 : 0, _onSuccess, IntPtr.Zero));
+
+    /// <summary>Mutes or unmutes a microphone.</summary>
+    /// <exception cref="PulseException">The server could not be reached, or refused.</exception>
+    internal void SetSourceMute(PulseSink source, bool muted) =>
+        Change(source.Name, c => ContextSetSourceMuteByName(c, Utf8(source.Name), muted ? 1 : 0, _onSuccess, IntPtr.Zero));
+
+    private delegate IntPtr VolumeCall(IntPtr context, byte[] name, ChannelVolumes volume);
+
+    private void SetDevice(PulseSink device, float volume, VolumeCall call)
+    {
+        var volumes = new ChannelVolumes { Channels = device.Channels, Values = new uint[ChannelsMax] };
+        uint value = (uint)Math.Round(Math.Max(0f, volume) * NormalVolume);
+        for (int i = 0; i < device.Channels; i++) volumes.Values[i] = value;
+        Change(device.Name, c => call(c, Utf8(device.Name), volumes));
+    }
+
+    /// <summary>Starts one change and waits until the server says it took.</summary>
+    private void Change(string what, Func<IntPtr, IntPtr> start)
+    {
+        lock (_gate)
+        {
+            _succeeded = false;
+            Connect();
+            Await(start(_context), what);
+            if (!_succeeded) throw new PulseException($"the server would not change {what}");
+        }
+    }
+
     public void Dispose()
     {
         lock (_gate) Disconnect();
@@ -275,9 +322,7 @@ internal sealed class PulseClient : IDisposable
     {
         if (eol != 0 || info == IntPtr.Zero) return;
         var sink = Marshal.PtrToStructure<SinkInfo>(info);
-        _sinks.Add(new PulseSink(sink.Index, Text(sink.Name), Text(sink.Description),
-            PulseSink.UsbId(Property(sink.Proplist, "device.vendor.id")),
-            PulseSink.UsbId(Property(sink.Proplist, "device.product.id"))));
+        _sinks.Add(Describe(sink));
     }
 
     /// <remarks>
@@ -290,9 +335,7 @@ internal sealed class PulseClient : IDisposable
         if (eol != 0 || info == IntPtr.Zero) return;
         var source = Marshal.PtrToStructure<SinkInfo>(info);
         if (source.MonitorSource != uint.MaxValue) return;
-        _sources.Add(new PulseSink(source.Index, Text(source.Name), Text(source.Description),
-            PulseSink.UsbId(Property(source.Proplist, "device.vendor.id")),
-            PulseSink.UsbId(Property(source.Proplist, "device.product.id"))));
+        _sources.Add(Describe(source));
     }
 
     private void OnStream(IntPtr context, IntPtr info, int eol, IntPtr userdata)
@@ -310,6 +353,17 @@ internal sealed class PulseClient : IDisposable
         _streams.Add(new PulseStream(stream.Index, stream.Sink, program, pid,
             (float)(sum / stream.Volume.Channels), stream.Volume.Channels, stream.Corked == 0,
             Property(stream.Proplist, "application.name")));
+    }
+
+    /// <remarks>The loudest channel, as the desktop's mixer shows it: the server's own number over its normal, not a gain.</remarks>
+    private static PulseSink Describe(SinkInfo device)
+    {
+        uint loudest = 0;
+        for (int i = 0; i < device.Volume.Channels; i++) loudest = Math.Max(loudest, device.Volume.Values[i]);
+        return new PulseSink(device.Index, Text(device.Name), Text(device.Description),
+            PulseSink.UsbId(Property(device.Proplist, "device.vendor.id")),
+            PulseSink.UsbId(Property(device.Proplist, "device.product.id")),
+            loudest / (float)NormalVolume, device.Mute != 0, device.Volume.Channels);
     }
 
     private void OnSuccess(IntPtr context, int success, IntPtr userdata) => _succeeded = success != 0;
