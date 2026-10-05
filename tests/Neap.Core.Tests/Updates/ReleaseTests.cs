@@ -12,7 +12,8 @@ public class ReleaseTests
         bool draft = false,
         bool prerelease = false,
         string host = "github.com",
-        string? zipName = null)
+        string? zipName = null,
+        string? body = "## Notes\n\n- It does a thing.")
     {
         string version = tag.TrimStart('v');
         zipName ??= $"Neap-{version}-win-x64.zip";
@@ -23,6 +24,7 @@ public class ReleaseTests
               "html_url": "https://github.com/lykosapps/Neap/releases/tag/{{tag}}",
               "draft": {{(draft ? "true" : "false")}},
               "prerelease": {{(prerelease ? "true" : "false")}},
+              "body": {{(body is null ? "null" : System.Text.Json.JsonSerializer.Serialize(body))}},
               "assets": [
                 { "name": "{{zipName}}", "browser_download_url": "{{download}}/{{zipName}}" },
                 { "name": "{{zipName}}.sha256", "browser_download_url": "{{download}}/{{zipName}}.sha256" }
@@ -59,6 +61,35 @@ public class ReleaseTests
     {
         // The running app's version comes from its assembly, as 0.3.0.0.
         Assert.False(Release.Parse(Json(tag: "v0.3.0")).IsNewerThan(new Version(0, 3, 0, 0)));
+    }
+
+    [Fact]
+    public void TheNotesComeWithTheRelease()
+    {
+        Assert.Equal("## Notes\n\n- It does a thing.", Release.Parse(Json()).Notes);
+    }
+
+    [Fact]
+    public void AReleaseKeptAsJsonIsReadBackAsItWas()
+    {
+        var release = Release.Parse(Json(body: "## Notes\n\n- It does a \"thing\"."));
+
+        Assert.Equal(release, Release.Parse(release.ToJson()));
+    }
+
+    [Fact]
+    public void AKeptReleaseWhoseLinkWasChangedIsRefused()
+    {
+        string tampered = Release.Parse(Json()).ToJson()
+            .Replace("https://github.com/", "https://example.net/", StringComparison.Ordinal);
+
+        Assert.Throws<FormatException>(() => Release.Parse(tampered));
+    }
+
+    [Fact]
+    public void AReleaseWithoutNotesHasEmptyNotes()
+    {
+        Assert.Equal("", Release.Parse(Json(body: null)).Notes);
     }
 
     [Theory]

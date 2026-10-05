@@ -1098,7 +1098,7 @@
   <data name="Settings_UpdateInstall" xml:space="preserve">
     <value>Update and restart</value>
   </data>
-  <data name="Settings_UpdateNotes" xml:space="preserve">
+  <data name="Settings_UpdateNotes.Content" xml:space="preserve">
     <value>What's new</value>
   </data>
   <data name="Settings_UpdateDownload" xml:space="preserve">
@@ -1133,6 +1133,19 @@
   <data name="Settings_UpdateFailed" xml:space="preserve">
     <value>Couldn't update to version {0}.</value>
     <comment>{0} is a version number, such as 0.3.0.</comment>
+  </data>
+  <data name="Banner_UpdateRemind.Content" xml:space="preserve">
+    <value>Remind me tomorrow</value>
+  </data>
+  <data name="Banner_UpdateSkip.Content" xml:space="preserve">
+    <value>Skip this version</value>
+  </data>
+  <data name="Notes_Title" xml:space="preserve">
+    <value>What's new in {0} {1}</value>
+    <comment>{0} is the app's name, {1} a version number, such as 0.3.0.</comment>
+  </data>
+  <data name="Dialog_Close" xml:space="preserve">
+    <value>Close</value>
   </data>
   <data name="Settings_CheckForUpdates.Header" xml:space="preserve">
     <value>Check for updates automatically</value>

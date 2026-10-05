@@ -22,7 +22,8 @@ Who it's for: see [USERS.md](USERS.md).
 - **Device** — connected transmitter(s), audio format, ring lighting,
   auto shut-off, wake on motion, and firmware/serial/raw values behind an
   expander. Serves transmitter and device information.
-- **Settings** (footer) — start with Windows, About with updating Neap, and Profiles' upkeep:
+- **Settings** (footer) — start with Windows, About with updating Neap (and
+  its release notes), and Profiles' upkeep:
   naming, deleting, assigning apps to switch to a profile automatically, and
   setting the default profile. App housekeeping, plus the one piece of
   profile management too infrequent for the always-visible bar.
@@ -39,6 +40,12 @@ Home is selected on launch. There's no back button because the rail is
 always there to move sideways instead. One shortcut: Home's quick settings
 can jump straight to Audio's equaliser. Closing the window leaves a tray icon running,
 whose own menu only opens or quits the app — it doesn't expose any page.
+
+When a newer version of Neap is out, a banner sits under the profile bar,
+above every page: the news, What's new, Update and restart, and ways to put
+it away for a day or for good. It is the only thing that appears there, and
+it is gone when there is nothing to say. The full account lives in Settings
+under About, so putting the banner away loses nothing.
 
 A profile bar sits under the title bar, above every page, riding along with
 whichever place is open rather than being a place of its own. It shows the

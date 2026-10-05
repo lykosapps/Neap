@@ -24,6 +24,26 @@
   can't be updated; Settings says so and links to the download.
 - **Revisit when** the download is signed: the updater should check the
   signature too.
+- **A banner across every page**, under the profile bar, tells people a
+  newer version is out. A notice by the clock alone would be missed or
+  switched off, and a card in Settings is somewhere people only go to look.
+  The banner leads with **Update and restart** and has **What's new**, and
+  is the only thing that shows there. It goes when there is nothing to say.
+- **Putting it away is two choices, written out:** **Remind me tomorrow**
+  hides it for a day, even across a restart, and **Skip this version** hides
+  it until a newer version is out, so someone who doesn't want 0.3.0 is
+  still told about 0.4.0. There is no way to hide updates for good short of
+  turning the check off; that would leave people on old bugs without
+  knowing. Settings always shows what is available, so putting the banner
+  away loses nothing. There is no close button, because it wouldn't say
+  which of the two it meant.
+- **Release notes are read in Neap,** in a dialog, not on a web page: the
+  notes come with the version check, so reading them asks for nothing more,
+  and the person is deciding whether to update inside the app. The install
+  steps are left out, since they are for someone downloading by hand. A
+  release whose notes can't be read opens its page instead.
+- **A version found is remembered** until the next check, so restarting
+  Neap doesn't make the banner disappear for up to a day.
 
 ## 2026-10-05 — Recordings are sent through GitHub, not uploaded by Neap
 

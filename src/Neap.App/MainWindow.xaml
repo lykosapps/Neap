@@ -18,6 +18,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -74,9 +75,15 @@
             <controls:ProfileBar />
         </Border>
 
+        <!--
+            A newer version of Neap, above every page until it is installed
+            or put away. See DECISIONS.md.
+        -->
+        <controls:UpdateBar Grid.Row="2" />
+
         <NavigationView
             x:Name="Nav"
-            Grid.Row="2"
+            Grid.Row="3"
             CompactModeThresholdWidth="641"
             ExpandedModeThresholdWidth="1008"
             IsBackButtonVisible="Collapsed"

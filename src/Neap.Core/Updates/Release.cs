@@ -21,7 +21,8 @@ namespace Neap.Core.Updates;
 /// <param name="Page">The release's page on GitHub, which carries what's new.</param>
 /// <param name="Zip">Where the app's zip downloads from.</param>
 /// <param name="Hash">Where the zip's SHA-256 file downloads from.</param>
-public sealed partial record Release(Version Version, Uri Page, Uri Zip, Uri Hash)
+/// <param name="Notes">What's new, as the release page says it, in Markdown; read by <see cref="ReleaseNotes"/>.</param>
+public sealed partial record Release(Version Version, Uri Page, Uri Zip, Uri Hash, string Notes)
 {
     /// <summary>Where GitHub describes the latest release, leaving out drafts and pre-releases.</summary>
     public static Uri Latest { get; } = new("https://api.github.com/repos/lykosapps/Neap/releases/latest");
@@ -63,13 +64,35 @@ public sealed partial record Release(Version Version, Uri Page, Uri Zip, Uri Has
             if (zip is null || hash is null)
                 throw new FormatException($"the release has no {zipName} with its .sha256 beside it");
 
-            return new Release(version, OnGitHub(root.GetProperty("html_url")), zip, hash);
+            string notes = root.TryGetProperty("body", out var body) && body.ValueKind == JsonValueKind.String
+                ? body.GetString() ?? "" : "";
+            return new Release(version, OnGitHub(root.GetProperty("html_url")), zip, hash, notes);
         }
         catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException)
         {
             throw new FormatException($"the release could not be read: {ex.Message}", ex);
         }
     }
+
+    /// <summary>The release in the shape GitHub describes one, with only what <see cref="Parse"/> reads.</summary>
+    /// <remarks>
+    /// Kept so that a version found today is still known after a restart,
+    /// until the next check. Reading it back goes through <see cref="Parse"/>,
+    /// so what was kept is checked as strictly as what GitHub sent.
+    /// </remarks>
+    public string ToJson() => JsonSerializer.Serialize(new
+    {
+        tag_name = $"v{Version.ToString(3)}",
+        html_url = Page,
+        draft = false,
+        prerelease = false,
+        body = Notes,
+        assets = new[]
+        {
+            new { name = ZipName, browser_download_url = Zip },
+            new { name = ZipName + ".sha256", browser_download_url = Hash },
+        },
+    });
 
     /// <summary>Reads the zip's SHA-256 file and gives its hash, in lower case.</summary>
     /// <remarks>The file is one line: the hash, two spaces, and the zip's name.</remarks>

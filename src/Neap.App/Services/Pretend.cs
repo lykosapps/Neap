@@ -95,6 +95,24 @@ public static class Pretend
     public static IReadOnlyList<Adjustment> SampleAdjustments { get; } =
         [new(100, 30, 20), new(1000, -15, 15), new(4900, -40, 10), new(12000, 25, 15)];
 
+    /// <summary>The notes <see cref="UpdateFlag"/>'s release carries, shaped as the release workflow writes them.</summary>
+    private const string SampleNotes = """
+        **A sample release.** Its notes read as a real one's do, with a [link](https://github.com/lykosapps/Neap/releases).
+
+        ### Install
+
+        1. Download the zip below.
+
+        ### First thing
+
+        - **A bold start.** Then the rest of the line, which is long enough to wrap onto a second line in the dialog so the hanging indent shows.
+        - A second item.
+
+        ### Second thing
+
+        A paragraph on its own.
+        """;
+
     /// <summary>
     /// The newer version a check finds, or null for up to date. A pretend
     /// run never asks GitHub, so a script can see the update card in every
@@ -104,7 +122,8 @@ public static class Pretend
         ? new Release(new Version(9, 9, 9),
             new Uri("https://github.com/lykosapps/Neap/releases/latest"),
             new Uri("https://github.com/lykosapps/Neap/releases/download/v9.9.9/Neap-9.9.9-win-x64.zip"),
-            new Uri("https://github.com/lykosapps/Neap/releases/download/v9.9.9/Neap-9.9.9-win-x64.zip.sha256"))
+            new Uri("https://github.com/lykosapps/Neap/releases/download/v9.9.9/Neap-9.9.9-win-x64.zip.sha256"),
+            SampleNotes)
         : null;
 
     private static bool Given(string flag) => Environment.GetCommandLineArgs().Skip(1)

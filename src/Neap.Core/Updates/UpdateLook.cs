@@ -20,31 +20,31 @@ public enum UpdateStage
 /// <summary>What the update card's main button does.</summary>
 public enum UpdateAction { Check, Update }
 
-/// <summary>Which link to the release page the update card offers, if any.</summary>
-public enum UpdateLink { None, Notes, Download }
-
-/// <summary>What the update card offers at each stage, decided once.</summary>
+/// <summary>What the update card and the banner offer at each stage, decided once.</summary>
 /// <remarks>
 /// The main button stays on screen while a check or an update runs, pressing
 /// it doing nothing: taking it away would throw keyboard focus on to the next
-/// card. Updating leads once there is something to update to. Where Neap
-/// can't update itself, the release page is the way to the new version, so
-/// the link offers the download instead of what's new.
+/// card. Updating leads once there is something to update to. What's new is
+/// offered whenever there is a newer version to read about. Where Neap can't
+/// update itself, the release page is the way to the new version, so the
+/// download is offered beside it.
 /// </remarks>
 /// <param name="Action">What the main button does.</param>
 /// <param name="Busy">Whether a check or an update is running, so a press does nothing.</param>
 /// <param name="Leads">Whether the main button is the one to press.</param>
-/// <param name="Link">Which link to the release page is offered.</param>
-public readonly record struct UpdateLook(UpdateAction Action, bool Busy, bool Leads, UpdateLink Link)
+/// <param name="Notes">Whether what's new is offered.</param>
+/// <param name="Download">Whether a link to download the new version by hand is offered.</param>
+public readonly record struct UpdateLook(UpdateAction Action, bool Busy, bool Leads, bool Notes, bool Download)
 {
     public static UpdateLook Of(UpdateStage stage) => stage switch
     {
-        UpdateStage.Checking => new(UpdateAction.Check, Busy: true, Leads: false, UpdateLink.None),
+        UpdateStage.Checking => new(UpdateAction.Check, Busy: true, Leads: false, Notes: false, Download: false),
         UpdateStage.Available or UpdateStage.UpdateFailed =>
-            new(UpdateAction.Update, Busy: false, Leads: true, UpdateLink.Notes),
+            new(UpdateAction.Update, Busy: false, Leads: true, Notes: true, Download: false),
         UpdateStage.Downloading or UpdateStage.Installing =>
-            new(UpdateAction.Update, Busy: true, Leads: true, UpdateLink.Notes),
-        UpdateStage.CannotUpdateHere => new(UpdateAction.Check, Busy: false, Leads: false, UpdateLink.Download),
-        _ => new(UpdateAction.Check, Busy: false, Leads: false, UpdateLink.None),
+            new(UpdateAction.Update, Busy: true, Leads: true, Notes: true, Download: false),
+        UpdateStage.CannotUpdateHere =>
+            new(UpdateAction.Check, Busy: false, Leads: false, Notes: true, Download: true),
+        _ => new(UpdateAction.Check, Busy: false, Leads: false, Notes: false, Download: false),
     };
 }

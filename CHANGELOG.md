@@ -43,10 +43,17 @@ From this version on, Neap updates itself.
 ### Updates
 
 - **Neap updates itself.** It asks GitHub once a day for a newer version
-  and says so by the clock when there is one; selecting that notice opens
-  Settings. There, under About, Update and restart downloads it, checks it
-  is the published file, puts it in place and starts it again. Your
-  settings and profiles are kept.
+  and says so with a banner across the top of the window, and with a
+  notice by the clock if the window is closed; selecting the notice opens
+  Settings. Update and restart downloads the new version, checks it is the
+  published file, puts it in place and starts it again. Your settings and
+  profiles are kept.
+- **Read what's new first.** What's new, in the banner and in Settings
+  under About, shows the release's notes in Neap, without opening a web
+  page.
+- **Put the banner away.** Remind me tomorrow hides it for a day. Skip this
+  version hides it until a newer version is out. Updating is still there
+  in Settings either way.
 - **Only a version check.** Nothing about you, your PC or your headset is
   sent. Turn off Check for updates automatically to keep Neap offline, and
   use Check now whenever you like.

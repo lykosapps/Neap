@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="Neap.App.Controls.UpdateBar"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls"
+    HorizontalContentAlignment="Stretch"
+    Visibility="Collapsed">
+
+    <!--
+        The profile bar's own ground, so the two read as one header. One row
+        while it fits, wrapping the buttons under the message when the
+        window is narrow.
+    -->
+    <Border
+        Padding="16,8"
+        Background="{ThemeResource NeapPanelBrush}"
+        BorderBrush="{ThemeResource NeapPanelStrokeBrush}"
+        BorderThickness="0,0,0,1">
+        <tk:WrapPanel HorizontalSpacing="12" VerticalSpacing="8">
+            <StackPanel
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="12">
+                <FontIcon
+                    AutomationProperties.AccessibilityView="Raw"
+                    FontSize="16"
+                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                    Glyph="&#xE946;" />
+                <TextBlock
+                    x:Name="Message"
+                    VerticalAlignment="Center"
+                    AutomationProperties.LiveSetting="Polite"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+            <HyperlinkButton x:Name="Notes" x:Uid="Settings_UpdateNotes" />
+            <Button x:Name="Act" Style="{StaticResource AccentButtonStyle}" />
+            <Button x:Name="Later" x:Uid="Banner_UpdateRemind" />
+            <Button x:Name="Skip" x:Uid="Banner_UpdateSkip" />
+        </tk:WrapPanel>
+    </Border>
+</UserControl>

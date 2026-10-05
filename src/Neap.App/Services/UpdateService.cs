@@ -51,6 +51,10 @@ public sealed class UpdateService : IDisposable
     /// <summary>The newer version found, or null if none has been.</summary>
     public Release? Newer { get; private set; }
 
+    /// <summary>Whether the banner about the newer version is on show.</summary>
+    public bool ReminderShown => Newer is { } release && UpdateReminder.Shows(
+        Stage, release.Version, AppSettings.Current.SkippedVersion, AppSettings.Current.UpdateHiddenUntil, DateTimeOffset.Now);
+
     /// <summary>How much of the download has arrived, out of a hundred.</summary>
     public int Percent { get; private set; }
 
@@ -68,10 +72,17 @@ public sealed class UpdateService : IDisposable
     {
         _due = DispatcherQueue.GetForCurrentThread().CreateTimer();
         _due.Interval = TimeSpan.FromHours(1);
-        _due.Tick += (_, _) => CheckIfDue();
+        _due.Tick += (_, _) =>
+        {
+            CheckIfDue();
+
+            // A banner put away for a day comes back with nobody to ask for it.
+            Changed?.Invoke();
+        };
         _due.Start();
 
         if (!Pretend.Active) _ = Task.Run(ClearLeftovers);
+        Remember();
         CheckIfDue();
     }
 
@@ -87,11 +98,56 @@ public sealed class UpdateService : IDisposable
         }
     }
 
+    /// <summary>Puts the banner away for a day.</summary>
+    public void RemindLater()
+    {
+        if (Newer is null || Busy) return;
+        AppSettings.Update(s => s.UpdateHiddenUntil = DateTimeOffset.Now + UpdateReminder.Hold);
+        AppLog.Write("updates: the banner is put away for a day");
+        Changed?.Invoke();
+    }
+
+    /// <summary>Puts the banner away until a newer version than this one is out.</summary>
+    public void SkipThisVersion()
+    {
+        if (Newer is not { } release || Busy) return;
+        string version = release.Version.ToString(3);
+        AppSettings.Update(s => s.SkippedVersion = version);
+        AppLog.Write($"updates: version {version} is skipped");
+        Changed?.Invoke();
+    }
+
     private bool Busy => Stage is UpdateStage.Checking or UpdateStage.Downloading or UpdateStage.Installing;
+
+    /// <summary>Picks up the newer version found before this launch, if it is still newer.</summary>
+    /// <remarks>
+    /// A pretend run keeps none, so each starts from what its flags say.
+    /// </remarks>
+    private void Remember()
+    {
+        if (Pretend.Active || AppSettings.Current.FoundRelease is not { } kept) return;
+        try
+        {
+            var release = Release.Parse(kept);
+            if (AppInfo.Version is { } running && release.IsNewerThan(running))
+            {
+                Newer = release;
+                Stage = CanWriteHere() ? UpdateStage.Available : UpdateStage.CannotUpdateHere;
+                AppLog.Write($"updates: version {release.Version.ToString(3)} is still available");
+                return;
+            }
+        }
+        catch (FormatException ex)
+        {
+            AppLog.Write($"updates: could not read the version found earlier: {ex.Message}");
+        }
+        AppSettings.Update(s => s.FoundRelease = null);
+    }
 
     private void CheckIfDue()
     {
-        if (Automatic && !Busy && UpdateSchedule.Due(AppSettings.Current.CheckedForUpdates, DateTimeOffset.Now))
+        // A pretend run asks every time, so a script sees the same thing on each launch.
+        if (Automatic && !Busy && (Pretend.Active || UpdateSchedule.Due(AppSettings.Current.CheckedForUpdates, DateTimeOffset.Now)))
             _ = Check(onItsOwn: true);
     }
 
@@ -108,19 +164,22 @@ public sealed class UpdateService : IDisposable
             if (latest is null || AppInfo.Version is not { } running || !latest.IsNewerThan(running))
             {
                 Newer = null;
+                if (!Pretend.Active) AppSettings.Update(s => s.FoundRelease = null);
                 AppLog.Write("updates: up to date");
                 Set(UpdateStage.UpToDate);
                 return;
             }
 
             Newer = latest;
+            if (!Pretend.Active) AppSettings.Update(s => s.FoundRelease = latest.ToJson());
             string version = latest.Version.ToString(3);
             bool here = Pretend.Active || CanWriteHere();
             AppLog.Write(here ? $"updates: version {version} is available"
                 : $"updates: version {version} is available, but this folder cannot be written to");
             Set(here ? UpdateStage.Available : UpdateStage.CannotUpdateHere);
 
-            if (onItsOwn && !Pretend.Active && AppSettings.Current.ToldAboutVersion != version)
+            if (onItsOwn && !Pretend.Active && AppSettings.Current.ToldAboutVersion != version
+                && AppSettings.Current.SkippedVersion != version)
             {
                 AppSettings.Update(s => s.ToldAboutVersion = version);
                 Found?.Invoke(latest);

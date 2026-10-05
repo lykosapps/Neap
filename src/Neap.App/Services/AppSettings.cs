@@ -20,7 +20,8 @@ namespace Neap.App.Services;
 /// control the headset has no place for, the parametric adjustments
 /// behind a preset, of which its slot holds only the result, which
 /// preset an edited curve came from, whether to keep the Charging Dock's
-/// status ring purple, and whether and when to look for a newer version.
+/// status ring purple, and whether and when to look for a newer version and
+/// whether its banner has been put away.
 /// </para>
 /// <para>
 /// Profiles are the one deliberate exception: a full snapshot, kept here
@@ -92,6 +93,20 @@ public sealed class AppSettings
 
     /// <summary>When Neap last asked GitHub for a newer version, or null if never.</summary>
     [JsonPropertyName("checked_for_updates")] public DateTimeOffset? CheckedForUpdates { get; set; }
+
+    /// <summary>The newer release found at the last check, as <see cref="Neap.Core.Updates.Release.ToJson"/> keeps it, or null if the last check found none.</summary>
+    /// <remarks>
+    /// So that a restart doesn't forget a version found earlier in the day:
+    /// the next check may be hours away.
+    /// </remarks>
+    [JsonPropertyName("found_release")] public string? FoundRelease { get; set; }
+
+    /// <summary>The version whose banner was put away for good, or null.</summary>
+    /// <remarks>A newer version is announced again; see <see cref="Neap.Core.Updates.UpdateReminder"/>.</remarks>
+    [JsonPropertyName("skipped_version")] public string? SkippedVersion { get; set; }
+
+    /// <summary>When the update banner may come back after being put away for a day, or null.</summary>
+    [JsonPropertyName("update_hidden_until")] public DateTimeOffset? UpdateHiddenUntil { get; set; }
 
     /// <summary>The newest version a notification has announced, so each is announced once.</summary>
     [JsonPropertyName("told_about_version")] public string? ToldAboutVersion { get; set; }

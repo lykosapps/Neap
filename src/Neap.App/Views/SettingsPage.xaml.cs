@@ -72,11 +72,10 @@ public sealed partial class SettingsPage : Page
             if (look.Action == UpdateAction.Update) await AppServices.Updates.Update();
             else await AppServices.Updates.Check();
         };
-        ReleasePage.Click += async (_, _) =>
+        WhatsNew.Click += async (_, _) => await UpdateDialogs.ShowNotes(XamlRoot);
+        DownloadPage.Click += async (_, _) =>
         {
-            if (AppServices.Updates.Newer is not { } release) return;
-            try { await Windows.System.Launcher.LaunchUriAsync(release.Page); }
-            catch (Exception ex) { AppLog.Write($"could not open the release page: {ex.Message}"); }
+            if (AppServices.Updates.Newer is { } release) await UpdateDialogs.OpenPage(release);
         };
 
         AutomationProperties.SetLiveSetting(_recordState, AutomationLiveSetting.Polite);
@@ -165,23 +164,11 @@ public sealed partial class SettingsPage : Page
 
         UpdateButton.Content = Strings.Get(look.Action == UpdateAction.Update ? "Settings_UpdateInstall" : "Settings_UpdateCheck");
         Lead(UpdateButton, look.Leads);
-        ReleasePage.Visibility = look.Link == UpdateLink.None ? Visibility.Collapsed : Visibility.Visible;
-        if (look.Link != UpdateLink.None)
-            ReleasePage.Content = Strings.Get(look.Link == UpdateLink.Download ? "Settings_UpdateDownload" : "Settings_UpdateNotes");
+        WhatsNew.Visibility = look.Notes ? Visibility.Visible : Visibility.Collapsed;
+        DownloadPage.Visibility = look.Download ? Visibility.Visible : Visibility.Collapsed;
+        DownloadPage.Content = Strings.Get("Settings_UpdateDownload");
 
-        string version = updates.Newer?.Version.ToString(3) ?? "";
-        string? state = updates.Stage switch
-        {
-            UpdateStage.Checking => Strings.Get("Settings_UpdateChecking"),
-            UpdateStage.UpToDate => Strings.Format("Settings_UpdateUpToDate", AppInfo.Name),
-            UpdateStage.CheckFailed => Strings.Get("Settings_UpdateCheckFailed"),
-            UpdateStage.Available => Strings.Format("Settings_UpdateAvailable", version),
-            UpdateStage.CannotUpdateHere => Strings.Format("Settings_UpdateCannotHere", version, AppInfo.Name),
-            UpdateStage.Downloading => Strings.Format("Settings_UpdateDownloading", version, updates.Percent),
-            UpdateStage.Installing => Strings.Format("Settings_UpdateInstalling", version),
-            UpdateStage.UpdateFailed => Strings.Format("Settings_UpdateFailed", version),
-            _ => null,
-        };
+        string? state = UpdateCopy.Of(updates);
         _updateState.Text = state ?? "";
         if (state is null) Updates.ClearValue(SettingsCard.DescriptionProperty);
         else Updates.Description = _updateState;
