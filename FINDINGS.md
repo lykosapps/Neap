@@ -33,8 +33,12 @@ authoritative list of keys. This document explains them.
 
 The headset ships with two transmitters: the **Charging Dock**, which also
 charges a spare battery, and the **USB Transmitter**, a small USB-A dongle.
-It can pair with up to four and uses one at a time. The chip inside is an
-Airoha AB1571 *(research: named in Turtle Beach's firmware files)*.
+It can pair with up to four and uses one at a time. The chips are Airoha's,
+named in the headers of Turtle Beach's firmware images *(research)*: the
+headset has two, an AB1577 master and an AB1571 slave, each with its own
+image and its own settings dictionary; the transmitters have an AB1571D,
+built as Airoha's "ULL2 dongle". Both sides start from Airoha's reference
+designs.
 
 The PC sees the transmitter, not the headset. The headset is reached over the
 transmitter's 2.4 GHz link, or directly when it is plugged in by its USB-C
@@ -710,6 +714,14 @@ finding above proves nothing either way.
 
 Firmware images are signed and encrypted. Studying Swarm II's copies is
 fine; sending anything down the update path is not.
+
+What a copy shows *(research, 4.107.703)*: only the first 4 KB of each image
+is readable. It holds a 32-byte digest, the version, the chip and design
+names, a small table of flash regions, and a 68-byte block that is likely
+the signature. Everything after it is encrypted, near 8 bits of entropy per
+byte, with no readable text. There is no code, no strings and no LED or
+button table to read. The settings dictionaries beside each image are the
+only part with meaning.
 
 ## Pitfalls
 
