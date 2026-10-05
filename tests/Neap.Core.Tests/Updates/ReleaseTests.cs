@@ -12,12 +12,13 @@ public class ReleaseTests
         bool draft = false,
         bool prerelease = false,
         string host = "github.com",
+        string repository = "lykosapps/Neap",
         string? zipName = null,
         string? body = "## Notes\n\n- It does a thing.")
     {
         string version = tag.TrimStart('v');
         zipName ??= $"Neap-{version}-win-x64.zip";
-        string download = $"https://{host}/lykosapps/Neap/releases/download/{tag}";
+        string download = $"https://{host}/{repository}/releases/download/{tag}";
         return $$"""
             {
               "tag_name": "{{tag}}",
@@ -113,6 +114,31 @@ public class ReleaseTests
     public void ADownloadFromAnywhereButGitHubIsRefused()
     {
         Assert.Throws<FormatException>(() => Release.Parse(Json(host: "github.com.example.net")));
+    }
+
+    [Theory]
+    [InlineData("someone/else")]
+    [InlineData("lykosapps/Neapx")]
+    [InlineData("lykosapps/Neap/../Other")]
+    public void ADownloadFromAnotherRepositoryIsRefused(string repository)
+    {
+        Assert.Throws<FormatException>(() => Release.Parse(Json(repository: repository)));
+    }
+
+    [Fact]
+    public void AReleasePageInAnotherRepositoryIsRefused()
+    {
+        string other = Json().Replace("\"html_url\": \"https://github.com/lykosapps/Neap/",
+            "\"html_url\": \"https://github.com/someone/else/", StringComparison.Ordinal);
+
+        Assert.Throws<FormatException>(() => Release.Parse(other));
+    }
+
+    [Fact]
+    public void ARepositoryNameInADifferentCaseIsStillNeaps()
+    {
+        // GitHub treats the two as the same repository.
+        Assert.Equal(new Version(0, 3, 0), Release.Parse(Json(repository: "LykosApps/neap")).Version);
     }
 
     [Fact]

@@ -13,7 +13,7 @@ namespace Neap.Core.Updates;
 /// <para>
 /// Read from GitHub's description of the latest release. Anything in it that
 /// is not exactly what the release workflow publishes is refused rather than
-/// guessed at, so a release page edited by hand, or an answer from something
+/// guessed at, and every link in it must be to Neap's own repository, so a release page edited by hand, or an answer from something
 /// other than GitHub, reads as "cannot tell", never as "nothing new".
 /// </para>
 /// </remarks>
@@ -26,6 +26,9 @@ public sealed partial record Release(Version Version, Uri Page, Uri Zip, Uri Has
 {
     /// <summary>Where GitHub describes the latest release, leaving out drafts and pre-releases.</summary>
     public static Uri Latest { get; } = new("https://api.github.com/repos/lykosapps/Neap/releases/latest");
+
+    /// <summary>Where every link in a release must start: Neap's own repository, so a release can't name another's files.</summary>
+    private const string Repository = "/lykosapps/Neap/";
 
     /// <summary>The zip's file name, as the release workflow names it.</summary>
     public string ZipName => ZipNameFor(Version);
@@ -58,15 +61,15 @@ public sealed partial record Release(Version Version, Uri Page, Uri Zip, Uri Has
             foreach (var asset in root.GetProperty("assets").EnumerateArray())
             {
                 string name = asset.GetProperty("name").GetString() ?? "";
-                if (name == zipName) zip = OnGitHub(asset.GetProperty("browser_download_url"));
-                else if (name == zipName + ".sha256") hash = OnGitHub(asset.GetProperty("browser_download_url"));
+                if (name == zipName) zip = InNeapRepository(asset.GetProperty("browser_download_url"));
+                else if (name == zipName + ".sha256") hash = InNeapRepository(asset.GetProperty("browser_download_url"));
             }
             if (zip is null || hash is null)
                 throw new FormatException($"the release has no {zipName} with its .sha256 beside it");
 
             string notes = root.TryGetProperty("body", out var body) && body.ValueKind == JsonValueKind.String
                 ? body.GetString() ?? "" : "";
-            return new Release(version, OnGitHub(root.GetProperty("html_url")), zip, hash, notes);
+            return new Release(version, InNeapRepository(root.GetProperty("html_url")), zip, hash, notes);
         }
         catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException)
         {
@@ -105,13 +108,18 @@ public sealed partial record Release(Version Version, Uri Page, Uri Zip, Uri Has
         return match.Groups[1].Value.ToLowerInvariant();
     }
 
-    /// <summary>A link from the release, which must be to GitHub over HTTPS.</summary>
-    private static Uri OnGitHub(JsonElement value)
+    /// <summary>A link from the release, which must be to a page of Neap's repository on GitHub, over HTTPS.</summary>
+    /// <remarks>
+    /// <see cref="Uri"/> has already resolved any <c>..</c> in the path by
+    /// the time it is checked, so a link can't climb out of the repository.
+    /// </remarks>
+    private static Uri InNeapRepository(JsonElement value)
     {
         if (!Uri.TryCreate(value.GetString(), UriKind.Absolute, out var link)
             || link.Scheme != Uri.UriSchemeHttps
-            || !link.Host.Equals("github.com", StringComparison.OrdinalIgnoreCase))
-            throw new FormatException($"the release links somewhere other than GitHub: {value.GetString()}");
+            || !link.Host.Equals("github.com", StringComparison.OrdinalIgnoreCase)
+            || !link.AbsolutePath.StartsWith(Repository, StringComparison.OrdinalIgnoreCase))
+            throw new FormatException($"the release links somewhere other than Neap's repository on GitHub: {value.GetString()}");
         return link;
     }
 
