@@ -705,8 +705,13 @@ finding above proves nothing either way.
 - **Changing what the lights do.** Only brightness is reachable. Swarm II has
   no behaviour command, no category is lighting-related, a dozen guessed read
   verbs are silent, and the firmware does not consume its stored LED table.
-  What remains is modifying the signed firmware image, which this project
-  does not do.
+  The decompressed firmware settles it *(research)*: a lighting task drives
+  the LEDs from connection state in code, with no settable input feeding it,
+  so e.g. the power-button LED's Bluetooth-only flash cannot be turned off by
+  any value. The only override is the chip's raw factory GPIO channel, which
+  is the same diagnostic back door behind the 2025 RACE vulnerabilities and
+  is off-limits here. What remains is modifying the firmware image, which
+  this project does not do.
 - **Remapping the Bluetooth button.** See above.
 - **Hiding the Windows volume overlay** from the headset's wheel, at any
   reasonable cost.
