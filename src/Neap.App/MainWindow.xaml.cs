@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using H.NotifyIcon.Core;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -8,7 +9,6 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Neap.App.Services;
 using Neap.App.Views;
 using Neap.Core;
-using H.NotifyIcon.Core;
 using Neap.Core.Connection;
 using Windows.Graphics;
 
