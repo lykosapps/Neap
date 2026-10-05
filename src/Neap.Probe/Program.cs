@@ -40,7 +40,8 @@ if (args.Length == 0 || args[0] is "-h" or "--help")
                              read a USBPcap capture of Swarm II driving the
                              headset; writes <name>-decoded.txt beside it
           audio              Windows volume, mute and format, both devices
-          micmute on|off     mute or unmute the headset's microphone in Windows
+          micmute on|off     mute or unmute the headset's microphone in the system;
+                             with neither, say whether it is muted
           route              where Windows sends sound and takes the mic from,
                              by role, and which headset device is carrying it
           hear <output> [seconds]
@@ -95,6 +96,7 @@ try
         case "mixapp": return MixApp(args[1], args.Length > 2 ? args[2] : "demo");
         case "recover": return RecoverMix();
         case "sound" when OperatingSystem.IsLinux(): return LinuxSound();
+        case "micmute" when OperatingSystem.IsLinux(): return LinuxMicMute(args.Length > 1 ? args[1] : "");
         case "setformat" when OperatingSystem.IsWindows():
             return WindowsSound.SetFormat(int.Parse(args[1], CultureInfo.InvariantCulture),
                 int.Parse(args[2], CultureInfo.InvariantCulture));
@@ -339,6 +341,20 @@ static string Levels(Neap.Core.Mix.IPlaybackDevice headset, string chatApp, bool
         .Select(s => $"{s.Program} {s.Volume:0.00}")
         .ToList();
     return levels.Count == 0 ? "(none)" : string.Join(" ", levels);
+}
+
+// Whether the system has the headset's microphone muted; with "on" or "off",
+// changes it first, the way the microphone tile does, then reads it back.
+[SupportedOSPlatform("linux")]
+static int LinuxMicMute(string change)
+{
+    var before = Neap.Core.Audio.Pulse.PulseVolumes.Describe(Flow.Input);
+    Console.WriteLine($"{before.Name}: headset {before.MatchedHeadset}, volume {before.Percent}%, muted {before.Muted}");
+    if (change is not ("on" or "off")) return 0;
+    Neap.Core.Audio.Pulse.PulseVolumes.SetMuted(change == "on", Flow.Input);
+    var after = Neap.Core.Audio.Pulse.PulseVolumes.Describe(Flow.Input);
+    Console.WriteLine($"after:  volume {after.Percent}%, muted {after.Muted}");
+    return after.Muted == (change == "on") ? 0 : 1;
 }
 
 // The outputs and application streams the sound server reports, and which
