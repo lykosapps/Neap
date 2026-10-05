@@ -76,12 +76,46 @@ public sealed class LogFile(string path, int keepLines = 1000)
         }
     }
 
+    /// <summary>Every line kept, oldest first, with any still waiting to be written.</summary>
+    /// <exception cref="IOException">Another copy of the app held the log too long, or it could not be read.</exception>
+    /// <exception cref="UnauthorizedAccessException">The log could not be read.</exception>
+    public IReadOnlyList<string> Read()
+    {
+        lock (_gate)
+        {
+            List<string> lines = [];
+            AcrossCopies(() =>
+            {
+                if (File.Exists(path)) lines = File.ReadAllLines(path).ToList();
+                foreach (string line in _waiting) Insert(lines, line);
+            });
+            return lines;
+        }
+    }
+
     private static string Line(DateTime at, string what) =>
         string.Create(CultureInfo.InvariantCulture, $"{at:yyyy-MM-dd HH:mm:ss.f}  {what}");
 
     /// <summary>Writes the waiting lines into the file, under the cross-copy lock. Under the gate.</summary>
     /// <param name="now">When the line that finally gets through happened, which the note of any failure takes.</param>
-    private void Flush(DateTime now)
+    private void Flush(DateTime now) => AcrossCopies(() =>
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+        var lines = File.Exists(path) ? File.ReadAllLines(path).ToList() : [];
+        if (_failure is not null)
+            Insert(lines, Line(now, string.Create(CultureInfo.InvariantCulture,
+                $"log: {_waiting.Count} line(s) from {_waiting[0][..StampLength]} on were written late; "
+                + $"the log could not be written ({_failure})")));
+        foreach (string line in _waiting) Insert(lines, line);
+        if (lines.Count > keepLines) lines.RemoveRange(0, lines.Count - keepLines);
+        File.WriteAllLines(path, lines);
+        _waiting.Clear();
+        _failure = null;
+    });
+
+    /// <summary>Does something to the file holding the lock shared with other copies of the app.</summary>
+    /// <exception cref="IOException">Another copy held the lock too long.</exception>
+    private void AcrossCopies(Action work)
     {
         using var copies = new Mutex(false, _lockName);
         try
@@ -89,20 +123,7 @@ public sealed class LogFile(string path, int keepLines = 1000)
             if (!copies.WaitOne(LockWait)) throw new IOException("another copy of the app is holding the log");
         }
         catch (AbandonedMutexException) { /* a copy that died holding it; the lock is ours now */ }
-        try
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-            var lines = File.Exists(path) ? File.ReadAllLines(path).ToList() : [];
-            if (_failure is not null)
-                Insert(lines, Line(now, string.Create(CultureInfo.InvariantCulture,
-                    $"log: {_waiting.Count} line(s) from {_waiting[0][..StampLength]} on were written late; "
-                    + $"the log could not be written ({_failure})")));
-            foreach (string line in _waiting) Insert(lines, line);
-            if (lines.Count > keepLines) lines.RemoveRange(0, lines.Count - keepLines);
-            File.WriteAllLines(path, lines);
-            _waiting.Clear();
-            _failure = null;
-        }
+        try { work(); }
         finally { copies.ReleaseMutex(); }
     }
 

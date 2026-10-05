@@ -64,4 +64,21 @@ public sealed class LogFileTests : IDisposable
         Parallel.For(0, 40, i => (i % 2 == 0 ? one : other).Write($"line {i:00}", Noon.AddSeconds(i)));
         Assert.Equal(40, Lines().Length);
     }
+
+    [Fact]
+    public void ReadingGivesEveryLineKeptWithAnyStillWaiting()
+    {
+        var log = new LogFile(LogPath);
+        log.Write("first", Noon);
+        using (new FileStream(LogPath, FileMode.Open, FileAccess.Read, FileShare.None))
+            log.Write("while held", Noon.AddSeconds(1));
+
+        Assert.Equal(["first", "while held"], log.Read().Select(l => l[23..]));
+    }
+
+    [Fact]
+    public void ReadingALogNeverWrittenGivesNothing()
+    {
+        Assert.Empty(new LogFile(LogPath).Read());
+    }
 }
