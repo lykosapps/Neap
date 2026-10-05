@@ -99,7 +99,11 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 ## Tooling and release
 
 - Build, tests and formatting required on every pull request, once on GitHub.
-- Sign the download, so Windows does not warn about it.
+- Sign the download, so Windows does not warn about it. The updater should
+  check the signature too.
+- Updater, nice to have: a limit on how big a download may be and how long
+  it may take, and a way to cancel it; and if the new version can't be
+  started after a good update, say so on screen instead of only in the log.
 - Publish on GitHub: the repository named "neap", private vulnerability
   reporting on, main only, and a first real CI run.
 - A package update pass. On 25 Sep: the Windows App SDK 1.8 to 2.5, a new
