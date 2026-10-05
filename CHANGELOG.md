@@ -19,7 +19,9 @@ and date.
   only listens, and leaves out the headset's serial number and radio
   addresses.
 - **Help support another headset.** A guide for owners of other Turtle Beach
-  headsets to record what Swarm II sends, so support can be added.
+  headsets: record in Neap while pressing each button, with nothing else to
+  install, so support can be added. Recording Swarm II, for settings only
+  it can change, is an optional extra step.
 
 ## 0.1.0 — 2026-10-04, the first release
 

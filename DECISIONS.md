@@ -21,9 +21,13 @@
   blanked, and the player attaches it themselves. Sending from the app would
   break "nothing leaves the PC", and an address built into open-source code
   can't be hidden.
-- **Supporting another headset** needs a USB recording of Swarm II, which
-  needs a driver, a restart and administrator rights, so it stays outside
-  the app as a guide for keen testers (docs/MAPPING.md).
+- **Supporting another headset** starts with Neap's own recording, made
+  while pressing each button and turning each dial in a set order, so
+  anyone can help with nothing to install (docs/MAPPING.md). The pauses
+  and order stand in for notes, which non-technical testers wouldn't keep.
+  Settings only Swarm II can change need a USB recording of it, which needs
+  a driver, a restart and administrator rights, so that stays outside the
+  app as an optional step for confident testers.
 - **A section in Settings, not a seventh rail item:** reporting a problem is
   rare, and Settings is where the app's own housekeeping lives.
 - **Still open:** a private way to receive USB recordings, and whether

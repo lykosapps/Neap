@@ -1,50 +1,82 @@
 # Help support another headset
 
-Neap is built and tested on the Stealth Pro II. Other Turtle Beach headsets
-may speak a similar language, but each setting has to be matched to what
-the headset sends before Neap can safely change it. Swarm II already knows
-how, so the way to learn is to record Swarm II talking to your headset
-while you change one thing at a time.
+Neap is built for the Stealth Pro II. If you have a different Turtle Beach
+headset, you can help it work with Neap by recording what your headset does
+while you press its buttons. It takes about ten minutes, and you don't need
+to install anything except Neap.
 
-This takes about half an hour, a Windows PC with administrator rights, and
-one restart.
+Recording only listens. It doesn't change anything on your headset.
 
-## 1. Record what Neap sees
+## Before you start
 
-With your headset connected and switched on, open Neap, go to **Settings**,
-and under **Diagnostics** choose **Start** next to **Record headset
-activity**. Wait ten seconds, then choose **Stop and save**.
+- Get Neap from the
+  [latest release](https://github.com/lykosapps/Neap/releases/latest) if
+  you don't have it yet.
+- Close Swarm II completely. Only one app can talk to the headset at a time.
+  If its icon is by the clock (click the small arrow there to check),
+  right-click it and quit.
+- Switch your headset on and connect it the way you normally do.
 
-Neap saves a text file to your Downloads folder. It lists the Turtle Beach
-devices plugged in and every value the headset reported, even ones Neap has
-no name for. The headset's serial number and radio addresses are left out,
-so this file is safe to post publicly.
+## Record
 
-## 2. Install USBPcap
+1. Open Neap and go to **Settings**.
+2. Under **Diagnostics**, next to **Record headset activity**, choose
+   **Start**.
+3. Do everything in the list below, in order. After each one, **count
+   slowly to five** before doing the next. You don't need to write anything
+   down: the order and the pauses show which is which.
+4. Choose **Stop and save**, then **Show in folder** to find the file.
 
-[USBPcap](https://desowin.org/usbpcap/) records what passes over a USB
-connection. Install it, then restart Windows: it doesn't work until you do.
+If Neap says it can't find your headset, record anyway. That tells us
+something too.
 
-## 3. Find the headset's connection
+## The list
 
-Open **Windows PowerShell** as administrator and run:
+Skip anything your headset doesn't have.
 
-```
-& "$env:ProgramFiles\USBPcap\USBPcapCMD.exe"
-```
+1. Turn the volume down a few steps, then back up.
+2. Turn the game and chat balance dial one way, then back.
+3. Mute the microphone, then unmute it. On many headsets you do this by
+   lifting the microphone arm up, then putting it back down.
+4. Press the noise-cancelling or mode button. Count to five, and keep
+   pressing until it's back where it started.
+5. Press any other button once, then again to put it back. Press it
+   briefly. Holding a button down can start Bluetooth pairing.
+6. Switch the headset off, wait ten seconds, then switch it back on.
 
-It lists each USB connection (`\\.\USBPcap1`, `\\.\USBPcap2` and so on) and
-the devices on it. Find your transmitter or dock under its Turtle Beach name
-and note two numbers: the connection's number, and the device's own number
-beside its name. Close the window.
+## Send it
 
-## 4. Record Swarm II
+1. [Open a new issue](https://github.com/lykosapps/Neap/issues/new) on
+   GitHub. You'll need a free GitHub account.
+2. Make the title the name of your headset, as it appears on the box, for
+   example "Stealth 700 Gen 3".
+3. Drag the recording file into the box, and say which steps you skipped.
 
-1. Quit Neap from its icon in the notification area, so it isn't talking to
-   the headset at the same time.
-2. Open Swarm II with your headset connected.
-3. Download [capture.ps1](../tools/capture.ps1) and, in the same
-   administrator PowerShell, run it with your two numbers, for example:
+The file doesn't contain your headset's serial number or anything else
+that identifies you. Open it in Notepad if you'd like to check before
+sending.
+
+## Going further
+
+Some settings can only be changed in Swarm II, such as the equaliser and
+how loudly you hear your own voice. Supporting those means recording what
+Swarm II sends to the headset. This part is optional and more technical:
+it needs administrator rights and a restart.
+
+1. Install [USBPcap](https://desowin.org/usbpcap/), then restart Windows.
+2. Open **Windows PowerShell** as administrator and run:
+
+   ```
+   & "$env:ProgramFiles\USBPcap\USBPcapCMD.exe"
+   ```
+
+   It lists each USB connection (`\\.\USBPcap1`, `\\.\USBPcap2` and so on)
+   and the devices on it. Find your transmitter or dock under its Turtle
+   Beach name, note the connection's number and the device's own number
+   beside its name, then close that window.
+3. Quit Neap from its icon by the clock, and open Swarm II.
+4. Download [capture.ps1](../tools/capture.ps1) and, in the same PowerShell
+   window, run it with your two numbers, for example:
 
    ```
    .\capture.ps1 -Interface 2 -Device 1 -Seconds 600 -Name my-headset
@@ -52,21 +84,13 @@ beside its name. Close the window.
 
    That records for ten minutes. If PowerShell refuses to run the script,
    run `Set-ExecutionPolicy -Scope Process Bypass` first.
-4. While it records, change **one thing at a time** in Swarm II, and wait
-   about five seconds between changes. Write down the time and what you
-   changed, for example `14:02:10 mic volume 50 to 70`. Go through as many
-   settings as you can, then press each button and turn each dial on the
-   headset itself.
+5. While it records, change one setting at a time in Swarm II, wait about
+   five seconds between changes, and write down the time and what you
+   changed, for example `14:02:10 mic volume 50 to 70`.
 
-The recording is saved in your Temp folder as `tbcap\my-headset.pcap`. Type
-`%TEMP%\tbcap` in File Explorer's address bar to find it.
+The recording is saved as `my-headset.pcap`. Type `%TEMP%\tbcap` in File
+Explorer's address bar to find it.
 
-## 5. Send it
-
-[Open an issue](https://github.com/lykosapps/Neap/issues) named after your
-headset, such as "Support for the Stealth 700 Gen 3", and attach the file
-from step 1 and your notes.
-
-**Don't attach the USB recording to the issue.** Unlike Neap's file, it
-holds your headset's serial number and radio addresses. Say in the issue
-that you have it, and we'll arrange a private way to send it.
+**Don't attach this one to the issue.** Unlike Neap's file, it contains
+your headset's serial number. Say in the issue that you have it, and we'll
+arrange a private way to send it.
