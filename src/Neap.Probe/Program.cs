@@ -307,67 +307,25 @@ static int Audio()
     return 0;
 }
 
-// Where the sound is going. Windows keeps a default for each role, and the
-// headset can offer several outputs of its own (one per transmitter, and one
-// for the headset itself over the USB-C cable) that differ by little more than
-// a word in the name. Each is named by the device behind it and its level
-// sampled, because a default says where sound is sent, not where it is heard.
+// Where the sound is going, as the app's recordings report it: Windows'
+// device for each role, and the volume, loudest moment and programs on each
+// of the headset's devices over a second.
 static int Route()
 {
-    using var devices = new MMDeviceEnumerator();
-    foreach (var flow in new[] { DataFlow.Render, DataFlow.Capture })
-        foreach (var role in new[] { Role.Multimedia, Role.Console, Role.Communications })
-        {
-            string said;
-            try
-            {
-                using var device = devices.GetDefaultAudioEndpoint(flow, role);
-                string owner = Owner(device);
-                said = $"{device.FriendlyName}  [{(owner.Length > 0 ? owner : "not the headset")}]";
-            }
-            catch { said = "(none)"; }
-            Console.WriteLine($"{(flow == DataFlow.Render ? "output" : "input"),-7} {role,-15} {said}");
-        }
+    var survey = Routing.Survey(TimeSpan.FromSeconds(1));
+    foreach (var role in survey.Defaults)
+        Console.WriteLine($"{(role.Output ? "output" : "input"),-7} {role.Role,-15} "
+                        + (role.Device.Length == 0 ? "(none)"
+                            : $"{role.Device}  [{(role.Product.Length > 0 ? Called(role.Product) : "not the headset")}]"));
 
     Console.WriteLine();
-    foreach (var flow in new[] { DataFlow.Render, DataFlow.Capture })
-        foreach (var device in devices.EnumerateAudioEndPoints(flow, DeviceState.Active))
-            using (device)
-            {
-                string owner = Owner(device);
-                if (owner.Length == 0) continue;
-
-                float peak = 0;
-                for (int i = 0; i < 20; i++)
-                {
-                    peak = Math.Max(peak, device.AudioMeterInformation.MasterPeakValue);
-                    Thread.Sleep(50);
-                }
-
-                var playing = new List<string>();
-                if (flow == DataFlow.Render)
-                {
-                    device.AudioSessionManager.RefreshSessions();
-                    var sessions = device.AudioSessionManager.Sessions;
-                    for (int i = 0; i < sessions.Count; i++)
-                    {
-                        // Open but silent sessions too, marked apart: a chat
-                        // app between calls is where its sound will go.
-                        var state = sessions[i].State;
-                        if (state == AudioSessionState.AudioSessionStateExpired) continue;
-                        uint pid = sessions[i].GetProcessID;
-                        string who;
-                        try { who = pid == 0 ? "system" : Process.GetProcessById((int)pid).ProcessName; }
-                        catch { who = $"pid {pid}"; }
-                        playing.Add(state == AudioSessionState.AudioSessionStateActive ? who + "*" : who);
-                    }
-                }
-                Console.WriteLine(
-                    $"{(flow == DataFlow.Render ? "output" : "input"),-7} {device.FriendlyName,-45} "
-                    + $"[{owner}]  level {device.AudioEndpointVolume.MasterVolumeLevelScalar * 100:0}%"
-                    + $"  peak {peak:0.000}"
-                    + (playing.Count > 0 ? $"  sessions (* playing): {string.Join(", ", playing.Distinct())}" : ""));
-            }
+    foreach (var device in survey.Devices)
+        Console.WriteLine(
+            $"{(device.Output ? "output" : "input"),-7} {device.Name,-45} [{Called(device.Product)}]  "
+            + $"level {device.Percent}%  peak {device.Peak:0.000}"
+            + (device.Apps.Count > 0
+                ? $"  sessions (* playing): {string.Join(", ", device.Apps.Select(a => a.Playing ? a.Name + "*" : a.Name).Distinct())}"
+                : ""));
     return 0;
 }
 
@@ -490,24 +448,11 @@ static int Hear(string match, double seconds)
     return 0;
 }
 
-// Which of the headset's devices an endpoint belongs to, from the product id
-// in the path of the kernel filter behind it, as Routing does in Core.
-static string Owner(MMDevice device)
-{
-    var filterPath = new PropertyKey(new Guid("233164c8-1b2c-4c7d-bc68-b671687a2567"), 1);
-    try
-    {
-        if (!device.Properties.Contains(filterPath)) return "";
-        string path = device.Properties[filterPath].Value?.ToString() ?? "";
-        if (!path.Contains("vid_10f5", StringComparison.OrdinalIgnoreCase)) return "";
-        int at = path.IndexOf("pid_", StringComparison.OrdinalIgnoreCase);
-        if (at < 0 || path.Length < at + 8) return "";
-        string product = path.Substring(at + 4, 4).ToUpperInvariant();
-        return Transmitters.Hardware.TryGetValue(product, out var name)
-            ? $"{name} {product}" : product;
-    }
-    catch { return ""; }
-}
+// Which of the headset's devices an endpoint belongs to, empty for anything else.
+static string Owner(MMDevice device) => Routing.ProductOf(device) is { Length: > 0 } product ? Called(product) : "";
+
+static string Called(string product) =>
+    Transmitters.Hardware.TryGetValue(product, out var name) ? $"{name} {product}" : product;
 
 static int Formats(Flow flow)
 {

@@ -69,4 +69,18 @@ public class PretendWindowsTests
         mix.Dispose();
         Assert.Null(windows.Mix);
     }
+
+    [Fact]
+    public void TheSurveyShowsTheDockAndItsPrograms()
+    {
+        var windows = new PretendWindows();
+        windows.SetPercent(30, Flow.Output);
+
+        var survey = windows.Survey();
+
+        Assert.All(survey.Defaults, d => Assert.Equal("229B", d.Product));
+        var output = Assert.Single(survey.Devices, d => d.Output);
+        Assert.Equal((PretendWindows.OutputName, 30), (output.Name, output.Percent));
+        Assert.Equal(PretendWindows.Sessions.Select(s => s.Process), output.Apps.Select(a => a.Name));
+    }
 }

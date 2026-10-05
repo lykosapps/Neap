@@ -79,6 +79,25 @@ public sealed class PretendWindows
         string.Equals(product, Dock, StringComparison.OrdinalIgnoreCase)
             ? [output ? OutputName : InputName] : [];
 
+    /// <summary>Where sound goes and how loud, as <see cref="Routing.Survey"/> reports it.</summary>
+    /// <remarks>Every program reads as full volume, because the pretend mix sets none.</remarks>
+    public SoundSurvey Survey()
+    {
+        lock (_gate)
+        {
+            string[] roles = ["Multimedia", "Console", "Communications"];
+            var defaults = roles.Select(r => new SoundDefault(true, r, OutputName, Dock))
+                .Concat(roles.Select(r => new SoundDefault(false, r, InputName, Dock))).ToList();
+            var apps = Sessions.Select(s => new SoundApp(s.Process, 100, false, s.Playing)).ToList();
+            return new SoundSurvey(defaults,
+            [
+                new(true, OutputName, Dock, _output.Percent, _output.Muted, 0, apps),
+                new(false, InputName, Dock, _input.Percent, _input.Muted, MicrophonePeak, []),
+            ],
+                _output.Current.Label, _input.Current.Label);
+        }
+    }
+
     // -- volume and format --------------------------------------------------
 
     public EndpointInfo Describe(Flow flow)

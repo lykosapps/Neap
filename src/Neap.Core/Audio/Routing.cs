@@ -143,6 +143,104 @@ public static class Routing
     }
 
     /// <summary>
+    /// Where Windows sends sound and takes the microphone from, for each role,
+    /// and the volume, level and programs on each of the headset's devices.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A default says where sound is sent, not where it is heard, so each of
+    /// the headset's devices is listened to for <paramref name="listen"/> and
+    /// its loudest moment kept. One reading is a single instant and says
+    /// little about a level that moves.
+    /// </para>
+    /// <para>
+    /// Open but silent programs are listed too, marked apart: a chat app
+    /// between calls is where its sound will go.
+    /// </para>
+    /// </remarks>
+    /// <param name="listen">How long to listen to each device's level.</param>
+    /// <param name="name">Names the program behind a process id; <see cref="Programs.NameOf"/> when not given.</param>
+    /// <exception cref="COMException">Windows' audio devices could not be listed.</exception>
+    public static SoundSurvey Survey(TimeSpan listen, Func<uint, string>? name = null)
+    {
+        name ??= Programs.NameOf;
+        using var devices = new MMDeviceEnumerator();
+
+        var defaults = new List<SoundDefault>();
+        foreach (var flow in new[] { NFlow.Render, NFlow.Capture })
+            foreach (var role in new[] { NRole.Multimedia, NRole.Console, NRole.Communications })
+            {
+                try
+                {
+                    using var device = devices.GetDefaultAudioEndpoint(flow, role);
+                    defaults.Add(new(flow == NFlow.Render, role.ToString(), device.FriendlyName, ProductOf(device)));
+                }
+                catch (COMException)
+                {
+                    // Windows has no device for the role.
+                    defaults.Add(new(flow == NFlow.Render, role.ToString(), "", ""));
+                }
+            }
+
+        var headset = new List<MMDevice>();
+        try
+        {
+            foreach (var flow in new[] { NFlow.Render, NFlow.Capture })
+                foreach (var device in devices.EnumerateAudioEndPoints(flow, NState.Active))
+                    if (ProductOf(device).Length > 0) headset.Add(device);
+                    else device.Dispose();
+
+            var peaks = new float[headset.Count];
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            do
+            {
+                for (int i = 0; i < headset.Count; i++)
+                    peaks[i] = Math.Max(peaks[i], headset[i].AudioMeterInformation.MasterPeakValue);
+                if (clock.Elapsed < listen) Thread.Sleep(50);
+            }
+            while (clock.Elapsed < listen);
+
+            var found = headset.Select((device, i) => new SoundDevice(
+                device.DataFlow == NFlow.Render, device.FriendlyName, ProductOf(device),
+                (int)Math.Round(device.AudioEndpointVolume.MasterVolumeLevelScalar * 100),
+                device.AudioEndpointVolume.Mute, peaks[i], AppsOn(device, name))).ToList();
+
+            return new SoundSurvey(defaults, found, FormatOf(Flow.Output), FormatOf(Flow.Input));
+        }
+        finally
+        {
+            foreach (var device in headset) device.Dispose();
+        }
+    }
+
+    private static List<SoundApp> AppsOn(MMDevice device, Func<uint, string> name)
+    {
+        var apps = new List<SoundApp>();
+        device.AudioSessionManager.RefreshSessions();
+        var sessions = device.AudioSessionManager.Sessions;
+        for (int i = 0; i < sessions.Count; i++)
+        {
+            var session = sessions[i];
+            if (session.State == AudioSessionState.AudioSessionStateExpired) continue;
+            uint pid = session.GetProcessID;
+            string program = pid == 0 ? "system" : name(pid);
+            apps.Add(new SoundApp(program.Length > 0 ? program : $"process {pid}",
+                (int)Math.Round(session.SimpleAudioVolume.Volume * 100), session.SimpleAudioVolume.Mute,
+                session.State == AudioSessionState.AudioSessionStateActive));
+        }
+        return apps;
+    }
+
+    private static string FormatOf(Flow flow)
+    {
+        try { return DeviceFormat.Current(AudioEndpoints.DefaultMatch, flow)?.Label ?? "not reported"; }
+        catch (Exception ex) when (ex is WindowsAudioException or COMException)
+        {
+            return $"could not be read: {ex.Message}";
+        }
+    }
+
+    /// <summary>
     /// The product id behind an endpoint if it is a Turtle Beach device, and
     /// empty for anything else.
     /// </summary>
@@ -151,7 +249,7 @@ public static class Routing
     /// product id of its own and would otherwise count as a transmitter the
     /// headset is not on.
     /// </remarks>
-    private static string ProductOf(MMDevice device)
+    public static string ProductOf(MMDevice device)
     {
         try
         {
