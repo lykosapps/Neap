@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -65,6 +66,16 @@ public sealed class DecibelBox : UserControl
     {
         _value = decibels;
         _box.Text = Db.Text((int)Math.Round(decibels * 10));
+    }
+
+    /// <remarks>The name and description given to the field are the text box's, which is what a screen reader lands on.</remarks>
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == AutomationProperties.NameProperty)
+            AutomationProperties.SetName(_box, change.GetNewValue<string?>());
+        else if (change.Property == AutomationProperties.HelpTextProperty)
+            AutomationProperties.SetHelpText(_box, change.GetNewValue<string?>());
     }
 
     private void OnKeyDown(object? sender, KeyEventArgs e)

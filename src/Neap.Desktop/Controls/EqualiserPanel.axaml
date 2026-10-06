@@ -113,6 +113,54 @@
             </Grid>
 
             <!--
+                How the curve is shaped: band by band, or by adjustments
+                fitted to the bands. Only the game bank has the second.
+            -->
+            <StackPanel
+                x:Name="Mode"
+                loc:Uid.Value="Equaliser_Mode"
+                Orientation="Horizontal"
+                Spacing="16"
+                IsVisible="False">
+                <RadioButton
+                    x:Name="ModeBands"
+                    loc:Uid.Value="Equaliser_ModeBands"
+                    GroupName="EqualiserMode" />
+                <RadioButton
+                    x:Name="ModeParametric"
+                    loc:Uid.Value="Equaliser_ModeParametric"
+                    GroupName="EqualiserMode">
+                    <!--
+                        Asked first, in place, when choosing Parametric would
+                        change what is heard, with the safe answer focused.
+                    -->
+                    <FlyoutBase.AttachedFlyout>
+                        <Flyout>
+                            <StackPanel MaxWidth="280" Spacing="12">
+                                <TextBlock x:Name="ParametricQuestion" />
+                                <StackPanel
+                                    HorizontalAlignment="Right"
+                                    Orientation="Horizontal"
+                                    Spacing="8">
+                                    <Button x:Name="ParametricYes" loc:Uid.Value="Equaliser_ParametricYes" />
+                                    <Button x:Name="ParametricNo" loc:Uid.Value="Equaliser_ParametricNo" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Flyout>
+                    </FlyoutBase.AttachedFlyout>
+                </RadioButton>
+            </StackPanel>
+
+            <!--
+                Parametric and the curve take the panel's whole width, so
+                they line up with the preset's name above them.
+            -->
+            <c:ParametricPanel
+                x:Name="Parametric"
+                HorizontalAlignment="Stretch"
+                IsVisible="False" />
+
+            <!--
                 The curve and the readouts share one width and one set of
                 columns, so every point sits over its own number, until the
                 panel is too narrow for ten readable values; then they fold

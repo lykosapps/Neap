@@ -1,0 +1,412 @@
+using System.Diagnostics;
+using System.Globalization;
+using Avalonia;
+using Avalonia.Automation;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Avalonia.Threading;
+using Neap.Core.Audio;
+using Neap.Core.Presets;
+
+namespace Neap.Desktop.Controls;
+
+/// <summary>
+/// The parametric equaliser for the game bank: a plot of the curve asked for
+/// against the curve heard, and the fields for each adjustment.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Every change goes to <see cref="PresetService.SetAdjustments"/>, which
+/// fits the adjustments to the ten bands and writes whichever moved. What
+/// is shown is then read back from there, so the plot, the fields and the
+/// ten gains under them always agree.
+/// </para>
+/// <para>
+/// The test tone above the plot plays on the headset, so it is heard through
+/// the equaliser being set. It is moved by hand with its slider or swept, and
+/// held where it stands out, to be cut or boosted there. It plays only while
+/// the panel is on screen: leaving the page, hiding the window or going back
+/// to the bands stops it.
+/// </para>
+/// <para>
+/// The fields edit whichever adjustment is chosen; a point pressed on the
+/// plot chooses its adjustment too. Frequency has a slider, on a
+/// logarithmic scale as heard, and a field for typing an exact value.
+/// </para>
+/// </remarks>
+public partial class ParametricPanel : UserControl
+{
+    private const Bank Game = Bank.Game;
+
+    /// <summary>The narrowest tone row that holds Cut here and Boost here beside the tone's other controls.</summary>
+    private const double MarksBeside = 640;
+
+    private enum Tone { Off, Sweeping, Held }
+
+    /// <summary>The tone's level, kept for the session so it comes back where it was left.</summary>
+    private static int _level = ToneSweep.FirstLevel;
+
+    private readonly List<TextBlock> _sent = new();
+    private readonly DispatcherTimer _sweep = new() { Interval = TimeSpan.FromMilliseconds(33) };
+    private readonly Stopwatch _swept = new();
+    private int _selected;
+    private bool _painting;
+    private IPlayingTone? _player;
+    private Task? _opening;
+    private int _stops;
+    private Tone _tone;
+    private double _frequency = Adjustment.LowestFrequency;
+    private double _sweptFrom;
+
+    /// <summary>Raised after the adjustments change, so the equaliser can repaint around them.</summary>
+    public event Action? Changed;
+
+    public ParametricPanel()
+    {
+        InitializeComponent();
+
+        Shape.Frequencies = PresetStore.Game.Frequencies;
+        Shape.AdjustmentChosen += index =>
+        {
+            _selected = index;
+            Paint();
+        };
+        Shape.AdjustmentChanged += Replace;
+
+        AddButton.Click += (_, _) =>
+        {
+            var adjustments = Current();
+            adjustments.Add(ParametricEq.Next(adjustments));
+            _selected = adjustments.Count - 1;
+            Commit(adjustments);
+        };
+        RemoveButton.Click += (_, _) =>
+        {
+            var adjustments = Current();
+            if (_selected >= adjustments.Count) return;
+            adjustments.RemoveAt(_selected);
+            _selected = Math.Max(0, _selected - 1);
+            Commit(adjustments);
+        };
+
+        FrequencySlider.ValueChanged += (_, args) =>
+            Edit(a => a with { Frequency = ParametricEq.FrequencyAt(args.NewValue, FrequencySlider.Maximum) });
+        FrequencyField.Changed += hertz => Edit(a => a with { Frequency = hertz });
+        GainSlider.ValueChanged += (_, args) =>
+            Edit(a => a with { Gain = (int)Math.Round(args.NewValue * 10) });
+        WidthSlider.ValueChanged += (_, args) =>
+            Edit(a => a with { Width = (int)Math.Round(args.NewValue * 10) });
+
+        _sweep.Tick += (_, _) => SweepOn();
+        SweepButton.Click += async (_, _) => await SweepOrHold();
+        StopButton.Click += (_, _) => StopTone();
+        ToneSlider.ValueChanged += async (_, args) =>
+        {
+            if (_painting) return;
+            await Hold(ParametricEq.FrequencyAt(args.NewValue, ToneSlider.Maximum));
+        };
+        LevelSlider.Value = _level;
+        LevelSlider.ValueChanged += (_, args) =>
+        {
+            _level = (int)Math.Round(args.NewValue);
+            if (_player is not null) _player.Amplitude = ToneSweep.Amplitude(_level);
+        };
+        CutButton.Click += (_, _) => AddAtTone(boost: false);
+        BoostButton.Click += (_, _) => AddAtTone(boost: true);
+        ToneRow.SizeChanged += (_, _) => Arrange();
+
+        BuildSent();
+    }
+
+    // A tone left playing where it cannot be seen is a tone nobody can stop.
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
+        base.OnUnloaded(e);
+        StopTone();
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == IsVisibleProperty && !IsVisible) StopTone();
+    }
+
+    // -- the test tone -----------------------------------------------------
+
+    /// <summary>
+    /// Puts Cut here and Boost here beside the tone's other controls when the
+    /// row has room for them, and on a row of their own under them when it
+    /// has not.
+    /// </summary>
+    private void Arrange()
+    {
+        bool beside = ToneRow.Bounds.Width >= MarksBeside;
+        Grid.SetRow(Marks, beside ? 0 : 1);
+        Grid.SetColumn(Marks, beside ? 3 : 0);
+        Grid.SetColumnSpan(Marks, beside ? 1 : ToneRow.ColumnDefinitions.Count);
+    }
+
+    private async Task SweepOrHold()
+    {
+        switch (_tone)
+        {
+            case Tone.Sweeping:
+                _tone = Tone.Held;
+                _sweep.Stop();
+                break;
+            default:
+                _sweptFrom = ToneSweep.Start(_frequency);
+                if (!await Play(_sweptFrom)) return;
+                _tone = Tone.Sweeping;
+                _swept.Restart();
+                _sweep.Start();
+                break;
+        }
+        PaintTone();
+    }
+
+    /// <summary>Holds the tone at a frequency, starting it if it is not playing.</summary>
+    private async Task Hold(double frequency)
+    {
+        _sweep.Stop();
+        if (!await Play(frequency)) return;
+        _tone = Tone.Held;
+        PaintTone();
+    }
+
+    private void SweepOn()
+    {
+        if (_tone != Tone.Sweeping)
+        {
+            _sweep.Stop();
+            return;
+        }
+        _frequency = ToneSweep.After(_sweptFrom, _swept.Elapsed.TotalSeconds);
+        if (_player is not null) _player.Frequency = _frequency;
+        if (ToneSweep.Finished(_frequency))
+        {
+            _tone = Tone.Held;
+            _sweep.Stop();
+        }
+        PaintTone();
+    }
+
+    /// <summary>Moves the tone to a frequency, opening it on the headset if needed.</summary>
+    /// <returns>Whether the tone is playing.</returns>
+    private async Task<bool> Play(double frequency)
+    {
+        _frequency = frequency;
+        // One opening at a time: a slider dragged while the tone opens asks
+        // again at every step, and each would otherwise open a tone of its
+        // own that nothing could stop.
+        if (_player is null) await (_opening ??= Open());
+        if (_player is null) return false;
+        _player.Frequency = _frequency;
+        return true;
+    }
+
+    private async Task Open()
+    {
+        int stops = _stops;
+        double frequency = _frequency;
+        ToneTrouble.IsVisible = false;
+        try
+        {
+            // A pretend run leaves the real headset's sound alone.
+            var player = await Task.Run(() => Pretend.Windows?.OpenTone(frequency) ?? ToneOutput.Open(frequency));
+            // Stopped, or left, while it was opening.
+            if (stops != _stops || !IsLoaded || !IsVisible)
+            {
+                player.Dispose();
+                return;
+            }
+            player.Stopped += fault => Dispatcher.UIThread.Post(() => Fail(fault.Message));
+            player.Frequency = _frequency;
+            player.Amplitude = ToneSweep.Amplitude(_level);
+            _player = player;
+        }
+        catch (Exception e) when (ToneOutput.IsRefusal(e)) { Fail(e.Message); }
+        finally { _opening = null; }
+    }
+
+    private void Fail(string trouble)
+    {
+        AppLog.Write($"test tone: {trouble}");
+        StopTone();
+        ToneTrouble.Text = Strings.Format("Tone_CouldNotPlay", trouble);
+        ToneTrouble.IsVisible = true;
+    }
+
+    private void StopTone()
+    {
+        _stops++;
+        _sweep.Stop();
+        _player?.Dispose();
+        _player = null;
+        _tone = Tone.Off;
+        PaintTone();
+    }
+
+    private void AddAtTone(bool boost)
+    {
+        var adjustments = Current();
+        if (adjustments.Count >= ParametricEq.MostAdjustments) return;
+        adjustments.Add(ToneSweep.At(_frequency, boost));
+        _selected = adjustments.Count - 1;
+        Commit(adjustments);
+    }
+
+    /// <summary>Shows the tone's state: its buttons, its slider and its line on the plot.</summary>
+    private void PaintTone()
+    {
+        bool painting = _painting;
+        _painting = true;
+        try
+        {
+            (SweepIcon.Data, SweepText.Text) = _tone switch
+            {
+                Tone.Sweeping => (Icon("IconPause"), Strings.Get("Tone_Hold")),
+                Tone.Held => (Icon("IconPlay"), Strings.Get("Tone_Resume")),
+                _ => (Icon("IconPlay"), Strings.Get("Tone_Sweep")),
+            };
+            AutomationProperties.SetName(SweepButton, SweepText.Text);
+            StopButton.IsEnabled = _tone != Tone.Off;
+            ToneSlider.Value = Math.Round(ParametricEq.X(_frequency, ToneSlider.Maximum));
+            ToneText.Text = FrequencyText.Of(_frequency);
+
+            // Only where the tone stands still: a cut at a moving frequency
+            // lands somewhere the ear has already left.
+            bool room = AppServices.Presets.Adjustments(Game).Count < ParametricEq.MostAdjustments;
+            CutButton.IsEnabled = BoostButton.IsEnabled = _tone == Tone.Held && room;
+            Shape.ShowTone(_tone == Tone.Off ? null : _frequency);
+        }
+        finally { _painting = painting; }
+    }
+
+    private static Avalonia.Media.Geometry Icon(string key) =>
+        (Avalonia.Media.Geometry)Application.Current!.FindResource(key)!;
+
+    private void BuildSent()
+    {
+        var spec = PresetStore.Game;
+        for (int i = 0; i < spec.Frequencies.Count; i++)
+        {
+            Sent.ColumnDefinitions.Add(new ColumnDefinition(1, GridUnitType.Star));
+            var value = new TextBlock { HorizontalAlignment = HorizontalAlignment.Center, Classes = { "numeralstrong" } };
+            var hz = new TextBlock
+            {
+                Text = spec.Frequencies[i],
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Classes = { "caption", "secondary" },
+            };
+            var column = new StackPanel { Spacing = 2, Children = { value, hz } };
+            Grid.SetColumn(column, i);
+            Sent.Children.Add(column);
+            _sent.Add(value);
+        }
+    }
+
+    private static List<Adjustment> Current() => AppServices.Presets.Adjustments(Game).ToList();
+
+    private void Replace(int index, Adjustment adjustment)
+    {
+        var adjustments = Current();
+        if (index >= adjustments.Count) return;
+        adjustments[index] = adjustment;
+        _selected = index;
+        Commit(adjustments);
+    }
+
+    private void Edit(Func<Adjustment, Adjustment> change)
+    {
+        if (_painting) return;
+        var adjustments = Current();
+        if (_selected >= adjustments.Count) return;
+        var changed = change(adjustments[_selected]).Held();
+        if (changed == adjustments[_selected]) return;
+        Replace(_selected, changed);
+    }
+
+    private void Commit(List<Adjustment> adjustments)
+    {
+        AppServices.Presets.SetAdjustments(Game, adjustments);
+        Changed?.Invoke();
+    }
+
+    /// <summary>Shows the adjustments and the gains they fit to, as the preset service has them.</summary>
+    public void Paint()
+    {
+        var bands = AppServices.Presets.LiveBands(Game);
+        if (bands is null) return;
+        var adjustments = AppServices.Presets.Adjustments(Game);
+        _selected = Math.Clamp(_selected, 0, Math.Max(0, adjustments.Count - 1));
+
+        _painting = true;
+        try
+        {
+            Shape.Show(adjustments, bands, _selected);
+            Miss.IsVisible = ParametricEq.FallsShort(adjustments, bands);
+
+            PaintChips(adjustments);
+            bool any = adjustments.Count > 0;
+            Empty.IsVisible = !any;
+            Fields.IsVisible = any;
+            AddButton.IsEnabled = adjustments.Count < ParametricEq.MostAdjustments;
+            RemoveButton.IsVisible = any;
+
+            if (any)
+            {
+                var chosen = adjustments[_selected];
+                AutomationProperties.SetName(RemoveButton,
+                    Strings.Format("Parametric_RemoveNamed", _selected + 1));
+                FrequencySlider.Value = Math.Round(ParametricEq.X(chosen.Frequency, FrequencySlider.Maximum));
+                FrequencyField.Show(chosen.Frequency);
+                GainSlider.Value = chosen.Gain / 10.0;
+                GainText.Text = Strings.Format("Parametric_Decibels", Db.Text(chosen.Gain));
+                WidthSlider.Value = chosen.Width / 10.0;
+                WidthText.Text = Strings.Format("Parametric_Octaves",
+                    (chosen.Width / 10.0).ToString("0.0", CultureInfo.InvariantCulture));
+            }
+
+            for (int i = 0; i < _sent.Count && i < bands.Length; i++)
+                _sent[i].Text = Db.Text(bands[i]);
+            PaintTone();
+        }
+        finally { _painting = false; }
+    }
+
+    /// <summary>One toggle per adjustment, numbered as on the plot, with its frequency.</summary>
+    private void PaintChips(IReadOnlyList<Adjustment> adjustments)
+    {
+        // Hidden when empty, or its spacing sets Add apart from nothing.
+        Chips.IsVisible = adjustments.Count > 0;
+        while (Chips.Children.Count > adjustments.Count) Chips.Children.RemoveAt(Chips.Children.Count - 1);
+        while (Chips.Children.Count < adjustments.Count)
+        {
+            int index = Chips.Children.Count;
+            // Figures of one width and room to spare, so Add and Remove do
+            // not move while a point is dragged.
+            var chip = new ToggleButton
+            {
+                MinWidth = 104,
+                Content = new TextBlock { Classes = { "numeral" } },
+            };
+            chip.Click += (_, _) =>
+            {
+                _selected = index;
+                Paint();
+            };
+            Chips.Children.Add(chip);
+        }
+        for (int i = 0; i < adjustments.Count; i++)
+        {
+            var chip = (ToggleButton)Chips.Children[i];
+            string frequency = FrequencyText.Of(adjustments[i].Frequency);
+            ((TextBlock)chip.Content!).Text = Strings.Format("Parametric_Chip", i + 1, frequency);
+            chip.IsChecked = i == _selected;
+            AutomationProperties.SetName(chip, Strings.Format("Parametric_ChipName", i + 1, frequency));
+        }
+    }
+}

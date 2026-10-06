@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Threading;
@@ -61,6 +62,7 @@ public partial class EqualiserPanel : UserControl
     private string? _confirmingDelete;
     private Button? _chosen;
     private bool _folded;
+    private bool _painting;
 
     private sealed record BandCell(DecibelBox Field, MenuItem Revert);
 
@@ -118,6 +120,58 @@ public partial class EqualiserPanel : UserControl
             Paint();
         };
         Bands.SizeChanged += (_, _) => FoldBands();
+
+        // Each button is acted on as ticked, not through the group, which
+        // changes only after painting and would send the mode just shown
+        // back again.
+        ModeBands.IsCheckedChanged += (_, _) =>
+        {
+            if (_painting || ModeBands.IsChecked != true) return;
+            AppServices.Presets.UseBands(Bank);
+            Paint();
+        };
+        ModeParametric.IsCheckedChanged += async (_, _) =>
+        {
+            if (_painting || ModeParametric.IsChecked != true) return;
+            if (AppServices.Presets.ParametricChange(Bank) is { } change)
+            {
+                AskBeforeParametric(change);
+                return;
+            }
+            await AppServices.Presets.UseParametric(Bank);
+            Paint();
+        };
+        var confirm = FlyoutBase.GetAttachedFlyout(ModeParametric)!;
+        confirm.Opened += (_, _) => ParametricNo.Focus();
+        ParametricNo.Click += (_, _) => confirm.Hide();
+        ParametricYes.Click += async (_, _) =>
+        {
+            confirm.Hide();
+            await AppServices.Presets.UseParametric(Bank);
+            Paint();
+        };
+        Parametric.Changed += Paint;
+    }
+
+    /// <summary>
+    /// Asks first, in place, when choosing Parametric would change what is
+    /// heard, with the safe answer focused; see the flyout on the button.
+    /// </summary>
+    private void AskBeforeParametric(ParametricStart change)
+    {
+        ParametricQuestion.Text = Strings.Get(change == ParametricStart.Reopen
+            ? "Equaliser_ParametricReopens" : "Equaliser_ParametricStartsFlat");
+        FlyoutBase.ShowAttachedFlyout(ModeParametric);
+
+        // Set back to Bands once this click has finished changing the
+        // group's own selection: done from inside it, the group loses track
+        // and shows neither as chosen.
+        Dispatcher.UIThread.Post(() =>
+        {
+            _painting = true;
+            ModeBands.IsChecked = true;
+            _painting = false;
+        });
     }
 
     /// <summary>Which of the headset's equalisers this panel shapes.</summary>
@@ -182,6 +236,10 @@ public partial class EqualiserPanel : UserControl
             _ => "",
         };
         Curve.IsVisible = !waiting;
+        // Hidden only while waiting, never blinked on a repaint: hiding the
+        // parametric panel stops its test tone.
+        if (waiting) Parametric.IsVisible = false;
+        Mode.IsVisible = !waiting && ParametricEq.Covers(Bank);
         PresetPicker.IsVisible = !waiting;
         Actions.IsVisible = !waiting;
     }
@@ -575,6 +633,15 @@ public partial class EqualiserPanel : UserControl
         // The curve is given the preset behind it as well, so it can
         // draw where each band was before it was moved.
         Response.Show(live, _state.Baseline?.Bands.ToArray());
+
+        bool parametric = AppServices.Presets.IsParametric(Bank);
+        _painting = true;
+        ModeBands.IsChecked = !parametric;
+        ModeParametric.IsChecked = parametric;
+        _painting = false;
+        Curve.IsVisible = !parametric;
+        Parametric.IsVisible = parametric;
+        if (parametric) Parametric.Paint();
 
         PresetName.Text = AppServices.Presets.CurrentName(Bank);
         AutomationProperties.SetItemStatus(PresetPicker, PresetName.Text);

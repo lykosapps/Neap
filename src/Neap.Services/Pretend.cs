@@ -50,7 +50,7 @@ public static class Pretend
     /// <summary>With a file name after it, saves a picture of the window there once it has settled, and exits. Works on a real run too.</summary>
     public const string SnapshotFlag = "--snapshot";
 
-    /// <summary>With <see cref="SnapshotFlag"/>, scrolls the page to its end first, to picture what is below the fold. Works on a real run too.</summary>
+    /// <summary>With <see cref="SnapshotFlag"/>, scrolls the page first, by the pixels after it or to its end, to picture what is below the fold. Works on a real run too.</summary>
     public const string ScrolledFlag = "--scrolled";
 
     /// <summary>With <see cref="Flag"/>, opens the game equaliser in parametric mode with <see cref="SampleAdjustments"/>.</summary>
@@ -95,8 +95,11 @@ public static class Pretend
     /// </remarks>
     public static string? Snapshot { get; } = After(SnapshotFlag);
 
-    /// <summary>Whether the picture is of the foot of the page rather than its top.</summary>
-    public static bool Scrolled { get; } = Given(ScrolledFlag);
+    /// <summary>How far down the page the picture is of, in pixels, or null for its top; infinity for its foot.</summary>
+    public static double? ScrolledBy { get; } =
+        !Given(ScrolledFlag) ? null
+        : double.TryParse(After(ScrolledFlag), out double pixels) ? pixels
+        : double.PositiveInfinity;
 
     /// <summary>
     /// Whether the game equaliser opens in parametric mode, with every

@@ -80,9 +80,10 @@ public partial class MainWindow : Window
     private async Task SaveAndExit(string file)
     {
         await Task.Delay(TimeSpan.FromSeconds(4));
-        if (Pretend.Scrolled && (Body.Content as UserControl)?.Content is ScrollViewer scroller)
+        if (Pretend.ScrolledBy is double by && (Body.Content as UserControl)?.Content is ScrollViewer scroller)
         {
-            scroller.ScrollToEnd();
+            if (double.IsInfinity(by)) scroller.ScrollToEnd();
+            else scroller.Offset = new Vector(0, by);
             await Task.Delay(TimeSpan.FromSeconds(1));
         }
         var size = new PixelSize((int)Bounds.Width, (int)Bounds.Height);

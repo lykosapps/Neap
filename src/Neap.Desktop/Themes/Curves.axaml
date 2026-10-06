@@ -42,6 +42,67 @@
         <Setter Property="StrokeThickness" Value="1.5" />
     </Style>
 
+    <!-- Figures of one width, so a value does not jitter as it changes; the strong one for a value read off. -->
+    <Style Selector="TextBlock.numeral">
+        <Setter Property="FontFeatures" Value="tnum" />
+    </Style>
+    <Style Selector="TextBlock.numeralstrong">
+        <Setter Property="FontFeatures" Value="tnum" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- The parametric curve asked for, and the gap between it and the curve heard. -->
+    <Style Selector="Path.curveasked">
+        <Setter Property="Stroke" Value="{DynamicResource NeapTextSecondaryBrush}" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+    </Style>
+    <Style Selector="Path.curvegap">
+        <Setter Property="Fill" Value="{DynamicResource NeapToneCautionBrush}" />
+        <Setter Property="Opacity" Value="0.3" />
+    </Style>
+
+    <!-- A parametric adjustment's numbered point: filled when it is the one the fields show. -->
+    <Style Selector="Ellipse.curvehandle">
+        <Setter Property="Fill" Value="{DynamicResource NeapGroundBrush}" />
+        <Setter Property="Stroke" Value="{DynamicResource NeapGameBrush}" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+    </Style>
+    <Style Selector="Ellipse.curvehandle.chosen">
+        <Setter Property="Fill" Value="{DynamicResource NeapGameBrush}" />
+        <Setter Property="Stroke" Value="{DynamicResource NeapGroundBrush}" />
+    </Style>
+    <Style Selector="TextBlock.handlenumber">
+        <Setter Property="Foreground" Value="{DynamicResource NeapGameTextBrush}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+    <Style Selector="TextBlock.handlenumber.chosen">
+        <Setter Property="Foreground" Value="{DynamicResource NeapGroundBrush}" />
+    </Style>
+
+    <!-- The test tone's line and dot, and the tag above them with its frequency. -->
+    <Style Selector="Line.curvetoneline">
+        <Setter Property="Stroke" Value="{DynamicResource NeapTextBrush}" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+    </Style>
+    <Style Selector="Ellipse.curvetonedot">
+        <Setter Property="Fill" Value="{DynamicResource NeapTextBrush}" />
+    </Style>
+    <Style Selector="Border.curvetonetag">
+        <Setter Property="Background" Value="{DynamicResource NeapTextBrush}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="6,1,6,2" />
+    </Style>
+    <Style Selector="TextBlock.curvetonetext">
+        <Setter Property="Foreground" Value="{DynamicResource NeapGroundBrush}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontFeatures" Value="tnum" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+
     <!--
         A preset in the equaliser's list: a flat button, the chosen one tinted,
         as Home's list marks its own.
