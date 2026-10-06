@@ -58,6 +58,10 @@ From this version on, Neap updates itself.
   update downloads, a progress bar shows how far it has got and Update and
   restart is off. A thin coloured edge on its left tells it from the
   profile selector below.
+- **If the new version doesn't open,** Neap says so. After an update it
+  waits ten seconds to see that the new version has opened and stayed open,
+  and if it hasn't, it tells you, with a button to download Neap again,
+  instead of leaving you with no Neap and no word why.
 - **Only a version check.** Neap sends GitHub the request and nothing
   else, nothing from your PC or your headset. GitHub sees the request, as
   any website does. Turn off Check for updates automatically to keep Neap

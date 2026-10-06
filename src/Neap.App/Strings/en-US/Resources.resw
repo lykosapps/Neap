@@ -1143,6 +1143,14 @@
     <value>What's new in {0} {1}</value>
     <comment>{0} is the app's name, {1} a version number, such as 0.3.0.</comment>
   </data>
+  <data name="Update_DidNotStartTitle" xml:space="preserve">
+    <value>{0} didn't open after updating</value>
+    <comment>{0} is the app's name.</comment>
+  </data>
+  <data name="Update_DidNotStart" xml:space="preserve">
+    <value>Version {0} was installed but wouldn't open. Start Neap again, and if it still won't open, download it again.</value>
+    <comment>{0} is a version number, such as 0.3.0. "Neap" is the app's name.</comment>
+  </data>
   <data name="Dialog_Close" xml:space="preserve">
     <value>Close</value>
   </data>

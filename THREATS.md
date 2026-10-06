@@ -62,7 +62,7 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
     Fixed, 2026-10-05. A check is a request to GitHub, which sees the PC's internet address and the app's name, as any website visit does. The changelog, README, decision record and project profile said "nothing about you"; they now say what is sent: the request itself, and nothing from the PC or the headset.
 
 15. **An update is cut off part-way.**
-    Partly mitigated, accepted, 2026-10-05. A failed move is undone. Power loss or a killed process during the few seconds of the swap can leave a mix of two versions that may not start; the replaced files stay in the hidden update folder until the next start that works. Recovery is a download by hand. Not worth code that would itself have to run from a broken install. Related and deferred (BACKLOG.md): if the new version won't start after a good swap, the app has already closed with only a line in the log to say so; and a download has no size limit or overall time limit.
+    Partly mitigated, accepted, 2026-10-05. A failed move is undone. Power loss or a killed process during the few seconds of the swap can leave a mix of two versions that may not start; the replaced files stay in the hidden update folder until the next start that works. Recovery is a download by hand. Not worth code that would itself have to run from a broken install. If the new version then won't open, the old one watches it for ten seconds and says so on screen, with a link to download again (`RestartWatch`), rather than closing with only a line in the log. Deferred (BACKLOG.md): a download has no size limit or overall time limit.
 
 ## What wasn't examined
 

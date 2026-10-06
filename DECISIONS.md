@@ -94,6 +94,17 @@
   and the person is deciding whether to update inside the app. The install
   steps are left out, since they are for someone downloading by hand. A
   release whose notes can't be read opens its page instead.
+- **After an update, the old version waits to see the new one open.** It
+  hides, starts the new version and watches it for ten seconds. If the new
+  one is still running, the old one closes as before; if it exits inside
+  that time, or could not be launched, the old one says so with a
+  Download button. Installed-but-won't-run is worse than not having
+  updated, and the old version is the only thing left to say so. It does
+  not put the old files back: the swap's own undo covers a failed swap,
+  not a version that installs cleanly and then won't run, and a rollback
+  would itself run from a broken install. A practice run with
+  `--update-fails` makes the simulated update end in a program that exits
+  at once, so the message can be seen without breaking anything.
 - **A version found is remembered** until the next check, so restarting
   Neap doesn't make the banner disappear for up to a day.
 

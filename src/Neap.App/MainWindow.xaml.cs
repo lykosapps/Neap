@@ -6,10 +6,12 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using Neap.App.Controls;
 using Neap.App.Services;
 using Neap.App.Views;
 using Neap.Core;
 using Neap.Core.Connection;
+using Neap.Core.Updates;
 using Windows.Graphics;
 
 namespace Neap.App;
@@ -350,21 +352,66 @@ public sealed partial class MainWindow : Window
         Close();
     }
 
-    /// <summary>Stops this version and starts the one just put in its place.</summary>
+    /// <summary>Stops this version, starts the one just put in its place, and says so if that one doesn't open.</summary>
     /// <remarks>
+    /// <para>
     /// The one-copy lock is let go first, or the new version would find this
     /// one still running and hand over to it.
+    /// </para>
+    /// <para>
+    /// This version is hidden, not closed, while <see cref="RestartWatch"/>
+    /// watches the new one: if it does not stay open, this is the only
+    /// window left to tell the person, and to point them at the download.
+    /// </para>
     /// </remarks>
-    private void Restart(string program)
+    private async void Restart(string program)
     {
         StopRunning();
         App.LetGo();
-        try { Process.Start(new ProcessStartInfo(program) { WorkingDirectory = Path.GetDirectoryName(program) }); }
+        AppWindow.Hide();
+
+        TimeSpan? exitedAfter = await Launch(program);
+        if (RestartWatch.Of(exitedAfter) == RestartOutcome.Started)
+        {
+            Close();
+            return;
+        }
+
+        AppLog.Write(exitedAfter is { } after && after > TimeSpan.Zero
+            ? $"updates: the new version closed {after.TotalSeconds:0.#} s after starting"
+            : "updates: the new version could not be started");
+        AppWindow.Show();
+        SetForegroundWindow(Handle);
+        if (AppServices.Updates.Newer is { } release) await UpdateDialogs.ShowDidNotStart(Content.XamlRoot, release);
+        Close();
+    }
+
+    /// <summary>Starts a program and gives how long it ran, up to the watch window: zero if it would not start, null if it was still running.</summary>
+    private static async Task<TimeSpan?> Launch(string program)
+    {
+        Process? process;
+        try { process = Process.Start(new ProcessStartInfo(program) { WorkingDirectory = Path.GetDirectoryName(program) }); }
         catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
         {
-            AppLog.Write($"could not start the new version, so Neap needs starting again by hand: {ex.Message}");
+            AppLog.Write($"updates: could not start the new version: {ex.Message}");
+            return TimeSpan.Zero;
         }
-        Close();
+        if (process is null) return TimeSpan.Zero;
+
+        using (process)
+        {
+            var clock = Stopwatch.StartNew();
+            using var window = new CancellationTokenSource(RestartWatch.Window);
+            try
+            {
+                await process.WaitForExitAsync(window.Token);
+                return clock.Elapsed;
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
+        }
     }
 
     /// <summary>Puts the volumes back, lets go of the headset and takes the icon away, before the window closes.</summary>

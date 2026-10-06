@@ -76,6 +76,27 @@ public static class UpdateDialogs
         else await updates.Update();
     }
 
+    /// <summary>Says the version an update put in place did not open, and offers the download.</summary>
+    /// <remarks>
+    /// Shown by the version that did the update, which is the only one still
+    /// running; see <see cref="RestartWatch"/>. Nothing here can put the old
+    /// version back, so it says what can be done: start Neap again, or
+    /// download it again.
+    /// </remarks>
+    public static async Task ShowDidNotStart(XamlRoot root, Release release)
+    {
+        var answer = await new NeapDialog
+        {
+            XamlRoot = root,
+            Title = Strings.Format("Update_DidNotStartTitle", AppInfo.Name),
+            Content = Strings.Format("Update_DidNotStart", release.Version.ToString(3)),
+            PrimaryButtonText = Strings.Get("Settings_UpdateDownload"),
+            CloseButtonText = Strings.Get("Dialog_Close"),
+            DefaultButton = ContentDialogButton.Primary,
+        }.ShowAsync();
+        if (answer == ContentDialogResult.Primary) await OpenPage(release);
+    }
+
     /// <summary>Opens the release's page in the browser.</summary>
     public static async Task OpenPage(Release release)
     {

@@ -15,8 +15,7 @@ to GitHub, these become issues.
 
 ## Features
 
-- **Profiles.** Save and apply a set of settings, switch automatically when
-  an app starts, and switch with hotkeys.
+- **Profile hotkeys.** Switch profiles from the keyboard, as the mix can be.
 - **Dolby Access's own profiles from Neap.** Offer Dolby Access's profiles
   (Game, Movie, Music, Voice) from Neap, and turn each one's own equaliser
   off when it's chosen, so it never doubles up with the headset's own.
@@ -102,8 +101,7 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - Sign the download, so Windows does not warn about it. The updater should
   check the signature too.
 - Updater, nice to have: a limit on how big a download may be and how long
-  it may take, and a way to cancel it; and if the new version can't be
-  started after a good update, say so on screen instead of only in the log.
+  it may take, and a way to cancel it.
 - Publish on GitHub: the repository named "neap", private vulnerability
   reporting on, main only, and a first real CI run.
 - A package update pass. On 25 Sep: the Windows App SDK 1.8 to 2.5, a new

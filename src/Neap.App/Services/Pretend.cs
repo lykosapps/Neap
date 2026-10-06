@@ -52,7 +52,22 @@ public static class Pretend
     /// <summary>With <see cref="Flag"/>, finds a newer version when checking for updates.</summary>
     public const string UpdateFlag = "--update";
 
+    /// <summary>With <see cref="UpdateFlag"/>, makes the simulated update end in a new version that will not stay open.</summary>
+    public const string UpdateFailsFlag = "--update-fails";
+
     public static bool Active { get; } = Given(Flag);
+
+    /// <summary>
+    /// The program a simulated update starts as the new version: one that
+    /// exits at once, or null for an update that ends where it began.
+    /// </summary>
+    /// <remarks>
+    /// A program that Windows ships, so the check of what the person sees
+    /// when a new version doesn't open needs nothing built or broken.
+    /// </remarks>
+    public static string? RestartProgram { get; } = Active && Given(UpdateFlag) && Given(UpdateFailsFlag)
+        ? Path.Combine(Environment.SystemDirectory, "hostname.exe")
+        : null;
 
     /// <summary>
     /// Whether the window stays behind everything else, for a script driving

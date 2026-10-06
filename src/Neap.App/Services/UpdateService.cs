@@ -274,6 +274,11 @@ public sealed class UpdateService : IDisposable
 
         Set(UpdateStage.Installing);
         await Task.Delay(TimeSpan.FromSeconds(3));
+        if (Pretend.RestartProgram is { } program)
+        {
+            Installed?.Invoke(program);
+            return;
+        }
         Set(_offered);
     }
 

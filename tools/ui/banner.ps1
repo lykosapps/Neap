@@ -11,9 +11,9 @@ it must come back up knowing what was chosen.
 .PARAMETER Parts
 Which parts to run: A layout and contrast at each width, B the menus,
 C putting it away across a restart, D a simulated update, E focus when the
-layout changes. All by default.
+layout changes, F an update whose new version will not open. All by default.
 #>
-param([string]$Parts = 'ABCDE')
+param([string]$Parts = 'ABCDEF')
 
 . "$PSScriptRoot\Ui.ps1"
 
@@ -194,6 +194,32 @@ if ($Parts.Contains('C')) {
         }
         finally { Stop-NeapPretend }
     }
+}
+
+if ($Parts.Contains('F')) {
+    Section 'an update whose new version will not open'
+    Start-NeapPretend -Flags @('--update', '--update-fails')
+    try {
+        Wait-Until { Test-Present (Find-Named $message) } 15 | Out-Null
+        Press (Find-Named 'Update and restart')
+
+        # The simulated update runs about eight seconds, the new version
+        # exits at once, and the old one then says so.
+        $title = "Neap didn't open after updating"
+        Check (Wait-Until { (Get-Texts) -contains $title } 30) 'the old version says the new one did not open'
+        $texts = @(Get-Texts)
+        Check (@($texts -match "^Version 9\.9\.9 was installed but wouldn't open").Count -gt 0) 'it says which version, and what to do'
+        Check ($null -ne (Find-Named 'Download')) 'it offers the download'
+        Check ($null -ne (Find-Id 'CloseButton')) 'it offers Close'
+        Check (-not (Test-Present (Find-Named $message))) 'the banner is not left showing behind it'
+        $bitmap = Save-Shot 'did-not-open' -Top 500
+        try { Test-Contrast $bitmap (Find-Text $title) 'the dialog title' }
+        finally { $bitmap.Dispose() }
+
+        Press (Find-Id 'CloseButton')
+        Check ($script:Proc.WaitForExit(8000)) 'Close ends the old version'
+    }
+    finally { Stop-NeapPretend }
 }
 
 Write-Host "$script:Fails failures"
