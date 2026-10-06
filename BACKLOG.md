@@ -107,6 +107,15 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 ## Tooling and release
 
+- **Before publishing 0.2.0, move the local `v0.2.0` tag.** It sits on the
+  first updater commit (`75c00f5`), about thirty commits behind `main`: the
+  banner, Profiles page, restart watch and toolkit upgrade are all after it.
+  Nothing is pushed and the release workflow builds from the tag, so pushing
+  it as it is would publish the old build. Check `git log -1 v0.2.0` against
+  `main` first.
+- High contrast has still not been seen on the update banner, the notes dialog,
+  the Settings card or the Profiles page.
+
 - Build, tests and formatting required on every pull request, once on GitHub.
 - Sign the download, so Windows does not warn about it. The updater should
   check the signature too.
