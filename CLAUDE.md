@@ -65,7 +65,10 @@ preparing code for experienced reviewers.
   minutes, so a check that stops saying the screen is off needs rerunning
   with the screen on. The check judges this from the app's own window, not
   the desktop, which can be black with the screen on. A new check is a script
-  beside it that uses `Ui.ps1`.
+  beside it that uses `Ui.ps1`. `run.ps1 access` walks every page in both
+  themes for names, target sizes, Tab order, a visible focus mark and text
+  contrast; it takes about six minutes and the keyboard focus, so it is not
+  part of `all` and needs the machine to itself.
 - **Sample, do not snapshot.** One reading after the fact shows where a value
   settled, not whether it moved.
 - **Read the app's folder from outside Claude.** The desktop app runs
