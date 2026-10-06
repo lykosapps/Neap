@@ -7,6 +7,14 @@ to GitHub, these become issues.
 
 ## Bugs
 
+- The chat mix does not move when the wheel is turned, on the Windows app,
+  with the headset connected. Seen once; the conditions are not yet pinned
+  down. Needs the headset.
+- After the headset's link dropped and came back several times, the profile
+  spinner never finished and the microphone button could not be used. A
+  second program asking the same transmitter at the same time may have caused
+  the drops; not yet reproduced without one. Needs the headset.
+
 ### Known limits, recorded rather than fixed
 
 - With both transmitter lights amber, no sound can still show as connected.
