@@ -55,10 +55,10 @@ if ($Parts.Contains('A')) {
             Check ($texts -notcontains 'Diagnostics') 'the old name for the troubleshooting section is gone'
             Check (@($texts -match 'only been tested with the Stealth Pro II').Count -gt 0) 'it says what has been tested, beside the invitation to help'
             Check (@($texts -match 'Free software under the GNU GPL').Count -gt 0) 'the licence line is on the page'
-            foreach ($name in 'Start with Windows', $anchor, 'Help support another headset') { Check ($null -ne (Find-Named $name)) "$name is on the page" }
+            foreach ($name in 'Start when you sign in', $anchor, 'Help support another headset') { Check ($null -ne (Find-Named $name)) "$name is on the page" }
 
             # Order, top to bottom: Neap's card, the two switches, the troubleshooting section, the licence line.
-            $order = 'Neap', $anchor, 'Start with Windows', 'Problems and other headsets', 'Help support another headset'
+            $order = 'Neap', $anchor, 'Start when you sign in', 'Problems and other headsets', 'Help support another headset'
             $ys = $order | ForEach-Object { (Get-Box (Find-Anywhere $_)).Y }
             Check (($ys -join ',') -eq (($ys | Sort-Object { [double]$_ }) -join ',')) "the page runs in the order: $($order -join ', ')"
 
@@ -71,7 +71,7 @@ if ($Parts.Contains('A')) {
             try {
                 $status = Find-Text $offer
                 Test-Contrast $bitmap $status 'the status line'
-                foreach ($label in 'Start with Windows', 'Problems and other headsets') { Test-Contrast $bitmap (Find-Text $label) $label }
+                foreach ($label in 'Start when you sign in', 'Problems and other headsets') { Test-Contrast $bitmap (Find-Text $label) $label }
                 Test-Contrast $bitmap (Find-Text 'Free software under the GNU GPL, version 3 or later, with no warranty. Not affiliated with or endorsed by Turtle Beach.') 'the licence line'
             }
             finally { $bitmap.Dispose() }
@@ -79,7 +79,7 @@ if ($Parts.Contains('A')) {
             Resize 625 800
             $name = Find-Text 'Neap'; $act = Find-Lowest 'Update and restart'; $rect = Get-NeapRect
             Check ((Get-Box $act).Y -gt (Get-Box $name).Y + 40) "narrow: Neap's buttons sit under its name"
-            foreach ($label in 'Update and restart', "What's new", $anchor, 'Start with Windows') {
+            foreach ($label in 'Update and restart', "What's new", $anchor, 'Start when you sign in') {
                 $box = Get-Box (Find-Lowest $label)
                 Check ($box.X -ge $rect.Left -and $box.Right -le $rect.Right) "narrow: $label is inside the window"
                 Check ($box.Height -ge 24 -and $box.Width -ge 24) ("narrow: {0} is {1} by {2}, at least 24 by 24" -f $label, [int]$box.Width, [int]$box.Height)
