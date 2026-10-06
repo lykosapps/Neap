@@ -68,6 +68,9 @@ public sealed class FolderSwapTests : IDisposable
     [Fact]
     public void AFileThatCannotBeMovedLeavesTheFolderAsItWas()
     {
+        // Only Windows refuses to rename a file another program has open.
+        Assert.SkipUnless(OperatingSystem.IsWindows(), "this system lets a file in use be renamed");
+
         Put(Target, "a.dll", "old");
         Put(Target, "b.dll", "old");
         Put(Target, "c.dll", "old");
