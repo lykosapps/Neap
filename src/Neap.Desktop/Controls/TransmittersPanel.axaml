@@ -1,0 +1,23 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.TransmittersPanel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <!--
+        The transmitter in use first, on its own panel across the width with
+        its lights inside it, then the others and Bluetooth, two to a row.
+    -->
+    <StackPanel>
+        <TextBlock loc:Uid.Value="Transmitters_Heading" Classes="sectionheader" />
+        <TextBlock loc:Uid.Value="Transmitters_Note" Classes="sectionnote" />
+        <StackPanel Spacing="12">
+            <ContentPresenter x:Name="InUse" />
+            <Grid
+                x:Name="Others"
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12"
+                RowSpacing="12" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

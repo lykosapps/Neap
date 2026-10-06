@@ -1,0 +1,94 @@
+<UserControl
+    x:Class="Neap.Desktop.Views.DevicePage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="32,0,32,32">
+            <StackPanel Classes="pagecolumn">
+
+                <TextBlock loc:Uid.Value="Device_Title" Classes="pagetitle" />
+
+                <c:HeadsetNotice />
+
+                <!-- Listed whenever anything answers, the headset on or off. -->
+                <c:TransmittersPanel />
+
+                <!--
+                    With the headset off, the whole page is one card, the audio
+                    format included: see HeadsetSection.WhenOff.
+                -->
+                <c:HeadsetSection loc:Uid.Value="Device_Section" WhenOff="True">
+                    <!--
+                        The format is Windows' to set: another system follows each
+                        program's own, and the rows are left out.
+                    -->
+                    <StackPanel x:Name="Formats">
+                        <TextBlock loc:Uid.Value="Device_AudioFormatHeading" Classes="sectionheader" />
+                        <TextBlock loc:Uid.Value="Device_FormatNote" Classes="sectionnote" />
+                        <StackPanel Spacing="4">
+                            <c:FormatRow
+                                x:Name="OutputFormat"
+                                loc:Uid.Value="Device_HeadsetOutput"
+                                Capture="False"
+                                Icon="{StaticResource IconAudio}" />
+                            <c:FormatRow
+                                x:Name="MicFormat"
+                                loc:Uid.Value="Device_Microphone"
+                                Capture="True"
+                                Icon="{StaticResource IconMicrophone}" />
+                            <c:SettingsCard
+                                x:Name="KeepRingCard"
+                                loc:Uid.Value="Device_KeepRing"
+                                Icon="{StaticResource IconLight}">
+                                <ToggleSwitch x:Name="KeepRing" />
+                            </c:SettingsCard>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- How the headset switches itself off and back on: set once, like the format. -->
+                    <TextBlock loc:Uid.Value="Device_PowerHeading" Classes="sectionheader" />
+                    <StackPanel Spacing="4">
+                        <c:SettingRow
+                            loc:Uid.Value="Device_AutoShutOff"
+                            Icon="{StaticResource IconPower}"
+                            Setting="auto_shutoff" />
+                        <c:SettingRow
+                            loc:Uid.Value="Device_WakeOnMotion"
+                            Icon="{StaticResource IconMotion}"
+                            Setting="wake_on_motion" />
+                    </StackPanel>
+
+                    <!--
+                        Firmware, serial number and everything the headset reports, looked
+                        up now and then, folded into one row at the end.
+                    -->
+                    <c:HeadsetSection loc:Uid.Value="Device_DetailsSection">
+                        <TextBlock loc:Uid.Value="Device_AboutHeading" Classes="sectionheader" />
+                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                            <Expander.Header>
+                                <c:SettingsCard
+                                    loc:Uid.Value="Device_Details"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Icon="{StaticResource IconDevice}" />
+                            </Expander.Header>
+                            <StackPanel Spacing="4">
+                                <c:SettingRow loc:Uid.Value="Device_Firmware" Setting="firmware_version" />
+                                <c:SettingRow loc:Uid.Value="Device_SerialNumber" Setting="serial_number" />
+                                <StackPanel Margin="16,12" Spacing="8">
+                                    <TextBlock loc:Uid.Value="Device_ReportedHeading" Classes="label" />
+                                    <TextBlock loc:Uid.Value="Device_RawNote" Classes="caption secondary" />
+                                    <StackPanel x:Name="RawRows" Spacing="2" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Expander>
+                    </c:HeadsetSection>
+                </c:HeadsetSection>
+
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

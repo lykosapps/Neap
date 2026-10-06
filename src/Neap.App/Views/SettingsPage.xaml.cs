@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Neap.App.Controls;
-using Neap.App.Services;
 
 namespace Neap.App.Views;
 

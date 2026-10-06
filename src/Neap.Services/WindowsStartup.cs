@@ -1,8 +1,9 @@
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Versioning;
 using System.Text;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// Whether the app starts with Windows, as a shortcut in the user's Startup
@@ -32,10 +33,11 @@ namespace Neap.App.Services;
 /// somebody was about to do.
 /// </para>
 /// </remarks>
-public static class Startup
+[SupportedOSPlatform("windows")]
+internal sealed class WindowsStartup : IStartup
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    public const string Flag = "--startup";
+
 
     /// <summary>The Run-key entry an early build wrote, converted to a shortcut on sight.</summary>
     private const string RunName = "Stealth Pro II Control";
@@ -47,12 +49,7 @@ public static class Startup
     /// <summary>The shortcut under the app's earlier name, replaced on sight.</summary>
     private static string EarlierShortcutPath => Path.Combine(StartupFolder, "Stealth Pro II Control.lnk");
 
-    /// <summary>True when this launch came from starting with Windows.</summary>
-    public static bool LaunchedAtLogin =>
-        Environment.GetCommandLineArgs().Any(a =>
-            string.Equals(a, Flag, StringComparison.OrdinalIgnoreCase));
-
-    public static bool Enabled =>
+    public bool Enabled =>
         File.Exists(ShortcutPath) || File.Exists(EarlierShortcutPath) || HasRunEntry();
 
     /// <summary>
@@ -65,7 +62,7 @@ public static class Startup
     /// entry left from an older build is converted to a shortcut here, so the
     /// setting carries over without anybody having to turn it on again.
     /// </remarks>
-    public static void Refresh()
+    public void Refresh()
     {
         try
         {
@@ -81,7 +78,7 @@ public static class Startup
         }
     }
 
-    public static bool Set(bool enabled)
+    public bool Set(bool enabled)
     {
         try
         {
@@ -110,7 +107,7 @@ public static class Startup
 
         var link = (IShellLinkW)new ShellLink();
         link.SetPath(exe);
-        link.SetArguments(Flag);
+        link.SetArguments(Startup.Flag);
         link.SetWorkingDirectory(Path.GetDirectoryName(exe) ?? "");
         link.SetDescription(Strings.Format("Startup_Description", AppInfo.Name));
         link.SetIconLocation(exe, 0);

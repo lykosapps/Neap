@@ -16,9 +16,12 @@ internal static class Program
         using var one = OneCopy.Take();
         if (one is null)
         {
-            AppLog.Write(Pretend.Active
-                ? "started while a pretend copy was already running: left it alone"
-                : "started while already running: left the running copy alone");
+            // A launch at sign-in, or a pretend one kept behind, has nothing to show anyone.
+            bool quiet = Startup.LaunchedAtLogin || Pretend.Behind;
+            if (!quiet) OneCopy.AskToShow();
+            AppLog.Write(quiet
+                ? "started while already running: left the running copy alone"
+                : "started again while running: showed the running copy instead");
             return 0;
         }
 

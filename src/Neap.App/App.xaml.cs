@@ -1,5 +1,4 @@
 using Microsoft.UI.Xaml;
-using Neap.App.Services;
 using Neap.Core;
 
 namespace Neap.App;

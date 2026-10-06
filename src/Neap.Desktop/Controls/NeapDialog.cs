@@ -5,7 +5,20 @@ using Avalonia.Layout;
 
 namespace Neap.Desktop.Controls;
 
-/// <summary>A dialog in Neap's colours, with a primary button and a close button.</summary>
+/// <summary>Which button answered a <see cref="NeapDialog"/>.</summary>
+public enum DialogAnswer
+{
+    /// <summary>The close button, Escape, or the window's own close.</summary>
+    None,
+
+    /// <summary>The primary button.</summary>
+    Primary,
+
+    /// <summary>The secondary button.</summary>
+    Secondary,
+}
+
+/// <summary>A dialog in Neap's colours, with a primary button, an optional secondary one and a close button.</summary>
 /// <remarks>
 /// <para>
 /// It opens over the window that asked for it and holds that window until it
@@ -20,6 +33,7 @@ namespace Neap.Desktop.Controls;
 public sealed class NeapDialog : Window
 {
     private readonly Button _primary = new() { IsDefault = true, MinWidth = 96 };
+    private readonly Button _secondary = new() { MinWidth = 96, IsVisible = false };
     private readonly Button _close = new() { IsCancel = true, MinWidth = 96 };
     private readonly ContentControl _body = new();
     private readonly TextBlock _heading = new() { Classes = { "title" } };
@@ -38,7 +52,7 @@ public sealed class NeapDialog : Window
             Orientation = Orientation.Horizontal,
             HorizontalAlignment = HorizontalAlignment.Right,
             Spacing = 8,
-            Children = { _primary, _close },
+            Children = { _primary, _secondary, _close },
         };
         Content = new StackPanel
         {
@@ -47,11 +61,12 @@ public sealed class NeapDialog : Window
             Children = { _heading, _body, buttons },
         };
 
-        _close.Click += (_, _) => Close(false);
-        _primary.Click += (_, _) => Close(true);
+        _close.Click += (_, _) => Close(DialogAnswer.None);
+        _primary.Click += (_, _) => Close(DialogAnswer.Primary);
+        _secondary.Click += (_, _) => Close(DialogAnswer.Secondary);
         KeyDown += (_, e) =>
         {
-            if (e.Key == Key.Escape) Close(false);
+            if (e.Key == Key.Escape) Close(DialogAnswer.None);
         };
     }
 
@@ -84,6 +99,17 @@ public sealed class NeapDialog : Window
         }
     }
 
+    /// <summary>The words on the secondary button; none for a dialog without one.</summary>
+    public string? SecondaryButtonText
+    {
+        get => _secondary.IsVisible ? _secondary.Content as string : null;
+        set
+        {
+            _secondary.Content = value;
+            _secondary.IsVisible = !string.IsNullOrEmpty(value);
+        }
+    }
+
     /// <summary>The words on the close button.</summary>
     public string? CloseButtonText
     {
@@ -100,10 +126,14 @@ public sealed class NeapDialog : Window
 
     /// <summary>Opens the dialog over a control's window, and says whether the primary button answered it.</summary>
     /// <exception cref="InvalidOperationException">The control is not in a window.</exception>
-    public async Task<bool> ShowAsync(Control over)
+    public async Task<bool> ShowAsync(Control over) => await Ask(over) == DialogAnswer.Primary;
+
+    /// <summary>Opens the dialog over a control's window, and says which button answered it.</summary>
+    /// <exception cref="InvalidOperationException">The control is not in a window.</exception>
+    public async Task<DialogAnswer> Ask(Control over)
     {
         var owner = TopLevel.GetTopLevel(over) as Window
             ?? throw new InvalidOperationException("a dialog needs the window it opens over");
-        return await ShowDialog<bool>(owner);
+        return await ShowDialog<DialogAnswer>(owner);
     }
 }

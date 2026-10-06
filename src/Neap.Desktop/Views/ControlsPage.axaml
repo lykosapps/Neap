@@ -1,0 +1,90 @@
+<UserControl
+    x:Class="Neap.Desktop.Views.ControlsPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="32,0,32,32">
+            <StackPanel Classes="pagecolumn">
+
+                <TextBlock loc:Uid.Value="Controls_Title" Classes="pagetitle" />
+
+                <c:HeadsetNotice />
+
+                <c:HeadsetSection loc:Uid.Value="Controls_Section">
+                    <!--
+                        The two controls on the headset that can be given a job, side by
+                        side, each with every job it can do in view rather than behind a
+                        list.
+                    -->
+                    <TextBlock loc:Uid.Value="Controls_OnHeadsetHeading" Classes="sectionheader" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <c:ModeButtonChoice loc:Uid.Value="Controls_ModeButton" />
+                        <c:SettingChoice
+                            loc:Uid.Value="Controls_LowerDial"
+                            Grid.Column="1"
+                            Setting="dial_function" />
+                    </Grid>
+
+                    <!--
+                        What the other controls do. They cannot be changed, so they are
+                        said rather than offered, in one panel for reference.
+                    -->
+                    <TextBlock loc:Uid.Value="Controls_FixedHeading" Classes="sectionheader" />
+                    <Border Classes="card">
+                        <Grid
+                            ColumnDefinitions="Auto,*"
+                            ColumnSpacing="24"
+                            RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                            RowSpacing="12">
+                            <TextBlock loc:Uid.Value="Controls_VolumeWheel" Classes="bodystrong" />
+                            <TextBlock
+                                loc:Uid.Value="Controls_VolumeWheelDoes"
+                                Grid.Column="1"
+                                Classes="secondary" />
+                            <TextBlock
+                                loc:Uid.Value="Controls_ChatWheel"
+                                Grid.Row="1"
+                                Classes="bodystrong" />
+                            <TextBlock
+                                loc:Uid.Value="Controls_ChatWheelDoes"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Classes="secondary" />
+                            <TextBlock
+                                loc:Uid.Value="Controls_BoomArm"
+                                Grid.Row="2"
+                                Classes="bodystrong" />
+                            <TextBlock
+                                loc:Uid.Value="Controls_BoomArmDoes"
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Classes="secondary" />
+                            <TextBlock
+                                loc:Uid.Value="Controls_CrossPlay"
+                                Grid.Row="3"
+                                Classes="bodystrong" />
+                            <TextBlock
+                                loc:Uid.Value="Controls_CrossPlayDoes"
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Classes="secondary" />
+                            <TextBlock
+                                loc:Uid.Value="Controls_BluetoothButton"
+                                Grid.Row="4"
+                                Classes="bodystrong" />
+                            <TextBlock
+                                loc:Uid.Value="Controls_BluetoothButtonDoes"
+                                Grid.Row="4"
+                                Grid.Column="1"
+                                Classes="secondary" />
+                        </Grid>
+                    </Border>
+                </c:HeadsetSection>
+
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -37,6 +37,7 @@ public partial class MainWindow : Window
         SizeChanged += (_, e) => Rail.IsPaneOpen = e.NewSize.Width >= Roomy;
 
         Open(Pretend.Page ?? "home");
+        StartTray();
     }
 
     /// <summary>Opens the page with this tag, and marks its place in the rail.</summary>
@@ -57,13 +58,27 @@ public partial class MainWindow : Window
     {
         if (chosen.SelectedItem is not NavItem item) return;
         if (other.SelectedItem is not null) other.SelectedItem = null;
+        Show(item);
+    }
 
+    /// <summary>Puts the page of the place chosen in the rail in front again, after the window was hidden.</summary>
+    private void ShowCurrentPage()
+    {
+        if (Places.SelectedItem is NavItem place) Show(place);
+        else if (Foot.SelectedItem is NavItem foot) Show(foot);
+    }
+
+    private void Show(NavItem item)
+    {
         if (!_pages.TryGetValue(item.Page, out var page))
             _pages[item.Page] = page = item.Page switch
             {
                 "home" => new HomePage(),
                 "audio" => new AudioPage(),
                 "mic" => new MicrophonePage(),
+                "controls" => new ControlsPage(),
+                "device" => new DevicePage(),
+                "settings" => new SettingsPage(),
                 _ => new NotYet(),
             };
         Body.Content = page;
@@ -74,6 +89,11 @@ public partial class MainWindow : Window
         base.OnLoaded(e);
         Rail.IsPaneOpen = Bounds.Width >= Roomy;
         if (Pretend.Snapshot is { } file) _ = SaveAndExit(file);
+
+        // A launch at sign-in lives in the notification area rather than open
+        // a window in front of whatever somebody was about to do. After the
+        // window is on screen: hidden before it, it is shown a moment later.
+        else if (Startup.LaunchedAtLogin) HideToTray();
     }
 
     /// <summary>A pretend run's picture of the window, once the headset has answered and the screens have settled.</summary>
@@ -91,6 +111,7 @@ public partial class MainWindow : Window
         picture.Render(this);
         picture.Save(file, new PngBitmapEncoderOptions());
         AppLog.Write($"saved a picture of the window to {file}");
+        _quitting = true;
         Close();
     }
 }

@@ -20,7 +20,12 @@ public class App : Application
         if (Pretend.Theme is { } theme)
             RequestedThemeVariant = theme == PretendTheme.Dark ? ThemeVariant.Dark : ThemeVariant.Light;
 
-        AppLog.Write(Pretend.Active ? "started with the pretend headset" : "started");
+        AppLog.Write(Pretend.Active ? "started with the pretend headset" : Startup.LaunchedAtLogin ? "started at login" : "started");
+
+        // If the app has been moved since starting at sign-in was switched on,
+        // point the entry at where it is now. A pretend run is not the copy
+        // the system should start.
+        if (!Pretend.Active) Startup.Refresh();
         AppServices.Start();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

@@ -183,9 +183,11 @@
                 Spacing="12">
                 <ProgressBar
                     x:Name="WaitingRing"
-                    Width="20"
-                    Height="20"
-                    Classes="circular"
+                    Width="48"
+                    Height="4"
+                    MinHeight="0"
+                    MinWidth="0"
+                    VerticalAlignment="Center"
                     IsIndeterminate="True" />
                 <TextBlock x:Name="WaitingText" Classes="secondary" VerticalAlignment="Center" />
             </StackPanel>

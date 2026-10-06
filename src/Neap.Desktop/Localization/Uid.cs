@@ -27,6 +27,9 @@ public static class Uid
     /// <summary>What the Windows app's file calls the automation name, which the file cannot spell shorter.</summary>
     private const string AutomationName = "[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name";
 
+    /// <summary>What the Windows app's file calls the tooltip.</summary>
+    private const string ToolTipName = "[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip";
+
     static Uid() => ValueProperty.Changed.AddClassHandler<AvaloniaObject>((target, change) => Apply(target, change.NewValue as string));
 
     public static string? GetValue(AvaloniaObject element) => element.GetValue(ValueProperty);
@@ -44,6 +47,11 @@ public static class Uid
             if (name == AutomationName)
             {
                 AutomationProperties.SetName((Avalonia.Controls.Control)target, text);
+                continue;
+            }
+            if (name == ToolTipName)
+            {
+                Avalonia.Controls.ToolTip.SetTip((Avalonia.Controls.Control)target, text);
                 continue;
             }
 

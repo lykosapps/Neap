@@ -144,6 +144,22 @@
         <Setter Property="Padding" Value="16" />
     </Style>
 
+    <!-- A rule under a group of controls, setting it apart from the list below. -->
+    <Style Selector="Border.underlined">
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapPanelStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+
+    <!-- The panel of what is in use, outlined in the accent, and its word. -->
+    <Style Selector="Border.card.inuse">
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapInUseStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+    </Style>
+    <Style Selector="TextBlock.inuse">
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
+    </Style>
+
     <!-- The dot beside the headset's state, one colour per tone. -->
     <Style Selector="Ellipse.good">
         <Setter Property="Fill" Value="{DynamicResource NeapToneGoodBrush}" />
@@ -226,6 +242,15 @@
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Margin" Value="0,16,0,4" />
         <Setter Property="AutomationProperties.HeadingLevel" Value="2" />
+    </Style>
+
+    <!-- A line under a section's heading, saying what the section is. -->
+    <Style Selector="TextBlock.sectionnote">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextSecondaryBrush}" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="MaxWidth" Value="620" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
     </Style>
 
     <!-- The microphone meter's bars, lit in the accent like everything else that is live. -->

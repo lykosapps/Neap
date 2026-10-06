@@ -1,0 +1,86 @@
+<UserControl
+    x:Class="Neap.Desktop.Views.SettingsPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="32,0,32,32">
+            <StackPanel Classes="pagecolumn">
+
+                <TextBlock loc:Uid.Value="Settings_Title" Classes="pagetitle" />
+
+                <!--
+                    Starting with the system is left out where the system has no
+                    way to do it.
+                -->
+                <StackPanel x:Name="Running">
+                    <TextBlock loc:Uid.Value="Settings_RunningHeading" Classes="sectionheader" />
+                    <TextBlock loc:Uid.Value="Settings_RunningNote" Classes="sectionnote" />
+                    <StackPanel Spacing="4">
+                        <c:SettingsCard loc:Uid.Value="Settings_StartWithWindows" Icon="{StaticResource IconPower}">
+                            <ToggleSwitch x:Name="StartWhenSignedIn" />
+                        </c:SettingsCard>
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock loc:Uid.Value="Profiles_Heading" Classes="sectionheader" />
+                <TextBlock loc:Uid.Value="Profiles_Note" Classes="sectionnote" />
+                <c:ProfilesSettings />
+
+                <TextBlock loc:Uid.Value="Settings_DiagnosticsHeading" Classes="sectionheader" />
+                <StackPanel Spacing="4">
+                    <c:SettingsCard
+                        x:Name="Record"
+                        loc:Uid.Value="Settings_Record"
+                        Icon="{StaticResource IconRecord}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button x:Name="RecordHelp" loc:Uid.Value="Settings_RecordHelp">
+                                <PathIcon Width="14" Height="14" Data="{StaticResource IconHelp}" />
+                            </Button>
+                            <Button
+                                x:Name="ReportRecording"
+                                loc:Uid.Value="Settings_RecordReport"
+                                IsVisible="False" />
+                            <Button x:Name="RecordButton" />
+                        </StackPanel>
+                    </c:SettingsCard>
+                    <c:SettingsCard
+                        x:Name="MapCard"
+                        loc:Uid.Value="Settings_MapHeadset"
+                        Icon="{StaticResource IconDevice}">
+                        <Button x:Name="MapHeadset">
+                            <PathIcon Width="14" Height="14" Data="{StaticResource IconLaunch}" />
+                        </Button>
+                    </c:SettingsCard>
+                </StackPanel>
+
+                <TextBlock loc:Uid.Value="Settings_AboutHeading" Classes="sectionheader" />
+                <!-- Neap itself, on the same lit panel as the headset's controls. -->
+                <Border Classes="card">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="20">
+                        <Image
+                            Width="56"
+                            Height="56"
+                            VerticalAlignment="Top"
+                            AutomationProperties.AccessibilityView="Raw"
+                            Source="avares://Neap.Desktop/Assets/logo.png" />
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock x:Name="AppName" Classes="tiletitle" />
+                            <TextBlock
+                                x:Name="AppVersion"
+                                Classes="label"
+                                IsVisible="False" />
+                            <TextBlock
+                                loc:Uid.Value="Settings_AboutNote"
+                                Margin="0,4,0,0"
+                                Classes="secondary" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

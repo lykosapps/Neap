@@ -39,6 +39,16 @@
                 VerticalAlignment="Center" />
         </Grid>
 
+        <!-- The active profile, on every page, in its own row under the title. -->
+        <Border
+            Grid.Row="1"
+            Padding="16,8"
+            Background="{DynamicResource NeapPanelBrush}"
+            BorderBrush="{DynamicResource NeapPanelStrokeBrush}"
+            BorderThickness="0,0,0,1">
+            <c:ProfileBar />
+        </Border>
+
         <SplitView
             x:Name="Rail"
             Grid.Row="2"
