@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
@@ -60,6 +61,20 @@ public class SettingsCard : ContentControl
         _layout = e.NameScope.Find<Grid>("Layout");
         _control = e.NameScope.Find<Control>("Control");
         Place(Bounds.Width);
+    }
+
+    /// <summary>
+    /// Names the control for a screen reader after the row, when it has no
+    /// name of its own: a switch or a button alone says what it does only
+    /// through the name beside it.
+    /// </summary>
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property != HeaderProperty && change.Property != ContentProperty) return;
+        if (Content is Control control && !string.IsNullOrEmpty(Header)
+            && string.IsNullOrEmpty(AutomationProperties.GetName(control)))
+            AutomationProperties.SetName(control, Header);
     }
 
     protected override Size ArrangeOverride(Size finalSize)

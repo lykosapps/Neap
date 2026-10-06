@@ -73,6 +73,30 @@ public partial class MainWindow : IDisposable
         base.OnClosing(e);
         if (_quitting || _tray is null) return;
         e.Cancel = true;
+        _ = TellThemOnceThenHide();
+    }
+
+    /// <summary>
+    /// Says, once ever, that the app is still running.
+    /// </summary>
+    /// <remarks>
+    /// A new notification-area icon can be filed out of sight, so without this
+    /// the first close looks exactly like quitting: window gone, no icon, and
+    /// the mix still working with no way to tell. Said in a dialog, which every
+    /// system can show, rather than a pop-up one of them may have switched off.
+    /// </remarks>
+    private async Task TellThemOnceThenHide()
+    {
+        if (!AppSettings.Current.ToldAboutTray && !Pretend.Active)
+        {
+            AppSettings.Update(s => s.ToldAboutTray = true);
+            await new NeapDialog
+            {
+                Heading = Strings.Get("Tray_StillRunningTitle"),
+                Body = new TextBlock { Text = Strings.Format("Tray_StillRunning", AppInfo.Name) },
+                CloseButtonText = Strings.Get("Dialog_OK"),
+            }.ShowAsync(this);
+        }
         HideToTray();
     }
 

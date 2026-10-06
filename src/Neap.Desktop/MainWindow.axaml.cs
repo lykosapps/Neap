@@ -1,8 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Neap.Desktop.Controls;
+using Neap.Desktop.Localization;
 using Neap.Desktop.Views;
 
 namespace Neap.Desktop;
@@ -38,7 +40,30 @@ public partial class MainWindow : Window
 
         Open(Pretend.Page ?? "home");
         StartTray();
+        AddHandler(KeyDownEvent, OnPlaceKey, RoutingStrategies.Tunnel);
     }
+
+    /// <summary>
+    /// Alt and a place's letter goes to that place: the letters are the
+    /// resource file's, one per place, the same as in the Windows app.
+    /// </summary>
+    private void OnPlaceKey(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyModifiers != KeyModifiers.Alt) return;
+        foreach (var rail in new[] { Places, Foot })
+            foreach (var item in rail.Items.OfType<NavItem>())
+            {
+                if (Uid.GetValue(item) is not { } uid) continue;
+                var letter = ResourceStrings.Of(uid).FirstOrDefault(entry => entry.Key == "AccessKey").Value;
+                if (letter is not { Length: 1 } || !Enum.TryParse(letter, ignoreCase: true, out Key key) || key != e.Key) continue;
+                Open(item.Page);
+                e.Handled = true;
+                return;
+            }
+    }
+
+    /// <summary>Gets the page on show.</summary>
+    public Control? CurrentPage => Body.Content as Control;
 
     /// <summary>Opens the page with this tag, and marks its place in the rail.</summary>
     public void Open(string page)

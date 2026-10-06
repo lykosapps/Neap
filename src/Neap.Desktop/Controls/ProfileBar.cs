@@ -241,6 +241,10 @@ public sealed class ProfileBar : UserControl
         _editRow.IsVisible = edited && active is not null;
         AutomationProperties.SetItemStatus(_face, edited ? $"{_name.Text}, {Strings.Get("Profile_Edited")}" : _name.Text);
 
+        // The whole name, where the bar has shortened it. Only when it
+        // changes: setting a tip on the button its list hangs from closes the list.
+        if (ToolTip.GetTip(_face) as string != _name.Text) ToolTip.SetTip(_face, _name.Text);
+
         var ready = AppServices.Profiles.Ready;
         _working.IsVisible = _busy || ready == ProfileReadiness.Reading;
         _list.IsEnabled = _new.IsEnabled = ready == ProfileReadiness.Ready && !_busy;

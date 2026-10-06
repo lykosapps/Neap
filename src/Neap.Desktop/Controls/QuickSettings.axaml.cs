@@ -56,7 +56,9 @@ public partial class QuickSettings : UserControl
         OpenEqualiser.Click += (_, _) =>
         {
             PresetPicker.Flyout?.Hide();
-            (TopLevel.GetTopLevel(this) as MainWindow)?.Open("audio");
+            if (TopLevel.GetTopLevel(this) is not MainWindow window) return;
+            window.Open("audio");
+            (window.CurrentPage as Views.AudioPage)?.ShowEqualiser();
         };
 
         PresetList.SelectionChanged += async (_, _) =>
