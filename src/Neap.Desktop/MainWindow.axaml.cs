@@ -63,6 +63,7 @@ public partial class MainWindow : Window
             {
                 "home" => new HomePage(),
                 "audio" => new AudioPage(),
+                "mic" => new MicrophonePage(),
                 _ => new NotYet(),
             };
         Body.Content = page;

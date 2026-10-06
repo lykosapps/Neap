@@ -218,10 +218,37 @@ internal static class PulseNative
     /// <summary>PA_STREAM_PLAYBACK.</summary>
     internal const int StreamPlayback = 1;
 
+    /// <summary>PA_STREAM_RECORD.</summary>
+    internal const int StreamRecord = 2;
+
+    /// <summary>PA_SAMPLE_FLOAT32LE: 32-bit floating point, little-endian.</summary>
+    internal const int SampleFloat32Le = 5;
+
+    /// <summary>(uint32_t) -1: the server's own choice for a buffer setting.</summary>
+    internal const uint ServerChoice = uint.MaxValue;
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct BufferAttributes
+    {
+        public uint MaxLength;
+        public uint TargetLength;
+        public uint PreBuffer;
+        public uint MinRequest;
+        public uint FragmentSize;
+    }
+
     [DllImport(SimpleLibrary, EntryPoint = "pa_simple_new")]
     internal static extern IntPtr SimpleNew(
         IntPtr server, byte[] name, int direction, byte[] device, byte[] streamName,
         ref SampleSpec spec, IntPtr channelMap, IntPtr attributes, out int error);
+
+    [DllImport(SimpleLibrary, EntryPoint = "pa_simple_new")]
+    internal static extern IntPtr SimpleNewWithBuffer(
+        IntPtr server, byte[] name, int direction, byte[] device, byte[] streamName,
+        ref SampleSpec spec, IntPtr channelMap, ref BufferAttributes attributes, out int error);
+
+    [DllImport(SimpleLibrary, EntryPoint = "pa_simple_read")]
+    internal static extern int SimpleRead(IntPtr stream, byte[] data, nuint bytes, out int error);
 
     [DllImport(SimpleLibrary, EntryPoint = "pa_simple_write")]
     internal static extern int SimpleWrite(IntPtr stream, byte[] data, nuint bytes, out int error);

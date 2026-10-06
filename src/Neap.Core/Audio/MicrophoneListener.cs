@@ -32,7 +32,7 @@ namespace Neap.Core.Audio;
 /// </para>
 /// </remarks>
 [SupportedOSPlatform("windows")]
-public sealed class MicrophoneListener : IDisposable
+public sealed class MicrophoneListener : IMicrophoneListener
 {
     private readonly object _gate = new();
     private readonly MMDeviceEnumerator _devices;

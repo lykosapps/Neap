@@ -228,6 +228,14 @@
         <Setter Property="AutomationProperties.HeadingLevel" Value="2" />
     </Style>
 
+    <!-- The microphone meter's bars, lit in the accent like everything else that is live. -->
+    <Style Selector="Rectangle.lit">
+        <Setter Property="Fill" Value="{DynamicResource NeapGameBrush}" />
+    </Style>
+    <Style Selector="Rectangle.unlit">
+        <Setter Property="Fill" Value="{DynamicResource NeapMeterUnlitBrush}" />
+    </Style>
+
     <!-- Every page's column, held to a width that reads on a wide screen. -->
     <Style Selector="StackPanel.pagecolumn">
         <Setter Property="MaxWidth" Value="1040" />

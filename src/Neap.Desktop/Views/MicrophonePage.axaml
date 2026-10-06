@@ -1,0 +1,87 @@
+<UserControl
+    x:Class="Neap.Desktop.Views.MicrophonePage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="32,0,32,32">
+            <StackPanel Classes="pagecolumn">
+
+                <TextBlock loc:Uid.Value="Microphone_Title" Classes="pagetitle" />
+
+                <c:HeadsetNotice />
+
+                <!--
+                    With the headset off, the whole page is one card, the level
+                    included: see HeadsetSection.WhenOff.
+                -->
+                <c:HeadsetSection loc:Uid.Value="Microphone_Section" WhenOff="True">
+                    <c:RoutingNotice Margin="0,0,0,12" Sound="False" />
+
+                    <!--
+                        What they hear, first: the microphone's tile, as on Home, beside a
+                        wide live meter of what it picks up. The meter listens only while
+                        this page is open, since the system shows its microphone in use
+                        light for as long as it does.
+                    -->
+                    <Grid ColumnDefinitions="240,*" ColumnSpacing="12">
+                        <c:HeadsetSection Explain="False">
+                            <c:MicTile />
+                        </c:HeadsetSection>
+                        <Border Grid.Column="1" Classes="card">
+                            <StackPanel Spacing="8">
+                                <TextBlock loc:Uid.Value="Microphone_LevelLabel" Classes="label" />
+                                <c:MicMeter loc:Uid.Value="Microphone_Meter" Large="True" />
+                                <TextBlock loc:Uid.Value="Microphone_LevelNote" Classes="caption secondary" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- The two levels side by side, as on Audio. -->
+                    <TextBlock loc:Uid.Value="Microphone_VoiceHeading" Classes="sectionheader" />
+                    <c:SideBySide>
+                        <c:SystemVolumeRow
+                            loc:Uid.Value="Microphone_Sensitivity"
+                            Capture="True"
+                            Icon="{StaticResource IconMicrophone}" />
+                        <c:HeadsetSection Explain="False">
+                            <c:SettingRow
+                                loc:Uid.Value="Microphone_MicMonitoring"
+                                Icon="{StaticResource IconDevice}"
+                                Setting="mic_monitoring" />
+                        </c:HeadsetSection>
+                    </c:SideBySide>
+
+                    <c:HeadsetSection loc:Uid.Value="Microphone_HeadsetSection">
+                        <!--
+                            Noise reduction and the gate as tiles, like Audio's, with the
+                            gate's threshold under it while the gate is on: it means nothing
+                            while the gate is off.
+                        -->
+                        <TextBlock loc:Uid.Value="Microphone_NoiseHandlingHeading" Classes="sectionheader" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <c:SettingTile
+                                loc:Uid.Value="Microphone_AiTile"
+                                Icon="{StaticResource IconNoise}"
+                                Setting="ai_noise_reduction" />
+                            <c:SettingTile
+                                loc:Uid.Value="Microphone_GateTile"
+                                Grid.Column="1"
+                                Icon="{StaticResource IconGate}"
+                                Setting="noise_gate">
+                                <c:SettingTile.Inside>
+                                    <c:SettingRow
+                                        loc:Uid.Value="Microphone_Threshold"
+                                        Setting="noise_gate_threshold" />
+                                </c:SettingTile.Inside>
+                            </c:SettingTile>
+                        </Grid>
+                    </c:HeadsetSection>
+                </c:HeadsetSection>
+
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

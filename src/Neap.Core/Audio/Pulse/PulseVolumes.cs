@@ -51,7 +51,7 @@ public static class PulseVolumes
         else client.SetSourceMute(device, muted);
     }
 
-    private static (PulseSink Device, bool Headset) Find(PulseClient client, Flow flow)
+    internal static (PulseSink Device, bool Headset) Find(PulseClient client, Flow flow)
     {
         var devices = flow == Flow.Output ? client.Sinks() : client.Sources();
         string listening = flow == Flow.Output ? client.DefaultSink() : client.DefaultSource();
