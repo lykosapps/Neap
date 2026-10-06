@@ -71,12 +71,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   setting at once: it takes effect within about a second. Every saved
   preset is still listed on both equaliser pages, many times over: a read
   now waits a moment after a write, and a lost read would hide a preset.
-- **Spatial sound, the rest of it.** Choosing Dolby Atmos from Home and
-  hearing it on the headset is confirmed. Still owed: an unlicensed choice
-  opening the Dolby Access dialog, Windows Sonic and off by ear, and, with
-  both transmitters plugged in, a format carrying from one to the other on
-  CrossPlay rather than silently reverting to off; a pretend run cannot
-  plug in a second transmitter.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
 - **A profile saved straight after opening Neap.** Open Neap, save a
