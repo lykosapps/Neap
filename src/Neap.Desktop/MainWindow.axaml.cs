@@ -59,7 +59,12 @@ public partial class MainWindow : Window
         if (other.SelectedItem is not null) other.SelectedItem = null;
 
         if (!_pages.TryGetValue(item.Page, out var page))
-            _pages[item.Page] = page = item.Page == "home" ? new HomePage() : new NotYet();
+            _pages[item.Page] = page = item.Page switch
+            {
+                "home" => new HomePage(),
+                "audio" => new AudioPage(),
+                _ => new NotYet(),
+            };
         Body.Content = page;
     }
 

@@ -1,0 +1,38 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.SettingTile"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        A setting's tile, as on Home, with what only matters once it is on
+        in a drawer pulled out from under it while it is on. It keeps its own
+        height beside a taller neighbour: stretched, it becomes a large empty
+        button that switches the setting wherever it is clicked.
+    -->
+    <StackPanel VerticalAlignment="Top">
+        <ToggleButton
+            x:Name="Face"
+            MinHeight="96"
+            Classes="tile"
+            IsEnabled="False"
+            ZIndex="1">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+                <PathIcon x:Name="Mark" VerticalAlignment="Top" />
+                <StackPanel
+                    Grid.Column="1"
+                    VerticalAlignment="Bottom"
+                    Spacing="2">
+                    <TextBlock x:Name="TitleText" Classes="tiletitle" />
+                    <TextBlock x:Name="DescriptionText" Classes="tilestate" />
+                </StackPanel>
+                <TextBlock
+                    x:Name="StateWord"
+                    Grid.Column="2"
+                    Margin="0,4,0,0"
+                    VerticalAlignment="Top"
+                    Classes="tilestate bodystrong" />
+            </Grid>
+        </ToggleButton>
+        <Border x:Name="InsideHost" Classes="drawer" IsVisible="False" />
+    </StackPanel>
+</UserControl>

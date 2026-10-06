@@ -175,6 +175,59 @@
         <Setter Property="Foreground" Value="{DynamicResource NeapToneCautionBrush}" />
     </Style>
 
+    <!--
+        A row of settings: icon, name, what it does, and its control on the
+        right. The control keeps its own size and the name gives way to it.
+    -->
+    <Style Selector="c|SettingsCard">
+        <Setter Property="Background" Value="{DynamicResource NeapQuietBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapPanelStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="16,12" />
+        <Setter Property="MinHeight" Value="68" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Right" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        MinHeight="{TemplateBinding MinHeight}"
+                        Padding="{TemplateBinding Padding}">
+                    <Grid x:Name="Layout" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="8">
+                        <PathIcon Width="20" Height="20" VerticalAlignment="Center"
+                                  Data="{TemplateBinding Icon}" IsVisible="{TemplateBinding Icon, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2" MinWidth="0">
+                            <TextBlock Text="{TemplateBinding Header}" />
+                            <TextBlock Text="{TemplateBinding Description}" Classes="caption secondary"
+                                       IsVisible="{TemplateBinding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                        </StackPanel>
+                        <ContentPresenter Grid.Column="2" x:Name="Control" Content="{TemplateBinding Content}"
+                                          VerticalAlignment="Center" HorizontalAlignment="Right" />
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- The page's own name, at the top of every page. -->
+    <Style Selector="TextBlock.pagetitle">
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,8,0,16" />
+        <Setter Property="AutomationProperties.HeadingLevel" Value="1" />
+    </Style>
+
+    <!-- Groups the cards below it. Quiet: the cards are the content. -->
+    <Style Selector="TextBlock.sectionheader">
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,16,0,4" />
+        <Setter Property="AutomationProperties.HeadingLevel" Value="2" />
+    </Style>
+
     <!-- Every page's column, held to a width that reads on a wide screen. -->
     <Style Selector="StackPanel.pagecolumn">
         <Setter Property="MaxWidth" Value="1040" />

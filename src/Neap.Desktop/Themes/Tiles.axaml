@@ -1,5 +1,6 @@
 <Styles
     xmlns="https://github.com/avaloniaui"
+    xmlns:c="using:Neap.Desktop.Controls"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!--
@@ -181,6 +182,27 @@
     <Style Selector="Border.tag > TextBlock">
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
+    </Style>
+
+    <!--
+        What a switch or a card reveals: the same width as what it hangs
+        from, its top drawn flush against that card's own bottom edge so the
+        two read as one card split by a rule, not two stacked ones. A row
+        inside it is the drawer's own, so it draws no card of its own.
+    -->
+    <Style Selector="Border.drawer">
+        <Setter Property="Margin" Value="0,-1,0,0" />
+        <Setter Property="Padding" Value="16,14,16,10" />
+        <Setter Property="Background" Value="{DynamicResource NeapPanelBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapPanelStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1,0,1,1" />
+        <Setter Property="CornerRadius" Value="0,0,8,8" />
+    </Style>
+    <Style Selector="Border.drawer c|SettingsCard">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0,4" />
+        <Setter Property="MinHeight" Value="0" />
     </Style>
 
     <!-- A preset in Home's list: a flat row, the chosen one tinted and marked at its left edge. -->

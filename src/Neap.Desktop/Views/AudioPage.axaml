@@ -1,0 +1,75 @@
+<UserControl
+    x:Class="Neap.Desktop.Views.AudioPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="32,0,32,32">
+            <StackPanel Classes="pagecolumn">
+
+                <TextBlock loc:Uid.Value="Audio_Title" Classes="pagetitle" />
+
+                <c:HeadsetNotice />
+
+                <!--
+                    With the headset off, the whole page is one card: the
+                    system's volume goes on working without it, but on nothing
+                    the person can hear. See HeadsetSection.WhenOff.
+                -->
+                <c:HeadsetSection loc:Uid.Value="Audio_Section" WhenOff="True">
+                    <!--
+                        Noise control with its three modes, and Superhuman Hearing as
+                        Home's tile, side by side, with how strong each is under it
+                        while it is on.
+                    -->
+                    <c:HeadsetSection loc:Uid.Value="Audio_HeadsetSection">
+                        <TextBlock loc:Uid.Value="Audio_AroundYouHeading" Classes="sectionheader" />
+                        <c:SideBySide>
+                            <c:NoiseControlPanel />
+                            <c:SettingTile
+                                loc:Uid.Value="Audio_ShhTile"
+                                Icon="{StaticResource IconHearing}"
+                                Setting="superhuman_hearing">
+                                <c:SettingTile.Inside>
+                                    <StackPanel>
+                                    <c:SettingRow
+                                        loc:Uid.Value="Audio_Type"
+                                        AsButtons="True"
+                                        Setting="shh_preset" />
+                                    <c:SettingRow
+                                        loc:Uid.Value="Audio_Intensity"
+                                        Setting="shh_level" />
+                                    </StackPanel>
+                                </c:SettingTile.Inside>
+                            </c:SettingTile>
+                        </c:SideBySide>
+                    </c:HeadsetSection>
+
+                    <!--
+                        The system's own volume, with its mute beside it on one line,
+                        and the headset's spoken alerts beside it, so every level is
+                        in one place and neither row is a wide card with a short
+                        slider.
+                    -->
+                    <TextBlock loc:Uid.Value="Audio_VolumeHeading" Classes="sectionheader" />
+                    <c:RoutingNotice Margin="0,0,0,8" Microphone="False" />
+                    <c:SideBySide>
+                        <c:SystemVolumeRow
+                            loc:Uid.Value="Audio_MasterVolume"
+                            Icon="{StaticResource IconAudio}"
+                            WithMute="True" />
+                        <c:HeadsetSection Explain="False">
+                            <c:SettingRow
+                                loc:Uid.Value="Audio_VoicePrompts"
+                                Icon="{StaticResource IconPrompt}"
+                                Setting="voice_prompt_volume" />
+                        </c:HeadsetSection>
+                    </c:SideBySide>
+                </c:HeadsetSection>
+
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>
