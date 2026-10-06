@@ -114,8 +114,8 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   reporting on, main only, and a first real CI run.
 - A package update pass. On 25 Sep: the Windows App SDK 1.8 to 2.5, a new
   major version to read up on first, and the SDK build tools. The rest
-  are current. H.NotifyIcon moved to 2.4.1 on 6 Oct; its tray menu still
-  needs checking by hand.
+  are current. H.NotifyIcon moved to 2.4.1 on 6 Oct and its tray menu
+  was checked by hand.
 - An ARM build.
 - A read-through by an experienced .NET developer before release.
 - A trademark search for the name.
