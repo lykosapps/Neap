@@ -144,6 +144,23 @@ public sealed class HeadsetService : IDisposable
     public event Action<HeadsetStatus>? StatusChanged;
 
     /// <summary>
+    /// Whether the headset is there and the system will not let this user open
+    /// it, which no switching on or plugging in will change.
+    /// </summary>
+    public bool AccessDenied { get; private set; }
+
+    /// <summary><see cref="AccessDenied"/> changed. Raised on the UI thread.</summary>
+    public event Action? AccessChanged;
+
+    private void SetAccessDenied(bool denied)
+    {
+        if (AccessDenied == denied) return;
+        AccessDenied = denied;
+        AppLog.Write(denied ? "headset: the system does not let this user open it" : "headset: the system lets this user open it");
+        _ui.Post(() => AccessChanged?.Invoke());
+    }
+
+    /// <summary>
     /// <see cref="KnownTransmitters"/> was replaced, from a read of the slots
     /// that found one paired or from a slot the headset sent. Raised on the UI
     /// thread.
@@ -557,6 +574,7 @@ public sealed class HeadsetService : IDisposable
             }
             catch (DeviceNotFoundException)
             {
+                SetAccessDenied(false);
                 Drop(ref client, ref primed, Strings.Get("Headset_NothingPluggedIn"));
             }
             catch (TransportException)
@@ -723,9 +741,17 @@ public sealed class HeadsetService : IDisposable
     /// <exception cref="DeviceNotFoundException">Nothing is plugged in at all.</exception>
     private HeadsetClient? Open(out int present)
     {
-        var client = HeadsetClient.Behind(allowWrites: true, out present, _askLast, _devices,
-            (device, ex) => NoteFault($"asking {device}", ex));
+        bool denied = false;
+        var client = HeadsetClient.Behind(allowWrites: true, out present, _askLast, _devices, (device, ex) =>
+        {
+            denied |= ex is AccessDeniedException;
+            NoteFault($"asking {device}", ex);
+        });
         _askLast = null;
+
+        // Said only when nothing could be opened: one transmitter that will
+        // not open beside another that does is not the person's problem.
+        SetAccessDenied(client is null && denied);
         return client;
     }
 

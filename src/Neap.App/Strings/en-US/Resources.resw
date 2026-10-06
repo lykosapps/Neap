@@ -423,6 +423,9 @@
   <data name="Settings_StartWithWindows.Description" xml:space="preserve">
     <value>Starts in the notification area.</value>
   </data>
+  <data name="Settings_StartMinimised" xml:space="preserve">
+    <value>Starts minimised, as this desktop has no notification area.</value>
+  </data>
   <data name="Settings_StartWithWindows.Header" xml:space="preserve">
     <value>Start when you sign in</value>
   </data>
@@ -878,6 +881,24 @@
   </data>
   <data name="Notice_NoHeadset" xml:space="preserve">
     <value>Plug in its Charging Dock, its USB Transmitter or its USB-C cable, then switch the headset on.</value>
+  </data>
+  <data name="Access_Title" xml:space="preserve">
+    <value>Neap isn't allowed to use the headset</value>
+  </data>
+  <data name="Access_Message" xml:space="preserve">
+    <value>Your system keeps the headset's controls to itself until it is told otherwise. Allowing it takes your password once, and changes nothing else.</value>
+  </data>
+  <data name="Access_Allow" xml:space="preserve">
+    <value>Allow access</value>
+  </data>
+  <data name="Access_Manual" xml:space="preserve">
+    <value>Your system keeps the headset's controls to itself until it is told otherwise, and cannot ask for your password from here. Copy the command, run it in a terminal, then unplug the headset's transmitter and plug it in again.</value>
+  </data>
+  <data name="Access_Copy" xml:space="preserve">
+    <value>Copy the command</value>
+  </data>
+  <data name="Access_Failed" xml:space="preserve">
+    <value>That did not work: {0} Copy the command and run it in a terminal instead, then unplug the headset's transmitter and plug it in again.</value>
   </data>
   <data name="Section_WhyOff" xml:space="preserve">
     <value>Switch your headset on to see and change these.</value>

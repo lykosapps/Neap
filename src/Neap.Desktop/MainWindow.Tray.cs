@@ -30,6 +30,14 @@ public partial class MainWindow : IDisposable
         // no use for an icon.
         if (Pretend.Snapshot is not null) return;
 
+        // A second launch asks this copy for its window, and an update
+        // restarts it, whether or not there is an icon.
+        OneCopy.Current?.ListenForShow(() => Dispatcher.UIThread.Post(Reveal));
+        AppServices.Updates.Installed += program => Dispatcher.UIThread.Post(() => _ = Restart(program));
+
+        // Without an icon to be got back by, the window closing closes the app.
+        if (!TrayAvailability.Exists) return;
+
         var open = new NativeMenuItem(Strings.Get("Main_TrayOpen.Text"));
         open.Click += (_, _) => Reveal();
         var quit = new NativeMenuItem(Strings.Get("Main_TrayQuit.Text"));
@@ -46,9 +54,6 @@ public partial class MainWindow : IDisposable
         AppServices.Headset.Changed += () => Dispatcher.UIThread.Post(PaintTray);
         AppServices.AudioRoute.Changed += () => Dispatcher.UIThread.Post(PaintTray);
         PaintTray();
-
-        OneCopy.Current?.ListenForShow(() => Dispatcher.UIThread.Post(Reveal));
-        AppServices.Updates.Installed += program => Dispatcher.UIThread.Post(() => _ = Restart(program));
     }
 
     /// <summary>

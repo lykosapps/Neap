@@ -57,6 +57,7 @@ public sealed class PulseTone : IPlayingTone
     /// <exception cref="PulseException">The sound server could not be asked, or would not open the headset's output.</exception>
     public static PulseTone Open(double frequency)
     {
+        PulseNative.RequireSimple();
         string sink;
         using (var client = new PulseClient()) sink = PulseVolumes.Find(client, Flow.Output).Device.Name;
 

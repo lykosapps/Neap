@@ -54,6 +54,9 @@ public static class Pretend
     /// <summary>With <see cref="SnapshotFlag"/>, scrolls the page first, by the pixels after it or to its end, to picture what is below the fold. Works on a real run too.</summary>
     public const string ScrolledFlag = "--scrolled";
 
+    /// <summary>With <see cref="Flag"/>, has the pretend headset refuse to be opened, as a system does until it allows it.</summary>
+    public const string NoAccessFlag = "--noaccess";
+
     /// <summary>With <see cref="Flag"/>, shows the app in high contrast whatever the system is set to.</summary>
     public const string HighContrastFlag = "--highcontrast";
 
@@ -185,7 +188,7 @@ public static class Pretend
         return at >= 0 && at + 1 < args.Count ? args[at + 1] : null;
     }
 
-    public static PretendHeadset? Headset { get; } = Active ? new PretendHeadset() : null;
+    public static PretendHeadset? Headset { get; } = Active ? new PretendHeadset { Refusing = Given(NoAccessFlag) } : null;
 
     public static PretendWindows? Windows { get; } = Active ? new PretendWindows() : null;
 

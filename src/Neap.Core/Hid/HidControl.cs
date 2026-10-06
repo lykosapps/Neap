@@ -10,6 +10,16 @@ public class TransportException : Exception
     public TransportException(string message) : base(message) { }
 }
 
+/// <summary>The headset is there, and the system will not let this user open it.</summary>
+/// <remarks>
+/// Not the same as it being switched off, and told apart from it: nothing the
+/// person does with the headset helps, only a change to what the system allows.
+/// </remarks>
+public sealed class AccessDeniedException : TransportException
+{
+    public AccessDeniedException(string message) : base(message) { }
+}
+
 /// <summary>Everything we can learn about a control collection before opening it.</summary>
 /// <param name="Path">What the operating system opens it by.</param>
 /// <param name="VendorId">The USB vendor id.</param>

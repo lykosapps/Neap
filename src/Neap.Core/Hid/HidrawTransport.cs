@@ -57,7 +57,7 @@ public sealed class HidrawTransport : IHidTransport
         }
         catch (UnauthorizedAccessException)
         {
-            throw new TransportException(
+            throw new AccessDeniedException(
                 $"no permission to open {Path}; a udev rule has to give this user access to the headset");
         }
         catch (IOException ex)

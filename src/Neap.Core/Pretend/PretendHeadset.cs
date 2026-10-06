@@ -227,8 +227,12 @@ public sealed class PretendHeadset : IDeviceSource
         [new HidDeviceInfo("pretend:229B", HidControl.VendorId, DockProduct,
             HidControl.UsagePage, Frames.ReportLength, 0, Frames.ReportLength)];
 
+    /// <summary>Whether opening the dock is refused, as Linux does until its udev rule is in place.</summary>
+    public bool Refusing { get; init; }
+
     public IHidTransport Open(HidDeviceInfo device) =>
-        device.ProductId == DockProduct
+        Refusing ? throw new AccessDeniedException("pretend: no permission to open the dock")
+        : device.ProductId == DockProduct
             ? new Link(this)
             : throw new TransportException($"no pretend device 0x{device.ProductId:x4}");
 

@@ -30,6 +30,7 @@ public partial class SettingsPage : UserControl
         UpdateActions.IsVisible = updating;
         CheckForUpdatesCard.IsVisible = updating;
         StartCard.IsVisible = Startup.Supported;
+        if (!TrayAvailability.Exists) StartCard.Description = Strings.Get("Settings_StartMinimised");
 
         _painting = true;
         StartWhenSignedIn.IsChecked = Startup.Enabled;

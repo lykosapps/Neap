@@ -125,7 +125,11 @@ public partial class MainWindow : Window
         // A launch at sign-in lives in the notification area rather than open
         // a window in front of whatever somebody was about to do. After the
         // window is on screen: hidden before it, it is shown a moment later.
-        else if (Startup.LaunchedAtLogin) HideToTray();
+        else if (Startup.LaunchedAtLogin)
+        {
+            if (TrayAvailability.Exists) HideToTray();
+            else WindowState = WindowState.Minimized;
+        }
     }
 
     /// <summary>A pretend run's picture of the window, once the headset has answered and the screens have settled.</summary>

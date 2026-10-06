@@ -97,6 +97,7 @@ internal sealed class PulseClient : IDisposable
 
     internal PulseClient()
     {
+        PulseNative.Require();
         _onServer = OnServer;
         _onSink = OnSink;
         _onSource = OnSource;

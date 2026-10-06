@@ -74,6 +74,7 @@ public static class CentreCue
     {
         // The sound server resamples, so any rate will do.
         const int rate = 48000;
+        PulseNative.RequireSimple();
         using var client = new PulseClient();
         string listening = client.DefaultSink();
         if (client.Sinks().FirstOrDefault(s => s.Name == listening) is not { IsHeadset: true }) return;

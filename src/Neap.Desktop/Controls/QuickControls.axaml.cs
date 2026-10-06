@@ -52,6 +52,7 @@ public partial class QuickControls : UserControl
         base.OnLoaded(e);
         AppServices.Headset.Changed += Paint;
         AppServices.Headset.StatusChanged += OnStatus;
+        AppServices.Headset.AccessChanged += Paint;
         AppServices.AudioRoute.Changed += Paint;
         // The note names the mix's keys once they are on.
         AppServices.Hotkeys.Changed += Paint;
@@ -68,6 +69,7 @@ public partial class QuickControls : UserControl
         base.OnUnloaded(e);
         AppServices.Headset.Changed -= Paint;
         AppServices.Headset.StatusChanged -= OnStatus;
+        AppServices.Headset.AccessChanged -= Paint;
         AppServices.AudioRoute.Changed -= Paint;
         AppServices.Hotkeys.Changed -= Paint;
         _plugged?.Stop();
@@ -182,6 +184,15 @@ public partial class QuickControls : UserControl
     /// </remarks>
     private void PaintNote(Note which)
     {
+        // The notice on every page says what is wrong and what to do; a card
+        // saying the headset is off, when it is not, would be a second and
+        // contradicting voice.
+        if (AppServices.Headset.AccessDenied)
+        {
+            NotePanel.IsVisible = false;
+            return;
+        }
+
         (string What, string Mix, string Fix, string Fallback)? note = which switch
         {
             Note.UnreachableNoSound => (StateCopy.WhatUnreachableNoSound, "", StateCopy.FixUnreachable, ""),

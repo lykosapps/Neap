@@ -1,0 +1,3 @@
+# Lets the person signed in at this computer use Turtle Beach headsets' control channel,
+# which Neap needs to read and change the headset's settings.
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="10f5", TAG+="uaccess"

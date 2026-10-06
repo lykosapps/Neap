@@ -46,6 +46,7 @@ public sealed class PulseListener : IMicrophoneListener
     /// <exception cref="PulseException">The sound server could not be asked, or would not open the microphone.</exception>
     public static PulseListener Open()
     {
+        PulseNative.RequireSimple();
         string source;
         using (var client = new PulseClient()) source = PulseVolumes.Find(client, Flow.Input).Device.Name;
 

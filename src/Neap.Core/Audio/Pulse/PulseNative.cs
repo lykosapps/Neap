@@ -18,6 +18,33 @@ internal static class PulseNative
 {
     private const string Library = "libpulse.so.0";
 
+    private static readonly Lazy<bool> MainLibrary = new(() => Loadable(Library));
+    private static readonly Lazy<bool> SimpleLibraryPresent = new(() => Loadable(SimpleLibrary));
+
+    private static bool Loadable(string name)
+    {
+        if (!NativeLibrary.TryLoad(name, out var handle)) return false;
+        NativeLibrary.Free(handle);
+        return true;
+    }
+
+    /// <summary>Checks the sound system's library is installed, so its absence is said in words and not as a crash.</summary>
+    /// <exception cref="PulseException">The library is not on this system.</exception>
+    internal static void Require()
+    {
+        if (!MainLibrary.Value)
+            throw new PulseException($"the sound system's library ({Library}) is not installed, so Neap cannot see or set sound levels");
+    }
+
+    /// <summary>Checks the library that plays and records sound is installed as well.</summary>
+    /// <exception cref="PulseException">Either library is not on this system.</exception>
+    internal static void RequireSimple()
+    {
+        Require();
+        if (!SimpleLibraryPresent.Value)
+            throw new PulseException($"the sound system's library ({SimpleLibrary}) is not installed, so Neap cannot play or record sound");
+    }
+
     internal const int ContextReady = 4, ContextFailed = 5, ContextTerminated = 6;
     internal const int OperationRunning = 0;
 

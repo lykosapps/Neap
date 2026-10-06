@@ -9,7 +9,7 @@ internal static class AppSource
 {
     public static string Folder { get; } = Path.Combine(RepoRoot(), "src", "Neap.App");
 
-    private static string RepoRoot()
+    internal static string RepoRoot()
     {
         for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
             if (File.Exists(Path.Combine(dir.FullName, "global.json"))) return dir.FullName;

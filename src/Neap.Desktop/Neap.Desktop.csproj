@@ -14,6 +14,8 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- Avalonia's own generated code is not held to the project's doc-comment rules. -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <!-- Neap speaks one language, so it needs no culture data, and a system without the ICU library (a minimal one) still runs it. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
