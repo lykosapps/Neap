@@ -54,30 +54,43 @@ function Test-InPackage {
     [NeapUi]::GetCurrentPackageFullName([ref]$length, $null) -ne 15700
 }
 
-# A screen that is off is captured as pure black, so a picture, and anything
-# measured from one, is worthless. The display turns itself off after a few
-# idle minutes, and a check run from a script touches nothing to stop it.
-function Test-ScreenLit {
-    Add-Type -AssemblyName System.Windows.Forms
-    $bitmap = New-Object System.Drawing.Bitmap 800, 500
-    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-    $graphics.CopyFromScreen(100, 100, 0, 0, $bitmap.Size)
-    $graphics.Dispose()
-    $lit = 0
-    foreach ($x in 50..750 | Where-Object { $_ % 100 -eq 50 }) { foreach ($y in 50..450 | Where-Object { $_ % 100 -eq 50 }) { if ($bitmap.GetPixel($x, $y).ToArgb() -band 0xFFFFFF) { $lit++ } } }
-    $bitmap.Dispose()
-    $lit -ge 3
-}
-
 # Keeps the display on for as long as this process lives, and wakes it if it
-# is off with an input event that moves nothing. Stops the check, saying why, if
-# the screen will not light.
+# is off with an input event that moves nothing. A screen that is off is
+# captured as pure black, and the display turns itself off after a few idle
+# minutes; a check run from a script touches nothing to stop it.
 function Wake-Screen {
     # Continuous, system and display required.
     [NeapUi]::SetThreadExecutionState([Convert]::ToUInt32('80000003', 16)) | Out-Null
-    if (Test-ScreenLit) { return }
     [NeapUi]::mouse_event(0x0001, 0, 0, 0, [UIntPtr]::Zero)
-    if (-not (Wait-Until { Test-ScreenLit } 10)) { throw 'the screen is off and would not wake; screen checks need it on' }
+}
+
+# Takes a picture of the window, as it is, for measuring; the caller disposes it.
+function Get-WindowBitmap {
+    $rect = Get-NeapRect
+    $bitmap = New-Object System.Drawing.Bitmap ($rect.Right - $rect.Left), ($rect.Bottom - $rect.Top)
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    $dc = $graphics.GetHdc()
+    [NeapUi]::PrintWindow($script:Handle, $dc, 2) | Out-Null
+    $graphics.ReleaseHdc($dc); $graphics.Dispose()
+    $bitmap
+}
+
+# Whether a picture of the window has anything in it. The desktop is no guide:
+# a black wallpaper with the taskbar hidden is black with the screen on.
+function Test-BitmapLit($Bitmap) {
+    $lit = 0
+    foreach ($x in 100, 300, 500) { foreach ($y in 150, 300, 450) { if ($x -lt $Bitmap.Width -and $y -lt $Bitmap.Height -and $Bitmap.GetPixel($x, $y).GetBrightness() -gt 0.04) { $lit++ } } }
+    $lit -gt 2
+}
+
+# Stops the check, saying why, if the window will not come out lit.
+function Assert-ScreenLit {
+    $lit = Wait-Until {
+        Wake-Screen
+        $bitmap = Get-WindowBitmap
+        try { Test-BitmapLit $bitmap } finally { $bitmap.Dispose() }
+    } 10
+    if (-not $lit) { throw 'the screen is off and would not wake; screen checks need it on' }
 }
 
 function Check([bool]$ok, [string]$what) {
@@ -161,6 +174,7 @@ function Start-NeapPretend {
         $null -ne $script:Window
     } 20 | Out-Null
     $script:Handle = [IntPtr]$script:Window.Current.NativeWindowHandle
+    Assert-ScreenLit
 }
 function Stop-NeapPretend {
     if ($script:Proc) {
@@ -188,18 +202,12 @@ function Get-NeapRect { $rect = New-Object NeapUi+Rect; [NeapUi]::GetWindowRect(
 function Save-Shot([string]$Name, [int]$Top = 300, [switch]$Whole) {
     New-Item -ItemType Directory -Force -Path $script:Out | Out-Null
     for ($try = 0; $try -lt 5; $try++) {
-        $rect = Get-NeapRect
-        $bitmap = New-Object System.Drawing.Bitmap ($rect.Right - $rect.Left), ($rect.Bottom - $rect.Top)
-        $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-        $dc = $graphics.GetHdc()
-        [NeapUi]::PrintWindow($script:Handle, $dc, 2) | Out-Null
-        $graphics.ReleaseHdc($dc); $graphics.Dispose()
-        $lit = 0
-        foreach ($x in 100, 300, 500) { foreach ($y in 150, 300, 450) { if ($x -lt $bitmap.Width -and $y -lt $bitmap.Height -and $bitmap.GetPixel($x, $y).GetBrightness() -gt 0.04) { $lit++ } } }
-        if ($lit -gt 2) { break }
+        $bitmap = Get-WindowBitmap
+        $lit = Test-BitmapLit $bitmap
+        if ($lit) { break }
         if ($try -lt 4) { $bitmap.Dispose(); Start-Sleep -Milliseconds 300 }
     }
-    if ($lit -le 2) { Note "the screen is black for ${Name}: the picture is not trustworthy" }
+    if (-not $lit) { Note "the screen is black for ${Name}: the picture is not trustworthy" }
     $crop = $bitmap.Clone((New-Object System.Drawing.Rectangle(0, 0, $bitmap.Width, [Math]::Min($Top, $bitmap.Height))), $bitmap.PixelFormat)
     $crop.Save((Join-Path $script:Out "$Name-top.png")); $crop.Dispose()
     if ($Whole) { $bitmap.Save((Join-Path $script:Out "$Name.png")) }

@@ -62,8 +62,10 @@ preparing code for experienced reviewers.
   Logs and pictures land in `TestResults/ui`. Only one practice run of the app
   can be open at a time, so run one check at a time. A screen that is off
   captures as pure black, and the screen turns itself off after five idle
-  minutes, so a check that fails oddly with black pictures needs rerunning
-  with the screen on. A new check is a script beside it that uses `Ui.ps1`.
+  minutes, so a check that stops saying the screen is off needs rerunning
+  with the screen on. The check judges this from the app's own window, not
+  the desktop, which can be black with the screen on. A new check is a script
+  beside it that uses `Ui.ps1`.
 - **Sample, do not snapshot.** One reading after the fact shows where a value
   settled, not whether it moved.
 - **Read the app's folder from outside Claude.** The desktop app runs
