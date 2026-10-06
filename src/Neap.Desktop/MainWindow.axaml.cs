@@ -100,7 +100,7 @@ public partial class MainWindow : Window
     /// <summary>A pretend run's picture of the window, once the headset has answered and the screens have settled.</summary>
     private async Task SaveAndExit(string file)
     {
-        await Task.Delay(TimeSpan.FromSeconds(4));
+        await Task.Delay(Pretend.SettleTime);
         if (Pretend.ScrolledBy is double by && (Body.Content as UserControl)?.Content is ScrollViewer scroller)
         {
             if (double.IsInfinity(by)) scroller.ScrollToEnd();

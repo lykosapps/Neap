@@ -114,6 +114,13 @@ public static class Pretend
     /// </remarks>
     public static string? Snapshot { get; } = After(SnapshotFlag);
 
+    /// <summary>With <see cref="SnapshotFlag"/>, how many seconds to let the screens settle before the picture; the default is four.</summary>
+    public const string WaitFlag = "--wait";
+
+    /// <summary>How long a picture waits for the headset to answer and the screens to settle.</summary>
+    public static TimeSpan SettleTime { get; } =
+        TimeSpan.FromSeconds(double.TryParse(After(WaitFlag), out double seconds) && seconds > 0 ? seconds : 4);
+
     /// <summary>How far down the page the picture is of, in pixels, or null for its top; infinity for its foot.</summary>
     public static double? ScrolledBy { get; } =
         !Given(ScrolledFlag) ? null
@@ -178,10 +185,18 @@ public static class Pretend
 
     private static PretendControl? _control;
 
+    /// <summary>
+    /// Names the folder the pretend runs keep, for a run that must not share
+    /// it with another running at the same time.
+    /// </summary>
+    public const string FolderVariable = "NEAP_PRETEND_FOLDER";
+
     /// <summary>Gives the run a folder of its own. Call before anything reads the app's folder.</summary>
     public static void Separate()
     {
-        if (Active) AppFolder.Separate("Pretend");
+        if (!Active) return;
+        string? named = Environment.GetEnvironmentVariable(FolderVariable);
+        AppFolder.Separate(string.IsNullOrWhiteSpace(named) ? "Pretend" : named);
     }
 
     /// <summary>Opens the pipe a test script drives the pretend headset through.</summary>
