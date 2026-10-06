@@ -70,13 +70,15 @@ public sealed class HeadsetService : IDisposable
     /// Through the USB Transmitter the headset says nothing when the boom arm
     /// moves or the Mode button is pressed, though it answers correctly when
     /// asked (measured on a Steam Deck). Asking the microphone and the noise
-    /// categories in turn keeps both within two seconds. It is the service's
+    /// categories in turn keeps both within a second, which a press of the Mode
+    /// button needs: the noise service answers it by setting the third mode, and
+    /// a press answered seconds late feels broken. It is the service's
     /// job, not a screen's, so the answer is current whichever screen shows
     /// it, or none does.
     /// </remarks>
-    private static readonly TimeSpan WatchEvery = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan WatchEvery = TimeSpan.FromMilliseconds(350);
 
-    private static readonly string[] Watched = ["Mic", "SAF"];
+    private static readonly string[] Watched = ["SAF", "Mic"];
 
     /// <summary>Closest together two requests to the headset are sent; it drops one sent straight after another.</summary>
     private static readonly TimeSpan AskGap = TimeSpan.FromMilliseconds(300);
