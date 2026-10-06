@@ -93,6 +93,7 @@ try
         case "route" when OperatingSystem.IsWindows(): return WindowsSound.Route();
         case "hear" when OperatingSystem.IsWindows(): return WindowsSound.Hear(args[1], args.Length > 2 ? double.Parse(args[2], CultureInfo.InvariantCulture) : 60);
         case "loopback" when OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041): return WindowsSound.Loopback(uint.Parse(args[1], CultureInfo.InvariantCulture));
+        case "tone": return Tone(args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 5);
         case "mixapp": return MixApp(args[1], args.Length > 2 ? args[2] : "demo");
         case "recover": return RecoverMix();
         case "sound" when OperatingSystem.IsLinux(): return LinuxSound();
@@ -356,6 +357,31 @@ static int LinuxMicMute(string change)
     var after = Neap.Core.Audio.Pulse.PulseVolumes.Describe(Flow.Input);
     Console.WriteLine($"after:  volume {after.Percent}%, muted {after.Muted}");
     return after.Muted == (change == "on") ? 0 : 1;
+}
+
+// Plays the test tone on the headset, sweeping up from 200 Hz for the given
+// seconds, the way the parametric equaliser's Sweep does.
+static int Tone(double seconds)
+{
+    try
+    {
+        using var tone = ToneOutput.Open(200);
+        tone.Stopped += fault => Console.WriteLine($"stopped: {fault.Message}");
+        tone.Amplitude = 0.3;
+        var clock = Stopwatch.StartNew();
+        while (clock.Elapsed.TotalSeconds < seconds)
+        {
+            tone.Frequency = 200 * Math.Pow(20, clock.Elapsed.TotalSeconds / seconds);
+            Thread.Sleep(33);
+        }
+        Console.WriteLine("played");
+        return 0;
+    }
+    catch (Exception ex) when (ToneOutput.IsRefusal(ex))
+    {
+        Console.WriteLine($"could not play: {ex.Message}");
+        return 1;
+    }
 }
 
 // The outputs and application streams the sound server reports, and which
