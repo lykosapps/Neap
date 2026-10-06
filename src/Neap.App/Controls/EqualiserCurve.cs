@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -9,16 +8,6 @@ using Windows.Foundation;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
 
 namespace Neap.App.Controls;
-
-/// <summary>Formats a band value, held everywhere in tenths of a decibel, as signed decibels.</summary>
-internal static class Db
-{
-    public static string Text(int tenths)
-    {
-        string sign = tenths > 0 ? "+" : tenths < 0 ? "−" : "";
-        return $"{sign}{Math.Abs(tenths / 10.0).ToString("0.0", CultureInfo.InvariantCulture)}";
-    }
-}
 
 /// <summary>
 /// Draws the equaliser response as a curve, with a draggable point per band.

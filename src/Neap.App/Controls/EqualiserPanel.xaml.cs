@@ -1,4 +1,3 @@
-using System.Globalization;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
@@ -34,13 +33,7 @@ internal sealed class DecibelFormatter : INumberFormatter2, INumberParser
     public ulong? ParseUInt(string text) =>
         Parse(text) is double d and >= 0 ? (ulong)Math.Round(d) : null;
 
-    private static double? Parse(string text)
-    {
-        string cleaned = new(text.Replace('−', '-').Replace(',', '.')
-            .Where(c => char.IsDigit(c) || c is '.' or '-' or '+').ToArray());
-        return double.TryParse(cleaned, NumberStyles.Float, CultureInfo.InvariantCulture,
-            out double db) ? db : null;
-    }
+    private static double? Parse(string text) => Db.Parse(text);
 }
 
 /// <summary>
