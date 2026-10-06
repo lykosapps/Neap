@@ -475,7 +475,7 @@
     <value>Switch it on and it connects by itself.</value>
   </data>
   <data name="State_FallbackOff" xml:space="preserve">
-    <value>On, but still not connecting? Press the CrossPlay button on the headset.</value>
+    <value>On, but still not connecting? Press the CrossPlay button on the headset. Moved it between the Charging Dock and the USB Transmitter? Switch it off and on again.</value>
   </data>
   <data name="State_WhatOffOnCable" xml:space="preserve">
     <value>Your headset is switched off.</value>

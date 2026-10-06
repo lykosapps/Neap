@@ -721,7 +721,8 @@ public sealed class HeadsetService : IDisposable
     /// <exception cref="DeviceNotFoundException">Nothing is plugged in at all.</exception>
     private HeadsetClient? Open(out int present)
     {
-        var client = HeadsetClient.Behind(allowWrites: true, out present, _askLast, _devices);
+        var client = HeadsetClient.Behind(allowWrites: true, out present, _askLast, _devices,
+            (device, ex) => NoteFault($"asking {device}", ex));
         _askLast = null;
         return client;
     }

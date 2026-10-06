@@ -81,13 +81,15 @@ public sealed class HeadsetClient : IDisposable
     /// <param name="present">How many candidate devices were found.</param>
     /// <param name="askLast">A product id to ask after the others, when its answer is in doubt.</param>
     /// <param name="devices">Where to look; what the operating system has when not given.</param>
+    /// <param name="failed">Told why a device could not be opened or asked, with its description, so a headset that is there but not answering can be told from one that is not.</param>
     /// <returns>
     /// The client for the device that answered, or null when devices are
     /// present but none has the headset.
     /// </returns>
     /// <exception cref="DeviceNotFoundException">No candidate device is present.</exception>
     public static HeadsetClient? Behind(bool allowWrites, out int present, ushort? askLast = null,
-        IDeviceSource? devices = null)
+        IDeviceSource? devices = null,
+        Action<string, Exception>? failed = null)
     {
         devices ??= SystemDevices.Instance;
         var candidates = devices.Candidates().OrderBy(d => d.ProductId == askLast).ToList();
@@ -109,10 +111,11 @@ public sealed class HeadsetClient : IDisposable
                 client.Drain();
                 if (client.ReadCategory("GSI", AskWindow).Count > 0) return client;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Cannot be opened or does not answer: try the next rather
-                // than failing the whole connect.
+                // than failing the whole connect, but say why.
+                failed?.Invoke(device.Path, ex);
             }
             client?.Dispose();
         }

@@ -139,7 +139,8 @@ catch (Neap.Core.Audio.Pulse.PulseException error)
 // headset.
 static HeadsetClient Ask()
 {
-    var client = HeadsetClient.Behind(allowWrites: false, out int present);
+    var client = HeadsetClient.Behind(allowWrites: false, out int present,
+        failed: (device, ex) => Console.Error.WriteLine($"{device}: {ex.GetType().Name}: {ex.Message}"));
     if (client is not null) return client;
     throw new DeviceNotFoundException(
         present > 1
