@@ -27,7 +27,8 @@ public sealed class OneCopy : IDisposable
     /// <summary>The copy this process holds, once it has taken the lock.</summary>
     public static OneCopy? Current { get; private set; }
 
-    private static string PipeName => Pretend.Active ? "Neap.Pretend.Show" : "Neap.Show";
+    /// <summary>One per person: on a system two people are signed in to, a name they shared would hand one person's copy the other's request.</summary>
+    private static string PipeName => (Pretend.Active ? "Neap.Pretend.Show." : "Neap.Show.") + Environment.UserName;
 
     /// <summary>Takes the lock, or returns null when another copy has it.</summary>
     public static OneCopy? Take()

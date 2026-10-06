@@ -110,11 +110,20 @@ public static class SystemTools
         // The freedesktop file-manager protocol can select a file, but only
         // through a session bus call; opening the folder is what every
         // desktop does the same.
-        Process.Start(new ProcessStartInfo("xdg-open")
+        try
         {
-            ArgumentList = { Path.GetDirectoryName(path) ?? "." },
-            UseShellExecute = false,
-        })?.Dispose();
+            Process.Start(new ProcessStartInfo("xdg-open")
+            {
+                ArgumentList = { Path.GetDirectoryName(path) ?? "." },
+                UseShellExecute = false,
+            })?.Dispose();
+        }
+        catch (System.ComponentModel.Win32Exception ex)
+        {
+            // A system with no way to open a folder from a program: the
+            // file is where it was saved, and the screen says where.
+            AppLog.Write($"could not show {path} in a file manager: {ex.Message}");
+        }
     }
 
     /// <summary>The person's Downloads folder, wherever they have moved it.</summary>
