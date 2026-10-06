@@ -58,7 +58,9 @@ to GitHub, these become issues.
 
 The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
-- **The full hardware list**, on the current build.
+- **The full hardware list**, on the current build, which now runs on
+  Windows App SDK 2.5.1. Includes seeing the tray menu and Starting with
+  Windows work after the upgrade.
 - **High contrast.** The fixes for it have not been seen on screen.
 - **The tray icon's menu** in light and dark, on screen.
 - **Starting with Windows** on the current build.
@@ -112,10 +114,9 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   it may take, and a way to cancel it.
 - Publish on GitHub: the repository named "neap", private vulnerability
   reporting on, main only, and a first real CI run.
-- A package update pass. On 25 Sep: the Windows App SDK 1.8 to 2.5, a new
-  major version to read up on first, and the SDK build tools. The rest
-  are current. H.NotifyIcon moved to 2.4.1 on 6 Oct and its tray menu
-  was checked by hand.
+- A package update pass. Done on 6 Oct: the Windows App SDK moved to 2.5.1,
+  as 1.8 went out of support on 24 September, and H.NotifyIcon to 2.4.1, with
+  its tray menu checked by hand. Still to do: the SDK build tools.
 - An ARM build.
 - A read-through by an experienced .NET developer before release.
 - A trademark search for the name.
