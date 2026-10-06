@@ -44,7 +44,7 @@ public static class Pretend
     /// <summary>With <see cref="Flag"/>, shows the app in the dark theme whatever Windows is set to.</summary>
     public const string DarkFlag = "--dark";
 
-    /// <summary>With <see cref="Flag"/> and a page's rail tag after it, opens the app on that page.</summary>
+    /// <summary>With a page's rail tag after it, opens the app on that page. Works on a real run too.</summary>
     public const string PageFlag = "--page";
 
     /// <summary>With a file name after it, saves a picture of the window there once it has settled, and exits. Works on a real run too.</summary>
@@ -83,7 +83,7 @@ public static class Pretend
     /// even behind everything, so a script that must not take the screen from
     /// somebody sees each page by launching on it instead.
     /// </remarks>
-    public static string? Page { get; } = Active ? After(PageFlag) : null;
+    public static string? Page { get; } = After(PageFlag);
 
     /// <summary>The file a picture of the window is saved to, or null to run on as usual.</summary>
     /// <remarks>
