@@ -15,6 +15,19 @@ to GitHub, these become issues.
 
 ## Features
 
+- **Move the headset between PCs without switching it off and on.**
+  *High priority.* The headset keeps its settings on the transmitter it was
+  switched on with, and CrossPlay moves only its sound, so after moving
+  between a Charging Dock on one PC and a USB Transmitter on another, the
+  second PC plays sound but cannot read or change the settings until the
+  headset is switched off and on there. Wanted: moving the headset to a
+  transmitter, from either side, takes its settings with it, with nothing
+  unplugged or switched off. Research first: whether the headset has any way
+  to be told to move its settings, and how Swarm II behaves in the same
+  situation. The transmitter slots' selection writes are known to be
+  unsafe, so each experiment needs the owner's go-ahead. Needs the headset
+  and two transmitters. Until then the note for a headset that is not
+  connecting says to switch it off and on after moving it.
 - **Profiles.** Save and apply a set of settings, switch automatically when
   an app starts, and switch with hotkeys.
 - **Dolby Access's own profiles from Neap.** Offer Dolby Access's profiles
