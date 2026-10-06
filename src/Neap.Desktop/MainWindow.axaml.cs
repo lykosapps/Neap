@@ -80,6 +80,11 @@ public partial class MainWindow : Window
     private async Task SaveAndExit(string file)
     {
         await Task.Delay(TimeSpan.FromSeconds(4));
+        if (Pretend.Scrolled && (Body.Content as UserControl)?.Content is ScrollViewer scroller)
+        {
+            scroller.ScrollToEnd();
+            await Task.Delay(TimeSpan.FromSeconds(1));
+        }
         var size = new PixelSize((int)Bounds.Width, (int)Bounds.Height);
         using var picture = new RenderTargetBitmap(size, new Vector(96, 96));
         picture.Render(this);

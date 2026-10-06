@@ -50,6 +50,9 @@ public static class Pretend
     /// <summary>With a file name after it, saves a picture of the window there once it has settled, and exits. Works on a real run too.</summary>
     public const string SnapshotFlag = "--snapshot";
 
+    /// <summary>With <see cref="SnapshotFlag"/>, scrolls the page to its end first, to picture what is below the fold. Works on a real run too.</summary>
+    public const string ScrolledFlag = "--scrolled";
+
     /// <summary>With <see cref="Flag"/>, opens the game equaliser in parametric mode with <see cref="SampleAdjustments"/>.</summary>
     public const string ParametricFlag = "--parametric";
 
@@ -91,6 +94,9 @@ public static class Pretend
     /// screen and nothing in front of it, and is the same on every system.
     /// </remarks>
     public static string? Snapshot { get; } = After(SnapshotFlag);
+
+    /// <summary>Whether the picture is of the foot of the page rather than its top.</summary>
+    public static bool Scrolled { get; } = Given(ScrolledFlag);
 
     /// <summary>
     /// Whether the game equaliser opens in parametric mode, with every

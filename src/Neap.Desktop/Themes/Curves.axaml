@@ -1,0 +1,96 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        The equaliser's plots. Their shapes are built in code, so their colours
+        are style classes rather than brushes set in code: a style's theme
+        resources follow a change of theme while the page is open. Dash
+        patterns stay in code: a style shares one pattern between its lines,
+        and only the first line draws it.
+    -->
+
+    <!-- The quarter lines, faint, and the 0 dB line, stronger. -->
+    <Style Selector="Line.curvegrid">
+        <Setter Property="Stroke" Value="{DynamicResource NeapRuleBrush}" />
+        <Setter Property="StrokeThickness" Value="1" />
+    </Style>
+    <Style Selector="Line.curvecentre">
+        <Setter Property="Stroke" Value="{DynamicResource NeapTextTertiaryBrush}" />
+        <Setter Property="StrokeThickness" Value="1" />
+    </Style>
+
+    <!-- The curve the headset plays, and the band view's fill beneath it. -->
+    <Style Selector="Path.curveheard">
+        <Setter Property="Stroke" Value="{DynamicResource NeapGameBrush}" />
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="StrokeJoin" Value="Round" />
+    </Style>
+    <Style Selector="Path.curvearea">
+        <Setter Property="Fill" Value="{DynamicResource NeapGameBrush}" />
+        <Setter Property="Opacity" Value="0.14" />
+    </Style>
+
+    <!-- The band view's preset, drawn behind the curve once a band has moved, and its ring on each moved band. -->
+    <Style Selector="Path.curvestored">
+        <Setter Property="Stroke" Value="{DynamicResource NeapTextTertiaryBrush}" />
+        <Setter Property="StrokeThickness" Value="1" />
+    </Style>
+    <Style Selector="Ellipse.curvering">
+        <Setter Property="Fill" Value="{DynamicResource NeapGroundBrush}" />
+        <Setter Property="Stroke" Value="{DynamicResource NeapTextTertiaryBrush}" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+    </Style>
+
+    <!--
+        A preset in the equaliser's list: a flat button, the chosen one tinted,
+        as Home's list marks its own.
+    -->
+    <Style Selector="Button.chip">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.chip:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource NeapPresetHoverBrush}" />
+    </Style>
+    <Style Selector="Button.chip.chosen /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource NeapPresetSelectedBrush}" />
+    </Style>
+    <Style Selector="Button.remove">
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <!-- Says a curve has been moved from its preset. -->
+    <Style Selector="Border.edited">
+        <Setter Property="Padding" Value="8,2" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapToneCautionBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+    </Style>
+    <Style Selector="Border.edited > TextBlock">
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <!-- The preset's name over the panel: the title's size without the button's fill. -->
+    <Style Selector="DropDownButton.titlebutton">
+        <Setter Property="Margin" Value="-10,0,0,0" />
+        <Setter Property="Padding" Value="10,2,8,4" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+
+    <!-- The band view's point on each band. -->
+    <Style Selector="Ellipse.bandhandle">
+        <Setter Property="Fill" Value="{DynamicResource NeapGameBrush}" />
+        <Setter Property="Stroke" Value="{DynamicResource NeapGroundBrush}" />
+        <Setter Property="StrokeThickness" Value="2" />
+    </Style>
+</Styles>

@@ -78,6 +78,9 @@
                                 </c:SettingTile.Inside>
                             </c:SettingTile>
                         </Grid>
+
+                        <TextBlock loc:Uid.Value="Microphone_EqualiserHeading" Classes="sectionheader" />
+                        <c:EqualiserPanel Bank="Mic" />
                     </c:HeadsetSection>
                 </c:HeadsetSection>
 

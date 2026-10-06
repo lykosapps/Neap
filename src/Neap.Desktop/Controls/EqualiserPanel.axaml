@@ -1,0 +1,147 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.EqualiserPanel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <!--
+        The curve and its controls across the whole of a lit panel like
+        Home's, with the presets opening from the preset's name, as they
+        open from Home's tile.
+    -->
+    <Border Classes="card">
+        <StackPanel Spacing="16">
+
+            <!-- Which preset, and whether it has been changed since. -->
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <StackPanel
+                    Grid.Column="0"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <!--
+                        The name is the way to the other presets. It keeps
+                        the title's size and loses the button's fill, so it
+                        still reads as the heading until pointed at.
+                    -->
+                    <DropDownButton
+                        x:Name="PresetPicker"
+                        loc:Uid.Value="Equaliser_PresetPicker"
+                        Classes="titlebutton">
+                        <TextBlock x:Name="PresetName" Classes="title" />
+                        <DropDownButton.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                <!--
+                                    The slots, factory and custom, and how many are
+                                    left: that is part of the decision to save.
+                                -->
+                                <StackPanel MinWidth="280" Spacing="4">
+                                    <TextBlock
+                                        loc:Uid.Value="Equaliser_PresetsLabel"
+                                        Margin="12,0,0,8"
+                                        Classes="label" />
+                                    <StackPanel x:Name="Slots" Spacing="2" />
+                                    <!--
+                                        A new preset from flat, without choosing and
+                                        changing one first. Unavailable with every slot
+                                        full, as the note under it says.
+                                    -->
+                                    <Button
+                                        x:Name="NewButton"
+                                        loc:Uid.Value="Equaliser_New"
+                                        Margin="0,4,0,0"
+                                        Classes="chip">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <PathIcon Width="16" Height="16" Data="{StaticResource IconAdd}" />
+                                            <TextBlock loc:Uid.Value="Equaliser_NewLabel" />
+                                        </StackPanel>
+                                    </Button>
+                                    <TextBlock
+                                        x:Name="FreeSlots"
+                                        Margin="12,8,12,0"
+                                        Classes="caption secondary" />
+                                </StackPanel>
+                            </Flyout>
+                        </DropDownButton.Flyout>
+                    </DropDownButton>
+                    <Border x:Name="EditedPill" Classes="edited" IsVisible="False">
+                        <TextBlock loc:Uid.Value="Equaliser_Edited" />
+                    </Border>
+                </StackPanel>
+
+                <!--
+                    Always there, and disabled when they cannot be used, so
+                    none moves under the pointer when a band is first
+                    dragged. Overwrite goes first because its label names
+                    the preset and changes width; the two after it stay put.
+                    It is left out for a factory preset, which can never be
+                    overwritten. Saving a new preset is the accent once there
+                    is an edit to keep, since it keeps everything where
+                    overwriting loses the old curve; before that it offers a
+                    duplicate, which is not the thing to do next, and is plain.
+                -->
+                <StackPanel
+                    x:Name="Actions"
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button x:Name="OverwriteButton" IsEnabled="False">
+                        <Button.Flyout>
+                            <Flyout>
+                                <StackPanel MaxWidth="280" Spacing="12">
+                                    <TextBlock x:Name="OverwriteQuestion" />
+                                    <StackPanel
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <Button x:Name="OverwriteYes" loc:Uid.Value="Equaliser_OverwriteYes" />
+                                        <Button x:Name="OverwriteNo" loc:Uid.Value="Equaliser_OverwriteNo" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                    <Button
+                        x:Name="DiscardButton"
+                        loc:Uid.Value="Equaliser_DiscardButton"
+                        IsEnabled="False" />
+                    <Button
+                        x:Name="SaveButton"
+                        MinWidth="104"
+                        IsEnabled="False" />
+                </StackPanel>
+            </Grid>
+
+            <!--
+                The curve and the readouts share one width and one set of
+                columns, so every point sits over its own number, until the
+                panel is too narrow for ten readable values; then they fold
+                into two rows of five.
+            -->
+            <StackPanel x:Name="Curve" HorizontalAlignment="Stretch">
+                <c:EqualiserCurve x:Name="Response" Height="220" />
+                <Grid x:Name="Bands" Margin="0,8,0,0" RowSpacing="8" />
+            </StackPanel>
+
+            <!--
+                Shown until the headset reports its bands, in place of the
+                curve: a flat line would read as an equaliser set flat.
+            -->
+            <StackPanel
+                x:Name="Waiting"
+                Margin="0,24"
+                HorizontalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="12">
+                <ProgressBar
+                    x:Name="WaitingRing"
+                    Width="20"
+                    Height="20"
+                    Classes="circular"
+                    IsIndeterminate="True" />
+                <TextBlock x:Name="WaitingText" Classes="secondary" VerticalAlignment="Center" />
+            </StackPanel>
+
+        </StackPanel>
+    </Border>
+</UserControl>

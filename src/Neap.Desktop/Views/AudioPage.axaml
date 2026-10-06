@@ -67,6 +67,15 @@
                                 Setting="voice_prompt_volume" />
                         </c:HeadsetSection>
                     </c:SideBySide>
+
+                    <!--
+                        Folds without a card of its own: the card that stands in
+                        for noise control above already names the equaliser.
+                    -->
+                    <c:HeadsetSection Explain="False">
+                        <TextBlock loc:Uid.Value="Audio_EqualiserHeading" Classes="sectionheader" />
+                        <c:EqualiserPanel Bank="Game" />
+                    </c:HeadsetSection>
                 </c:HeadsetSection>
 
             </StackPanel>
