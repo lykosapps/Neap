@@ -92,6 +92,12 @@ From this version on, Neap updates itself.
   Windows' version and the headset hardware filled in, and opens the
   folder with the recording ready to drag in.
 
+### Behind the scenes
+
+- **Kept on supported software.** Neap now runs on the current version of
+  Microsoft's app toolkit, so it keeps getting Microsoft's security fixes.
+  The download is about 14 MB larger.
+
 ## 0.1.0 — 2026-10-04, the first release
 
 A Windows app for the Turtle Beach Stealth Pro II, in place of Swarm II.
