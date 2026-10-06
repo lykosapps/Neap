@@ -41,6 +41,31 @@ public static class Microphone
         _ => MicState.Unknown,
     };
 
+    /// <summary>What the system's mute should become because the headset's own mute moved, or null to leave it as it is.</summary>
+    /// <remarks>
+    /// <para>
+    /// The boom arm and the mute button are the headset muting itself, before
+    /// the sound reaches the PC, so a chat application on the PC hears the
+    /// same silence as the person who muted it only if the system is muted too.
+    /// Raising the arm mutes the system, and lowering it unmutes it, so the
+    /// headset and the system never disagree about whether you can be heard.
+    /// </para>
+    /// <para>
+    /// Only a move acts. A mute the person set from the app while the arm is
+    /// down stays until the arm moves; so does one set while it is up. On the
+    /// first reading a raised arm mutes, but a lowered one leaves the system
+    /// alone: nothing has been muted by the headset yet.
+    /// </para>
+    /// </remarks>
+    /// <param name="before">The reading before, or null if there was none.</param>
+    /// <param name="now">The reading now, or null if it is not one.</param>
+    public static bool? SystemMuteFor(int? before, int? now)
+    {
+        if (now is not (0 or 1) || before == now) return null;
+        if (before is null) return now == 1 ? true : null;
+        return now == 1;
+    }
+
     /// <summary>Whether the app can mute or unmute the microphone in this state.</summary>
     public static bool CanChange(MicState state) => state is MicState.Live or MicState.Muted;
 }

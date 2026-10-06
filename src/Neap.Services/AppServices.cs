@@ -23,6 +23,7 @@ public static class AppServices
     public static AudioRoute AudioRoute { get; private set; } = null!;
     public static IRing Ring { get; private set; } = null!;
     public static SessionRecorder Recorder { get; private set; } = null!;
+    public static MicFollowsHeadset MicFollow { get; private set; } = null!;
 
     /// <summary>Where the headset's transmitters are looked for.</summary>
     public static IDeviceSource Devices { get; } = (IDeviceSource?)Pretend.Headset ?? SystemDevices.Instance;
@@ -48,6 +49,7 @@ public static class AppServices
         AutoSwitch = new AutoSwitchService(Profiles, Headset,
             Pretend.Windows is { } windows ? windows.Programs : AutoSwitchService.RunningPrograms);
         Recorder = new SessionRecorder(Headset);
+        MicFollow = new MicFollowsHeadset(Headset);
         Hotkeys = Platform.Current.CreateHotkeys(Mix);
         Hotkeys.Enable(Hotkeys.Supported && AppSettings.Current.MixHotkeys && !Pretend.Active);
 
@@ -61,6 +63,7 @@ public static class AppServices
     public static void Stop()
     {
         Recorder?.Dispose();
+        MicFollow?.Dispose();
         Hotkeys?.Dispose();
         Mix?.Dispose();
         Noise?.Dispose();

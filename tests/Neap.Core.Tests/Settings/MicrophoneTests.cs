@@ -31,6 +31,18 @@ public class MicrophoneTests
     public void OnlyTheArmDownLetsTheAppChangeTheMute(MicState state, bool can) =>
         Assert.Equal(can, Microphone.CanChange(state));
 
+    [Theory]
+    [InlineData(0, 1, true)]
+    [InlineData(1, 0, false)]
+    [InlineData(null, 1, true)]
+    [InlineData(null, 0, null)]
+    [InlineData(0, 0, null)]
+    [InlineData(1, 1, null)]
+    [InlineData(1, null, null)]
+    [InlineData(0, 2, null)]
+    public void TheSystemFollowsTheHeadsetMutingItself(int? before, int? now, bool? mute) =>
+        Assert.Equal(mute, Microphone.SystemMuteFor(before, now));
+
     [Fact]
     public void TheArmIsAReadingNotASetting()
     {
