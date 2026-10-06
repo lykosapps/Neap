@@ -55,12 +55,13 @@ public sealed partial class AppStringsTests
     /// any literal shaped like one is one.
     /// </remarks>
     private static IEnumerable<string> CodeKeys() =>
-        Sources("*.cs").SelectMany(text => KeyLiteral().Matches(text).Select(m => m.Groups[1].Value))
+        Sources("*.cs").SelectMany(text => KeyLiteral().Matches(CodeUid().Replace(text, "")).Select(m => m.Groups[1].Value))
             .Distinct();
 
     private static IEnumerable<string> Uids() =>
         Sources("*.xaml").SelectMany(text => Uid().Matches(text))
             .Concat(Sources("*.axaml").SelectMany(text => AvaloniaUid().Matches(text)))
+            .Concat(Sources("*.cs").SelectMany(text => CodeUid().Matches(text)))
             .Select(m => m.Groups[1].Value)
             .Distinct();
 
@@ -82,4 +83,8 @@ public sealed partial class AppStringsTests
     /// <summary>The cross-platform app's way of saying the same: <c>loc:Uid.Value="Mix_Title"</c>.</summary>
     [GeneratedRegex("Uid\\.Value=\"([^\"]+)\"")]
     private static partial Regex AvaloniaUid();
+
+    /// <summary>The same given from code, to a control made there: <c>Uid.SetValue(button, "Mix_Title")</c>.</summary>
+    [GeneratedRegex("Uid\\.SetValue\\([^,]+, \"([^\"]+)\"\\)")]
+    private static partial Regex CodeUid();
 }

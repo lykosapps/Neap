@@ -1,3 +1,4 @@
+using Neap.Core.Audio;
 using Neap.Core.Connection;
 using Neap.Core.Presets;
 using Neap.Core.Profiles;
@@ -116,7 +117,13 @@ public sealed class ProfileService : IDisposable
 
         var spatial = await Platform.Current.Spatial.Read();
         Rewatch(spatial.EndpointId);
-        if (spatial.Active is not { } format) return null;
+
+        // Where the system has no spatial sound, a profile keeps whatever it
+        // was saved with, so that is never what makes it read as edited.
+        SpatialFormat format;
+        if (!Platform.Current.Spatial.Supported) format = Active?.Settings.Spatial ?? SpatialFormat.Off;
+        else if (spatial.Active is { } active) format = active;
+        else return null;
 
         return new ProfileSettings(mode, level, shh, shhPreset, shhLevel, gate, gateThreshold, ai,
             monitoring, AppServices.Presets.State(Bank.Game)?.Baseline?.Name,

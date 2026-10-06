@@ -26,6 +26,7 @@
                         <GradientStop Offset="1" Color="#1E1929" />
                     </RadialGradientBrush>
                     <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#3B3351" />
+                    <SolidColorBrush x:Key="NeapNoticeBrush" Color="#372B66" />
                     <SolidColorBrush x:Key="NeapRuleBrush" Color="#2B2440" />
                     <SolidColorBrush x:Key="NeapGameBrush" Color="#9D8CFF" />
                     <SolidColorBrush x:Key="NeapGameTextBrush" Color="#B2A5FF" />
@@ -60,6 +61,7 @@
                         <GradientStop Offset="1" Color="#F0EDF7" />
                     </RadialGradientBrush>
                     <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#DDD8E8" />
+                    <SolidColorBrush x:Key="NeapNoticeBrush" Color="#E4DDF8" />
                     <SolidColorBrush x:Key="NeapRuleBrush" Color="#E2DEEC" />
                     <SolidColorBrush x:Key="NeapGameBrush" Color="#6D5AD9" />
                     <SolidColorBrush x:Key="NeapGameTextBrush" Color="#5845BD" />
@@ -142,6 +144,26 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="16" />
         <Setter Property="Padding" Value="16" />
+    </Style>
+
+    <!-- A dialog on Neap's own ground, as the window is, in place of the system's grey. -->
+    <Style Selector="Window.neapground">
+        <Setter Property="Background" Value="{DynamicResource NeapGroundBrush}" />
+    </Style>
+
+    <!-- A mark in the accent, beside words it goes with. -->
+    <Style Selector="PathIcon.accentmark">
+        <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
+    </Style>
+
+    <!-- The update banner: a flat wash of the accent hue, with an accent edge down its left. -->
+    <Style Selector="Border.update">
+        <Setter Property="Background" Value="{DynamicResource NeapNoticeBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapPanelStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <Style Selector="Border.updateedge">
+        <Setter Property="Background" Value="{DynamicResource NeapGameBrush}" />
     </Style>
 
     <!-- A rule under a group of controls, setting it apart from the list below. -->

@@ -77,6 +77,7 @@ public partial class MainWindow : Window
                 "audio" => new AudioPage(),
                 "mic" => new MicrophonePage(),
                 "controls" => new ControlsPage(),
+                "profiles" => new ProfilesPage(),
                 "device" => new DevicePage(),
                 "settings" => new SettingsPage(),
                 _ => new NotYet(),

@@ -1,0 +1,37 @@
+<UserControl
+    x:Class="Neap.Desktop.Views.ProfilesPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="32,0,32,32">
+            <StackPanel Classes="pagecolumn">
+
+                <TextBlock loc:Uid.Value="Profiles_Title" Classes="pagetitle" />
+                <TextBlock loc:Uid.Value="Profiles_Note" Classes="sectionnote" />
+
+                <!--
+                    Saving the headset's settings as a profile is the same
+                    action as New profile in the header's menu, which stays
+                    where it is for the quick case. The notice says why the
+                    button is off while the headset is not answering.
+                -->
+                <StackPanel
+                    Margin="0,0,0,8"
+                    Orientation="Horizontal"
+                    Spacing="12">
+                    <Button x:Name="New" Classes="accent" />
+                    <TextBlock
+                        x:Name="Notice"
+                        VerticalAlignment="Center"
+                        Classes="caption secondary" />
+                </StackPanel>
+
+                <c:ProfilesSettings />
+
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

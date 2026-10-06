@@ -45,7 +45,7 @@ public sealed class NeapDialog : Window
         CanResize = false;
         ShowInTaskbar = false;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        Background = Application.Current!.FindResource("NeapGroundBrush") as Avalonia.Media.IBrush;
+        Classes.Add("neapground");
 
         var buttons = new StackPanel
         {

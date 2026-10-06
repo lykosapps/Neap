@@ -14,7 +14,7 @@
     <!--
         Neap's own ground behind everything, in place of the system's grey.
     -->
-    <Grid RowDefinitions="48,Auto,*">
+    <Grid RowDefinitions="48,Auto,Auto,*">
 
         <!--
             The title row carries the headset's connection state, the one
@@ -39,9 +39,19 @@
                 VerticalAlignment="Center" />
         </Grid>
 
-        <!-- The active profile, on every page, in its own row under the title. -->
+        <!--
+            A newer version of Neap, at the very top under the title bar,
+            above every page until it is installed or put away.
+        -->
+        <c:UpdateBar Grid.Row="1" />
+
+        <!--
+            The active profile: under the title bar, and under the update
+            banner when there is one, above every page, so switching one is
+            as constant as the connection dot beside it.
+        -->
         <Border
-            Grid.Row="1"
+            Grid.Row="2"
             Padding="16,8"
             Background="{DynamicResource NeapPanelBrush}"
             BorderBrush="{DynamicResource NeapPanelStrokeBrush}"
@@ -51,7 +61,7 @@
 
         <SplitView
             x:Name="Rail"
-            Grid.Row="2"
+            Grid.Row="3"
             CompactPaneLength="52"
             DisplayMode="CompactInline"
             IsPaneOpen="True"
@@ -86,6 +96,10 @@
                             loc:Uid.Value="Main_NavControls"
                             Icon="{StaticResource IconControls}"
                             Page="controls" />
+                        <c:NavItem
+                            loc:Uid.Value="Main_NavProfiles"
+                            Icon="{StaticResource IconProfile}"
+                            Page="profiles" />
                         <c:NavItem
                             loc:Uid.Value="Main_NavDevice"
                             Icon="{StaticResource IconDevice}"
