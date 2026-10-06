@@ -19,34 +19,51 @@ Who it's for: see [USERS.md](USERS.md).
   reference for the fixed controls (volume wheel, chat wheel, boom arm,
   cross-play switch, Bluetooth button), and the chat-mix keyboard shortcuts.
   Serves button and dial mapping.
+- **Profiles** — the saved setups: save the headset's current settings as a
+  new one, rename or delete them, choose which apps bring one on by
+  themselves, and pick the default that comes back. Switching stays in the
+  profile bar above every page, one move from wherever someone is; this is
+  where they are looked after. Serves keeping a handful of setups tidy,
+  which is occasional work that has outgrown a section of Settings.
 - **Device** — connected transmitter(s), audio format, ring lighting,
   auto shut-off, wake on motion, and firmware/serial/raw values behind an
   expander. Serves transmitter and device information.
-- **Settings** (footer) — start with Windows, About, and Profiles' upkeep:
-  naming, deleting, assigning apps to switch to a profile automatically, and
-  setting the default profile. App housekeeping, plus the one piece of
-  profile management too infrequent for the always-visible bar.
-  Diagnostics sits there too: recording headset activity to send with a bug
-  report, and a link to the guide for helping support another headset.
-  Serves reporting a problem, which happens rarely and is about the app as
-  much as the headset, so it gets a section rather than a rail item.
+- **Settings** (footer) — Neap itself: its version and whether it is up to
+  date, with What's new and Update and restart, whether to check for updates
+  by itself, and whether it starts with Windows. Then Problems and other
+  headsets: recording headset activity to send with a bug report, and a link
+  to the guide for helping support another headset. The licence line is at
+  the foot. Neap and its update come first because the update banner and the
+  notice by the clock both lead here. Serves keeping the app current and
+  reporting a problem, which happens rarely and is about the app as much as
+  the headset, so it gets a section rather than a rail item.
 
 ## How people move
 
 A navigation rail, always on screen: Home, Audio, Microphone, Controls,
-Device, with Settings set apart in the footer. Six places, one level deep.
+Profiles, Device, with Settings set apart in the footer. Seven places, one
+level deep.
 Home is selected on launch. There's no back button because the rail is
 always there to move sideways instead. One shortcut: Home's quick settings
 can jump straight to Audio's equaliser. Closing the window leaves a tray icon running,
 whose own menu only opens or quits the app — it doesn't expose any page.
+
+When a newer version of Neap is out, a banner sits at the very top, under
+the title bar and above the profile bar, above every page: the news,
+What's new, Update and restart, and one Not now menu that puts it away for a
+day or for good. In a narrow window What's new and Not now fold into one
+more-options menu, so it stays one row. While an update runs it shows
+progress and offers nothing else. It is gone when there is nothing to say.
+The full account lives at the top of Settings, so putting the banner away
+loses nothing.
 
 A profile bar sits under the title bar, above every page, riding along with
 whichever place is open rather than being a place of its own. It shows the
 active profile and an edited mark, and is where switching to another saved
 profile or saving the current setup as a new one happens — the profile
 task's frequent moves, reachable without leaving the page someone's on.
-Naming, deleting, assigning apps and setting the default stay in Settings,
-so the bar never grows past what fits under a title bar. Once a profile has
+Naming, deleting, assigning apps and setting the default live on the
+Profiles page, so the bar never grows past what fits under a title bar. Once a profile has
 apps assigned, its own switch also happens automatically as those apps
 start and close, with no screen to visit at all.
 
@@ -56,14 +73,14 @@ start and close, with no screen to visit at all.
   Device already matches its function.
 - A new app-level preference (not about the headset) joins Settings.
 - A new everyday move for profiles (switching, saving) joins the profile
-  bar; a new occasional one (managing what's saved) joins Settings.
-- A seventh rail item only if something has no honest home in the five
-  above — which hasn't happened yet.
+  bar; a new occasional one (managing what's saved) joins the Profiles page.
+- An eighth rail item only if something has no honest home in the six
+  above.
 
 ## Why
 
 The groupings mirror Swarm II's own, so nothing asks the owner to learn a
-new mental model for the same headset. Six places stays flat and within
+new mental model for the same headset. Seven places stays flat and within
 Windows' own guidance for a side rail. Settings sits apart in the footer
 because it's about the app, not the headset.
 

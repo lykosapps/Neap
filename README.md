@@ -10,10 +10,13 @@ Swarm II. No driver, no Turtle Beach software, no admin rights.
 
 **For the Stealth Pro II only, for now.** Tested on the Xbox edition. The
 PlayStation edition should work but hasn't been tried, so reports are
-welcome. The Stealth 600 Gen 3, 700 Gen 3, 500 and Atlas Air share its
-platform, and [the probe](#the-probe) is how a new headset's settings get
-mapped, so support for them could follow with help from someone who owns
-one.
+welcome.
+
+> **Own another Turtle Beach headset? Help bring Neap to it.** The Stealth
+> 600 Gen 3, 700 Gen 3, 500 and Atlas Air share the Stealth Pro II's
+> platform. A ten-minute recording made in Neap is where support for them,
+> and for others, starts. Nothing else to install, and no technical
+> knowledge needed. **[Here's how](docs/MAPPING.md).**
 
 Not affiliated with or endorsed by Turtle Beach. Turtle Beach, Stealth Pro II
 and Swarm II are trademarks of Turtle Beach Corporation.
@@ -81,6 +84,10 @@ microphone.
   Superhuman Hearing, spatial sound, buttons and dial, lighting and power.
 - **Runs from the notification area**, with the mix and chat wheel still
   working, and can start with Windows.
+- **Updates itself.** Neap asks GitHub once a day for a newer version, and
+  updating is one button in Settings. It sends nothing from your PC or
+  headset, only the request, which GitHub sees as any website does, and
+  the check can be turned off.
 - **Works from the keyboard and with screen readers**, in light, dark and
   high contrast themes.
 
@@ -101,8 +108,11 @@ your PC. Choose **More info**, then **Run anyway**.
 It needs nothing else: no .NET runtime, no Windows App SDK, no driver. That
 makes it about 260 MB on disk.
 
-**To update,** close Neap from the notification area, replace the contents
-of its folder with the new release, and run it again. Settings are kept.
+**To update,** choose **Update and restart** at the top of Neap's settings
+when a newer version is out. Neap checks once a day and says so by
+the clock. Settings are kept. To update by hand instead, or from 0.1.0,
+close Neap from the notification area, replace the contents of its folder
+with the new release, and run it again.
 
 **To remove it,** turn off **Start with Windows** in its settings if you
 turned it on, close it from the notification area, and delete its folder
@@ -134,7 +144,7 @@ Working and in daily use, but young. Everything has been exercised on one
 headset on one Windows machine. There is no installer yet, and it was
 written with AI assistance.
 
-Found a problem? In **Settings → Diagnostics**, record while it happens,
+Found a problem? In **Settings → Problems and other headsets**, record while it happens,
 then choose **Report on GitHub**. You can also
 [open an issue](https://github.com/lykosapps/Neap/issues) directly. Have
 another Turtle Beach headset? [Help support it](docs/MAPPING.md).

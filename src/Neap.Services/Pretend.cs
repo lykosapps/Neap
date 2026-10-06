@@ -1,6 +1,7 @@
 using Neap.Core;
 using Neap.Core.Presets;
 using Neap.Core.Pretend;
+using Neap.Core.Updates;
 
 namespace Neap.Services;
 
@@ -56,7 +57,25 @@ public static class Pretend
     /// <summary>With <see cref="Flag"/>, opens the game equaliser in parametric mode with <see cref="SampleAdjustments"/>.</summary>
     public const string ParametricFlag = "--parametric";
 
+    /// <summary>With <see cref="Flag"/>, finds a newer version when checking for updates.</summary>
+    public const string UpdateFlag = "--update";
+
+    /// <summary>With <see cref="UpdateFlag"/>, makes the simulated update end in a new version that will not stay open.</summary>
+    public const string UpdateFailsFlag = "--update-fails";
+
     public static bool Active { get; } = Given(Flag);
+
+    /// <summary>
+    /// The program a simulated update starts as the new version: one that
+    /// exits at once, or null for an update that ends where it began.
+    /// </summary>
+    /// <remarks>
+    /// A program that Windows ships, so the check of what the person sees
+    /// when a new version doesn't open needs nothing built or broken.
+    /// </remarks>
+    public static string? RestartProgram { get; } = Active && Given(UpdateFlag) && Given(UpdateFailsFlag)
+        ? Path.Combine(Environment.SystemDirectory, "hostname.exe")
+        : null;
 
     /// <summary>
     /// Whether the window stays behind everything else, for a script driving
@@ -111,6 +130,37 @@ public static class Pretend
     /// <summary>The adjustments <see cref="ParametricFlag"/> opens with: the most allowed, one too narrow for the bands to match.</summary>
     public static IReadOnlyList<Adjustment> SampleAdjustments { get; } =
         [new(100, 30, 20), new(1000, -15, 15), new(4900, -40, 10), new(12000, 25, 15)];
+
+    /// <summary>The notes <see cref="UpdateFlag"/>'s release carries, shaped as the release workflow writes them.</summary>
+    private const string SampleNotes = """
+        **A sample release.** Its notes read as a real one's do, with a [link](https://github.com/lykosapps/Neap/releases).
+
+        ### Install
+
+        1. Download the zip below.
+
+        ### First thing
+
+        - **A bold start.** Then the rest of the line, which is long enough to wrap onto a second line in the dialog so the hanging indent shows.
+        - A second item.
+
+        ### Second thing
+
+        A paragraph on its own.
+        """;
+
+    /// <summary>
+    /// The newer version a check finds, or null for up to date. A pretend
+    /// run never asks GitHub, so a script can see the update card in every
+    /// state without the network.
+    /// </summary>
+    public static Release? Release { get; } = Active && Given(UpdateFlag)
+        ? new Release(new Version(9, 9, 9),
+            new Uri("https://github.com/lykosapps/Neap/releases/latest"),
+            new Uri("https://github.com/lykosapps/Neap/releases/download/v9.9.9/Neap-9.9.9-win-x64.zip"),
+            new Uri("https://github.com/lykosapps/Neap/releases/download/v9.9.9/Neap-9.9.9-win-x64.zip.sha256"),
+            SampleNotes)
+        : null;
 
     private static bool Given(string flag) => Environment.GetCommandLineArgs().Skip(1)
         .Any(a => string.Equals(a, flag, StringComparison.OrdinalIgnoreCase));

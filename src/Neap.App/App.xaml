@@ -36,6 +36,7 @@
                         <GradientStop Offset="1" Color="#1E1929" />
                     </RadialGradientBrush>
                     <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#3B3351" />
+                    <SolidColorBrush x:Key="NeapNoticeBrush" Color="#372B66" />
                     <SolidColorBrush x:Key="NeapRuleBrush" Color="#2B2440" />
                     <SolidColorBrush x:Key="NeapGameBrush" Color="#9D8CFF" />
                     <SolidColorBrush x:Key="NeapGameTextBrush" Color="#B2A5FF" />
@@ -52,6 +53,7 @@
                         <GradientStop Offset="1" Color="#F0EDF7" />
                     </RadialGradientBrush>
                     <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#DDD8E8" />
+                    <SolidColorBrush x:Key="NeapNoticeBrush" Color="#E4DDF8" />
                     <SolidColorBrush x:Key="NeapRuleBrush" Color="#E2DEEC" />
                     <SolidColorBrush x:Key="NeapGameBrush" Color="#6D5AD9" />
                     <SolidColorBrush x:Key="NeapGameTextBrush" Color="#5845BD" />
@@ -65,6 +67,7 @@
                     <SolidColorBrush x:Key="NeapGroundBrush" Color="{ThemeResource SystemColorWindowColor}" />
                     <SolidColorBrush x:Key="NeapPanelBrush" Color="{ThemeResource SystemColorWindowColor}" />
                     <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+                    <SolidColorBrush x:Key="NeapNoticeBrush" Color="{ThemeResource SystemColorWindowColor}" />
                     <SolidColorBrush x:Key="NeapRuleBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
                     <SolidColorBrush x:Key="NeapGameBrush" Color="{ThemeResource SystemColorHighlightColor}" />
                     <SolidColorBrush x:Key="NeapGameTextBrush" Color="{ThemeResource SystemColorWindowTextColor}" />

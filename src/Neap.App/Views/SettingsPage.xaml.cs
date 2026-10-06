@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Neap.App.Controls;
+using Neap.Core.Updates;
 
 namespace Neap.App.Views;
 
@@ -21,6 +22,8 @@ public sealed partial class SettingsPage : Page
     /// </remarks>
     private readonly TextBlock _recordState = new() { TextWrapping = TextWrapping.Wrap };
 
+    private UpdateStage? _paintedStage;
+
     private readonly DispatcherTimer _ticking = new() { Interval = TimeSpan.FromSeconds(1) };
 
     /// <summary>Gives a button the accent style, or takes it away.</summary>
@@ -36,6 +39,7 @@ public sealed partial class SettingsPage : Page
 
         _painting = true;
         StartWithWindows.IsOn = Startup.Enabled;
+        CheckForUpdates.IsOn = AppServices.Updates.Automatic;
         _painting = false;
 
         // The Startup folder belongs to the real copy of the app.
@@ -49,6 +53,23 @@ public sealed partial class SettingsPage : Page
             _painting = true;
             StartWithWindows.IsOn = Startup.Enabled;
             _painting = false;
+        };
+
+        CheckForUpdates.Toggled += (_, _) =>
+        {
+            if (!_painting) AppServices.Updates.Automatic = CheckForUpdates.IsOn;
+        };
+        UpdateButton.Click += async (_, _) =>
+        {
+            var look = UpdateLook.Of(AppServices.Updates.Shown);
+            if (look.Busy) return;
+            if (look.Action == UpdateAction.Update) await AppServices.Updates.Update();
+            else await AppServices.Updates.Check();
+        };
+        WhatsNew.Click += async (_, _) => await UpdateDialogs.ShowNotes(XamlRoot);
+        DownloadPage.Click += async (_, _) =>
+        {
+            if (AppServices.Updates.Newer is { } release) await UpdateDialogs.OpenPage(release);
         };
 
         AutomationProperties.SetLiveSetting(_recordState, AutomationLiveSetting.Polite);
@@ -75,10 +96,14 @@ public sealed partial class SettingsPage : Page
         {
             AppServices.Recorder.Changed += OnRecorderChanged;
             PaintRecording(announce: false);
+            AppServices.Updates.Changed += PaintUpdates;
+            _paintedStage = null;
+            PaintUpdates();
         };
         Unloaded += (_, _) =>
         {
             AppServices.Recorder.Changed -= OnRecorderChanged;
+            AppServices.Updates.Changed -= PaintUpdates;
             _ticking.Stop();
         };
 
@@ -88,6 +113,30 @@ public sealed partial class SettingsPage : Page
             AppVersion.Text = Strings.Format("Settings_AboutVersion", $"{version.Major}.{version.Minor}.{version.Build}");
             AppVersion.Visibility = Visibility.Visible;
         }
+    }
+
+    /// <summary>How wide Neap's card has to be for its buttons to sit beside its name rather than under it.</summary>
+    private const double CardBesideWidth = 680;
+
+    private bool _beside;
+
+    /// <summary>
+    /// Puts the card's buttons beside its name when there is room, and under
+    /// it when there isn't.
+    /// </summary>
+    /// <remarks>
+    /// Decided from the card's own width, since a desktop window has no
+    /// width trigger to do it in the markup.
+    /// </remarks>
+    private void OnCardSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        bool beside = e.NewSize.Width >= CardBesideWidth;
+        if (beside == _beside) return;
+        _beside = beside;
+        Grid.SetRow(UpdateActions, beside ? 0 : 1);
+        Grid.SetColumn(UpdateActions, beside ? 1 : 0);
+        UpdateActions.VerticalAlignment = beside ? VerticalAlignment.Center : VerticalAlignment.Top;
+        NeapCard.RowSpacing = beside ? 0 : 16;
     }
 
     private void OnRecorderChanged() => PaintRecording(announce: true);
@@ -123,6 +172,31 @@ public sealed partial class SettingsPage : Page
 
         if (announce && state is not null)
             FrameworkElementAutomationPeer.CreatePeerForElement(_recordState)?
+                .RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
+    }
+
+    private void PaintUpdates()
+    {
+        var updates = AppServices.Updates;
+
+        // The buttons follow the offer, so a check that fails doesn't take
+        // Update and restart away; the sentence says what the check did.
+        var look = UpdateLook.Of(updates.Shown);
+
+        UpdateButton.Content = Strings.Get(look.Action == UpdateAction.Update ? "Settings_UpdateInstall" : "Settings_UpdateCheck");
+        Lead(UpdateButton, look.Leads);
+        WhatsNew.Visibility = look.Notes ? Visibility.Visible : Visibility.Collapsed;
+        DownloadPage.Visibility = look.Download ? Visibility.Visible : Visibility.Collapsed;
+        DownloadPage.Content = Strings.Get("Settings_UpdateDownload");
+
+        string? state = UpdateCopy.Of(updates);
+        UpdateStatus.Text = state ?? "";
+        UpdateStatus.Visibility = state is null ? Visibility.Collapsed : Visibility.Visible;
+
+        bool moved = _paintedStage is { } painted && painted != updates.Stage;
+        _paintedStage = updates.Stage;
+        if (moved && state is not null)
+            FrameworkElementAutomationPeer.CreatePeerForElement(UpdateStatus)?
                 .RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
     }
 

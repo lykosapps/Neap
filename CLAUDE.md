@@ -11,7 +11,7 @@ preparing code for experienced reviewers.
 - **Autonomy:** commit and update the owner's try-it copy without asking; never push, publish or delete without asking.
 - **Accessibility target:** WCAG 2.2 level AA.
 - **Languages:** English only, written so it can be translated.
-- **Data and privacy:** no personal data kept, no analytics or tracking, nothing leaves the PC.
+- **Data and privacy:** no personal data kept, no analytics or tracking, nothing from the PC or the headset is sent anywhere. The one network call is the update check: a plain request to GitHub for the latest release, which sees the PC's internet address as any website does, and the download when asked. It can be turned off.
 - **Voice and brand:** Tenon's defaults: plain and restrained, no help text by default.
 
 ## The standard
@@ -56,6 +56,16 @@ preparing code for experienced reviewers.
 - **Check by running, not by reading.** Drive the app through UI Automation
   (injected clicks do not reach WinUI content) and take screenshots. When
   reporting, say which findings were confirmed by running and which were not.
+- **Screen checks go through `tools/ui/run.ps1`.** `run.ps1 banner`, `settings`
+  or `profiles` publishes if a source file is newer than the build, then runs
+  the check from outside the package; `all` runs the three in about a minute.
+  Logs and pictures land in `TestResults/ui`. Only one practice run of the app
+  can be open at a time, so run one check at a time. A screen that is off
+  captures as pure black, and the screen turns itself off after five idle
+  minutes, so a check that stops saying the screen is off needs rerunning
+  with the screen on. The check judges this from the app's own window, not
+  the desktop, which can be black with the screen on. A new check is a script
+  beside it that uses `Ui.ps1`.
 - **Sample, do not snapshot.** One reading after the fact shows where a value
   settled, not whether it moved.
 - **Read the app's folder from outside Claude.** The desktop app runs

@@ -24,6 +24,7 @@ public static class AppServices
     public static IRing Ring { get; private set; } = null!;
     public static SessionRecorder Recorder { get; private set; } = null!;
     public static MicFollowsHeadset MicFollow { get; private set; } = null!;
+    public static UpdateService Updates { get; private set; } = null!;
 
     /// <summary>Where the headset's transmitters are looked for.</summary>
     public static IDeviceSource Devices { get; } = (IDeviceSource?)Pretend.Headset ?? SystemDevices.Instance;
@@ -52,6 +53,7 @@ public static class AppServices
         MicFollow = new MicFollowsHeadset(Headset);
         Hotkeys = Platform.Current.CreateHotkeys(Mix);
         Hotkeys.Enable(Hotkeys.Supported && AppSettings.Current.MixHotkeys && !Pretend.Active);
+        Updates = new UpdateService();
 
         // Pick up where the last run left off. Otherwise the mix starts only
         // when somebody opens Home and chooses an application
@@ -62,6 +64,7 @@ public static class AppServices
 
     public static void Stop()
     {
+        Updates?.Dispose();
         Recorder?.Dispose();
         MicFollow?.Dispose();
         Hotkeys?.Dispose();

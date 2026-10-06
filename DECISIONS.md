@@ -1,5 +1,113 @@
 # Decisions
 
+## 2026-10-05 — Profiles get a page of their own, and Settings is reordered
+
+- **Options:** leave Profiles as a section of Settings; give it a rail item;
+  give it a rail item and a way to save a profile from its own page.
+- **Chosen:** a **Profiles** rail item between Controls and Device, with
+  **New profile** at the top of its page, then the default and every saved
+  profile. Switching stays in the profile bar above every page.
+- **Why:** with its list, default choice and per-profile app picker, the
+  profiles section had become most of the Settings page, and someone looking
+  after their profiles would not look under app housekeeping. A page that
+  can list profiles but not add one would send people back to the bar, so
+  New profile is on the page too, using the same dialog as the bar's menu.
+  It is the same action in two places, not a second behaviour.
+- **Settings, reordered:** Neap's own version and update status are first,
+  with What's new and Update and restart beside them. The update banner and
+  the notice by the clock both lead to Settings, so what they promise is
+  the first thing there. Then the two switches, start with Windows and
+  check for updates, then Problems and other headsets, then the licence
+  line. "Updates" no longer sits under About below a paragraph of licence
+  text.
+- **Words cut:** the note under Running said closing the window keeps Neap
+  running; the notice shown the first time the window is closed already says
+  so, and the Start with Windows line says it starts in the notification
+  area. "Diagnostics" became "Problems and other headsets", since the first
+  word is the developers'. That Neap has only been tested with the Stealth
+  Pro II moved from the licence paragraph to beside the invitation to help
+  support another headset, which is where it matters.
+- **The banner moved above the profile bar,** to the very top under the
+  title bar, as the owner asked: it is about the app, not about the
+  headset's setup, so it goes above the profile bar rather than between it
+  and the page. The cost is that the profile selector drops one row while a
+  banner shows, where before the page did.
+- **The rail is seven long,** the most it should be. The next thing without a
+  home needs a closer look at what is in the rail before it gets one.
+- **Revisit if:** the Profiles page stays nearly empty for most people, which
+  would say it should have stayed a section.
+
+## 2026-10-05 — Neap updates itself from GitHub
+
+- **Options:** keep updating by hand (download, quit, unzip over the
+  folder); tell people a new version is out and leave the rest to them; a
+  built-in updater.
+- **Chosen:** a built-in updater. Neap asks GitHub for its latest release
+  once a day, shows "Version X is available" in Settings under About with
+  **What's new** and **Update and restart**, and says so once in a
+  notification by the clock. Updating downloads the zip, checks it against
+  the published SHA-256, puts it in place and restarts. Settings are kept.
+- **The promise changes** from "nothing leaves the PC" to "nothing from
+  the PC or the headset is sent". The check is a plain request to GitHub,
+  which sees the PC's internet address and the app's name, as any website
+  does; it says so rather than "nothing about you", which would not be
+  true. **Check for updates automatically** turns it off for anyone who
+  wants Neap offline, and **Check now** still works.
+- **How the files are swapped:** each file being replaced is renamed aside
+  and the new one moved in, all on one drive, so nothing is copied while
+  the app is half replaced, and a failure undoes every move. Neap does this
+  itself, so any newer release works as the new version, including ones
+  that know nothing of updating.
+- **The cost:** until the download is signed, updating this way is as safe
+  as downloading by hand, no safer. A folder the person can't write to
+  can't be updated; Settings says so and links to the download.
+- **Revisit when** the download is signed: the updater should check the
+  signature too.
+- **A banner across every page**, under the profile bar, tells people a
+  newer version is out. A notice by the clock alone would be missed or
+  switched off, and a card in Settings is somewhere people only go to look.
+  The banner leads with **Update and restart** and has **What's new**, and
+  is the only thing that shows there. It goes when there is nothing to say.
+- **Putting it away is one Not now menu holding two choices, written out:**
+  **Remind me tomorrow** hides it for a day, even across a restart, and
+  **Skip this version** hides it until a newer version is out, so someone
+  who doesn't want 0.3.0 is still told about 0.4.0. They share a menu
+  because ignoring the banner is what people do most, and two buttons as
+  large as Update and restart gave putting it away as much room as updating.
+  There is no way to hide updates for good short of turning the check off;
+  that would leave people on old bugs without knowing. Settings always shows
+  what is available, so putting the banner away loses nothing. There is no
+  close button, because it wouldn't say which of the two it meant.
+- **The banner is one row at any width.** Below 720 pixels at the app's own
+  scale, What's new and Not now fold into one more-options menu beside
+  Update and restart: wrapping the buttons under the message took nearly
+  half of a narrow window's height. While an update downloads or installs,
+  Update and restart stays on screen, off, with a progress bar under the
+  message, and What's new and Not now are not offered, since neither would
+  change anything. A flat wash of the accent hue and a thin accent edge on
+  its left mark it as news, not as part of the profile bar beneath it; the
+  profile bar's own ground fades from its top, so a second fade below the
+  banner would have shown as two bands. High contrast keeps the plain
+  window colour.
+- **Release notes are read in Neap,** in a dialog, not on a web page: the
+  notes come with the version check, so reading them asks for nothing more,
+  and the person is deciding whether to update inside the app. The install
+  steps are left out, since they are for someone downloading by hand. A
+  release whose notes can't be read opens its page instead.
+- **After an update, the old version waits to see the new one open.** It
+  hides, starts the new version and watches it for ten seconds. If the new
+  one is still running, the old one closes as before; if it exits inside
+  that time, or could not be launched, the old one says so with a
+  Download button. Installed-but-won't-run is worse than not having
+  updated, and the old version is the only thing left to say so. It does
+  not put the old files back: the swap's own undo covers a failed swap,
+  not a version that installs cleanly and then won't run, and a rollback
+  would itself run from a broken install. A practice run with
+  `--update-fails` makes the simulated update end in a program that exits
+  at once, so the message can be seen without breaking anything.
+- **A version found is remembered** until the next check, so restarting
+  Neap doesn't make the banner disappear for up to a day.
+
 ## 2026-10-05 — Recordings are sent through GitHub, not uploaded by Neap
 
 - **Options:** an upload from the app to a small service that emails the

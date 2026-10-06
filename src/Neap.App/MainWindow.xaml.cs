@@ -1,12 +1,17 @@
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using H.NotifyIcon.Core;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using Neap.App.Controls;
 using Neap.App.Services;
 using Neap.App.Views;
 using Neap.Core;
 using Neap.Core.Connection;
+using Neap.Core.Updates;
 using Windows.Graphics;
 
 namespace Neap.App;
@@ -17,6 +22,9 @@ public sealed partial class MainWindow : Window
     private const int MinimumWidth = 500, MinimumHeight = 480;
 
     private bool _quitting;
+
+    /// <summary>Whether the notification on show, if any, is the one about an update.</summary>
+    private bool _updateNoticeShown;
     private Microsoft.UI.Dispatching.DispatcherQueueTimer? _trim;
 
     /// <summary>
@@ -122,6 +130,14 @@ public sealed partial class MainWindow : Window
         Tray.LeftClickCommand = new Do(Show);
         TrayOpen.Command = new Do(Show);
         TrayQuit.Command = new Do(Quit);
+
+        Tray.TrayIcon.MessageWindow.MouseEventReceived += (_, args) =>
+        {
+            if (args.MouseEvent == MouseEvent.BalloonToolTipClicked)
+                DispatcherQueue.TryEnqueue(OpenUpdate);
+        };
+        AppServices.Updates.Found += TellAboutUpdate;
+        AppServices.Updates.Installed += Restart;
 
         AppServices.Headset.StatusChanged += _ => PaintTray();
         AppServices.Headset.Changed += PaintTray;
@@ -288,6 +304,7 @@ public sealed partial class MainWindow : Window
     {
         if (AppSettings.Current.ToldAboutTray) return;
         AppSettings.Update(s => s.ToldAboutTray = true);
+        _updateNoticeShown = false;
         try
         {
             Tray.ShowNotification(
@@ -295,6 +312,38 @@ public sealed partial class MainWindow : Window
                 Strings.Format("Tray_StillRunning", AppInfo.Name));
         }
         catch { /* notifications can be off; the setting is still recorded */ }
+    }
+
+    /// <summary>Says a newer version is out, for someone whose window is closed.</summary>
+    /// <remarks>Selecting it opens Settings, where updating is; see <see cref="OpenUpdate"/>.</remarks>
+    private void TellAboutUpdate(Neap.Core.Updates.Release release)
+    {
+        try
+        {
+            _updateNoticeShown = true;
+            Tray.ShowNotification(
+                Strings.Format("Tray_UpdateTitle", AppInfo.Name, release.Version.ToString(3)),
+                Strings.Get("Tray_Update"));
+        }
+        catch (Exception ex)
+        {
+            _updateNoticeShown = false;
+            AppLog.Write($"could not show the update notification: {ex.Message}");
+        }
+    }
+
+    /// <summary>Opens Settings when the update notification is selected.</summary>
+    /// <remarks>
+    /// Windows reports a selected notification without saying which it was,
+    /// so this answers only while the one on show is the update's.
+    /// </remarks>
+    private void OpenUpdate()
+    {
+        if (!_updateNoticeShown) return;
+        _updateNoticeShown = false;
+        AppLog.Write("window: opened from the update notification");
+        Show();
+        GoTo("settings");
     }
 
     private void Show()
@@ -310,11 +359,79 @@ public sealed partial class MainWindow : Window
     private void Quit()
     {
         AppLog.Write("quit from the notification area");
+        StopRunning();
+        Close();
+    }
+
+    /// <summary>Stops this version, starts the one just put in its place, and says so if that one doesn't open.</summary>
+    /// <remarks>
+    /// <para>
+    /// The one-copy lock is let go first, or the new version would find this
+    /// one still running and hand over to it.
+    /// </para>
+    /// <para>
+    /// This version is hidden, not closed, while <see cref="RestartWatch"/>
+    /// watches the new one: if it does not stay open, this is the only
+    /// window left to tell the person, and to point them at the download.
+    /// </para>
+    /// </remarks>
+    private async void Restart(string program)
+    {
+        StopRunning();
+        App.LetGo();
+        AppWindow.Hide();
+
+        TimeSpan? exitedAfter = await Launch(program);
+        if (RestartWatch.Of(exitedAfter) == RestartOutcome.Started)
+        {
+            Close();
+            return;
+        }
+
+        AppLog.Write(exitedAfter is { } after && after > TimeSpan.Zero
+            ? $"updates: the new version closed {after.TotalSeconds:0.#} s after starting"
+            : "updates: the new version could not be started");
+        AppWindow.Show();
+        SetForegroundWindow(Handle);
+        if (AppServices.Updates.Newer is { } release) await UpdateDialogs.ShowDidNotStart(Content.XamlRoot, release);
+        Close();
+    }
+
+    /// <summary>Starts a program and gives how long it ran, up to the watch window: zero if it would not start, null if it was still running.</summary>
+    private static async Task<TimeSpan?> Launch(string program)
+    {
+        Process? process;
+        try { process = Process.Start(new ProcessStartInfo(program) { WorkingDirectory = Path.GetDirectoryName(program) }); }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
+        {
+            AppLog.Write($"updates: could not start the new version: {ex.Message}");
+            return TimeSpan.Zero;
+        }
+        if (process is null) return TimeSpan.Zero;
+
+        using (process)
+        {
+            var clock = Stopwatch.StartNew();
+            using var window = new CancellationTokenSource(RestartWatch.Window);
+            try
+            {
+                await process.WaitForExitAsync(window.Token);
+                return clock.Elapsed;
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
+        }
+    }
+
+    /// <summary>Puts the volumes back, lets go of the headset and takes the icon away, before the window closes.</summary>
+    private void StopRunning()
+    {
         _quitting = true;
         Remember();
         Tray.Dispose();
         AppServices.Stop();
-        Close();
     }
 
     private void OnNavigate(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -330,6 +447,7 @@ public sealed partial class MainWindow : Window
         "audio" => typeof(AudioPage),
         "mic" => typeof(MicrophonePage),
         "controls" => typeof(ControlsPage),
+        "profiles" => typeof(ProfilesPage),
         "device" => typeof(DevicePage),
         "settings" => typeof(SettingsPage),
         _ => typeof(HomePage),

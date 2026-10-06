@@ -7,6 +7,14 @@ to GitHub, these become issues.
 
 ## Bugs
 
+- The chat mix does not move when the wheel is turned, on the Windows app,
+  with the headset connected. Seen once; the conditions are not yet pinned
+  down. Needs the headset.
+- After the headset's link dropped and came back several times, the profile
+  spinner never finished and the microphone button could not be used. A
+  second program asking the same transmitter at the same time may have caused
+  the drops; not yet reproduced without one. Needs the headset.
+
 ### Known limits, recorded rather than fixed
 
 - With both transmitter lights amber, no sound can still show as connected.
@@ -28,8 +36,7 @@ to GitHub, these become issues.
   unsafe, so each experiment needs the owner's go-ahead. Needs the headset
   and two transmitters. Until then the note for a headset that is not
   connecting says to switch it off and on after moving it.
-- **Profiles.** Save and apply a set of settings, switch automatically when
-  an app starts, and switch with hotkeys.
+- **Profile hotkeys.** Switch profiles from the keyboard, as the mix can be.
 - **Dolby Access's own profiles from Neap.** Offer Dolby Access's profiles
   (Game, Movie, Music, Voice) from Neap, and turn each one's own equaliser
   off when it's chosen, so it never doubles up with the headset's own.
@@ -112,13 +119,16 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 ## Tooling and release
 
 - Build, tests and formatting required on every pull request, once on GitHub.
-- Sign the download, so Windows does not warn about it.
+- Sign the download, so Windows does not warn about it. The updater should
+  check the signature too.
+- Updater, nice to have: a limit on how big a download may be and how long
+  it may take, and a way to cancel it.
 - Publish on GitHub: the repository named "neap", private vulnerability
   reporting on, main only, and a first real CI run.
 - A package update pass. On 25 Sep: the Windows App SDK 1.8 to 2.5, a new
-  major version to read up on first; H.NotifyIcon 2.3.0 to 2.4.1, which
-  needs the tray menu checked by hand; and the SDK build tools. The rest
-  are current.
+  major version to read up on first, and the SDK build tools. The rest
+  are current. H.NotifyIcon moved to 2.4.1 on 6 Oct and its tray menu
+  was checked by hand.
 - An ARM build.
 - A read-through by an experienced .NET developer before release.
 - A trademark search for the name.

@@ -4,18 +4,18 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
 
 ## The picture
 
-**In:** HID reports from the headset and its transmitters, over USB; Windows' own audio APIs (which programs are playing, their volumes, a device's format); the app's own files under the person's profile (settings, log, volume-restore journal); command-line flags at launch; and, only when started with `--pretend`, commands from a local named pipe.
+**In:** HID reports from the headset and its transmitters, over USB; Windows' own audio APIs (which programs are playing, their volumes, a device's format); the app's own files under the person's profile (settings, log, volume-restore journal); command-line flags at launch; and, only when started with `--pretend`, commands from a local named pipe; and GitHub's answer about the latest release, with that release's zip when someone chooses to update.
 
 **Kept:** locally, under the person's own profile. Nothing about the person; see the project profile in `CLAUDE.md`.
 
-**Out:** writes to the headset over HID, every one checked against `Settings/Registry.cs`; writes to Windows' own volume, mute and format controls; a shortcut in the Startup folder, only if that is turned on. Nothing over a network — there is no networking code in the app at all.
+**Out:** writes to the headset over HID, every one checked against `Settings/Registry.cs`; writes to Windows' own volume, mute and format controls; a shortcut in the Startup folder, only if that is turned on. Over a network, only the update check: a request for GitHub's latest release, once a day unless turned off, carrying nothing but the app's name, which GitHub sees with the PC's internet address as with any website visit, and the download of that release when asked.
 
 **Where trust changes:**
 
 1. **The person at the keyboard.** Same trust level as the app: one person, one machine, no accounts.
 2. **Other programs on the machine.** Read through Windows' Audio Session API to run the game/chat mix; can connect to a local pipe only when the app was started with `--pretend`.
 3. **The headset and its transmitters.** An external USB device. Neap trusts it to answer honestly, but not to ask for anything: every write is checked, and a garbled reply is treated as a failure to parse, never guessed at.
-4. **Distribution.** A signed-in-future zip on GitHub's release page. No auto-update yet.
+4. **Distribution.** A zip on GitHub's release page, not signed yet, fetched either by hand or by the app's own updater (`UpdateService`), which replaces the app's files and restarts it.
 
 ## Threats and their status
 
@@ -35,7 +35,7 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
    Fixed today. Every native call now loads only from the system folder, and the build refuses a new call that does not say so.
 
 6. **The downloaded zip is not signed**, so Windows warns about it and a tampered copy on a mirror cannot be told from the real one.
-   Deferred; already on `BACKLOG.md` ("Sign the download"). There is no auto-update channel yet either, and one will need the same signature checking when it exists.
+   Deferred; already on `BACKLOG.md` ("Sign the download"). The updater (threat 12) checks the SHA-256 published beside the zip, which catches a damaged download but not a release replaced by someone holding the account; once the download is signed, the updater should check the signature too.
 
 7. **A headset serial number, a device address, or the owner's identity ends up in the repository, a capture file, or a screenshot.**
    Accepted, mitigated by process rather than by code: `FINDINGS.md` and `CONTRIBUTING.md` require this to be stripped before anything is shared, and the whole repository and its commit history were checked today with nothing found. This is ongoing discipline, not a one-time fix — worth a fresh look before anything captured from the hardware is committed.
@@ -50,7 +50,19 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
     Already true, confirmed today. The manifest asks for no elevation (Windows defaults it to run as the person, not an administrator), and only the app's real connection to the headset ever asks to write; the probe defaults to read-only.
 
 11. **A recording made for a bug report identifies the person or their hardware once it is posted.**
-    Mitigated. The file blanks the headset's serial number, anything shaped like a radio address, the Windows account and PC names and the profile folder, and leaves out the time zone (`Redaction`, with tests). It lists the programs playing sound, which is the point of it, and it is plain text the person can read before sending. Neap sends nothing itself. A USB capture for mapping another headset is not blanked; the guide says not to post one publicly.
+    Mitigated. The file blanks the headset's serial number, anything shaped like a radio address, the Windows account and PC names and the profile folder, and leaves out the time zone (`Redaction`, with tests). It lists the programs playing sound, which is the point of it, and keeps the headset's own name, which a person may have changed; the owner chose to keep it (2026-10-05). It is plain text the person can read before sending. Neap sends nothing itself. A USB capture for mapping another headset is not blanked; the guide says not to post one publicly.
+
+12. **The updater installs something that isn't a genuine release.**
+    Mitigated, 2026-10-05. It only talks to GitHub over HTTPS, and refuses a release whose links are anywhere but Neap's own repository on GitHub (`Release.Parse`, with tests, including links that climb out of it with `..` and other owners' repositories). It offers only a version newer than the one running, never a draft or a pre-release. Before anything is moved it checks the zip against the published SHA-256 and the Neap.exe inside against the release's version, and unzipping refuses any entry that would land outside its folder. It runs as the person, never elevated, so it can't update a copy in a folder they can't write to; it says so and links to the download instead. A swap that fails part-way is undone (`FolderSwap`, with tests). Residual: the hash comes from the same release as the zip, so someone who takes over the GitHub account can publish both, the same exposure a manual download has today. Signing (threat 6) closes it. The release's notes are shown in the app as text: only bold and links are read, a link is kept only if it is to a web page over HTTPS, and nothing in them is run. The release kept between launches is read back through the same checks as one from GitHub, so a changed settings file can't point the updater anywhere else either (13).
+
+13. **A release names files from a repository that isn't Neap's.**
+    Fixed, 2026-10-05. Found in the first review: links only had to be on github.com. Every link must now start with Neap's repository, whether it comes from GitHub or from the settings file, and the check is tested against other owners, other repositories, a lookalike name and `..` in the path.
+
+14. **The privacy wording says more than is true.**
+    Fixed, 2026-10-05. A check is a request to GitHub, which sees the PC's internet address and the app's name, as any website visit does. The changelog, README, decision record and project profile said "nothing about you"; they now say what is sent: the request itself, and nothing from the PC or the headset.
+
+15. **An update is cut off part-way.**
+    Partly mitigated, accepted, 2026-10-05. A failed move is undone. Power loss or a killed process during the few seconds of the swap can leave a mix of two versions that may not start; the replaced files stay in the hidden update folder until the next start that works. Recovery is a download by hand. Not worth code that would itself have to run from a broken install. If the new version then won't open, the old one watches it for ten seconds and says so on screen, with a link to download again (`RestartWatch`), rather than closing with only a line in the log. Deferred (BACKLOG.md): a download has no size limit or overall time limit.
 
 ## What wasn't examined
 
@@ -58,3 +70,4 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
 - Physical access to the machine, or a headset whose firmware was already tampered with before Neap ever saw it.
 - The GitHub account and repository's own settings (two-factor, token scopes): outside the code, a hosting-account matter.
 - No automated scanner (OSV-Scanner, CodeQL) was run for this pass; it was a manual reading of the code at each boundary above.
+- The updater was read in full on 2026-10-05, and unzipping was tried against a zip with entries named to escape its folder (both slash styles, a drive letter): all refused or kept inside. Redirects were checked against GitHub's own: downloads go on to githubusercontent.com over HTTPS, and .NET refuses a step down to HTTP. What wasn't examined: the update against a hostile server, and what Windows' own checks do to a replaced Neap.exe.
