@@ -1,7 +1,8 @@
+using System.Runtime.Versioning;
 using Neap.Core;
 using Neap.Core.Audio;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>
 /// Turns the Charging Dock's status ring purple again after an application
@@ -21,6 +22,7 @@ namespace Neap.App.Services;
 /// Not run in a pretend run, whose sound is not the headset's.
 /// </para>
 /// </remarks>
+[SupportedOSPlatform("windows")]
 public sealed class RingService : IRing
 {
     private static readonly TimeSpan LookEvery = TimeSpan.FromSeconds(1);

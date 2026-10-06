@@ -4,6 +4,7 @@ using Microsoft.UI.Dispatching;
 using NAudio.CoreAudioApi;
 using Neap.Core;
 using Neap.Core.Audio;
+using Neap.WinRt;
 
 namespace Neap.App.Services;
 
@@ -101,17 +102,5 @@ public sealed class WindowsPlatform(DispatcherQueue dispatcher) : IPlatform
                 finally { devices.Dispose(); }
             }
         }
-    }
-
-    /// <summary>Windows' spatial sound, which <see cref="SpatialAudio"/> reaches.</summary>
-    private sealed class WindowsSpatial : ISpatialAudio
-    {
-        public bool Supported => true;
-
-        public Task<SpatialPanel> Read() => SpatialAudio.Read();
-
-        public Task<SpatialResult> Apply(SpatialFormat format) => SpatialAudio.Apply(format);
-
-        public IDisposable? Watch(string endpointId, Action changed) => SpatialAudio.Watch(endpointId, changed);
     }
 }

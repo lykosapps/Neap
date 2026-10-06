@@ -1,8 +1,12 @@
+using System.ComponentModel;
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using Neap.Core.Connection;
+using Neap.Core.Updates;
+using Neap.Desktop.Controls;
 
 namespace Neap.Desktop;
 
@@ -44,6 +48,7 @@ public partial class MainWindow : IDisposable
         PaintTray();
 
         OneCopy.Current?.ListenForShow(() => Dispatcher.UIThread.Post(Reveal));
+        AppServices.Updates.Installed += program => Dispatcher.UIThread.Post(() => _ = Restart(program));
     }
 
     /// <summary>
@@ -78,6 +83,7 @@ public partial class MainWindow : IDisposable
     public void HideToTray()
     {
         AppLog.Write("window: closed to the notification area");
+        Remember();
         Hide();
         Body.Content = null;
     }
@@ -105,8 +111,81 @@ public partial class MainWindow : IDisposable
     private void Quit()
     {
         AppLog.Write("quit from the notification area");
-        _quitting = true;
-        Dispose();
+        StopRunning();
+        Shutdown();
+    }
+
+    private static void Shutdown() =>
         (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown();
+
+    /// <summary>Puts the volumes back, lets go of the headset and takes the icon away, before the window closes.</summary>
+    private void StopRunning()
+    {
+        _quitting = true;
+        Remember();
+        Dispose();
+        AppServices.Stop();
+    }
+
+    /// <summary>Stops this version, starts the one just put in its place, and says so if that one doesn't open.</summary>
+    /// <remarks>
+    /// <para>
+    /// The one-copy lock is let go first, or the new version would find this
+    /// one still running and hand over to it.
+    /// </para>
+    /// <para>
+    /// This version is hidden, not closed, while <see cref="RestartWatch"/>
+    /// watches the new one: if it does not stay open, this is the only
+    /// window left to tell the person, and to point them at the download.
+    /// </para>
+    /// </remarks>
+    private async Task Restart(string program)
+    {
+        StopRunning();
+        OneCopy.Current?.Dispose();
+        Hide();
+
+        TimeSpan? exitedAfter = await Launch(program);
+        if (RestartWatch.Of(exitedAfter) == RestartOutcome.Started)
+        {
+            Shutdown();
+            return;
+        }
+
+        AppLog.Write(exitedAfter is { } after && after > TimeSpan.Zero
+            ? $"updates: the new version closed {after.TotalSeconds:0.#} s after starting"
+            : "updates: the new version could not be started");
+        Show();
+        Activate();
+        if (AppServices.Updates.Newer is { } release) await UpdateDialogs.ShowDidNotStart(this, release);
+        Shutdown();
+    }
+
+    /// <summary>Starts a program and gives how long it ran, up to the watch window: zero if it would not start, null if it was still running.</summary>
+    private static async Task<TimeSpan?> Launch(string program)
+    {
+        Process? process;
+        try { process = Process.Start(new ProcessStartInfo(program) { WorkingDirectory = Path.GetDirectoryName(program) }); }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
+        {
+            AppLog.Write($"updates: could not start the new version: {ex.Message}");
+            return TimeSpan.Zero;
+        }
+        if (process is null) return TimeSpan.Zero;
+
+        using (process)
+        {
+            var clock = Stopwatch.StartNew();
+            using var window = new CancellationTokenSource(RestartWatch.Window);
+            try
+            {
+                await process.WaitForExitAsync(window.Token);
+                return clock.Elapsed;
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
+        }
     }
 }

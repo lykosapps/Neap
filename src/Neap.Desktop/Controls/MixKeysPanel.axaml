@@ -1,0 +1,43 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.MixKeysPanel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <StackPanel>
+        <c:SettingsCard
+            x:Name="KeysCard"
+            loc:Uid.Value="Mix_KeysCard"
+            ZIndex="1"
+            Icon="{StaticResource IconKeyboard}">
+            <ToggleSwitch x:Name="KeysOn" />
+        </c:SettingsCard>
+
+        <!--
+            The keys themselves, as rows rather than folded away, and only
+            while they are on, in a drawer under the switch: set once, and
+            worth seeing while they work.
+        -->
+        <Border x:Name="KeyRows" Classes="drawer">
+            <StackPanel>
+                <c:SettingsCard x:Name="GameRow" loc:Uid.Value="Mix_GameRow">
+                    <Button x:Name="GameKey" MinWidth="190" />
+                </c:SettingsCard>
+                <c:SettingsCard x:Name="ChatRow" loc:Uid.Value="Mix_ChatRow">
+                    <Button x:Name="ChatKey" MinWidth="190" />
+                </c:SettingsCard>
+                <c:SettingsCard x:Name="CentreRow" loc:Uid.Value="Mix_CentreRow">
+                    <Button x:Name="CentreKey" MinWidth="190" />
+                </c:SettingsCard>
+                <c:SettingsCard loc:Uid.Value="Mix_KeysResetRow">
+                    <Button x:Name="KeysReset" loc:Uid.Value="Mix_KeysReset" />
+                </c:SettingsCard>
+            </StackPanel>
+        </Border>
+
+        <c:Notice
+            x:Name="Notice"
+            Margin="0,4,0,0" />
+    </StackPanel>
+</UserControl>

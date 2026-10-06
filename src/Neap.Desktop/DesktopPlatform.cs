@@ -17,11 +17,19 @@ public sealed class DesktopPlatform : IPlatform
 
     public IVolumes Volumes => SystemVolumes.Instance;
 
-    public ISpatialAudio Spatial => Unsupported.Spatial;
+    /// <remarks>Only the build made for Windows can reach Windows' spatial sound.</remarks>
+    public ISpatialAudio Spatial { get; } =
+#if WINDOWS
+        OperatingSystem.IsWindows() ? new Neap.WinRt.WindowsSpatial() : Unsupported.Spatial;
+#else
+        Unsupported.Spatial;
+#endif
 
-    public IHotkeys CreateHotkeys(MixService mix) => Unsupported.Hotkeys(mix);
+    public IHotkeys CreateHotkeys(MixService mix) =>
+        OperatingSystem.IsWindows() ? new HotkeyService(mix) : Unsupported.Hotkeys(mix);
 
-    public IRing CreateRing(AudioRoute route) => Unsupported.Ring;
+    public IRing CreateRing(AudioRoute route) =>
+        OperatingSystem.IsWindows() ? new RingService(route) : Unsupported.Ring;
 
     public SoundSurvey Survey(TimeSpan listen, Func<uint, string> name) =>
         OperatingSystem.IsWindows()

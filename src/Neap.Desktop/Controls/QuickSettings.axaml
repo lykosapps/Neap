@@ -149,5 +149,8 @@
                 <TextBlock x:Name="ShhWord" Grid.Row="2" Classes="tilestate" />
             </Grid>
         </ToggleButton>
+
+        <!-- Spatial sound, on the systems that have it. -->
+        <c:SpatialTile Grid.Row="2" Grid.Column="1" />
     </Grid>
 </UserControl>

@@ -3,7 +3,7 @@ using Neap.Core.Pretend;
 using Windows.Foundation;
 using Windows.Media.Audio;
 
-namespace Neap.App.Services;
+namespace Neap.WinRt;
 
 /// <summary>Windows' spatial sound for the headset, off the UI thread.</summary>
 /// <remarks>

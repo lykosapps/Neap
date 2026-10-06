@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    What only Windows itself can give the app, reached through its own
+    interfaces: the spatial sound the headset's endpoint is set to. Kept apart
+    so both of the app's windows can use it, and so the shared services need
+    no Windows version to build against.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <RootNamespace>Neap.WinRt</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Neap.Core\Neap.Core.csproj" />
+    <ProjectReference Include="..\Neap.Services\Neap.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Neap.Services" />
+  </ItemGroup>
+
+</Project>

@@ -18,7 +18,8 @@ public sealed partial class AppStringsTests
 
     /// <summary>Every folder of the app's sources: the screens, and the services they share.</summary>
     private static readonly string[] Folders =
-        [App, Path.Combine(App, "..", "Neap.Services"), Path.Combine(App, "..", "Neap.Desktop")];
+        [App, Path.Combine(App, "..", "Neap.Services"), Path.Combine(App, "..", "Neap.Desktop"),
+            Path.Combine(App, "..", "Neap.WinRt")];
 
     private static readonly HashSet<string> Names = XDocument
         .Load(Path.Combine(App, "Strings", "en-US", "Resources.resw"))

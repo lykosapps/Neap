@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
-namespace Neap.App.Services;
+using System.Runtime.Versioning;
+namespace Neap.Services;
 
 /// <summary>
 /// Global keyboard shortcuts that move the mix from inside a game, without a
@@ -29,6 +30,7 @@ namespace Neap.App.Services;
 /// for.
 /// </para>
 /// </remarks>
+[SupportedOSPlatform("windows")]
 public sealed class HotkeyService : IHotkeys
 {
     private const uint ModNoRepeat = 0x4000;

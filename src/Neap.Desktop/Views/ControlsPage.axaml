@@ -84,6 +84,18 @@
                     </Border>
                 </c:HeadsetSection>
 
+                <!--
+                    The keyboard moves the mix as the chat wheel does, so its
+                    shortcuts sit with the headset's controls. Neap listens for
+                    them itself, so they stay whether the headset is on or off.
+                    Left out where the system cannot register keys for the whole
+                    desktop.
+                -->
+                <StackPanel x:Name="Keyboard">
+                    <TextBlock loc:Uid.Value="Controls_KeyboardHeading" Classes="sectionheader" />
+                    <c:MixKeysPanel />
+                </StackPanel>
+
             </StackPanel>
         </Grid>
     </ScrollViewer>

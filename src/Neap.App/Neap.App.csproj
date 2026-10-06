@@ -41,6 +41,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Neap.Core\Neap.Core.csproj" />
     <ProjectReference Include="..\Neap.Services\Neap.Services.csproj" />
+    <ProjectReference Include="..\Neap.WinRt\Neap.WinRt.csproj" />
   </ItemGroup>
 
   <ItemGroup>

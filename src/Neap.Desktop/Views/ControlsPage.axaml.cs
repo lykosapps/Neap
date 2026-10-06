@@ -4,5 +4,9 @@ namespace Neap.Desktop.Views;
 
 public partial class ControlsPage : UserControl
 {
-    public ControlsPage() => InitializeComponent();
+    public ControlsPage()
+    {
+        InitializeComponent();
+        Keyboard.IsVisible = AppServices.Hotkeys.Supported;
+    }
 }

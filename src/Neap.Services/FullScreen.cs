@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Neap.App.Services;
+namespace Neap.Services;
 
 /// <summary>Whether something is full-screen: a game, a video or a presentation.</summary>
 /// <remarks>

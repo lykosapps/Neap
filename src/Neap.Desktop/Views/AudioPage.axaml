@@ -67,6 +67,7 @@
                                 Setting="voice_prompt_volume" />
                         </c:HeadsetSection>
                     </c:SideBySide>
+                    <c:SpatialTile Margin="0,16,0,0" AsRow="True" />
 
                     <!--
                         Folds without a card of its own: the card that stands in

@@ -16,9 +16,12 @@ public class App : Application
         Strings.Source = ResourceStrings.Get;
         Platform.Use(new DesktopPlatform());
 
-        // A pretend run can be shown in either theme whatever the system is set to.
-        if (Pretend.Theme is { } theme)
-            RequestedThemeVariant = theme == PretendTheme.Dark ? ThemeVariant.Dark : ThemeVariant.Light;
+        // Someone who has asked their system for high contrast gets its
+        // colours, and gets them as they change while the app is open. A
+        // pretend run can be shown in either theme whatever the system is set to.
+        HighContrast.Install(this);
+        ChooseTheme();
+        if (PlatformSettings is { } settings) settings.ColorValuesChanged += (_, _) => ChooseTheme();
 
         AppLog.Write(Pretend.Active ? "started with the pretend headset" : Startup.LaunchedAtLogin ? "started at login" : "started");
 
@@ -35,4 +38,11 @@ public class App : Application
         }
         base.OnFrameworkInitializationCompleted();
     }
+
+    /// <summary>Picks high contrast, or the theme a pretend run asked for, or the system's own.</summary>
+    private void ChooseTheme() => RequestedThemeVariant =
+        HighContrast.Variant(this)
+        ?? (Pretend.Theme is { } theme
+            ? theme == PretendTheme.Dark ? ThemeVariant.Dark : ThemeVariant.Light
+            : ThemeVariant.Default);
 }

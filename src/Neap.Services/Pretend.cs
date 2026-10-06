@@ -54,6 +54,9 @@ public static class Pretend
     /// <summary>With <see cref="SnapshotFlag"/>, scrolls the page first, by the pixels after it or to its end, to picture what is below the fold. Works on a real run too.</summary>
     public const string ScrolledFlag = "--scrolled";
 
+    /// <summary>With <see cref="Flag"/>, shows the app in high contrast whatever the system is set to.</summary>
+    public const string HighContrastFlag = "--highcontrast";
+
     /// <summary>With <see cref="Flag"/>, opens the game equaliser in parametric mode with <see cref="SampleAdjustments"/>.</summary>
     public const string ParametricFlag = "--parametric";
 
@@ -64,6 +67,9 @@ public static class Pretend
     public const string UpdateFailsFlag = "--update-fails";
 
     public static bool Active { get; } = Given(Flag);
+
+    /// <summary>Whether a pretend run is shown in high contrast.</summary>
+    public static bool HighContrast { get; } = Active && Given(HighContrastFlag);
 
     /// <summary>
     /// The program a simulated update starts as the new version: one that

@@ -2,7 +2,12 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <!--
+      Two builds: one for every system, and one for Windows that adds what only
+      Windows itself can give (spatial sound). Publish the first with -f net10.0.
+    -->
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0;net10.0-windows10.0.19041.0</TargetFrameworks>
     <RootNamespace>Neap.Desktop</RootNamespace>
     <AssemblyName>Neap.Desktop</AssemblyName>
     <ApplicationIcon>..\Neap.App\Assets\app.ico</ApplicationIcon>
@@ -24,6 +29,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Neap.Core\Neap.Core.csproj" />
     <ProjectReference Include="..\Neap.Services\Neap.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetPlatformIdentifier)' == 'Windows'">
+    <ProjectReference Include="..\Neap.WinRt\Neap.WinRt.csproj" />
   </ItemGroup>
 
   <ItemGroup>

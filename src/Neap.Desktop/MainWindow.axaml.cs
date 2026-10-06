@@ -85,6 +85,12 @@ public partial class MainWindow : Window
         Body.Content = page;
     }
 
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+        if (!Pretend.Active) Place();
+    }
+
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);

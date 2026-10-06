@@ -1,0 +1,48 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.SpatialTile"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <!--
+        The system's spatial sound for the headset, as a tile: lit while it is
+        anything but off, the same as every other tile that can be on. The
+        format shows as its word, and the flyout lists what the system offers,
+        opened from the tile like the equaliser's, or from a row's button
+        beside the other levels.
+    -->
+    <Grid>
+        <ToggleButton
+            x:Name="Face"
+            loc:Uid.Value="Quick_SpatialTile"
+            Classes="tile"
+            IsEnabled="False">
+            <Grid RowDefinitions="*,Auto,Auto" RowSpacing="2">
+                <PathIcon
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    AutomationProperties.AccessibilityView="Raw"
+                    Data="{StaticResource IconSpatial}" />
+                <TextBlock
+                    loc:Uid.Value="Quick_Spatial"
+                    Grid.Row="1"
+                    Classes="tiletitle" />
+                <TextBlock x:Name="Word" Grid.Row="2" Classes="tilestate" />
+            </Grid>
+        </ToggleButton>
+
+        <c:SettingsCard
+            x:Name="Row"
+            loc:Uid.Value="Spatial_Row"
+            Icon="{StaticResource IconSpatial}"
+            IsVisible="False">
+            <DropDownButton
+                x:Name="RowButton"
+                loc:Uid.Value="Spatial_RowButton"
+                MinWidth="160"
+                HorizontalContentAlignment="Left"
+                IsEnabled="False" />
+        </c:SettingsCard>
+    </Grid>
+</UserControl>
