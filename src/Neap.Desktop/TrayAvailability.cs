@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Neap.Core;
 
 namespace Neap.Desktop;
 
@@ -33,13 +34,11 @@ internal static class TrayAvailability
 
         try
         {
-            var start = new ProcessStartInfo("dbus-send") { RedirectStandardOutput = true, RedirectStandardError = true };
-            foreach (string argument in new[]
-            {
+            var start = DesktopPrograms.Command("dbus-send",
                 "--session", "--print-reply", "--dest=org.freedesktop.DBus", "/org/freedesktop/DBus",
-                "org.freedesktop.DBus.NameHasOwner", "string:" + Watcher,
-            })
-                start.ArgumentList.Add(argument);
+                "org.freedesktop.DBus.NameHasOwner", "string:" + Watcher);
+            start.RedirectStandardOutput = true;
+            start.RedirectStandardError = true;
 
             using var process = Process.Start(start);
             if (process is null || !process.WaitForExit(TimeSpan.FromSeconds(3))) return false;

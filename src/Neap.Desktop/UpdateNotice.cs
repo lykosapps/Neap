@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using Neap.Core;
 
 namespace Neap.Desktop;
 
@@ -48,15 +49,11 @@ internal static class UpdateNotice
     /// <summary>Sends the notice to the desktop's notification service over the session bus, as the desktop's own programs do.</summary>
     private static void ShowOnLinux(string title, string message)
     {
-        var start = new ProcessStartInfo("dbus-send") { UseShellExecute = false };
-        foreach (string argument in new[]
-        {
+        var start = DesktopPrograms.Command("dbus-send",
             "--session", "--dest=org.freedesktop.Notifications", "--type=method_call",
             "/org/freedesktop/Notifications", "org.freedesktop.Notifications.Notify",
             "string:" + AppInfo.Name, "uint32:0", "string:", "string:" + title, "string:" + message,
-            "array:string:", "dict:string:variant:", "int32:15000",
-        })
-            start.ArgumentList.Add(argument);
+            "array:string:", "dict:string:variant:", "int32:15000");
         Process.Start(start)?.Dispose();
     }
 }

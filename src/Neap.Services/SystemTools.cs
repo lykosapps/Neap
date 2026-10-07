@@ -78,19 +78,13 @@ public static class SystemTools
             ["gnome-control-center", "sound"], ["pavucontrol"],
         ];
         foreach (var command in known)
-            if (OnPath(command[0]))
+            if (DesktopPrograms.OnPath(command[0]))
             {
-                var start = new ProcessStartInfo(command[0]) { UseShellExecute = false };
-                foreach (string argument in command.Skip(1)) start.ArgumentList.Add(argument);
-                Process.Start(start)?.Dispose();
+                Process.Start(DesktopPrograms.Command(command[0], command[1..]))?.Dispose();
                 return;
             }
         throw new PlatformNotSupportedException("no sound settings were found to open");
     }
-
-    private static bool OnPath(string program) =>
-        (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator)
-            .Any(folder => folder.Length > 0 && File.Exists(Path.Combine(folder, program)));
 
     /// <summary>Opens a link in the default browser.</summary>
     public static Task Open(Uri link)
