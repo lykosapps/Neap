@@ -57,10 +57,10 @@
   <data name="Main_NavSettings.AccessKey" xml:space="preserve">
     <value>S</value>
   </data>
-  <data name="Main_TrayOpen.Text" xml:space="preserve">
+  <data name="Main_TrayOpen" xml:space="preserve">
     <value>Open</value>
   </data>
-  <data name="Main_TrayQuit.Text" xml:space="preserve">
+  <data name="Main_TrayQuit" xml:space="preserve">
     <value>Quit</value>
   </data>
   <data name="Equaliser_Edited.Text" xml:space="preserve">
@@ -1157,7 +1157,7 @@
   <data name="Banner_UpdateSkip" xml:space="preserve">
     <value>Skip this version</value>
   </data>
-  <data name="Banner_UpdateNotNow.Content" xml:space="preserve">
+  <data name="Banner_UpdateNotNow" xml:space="preserve">
     <value>Not now</value>
   </data>
   <data name="Banner_UpdateMore.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">

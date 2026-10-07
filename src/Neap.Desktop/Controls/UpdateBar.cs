@@ -45,7 +45,7 @@ public sealed class UpdateBar : UserControl
     {
         IsVisible = false;
         _notes.Content = Strings.Get("Settings_UpdateNotes.Content");
-        _notNow.Content = Strings.Get("Banner_UpdateNotNow.Content");
+        _notNow.Content = Strings.Get("Banner_UpdateNotNow");
         _more.Content = new PathIcon { Width = 16, Height = 16, Data = (Geometry)Application.Current!.FindResource("IconMore")! };
         Uid.SetValue(_more, "Banner_UpdateMore");
 

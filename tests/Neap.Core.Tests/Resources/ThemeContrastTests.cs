@@ -12,7 +12,7 @@ namespace Neap.Core.Tests.Resources;
 /// <para>
 /// A colour that fails is easy to miss on the theme it was not chosen in,
 /// and nothing on screen says so. These tests read the theme dictionaries
-/// from the app's XAML and work the ratios out, so a change of colour that
+/// from the app's styles and work the ratios out, so a change of colour that
 /// breaks a pairing fails the build.
 /// </para>
 /// <para>
@@ -23,16 +23,16 @@ namespace Neap.Core.Tests.Resources;
 /// </remarks>
 public sealed class ThemeContrastTests
 {
-    private static readonly XNamespace Xaml = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+    private static readonly XNamespace Xaml = "https://github.com/avaloniaui";
     private static readonly XNamespace X = "http://schemas.microsoft.com/winfx/2006/xaml";
 
     private static readonly string[] Files =
-        ["App.xaml", "Controls/Tiles.xaml", "Controls/GameChatDial.xaml", "Themes/Controls.xaml"];
+        ["Themes/Neap.axaml", "Themes/Tiles.axaml"];
 
     private static readonly Dictionary<string, Dictionary<string, Rgba[]>> Themes = LoadThemes();
 
     /// <summary>The page behind everything, which a translucent colour is laid over.</summary>
-    private const string Page = "NavigationViewContentBackground";
+    private const string Page = "NeapBodyBrush";
 
     private static readonly double StateLine = TileStateOpacity();
 
@@ -130,9 +130,9 @@ public sealed class ThemeContrastTests
 
     private static double TileStateOpacity()
     {
-        var style = XDocument.Load(Path.Combine(AppSource.Folder, "Controls/Tiles.xaml"))
+        var style = XDocument.Load(Path.Combine(AppSource.Folder, "Themes/Tiles.axaml"))
             .Descendants(Xaml + "Style")
-            .Single(s => (string?)s.Attribute(X + "Key") == "NeapTileStateStyle");
+            .Single(s => (string?)s.Attribute("Selector") == "TextBlock.tilestate");
         var opacity = style.Elements(Xaml + "Setter")
             .SingleOrDefault(s => (string?)s.Attribute("Property") == "Opacity");
         return opacity is null ? 1 : double.Parse((string)opacity.Attribute("Value")!, CultureInfo.InvariantCulture);

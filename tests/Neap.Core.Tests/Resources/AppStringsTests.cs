@@ -8,9 +8,9 @@ namespace Neap.Core.Tests.Resources;
 /// entry in it is asked for.
 /// </summary>
 /// <remarks>
-/// A missing key fails silently: x:Uid leaves the text blank, and a lookup
-/// from code comes back empty. The app is a WinUI project and cannot be
-/// loaded here, so these tests read its sources instead.
+/// A missing key fails silently: a screen's uid leaves the text blank, and a
+/// lookup from code comes back empty. The app cannot be loaded here, so these
+/// tests read its sources instead.
 /// </remarks>
 public sealed partial class AppStringsTests
 {
@@ -18,8 +18,7 @@ public sealed partial class AppStringsTests
 
     /// <summary>Every folder of the app's sources: the screens, and the services they share.</summary>
     private static readonly string[] Folders =
-        [App, Path.Combine(App, "..", "Neap.Services"), Path.Combine(App, "..", "Neap.Desktop"),
-            Path.Combine(App, "..", "Neap.WinRt")];
+        [App, Path.Combine(App, "..", "Neap.Services"), Path.Combine(App, "..", "Neap.WinRt")];
 
     private static readonly HashSet<string> Names = XDocument
         .Load(Path.Combine(App, "Strings", "en-US", "Resources.resw"))
@@ -60,8 +59,7 @@ public sealed partial class AppStringsTests
             .Distinct();
 
     private static IEnumerable<string> Uids() =>
-        Sources("*.xaml").SelectMany(text => Uid().Matches(text))
-            .Concat(Sources("*.axaml").SelectMany(text => AvaloniaUid().Matches(text)))
+        Sources("*.axaml").SelectMany(text => AvaloniaUid().Matches(text))
             .Concat(Sources("*.cs").SelectMany(text => CodeUid().Matches(text)))
             .Select(m => m.Groups[1].Value)
             .Distinct();
@@ -78,10 +76,7 @@ public sealed partial class AppStringsTests
     [GeneratedRegex("\"([A-Z][A-Za-z]*_[A-Za-z]+)\"")]
     private static partial Regex KeyLiteral();
 
-    [GeneratedRegex("x:Uid=\"([^\"]+)\"")]
-    private static partial Regex Uid();
-
-    /// <summary>The cross-platform app's way of saying the same: <c>loc:Uid.Value="Mix_Title"</c>.</summary>
+    /// <summary>A control's uid in a screen: <c>loc:Uid.Value="Mix_Title"</c>.</summary>
     [GeneratedRegex("Uid\\.Value=\"([^\"]+)\"")]
     private static partial Regex AvaloniaUid();
 

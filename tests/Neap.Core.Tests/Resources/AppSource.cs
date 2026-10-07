@@ -2,12 +2,12 @@ namespace Neap.Core.Tests.Resources;
 
 /// <summary>Where the app's sources are, for the tests that read them.</summary>
 /// <remarks>
-/// The app is a WinUI project and cannot be loaded here, so tests that check
-/// it read its files instead.
+/// The app draws itself with a UI toolkit and cannot be loaded here, so tests
+/// that check it read its files instead.
 /// </remarks>
 internal static class AppSource
 {
-    public static string Folder { get; } = Path.Combine(RepoRoot(), "src", "Neap.App");
+    public static string Folder { get; } = Path.Combine(RepoRoot(), "src", "Neap.Desktop");
 
     internal static string RepoRoot()
     {

@@ -10,7 +10,7 @@
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0;net10.0-windows10.0.19041.0</TargetFrameworks>
     <RootNamespace>Neap.Desktop</RootNamespace>
     <AssemblyName>Neap.Desktop</AssemblyName>
-    <ApplicationIcon>..\Neap.App\Assets\app.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- Avalonia's own generated code is not held to the project's doc-comment rules. -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -51,10 +51,10 @@
   </Target>
 
   <ItemGroup>
-    <!-- The words are the Windows app's file: one copy of every sentence. -->
-    <EmbeddedResource Include="..\Neap.App\Strings\en-US\Resources.resw" LogicalName="Resources.resw" />
-    <AvaloniaResource Include="..\Neap.App\Assets\logo.png" Link="Assets\logo.png" />
-    <AvaloniaResource Include="..\Neap.App\Assets\app.ico" Link="Assets\app.ico" />
+    <!-- The words: one file, one copy of every sentence, for both systems. -->
+    <EmbeddedResource Include="Strings\en-US\Resources.resw" LogicalName="Resources.resw" />
+    <AvaloniaResource Include="Assets\logo.png" />
+    <AvaloniaResource Include="Assets\app.ico" />
   </ItemGroup>
 
 </Project>
