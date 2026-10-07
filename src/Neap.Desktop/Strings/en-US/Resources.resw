@@ -1048,6 +1048,9 @@
   <data name="Home_BatteryLevel" xml:space="preserve">
     <value>{0}%</value>
   </data>
+  <data name="Home_BatterySettling" xml:space="preserve">
+    <value>Settling…</value>
+  </data>
   <data name="Battery_Charging" xml:space="preserve">
     <value>Charging</value>
   </data>

@@ -28,7 +28,11 @@ public partial class QuickControls : UserControl
     /// <summary>The narrowest the block can be and still hold the mix and the settings side by side.</summary>
     private const double SideBySide = 640;
 
+    /// <summary>How often a battery reading that is still settling is looked at again.</summary>
+    private static readonly TimeSpan Recheck = TimeSpan.FromSeconds(30);
+
     private PluggedWatch? _plugged;
+    private IDisposable? _recheck;
 
     /// <summary>The narrowest the header can be and still hold the readings beside the headset's name.</summary>
     private const double ReadingsBeside = 680;
@@ -85,6 +89,13 @@ public partial class QuickControls : UserControl
         AppServices.Hotkeys.Changed -= Paint;
         _plugged?.Stop();
         _plugged = null;
+        StopRechecking();
+    }
+
+    private void StopRechecking()
+    {
+        _recheck?.Dispose();
+        _recheck = null;
     }
 
     private void OnStatus(HeadsetStatus status) => Paint();
@@ -108,8 +119,15 @@ public partial class QuickControls : UserControl
         if (headset.Battery is { } battery)
         {
             _battery.Label.Text = Strings.Get("Home_Battery");
-            _batteryMeter.Show(battery.Percent, battery.Charging, Strings.Format("Home_BatteryLevel", battery.Percent));
+            if (battery.Settling) _batteryMeter.Show(null, false, Strings.Get("Home_BatterySettling"));
+            else _batteryMeter.Show(battery.Percent, battery.Charging, Strings.Format("Home_BatteryLevel", battery.Percent));
+
+            // Nothing says when a settling reading has settled, so look again
+            // until it has.
+            if (battery.Settling) _recheck ??= Platform.Current.Ui.Every(Recheck, Paint);
+            else StopRechecking();
         }
+        else StopRechecking();
         _battery.Panel.IsVisible = headset.Battery is not null;
         PaintSpare(status);
         // Signal is the wireless link's, and says nothing about sound that
@@ -220,8 +238,14 @@ public partial class QuickControls : UserControl
         _spare.Label.Text = Strings.Get("Transmitters_SpareBattery");
         switch (spare)
         {
+            // The dock's figure is stale and runs high while it charges, so the
+            // word stands in for the number until the battery is full.
+            case { State: SpareState.InSlot, Charging: true }:
+                _spareMeter.Show(null, true, Strings.Get("Battery_Charging"));
+                _spare.Panel.IsVisible = true;
+                break;
             case { State: SpareState.InSlot } inSlot:
-                _spareMeter.Show(inSlot.Percent, inSlot.Charging, Strings.Format("Home_BatteryLevel", inSlot.Percent));
+                _spareMeter.Show(inSlot.Percent, false, Strings.Format("Home_BatteryLevel", inSlot.Percent));
                 _spare.Panel.IsVisible = true;
                 break;
             case { State: SpareState.Empty }:

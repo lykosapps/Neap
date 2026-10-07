@@ -166,8 +166,11 @@ public partial class TransmittersPanel : UserControl
         }
         else
         {
+            // The dock's figure is stale and runs high while it charges, so the
+            // word stands in for the number until the battery is full.
             var meter = new BatteryMeter("numeral");
-            meter.Show(spare.Percent, spare.Charging, spare.State == SpareState.InSlot
+            if (spare.Charging) meter.Show(null, true, Strings.Get("Battery_Charging"));
+            else meter.Show(spare.Percent, false, spare.State == SpareState.InSlot
                 ? Strings.Format("Level_Percent", spare.Percent)
                 : Strings.Get("Transmitters_SpareEmpty"));
             AutomationProperties.SetAutomationId(meter.Value, "SpareBattery");

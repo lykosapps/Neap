@@ -226,7 +226,8 @@ public sealed class HeadsetService : IDisposable
     /// <summary>The battery reading worth showing, or null when there is none; see <see cref="Core.Connection.Battery"/>.</summary>
     public BatteryReading? Battery => Core.Connection.Battery.Of(_status,
         TryGetNumberByKey(Core.Connection.Battery.Key, out int charge) ? charge : null,
-        TryGetNumberByKey(LinkState.ChargingKey, out int power) ? power : null);
+        TryGetNumberByKey(LinkState.ChargingKey, out int power) ? power : null,
+        _batteryTrend.IsSettling(DateTimeOffset.UtcNow));
 
     public int GetNumber(string name, int fallback = 0) =>
         TryGetNumber(name, out int value) ? value : fallback;
@@ -258,7 +259,38 @@ public sealed class HeadsetService : IDisposable
 
     private static readonly string SoundLinkHex = Hex(LinkTracker.SoundLinkKey);
 
+    private static readonly string BatteryHex = Hex(Core.Connection.Battery.Key);
+
+    /// <summary>What the headset has been reading for its battery lately, to tell a reading that is still settling.</summary>
+    private readonly BatteryTrend _batteryTrend = new();
+
     private static string OffDetail => StateCopy.WhatOffOnCable + " " + StateCopy.FixOff;
+
+    /// <summary>Logs each battery reading with the one before it, and feeds the trend, so settling can be measured across swaps.</summary>
+    private void NoteBattery(JsonElement? was, JsonElement now)
+    {
+        if (!TryRead(now, out int percent)) return;
+        _batteryTrend.Add(DateTimeOffset.UtcNow, percent);
+        AppLog.Write(was is JsonElement e && TryRead(e, out int before)
+            ? $"battery: headset {percent}% (was {before}%)"
+            : $"battery: headset {percent}%");
+    }
+
+    /// <summary>Logs a change in the Charging Dock's spare battery reading.</summary>
+    private static void NoteSpare(IReadOnlyList<Transmitter> before, IReadOnlyList<Transmitter> after)
+    {
+        var was = before.FirstOrDefault(t => t.Spare is not null)?.Spare;
+        if (after.FirstOrDefault(t => t.Spare is not null)?.Spare is not { } now || now == was) return;
+        static string Say(SpareReading reading) => reading.State switch
+        {
+            SpareState.InSlot => $"{reading.Percent}%",
+            SpareState.Empty => "empty",
+            _ => "unreadable",
+        };
+        AppLog.Write(was is { } previous
+            ? $"battery: dock spare {Say(now)} (was {Say(previous)})"
+            : $"battery: dock spare {Say(now)}");
+    }
 
     private void NoteSoundLink(JsonElement? was, JsonElement now)
     {
@@ -677,6 +709,7 @@ public sealed class HeadsetService : IDisposable
                 && existing.ValueKind == pair.Value.ValueKind
                 && existing.ToString() == pair.Value.ToString()) continue;
             if (pair.Key == SoundLinkHex) NoteSoundLink(had ? existing : null, pair.Value);
+            if (pair.Key == BatteryHex) NoteBattery(had ? existing : null, pair.Value);
             _values[pair.Key] = pair.Value.Clone();
             moved = true;
         }
@@ -713,6 +746,7 @@ public sealed class HeadsetService : IDisposable
     private void Forget()
     {
         _link.Forget();
+        _batteryTrend.Reset();
         if (_values.IsEmpty && _owned.IsEmpty) return;
         _values.Clear();
         _owned.Clear();
@@ -780,7 +814,9 @@ public sealed class HeadsetService : IDisposable
             AppLog.Write($"a {evt.Category} record from the headset did not parse, so the transmitter list was left as it was");
             return;
         }
-        _known = Transmitters.With(_known, slot);
+        var known = Transmitters.With(_known, slot);
+        NoteSpare(_known, known);
+        _known = known;
         _ui.Post(() => TransmittersChanged?.Invoke());
     }
 
@@ -797,7 +833,9 @@ public sealed class HeadsetService : IDisposable
         // read that found something replaces what we knew.
         if (all.Any(t => t.Paired))
         {
-            _known = all.Where(t => t.Paired).ToList();
+            var known = all.Where(t => t.Paired).ToList();
+            NoteSpare(_known, known);
+            _known = known;
             _ui.Post(() => TransmittersChanged?.Invoke());
         }
 

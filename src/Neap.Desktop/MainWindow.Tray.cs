@@ -72,7 +72,7 @@ public partial class MainWindow : IDisposable
         if (_tray is null) return;
         var status = AppServices.Headset.Status;
         string state = StateCopy.Label(StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status)).Headline);
-        string text = AppServices.Headset.Battery is { } battery
+        string text = AppServices.Headset.Battery is { Settling: false } battery
             ? Strings.Format(battery.Charging ? "Tray_StateCharging" : "Tray_StateBattery", Title ?? AppInfo.Name, state, battery.Percent)
             : Strings.Format("Tray_State", Title ?? AppInfo.Name, state);
         if (_tray.ToolTipText != text) _tray.ToolTipText = text;
