@@ -97,9 +97,14 @@ public sealed class PulseListener : IMicrophoneListener
     public void Dispose()
     {
         _stopping.Cancel();
-        // The reader returns within a fragment; the stream is freed after it has.
-        _reader.Join(TimeSpan.FromSeconds(2));
-        PulseNative.SimpleFree(_stream);
-        _stopping.Dispose();
+
+        // The reader returns within a fragment, and the stream is freed after it
+        // has. A reader the sound server is holding is left the stream: freeing
+        // it under the read would crash the app.
+        if (_reader.Join(TimeSpan.FromSeconds(2)))
+        {
+            PulseNative.SimpleFree(_stream);
+            _stopping.Dispose();
+        }
     }
 }

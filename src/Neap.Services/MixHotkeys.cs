@@ -133,7 +133,13 @@ public abstract class MixHotkeys : IHotkeys
 
     public void Dispose()
     {
-        End();
+        Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    /// <summary>Lets the keys go; a system with more to let go of adds to it.</summary>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing) End();
     }
 }

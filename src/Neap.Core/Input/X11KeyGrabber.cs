@@ -71,7 +71,9 @@ public sealed class X11KeyGrabber : IDisposable
         var ready = new ManualResetEventSlim();
         _thread = new Thread(() => Listen(keys, ready)) { IsBackground = true, Name = "x11-keys" };
         _thread.Start();
-        ready.Wait(TimeSpan.FromSeconds(2));
+
+        // A handle the thread has not yet set is left to it: disposing under it would fail its Set.
+        if (ready.Wait(TimeSpan.FromSeconds(2))) ready.Dispose();
     }
 
     /// <summary>The keys that could not be taken, and why. Settled once construction returns.</summary>

@@ -68,7 +68,9 @@ public sealed class HotkeyService : MixHotkeys
         { IsBackground = true, Name = "hotkeys" };
 
         _pump.Start();
-        ready.Wait(TimeSpan.FromSeconds(2));
+
+        // A handle the thread has not yet set is left to it: disposing under it would fail its Set.
+        if (ready.Wait(TimeSpan.FromSeconds(2))) ready.Dispose();
         return refused;
     }
 

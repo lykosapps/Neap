@@ -16,8 +16,11 @@ public static class CentreCue
 {
     private const double Seconds = 0.13, Frequency = 620.0;
 
+    /// <summary>Where a cue that would not play is said, for the app's log. Unset, nothing is.</summary>
+    public static Action<string>? Trouble { get; set; }
+
     /// <summary>Plays the beep, and returns once it has finished or two seconds have passed.</summary>
-    /// <remarks>A cue that will not play is not worth an error, so nothing is thrown.</remarks>
+    /// <remarks>A cue that will not play is not worth an error, so nothing is thrown; it is said to <see cref="Trouble"/>.</remarks>
     public static void Play()
     {
         try
@@ -27,7 +30,7 @@ public static class CentreCue
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            // Nothing to tell anybody: see the remarks.
+            Trouble?.Invoke($"the centre cue would not play: {ex.Message}");
         }
     }
 

@@ -104,8 +104,9 @@ public sealed class PulseTone : IPlayingTone
             .ContinueWith(_ =>
             {
                 _closing = true;
-                _writer.Join(TimeSpan.FromSeconds(2));
-                PulseNative.SimpleFree(_stream);
+
+                // A writer the sound server is holding is left the stream: freeing it under the write would crash the app.
+                if (_writer.Join(TimeSpan.FromSeconds(2))) PulseNative.SimpleFree(_stream);
             }, TaskScheduler.Default);
     }
 }
