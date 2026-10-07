@@ -50,6 +50,8 @@ public partial class MainWindow : IDisposable
         _tray.Clicked += (_, _) => Reveal();
         if (Application.Current is { } app) TrayIcon.SetIcons(app, new TrayIcons { _tray });
 
+        AppServices.Updates.Found += release => Dispatcher.UIThread.Post(() => TellAboutUpdate(release));
+
         AppServices.Headset.StatusChanged += _ => Dispatcher.UIThread.Post(PaintTray);
         AppServices.Headset.Changed += () => Dispatcher.UIThread.Post(PaintTray);
         AppServices.AudioRoute.Changed += () => Dispatcher.UIThread.Post(PaintTray);
@@ -79,6 +81,24 @@ public partial class MainWindow : IDisposable
     /// shut down, refusing would cancel it for everyone: the system names the
     /// program that stopped it, and the person has to find and quit it first.
     /// </remarks>
+    /// <summary>Says a newer version is out, for someone whose window is closed; one with the window open has the banner.</summary>
+    /// <remarks>Selecting the notice, where the system lets it be selected, opens Settings, where updating is.</remarks>
+    private void TellAboutUpdate(Release release)
+    {
+        if (IsVisible) return;
+        UpdateNotice.Show(
+            Strings.Format("Tray_UpdateTitle", AppInfo.Name, release.Version.ToString(3)),
+            Strings.Get("Tray_Update"),
+            () => Dispatcher.UIThread.Post(OpenUpdate));
+    }
+
+    private void OpenUpdate()
+    {
+        AppLog.Write("window: opened from the update notification");
+        Reveal();
+        Open("settings");
+    }
+
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);

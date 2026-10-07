@@ -35,6 +35,8 @@
 
   <ItemGroup Condition="'$(TargetPlatformIdentifier)' == 'Windows'">
     <ProjectReference Include="..\Neap.WinRt\Neap.WinRt.csproj" />
+    <!-- The notification-area notification the old app shows, which needs no shortcut for Windows to attribute it to. -->
+    <PackageReference Include="H.NotifyIcon" Version="2.4.1" />
   </ItemGroup>
 
   <ItemGroup>
