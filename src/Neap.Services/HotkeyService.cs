@@ -4,7 +4,7 @@ namespace Neap.Services;
 
 /// <summary>
 /// Global keyboard shortcuts that move the mix from inside a game, without a
-/// window and without the wheel.
+/// window and without the wheel, taken from Windows.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -23,112 +23,36 @@ namespace Neap.Services;
 /// thread, which is why the thread sets itself up rather than being told what
 /// to do.
 /// </para>
-/// <para>
-/// A refused key says so. Another program holding a combination is the normal
-/// failure here, and it is invisible: the keys simply do nothing. Every
-/// registration is checked, and what failed is shown beside the key it failed
-/// for.
-/// </para>
 /// </remarks>
 [SupportedOSPlatform("windows")]
-public sealed class HotkeyService : IHotkeys
+public sealed class HotkeyService : MixHotkeys
 {
     private const uint ModNoRepeat = 0x4000;
     private const uint WmHotkey = 0x0312, WmQuit = 0x0012;
     private const int AlreadyRegistered = 1409;
 
-    /// <summary>How far one press moves the mix, on the same 0-100 scale.</summary>
-    private const int Step = 10;
-
-    private readonly MixService _mix;
-    private readonly object _gate = new();
-    private readonly Dictionary<MixKey, Shortcut> _keys = new();
-    private readonly Dictionary<MixKey, string> _trouble = new();
-
     private Thread? _pump;
     private uint _thread;
 
-    public HotkeyService(MixService mix)
+    public HotkeyService(MixService mix) : base(mix)
     {
-        _mix = mix;
-        foreach (var (which, shortcut) in MixShortcuts.Defaults) _keys[which] = shortcut;
-        foreach (var (which, shortcut) in AppSettings.Current.Shortcuts())
-            if (shortcut.Sane) _keys[which] = shortcut;
     }
 
-    /// <summary>A key was registered, refused, changed, or given up.</summary>
-    public event Action? Changed;
-
-    public bool Supported => true;
-
-    public bool Enabled => _pump is not null;
-
-    public Shortcut Key(MixKey which)
+    protected override IReadOnlyDictionary<MixKey, string> Start(IReadOnlyDictionary<MixKey, Shortcut> wanted)
     {
-        lock (_gate) return _keys[which];
-    }
-
-    /// <summary>What Windows said when it refused this one, or null.</summary>
-    public string? Trouble(MixKey which)
-    {
-        lock (_gate) return _trouble.GetValueOrDefault(which);
-    }
-
-    public void Enable(bool enabled)
-    {
-        if (enabled == Enabled) return;
-        if (enabled) Begin(); else End();
-    }
-
-    /// <summary>
-    /// Rebind one of them. Re-registers the lot rather than the one, because
-    /// registration belongs to the pump thread and restarting it is simpler
-    /// than talking to it.
-    /// </summary>
-    public void Rebind(MixKey which, Shortcut shortcut)
-    {
-        if (!shortcut.Sane) return;
-        bool was = Enabled;
-        if (was) End();
-        lock (_gate) _keys[which] = shortcut;
-        AppSettings.Update(s => s.SetShortcut(which, shortcut));
-        if (was) Begin(); else Changed?.Invoke();
-    }
-
-    public void ResetToDefaults()
-    {
-        bool was = Enabled;
-        if (was) End();
-        lock (_gate)
-            foreach (var (which, shortcut) in MixShortcuts.Defaults) _keys[which] = shortcut;
-        AppSettings.Update(s => s.ClearShortcuts());
-        if (was) Begin(); else Changed?.Invoke();
-    }
-
-    private void Begin()
-    {
-        Dictionary<MixKey, Shortcut> wanted;
-        lock (_gate) wanted = new Dictionary<MixKey, Shortcut>(_keys);
-
+        var refused = new Dictionary<MixKey, string>();
         var ready = new ManualResetEventSlim();
 
         _pump = new Thread(() =>
         {
             _thread = GetCurrentThreadId();
 
-            var refused = new Dictionary<MixKey, string>();
             foreach (var (which, shortcut) in wanted)
                 if (!RegisterHotKey(IntPtr.Zero, (int)which + 1,
                         shortcut.Modifiers | ModNoRepeat, shortcut.Key))
                     refused[which] = Marshal.GetLastWin32Error() == AlreadyRegistered
                         ? Strings.Get("Key_Taken")
                         : Strings.Get("Key_Refused");
-
-            lock (_gate)
-            {
-                _trouble.Clear();
-                foreach (var (which, why) in refused) _trouble[which] = why;
-            }
             ready.Set();
 
             while (GetMessage(out var message, IntPtr.Zero, 0, 0) > 0)
@@ -136,7 +60,7 @@ public sealed class HotkeyService : IHotkeys
                 {
                     // The id given to RegisterHotKey above, one more than the key.
                     var which = (MixKey)(message.WParam.ToInt64() - 1);
-                    if (Enum.IsDefined(which)) Platform.Post(() => Move(which));
+                    if (Enum.IsDefined(which)) Pressed(which);
                 }
 
             foreach (var which in wanted.Keys) UnregisterHotKey(IntPtr.Zero, (int)which + 1);
@@ -145,38 +69,17 @@ public sealed class HotkeyService : IHotkeys
 
         _pump.Start();
         ready.Wait(TimeSpan.FromSeconds(2));
-        Changed?.Invoke();
+        return refused;
     }
 
-    private void End()
+    protected override void LetGo()
     {
         var going = _pump;
         _pump = null;
         if (going is null) return;
         PostThreadMessage(_thread, WmQuit, IntPtr.Zero, IntPtr.Zero);
         going.Join(TimeSpan.FromSeconds(1));
-        lock (_gate) _trouble.Clear();
-        Changed?.Invoke();
     }
-
-    /// <summary>
-    /// Move the mix one step. It goes through <see cref="MixService.Apply"/>,
-    /// so a press lands in the centre detent exactly as the wheel does,
-    /// including its cue.
-    /// </summary>
-    private void Move(MixKey which)
-    {
-        if (!_mix.Running) return;
-        int now = _mix.Mix;
-        _mix.Apply(which switch
-        {
-            MixKey.TowardGame => now - Step,
-            MixKey.TowardChat => now + Step,
-            _ => 50,
-        }, "keyboard");
-    }
-
-    public void Dispose() => End();
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool RegisterHotKey(IntPtr window, int id, uint modifiers, uint key);

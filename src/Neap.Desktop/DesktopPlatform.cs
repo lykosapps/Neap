@@ -25,8 +25,11 @@ public sealed class DesktopPlatform : IPlatform
         Unsupported.Spatial;
 #endif
 
+    /// <remarks>A Linux desktop with no X display, or no library to reach it, has no keys to take.</remarks>
     public IHotkeys CreateHotkeys(MixService mix) =>
-        OperatingSystem.IsWindows() ? new HotkeyService(mix) : Unsupported.Hotkeys(mix);
+        OperatingSystem.IsWindows() ? new HotkeyService(mix)
+        : OperatingSystem.IsLinux() && X11Hotkeys.Available ? new X11Hotkeys(mix)
+        : Unsupported.Hotkeys(mix);
 
     public IRing CreateRing(AudioRoute route) =>
         OperatingSystem.IsWindows() ? new RingService(route) : Unsupported.Ring;
