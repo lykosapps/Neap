@@ -5,9 +5,8 @@
     xmlns:c="using:Neap.Desktop.Controls">
 
     <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="32,0,32,32">
+        <Grid Margin="32">
             <StackPanel
-                Margin="0,24,0,0"
                 Classes="pagecolumn"
                 Spacing="16">
 

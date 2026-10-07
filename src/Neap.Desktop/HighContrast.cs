@@ -75,7 +75,6 @@ internal static class HighContrast
         Brush("NeapChatBrush", p.Text);
         Brush("NeapChatTextBrush", p.Text);
         Brush("NeapDialTrackBrush", p.Gray);
-        Brush("NeapInUseStrokeBrush", p.Highlight);
         Brush("NeapMeterUnlitBrush", p.Gray);
         Brush("NeapTextBrush", p.Text);
         Brush("NeapTextSecondaryBrush", p.Text);

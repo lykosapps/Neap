@@ -6,7 +6,7 @@
     xmlns:loc="using:Neap.Desktop.Localization">
 
     <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="32,0,32,32">
+        <Grid Margin="32">
             <StackPanel Classes="pagecolumn">
 
                 <TextBlock loc:Uid.Value="Controls_Title" Classes="pagetitle" />

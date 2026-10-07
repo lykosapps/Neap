@@ -131,18 +131,6 @@ public sealed class ProfilesSettings : UserControl
     /// </summary>
     private Control Row(Profile profile)
     {
-        var name = new TextBlock { Text = profile.Name, TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap };
-        var caption = new TextBlock
-        {
-            Text = profile.AssignedApps.Count > 0
-                ? Strings.List(profile.AssignedApps.Select(Named).ToList())
-                : Strings.Get("Profile_NoApps"),
-            Classes = { "caption", "secondary" },
-            TextTrimming = TextTrimming.CharacterEllipsis,
-            TextWrapping = TextWrapping.NoWrap,
-        };
-        var names = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Children = { name, caption } };
-
         var apps = new Button { Content = Icon("IconApps") };
         string appsName = Strings.Format("Profile_AppsTitle", profile.Name);
         AutomationProperties.SetName(apps, appsName);
@@ -167,16 +155,14 @@ public sealed class ProfilesSettings : UserControl
             Paint();
         };
 
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto,Auto"), ColumnSpacing = 8 };
-        Grid.SetColumn(apps, 1);
-        Grid.SetColumn(rename, 2);
-        Grid.SetColumn(delete, 3);
-        grid.Children.Add(names);
-        grid.Children.Add(apps);
-        grid.Children.Add(rename);
-        grid.Children.Add(delete);
-
-        return Card(grid);
+        return new SettingsCard
+        {
+            Header = profile.Name,
+            Description = profile.AssignedApps.Count > 0
+                ? Strings.List(profile.AssignedApps.Select(Named).ToList())
+                : Strings.Get("Profile_NoApps"),
+            Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { apps, rename, delete } },
+        };
     }
 
     /// <summary>
@@ -280,14 +266,6 @@ public sealed class ProfilesSettings : UserControl
     /// </summary>
     private Control ConfirmRow(Profile profile)
     {
-        var name = new TextBlock
-        {
-            Text = profile.Name,
-            VerticalAlignment = VerticalAlignment.Center,
-            TextTrimming = TextTrimming.CharacterEllipsis,
-            TextWrapping = TextWrapping.NoWrap,
-        };
-
         var delete = new Button { Content = Strings.Get("Profile_Delete") };
         var cancel = new Button { Content = Strings.Get("Dialog_Cancel") };
         cancel.AttachedToVisualTree += (_, _) => Dispatcher.UIThread.Post(() => cancel.Focus());
@@ -304,20 +282,10 @@ public sealed class ProfilesSettings : UserControl
             Paint();
         };
 
-        var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"), ColumnSpacing = 8 };
-        Grid.SetColumn(delete, 1);
-        Grid.SetColumn(cancel, 2);
-        row.Children.Add(name);
-        row.Children.Add(delete);
-        row.Children.Add(cancel);
-
-        return Card(row);
+        return new SettingsCard
+        {
+            Header = profile.Name,
+            Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { delete, cancel } },
+        };
     }
-
-    private static Control Card(Control content) => new Border
-    {
-        Classes = { "card" },
-        Padding = new Thickness(12),
-        Child = content,
-    };
 }

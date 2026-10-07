@@ -33,7 +33,6 @@
                     <SolidColorBrush x:Key="NeapChatBrush" Color="#E6E8EC" />
                     <SolidColorBrush x:Key="NeapChatTextBrush" Color="#E6E8EC" />
                     <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#1FFFFFFF" />
-                    <SolidColorBrush x:Key="NeapInUseStrokeBrush" Color="#C8BEFF" />
                     <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#12FFFFFF" />
                     <SolidColorBrush x:Key="NeapTextBrush" Color="#FFFFFF" />
                     <SolidColorBrush x:Key="NeapTextSecondaryBrush" Color="#C5FFFFFF" />
@@ -146,7 +145,6 @@
                     <SolidColorBrush x:Key="NeapChatBrush" Color="#15171C" />
                     <SolidColorBrush x:Key="NeapChatTextBrush" Color="#15171C" />
                     <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#17000000" />
-                    <SolidColorBrush x:Key="NeapInUseStrokeBrush" Color="#6D5AD9" />
                     <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#0F000000" />
                     <SolidColorBrush x:Key="NeapTextBrush" Color="#E4000000" />
                     <SolidColorBrush x:Key="NeapTextSecondaryBrush" Color="#9E000000" />
@@ -317,6 +315,12 @@
         <Setter Property="Padding" Value="16" />
     </Style>
 
+    <!-- A panel as quiet as a row of settings: the same corners and padding. -->
+    <Style Selector="Border.card.compact">
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="16,12" />
+    </Style>
+
     <!-- A dialog on Neap's own ground, as the window is, in place of the system's grey. -->
     <Style Selector="Window.neapground">
         <Setter Property="Background" Value="{DynamicResource NeapGroundBrush}" />
@@ -343,11 +347,7 @@
         <Setter Property="BorderThickness" Value="0,0,0,1" />
     </Style>
 
-    <!-- The panel of what is in use, outlined in the accent, and its word. -->
-    <Style Selector="Border.card.inuse">
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapInUseStrokeBrush}" />
-        <Setter Property="BorderThickness" Value="2" />
-    </Style>
+    <!-- What is in use, said in the accent. -->
     <Style Selector="TextBlock.inuse">
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
@@ -426,7 +426,7 @@
     <Style Selector="TextBlock.pagetitle">
         <Setter Property="FontSize" Value="28" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Margin" Value="0,8,0,16" />
+        <Setter Property="Margin" Value="0,0,0,16" />
         <Setter Property="AutomationProperties.HeadingLevel" Value="1" />
     </Style>
 

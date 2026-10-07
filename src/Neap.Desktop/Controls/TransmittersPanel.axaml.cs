@@ -116,7 +116,7 @@ public partial class TransmittersPanel : UserControl
         {
             Text = row.Name,
             VerticalAlignment = VerticalAlignment.Center,
-            Classes = { inUse ? "cardtitle" : "bodystrong" },
+            Classes = { "bodystrong" },
         });
         var state = new TextBlock
         {
@@ -144,10 +144,7 @@ public partial class TransmittersPanel : UserControl
         if (row.Spare is { } spare) body.Children.Add(SpareLine(spare));
         if (lights is not null) body.Children.Add(lights);
 
-        // The outline on the one in use is a style, so it follows a change of theme.
-        var panel = new Border { Classes = { "card" }, Child = body };
-        if (inUse) panel.Classes.Add("inuse");
-        return panel;
+        return new Border { Classes = { "card", "compact" }, Child = body };
     }
 
     /// <summary>The Charging Dock's spare battery: its charge, or that the slot is empty.</summary>
@@ -213,7 +210,7 @@ public partial class TransmittersPanel : UserControl
         _bluetooth = new TextBlock { Classes = { "secondary" } };
         Grid.SetColumn(_bluetooth, 1);
         top.Children.Add(_bluetooth);
-        return new Border { Classes = { "card" }, Child = top };
+        return new Border { Classes = { "card", "compact" }, Child = top };
     }
 
     /// <summary>Says whether Bluetooth is connected, while the headset is answering to say so.</summary>

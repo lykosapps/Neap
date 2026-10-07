@@ -6,15 +6,12 @@
     xmlns:loc="using:Neap.Desktop.Localization">
 
     <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="32,0,32,32">
+        <Grid Margin="32">
             <StackPanel Classes="pagecolumn">
 
                 <TextBlock loc:Uid.Value="Device_Title" Classes="pagetitle" />
 
                 <c:HeadsetNotice />
-
-                <!-- Listed whenever anything answers, the headset on or off. -->
-                <c:TransmittersPanel />
 
                 <!--
                     With the headset off, the whole page is one card, the audio
@@ -87,6 +84,12 @@
                         </Expander>
                     </c:HeadsetSection>
                 </c:HeadsetSection>
+
+                <!--
+                    Last: what is plugged in is rarely what someone comes here
+                    for. Listed whenever anything answers, the headset on or off.
+                -->
+                <c:TransmittersPanel />
 
             </StackPanel>
         </Grid>
