@@ -26,19 +26,10 @@ dotnet test --project tests/Neap.Core.Tests -c Release
 The same tests run on both. A few run on Linux only, such as the headset
 permission rule written by a real shell, so both are checked on every push.
 
-XAML is formatted by XAML Styler, installed as a tool of this repository. In
-PowerShell:
+Any warning fails the build. The build, the tests and the formatting check
+run on every push and pull request.
 
-```
-dotnet tool restore
-dotnet xstyler -f ((git ls-files '*.xaml') -join ',')
-```
-
-Add `-p` to check without changing anything. Any warning fails the build.
-The build, the tests and both formatting checks run on every push and pull
-request.
-
-`tools/pre-commit` runs a fast version of both formatting checks on the
+`tools/pre-commit` runs a fast version of the formatting check on the
 files being committed. Copy it to `.git/hooks/pre-commit` to use it.
 
 `tools/pre-push` refuses a push to a remote under another account, or one
@@ -56,8 +47,8 @@ caught the old mistake.
 ## Testing the screens without the headset
 
 `--pretend` runs the app against a pretend headset: nothing reaches the
-hardware, Windows' audio, the Startup folder or the real app's settings,
-and it can run beside the real app. Publish, then run
+hardware, the system's audio, the Startup folder or the real app's settings,
+and it can run beside the real app. On Windows, publish, then run
 `powershell -ExecutionPolicy Bypass -File tools\pretend.ps1`. It operates
 every screen through UI Automation, checks each command sent against the
 registry, and takes screenshots. It comes to the front as it changes page,

@@ -1,7 +1,7 @@
 # Working on Neap
 
-Neap is a Windows app (WinUI 3, .NET 10, C#) that controls the Turtle Beach
-Stealth Pro II headset in place of Swarm II. It is open source, GPL-3.0-or-later.
+Neap is an app for Windows and Linux (Avalonia, .NET 10, C#) that controls the
+Turtle Beach Stealth Pro II headset in place of Swarm II. It is open source, GPL-3.0-or-later.
 Every change is held to the standard below: work as a senior .NET engineer
 preparing code for experienced reviewers.
 
@@ -16,7 +16,7 @@ preparing code for experienced reviewers.
 
 ## The standard
 
-- **Conventions.** Microsoft C#/.NET and WinUI practice. Analyzers at
+- **Conventions.** Microsoft C#/.NET and Avalonia practice. Analyzers at
   latest-recommended, warnings as errors, `dotnet format` clean. No code that
   reads as generated: no dead code, no duplicated logic, nothing clever where
   plain will do.
@@ -34,8 +34,8 @@ preparing code for experienced reviewers.
   `FINDINGS.md` marked *(research)*; the files themselves are Turtle Beach's
   and are never committed.
 - **Text lives in the resource file.** All interface text is in
-  `Strings/en-US/Resources.resw`, through `x:Uid` in XAML and `Strings` in
-  code. Whole sentences, never fragments joined in code. The tests check that
+  `Strings/en-US/Resources.resw`, through `loc:Uid.Value` in AXAML and `Strings`
+  in code. Whole sentences, never fragments joined in code. The tests check that
   every key exists and is used.
 - **Comments.** `<summary>`: one or two sentences on what. `<remarks>`: why,
   in the present tense. No history ("used to", "the first version"), no `<b>`
@@ -54,7 +54,7 @@ preparing code for experienced reviewers.
 - **Test the build that ships.** Build in Release, run the tests, publish,
   relaunch the published copy. A Debug build proves nothing about Release.
 - **Check by running, not by reading.** Drive the app through UI Automation
-  (injected clicks do not reach WinUI content) and take screenshots. When
+  (injected clicks do not reach the window's content) and take screenshots. When
   reporting, say which findings were confirmed by running and which were not.
 - **Screen checks go through `tools/ui/run.ps1`.** `run.ps1 banner`, `settings`
   or `profiles` publishes if a source file is newer than the build, then runs
@@ -98,5 +98,5 @@ preparing code for experienced reviewers.
 dotnet build Neap.sln -c Release
 dotnet test --project tests/Neap.Core.Tests -c Release
 dotnet format Neap.sln --verify-no-changes
-dotnet publish src/Neap.App -c Release
+dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained
 ```
