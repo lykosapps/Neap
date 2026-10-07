@@ -48,6 +48,11 @@ public sealed class X11KeyGrabber : IDisposable
     private const int KeyPress = 2, BadAccess = 10, GrabModeAsync = 1;
     private const int EventSize = 192, StateOffset = 80, KeycodeOffset = 84, ErrorCodeOffset = 32;
 
+    /// <summary>How long the listener sleeps before it checks whether it has been told to stop; a key press wakes it at once.</summary>
+    private static readonly TimeSpan StopLooksEvery = TimeSpan.FromMilliseconds(250);
+
+    private const short PollIn = 1;
+
     private static readonly Lazy<bool> CanConnect = new(Connects);
     private static readonly ErrorHandler Handler = OnError;
     private static int _lastError;
@@ -142,6 +147,7 @@ public sealed class X11KeyGrabber : IDisposable
         ready.Set();
 
         var buffer = Marshal.AllocHGlobal(EventSize);
+        int connection = XConnectionNumber(display);
         try
         {
             while (!_stopping)
@@ -154,7 +160,10 @@ public sealed class X11KeyGrabber : IDisposable
                     int code = Marshal.ReadInt32(buffer, KeycodeOffset);
                     if (wanted.TryGetValue((code, state), out int id)) _pressed(id);
                 }
-                Thread.Sleep(30);
+
+                // Asleep until X says something, or until it is time to look at whether to stop.
+                var waiting = new PollFd { Fd = connection, Events = PollIn };
+                _ = Poll(ref waiting, 1, (int)StopLooksEvery.TotalMilliseconds);
             }
         }
         finally
@@ -227,4 +236,19 @@ public sealed class X11KeyGrabber : IDisposable
 
     [DllImport(Library)]
     private static extern IntPtr XSetErrorHandler(IntPtr handler);
+
+    [DllImport(Library)]
+    private static extern int XConnectionNumber(IntPtr display);
+
+    /// <summary>struct pollfd, as poll(2) takes it.</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    private struct PollFd
+    {
+        public int Fd;
+        public short Events;
+        public short Revents;
+    }
+
+    [DllImport("libc", EntryPoint = "poll")]
+    private static extern int Poll(ref PollFd descriptors, nuint count, int timeoutMilliseconds);
 }
