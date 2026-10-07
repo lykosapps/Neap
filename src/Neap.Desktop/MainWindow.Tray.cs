@@ -73,10 +73,22 @@ public partial class MainWindow : IDisposable
         if (_tray.ToolTipText != text) _tray.ToolTipText = text;
     }
 
+    /// <remarks>
+    /// Only a person closing the window is turned into a hide. When the
+    /// system is shutting down, restarting or signing out, or the app is being
+    /// shut down, refusing would cancel it for everyone: the system names the
+    /// program that stopped it, and the person has to find and quit it first.
+    /// </remarks>
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
         if (_quitting || _tray is null) return;
+        if (e.CloseReason is WindowCloseReason.OSShutdown or WindowCloseReason.ApplicationShutdown)
+        {
+            AppLog.Write($"window: the system is closing the app ({e.CloseReason})");
+            StopRunning();
+            return;
+        }
         e.Cancel = true;
         _ = TellThemOnceThenHide();
     }
