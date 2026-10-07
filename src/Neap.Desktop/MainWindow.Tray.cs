@@ -23,6 +23,9 @@ public partial class MainWindow : IDisposable
     private TrayIcon? _tray;
     private bool _quitting;
 
+    /// <summary>Gives memory back every minute while the window is hidden, on Windows.</summary>
+    private IDisposable? _trimming;
+
     /// <summary>Puts the icon in the notification area and makes closing the window a hide.</summary>
     private void StartTray()
     {
@@ -147,6 +150,12 @@ public partial class MainWindow : IDisposable
         Remember();
         Hide();
         Body.Content = null;
+
+        // Hand back what the pages used, and again every minute while hidden;
+        // see WorkingSet. Only Windows has a resident size to trim.
+        if (!OperatingSystem.IsWindows()) return;
+        WorkingSet.Trim();
+        _trimming ??= Platform.Current.Ui.Every(WorkingSet.HiddenEvery, WorkingSet.Trim);
     }
 
     /// <summary>
@@ -157,6 +166,8 @@ public partial class MainWindow : IDisposable
     public void Reveal()
     {
         AppLog.Write("window: opened from the notification area");
+        _trimming?.Dispose();
+        _trimming = null;
         if (Body.Content is null) ShowCurrentPage();
         Show();
         if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
