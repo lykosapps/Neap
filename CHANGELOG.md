@@ -55,6 +55,13 @@ pretend headset.
 - **Redrawn icons.** The icons are now the outlined set Windows' own apps use,
   and the pages use the same colours, rounded fills and buttons everywhere.
 
+### Fixed
+
+- **Choosing Off for noise control stays off.** With the Mode button set to
+  cycle through all three modes, choosing Off in Neap could be taken for a
+  press of the button and carried on to noise cancellation and then
+  transparency. Found by trying it with the real headset.
+
 ### Behind the scenes
 
 - The services the screens share moved out of the app into a project of

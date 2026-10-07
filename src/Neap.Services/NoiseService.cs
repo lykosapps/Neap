@@ -49,7 +49,7 @@ public sealed class NoiseService : IDisposable
     /// <summary>Put the headset in a mode.</summary>
     public void Choose(NoiseMode mode)
     {
-        Send(_noise.Choose(mode));
+        Send(_noise.Choose(mode), hold: true);
         Changed?.Invoke();
     }
 
@@ -77,7 +77,7 @@ public sealed class NoiseService : IDisposable
         {
             AppLog.Write(string.Create(CultureInfo.InvariantCulture,
                 $"noise control: the Mode button left {before}, so it goes on to {NoiseControl.Next(before!.Value)}"));
-            Send(writes);
+            Send(writes, hold: false);
         }
 
         // Kept once noise cancellation is left, not while its slider moves.
@@ -88,9 +88,14 @@ public sealed class NoiseService : IDisposable
 
     private int? Number(int key) => _headset.TryGetNumberByKey(key, out int value) ? value : null;
 
-    private void Send(IReadOnlyList<SettingWrite> writes)
+    /// <remarks>
+    /// A choice made here is held for a moment, so the headset's late report of
+    /// the mode it was in is not taken for a press of the Mode button. The step
+    /// that finishes a real press is not held: the next press must be heard.
+    /// </remarks>
+    private void Send(IReadOnlyList<SettingWrite> writes, bool hold)
     {
-        foreach (var write in writes) _headset.SetKey(write.Key, write.Value, hold: false);
+        foreach (var write in writes) _headset.SetKey(write.Key, write.Value, hold);
     }
 
     public void Dispose() => _headset.Changed -= OnChanged;
