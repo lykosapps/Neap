@@ -33,7 +33,11 @@ public partial class QuickControls : UserControl
     /// <summary>A reading at the top right: what it is, and its value.</summary>
     private sealed record Reading(StackPanel Panel, TextBlock Label, TextBlock Value);
 
-    private readonly Reading _battery;
+    /// <summary>A battery reading: what it is, and a bar with its percentage.</summary>
+    private sealed record Gauge(StackPanel Panel, TextBlock Label, BatteryMeter Meter);
+
+    private readonly Gauge _battery;
+    private readonly Gauge _spare;
     private readonly Reading _signal;
 
     public QuickControls()
@@ -41,7 +45,8 @@ public partial class QuickControls : UserControl
         InitializeComponent();
         // Wide enough for their longest values, so a battery going from
         // 9% to 10% or the signal from OK to Strong moves nothing beside it.
-        _battery = AddReading(72);
+        _battery = AddGauge(96);
+        _spare = AddGauge(96);
         _signal = AddReading(96);
 
         Block.SizeChanged += (_, _) => Arrange();
@@ -53,6 +58,7 @@ public partial class QuickControls : UserControl
         AppServices.Headset.Changed += Paint;
         AppServices.Headset.StatusChanged += OnStatus;
         AppServices.Headset.AccessChanged += Paint;
+        AppServices.Headset.TransmittersChanged += Paint;
         AppServices.AudioRoute.Changed += Paint;
         // The note names the mix's keys once they are on.
         AppServices.Hotkeys.Changed += Paint;
@@ -70,6 +76,7 @@ public partial class QuickControls : UserControl
         AppServices.Headset.Changed -= Paint;
         AppServices.Headset.StatusChanged -= OnStatus;
         AppServices.Headset.AccessChanged -= Paint;
+        AppServices.Headset.TransmittersChanged -= Paint;
         AppServices.AudioRoute.Changed -= Paint;
         AppServices.Hotkeys.Changed -= Paint;
         _plugged?.Stop();
@@ -96,9 +103,10 @@ public partial class QuickControls : UserControl
 
         if (headset.Battery is { } battery)
             Show(_battery, Strings.Get(battery.Charging ? "Home_Charging" : "Home_Battery"),
-                Strings.Format("Home_BatteryLevel", battery.Percent));
+                battery.Percent, battery.Charging, Strings.Format("Home_BatteryLevel", battery.Percent));
         else
             _battery.Panel.IsVisible = false;
+        PaintSpare(status);
         // Signal is the wireless link's, and says nothing about sound that
         // goes over a cable.
         if (status.Link == Link.Connected && !cable && headset.TryGetNumberByKey(Signal.Key, out int signal))
@@ -170,11 +178,66 @@ public partial class QuickControls : UserControl
         return new Reading(panel, label, value);
     }
 
+    /// <summary>Adds an empty battery reading, hidden until it has something to show.</summary>
+    private Gauge AddGauge(double minWidth)
+    {
+        var label = new TextBlock { Classes = { "label" } };
+        var meter = new BatteryMeter("reading");
+        var panel = new StackPanel
+        {
+            MinWidth = minWidth,
+            Spacing = 2,
+            IsVisible = false,
+            Children = { label, meter },
+        };
+        Readings.Children.Add(panel);
+        return new Gauge(panel, label, meter);
+    }
+
     private static void Show(Reading reading, string label, string value)
     {
         reading.Label.Text = label;
         reading.Value.Text = value;
         reading.Panel.IsVisible = true;
+    }
+
+    private static void Show(Gauge gauge, string label, int? percent, bool charging, string value)
+    {
+        gauge.Label.Text = label;
+        gauge.Meter.Show(percent, charging, value);
+        gauge.Panel.IsVisible = true;
+    }
+
+    /// <summary>
+    /// The Charging Dock's spare battery, while the dock is the transmitter in
+    /// use and the slot can be read.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="TransmitterList"/> decides whether there is one to show, as
+    /// it does for the Device page's panel.
+    /// </remarks>
+    private void PaintSpare(HeadsetStatus status)
+    {
+        SpareReading? spare = null;
+        if (!(status.SettingsUnreachable || status.Link == Link.Absent) && _plugged is { Looked: true } plugged)
+        {
+            spare = TransmitterList.Rows(status, AppServices.Headset.KnownTransmitters, plugged.Products,
+                AppServices.AudioRoute.OverCable(status)).FirstOrDefault(r => r.State == TransmitterState.InUse)?.Spare;
+        }
+
+        string label = Strings.Get("Transmitters_SpareBattery");
+        switch (spare)
+        {
+            case { State: SpareState.InSlot } inSlot:
+                Show(_spare, label, inSlot.Percent, false, Strings.Format("Home_BatteryLevel", inSlot.Percent));
+                break;
+            case { State: SpareState.Empty }:
+                Show(_spare, label, 0, false, Strings.Get("Transmitters_SpareEmpty"));
+                break;
+            default:
+                _spare.Panel.IsVisible = false;
+                break;
+        }
     }
 
     /// <summary>Shows the note for the states that need one.</summary>

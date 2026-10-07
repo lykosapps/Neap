@@ -157,20 +157,25 @@ public partial class TransmittersPanel : UserControl
             Margin = new Thickness(0, 8, 0, 0),
         };
         var label = new TextBlock { Text = Strings.Get("Transmitters_SpareBattery") };
-        var value = new TextBlock
+        Control reading;
+        if (spare.State == SpareState.Unreadable)
         {
-            Text = spare.State switch
-            {
-                SpareState.InSlot => Strings.Format("Level_Percent", spare.Percent),
-                SpareState.Empty => Strings.Get("Transmitters_SpareEmpty"),
-                _ => Strings.Get("Reading_None"),
-            },
-            Classes = { spare.State == SpareState.Unreadable ? "tertiary" : "numeral" },
-        };
-        AutomationProperties.SetAutomationId(value, "SpareBattery");
-        Grid.SetColumn(value, 1);
+            var none = new TextBlock { Text = Strings.Get("Reading_None"), Classes = { "tertiary" } };
+            AutomationProperties.SetAutomationId(none, "SpareBattery");
+            reading = none;
+        }
+        else
+        {
+            var meter = new BatteryMeter("numeral");
+            meter.Show(spare.Percent, false, spare.State == SpareState.InSlot
+                ? Strings.Format("Level_Percent", spare.Percent)
+                : Strings.Get("Transmitters_SpareEmpty"));
+            AutomationProperties.SetAutomationId(meter.Value, "SpareBattery");
+            reading = meter;
+        }
+        Grid.SetColumn(reading, 1);
         line.Children.Add(label);
-        line.Children.Add(value);
+        line.Children.Add(reading);
         return line;
     }
 
