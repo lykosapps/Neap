@@ -2,8 +2,10 @@
 
 ## Who uses it
 
-One person: the owner, on one Windows machine, with one Stealth Pro II
-(Xbox edition). *(known — project profile, README status)*
+One person: the owner, on one Windows PC and on a Steam Deck in desktop
+mode (Linux), with one Stealth Pro II (Xbox edition). *(known — project
+profile, README status)* People on other Linux desktops are expected once
+the Linux download is public, and have not been seen yet. *(assumed)*
 
 ## What they come to do
 
@@ -26,7 +28,9 @@ One person: the owner, on one Windows machine, with one Stealth Pro II
 ## Where and how
 
 Desktop, at the PC, often while gaming — wants a quick glance or a quick
-change, not a deep menu dive. *(assumed)*
+change, not a deep menu dive. *(assumed)* On the Steam Deck, in desktop mode
+with a touch screen and a small display. *(known — the owner)* Neap does not
+run in Gaming Mode yet, which is where most Deck use happens. *(known)*
 
 ## The domain
 
@@ -37,4 +41,7 @@ controls, device) since that's the mental model already in place.
 
 ## What they already know
 
-Swarm II's layout and terms; ordinary Windows settings patterns. *(assumed)*
+Swarm II's layout and terms; ordinary Windows settings patterns, and on
+Linux the desktop's own, such as KDE's. *(assumed)* Someone on Linux has
+never had Swarm II, so Neap's own words have to do the explaining there.
+*(assumed)*

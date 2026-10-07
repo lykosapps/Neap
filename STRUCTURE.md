@@ -9,9 +9,9 @@ Who it's for: see [USERS.md](USERS.md).
   balance, and quick settings. What opens first; serves the at-a-glance check
   and the mix, the two most frequent tasks.
 - **Audio** — noise cancellation/transparency/off with Superhuman Hearing,
-  master and voice-prompt volume, Windows' spatial sound format, and the
-  game equaliser last, as on Microphone. Serves noise control, levels,
-  Windows-level audio format and EQ.
+  master and voice-prompt volume, Windows' spatial sound format (Windows
+  only), and the game equaliser last, as on Microphone. Serves noise
+  control, levels, Windows-level audio format and EQ.
 - **Microphone** — mic on/off with a live meter, sensitivity, monitoring, AI
   noise reduction, the noise gate, and the microphone equaliser. Serves
   microphone settings.
@@ -29,8 +29,9 @@ Who it's for: see [USERS.md](USERS.md).
   auto shut-off, wake on motion, and firmware/serial/raw values behind an
   expander. Serves transmitter and device information.
 - **Settings** (footer) — Neap itself: its version and whether it is up to
-  date, with What's new and Update and restart, whether to check for updates
-  by itself, and whether it starts with Windows. Then Problems and other
+  date, with What's new and Update and restart (Download, on Linux), whether
+  to check for updates by itself, and whether it starts when you sign in.
+  Then Problems and other
   headsets: recording headset activity to send with a bug report, and a link
   to the guide for helping support another headset. The licence line is at
   the foot. Neap and its update come first because the update banner and the
@@ -44,9 +45,15 @@ A navigation rail, always on screen: Home, Audio, Microphone, Controls,
 Profiles, Device, with Settings set apart in the footer. Seven places, one
 level deep.
 Home is selected on launch. There's no back button because the rail is
-always there to move sideways instead. One shortcut: Home's quick settings
-can jump straight to Audio's equaliser. Closing the window leaves a tray icon running,
-whose own menu only opens or quits the app — it doesn't expose any page.
+always there to move sideways instead. In a window narrower than 641 pixels
+the rail folds into one button over the page's top corner, which opens it
+over the page and closes it once a place is chosen. One shortcut: Home's quick
+settings can jump straight to Audio's equaliser. Closing the window leaves a
+tray icon running, whose own menu only opens or quits the app — it doesn't
+expose any page. On a Linux desktop with no notification area, closing the
+window closes the app instead, since an icon nothing shows could not be got
+back. On Windows the app draws its own title bar, with the window's buttons
+on its top row; on Linux the desktop's own title bar stays.
 
 When a newer version of Neap is out, a banner sits at the very top, under
 the title bar and above the profile bar, above every page: the news,

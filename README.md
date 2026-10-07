@@ -2,11 +2,12 @@
 
 # Neap
 
-Quiet control for the Turtle Beach Stealth Pro II on Windows, in place of
-Swarm II. No driver, no Turtle Beach software, no admin rights.
+Quiet control for the Turtle Beach Stealth Pro II on Windows and Linux, in
+place of Swarm II. No driver, no Turtle Beach software, no admin rights.
 
 **[Download the latest release](https://github.com/lykosapps/Neap/releases/latest)**
-· Windows 10 version 2004 or later, 64-bit
+· Windows 10 version 2004 or later, 64-bit · Linux, 64-bit, on any desktop
+with PulseAudio or PipeWire
 
 **For the Stealth Pro II only, for now.** Tested on the Xbox edition. The
 PlayStation edition should work but hasn't been tried, so reports are
@@ -76,37 +77,41 @@ microphone.
 
 - **Clear status.** Connected, no sound, switched off or out of range, each
   with what still works and the one thing to do.
-- **Catches the wrong device.** When Windows sends sound or the microphone
-  somewhere the headset isn't listening, Neap names the right one.
+- **Catches the wrong device.** When your system sends sound or the
+  microphone somewhere the headset isn't listening, Neap names the right one.
 - **Settings Swarm II's desktop app doesn't have:** wake on motion and voice
   prompt volume.
 - **Every other setting** the headset has: microphone, noise gate,
-  Superhuman Hearing, spatial sound, buttons and dial, lighting and power.
+  Superhuman Hearing, buttons and dial, lighting and power. On Windows
+  also spatial sound and the audio format.
 - **Runs from the notification area**, with the mix and chat wheel still
-  working, and can start with Windows.
-- **Updates itself.** Neap asks GitHub once a day for a newer version, and
-  updating is one button in Settings. It sends nothing from your PC or
-  headset, only the request, which GitHub sees as any website does, and
-  the check can be turned off.
+  working, and can start when you sign in. On a desktop with no
+  notification area, such as GNOME without its extension, closing the
+  window closes Neap.
+- **Tells you when there's a newer version.** Neap asks GitHub once a day,
+  and on Windows updating is one button in Settings; on Linux it opens the
+  download page. It sends nothing from your computer or headset, only the
+  request, which GitHub sees as any website does, and the check can be turned
+  off.
 - **Works from the keyboard and with screen readers**, in light, dark and
   high contrast themes.
 
 The [changelog](CHANGELOG.md) has the full list, and what's not included.
 
-## Install
+## Install on Windows
 
 1. From the [latest release](https://github.com/lykosapps/Neap/releases/latest),
    download `Neap-<version>-win-x64.zip`.
 2. Unzip it to a folder of its own, such as `C:\Users\<you>\Apps\Neap`.
 3. Run `Neap.exe`.
 4. Close Swarm II and remove the Waves audio driver, as described in
-   [Alongside Swarm II](#alongside-swarm-ii).
+   [Alongside Swarm II](#alongside-swarm-ii-windows).
 
 The download is not signed yet, so the first time, Windows says it protected
 your PC. Choose **More info**, then **Run anyway**.
 
-It needs nothing else: no .NET runtime, no Windows App SDK, no driver. That
-makes it about 260 MB on disk.
+It needs nothing else: no .NET runtime, no driver. That makes it about
+130 MB on disk.
 
 **To update,** choose **Update and restart** at the top of Neap's settings
 when a newer version is out. Neap checks once a day and says so by
@@ -114,7 +119,7 @@ the clock. Settings are kept. To update by hand instead, or from 0.1.0,
 close Neap from the notification area, replace the contents of its folder
 with the new release, and run it again.
 
-**To remove it,** turn off **Start with Windows** in its settings if you
+**To remove it,** turn off **Start when you sign in** in its settings if you
 turned it on, close it from the notification area, and delete its folder
 and `%LOCALAPPDATA%\Neap`, where it keeps its settings and log.
 
@@ -125,7 +130,46 @@ commit and has a `.sha256` file beside the zip. Compare it with:
 Get-FileHash Neap-<version>-win-x64.zip
 ```
 
-## Alongside Swarm II
+## Install on Linux
+
+1. From the [latest release](https://github.com/lykosapps/Neap/releases/latest),
+   download `Neap-<version>-x86_64.AppImage`.
+2. Make it runnable: in a terminal, `chmod +x Neap-<version>-x86_64.AppImage`,
+   or in your file manager tick **Allow executing as a program**. Then run it.
+3. If Neap says it isn't allowed to use the headset, choose **Allow access**.
+   Your system asks for your password once; the only thing it changes is a
+   small rule file, `/etc/udev/rules.d/70-neap.rules`, that lets you use the
+   headset. If there's no password prompt, Neap gives you the command to run
+   yourself.
+
+It is one file with everything inside it, and runs on any 64-bit distribution
+whose desktop has PulseAudio or PipeWire. If it says it needs FUSE, install
+`libfuse2` from your distribution, or run it as
+`./Neap-<version>-x86_64.AppImage --appimage-extract-and-run`.
+
+The download is not signed. Each release has a `.sha256` file beside it; check
+it with `sha256sum -c Neap-<version>-x86_64.AppImage.sha256`.
+
+**To update,** Neap tells you when a newer version is out and opens the
+download page. Download the new file and use it in place of the old one.
+Settings are kept. If you turned on **Start when you sign in**, run the new
+file once and it points the sign-in entry at itself.
+
+**To remove it,** turn off **Start when you sign in** in its settings if you
+turned it on, close Neap, and delete the file and `~/.local/share/Neap`, where
+it keeps its settings and log. If you allowed access, delete
+`/etc/udev/rules.d/70-neap.rules` too.
+
+**What isn't there yet on Linux:** Gaming Mode on the Steam Deck (use desktop
+mode), spatial sound and the audio format (Windows' own), and the Charging
+Dock's keep-high-resolution setting (a fix for a Windows problem). The keyboard shortcuts work while a
+program on X, which is most games, is in front, and not over a native Wayland
+program.
+
+## Alongside Swarm II (Windows)
+
+Swarm II only runs on Windows, so this is for Windows. Linux has nothing to
+close or remove.
 
 1. **Keep Swarm II, for firmware updates and pairing.** Neap deliberately
    does neither.
@@ -141,8 +185,11 @@ Get-FileHash Neap-<version>-win-x64.zip
 ## Status
 
 Working and in daily use, but young. Everything has been exercised on one
-headset on one Windows machine. There is no installer yet, and it was
-written with AI assistance.
+headset: on one Windows PC, and on a Steam Deck's desktop for Linux. Other
+Linux distributions and desktops (Ubuntu, Fedora and openSUSE families, KDE,
+no-notification-area GNOME) have been run only against a pretend headset, not
+a real one, and a Wayland-only desktop and a screen reader on Linux haven't
+been tried. There is no installer yet, and it was written with AI assistance.
 
 Found a problem? In **Settings → Problems and other headsets**, record while it happens,
 then choose **Report on GitHub**. You can also
@@ -162,29 +209,37 @@ For a security problem, see [SECURITY.md](SECURITY.md).
 
 ### Building it
 
+One app, drawn the same on both systems (Avalonia):
+
 ```
-cd src/Neap.App
-dotnet publish -c Release -r win-x64
+dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained
+dotnet publish src/Neap.Desktop -c Release -r linux-x64 -f net10.0 --self-contained
 ```
 
-Then run `Neap.exe` from the `publish` folder. You need the .NET 10 SDK to
-build, but not to run the result.
+Run `Neap.Desktop.exe` (Windows) or `Neap.Desktop` (Linux) from the `publish`
+folder. A release renames the Windows file `Neap.exe`, which the updater in
+every installed copy looks for. You need the .NET 10 SDK to build, but not to
+run the result. The Windows build can only be made on Windows; the Linux one
+builds on either. To make the Linux AppImage from a Linux publish folder, see
+`packaging/linux/build-appimage.sh`.
 
 ### The probe
 
 `Neap.Probe` is a console harness that talks to the headset without a
-UI. It is how the protocol was worked out and it is still the fastest way to
-see what the hardware is actually saying:
+UI, on Windows or Linux. It is how the protocol was worked out and it is still
+the fastest way to see what the hardware is actually saying:
 
 ```
-dotnet build src/Neap.Probe -c Release
-src/Neap.Probe/bin/Release/net10.0-windows/Neap.Probe.exe read
+dotnet run --project src/Neap.Probe -c Release -- read
 ```
 
 `devices`, `read`, `named`, `registry`, `presets`, `transmitters`, `json`,
 `watch`, `diff`, `audio` and `route` are the ones worth knowing — `route`
 says where Windows sends sound and takes the microphone from, for each of its
-roles, and which of the headset's devices is carrying sound right now.
+roles, and which of the headset's devices is carrying sound right now. The
+ones that ask Windows about sound (`audio`, `route`, `hear`, `formats` and a
+few more) run only on Windows; on Linux, `sound` asks the sound server in
+their place, and most of the others run on both.
 
 A few more matter when something is not behaving:
 
