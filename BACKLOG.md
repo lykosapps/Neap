@@ -100,12 +100,15 @@ to GitHub, these become issues.
 
 The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
-- **The full hardware list**, on the current build, which now runs on
-  Windows App SDK 2.5.1. Includes seeing the tray menu and Starting with
-  Windows work after the upgrade.
+- **The rest of the hardware list**, on the new app. `run.ps1 hardware` has
+  covered noise control, the audio format, the mix and its shortcuts,
+  recovery after the app is ended, the spare battery's reading and starting
+  at sign-in (7 Oct). Still by hand: unplugging and switching to see each
+  connection state, the wheel, the Mode button, hearing a mode or a format,
+  a game in front for the shortcuts, a real sign-out, saving and deleting
+  equaliser presets, and updating from an installed copy.
 - **High contrast.** The fixes for it have not been seen on screen.
 - **The tray icon's menu** in light and dark, on screen.
-- **Starting with Windows** on the current build.
 - **Does CrossPlay report its presses?** Unknown.
 - **The lights:** the USB Transmitter's second light, and the lights while
   sound and settings are on different transmitters.
@@ -143,12 +146,9 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 ## Tooling and release
 
-- **Before publishing 0.2.0, move the local `v0.2.0` tag.** It sits on the
-  first updater commit (`75c00f5`), about thirty commits behind `main`: the
-  banner, Profiles page, restart watch and toolkit upgrade are all after it.
-  Nothing is pushed and the release workflow builds from the tag, so pushing
-  it as it is would publish the old build. Check `git log -1 v0.2.0` against
-  `main` first.
+- **Publishing 0.2.0.** GitHub has only 0.1.0. The old local `v0.2.0` tag was
+  deleted on 8 Oct; tag 0.2.0 on the final commit of `main`, set the date in
+  the changelog to that day, and the workflow builds from the tag.
 - High contrast has still not been seen on the update banner, the notes dialog,
   the Settings card or the Profiles page.
 
@@ -159,9 +159,8 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   it may take, and a way to cancel it.
 - Publish on GitHub: the repository named "neap", private vulnerability
   reporting on, main only, and a first real CI run.
-- A package update pass. Done on 6 Oct: the Windows App SDK moved to 2.5.1,
-  as 1.8 went out of support on 24 September, and H.NotifyIcon to 2.4.1, with
-  its tray menu checked by hand. Still to do: the SDK build tools.
+- A package update pass before each release. The new app's packages were
+  set on 7 Oct (Avalonia 12.1.3, H.NotifyIcon 2.4.1).
 - An ARM build.
 - A read-through by an experienced .NET developer before release.
 - A trademark search for the name.
