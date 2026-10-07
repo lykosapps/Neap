@@ -37,8 +37,14 @@ public static class SectionFold
     /// The section goes on working without the headset's settings, as the mix
     /// and Windows' own volume do, so it folds only when the headset is away.
     /// </param>
-    public static Fold For(HeadsetStatus status, bool whenOff) =>
-        status.Link == Link.Connecting ? Fold.Unchanged
+    /// <param name="accessDenied">
+    /// The system will not let this person use the headset. Every section folds
+    /// with nothing in its place: the notice at the top of the page says what
+    /// is wrong, and a line about the headset being off would contradict it.
+    /// </param>
+    public static Fold For(HeadsetStatus status, bool whenOff, bool accessDenied = false) =>
+        accessDenied ? Fold.Hidden
+        : status.Link == Link.Connecting ? Fold.Unchanged
         : status.Link == Link.Absent ? Fold.Hidden
         : status.NotConnected ? Fold.Off
         : status.SettingsUnreachable && !whenOff ? Fold.Unreachable

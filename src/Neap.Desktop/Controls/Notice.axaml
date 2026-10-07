@@ -19,7 +19,7 @@
             <StackPanel Grid.Column="1" Spacing="2">
                 <TextBlock x:Name="TitleText" Classes="bodystrong" IsVisible="False" />
                 <TextBlock x:Name="MessageText" IsVisible="False" />
-                <HyperlinkButton x:Name="Action" Padding="0" IsVisible="False" HorizontalAlignment="Left" />
+                <Button x:Name="Action" Classes="accent" Margin="0,8,0,0" IsVisible="False" HorizontalAlignment="Left" />
             </StackPanel>
         </Grid>
     </Border>

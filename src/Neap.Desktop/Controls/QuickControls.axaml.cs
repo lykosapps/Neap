@@ -107,8 +107,8 @@ public partial class QuickControls : UserControl
             _signal.Panel.IsVisible = false;
 
         PaintNote(StateNote.For(status));
-        Fold(MixCard, SectionFold.For(status, whenOff: true));
-        Fold(SettingsCard, SectionFold.For(status, whenOff: false));
+        Fold(MixCard, SectionFold.For(status, whenOff: true, headset.AccessDenied));
+        Fold(SettingsCard, SectionFold.For(status, whenOff: false, headset.AccessDenied));
         Arrange();
     }
 

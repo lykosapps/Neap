@@ -96,6 +96,7 @@ public sealed class HeadsetSection : StackPanel
     {
         base.OnLoaded(e);
         AppServices.Headset.StatusChanged += OnStatus;
+        AppServices.Headset.AccessChanged += Paint;
         Paint();
     }
 
@@ -103,6 +104,7 @@ public sealed class HeadsetSection : StackPanel
     {
         base.OnUnloaded(e);
         AppServices.Headset.StatusChanged -= OnStatus;
+        AppServices.Headset.AccessChanged -= Paint;
     }
 
     private void OnStatus(HeadsetStatus status) => Paint();
@@ -137,7 +139,7 @@ public sealed class HeadsetSection : StackPanel
     private void Paint()
     {
         var status = AppServices.Headset.Status;
-        var fold = SectionFold.For(status, WhenOff);
+        var fold = SectionFold.For(status, WhenOff, AppServices.Headset.AccessDenied);
         if (fold == Fold.Unchanged) return;
         Gather();
 

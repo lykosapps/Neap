@@ -18,6 +18,16 @@ public class SectionFoldTests
     public void FoldsForEachState(Link link, bool whenOff, Fold fold) =>
         Assert.Equal(fold, SectionFold.For(new HeadsetStatus(link, Route.ChargingDock, "", ""), whenOff));
 
+    [Theory]
+    [InlineData(Link.Connecting)]
+    [InlineData(Link.Absent)]
+    [InlineData(Link.Quiet)]
+    [InlineData(Link.Silent)]
+    [InlineData(Link.Connected)]
+    public void WithoutAccessEverySectionFoldsWithNothingInItsPlace(Link link) =>
+        Assert.Equal(Fold.Hidden,
+            SectionFold.For(new HeadsetStatus(link, Route.ChargingDock, "", ""), whenOff: true, accessDenied: true));
+
     [Fact]
     public void SwitchedOffOnItsCableFoldsAsOff() =>
         Assert.Equal(Fold.Off,
