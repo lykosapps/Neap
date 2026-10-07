@@ -17,8 +17,8 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public sealed class BatteryMeter : UserControl
 {
-    private const double BodyWidth = 40;
-    private const double BodyHeight = 18;
+    private const double BodyWidth = 32;
+    private const double BodyHeight = 16;
     private const double Inset = 2;
     private const int Low = 20;
     private const int Critical = 10;

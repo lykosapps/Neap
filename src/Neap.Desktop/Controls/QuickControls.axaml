@@ -15,7 +15,12 @@
             Padding="0,0,0,16"
             BorderBrush="{DynamicResource NeapRuleBrush}"
             BorderThickness="0,0,0,1">
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
+            <Grid
+                x:Name="Header"
+                ColumnDefinitions="*,Auto"
+                ColumnSpacing="24"
+                RowDefinitions="Auto,Auto"
+                RowSpacing="12">
                 <StackPanel VerticalAlignment="Bottom" Spacing="4">
                     <TextBlock x:Name="HeadsetName" Classes="label" AutomationProperties.HeadingLevel="1" />
                     <!-- A grid, not a row of two: the words wrap beside the dot in a narrow window instead of running under the readings. -->
@@ -39,7 +44,7 @@
                     Grid.Column="1"
                     VerticalAlignment="Bottom"
                     Orientation="Horizontal"
-                    Spacing="24" />
+                    Spacing="32" />
             </Grid>
         </Border>
 

@@ -30,14 +30,17 @@ public partial class QuickControls : UserControl
 
     private PluggedWatch? _plugged;
 
-    /// <summary>A reading at the top right: what it is, and its value.</summary>
-    private sealed record Reading(StackPanel Panel, TextBlock Label, TextBlock Value);
+    /// <summary>The narrowest the header can be and still hold the readings beside the headset's name.</summary>
+    private const double ReadingsBeside = 680;
 
-    /// <summary>A battery reading: what it is, and a bar with its percentage.</summary>
-    private sealed record Gauge(StackPanel Panel, TextBlock Label, BatteryMeter Meter);
+    /// <summary>A reading at the top right: what it is, and its picture with the value beside it.</summary>
+    private sealed record Reading(StackPanel Panel, TextBlock Label);
 
-    private readonly Gauge _battery;
-    private readonly Gauge _spare;
+    private readonly BatteryMeter _batteryMeter = new("glance");
+    private readonly BatteryMeter _spareMeter = new("glance");
+    private readonly SignalMeter _signalMeter = new("glance");
+    private readonly Reading _battery;
+    private readonly Reading _spare;
     private readonly Reading _signal;
 
     public QuickControls()
@@ -45,11 +48,12 @@ public partial class QuickControls : UserControl
         InitializeComponent();
         // Wide enough for their longest values, so a battery going from
         // 9% to 10% or the signal from OK to Strong moves nothing beside it.
-        _battery = AddGauge(96);
-        _spare = AddGauge(96);
-        _signal = AddReading(96);
+        _battery = AddReading(_batteryMeter);
+        _spare = AddReading(_spareMeter);
+        _signal = AddReading(_signalMeter);
 
         Block.SizeChanged += (_, _) => Arrange();
+        Header.SizeChanged += (_, _) => ArrangeHeader();
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -102,17 +106,23 @@ public partial class QuickControls : UserControl
         ToolTip.SetTip(HowConnected, status.Detail);
 
         if (headset.Battery is { } battery)
-            Show(_battery, Strings.Get(battery.Charging ? "Home_Charging" : "Home_Battery"),
-                battery.Percent, battery.Charging, Strings.Format("Home_BatteryLevel", battery.Percent));
-        else
-            _battery.Panel.IsVisible = false;
+        {
+            _battery.Label.Text = Strings.Get(battery.Charging ? "Home_Charging" : "Home_Battery");
+            _batteryMeter.Show(battery.Percent, battery.Charging, Strings.Format("Home_BatteryLevel", battery.Percent));
+        }
+        _battery.Panel.IsVisible = headset.Battery is not null;
         PaintSpare(status);
         // Signal is the wireless link's, and says nothing about sound that
         // goes over a cable.
-        if (status.Link == Link.Connected && !cable && headset.TryGetNumberByKey(Signal.Key, out int signal))
-            Show(_signal, Strings.Get("Home_Signal"), Strength(signal));
-        else
-            _signal.Panel.IsVisible = false;
+        int raw = 0;
+        bool showSignal = status.Link == Link.Connected && !cable && headset.TryGetNumberByKey(Signal.Key, out raw);
+        if (showSignal)
+        {
+            var strength = Signal.Strength(raw);
+            _signal.Label.Text = Strings.Get("Home_Signal");
+            _signalMeter.Show(strength, Strength(strength));
+        }
+        _signal.Panel.IsVisible = showSignal;
 
         PaintNote(StateNote.For(status));
         Fold(MixCard, SectionFold.For(status, whenOff: true, headset.AccessDenied));
@@ -154,7 +164,7 @@ public partial class QuickControls : UserControl
             _ => StateCopy.Label(headline),
         };
 
-    private static string Strength(int raw) => Signal.Strength(raw) switch
+    private static string Strength(SignalStrength strength) => strength switch
     {
         SignalStrength.Strong => Strings.Get("Home_SignalStrong"),
         SignalStrength.Good => Strings.Get("Home_SignalGood"),
@@ -163,49 +173,31 @@ public partial class QuickControls : UserControl
     };
 
     /// <summary>Adds an empty reading, hidden until it has something to show.</summary>
-    private Reading AddReading(double minWidth)
+    private Reading AddReading(Control picture)
     {
         var label = new TextBlock { Classes = { "label" } };
-        var value = new TextBlock { Classes = { "reading" } };
         var panel = new StackPanel
         {
-            MinWidth = minWidth,
-            Spacing = 2,
+            MinWidth = 96,
+            Spacing = 4,
             IsVisible = false,
-            Children = { label, value },
+            Children = { label, picture },
         };
         Readings.Children.Add(panel);
-        return new Reading(panel, label, value);
+        return new Reading(panel, label);
     }
 
-    /// <summary>Adds an empty battery reading, hidden until it has something to show.</summary>
-    private Gauge AddGauge(double minWidth)
+    /// <summary>
+    /// Puts the readings beside the headset's name when there is room, and
+    /// under it when there is not, so the name keeps its width.
+    /// </summary>
+    private void ArrangeHeader()
     {
-        var label = new TextBlock { Classes = { "label" } };
-        var meter = new BatteryMeter("reading");
-        var panel = new StackPanel
-        {
-            MinWidth = minWidth,
-            Spacing = 2,
-            IsVisible = false,
-            Children = { label, meter },
-        };
-        Readings.Children.Add(panel);
-        return new Gauge(panel, label, meter);
-    }
-
-    private static void Show(Reading reading, string label, string value)
-    {
-        reading.Label.Text = label;
-        reading.Value.Text = value;
-        reading.Panel.IsVisible = true;
-    }
-
-    private static void Show(Gauge gauge, string label, int? percent, bool charging, string value)
-    {
-        gauge.Label.Text = label;
-        gauge.Meter.Show(percent, charging, value);
-        gauge.Panel.IsVisible = true;
+        bool beside = Header.Bounds.Width >= ReadingsBeside;
+        Grid.SetRow(Readings, beside ? 0 : 1);
+        Grid.SetColumn(Readings, beside ? 1 : 0);
+        Grid.SetColumnSpan(Readings, beside ? 1 : 2);
+        Readings.HorizontalAlignment = beside ? Avalonia.Layout.HorizontalAlignment.Right : Avalonia.Layout.HorizontalAlignment.Left;
     }
 
     /// <summary>
@@ -225,14 +217,16 @@ public partial class QuickControls : UserControl
                 AppServices.AudioRoute.OverCable(status)).FirstOrDefault(r => r.State == TransmitterState.InUse)?.Spare;
         }
 
-        string label = Strings.Get("Transmitters_SpareBattery");
+        _spare.Label.Text = Strings.Get("Transmitters_SpareBattery");
         switch (spare)
         {
             case { State: SpareState.InSlot } inSlot:
-                Show(_spare, label, inSlot.Percent, false, Strings.Format("Home_BatteryLevel", inSlot.Percent));
+                _spareMeter.Show(inSlot.Percent, false, Strings.Format("Home_BatteryLevel", inSlot.Percent));
+                _spare.Panel.IsVisible = true;
                 break;
             case { State: SpareState.Empty }:
-                Show(_spare, label, 0, false, Strings.Get("Transmitters_SpareEmpty"));
+                _spareMeter.Show(0, false, Strings.Get("Transmitters_SpareEmpty"));
+                _spare.Panel.IsVisible = true;
                 break;
             default:
                 _spare.Panel.IsVisible = false;

@@ -306,6 +306,13 @@
         <Setter Property="FontFeatures" Value="tnum" />
     </Style>
 
+    <!-- The readings along the top of Home: worth a glance, but no larger than a card's title. -->
+    <Style Selector="TextBlock.glance">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontFeatures" Value="tnum" />
+    </Style>
+
     <!-- A panel on Home, lit from the top edge like a piece of gear on a desk. -->
     <Style Selector="Border.card">
         <Setter Property="Background" Value="{DynamicResource NeapPanelBrush}" />
