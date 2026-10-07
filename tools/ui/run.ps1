@@ -67,8 +67,8 @@ function Test-InPackage { $length = 0; [NeapRun]::GetCurrentPackageFullName([ref
 # Publishes when a source file is newer than the build, so a check is never run
 # against what was built before the last change.
 function Publish-IfStale {
-    $dll = Join-Path $root 'src\Neap.App\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.dll'
-    $newest = Get-ChildItem (Join-Path $root 'src') -Recurse -File -Include *.cs, *.xaml, *.resw, *.csproj |
+    $dll = Join-Path $root 'src\Neap.Desktop\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.Desktop.dll'
+    $newest = Get-ChildItem (Join-Path $root 'src') -Recurse -File -Include *.cs, *.axaml, *.resw, *.csproj |
         Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' } |
         Sort-Object LastWriteTime -Descending | Select-Object -First 1
     $props = Get-Item (Join-Path $root 'Directory.Build.props')
@@ -78,7 +78,7 @@ function Publish-IfStale {
         return
     }
     Write-Host 'publishing, since a source file is newer than the build'
-    dotnet publish (Join-Path $root 'src\Neap.App') -c Release --nologo -v:q
+    dotnet publish (Join-Path $root 'src\Neap.Desktop') -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained --nologo -v:q
     if ($LASTEXITCODE -ne 0) { throw 'the publish failed' }
 }
 

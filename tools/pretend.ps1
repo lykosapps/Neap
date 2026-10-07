@@ -33,7 +33,7 @@ run it while nobody is using the machine.
 
 Publish first:
 
-    dotnet publish src/Neap.App -c Release
+    dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained
 
 .PARAMETER Exe
 The published app.
@@ -56,7 +56,7 @@ follows Windows.
 powershell -ExecutionPolicy Bypass -File tools\pretend.ps1
 #>
 param(
-    [string]$Exe = (Join-Path $PSScriptRoot '..\src\Neap.App\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.exe'),
+    [string]$Exe = (Join-Path $PSScriptRoot '..\src\Neap.Desktop\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.Desktop.exe'),
     [string]$Out = (Join-Path $env:TEMP 'neap-pretend'),
     [switch]$KeepOpen,
     [switch]$Unattended,
@@ -827,7 +827,7 @@ function PowerCycle {
 
 # -- the run -------------------------------------------------------------------
 
-if (-not (Test-Path $Exe)) { throw "no published app at $Exe; run dotnet publish src/Neap.App -c Release" }
+if (-not (Test-Path $Exe)) { throw "no published app at $Exe; run dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained" }
 $Exe = (Resolve-Path $Exe).Path
 $running = Get-CimInstance Win32_Process -Filter "Name = 'Neap.exe'" | Where-Object { $_.CommandLine -like '*--pretend*' }
 if ($running) { throw 'a pretend run is already open; quit it first' }

@@ -43,7 +43,7 @@ public static class NeapUi {
 $A = [System.Windows.Automation.AutomationElement]
 $Scope = [System.Windows.Automation.TreeScope]
 $script:Fails = 0
-$script:Exe = Join-Path $PSScriptRoot '..\..\src\Neap.App\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.exe'
+$script:Exe = Join-Path $PSScriptRoot '..\..\src\Neap.Desktop\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.Desktop.exe'
 $script:Out = Join-Path $PSScriptRoot '..\..\TestResults\ui'
 $script:Proc = $null; $script:Window = $null; $script:Handle = [IntPtr]::Zero
 
@@ -150,7 +150,22 @@ function Get-Popups {
         $window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::MenuItem)))
     }
 }
-function Press($Element) { $Element.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke() }
+# What a control offers to be pressed with differs by toolkit: a button invokes, a menu item may
+# be selected, or only answer to the keyboard.
+function Press($Element) {
+    foreach ($pattern in @([System.Windows.Automation.InvokePattern]::Pattern, [System.Windows.Automation.TogglePattern]::Pattern)) {
+        $found = $null
+        if ($Element.TryGetCurrentPattern($pattern, [ref]$found)) {
+            if ($found -is [System.Windows.Automation.InvokePattern]) { $found.Invoke() } else { $found.Toggle() }
+            return
+        }
+    }
+    $found = $null
+    if ($Element.TryGetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern, [ref]$found)) { $found.Select(); return }
+    # A menu item that only takes the keyboard: focus it and press Enter.
+    $Element.SetFocus()
+    (New-Object -ComObject WScript.Shell).SendKeys('{ENTER}')
+}
 function Open-Menu($Element) {
     try { $Element.GetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern).Expand() } catch { Press $Element }
 }

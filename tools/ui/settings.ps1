@@ -25,6 +25,18 @@ function Resize([int]$Width, [int]$Height) { Set-NeapSize $Width $Height $anchor
 
 function Get-Box($Element) { $Element.Current.BoundingRectangle }
 
+# A row's name and description are not elements of their own, so they are
+# measured in the strip from the page's left edge to the row's control, on the
+# same line.
+function Test-ContrastBesideControl($Bitmap, $Control, [string]$What) {
+    $box = Get-Box $Control
+    $left = (Get-Box (Find-Text 'Problems and other headsets')).X
+    $strip = New-Object System.Windows.Rect $left, $box.Y, ($box.X - $left - 20), $box.Height
+    $colours = Get-BoxColours $Bitmap $strip (Get-NeapRect)
+    $ratio = Get-ContrastRatio $colours.Text $colours.Ground
+    Check ($ratio -ge 4.5) ("{0}: contrast {1}:1 (needs 4.5:1)" -f $What, $ratio)
+}
+
 # The text of this name if there is one, otherwise whatever has the name.
 function Find-Anywhere([string]$Name) {
     $element = Find-Text $Name
@@ -53,7 +65,8 @@ if ($Parts.Contains('A')) {
             Check ($texts -contains 'Problems and other headsets') 'the troubleshooting section is named plainly'
             Check ($texts -notcontains 'Default profile') 'the profile list has left this page'
             Check ($texts -notcontains 'Diagnostics') 'the old name for the troubleshooting section is gone'
-            Check (@($texts -match 'only been tested with the Stealth Pro II').Count -gt 0) 'it says what has been tested, beside the invitation to help'
+            # A row's own lines are read through its control, as its help text.
+            Check ((Find-Named 'Help support another headset').Current.HelpText -match 'only been tested with the Stealth Pro II') 'it says what has been tested, beside the invitation to help'
             Check (@($texts -match 'Free software under the GNU GPL').Count -gt 0) 'the licence line is on the page'
             foreach ($name in 'Start when you sign in', $anchor, 'Help support another headset') { Check ($null -ne (Find-Named $name)) "$name is on the page" }
 
@@ -71,7 +84,8 @@ if ($Parts.Contains('A')) {
             try {
                 $status = Find-Text $offer
                 Test-Contrast $bitmap $status 'the status line'
-                foreach ($label in 'Start when you sign in', 'Problems and other headsets') { Test-Contrast $bitmap (Find-Text $label) $label }
+                Test-Contrast $bitmap (Find-Text 'Problems and other headsets') 'Problems and other headsets'
+                Test-ContrastBesideControl $bitmap (Find-Named 'Start when you sign in') 'the name of Start when you sign in'
                 Test-Contrast $bitmap (Find-Text 'Free software under the GNU GPL, version 3 or later, with no warranty. Not affiliated with or endorsed by Turtle Beach.') 'the licence line'
             }
             finally { $bitmap.Dispose() }

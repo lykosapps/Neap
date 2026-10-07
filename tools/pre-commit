@@ -1,27 +1,19 @@
 #!/bin/sh
 # A fast formatting check on the files being committed, so a formatting
 # slip is caught here rather than by the full check on push. It looks at
-# whitespace in C# and at XAML Styler's layout, which take a second, and
-# leaves analyzer rules to the build. It reads the files as they are on
+# whitespace in C#, which takes a second, and leaves analyzer rules to the
+# build. It reads the files as they are on
 # disk, so stage what you have checked.
 #
 # Install it once:
 #   cp tools/pre-commit .git/hooks/pre-commit
 
 cs=$(git diff --cached --name-only --diff-filter=ACMR -- '*.cs')
-xaml=$(git diff --cached --name-only --diff-filter=ACMR -- '*.xaml')
 fail=0
 
 if [ -n "$cs" ]; then
     # shellcheck disable=SC2086 # one argument per file
     dotnet format whitespace --folder --verify-no-changes --include $cs || fail=1
-fi
-
-if [ -n "$xaml" ]; then
-    dotnet xstyler -p -f "$(echo "$xaml" | paste -sd, -)" >/dev/null || {
-        echo "pre-commit: XAML needs formatting: dotnet xstyler -f <file>" >&2
-        fail=1
-    }
 fi
 
 if [ "$fail" -ne 0 ]; then
