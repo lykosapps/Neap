@@ -146,6 +146,14 @@
   can't be updated; Settings says so and links to the download.
 - **Revisit when** the download is signed: the updater should check the
   signature too.
+- **What the updater needs from every release,** so the release workflow
+  and any other platform's build keep it true: the tag is `vMAJOR.MINOR.PATCH`
+  with nothing after it (a `-beta` tag is refused), the release is not a draft
+  or a pre-release, and it carries `Neap-MAJOR.MINOR.PATCH-win-x64.zip` with
+  its `.sha256` beside it, both under Neap's own repository. A release
+  without them reads as "cannot tell", never as "nothing new". The updater
+  asks for the latest release, so a release for another platform alone would
+  hide the Windows one: each carries the Windows zip.
 - **A banner across every page**, under the profile bar, tells people a
   newer version is out. A notice by the clock alone would be missed or
   switched off, and a card in Settings is somewhere people only go to look.
