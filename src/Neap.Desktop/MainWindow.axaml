@@ -4,9 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization"
-    Width="1100"
-    Height="780"
-    MinWidth="640"
+    Width="1180"
+    Height="900"
+    MinWidth="500"
     MinHeight="480"
     Background="{DynamicResource NeapGroundBrush}"
     Icon="avares://Neap.Desktop/Assets/app.ico">
@@ -21,26 +21,11 @@
             thing worth seeing from every tab; the readings are on Home.
             Right-aligned.
         -->
-        <Grid ColumnDefinitions="Auto,*,Auto">
-            <!--
-                The app's mark beside its name. Not shown: the system's own
-                title bar above already says it, and twice reads as a mistake.
-            -->
-            <StackPanel Margin="16,0,0,0" Orientation="Horizontal" Spacing="12" IsVisible="False">
-                <Image
-                    Width="16"
-                    Height="16"
-                    VerticalAlignment="Center"
-                    Source="avares://Neap.Desktop/Assets/logo.png" />
-                <TextBlock x:Name="TitleText" Classes="caption" VerticalAlignment="Center" />
-            </StackPanel>
-
-            <c:HeadsetStatusStrip
-                x:Name="Status"
-                Grid.Column="2"
-                Margin="0,0,16,0"
-                VerticalAlignment="Center" />
-        </Grid>
+        <c:HeadsetStatusStrip
+            x:Name="Status"
+            HorizontalAlignment="Right"
+            Margin="0,0,16,0"
+            VerticalAlignment="Center" />
 
         <!--
             A newer version of Neap, at the very top under the title bar,
@@ -69,7 +54,7 @@
             DisplayMode="CompactInline"
             IsPaneOpen="True"
             OpenPaneLength="220"
-            PaneBackground="Transparent">
+            PaneBackground="{DynamicResource NeapGroundBrush}">
             <SplitView.Pane>
                 <DockPanel>
                     <!-- Settings sits apart at the foot, as the Windows app has it. -->
@@ -111,9 +96,29 @@
                 </DockPanel>
             </SplitView.Pane>
 
-            <Border Classes="pagebody">
-                <ContentControl x:Name="Body" />
-            </Border>
+            <Grid>
+                <Border x:Name="PageFrame" Classes="pagebody">
+                    <ContentControl x:Name="Body" />
+                </Border>
+
+                <!--
+                    In a narrow window the menu folds into this button, over the
+                    page's top corner, and opens over the page.
+                -->
+                <Button
+                    x:Name="NavToggle"
+                    Width="40"
+                    Height="40"
+                    Padding="0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    IsVisible="False"
+                    loc:Uid.Value="Main_NavMenu">
+                    <PathIcon Width="20" Height="20" Data="{StaticResource IconMenu}" />
+                </Button>
+            </Grid>
         </SplitView>
     </Grid>
 </Window>

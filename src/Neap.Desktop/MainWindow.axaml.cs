@@ -19,6 +19,15 @@ public partial class MainWindow : Window
     /// <summary>The width above which the rail shows names as well as icons; the Windows app's own threshold.</summary>
     private const double Roomy = 1008;
 
+    /// <summary>The width below which the rail folds into a button that opens it over the page; the Windows app's own threshold.</summary>
+    private const double Narrow = 641;
+
+    /// <summary>The title row's height, which is the height of the title bar where the app draws its own.</summary>
+    private const double TitleRowHeight = 40;
+
+    /// <summary>The width Windows gives its three caption buttons, which the status keeps clear of where the app draws its own title bar.</summary>
+    private const double CaptionButtons = 138;
+
     private readonly Dictionary<string, Control> _pages = new();
 
     public MainWindow()
@@ -29,14 +38,15 @@ public partial class MainWindow : Window
         // never mistaken for the copy talking to the real headset.
         string title = Pretend.Active ? Strings.Format("Window_PretendTitle", AppInfo.Name) : AppInfo.Name;
         Title = title;
-        TitleText.Text = title;
 
         Activated += (_, _) => WindowPresence.Set(true);
         Deactivated += (_, _) => WindowPresence.Set(false);
 
         Places.SelectionChanged += (_, _) => OnChosen(Places, Foot);
         Foot.SelectionChanged += (_, _) => OnChosen(Foot, Places);
-        SizeChanged += (_, e) => Rail.IsPaneOpen = e.NewSize.Width >= Roomy;
+        SizeChanged += (_, e) => FitRail(e.NewSize.Width);
+        NavToggle.Click += (_, _) => Rail.IsPaneOpen = !Rail.IsPaneOpen;
+        DrawOwnTitleBar();
 
         Open(Pretend.Page ?? "home");
         StartTray();
@@ -78,12 +88,44 @@ public partial class MainWindow : Window
         AppLog.Write($"no page with the tag {page}: stayed where it was");
     }
 
+    /// <summary>
+    /// Shows the rail as the width allows: names beside the icons when there
+    /// is room, icons alone when there is less, and in a narrow window only a
+    /// button, which opens the rail over the page.
+    /// </summary>
+    private void FitRail(double width)
+    {
+        bool folded = width < Narrow;
+        Rail.DisplayMode = folded ? SplitViewDisplayMode.Overlay : SplitViewDisplayMode.CompactInline;
+        Rail.IsPaneOpen = !folded && width >= Roomy;
+        NavToggle.IsVisible = folded;
+
+        // The page moves down clear of the button, rather than have it sit against the page's title.
+        PageFrame.Margin = folded ? new Thickness(0, TitleRowHeight, 0, 0) : new Thickness(0);
+    }
+
+    /// <summary>
+    /// Where the app draws its own title bar, as on Windows, with the system's
+    /// name, mark and buttons over it, keeps the status clear of the buttons.
+    /// Elsewhere the desktop's own title bar stays.
+    /// </summary>
+    private void DrawOwnTitleBar()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        ExtendClientAreaToDecorationsHint = true;
+        ExtendClientAreaTitleBarHeightHint = TitleRowHeight;
+        Status.Margin = new Thickness(0, 0, CaptionButtons + 16, 0);
+    }
+
     /// <summary>A place was chosen in one half of the rail: show it, and let go of any choice in the other.</summary>
     private void OnChosen(ListBox chosen, ListBox other)
     {
         if (chosen.SelectedItem is not NavItem item) return;
         if (other.SelectedItem is not null) other.SelectedItem = null;
         Show(item);
+
+        // A rail opened over the page has done its job once a place is chosen.
+        if (Rail.DisplayMode == SplitViewDisplayMode.Overlay) Rail.IsPaneOpen = false;
     }
 
     /// <summary>Puts the page of the place chosen in the rail in front again, after the window was hidden.</summary>
@@ -119,7 +161,7 @@ public partial class MainWindow : Window
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        Rail.IsPaneOpen = Bounds.Width >= Roomy;
+        FitRail(Bounds.Width);
         if (Pretend.Snapshot is { } file) _ = SaveAndExit(file);
 
         // A launch at sign-in lives in the notification area rather than open
