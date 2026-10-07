@@ -2,19 +2,20 @@ name: Release
 
 # Push a tag such as v0.1.0 to build the app on GitHub and attach it to a
 # release, so every download can be traced to a commit and rebuilt by anyone.
+# Two downloads: a zip for Windows, and an AppImage for Linux.
 on:
   push:
     tags: ['v*']
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
-  release:
+  windows:
     runs-on: windows-latest
     env:
       TAG: ${{ github.ref_name }}
@@ -28,37 +29,96 @@ jobs:
       - name: Test
         run: dotnet test --project tests/Neap.Core.Tests -c Release
 
+      # The program is called Neap.exe whatever the project's file is called:
+      # the updater in every copy already installed looks for that name in the
+      # download and starts it again after the swap.
       - name: Publish
         run: |
           $version = $env:TAG.TrimStart('v')
-          dotnet publish src/Neap.App -c Release -r win-x64 -o publish `
+          dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained -o publish `
             -p:Version=$version -p:ContinuousIntegrationBuild=true
+          Rename-Item publish/Neap.Desktop.exe Neap.exe
 
       - name: Package
         run: |
           $version = $env:TAG.TrimStart('v')
           Copy-Item LICENSE, THIRD-PARTY-NOTICES.txt publish/
-
-          # The Windows App SDK's own terms travel with its runtime.
-          [xml]$project = Get-Content src/Neap.App/Neap.App.csproj
-          $sdk = $project.Project.ItemGroup.PackageReference |
-            Where-Object Include -eq 'Microsoft.WindowsAppSDK' | Select-Object -ExpandProperty Version
-          $packages = (dotnet nuget locals global-packages --list) -replace '^global-packages:\s*', ''
-          $source = Join-Path $packages "microsoft.windowsappsdk/$sdk"
-          Copy-Item (Join-Path $source license.txt) publish/WindowsAppSDK-LICENSE.txt
-          Copy-Item (Join-Path $source NOTICE.txt) publish/WindowsAppSDK-NOTICE.txt
-
           $zip = "Neap-$version-win-x64.zip"
           Compress-Archive -Path publish/* -DestinationPath $zip
           $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  $zip" | Out-File -Encoding ascii "$zip.sha256"
-          "ZIP=$zip" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: windows
+          path: |
+            Neap-*-win-x64.zip
+            Neap-*-win-x64.zip.sha256
+
+  linux:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.ref_name }}
+      # The tool that makes the AppImage, pinned to one release and checked
+      # against its published hash before it is run.
+      APPIMAGETOOL_URL: https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage
+      APPIMAGETOOL_SHA256: ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Test
+        run: dotnet test --project tests/Neap.Core.Tests -c Release
+
+      - name: Publish
+        run: |
+          version="${TAG#v}"
+          dotnet publish src/Neap.Desktop -c Release -r linux-x64 -f net10.0 --self-contained -o publish \
+            -p:Version="$version" -p:ContinuousIntegrationBuild=true
+
+      - name: Get the AppImage tool
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/appimagetool" "$APPIMAGETOOL_URL"
+          echo "$APPIMAGETOOL_SHA256  $RUNNER_TEMP/appimagetool" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/appimagetool"
+
+      - name: Package
+        run: |
+          version="${TAG#v}"
+          APPIMAGETOOL="$RUNNER_TEMP/appimagetool" bash packaging/linux/build-appimage.sh publish "$version" dist
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: linux
+          path: |
+            dist/Neap-*-x86_64.AppImage
+            dist/Neap-*-x86_64.AppImage.sha256
+
+  release:
+    needs: [windows, linux]
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: dist
+          merge-multiple: true
 
       # The release page carries the version's changelog section, so it says
       # what Neap does in the same words as the repository.
       - name: Notes
         run: |
           $version = $env:TAG.TrimStart('v')
+          $zip = "Neap-$version-win-x64.zip"
+          $image = "Neap-$version-x86_64.AppImage"
           $lines = Get-Content CHANGELOG.md
           $start = [array]::FindIndex($lines, [Predicate[string]]{ param($l) $l -match "^## $([regex]::Escape($version))\b" })
           if ($start -lt 0) { throw "CHANGELOG.md has no section for $version." }
@@ -71,13 +131,21 @@ jobs:
           if ($first -lt 0) { $first = 0 }
           $lead = if ($first -gt 0) { $section[0..($first - 1)] } else { @() }
           $install = @(
-            '### Install'
+            '### Install on Windows'
             ''
-            "1. Download **$env:ZIP** below. Windows 10 version 2004 or later, 64-bit."
+            "1. Download **$zip** below. Windows 10 version 2004 or later, 64-bit."
             '2. Unzip it into a folder you will keep, and run **Neap.exe**.'
             '3. The download is not signed yet. If Windows says it protected your PC, choose **More info**, then **Run anyway**.'
             '4. Make sure Swarm II is not running in the background, and turn off its Autostart in its App Settings. The two apps fight over the headset when both are open.'
             '5. Remove the Waves audio driver: in Windows Settings, under Apps, uninstall **Turtle Beach Audio Driver** by Waves Audio Ltd. Neap does not need it.'
+            ''
+            '### Install on Linux'
+            ''
+            "1. Download **$image** below, make it runnable (in a terminal, ``chmod +x $image``, or in your file manager tick *Allow executing as a program*), and run it. It needs a desktop with PulseAudio or PipeWire, which almost every one has."
+            '2. If it says it needs FUSE, install **libfuse2** from your distribution, or run it as `./Neap.AppImage --appimage-extract-and-run`.'
+            '3. The first time, Neap may say it is not allowed to use the headset. Choose **Allow access**: your system asks for your password once, and the only thing it changes is a small rule file that lets you use the headset.'
+            '4. The download is not signed. Check it against the **.sha256** file beside it if you like: `sha256sum -c` on that file.'
+            '5. Neap tells you when a newer version is out and opens its page; download the new file to replace the old one.'
             ''
           )
           # Release pages keep every line break, so the changelog's wrapped
@@ -96,4 +164,9 @@ jobs:
       - name: Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create $env:TAG $env:ZIP "$env:ZIP.sha256" --title "Neap $($env:TAG.TrimStart('v'))" --notes-file notes.md
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          gh release create $env:TAG `
+            "dist/Neap-$version-win-x64.zip" "dist/Neap-$version-win-x64.zip.sha256" `
+            "dist/Neap-$version-x86_64.AppImage" "dist/Neap-$version-x86_64.AppImage.sha256" `
+            --title "Neap $version" --notes-file notes.md

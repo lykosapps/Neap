@@ -39,3 +39,24 @@ jobs:
 
       - name: Test
         run: dotnet test --project tests/Neap.Core.Tests -c Release --no-build
+
+  linux:
+    # The app for Linux, built and tested on Linux: what only Linux compiles
+    # (the headset, the sound server, the key grabs) and the tests that only
+    # run there, such as the headset permission rule written by a real shell.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore src/Neap.Desktop && dotnet restore tests/Neap.Core.Tests
+
+      - name: Build
+        run: dotnet build src/Neap.Desktop -c Release -f net10.0 --no-restore -p:ContinuousIntegrationBuild=true
+
+      - name: Test
+        run: dotnet test --project tests/Neap.Core.Tests -c Release
