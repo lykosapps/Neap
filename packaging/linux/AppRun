@@ -1,0 +1,3 @@
+#!/bin/sh
+# Starts Neap from inside the AppImage. APPDIR is where the image has unpacked itself for this run.
+exec "$APPDIR/usr/bin/Neap" "$@"
