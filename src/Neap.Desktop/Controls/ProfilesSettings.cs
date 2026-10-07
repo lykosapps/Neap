@@ -131,7 +131,7 @@ public sealed class ProfilesSettings : UserControl
     /// </summary>
     private Control Row(Profile profile)
     {
-        var apps = new Button { Content = Icon("IconApps") };
+        var apps = new Button { Content = Icon("IconApps"), Classes = { "iconbutton" } };
         string appsName = Strings.Format("Profile_AppsTitle", profile.Name);
         AutomationProperties.SetName(apps, appsName);
         // Unlike rename and delete, this icon has no meaning anyone already
@@ -139,7 +139,7 @@ public sealed class ProfilesSettings : UserControl
         ToolTip.SetTip(apps, appsName);
         apps.Click += async (_, _) => await OpenAppPicker(profile);
 
-        var rename = new Button { Content = Icon("IconEdit") };
+        var rename = new Button { Content = Icon("IconEdit"), Classes = { "iconbutton" } };
         AutomationProperties.SetName(rename, Strings.Format("Profile_RenameNamed", profile.Name));
         rename.Click += async (_, _) =>
         {
@@ -147,7 +147,7 @@ public sealed class ProfilesSettings : UserControl
             if (typed.Length > 0) AppServices.Profiles.Rename(profile.Id, typed);
         };
 
-        var delete = new Button { Content = Icon("IconDelete") };
+        var delete = new Button { Content = Icon("IconDelete"), Classes = { "iconbutton" } };
         AutomationProperties.SetName(delete, Strings.Format("Profile_DeleteNamed", profile.Name));
         delete.Click += (_, _) =>
         {

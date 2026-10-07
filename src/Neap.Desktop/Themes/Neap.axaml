@@ -79,6 +79,19 @@
                     <StaticResource x:Key="ComboBoxBorderBrushPressed" ResourceKey="NeapButtonStrokeBrush" />
                     <StaticResource x:Key="ComboBoxDropDownBackground" ResourceKey="NeapFlyoutBrush" />
                     <StaticResource x:Key="ComboBoxDropDownBorderBrush" ResourceKey="NeapPanelStrokeBrush" />
+                    <SolidColorBrush x:Key="NeapSelectedBrush" Color="#3B3263" />
+                    <SolidColorBrush x:Key="ComboBoxItemBackground" Color="Transparent" />
+                    <StaticResource x:Key="ComboBoxItemBackgroundPointerOver" ResourceKey="NeapButtonHoverBrush" />
+                    <StaticResource x:Key="ComboBoxItemBackgroundPressed" ResourceKey="NeapButtonPressedBrush" />
+                    <StaticResource x:Key="ComboBoxItemBackgroundSelected" ResourceKey="NeapSelectedBrush" />
+                    <StaticResource x:Key="ComboBoxItemBackgroundSelectedPointerOver" ResourceKey="NeapSelectedBrush" />
+                    <StaticResource x:Key="ComboBoxItemBackgroundSelectedPressed" ResourceKey="NeapSelectedBrush" />
+                    <SolidColorBrush x:Key="ListBoxItemBackground" Color="Transparent" />
+                    <StaticResource x:Key="ListBoxItemBackgroundPointerOver" ResourceKey="NeapButtonHoverBrush" />
+                    <StaticResource x:Key="ListBoxItemBackgroundPressed" ResourceKey="NeapButtonPressedBrush" />
+                    <StaticResource x:Key="ListBoxItemBackgroundSelected" ResourceKey="NeapSelectedBrush" />
+                    <StaticResource x:Key="ListBoxItemBackgroundSelectedPointerOver" ResourceKey="NeapSelectedBrush" />
+                    <StaticResource x:Key="ListBoxItemBackgroundSelectedPressed" ResourceKey="NeapSelectedBrush" />
                     <StaticResource x:Key="FlyoutPresenterBackground" ResourceKey="NeapFlyoutBrush" />
                     <StaticResource x:Key="MenuFlyoutPresenterBackground" ResourceKey="NeapFlyoutBrush" />
                     <StaticResource x:Key="AccentButtonBackground" ResourceKey="NeapAccentFillBrush" />
@@ -189,6 +202,19 @@
                     <StaticResource x:Key="ComboBoxBorderBrushPressed" ResourceKey="NeapButtonStrokeBrush" />
                     <StaticResource x:Key="ComboBoxDropDownBackground" ResourceKey="NeapFlyoutBrush" />
                     <StaticResource x:Key="ComboBoxDropDownBorderBrush" ResourceKey="NeapPanelStrokeBrush" />
+                    <SolidColorBrush x:Key="NeapSelectedBrush" Color="#E3DDFA" />
+                    <SolidColorBrush x:Key="ComboBoxItemBackground" Color="Transparent" />
+                    <StaticResource x:Key="ComboBoxItemBackgroundPointerOver" ResourceKey="NeapButtonHoverBrush" />
+                    <StaticResource x:Key="ComboBoxItemBackgroundPressed" ResourceKey="NeapButtonPressedBrush" />
+                    <StaticResource x:Key="ComboBoxItemBackgroundSelected" ResourceKey="NeapSelectedBrush" />
+                    <StaticResource x:Key="ComboBoxItemBackgroundSelectedPointerOver" ResourceKey="NeapSelectedBrush" />
+                    <StaticResource x:Key="ComboBoxItemBackgroundSelectedPressed" ResourceKey="NeapSelectedBrush" />
+                    <SolidColorBrush x:Key="ListBoxItemBackground" Color="Transparent" />
+                    <StaticResource x:Key="ListBoxItemBackgroundPointerOver" ResourceKey="NeapButtonHoverBrush" />
+                    <StaticResource x:Key="ListBoxItemBackgroundPressed" ResourceKey="NeapButtonPressedBrush" />
+                    <StaticResource x:Key="ListBoxItemBackgroundSelected" ResourceKey="NeapSelectedBrush" />
+                    <StaticResource x:Key="ListBoxItemBackgroundSelectedPointerOver" ResourceKey="NeapSelectedBrush" />
+                    <StaticResource x:Key="ListBoxItemBackgroundSelectedPressed" ResourceKey="NeapSelectedBrush" />
                     <StaticResource x:Key="FlyoutPresenterBackground" ResourceKey="NeapFlyoutBrush" />
                     <StaticResource x:Key="MenuFlyoutPresenterBackground" ResourceKey="NeapFlyoutBrush" />
                     <StaticResource x:Key="AccentButtonBackground" ResourceKey="NeapAccentFillBrush" />
@@ -322,6 +348,14 @@
         <Setter Property="Padding" Value="16" />
     </Style>
 
+    <!-- A button that is only a picture: as high as every other button, and as wide. -->
+    <Style Selector="Button.iconbutton">
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+
     <!-- A panel as quiet as a row of settings: the same corners and padding. -->
     <Style Selector="Border.card.compact">
         <Setter Property="CornerRadius" Value="8" />
@@ -418,8 +452,8 @@
                         CornerRadius="{TemplateBinding CornerRadius}"
                         MinHeight="{TemplateBinding MinHeight}"
                         Padding="{TemplateBinding Padding}">
-                    <Grid x:Name="Layout" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="8">
-                        <PathIcon Width="20" Height="20" VerticalAlignment="Center"
+                    <Grid x:Name="Layout" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                        <PathIcon Width="20" Height="20" Margin="0,0,16,0" VerticalAlignment="Center"
                                   Data="{TemplateBinding Icon}" IsVisible="{TemplateBinding Icon, Converter={x:Static ObjectConverters.IsNotNull}}" />
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2" MinWidth="0">
                             <TextBlock Text="{TemplateBinding Header}" />

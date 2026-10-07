@@ -96,7 +96,7 @@
                         loc:Uid.Value="Settings_Record"
                         Icon="{StaticResource IconRecord}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button x:Name="RecordHelp" loc:Uid.Value="Settings_RecordHelp">
+                            <Button x:Name="RecordHelp" loc:Uid.Value="Settings_RecordHelp" Classes="iconbutton">
                                 <PathIcon Width="14" Height="14" Data="{StaticResource IconHelp}" />
                             </Button>
                             <Button
@@ -110,7 +110,7 @@
                         x:Name="MapCard"
                         loc:Uid.Value="Settings_MapHeadset"
                         Icon="{StaticResource IconDevice}">
-                        <Button x:Name="MapHeadset">
+                        <Button x:Name="MapHeadset" Classes="iconbutton">
                             <PathIcon Width="14" Height="14" Data="{StaticResource IconLaunch}" />
                         </Button>
                     </c:SettingsCard>

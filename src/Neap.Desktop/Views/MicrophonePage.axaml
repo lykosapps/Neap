@@ -49,7 +49,7 @@
                         <c:HeadsetSection Explain="False">
                             <c:SettingRow
                                 loc:Uid.Value="Microphone_MicMonitoring"
-                                Icon="{StaticResource IconDevice}"
+                                Icon="{StaticResource IconHearing}"
                                 Setting="mic_monitoring" />
                         </c:HeadsetSection>
                     </c:SideBySide>

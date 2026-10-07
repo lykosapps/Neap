@@ -19,7 +19,7 @@
                     button is off while the headset is not answering.
                 -->
                 <StackPanel
-                    Margin="0,0,0,8"
+                    Margin="0,4,0,12"
                     Orientation="Horizontal"
                     Spacing="12">
                     <Button x:Name="New" Classes="accent" />

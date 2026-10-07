@@ -95,5 +95,9 @@ public class SettingsCard : ContentControl
         Grid.SetColumn(_control, beside ? 2 : 1);
         Grid.SetColumnSpan(_control, beside ? 1 : 2);
         _control.HorizontalAlignment = beside ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+
+        // The gap between name and control belongs to the control, so a row with no icon has no gap before its name.
+        // Likewise the gap above it when it sits under the name, so a row with nothing under it has no spare room.
+        _control.Margin = beside ? new Thickness(16, 0, 0, 0) : new Thickness(0, 8, 0, 0);
     }
 }

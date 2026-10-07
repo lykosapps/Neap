@@ -39,7 +39,7 @@
                             <c:SettingsCard
                                 x:Name="KeepRingCard"
                                 loc:Uid.Value="Device_KeepRing"
-                                Icon="{StaticResource IconLight}">
+                                Icon="{StaticResource IconAudio}">
                                 <ToggleSwitch x:Name="KeepRing" />
                             </c:SettingsCard>
                         </StackPanel>
