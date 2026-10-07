@@ -270,6 +270,10 @@
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
+    <!-- A switch takes a click over the whole of its box, not only the part that is drawn. -->
+    <Style Selector="ToggleSwitch">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
     <!-- The page, a step above the rail it sits beside, edged on the sides that meet it. -->
     <Style Selector="Border.pagebody">
         <Setter Property="Background" Value="{DynamicResource NeapBodyBrush}" />
