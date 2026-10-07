@@ -178,7 +178,7 @@ public sealed class UpdateService : IDisposable
             if (AppInfo.Version is { } running && release.IsNewerThan(running))
             {
                 Newer = release;
-                _offered = Stage = CanInstall && CanWriteHere() ? UpdateStage.Available : UpdateStage.CannotUpdateHere;
+                _offered = Stage = UpdateOffer.For(CanInstall, CanWriteHere);
                 AppLog.Write($"updates: version {release.Version.ToString(3)} is still available");
                 return;
             }
@@ -220,11 +220,10 @@ public sealed class UpdateService : IDisposable
             Newer = latest;
             if (!Pretend.Active) AppSettings.Update(s => s.FoundRelease = latest.ToJson());
             string version = latest.Version.ToString(3);
-            bool here = CanInstall && (Pretend.Active || CanWriteHere());
-            AppLog.Write(here ? $"updates: version {version} is available"
+            _offered = UpdateOffer.For(CanInstall, () => Pretend.Active || CanWriteHere());
+            AppLog.Write(_offered == UpdateStage.Available ? $"updates: version {version} is available"
                 : CanInstall ? $"updates: version {version} is available, but this folder cannot be written to"
                 : $"updates: version {version} is available, to be downloaded by hand");
-            _offered = here ? UpdateStage.Available : UpdateStage.CannotUpdateHere;
             Set(_offered);
 
             if (onItsOwn && !Pretend.Active && AppSettings.Current.ToldAboutVersion != version
