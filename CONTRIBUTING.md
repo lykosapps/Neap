@@ -102,7 +102,14 @@ copy rewrites the sign-in shortcut and takes the headset.
 
 ## Before a release
 
-Run through this with the release build, not a debug one:
+Run through this with the release build, not a debug one. Most of what needs
+the headset can be run for you: `powershell -ExecutionPolicy Bypass -File
+tools\ui\run.ps1 hardware -Parts BFKLT` runs the real app and reads the
+headset back with the probe, covering 2, 3, 5, 6 (the modes), 7 (what the
+page says), 9 and 10 below. It brings windows to the front, stops your own
+copy of Neap for the run and puts it back, so run it when nobody is at the
+machine. Unplugging, the wheel, the Mode button, hearing the result, a game
+in front, signing out and updating from an installed copy stay by hand.
 
 1. **Every connection state.** One row per arrangement, the same rows as
    `ConnectionMatrixTests`. Start each from a working headset. The headset
