@@ -20,6 +20,11 @@ preparing code for experienced reviewers.
   latest-recommended, warnings as errors, `dotnet format` clean. No code that
   reads as generated: no dead code, no duplicated logic, nothing clever where
   plain will do.
+- **Simplicity first.** Choose the simplest implementation that correctly
+  solves the problem. No abstractions, helpers, design patterns or extra
+  configuration unless strictly necessary. Use a built-in feature or library
+  before writing custom logic. No clever tricks, no premature optimisation.
+  If an extra abstraction or feature is truly needed, say why before adding it.
 - **Decisions live in Core.** Anything with a rule in it (connection state,
   routing, what a screen shows for a state, curve or dial maths) goes in
   `Neap.Core` with xUnit tests. The app's screens only draw what Core
