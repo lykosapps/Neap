@@ -107,7 +107,7 @@ public partial class QuickControls : UserControl
 
         if (headset.Battery is { } battery)
         {
-            _battery.Label.Text = Strings.Get(battery.Charging ? "Home_Charging" : "Home_Battery");
+            _battery.Label.Text = Strings.Get("Home_Battery");
             _batteryMeter.Show(battery.Percent, battery.Charging, Strings.Format("Home_BatteryLevel", battery.Percent));
         }
         _battery.Panel.IsVisible = headset.Battery is not null;
@@ -178,7 +178,7 @@ public partial class QuickControls : UserControl
         var label = new TextBlock { Classes = { "label" } };
         var panel = new StackPanel
         {
-            MinWidth = 96,
+            MinWidth = 112,
             Spacing = 4,
             IsVisible = false,
             Children = { label, picture },
@@ -221,7 +221,7 @@ public partial class QuickControls : UserControl
         switch (spare)
         {
             case { State: SpareState.InSlot } inSlot:
-                _spareMeter.Show(inSlot.Percent, false, Strings.Format("Home_BatteryLevel", inSlot.Percent));
+                _spareMeter.Show(inSlot.Percent, inSlot.Charging, Strings.Format("Home_BatteryLevel", inSlot.Percent));
                 _spare.Panel.IsVisible = true;
                 break;
             case { State: SpareState.Empty }:

@@ -167,7 +167,7 @@ public partial class TransmittersPanel : UserControl
         else
         {
             var meter = new BatteryMeter("numeral");
-            meter.Show(spare.Percent, false, spare.State == SpareState.InSlot
+            meter.Show(spare.Percent, spare.Charging, spare.State == SpareState.InSlot
                 ? Strings.Format("Level_Percent", spare.Percent)
                 : Strings.Get("Transmitters_SpareEmpty"));
             AutomationProperties.SetAutomationId(meter.Value, "SpareBattery");

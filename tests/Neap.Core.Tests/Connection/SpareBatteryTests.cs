@@ -13,6 +13,18 @@ public class SpareBatteryTests
         Assert.Equal(new SpareReading(SpareState.InSlot, percent), SpareBattery.Parse(reported));
     }
 
+    [Theory]
+    [InlineData("0", true)]
+    [InlineData("57", true)]
+    [InlineData("99", true)]
+    [InlineData("100", false)]
+    [InlineData("255", false)]
+    [InlineData("half", false)]
+    public void ABatteryBelowFullIsCharging(string reported, bool charging)
+    {
+        Assert.Equal(charging, SpareBattery.Parse(reported).Charging);
+    }
+
     [Fact]
     public void TwoFiftyFiveIsAnEmptySlot()
     {

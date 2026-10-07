@@ -1,7 +1,9 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
+using Avalonia.Media;
 
 namespace Neap.Desktop.Controls;
 
@@ -11,9 +13,10 @@ namespace Neap.Desktop.Controls;
 /// </summary>
 /// <remarks>
 /// The bar is a picture of the number, so a screen reader is given the number
-/// and not the bar. The fill turns yellow at a fifth, red at a tenth, and
-/// green while charging, in the same tones as the connection dot; none of them
-/// is the only way to read the level.
+/// and not the bar. The fill turns yellow at a fifth and red at a tenth. While
+/// charging it is green and a bolt stands beside it, named for a screen
+/// reader. None of the colours is the only way to read the level or the
+/// charging.
 /// </remarks>
 public sealed class BatteryMeter : UserControl
 {
@@ -28,6 +31,8 @@ public sealed class BatteryMeter : UserControl
         HorizontalAlignment = HorizontalAlignment.Left,
         CornerRadius = new CornerRadius(1),
     };
+
+    private readonly PathIcon _bolt;
 
     public BatteryMeter(string textClass)
     {
@@ -64,7 +69,18 @@ public sealed class BatteryMeter : UserControl
         };
         AutomationProperties.SetAccessibilityView(picture, AccessibilityView.Raw);
 
-        Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { picture, Value } };
+        // Said as well as shown, so charging is not only a colour and a picture.
+        _bolt = new PathIcon
+        {
+            Width = 12,
+            Height = 12,
+            IsVisible = false,
+            Data = (Geometry)Application.Current!.FindResource("IconCharging")!,
+        };
+        _bolt.Bind(TemplatedControl.ForegroundProperty, this.GetResourceObservable("NeapToneGoodBrush"));
+        AutomationProperties.SetName(_bolt, Strings.Get("Battery_Charging"));
+
+        Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { picture, _bolt, Value } };
     }
 
     /// <summary>The percentage, or what stands in for it, beside the bar.</summary>
@@ -74,6 +90,7 @@ public sealed class BatteryMeter : UserControl
     public void Show(int? percent, bool charging, string text)
     {
         Value.Text = text;
+        _bolt.IsVisible = charging;
         int shown = Math.Clamp(percent ?? 0, 0, 100);
         _fill.Width = Math.Round((BodyWidth - 2 * Inset) * shown / 100);
 
