@@ -32,6 +32,7 @@ public sealed class BatteryMeter : UserControl
         CornerRadius = new CornerRadius(1),
     };
 
+    private readonly StackPanel _picture;
     private readonly PathIcon _bolt;
 
     public BatteryMeter(string textClass)
@@ -61,36 +62,37 @@ public sealed class BatteryMeter : UserControl
 
         Value = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Classes = { textClass } };
 
-        var picture = new StackPanel
+        _picture = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             VerticalAlignment = VerticalAlignment.Center,
             Children = { body, nub },
         };
-        AutomationProperties.SetAccessibilityView(picture, AccessibilityView.Raw);
+        AutomationProperties.SetAccessibilityView(_picture, AccessibilityView.Raw);
 
         // Said as well as shown, so charging is not only a colour and a picture.
         _bolt = new PathIcon
         {
-            Width = 12,
-            Height = 12,
+            Width = 14,
+            Height = 14,
             IsVisible = false,
             Data = (Geometry)Application.Current!.FindResource("IconCharging")!,
         };
         _bolt.Bind(TemplatedControl.ForegroundProperty, this.GetResourceObservable("NeapToneGoodBrush"));
         AutomationProperties.SetName(_bolt, Strings.Get("Battery_Charging"));
 
-        Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { picture, _bolt, Value } };
+        Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { _picture, _bolt, Value } };
     }
 
     /// <summary>The percentage, or what stands in for it, beside the bar.</summary>
     public TextBlock Value { get; }
 
-    /// <summary>Fills the bar to a charge and words it; a null charge leaves the bar empty.</summary>
+    /// <summary>Fills the bar to a charge and words it; with no charge to show there is no bar, as an empty one would say the battery is empty.</summary>
     public void Show(int? percent, bool charging, string text)
     {
         Value.Text = text;
         _bolt.IsVisible = charging;
+        _picture.IsVisible = percent is not null;
         int shown = Math.Clamp(percent ?? 0, 0, 100);
         _fill.Width = Math.Round((BodyWidth - 2 * Inset) * shown / 100);
 
