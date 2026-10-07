@@ -64,17 +64,20 @@ public class SettingsCard : ContentControl
     }
 
     /// <summary>
-    /// Names the control for a screen reader after the row, when it has no
-    /// name of its own: a switch or a button alone says what it does only
-    /// through the name beside it.
+    /// Names the control for a screen reader after the row, and gives it the
+    /// row's description: a switch or a button alone says what it does only
+    /// through the text beside it, which a screen reader does not reach.
     /// </summary>
+    /// <remarks>A name or description the control has of its own is kept.</remarks>
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property != HeaderProperty && change.Property != ContentProperty) return;
-        if (Content is Control control && !string.IsNullOrEmpty(Header)
-            && string.IsNullOrEmpty(AutomationProperties.GetName(control)))
+        if (change.Property != HeaderProperty && change.Property != DescriptionProperty && change.Property != ContentProperty) return;
+        if (Content is not Control control) return;
+        if (!string.IsNullOrEmpty(Header) && string.IsNullOrEmpty(AutomationProperties.GetName(control)))
             AutomationProperties.SetName(control, Header);
+        if (!string.IsNullOrEmpty(Description) && string.IsNullOrEmpty(AutomationProperties.GetHelpText(control)))
+            AutomationProperties.SetHelpText(control, Description);
     }
 
     protected override Size ArrangeOverride(Size finalSize)

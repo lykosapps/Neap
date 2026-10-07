@@ -41,9 +41,9 @@ public partial class MainWindow : IDisposable
         // Without an icon to be got back by, the window closing closes the app.
         if (!TrayAvailability.Exists) return;
 
-        var open = new NativeMenuItem(Strings.Get("Main_TrayOpen.Text"));
+        var open = new NativeMenuItem(Strings.Get("Main_TrayOpen"));
         open.Click += (_, _) => Reveal();
-        var quit = new NativeMenuItem(Strings.Get("Main_TrayQuit.Text"));
+        var quit = new NativeMenuItem(Strings.Get("Main_TrayQuit"));
         quit.Click += (_, _) => Quit();
         _tray = new TrayIcon
         {
@@ -78,12 +78,6 @@ public partial class MainWindow : IDisposable
         if (_tray.ToolTipText != text) _tray.ToolTipText = text;
     }
 
-    /// <remarks>
-    /// Only a person closing the window is turned into a hide. When the
-    /// system is shutting down, restarting or signing out, or the app is being
-    /// shut down, refusing would cancel it for everyone: the system names the
-    /// program that stopped it, and the person has to find and quit it first.
-    /// </remarks>
     /// <summary>Says a newer version is out, for someone whose window is closed; one with the window open has the banner.</summary>
     /// <remarks>Selecting the notice, where the system lets it be selected, opens Settings, where updating is.</remarks>
     private void TellAboutUpdate(Release release)
@@ -102,6 +96,12 @@ public partial class MainWindow : IDisposable
         Open("settings");
     }
 
+    /// <remarks>
+    /// Only a person closing the window is turned into a hide. When the
+    /// system is shutting down, restarting or signing out, or the app is being
+    /// shut down, refusing would cancel it for everyone: the system names the
+    /// program that stopped it, and the person has to find and quit it first.
+    /// </remarks>
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);

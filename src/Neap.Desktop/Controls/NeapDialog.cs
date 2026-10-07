@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Layout;
@@ -60,6 +61,11 @@ public sealed class NeapDialog : Window
             Spacing = 16,
             Children = { _heading, _body, buttons },
         };
+
+        // Fixed names for the screen checks, which find the buttons by them.
+        AutomationProperties.SetAutomationId(_primary, "PrimaryButton");
+        AutomationProperties.SetAutomationId(_secondary, "SecondaryButton");
+        AutomationProperties.SetAutomationId(_close, "CloseButton");
 
         _close.Click += (_, _) => Close(DialogAnswer.None);
         _primary.Click += (_, _) => Close(DialogAnswer.Primary);
