@@ -23,6 +23,17 @@ public class DesktopEntryTests
         Assert.Equal(written, DesktopEntry.Exec(path));
 
     [Fact]
+    public void AnAppImageIsStartedFromItsOwnFileNotTheFolderItUnpacksTo() =>
+        Assert.Equal("/home/sam/Apps/Neap.AppImage",
+            DesktopEntry.StartedFrom("/home/sam/Apps/Neap.AppImage", "/tmp/.mount_NeapAbC123/usr/bin/Neap"));
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void AProgramNotInAnAppImageIsStartedFromWhereItIs(string? appImage) =>
+        Assert.Equal("/home/sam/Neap/Neap", DesktopEntry.StartedFrom(appImage, "/home/sam/Neap/Neap"));
+
+    [Fact]
     public void APathWithALineBreakIsRefused() =>
         Assert.Throws<FormatException>(() => DesktopEntry.Exec("/home/a\nb/Neap"));
 

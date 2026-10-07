@@ -15,6 +15,17 @@ namespace Neap.Core.Input;
 /// </remarks>
 public static class DesktopEntry
 {
+    /// <summary>The file to start the app from at sign-in: the AppImage if the app is running from one, otherwise the program itself.</summary>
+    /// <remarks>
+    /// An AppImage unpacks itself to a folder that is new on every run, so the
+    /// path the running program reports would be gone by the next sign-in. The
+    /// AppImage's own runtime says where the file is, in <c>APPIMAGE</c>.
+    /// </remarks>
+    /// <param name="appImage">The value of the <c>APPIMAGE</c> variable, if it is set.</param>
+    /// <param name="processPath">Where the running program says it is.</param>
+    public static string StartedFrom(string? appImage, string processPath) =>
+        appImage is { Length: > 0 } ? appImage : processPath;
+
     /// <summary>The <c>Exec</c> value that runs a program with these arguments, which must need no quoting.</summary>
     /// <exception cref="FormatException">The path has a line break, which a value cannot hold.</exception>
     public static string Exec(string program, params string[] arguments) =>
