@@ -9,13 +9,23 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
-## 0.3.0 — 2026-10-07
+## 0.2.0 — 2026-10-07
 
 **Neap now runs on Linux.** One app with the same pages, colours and words on
 Windows and on Linux. On Linux it has been used with the real headset on a
 Steam Deck, in desktop mode; other desktops have been run only against a
-pretend headset. On Windows 0.2.0, **Update and restart** brings you here, with
-your settings and profiles kept.
+pretend headset.
+
+**Own another Turtle Beach headset? Help bring Neap to it.** The Stealth
+600 Gen 3, 700 Gen 3, 500 and Atlas Air share the Stealth Pro II's
+platform, and support for them can start from a ten-minute recording made in
+Neap. No technical knowledge needed.
+[Here's how](https://github.com/lykosapps/Neap/blob/main/docs/MAPPING.md).
+
+To update from 0.1.0, quit Neap from its icon by the clock, then unzip
+this version over your Neap folder. Your settings and profiles are kept.
+From this version on, Neap tells you when a newer one is out, and on Windows
+updates itself.
 
 ### New on Linux
 
@@ -29,105 +39,41 @@ your settings and profiles kept.
 - **Not yet:** Gaming Mode on the Steam Deck (use desktop mode), spatial
   sound, and the audio format.
 
-### On Windows
+### Help support another headset
 
-- **A smaller download:** 53 MB where it was 91.
-- **Start with Windows** is now **Start when you sign in**, the same on both
-  systems.
+- **Record it in Neap.** In Settings, under Problems and other headsets,
+  choose Start next to Record headset activity, then work through the steps
+  the ? button lists.
+- **See what Neap found,** before you send it: what it recognised on your
+  headset, what it didn't, and what changed while you recorded.
+- **Send it from Neap.** Report on GitHub opens a form with the details filled
+  in and the recording ready to drag in. You'll need a free GitHub account.
+
+### Updates
+
+- **Neap updates itself** on Windows. A banner says a newer version is out,
+  with **What's new** to read the notes in Neap, **Update and restart**, and
+  **Not now** to put it off for a day or skip that version. On Linux it
+  opens the download page.
+- **If the new version doesn't open,** Neap says so and offers the download
+  again, instead of leaving you with no Neap and no word why.
+- **Only a version check.** Neap asks GitHub once a day for the latest
+  release and sends nothing from your PC or your headset. Turn it off in
+  Settings to keep Neap offline.
+
+### Profiles and Settings
+
+- **Profiles have their own page.** Save the headset's settings under a name,
+  choose which apps bring a profile on, and pick the default. Switching is
+  still in the bar at the top of every window.
+- **Settings is tidier.** Neap's version and whether it is up to date come
+  first, then Start when you sign in, then Problems and other headsets, which
+  was called Diagnostics.
 
 ### Fixed
 
 - **Choosing Off for noise control stays off** when the Mode button is set to
   cycle through all three modes.
-
-## 0.2.0 — 2026-10-05
-
-**Own another Turtle Beach headset? Help bring Neap to it.** The Stealth
-600 Gen 3, 700 Gen 3, 500 and Atlas Air share the Stealth Pro II's
-platform, and support for them, and for others, can start from a
-ten-minute recording made in Neap. Nothing else to install, and no
-technical knowledge needed.
-[Here's how](https://github.com/lykosapps/Neap/blob/main/docs/MAPPING.md).
-
-Reporting a problem gets easier too: record what your headset and Windows
-do while it happens, and send it to GitHub from Neap.
-
-To update from 0.1.0, quit Neap from its icon by the clock, then unzip
-this version over your Neap folder. Your settings and profiles are kept.
-From this version on, Neap updates itself.
-
-### Help support another headset
-
-- **Record it in Neap.** In Settings, under Problems and other headsets,
-  choose Start next to Record headset activity. The ? button beside it lists the steps: a
-  few buttons and dials to work through, counting to five between each.
-- **See what Neap found.** Before you send it, Neap shows which of its
-  functions it found on your headset, which it didn't, and which changed
-  while you recorded.
-- **Send it from Neap.** Report on GitHub opens a "Support my headset" form
-  with the details filled in, and the folder with your recording ready to
-  drag in. You'll need a free GitHub account.
-- **Going further.** For settings only Swarm II can change, such as the
-  equaliser, the guide shows how to record Swarm II as well. Optional, and
-  more technical.
-
-### Updates
-
-- **Neap updates itself.** It asks GitHub once a day for a newer version
-  and says so with a banner across the top of the window, and with a
-  notice by the clock if the window is closed; selecting the notice opens
-  Settings. Update and restart downloads the new version, checks it is the
-  published file, puts it in place and starts it again. Your settings and
-  profiles are kept.
-- **Read what's new first.** What's new, in the banner and at the top of
-  Settings, shows the release's notes in Neap, without opening a web page.
-- **Put the banner away.** Not now in the banner holds Remind me tomorrow,
-  which hides it for a day, and Skip this version, which hides it until a
-  newer version is out. Updating is still there in Settings either way.
-- **The banner fits the window.** In a narrow window it stays one row, with
-  What's new and Not now in a menu beside Update and restart. While an
-  update downloads, a progress bar shows how far it has got and Update and
-  restart is off. A thin coloured edge on its left tells it from the
-  profile selector below.
-- **If the new version doesn't open,** Neap says so. After an update it
-  waits ten seconds to see that the new version has opened and stayed open,
-  and if it hasn't, it tells you, with a button to download Neap again,
-  instead of leaving you with no Neap and no word why.
-- **Only a version check.** Neap sends GitHub the request and nothing
-  else, nothing from your PC or your headset. GitHub sees the request, as
-  any website does. Turn off Check for updates automatically to keep Neap
-  offline, and use Check now whenever you like.
-- **Where Neap can't update itself,** such as a folder you can't write to
-  without being an administrator, Settings says so and links to the
-  download.
-
-### Profiles and Settings
-
-- **Profiles have their own page.** Between Controls and Device in the
-  list on the left: save the headset's settings as a new profile, rename or
-  delete one, choose which apps bring it on, and pick the default. Switching
-  is still in the bar at the top of every window.
-- **Settings is tidier.** Neap's version and whether it is up to date come
-  first, with What's new and Update and restart beside them. Then Start with
-  Windows, then Problems and other headsets, which was called Diagnostics.
-- **The update banner is at the very top,** above the profile selector,
-  with a coloured edge so it reads as news.
-
-### Reporting a problem
-
-- **Record headset activity.** Start a recording, make the problem happen,
-  then stop. Neap saves a text file to Downloads with what the headset and
-  Windows reported meanwhile. It only listens, and leaves out the
-  headset's serial number and radio addresses.
-- **Report on GitHub.** One button opens a GitHub form with Neap's version,
-  Windows' version and the headset hardware filled in, and opens the
-  folder with the recording ready to drag in.
-
-### Behind the scenes
-
-- **Kept on supported software.** Neap now runs on the current version of
-  Microsoft's app toolkit, so it keeps getting Microsoft's security fixes.
-  The download is about 14 MB larger.
 
 ## 0.1.0 — 2026-10-04, the first release
 
