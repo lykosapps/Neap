@@ -1,5 +1,88 @@
 # Decisions
 
+## 2026-10-07 — One app for Windows and Linux, rebuilt on Avalonia
+
+- **Options:** keep the WinUI app and write a second one for Linux; one Avalonia
+  app for both; a web or Electron shell.
+- **Chosen:** one Avalonia app, with everything that was only Windows moved
+  behind a few named seams, and the WinUI app retired once the new one matched it.
+- **Why:** two apps would mean every screen, fix and string made twice, and the
+  Steam Deck, where it was first wanted, has no other way to draw a WinUI
+  window. Avalonia draws the same screens on both with .NET already in use,
+  with no browser in the download, and has an accessibility story on both
+  systems. The cost is that the app draws itself rather than using Windows'
+  own controls, so the look has to be matched by hand (done: the same colours,
+  rounded fills, buttons and card titles, checked against the old app's
+  screens).
+- **Revisit if:** a feature needs Windows' own controls, or Avalonia's
+  accessibility on Linux fails a screen reader check.
+
+## 2026-10-07 — Linux never installs updates itself
+
+- **Options:** replace the running files as Windows does; download and open a
+  new package; say a newer version is out and open its page.
+- **Chosen:** the last. The same daily check runs, and the same banner and
+  Settings card appear, with What's new and Download in place of Update and
+  restart.
+- **Why:** replacing files under a running copy crashed it on the Deck, the
+  program may belong to a package or an AppImage (a read-only image), and the
+  updater runs as the person, so it could not write to most places Linux apps
+  live. Telling people costs nothing and cannot break an install.
+- **Revisit if:** Linux users ask for in-app updates; a delta update tool for
+  AppImages (AppImageUpdate) is the likely route.
+
+## 2026-10-07 — Neap asks for headset access once, through the system's own prompt
+
+- **Options:** ship a package that installs the rule; ask people to run a
+  command; install it from the app when the person chooses.
+- **Chosen:** the app notices when the system refuses it, says so in words on
+  every page, and offers **Allow access**, which asks for the password once
+  through the desktop's own prompt and writes one three-line udev rule
+  (`uaccess` for Turtle Beach's vendor id only: no group to join, nothing
+  world-writable, no access for someone not at the machine). Where there is
+  no prompt, it hands over the command to run. The rule also ships as a file
+  in `packaging/linux` for any package to install.
+- **Why:** an AppImage cannot install system files, and a refusal that looks
+  like "the headset is off" sends people to switch it off and on to no effect.
+- **Revisit if:** a distribution package is made; it would install the rule
+  and the prompt would never be needed.
+
+## 2026-10-07 — A Windows zip and a Linux AppImage; no installer yet
+
+- **Options:** the zip as before; a Windows installer; an AppImage, Flatpak or
+  distribution packages for Linux.
+- **Chosen:** keep the zip for Windows, and an AppImage for Linux.
+- **Why:** the zip already works with the in-app updater, which swaps files
+  in the app's own folder and so cannot update anything installed in Program
+  Files (it never runs elevated, a security decision). An installer would add
+  a tool, signing and a second path to test for a Start menu entry. An AppImage is one file that runs on any
+  distribution, needs nothing installed, and suits the notify-only update.
+  Flatpak and packages cost more per distribution and can come on request.
+- **Revisit if:** people ask for an installer (per-user, so updates keep
+  working) or a store listing.
+
+## 2026-10-07 — Shortcuts on Linux are grabbed from X, and keep Windows' key codes
+
+- **Chosen:** shortcuts are stored as Windows virtual-key codes on both
+  systems, and Linux takes them from the X window system on a connection and
+  thread of its own.
+- **Why:** one settings file and one screen to record keys serve both;
+  Wayland has no keys for the whole desktop without a portal, but a game on a
+  Wayland desktop is an X program on the compatibility layer, which hears the
+  press while it is in front. That is as far as it reaches, and the README says so.
+- **Revisit if:** the global shortcuts portal becomes dependable on the
+  desktops people use.
+
+## 2026-10-07 — Outlined Fluent icons, drawn by the app
+
+- **Chosen:** the app carries its own icons, Microsoft's outlined Fluent
+  System Icons (MIT), plus one Material ear (Apache 2.0) for Superhuman
+  Hearing, which Fluent does not have.
+- **Why:** Windows has an icon font and Linux does not, so the icons have to
+  travel with the app; the outlined set matches the old Windows app's own
+  icons, where the first Linux build used filled Material icons that read as a
+  different product.
+
 ## 2026-10-05 — Profiles get a page of their own, and Settings is reordered
 
 - **Options:** leave Profiles as a section of Settings; give it a rail item;

@@ -4,18 +4,20 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
 
 ## The picture
 
-**In:** HID reports from the headset and its transmitters, over USB; Windows' own audio APIs (which programs are playing, their volumes, a device's format); the app's own files under the person's profile (settings, log, volume-restore journal); command-line flags at launch; and, only when started with `--pretend`, commands from a local named pipe; and GitHub's answer about the latest release, with that release's zip when someone chooses to update.
+**In:** HID reports from the headset and its transmitters, over USB; Windows' own audio APIs (which programs are playing, their volumes, a device's format) or, on Linux, the sound server's answers (PulseAudio or PipeWire) and the kernel's description of the headset's control channel; key presses for the few shortcuts the person set, from the X window system on Linux; the desktop's answer about a notification area; a second launch of the app asking the running copy to show its window; the app's own files under the person's profile (settings, log, volume-restore journal); command-line flags at launch; and, only when started with `--pretend`, commands from a local named pipe; and GitHub's answer about the latest release, with that release's zip when someone chooses to update on Windows.
 
 **Kept:** locally, under the person's own profile. Nothing about the person; see the project profile in `CLAUDE.md`.
 
-**Out:** writes to the headset over HID, every one checked against `Settings/Registry.cs`; writes to Windows' own volume, mute and format controls; a shortcut in the Startup folder, only if that is turned on. Over a network, only the update check: a request for GitHub's latest release, once a day unless turned off, carrying nothing but the app's name, which GitHub sees with the PC's internet address as with any website visit, and the download of that release when asked.
+**Out:** writes to the headset over HID, every one checked against `Settings/Registry.cs`; writes to the system's own volume, mute and format controls; a shortcut in the Startup folder (Windows) or an entry in the person's own autostart folder (Linux), only if that is turned on; on Linux, one command run as root, only when the person chooses **Allow access** and gives their password, which writes the headset's udev rule; a desktop or notification-area notice that a newer version exists. Over a network, only the update check: a request for GitHub's latest release, once a day unless turned off, carrying nothing but the app's name, which GitHub sees with the PC's internet address as with any website visit, and the download of that release when asked.
 
 **Where trust changes:**
 
 1. **The person at the keyboard.** Same trust level as the app: one person, one machine, no accounts.
 2. **Other programs on the machine.** Read through Windows' Audio Session API to run the game/chat mix; can connect to a local pipe only when the app was started with `--pretend`.
 3. **The headset and its transmitters.** An external USB device. Neap trusts it to answer honestly, but not to ask for anything: every write is checked, and a garbled reply is treated as a failure to parse, never guessed at.
-4. **Distribution.** A zip on GitHub's release page, not signed yet, fetched either by hand or by the app's own updater (`UpdateService`), which replaces the app's files and restarts it.
+4. **Distribution.** A zip (Windows) and an AppImage (Linux) on GitHub's release page, not signed yet, fetched by hand; on Windows also by the app's own updater (`UpdateService`), which replaces the app's files and restarts it. The Linux app never installs anything: it only says a newer version exists.
+5. **The system's device permissions (Linux).** The headset's control channel belongs to root until a rule gives it to the person at the machine; Neap asks for that rule, through the system's own prompt.
+6. **The sound server and the X server,** which other programs of the same person share with Neap.
 
 ## Threats and their status
 
@@ -64,9 +66,31 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
 15. **An update is cut off part-way.**
     Partly mitigated, accepted, 2026-10-05. A failed move is undone. Power loss or a killed process during the few seconds of the swap can leave a mix of two versions that may not start; the replaced files stay in the hidden update folder until the next start that works. Recovery is a download by hand. Not worth code that would itself have to run from a broken install. If the new version then won't open, the old one watches it for ten seconds and says so on screen, with a link to download again (`RestartWatch`), rather than closing with only a line in the log. Deferred (BACKLOG.md): a download has no size limit or overall time limit.
 
+16. **The password prompt is used to run something other than the udev rule.**
+    Fixed by design. The command is one constant string built from three fixed lines (`UdevRule.RootCommand`); nothing from the headset, the network, a file or the person's input goes into it, and it is passed to `sh -c` as one argument. `pkexec` is started by its fixed path (`/usr/bin/pkexec`, or NixOS's wrapper), not by a name on the person's own PATH, so a look-alike earlier on it cannot show a prompt of its own. A test runs the real shell on the command and compares the file written with the packaged rule.
+
+17. **The udev rule gives more than the app needs.**
+    Accepted. `uaccess` gives the person signed in at the machine, and only while they are, every program they run, the ability to open every Turtle Beach (vendor `10f5`) control channel on the machine, firmware update path included. Neap's own registry cannot bind other programs, as on Windows, where any program can open the same device. It is not a group the person joins, not world-writable, and not kept for someone who is not at the machine. Narrowing it to this headset's product ids would mean a rule to maintain for every transmitter and dock.
+
+18. **Another account or program uses the wake-up channel a second launch uses, to show the window or hold it open.**
+    Fixed. The channel is opened for the person's own account only (`PipeOptions.CurrentUserOnly`) and each end checks the other belongs to it, on both systems; before that, the socket's mode on Linux (listed as `rwxr-xr-x`, so others cannot write to it) and the pipe's default rights on Windows kept others out. Nothing is sent down it; the worst a connection could do is show the window.
+
+19. **The Linux download is tampered with.**
+    Deferred with threat 6. The AppImage is not signed; it is published with a SHA-256 beside it, built on GitHub from the tagged commit with the AppImage tool pinned to one release and checked against its published hash. The app cannot check a file it did not fetch.
+
+20. **Keys taken from X are read by another program.**
+    Not possible through this; accepted. The app takes only the combinations the person set, each with a modifier, so no bare key is ever taken, and hears only those. Any program on X can already read every key; that is X's model. On a Wayland desktop the grabs reach only X programs.
+
+21. **A planted library next to the app on Linux.**
+    Accepted. On Linux a library in the app's own folder is found first, and a person who can write there can replace the app itself. Windows loads only from the system folder (threat 5).
+
+22. **A recording for a bug report carries the Linux account, machine or home folder.**
+    Mitigated, as threat 11: the redaction takes the profile folder, account and machine name from the system, so on Linux it blanks `/home/<name>`, the user name and the host name. Names shorter than four letters are not matched, on either system.
+
 ## What wasn't examined
 
-- The Windows App SDK, WinUI, and the HID/WASAPI stacks themselves: trusted as platform code, not independently audited here.
+- Avalonia, the Windows HID and WASAPI stacks, and on Linux the password prompt's own stack (polkit, `pkexec`), udev, the X server, PipeWire and PulseAudio: trusted as platform code, not independently audited here.
+- Flatpak or other sandboxes: not built, so there are no sandbox rules to check. Gaming Mode on the Steam Deck: the app does not run there. A Linux system that really refuses the headset: the Deck already has the rule, so the refusal was tested against the pretend headset and by unit test only.
 - Physical access to the machine, or a headset whose firmware was already tampered with before Neap ever saw it.
 - The GitHub account and repository's own settings (two-factor, token scopes): outside the code, a hosting-account matter.
 - No automated scanner (OSV-Scanner, CodeQL) was run for this pass; it was a manual reading of the code at each boundary above.

@@ -1,23 +1,67 @@
 # Architecture
 
 Two halves, with very different dependencies. Keeping them apart is the main
-structural decision in this project.
+structural decision in this project. A second decision sits across both: the
+same app runs on Windows and on Linux, so what differs between the two
+systems is kept in a few named places.
 
 ## The projects
 
-- **`Neap.Core`** — the protocol, the settings registry, presets,
-  Windows audio and the mix. No UI types at all, so the probe and the app get
-  exactly the same behaviour.
-- **`Neap.App`** — Neap itself, the WinUI 3 application. The other
-  projects keep the headset's name because they are about the headset.
+- **`Neap.Core`** — the protocol, the settings registry, presets, the mix,
+  and everything that reaches a system: the sound system (Windows' audio
+  APIs, or PulseAudio and PipeWire), the headset's control channel (Windows
+  HID, or Linux hidraw) and key grabs (X11). No UI types at all, so the probe
+  and the app get exactly the same behaviour. The rules that decide anything
+  (what a screen shows for a state, which key means what, how a newer version
+  is offered) live here, with tests.
+- **`Neap.Services`** — what the screens share and Core has no business with:
+  the headset connection and the services built on it (mix, profiles,
+  updates, recording), the settings file, the log, and `IPlatform`, the one
+  seam through which the app asks the operating system for things that differ
+  (the UI thread, volumes, shortcuts, the dock's ring, spatial sound). No
+  UI toolkit.
+- **`Neap.Desktop`** — Neap itself: one Avalonia application, drawn the same
+  on both systems, with its words in one resource file. It builds twice: for
+  every system, and for Windows with what only Windows gives it.
+- **`Neap.WinRt`** — Windows' spatial sound, which only the Windows build can
+  reach. A small project so the rest never needs a Windows-only reference.
 - **`Neap.Probe`** — a console harness over the same core. It is how
   the protocol was worked out and it is still the fastest way to ask the
   hardware a question.
 - **`Neap.Core.Tests`** — everything that can be checked without a
-  headset, against a scripted one.
+  headset, against a scripted one, on either system.
 
-Both applications publish self-contained, so nothing has to be installed on
-the machine that runs them.
+The other projects keep the headset's name because they are about the
+headset. Both applications publish self-contained, so nothing has to be
+installed on the machine that runs them: a zip on Windows, an AppImage on
+Linux.
+
+### What differs between systems
+
+Everything above Core is the same code. Where it differs, one of two things
+is true: Core has a Windows class and a Linux class behind one interface
+(`IHidTransport`, `IMicrophoneListener`, `IPlayback`, the route and volume
+sources), chosen by `OperatingSystem`; or the feature exists on one system
+only and says so, through `Unsupported`, so a screen leaves the control out
+rather than show one that does nothing. Today that is spatial sound, the audio
+format and the dock's ring, which are Windows' alone.
+
+On Linux the pieces are:
+
+- **The headset's control channel** is the kernel's hidraw device, read
+  without opening for what it is (`Hid/ReportDescriptor.cs`) and opened when
+  needed. Linux gives it to root unless a udev rule says otherwise, so a
+  refusal is told apart from an absent headset (`AccessDeniedException`) and
+  the app can install the rule once, through the system's own password prompt
+  (`HeadsetAccess`, `Hid/UdevRule.cs`).
+- **Sound** goes through `libpulse`, which PulseAudio and PipeWire both
+  speak (`Audio/Pulse`). An application is its streams, grouped by program,
+  the way Windows groups sessions.
+- **Shortcuts** are taken from the X window system (`Input/X11KeyGrabber.cs`),
+  stored as Windows key codes so one settings file and one screen serve both.
+- **The notification area** may not exist (GNOME without its extension), so
+  the app asks the session bus whether it does, and closing the window closes
+  the app when it does not.
 
 ## The headset half — no dependencies
 
@@ -77,7 +121,9 @@ session volumes to the chat half of the crossfade and everything else on that
 endpoint to the game half. Nothing sits in the audio path.
 
 That means the only configuration is naming the chat application, and the app
-asks for it in one card.
+asks for it in one card. On Linux the same idea runs on the sound server's own
+per-stream volumes (`Mix/PulsePlayback.cs`): a stream's volume belongs to the
+stream, not to the output, so one record in the journal covers every output.
 
 See `Neap.Core/Mix/SessionMix.cs`, which documents the measurements.
 
@@ -174,3 +220,13 @@ Because the old version does all of it, the new version needs no part in
 the swap; it only clears the `.update` folder when it starts. This is Neap's
 own update and nothing to do with the headset's firmware, which stays with
 Swarm II.
+
+The updater runs as the person, never elevated, so it can only update a copy
+in a folder they can write to; anywhere else it says a newer version exists
+and sends them to the download (`UpdateOffer`).
+
+Linux never updates itself. The program is one that an AppImage, a package or
+the person's own hands put where it is, and replacing files under a running copy
+crashed it, so Neap says a newer version is out and opens its release page.
+It uses the same check and the same offer, which decides that a system that
+cannot install is sent to the download.
