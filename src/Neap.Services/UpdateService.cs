@@ -78,8 +78,17 @@ public sealed class UpdateService : IDisposable
     /// <summary>Raised once the new version is in place, with the program to start in place of this one.</summary>
     public event Action<string>? Installed;
 
-    /// <summary>Whether this system has a release to update to: only Windows has one so far.</summary>
-    public static bool Supported => OperatingSystem.IsWindows() || Pretend.Active;
+    /// <summary>Whether this system looks for a newer version and says when there is one.</summary>
+    public static bool Supported => OperatingSystem.IsWindows() || OperatingSystem.IsLinux() || Pretend.Active;
+
+    /// <summary>Whether this system puts a newer version in place of the running one.</summary>
+    /// <remarks>
+    /// Only Windows does. On Linux the program is one a package, a download or
+    /// the person's own hands put where it is, and replacing files under a
+    /// copy that is running crashes it, so Neap says a newer version is out and
+    /// opens its release page.
+    /// </remarks>
+    public static bool CanInstall => OperatingSystem.IsWindows();
 
     private sealed class Idle : IDisposable
     {
@@ -107,7 +116,7 @@ public sealed class UpdateService : IDisposable
             Changed?.Invoke();
         });
 
-        if (!Pretend.Active) _ = Task.Run(ClearLeftovers);
+        if (CanInstall && !Pretend.Active) _ = Task.Run(ClearLeftovers);
         Remember();
         CheckIfDue();
     }
@@ -165,11 +174,11 @@ public sealed class UpdateService : IDisposable
 
         try
         {
-            var release = Release.Parse(kept);
+            var release = Release.Parse(kept, CanInstall);
             if (AppInfo.Version is { } running && release.IsNewerThan(running))
             {
                 Newer = release;
-                _offered = Stage = CanWriteHere() ? UpdateStage.Available : UpdateStage.CannotUpdateHere;
+                _offered = Stage = CanInstall && CanWriteHere() ? UpdateStage.Available : UpdateStage.CannotUpdateHere;
                 AppLog.Write($"updates: version {release.Version.ToString(3)} is still available");
                 return;
             }
@@ -197,7 +206,7 @@ public sealed class UpdateService : IDisposable
         Set(UpdateStage.Checking);
         try
         {
-            var latest = Pretend.Active ? Pretend.Release : Release.Parse(await Http.GetStringAsync(Release.Latest));
+            var latest = Pretend.Active ? Pretend.Release : Release.Parse(await Http.GetStringAsync(Release.Latest), CanInstall);
             AppSettings.Update(s => s.CheckedForUpdates = DateTimeOffset.Now);
             if (latest is null || AppInfo.Version is not { } running || !latest.IsNewerThan(running))
             {
@@ -211,9 +220,10 @@ public sealed class UpdateService : IDisposable
             Newer = latest;
             if (!Pretend.Active) AppSettings.Update(s => s.FoundRelease = latest.ToJson());
             string version = latest.Version.ToString(3);
-            bool here = Pretend.Active || CanWriteHere();
+            bool here = CanInstall && (Pretend.Active || CanWriteHere());
             AppLog.Write(here ? $"updates: version {version} is available"
-                : $"updates: version {version} is available, but this folder cannot be written to");
+                : CanInstall ? $"updates: version {version} is available, but this folder cannot be written to"
+                : $"updates: version {version} is available, to be downloaded by hand");
             _offered = here ? UpdateStage.Available : UpdateStage.CannotUpdateHere;
             Set(_offered);
 
@@ -234,7 +244,7 @@ public sealed class UpdateService : IDisposable
     /// <summary>Downloads the newer version, checks it and puts it in place, then raises <see cref="Installed"/>.</summary>
     public async Task Update()
     {
-        if (Newer is not { } release || Busy) return;
+        if (Newer is not { Zip: { } zipLink, Hash: { } hashLink } release || Busy) return;
         string version = release.Version.ToString(3);
         if (Pretend.Active)
         {
@@ -250,9 +260,9 @@ public sealed class UpdateService : IDisposable
             Directory.CreateDirectory(Work);
             File.SetAttributes(Work, File.GetAttributes(Work) | FileAttributes.Hidden);
 
-            string expected = release.HashFrom(await Http.GetStringAsync(release.Hash));
+            string expected = release.HashFrom(await Http.GetStringAsync(hashLink));
             string zip = Path.Combine(Work, release.ZipName);
-            string hash = await Download(release.Zip, zip);
+            string hash = await Download(zipLink, zip);
             if (hash != expected)
                 throw new InvalidDataException($"the download's SHA-256 {hash} is not the published {expected}");
 

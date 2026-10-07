@@ -41,8 +41,8 @@ public class ReleaseTests
 
         Assert.Equal(new Version(0, 3, 0), release.Version);
         Assert.Equal("Neap-0.3.0-win-x64.zip", release.ZipName);
-        Assert.EndsWith("/v0.3.0/Neap-0.3.0-win-x64.zip", release.Zip.AbsoluteUri, StringComparison.Ordinal);
-        Assert.EndsWith("/v0.3.0/Neap-0.3.0-win-x64.zip.sha256", release.Hash.AbsoluteUri, StringComparison.Ordinal);
+        Assert.EndsWith("/v0.3.0/Neap-0.3.0-win-x64.zip", release.Zip?.AbsoluteUri, StringComparison.Ordinal);
+        Assert.EndsWith("/v0.3.0/Neap-0.3.0-win-x64.zip.sha256", release.Hash?.AbsoluteUri, StringComparison.Ordinal);
         Assert.Equal("https://github.com/lykosapps/Neap/releases/tag/v0.3.0", release.Page.AbsoluteUri);
     }
 
@@ -68,6 +68,36 @@ public class ReleaseTests
     public void TheNotesComeWithTheRelease()
     {
         Assert.Equal("## Notes\n\n- It does a thing.", Release.Parse(Json()).Notes);
+    }
+
+    [Fact]
+    public void ASystemThatOnlyPointsToTheReleasePageDoesNotNeedTheZip()
+    {
+        string noZip = Json(zipName: "Neap-0.3.0-linux-x64.tar.gz");
+
+        Assert.Throws<FormatException>(() => Release.Parse(noZip));
+
+        var release = Release.Parse(noZip, installable: false);
+        Assert.Equal(new Version(0, 3, 0), release.Version);
+        Assert.Equal("https://github.com/lykosapps/Neap/releases/tag/v0.3.0", release.Page.AbsoluteUri);
+        Assert.Null(release.Zip);
+        Assert.Null(release.Hash);
+    }
+
+    [Fact]
+    public void AReleaseWithoutADownloadIsReadBackAsItWas()
+    {
+        var release = Release.Parse(Json(zipName: "Neap-0.3.0-linux-x64.tar.gz"), installable: false);
+
+        Assert.Equal(release, Release.Parse(release.ToJson(), installable: false));
+    }
+
+    [Fact]
+    public void ASystemThatPointsToThePageStillRefusesALinkOutsideNeapsRepository()
+    {
+        string elsewhere = Json().Replace("https://github.com/lykosapps/Neap/", "https://github.com/someone/Else/", StringComparison.Ordinal);
+
+        Assert.Throws<FormatException>(() => Release.Parse(elsewhere, installable: false));
     }
 
     [Fact]

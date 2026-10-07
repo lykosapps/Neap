@@ -19,10 +19,10 @@ namespace Neap.Core.Updates;
 /// </remarks>
 /// <param name="Version">The version, as major, minor and patch.</param>
 /// <param name="Page">The release's page on GitHub, which carries what's new.</param>
-/// <param name="Zip">Where the app's zip downloads from.</param>
-/// <param name="Hash">Where the zip's SHA-256 file downloads from.</param>
+/// <param name="Zip">Where the app's zip downloads from; null for a system that only points people to the release page.</param>
+/// <param name="Hash">Where the zip's SHA-256 file downloads from; null with <paramref name="Zip"/>.</param>
 /// <param name="Notes">What's new, as the release page says it, in Markdown; read by <see cref="ReleaseNotes"/>.</param>
-public sealed partial record Release(Version Version, Uri Page, Uri Zip, Uri Hash, string Notes)
+public sealed partial record Release(Version Version, Uri Page, Uri? Zip, Uri? Hash, string Notes)
 {
     /// <summary>Where GitHub describes the latest release, leaving out drafts and pre-releases.</summary>
     public static Uri Latest { get; } = new("https://api.github.com/repos/lykosapps/Neap/releases/latest");
@@ -42,8 +42,14 @@ public sealed partial record Release(Version Version, Uri Page, Uri Zip, Uri Has
         Version > new Version(running.Major, running.Minor, Math.Max(running.Build, 0));
 
     /// <summary>Reads GitHub's description of a release.</summary>
+    /// <param name="json">GitHub's description of the release.</param>
+    /// <param name="installable">
+    /// Whether this system puts the release in place of the running one, and so
+    /// needs the zip and its hash. Where it only tells people a version is out
+    /// and points them to the release page, they are not asked for.
+    /// </param>
     /// <exception cref="FormatException">It is not a release as the workflow publishes one.</exception>
-    public static Release Parse(string json)
+    public static Release Parse(string json, bool installable = true)
     {
         try
         {
@@ -64,7 +70,7 @@ public sealed partial record Release(Version Version, Uri Page, Uri Zip, Uri Has
                 if (name == zipName) zip = InNeapRepository(asset.GetProperty("browser_download_url"));
                 else if (name == zipName + ".sha256") hash = InNeapRepository(asset.GetProperty("browser_download_url"));
             }
-            if (zip is null || hash is null)
+            if (installable && (zip is null || hash is null))
                 throw new FormatException($"the release has no {zipName} with its .sha256 beside it");
 
             string notes = root.TryGetProperty("body", out var body) && body.ValueKind == JsonValueKind.String
@@ -90,11 +96,12 @@ public sealed partial record Release(Version Version, Uri Page, Uri Zip, Uri Has
         draft = false,
         prerelease = false,
         body = Notes,
-        assets = new[]
-        {
-            new { name = ZipName, browser_download_url = Zip },
-            new { name = ZipName + ".sha256", browser_download_url = Hash },
-        },
+        assets = Zip is null || Hash is null ? Array.Empty<object>()
+            : new object[]
+            {
+                new { name = ZipName, browser_download_url = Zip },
+                new { name = ZipName + ".sha256", browser_download_url = Hash },
+            },
     });
 
     /// <summary>Reads the zip's SHA-256 file and gives its hash, in lower case.</summary>

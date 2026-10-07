@@ -25,7 +25,11 @@ public static class UpdateCopy
             UpdateStage.UpToDate => Strings.Get("Settings_UpdateUpToDate"),
             UpdateStage.CheckFailed => Strings.Get("Settings_UpdateCheckFailed"),
             UpdateStage.Available => Strings.Format("Settings_UpdateAvailable", version),
-            UpdateStage.CannotUpdateHere => Strings.Format("Settings_UpdateCannotHere", version, AppInfo.Name),
+            // Where Neap never updates itself, "can't in this folder" would
+            // suggest a folder to fix; there is only a version to go and get.
+            UpdateStage.CannotUpdateHere => UpdateService.CanInstall
+                ? Strings.Format("Settings_UpdateCannotHere", version, AppInfo.Name)
+                : Strings.Format("Settings_UpdateAvailable", version),
             UpdateStage.Downloading => Strings.Format("Settings_UpdateDownloading", version, updates.Percent),
             UpdateStage.Installing => Strings.Format("Settings_UpdateInstalling", version),
             UpdateStage.UpdateFailed => Strings.Format("Settings_UpdateFailed", version),
