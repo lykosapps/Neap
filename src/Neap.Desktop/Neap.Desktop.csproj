@@ -39,6 +39,17 @@
     <PackageReference Include="H.NotifyIcon" Version="2.4.1" />
   </ItemGroup>
 
+  <!--
+    The graphics libraries bring debugging files for their native parts, 100 MB
+    of them, which a person running the app has no use for.
+  -->
+  <Target Name="LeaveOutNativeSymbols" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+                             Condition="'%(Extension)' == '.pdb' And ('%(Filename)' == 'libSkiaSharp' Or '%(Filename)' == 'libHarfBuzzSharp')" />
+    </ItemGroup>
+  </Target>
+
   <ItemGroup>
     <!-- The words are the Windows app's file: one copy of every sentence. -->
     <EmbeddedResource Include="..\Neap.App\Strings\en-US\Resources.resw" LogicalName="Resources.resw" />
