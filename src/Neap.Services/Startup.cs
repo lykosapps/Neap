@@ -1,3 +1,4 @@
+using Neap.Core.Input;
 
 namespace Neap.Services;
 
@@ -107,8 +108,8 @@ internal sealed class LinuxStartup : IStartup
             "Type=Application",
             "Name=" + AppInfo.Name,
             "Comment=" + Strings.Format("Startup_Description", AppInfo.Name),
-            "Exec=\"" + exe + "\" " + Startup.Flag,
-            "Path=" + Path.GetDirectoryName(exe),
+            "Exec=" + DesktopEntry.Exec(exe, Startup.Flag),
+            "Path=" + DesktopEntry.Value(Path.GetDirectoryName(exe) ?? ""),
             "Terminal=false",
             "X-GNOME-Autostart-enabled=true",
         ]);
