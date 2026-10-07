@@ -9,7 +9,7 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
-## 0.2.0 — 2026-10-07
+## 0.2.0 — 2026-10-08
 
 **Neap now runs on Linux.** One app with the same pages, colours and words on
 Windows and on Linux. On Linux it has been used with the real headset on a
