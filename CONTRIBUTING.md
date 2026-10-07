@@ -5,14 +5,26 @@ finished when it has been tried on a headset as well as by the tests.
 
 ## Building and testing
 
-You need Windows 10 version 2004 or later and the .NET SDK version named in
-`global.json`.
+You need the .NET SDK version named in `global.json`, and either Windows 10
+version 2004 or later (for the Windows build) or a Linux machine (for the
+Linux one; WSL does for everything but the headset).
 
 ```
 dotnet build Neap.sln -c Release
 dotnet test --project tests/Neap.Core.Tests -c Release
 dotnet format Neap.sln --verify-no-changes
 ```
+
+On Linux, build the app for Linux alone, since the solution's Windows
+parts do not build there:
+
+```
+dotnet build src/Neap.Desktop -c Release -f net10.0
+dotnet test --project tests/Neap.Core.Tests -c Release
+```
+
+The same tests run on both. A few run on Linux only, such as the headset
+permission rule written by a real shell, so both are checked on every push.
 
 XAML is formatted by XAML Styler, installed as a tool of this repository. In
 PowerShell:
@@ -76,6 +88,27 @@ parametric mode with every adjustment in use.
   outside the repository and work on the copy. They are Turtle Beach's and
   are never committed; what you learn from them goes in FINDINGS.md.
 
+## Performance budgets
+
+Measured on a release build, with the pretend headset until it has also been
+done once with a real one. Re-measure before each release, on the same kind of
+machine, and record the reading beside the version.
+
+| Moment | Budget | Latest reading |
+|---|---|---|
+| Start: first usable screen | 2 s (5 s after a restart) | 1.45 s typical, Windows, Ryzen 7 7800X3D, 0.2.x new app (the old app: 0.81 s) |
+| Hidden in the notification area: memory | under 50 MB resident | about 12 MB, Windows |
+| Doing nothing: processor | under 1% of one core | 0.1 to 0.5%, Windows |
+| Over an hour: memory | level, not creeping | levels off after about 5 minutes (about 180 MB private), Windows; Linux not yet measured past 4 minutes |
+| Idle wake-ups, Linux key listener | none that are not needed | 4 a second |
+| Download, Windows zip | no more than the last plus 10%, or say why | 53 MB (the old app: 91 MB) |
+
+To measure: start the published app with `--pretend --behind` and its own
+`NEAP_PRETEND_FOLDER`, sample its working set and processor time every 20
+seconds with the window open and then closed to the notification area, and
+time five starts. Never start a build without `--pretend` for this: a real
+copy rewrites the sign-in shortcut and takes the headset.
+
 ## Before a release
 
 Run through this with the release build, not a debug one:
@@ -127,6 +160,28 @@ Run through this with the release build, not a debug one:
    page open, take the spare out of the dock's slot: the dock's panel says
    *Empty* within a couple of seconds. Put it back: it shows the charge the
    phone app shows. CrossPlay to the USB Transmitter: the line goes.
+8. **Linux: headset access.** On a system without the rule (delete
+   `/etc/udev/rules.d/70-neap.rules` and replug the transmitter), every page
+   says Neap is not allowed to use the headset, with no "switch it on" cards.
+   **Allow access** asks for the password once, installs the rule, and the
+   headset appears without replugging. Where the system has no password
+   prompt, the button copies the command to run.
+9. **Shortcuts.** With the switch on, and a game or any program in front, the
+   three keys move the mix (Linux: an X program; a native Wayland one is out
+   of reach). A key another program holds shows its trouble beside it.
+10. **Start when you sign in.** Turn it on, sign out and back in: Neap is in
+    the notification area with no window (minimised, on a desktop with no
+    notification area). Move the program or, for an AppImage, run a new file
+    once: the entry points at it.
+11. **Updating.** On Windows, an installed older copy updates through
+    **Update and restart** and comes back as the new app with its settings.
+    On Linux the banner and Settings card offer What's new and Download, and
+    nothing is installed. With the window closed, a newer version shows a
+    notice (Windows: from the notification area; Linux: a desktop
+    notification).
+12. **Screen reader, 200% text and high contrast.** Narrator on Windows and
+    Orca on Linux, reading every page and every dialog; the keyboard reaches
+    everything.
 
 ## Pull requests
 

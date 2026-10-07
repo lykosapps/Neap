@@ -54,8 +54,37 @@ to GitHub, these become issues.
 - **Renaming the headset**, as Swarm II can. Neap neither shows nor changes
   the headset's name. Needs the headset: that the new name is kept, and
   where else it appears.
-- **An installer**, beyond the zip.
+- **An installer**, beyond the zip. Per-user, so the in-app updater keeps
+  working: Windows keeps Program Files locked, and the updater never runs
+  elevated.
 - **Microsoft Store distribution.**
+- **Gaming Mode on the Steam Deck.** Neap runs in desktop mode only. Wanted:
+  the mix, the chat wheel and the headset's controls working while a game
+  runs in Gaming Mode, with no window to open. Needs the Deck.
+- **More ways to get it on Linux.** Flatpak, `.deb` and `.rpm` packages
+  (a package would install the headset rule, so the password prompt is never
+  needed), an Arm build, and one for musl distributions such as Alpine. On
+  request.
+- **In-app updates on Linux.** Today Neap says a newer version is out and
+  opens the page. An AppImage can be updated in place with a delta update tool
+  (AppImageUpdate); worth doing if people ask.
+- **Linux checks not yet done.** A screen reader (Orca) pass, a Wayland-only
+  desktop, GNOME with its notification-area extension, and a real "headset
+  access refused" system, which a Deck that already has the rule cannot show.
+- **A shared connection to the sound server on Linux.** Neap opens a fresh
+  connection to the sound server for every question, about every five seconds
+  while idle. One long-lived connection would do, with the caution that calls
+  then queue if the server stalls. Measure on the Deck first (processor and
+  battery); not yet measured.
+- **Give a hidden app's memory back on Linux.** Windows hands back what a
+  hidden app is not using; the Linux build keeps what its runtime holds.
+  Measure on the Deck before building anything.
+- **Faster start-up.** The new app starts in about 1.5 seconds against the old
+  app's 0.8 on the same PC. Compiling it ahead of time would cut that at the
+  cost of a bigger download; measure before and after.
+- **Global shortcuts that reach native Wayland programs.** The keys work while
+  an X program (most games) is in front; the desktop portal for global
+  shortcuts would reach the rest, when the desktops people use support it.
 - **Other Swarm II headsets.** The Stealth 600 Gen 3, 700 Gen 3, 500 and
   Atlas Air share the Stealth Pro II's platform. Each needs an owner to
   capture its settings and run the checks, so ask for help once public.
