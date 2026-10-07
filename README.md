@@ -34,7 +34,7 @@ Move it with the headset's chat wheel, the dial on Home, or the keyboard
 from inside a game: Ctrl + Alt + Page Down, Page Up and Home, all
 rebindable.
 
-![Home, with the game and chat dial mixing Discord and Teams against the game, and noise control in transparency.](docs/screenshots/mix.png)
+![Home, with the game and chat dial, a chat app chosen, and tiles for the microphone, noise control and equaliser.](docs/screenshots/mix.png)
 
 ### Transparency
 
@@ -43,7 +43,7 @@ transparency mode of its own; transparency is noise cancellation at zero,
 which lets the room in. The Mode button steps through all three while Neap
 is running.
 
-![The Audio page, with noise control set to transparency.](docs/screenshots/transparency.png)
+![The Audio page, with noise control set to noise cancellation and how much of the room it blocks.](docs/screenshots/audio.png)
 
 ### An equaliser you can tune by ear
 
@@ -62,7 +62,7 @@ Save your whole setup under a name, from noise control to both equalisers.
 Give a profile one or more games, and it comes on when one of them starts,
 then goes back to your default when it closes.
 
-![Settings, with a default profile and a second profile for gaming.](docs/screenshots/profiles.png)
+![The Profiles page, with a default profile and a second profile for a game.](docs/screenshots/profiles.png)
 
 ### The Charging Dock
 
@@ -71,7 +71,7 @@ brightness of both lights, and choose the audio format. Neap can also put
 the dock back into high-resolution audio after an app has used the
 microphone.
 
-![The Device page, with the Charging Dock in use, its spare battery at 100% and the brightness of both its lights.](docs/screenshots/dock.png)
+![The Device page, with the Charging Dock in use, its spare battery and the brightness of both its lights.](docs/screenshots/dock.png)
 
 ### Everything else
 
