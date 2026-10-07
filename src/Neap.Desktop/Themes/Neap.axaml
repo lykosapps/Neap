@@ -348,6 +348,17 @@
         <Setter Property="Padding" Value="16" />
     </Style>
 
+    <!-- A list in a flyout, such as the profile bar's or spatial sound's, sits on the flyout's own colour like a drop-down's: nothing behind its items, and only the chosen one filled. -->
+    <Style Selector="FlyoutPresenter ListBox">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="FlyoutPresenter ListBoxItem">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="FlyoutPresenter ListBoxItem:selected">
+        <Setter Property="Background" Value="{DynamicResource NeapSelectedBrush}" />
+    </Style>
+
     <!-- A button that is only a picture: as high as every other button, and as wide. -->
     <Style Selector="Button.iconbutton">
         <Setter Property="Width" Value="40" />

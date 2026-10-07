@@ -33,7 +33,8 @@ public enum DialogAnswer
 /// </remarks>
 public sealed class NeapDialog : Window
 {
-    private readonly Button _primary = new() { IsDefault = true, MinWidth = 96 };
+    // Shown only once it has words: a dialog with just a close button has no empty one beside it.
+    private readonly Button _primary = new() { IsDefault = true, MinWidth = 96, IsVisible = false };
     private readonly Button _secondary = new() { MinWidth = 96, IsVisible = false };
     private readonly Button _close = new() { IsCancel = true, MinWidth = 96 };
     private readonly ContentControl _body = new();

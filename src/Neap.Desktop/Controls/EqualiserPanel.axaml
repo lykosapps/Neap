@@ -85,7 +85,10 @@
                     Grid.Column="1"
                     Orientation="Horizontal"
                     Spacing="8">
-                    <Button x:Name="OverwriteButton" IsEnabled="False">
+                    <Button
+                        x:Name="OverwriteButton"
+                        HorizontalContentAlignment="Center"
+                        IsEnabled="False">
                         <Button.Flyout>
                             <Flyout>
                                 <StackPanel MaxWidth="280" Spacing="12">
@@ -104,10 +107,12 @@
                     <Button
                         x:Name="DiscardButton"
                         loc:Uid.Value="Equaliser_DiscardButton"
+                        HorizontalContentAlignment="Center"
                         IsEnabled="False" />
                     <Button
                         x:Name="SaveButton"
                         MinWidth="104"
+                        HorizontalContentAlignment="Center"
                         IsEnabled="False" />
                 </StackPanel>
             </Grid>
