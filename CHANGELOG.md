@@ -9,66 +9,36 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
-## Unreleased
+## 0.3.0 — 2026-10-07
 
-**Neap now runs on Linux, and is one app that looks and works the same on
-both systems.** On Windows it replaces the earlier build, with the same
-pages, colours and words. On Linux you get the same Home, Audio,
-Microphone, Controls, Profiles, Device and Settings: the game and chat mix,
-noise control, both equalisers with the test tone, profiles that come on with
-a game, the headset's own controls, the Charging Dock's lights, and recording
-a problem to send. It has been used with the real headset on a Steam Deck in
-desktop mode; other distributions and desktops have been run only against a
-pretend headset.
+**Neap now runs on Linux.** One app with the same pages, colours and words on
+Windows and on Linux. On Linux it has been used with the real headset on a
+Steam Deck, in desktop mode; other desktops have been run only against a
+pretend headset. On Windows 0.2.0, **Update and restart** brings you here, with
+your settings and profiles kept.
 
-### Getting it on Linux
+### New on Linux
 
-- **One file.** The download is an AppImage: make it runnable, and run it.
-  It works on any 64-bit distribution whose desktop has PulseAudio or
-  PipeWire, and each release has a `.sha256` to check it with.
-- **Allowing the headset.** Linux keeps a headset's control channel for the
-  administrator until told otherwise. When Neap isn't allowed, every page says
-  so in words, not "switched off", and offers **Allow access**: your system
-  asks for your password once, and the only thing it changes is one small
-  rule file that lets you use the headset. With no password prompt, it copies
-  the command for you to run.
-- **Says what's missing.** No sound library, or no notification area, is said
-  in words instead of a crash or a window that vanishes. On a desktop with no
-  notification area, such as GNOME without its extension, closing the window
-  closes Neap, and starting at sign-in opens it minimised.
-- **Start when you sign in** works from the AppImage, and starts in the
-  notification area.
-- **Keyboard shortcuts** for the mix, the same as Windows, work while an X
-  program is in front, which is most games, and not over a native Wayland one.
-- **Newer versions.** Neap says one is out and opens the download page; on
-  Linux it never replaces its own files.
-- **Not on Linux yet:** Gaming Mode on the Steam Deck (use desktop mode),
-  spatial sound and the audio format, which are Windows' own, and the Charging
-  Dock's keep-high-resolution setting, a fix for a Windows problem.
+- **One file.** An AppImage: make it runnable, and run it. It works on any
+  64-bit distribution with PulseAudio or PipeWire, and each release has a
+  `.sha256` to check it with.
+- **Allow the headset once.** If Linux keeps the headset from Neap, every page
+  says so and **Allow access** asks for your password once.
+- **Keyboard shortcuts for the mix** and **Start when you sign in**, the same
+  as Windows. Shortcuts work in X programs, which is most games.
+- **Not yet:** Gaming Mode on the Steam Deck (use desktop mode), spatial
+  sound, and the audio format.
 
 ### On Windows
 
-- **A smaller download:** the zip is 53 MB where it was 91 MB, and about
-  130 MB on disk where it was 260.
+- **A smaller download:** 53 MB where it was 91.
 - **Start with Windows** is now **Start when you sign in**, the same on both
   systems.
-- **Redrawn icons.** The icons are now the outlined set Windows' own apps use,
-  and the pages use the same colours, rounded fills and buttons everywhere.
 
 ### Fixed
 
-- **Choosing Off for noise control stays off.** With the Mode button set to
-  cycle through all three modes, choosing Off in Neap could be taken for a
-  press of the button and carried on to noise cancellation and then
-  transparency. Found by trying it with the real headset.
-
-### Behind the scenes
-
-- The services the screens share moved out of the app into a project of
-  their own, and the Windows build and the Linux build now come from the same
-  code.
-- Releases publish a Windows zip and a Linux AppImage; every push builds and
-  tests on Linux as well as Windows.
+- **Choosing Off for noise control stays off** when the Mode button is set to
+  cycle through all three modes.
 
 ## 0.2.0 — 2026-10-05
 
