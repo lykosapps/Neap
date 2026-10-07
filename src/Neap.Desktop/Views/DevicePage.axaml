@@ -33,7 +33,7 @@
                                 x:Name="OutputFormat"
                                 loc:Uid.Value="Device_HeadsetOutput"
                                 Capture="False"
-                                Icon="{StaticResource IconAudio}" />
+                                Icon="{StaticResource IconVolume}" />
                             <c:FormatRow
                                 x:Name="MicFormat"
                                 loc:Uid.Value="Device_Microphone"

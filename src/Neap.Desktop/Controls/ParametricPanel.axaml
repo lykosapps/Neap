@@ -72,7 +72,7 @@
                         Height="16"
                         VerticalAlignment="Center"
                         Foreground="{DynamicResource NeapTextSecondaryBrush}"
-                        Data="{StaticResource IconAudio}" />
+                        Data="{StaticResource IconVolume}" />
                     <Slider
                         x:Name="LevelSlider"
                         loc:Uid.Value="Tone_Level"

@@ -58,7 +58,7 @@
                     <c:SideBySide>
                         <c:SystemVolumeRow
                             loc:Uid.Value="Audio_MasterVolume"
-                            Icon="{StaticResource IconAudio}"
+                            Icon="{StaticResource IconVolume}"
                             WithMute="True" />
                         <c:HeadsetSection Explain="False">
                             <c:SettingRow

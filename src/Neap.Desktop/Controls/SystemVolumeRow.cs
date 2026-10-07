@@ -143,7 +143,7 @@ public sealed class SystemVolumeRow : SettingsCard
         {
             // As tall as the buttons elsewhere on the page: it is the one
             // pressed most often, and an icon alone leaves it shorter.
-            _muteIcon = new PathIcon { Width = 16, Height = 16, Data = Glyph("IconAudio") };
+            _muteIcon = new PathIcon { Width = 16, Height = 16, Data = Glyph("IconVolume") };
             _mute = new ToggleButton { MinHeight = 32, Content = _muteIcon };
             AutomationProperties.SetName(_mute, Strings.Get("Volume_Mute"));
             ToolTip.SetTip(_mute, Strings.Get("Volume_MuteTip"));
@@ -173,7 +173,7 @@ public sealed class SystemVolumeRow : SettingsCard
             if (_mute is not null)
             {
                 _mute.IsChecked = state.Muted;
-                _muteIcon!.Data = Glyph(state.Muted ? "IconMute" : "IconAudio");
+                _muteIcon!.Data = Glyph(state.Muted ? "IconMute" : "IconVolume");
             }
             if (_slider is not null && !_slider.IsPointerOver)
             {
