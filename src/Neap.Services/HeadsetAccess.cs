@@ -36,16 +36,26 @@ public static class HeadsetAccess
     /// <summary>The exit codes polkit's pkexec gives when the person turned the prompt away.</summary>
     private const int Dismissed = 126, NotAuthorised = 127;
 
+    /// <summary>Where a system keeps pkexec: in its usual place, or where NixOS puts programs that need to be setuid.</summary>
+    private static readonly string[] Locations = ["/usr/bin/pkexec", "/run/wrappers/bin/pkexec"];
+
+    /// <remarks>
+    /// Found in its fixed places and not by name: a program called pkexec
+    /// earlier on the person's own PATH could show a prompt of its own and keep
+    /// the password it was given.
+    /// </remarks>
+    private static string? Pkexec => Locations.FirstOrDefault(File.Exists);
+
     /// <summary>Whether this system has a password prompt to ask with.</summary>
-    public static bool CanAsk => OperatingSystem.IsLinux() && OnPath("pkexec");
+    public static bool CanAsk => OperatingSystem.IsLinux() && Pkexec is not null;
 
     /// <summary>Installs the rule and has the system use it.</summary>
     /// <returns>How it went, and for a failure what the system said, if it said anything.</returns>
     public static async Task<(AccessResult Result, string? Why)> Grant()
     {
-        if (!CanAsk) return (AccessResult.Failed, null);
+        if (!CanAsk || Pkexec is not { } pkexec) return (AccessResult.Failed, null);
 
-        var start = new ProcessStartInfo("pkexec") { RedirectStandardError = true, RedirectStandardOutput = true };
+        var start = new ProcessStartInfo(pkexec) { RedirectStandardError = true, RedirectStandardOutput = true };
         start.ArgumentList.Add("sh");
         start.ArgumentList.Add("-c");
         start.ArgumentList.Add(UdevRule.RootCommand);
@@ -68,9 +78,4 @@ public static class HeadsetAccess
             return (AccessResult.Failed, ex.Message);
         }
     }
-
-    private static bool OnPath(string program) =>
-        (Environment.GetEnvironmentVariable("PATH") ?? "")
-            .Split(':', StringSplitOptions.RemoveEmptyEntries)
-            .Any(folder => File.Exists(Path.Combine(folder, program)));
 }

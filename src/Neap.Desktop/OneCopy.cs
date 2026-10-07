@@ -13,8 +13,9 @@ namespace Neap.Desktop;
 /// <para>
 /// A second launch asks the running copy to show its window and quits: someone
 /// opening the app while it sits in the notification area wants the window,
-/// not a second copy. The ask goes down a named pipe, which the system keeps
-/// to the person's own session.
+/// not a second copy. The ask goes down a named pipe that only the person's
+/// own account can open, and that each side checks the other end of belongs to
+/// that account.
 /// </para>
 /// </remarks>
 public sealed class OneCopy : IDisposable
@@ -50,7 +51,7 @@ public sealed class OneCopy : IDisposable
     {
         try
         {
-            using var pipe = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
+            using var pipe = new NamedPipeClientStream(".", PipeName, PipeDirection.Out, PipeOptions.CurrentUserOnly);
             pipe.Connect(1000);
         }
         catch (Exception ex) when (ex is TimeoutException or IOException or UnauthorizedAccessException)
@@ -67,11 +68,11 @@ public sealed class OneCopy : IDisposable
             try
             {
                 await using var pipe = new NamedPipeServerStream(PipeName, PipeDirection.In, 1,
-                    PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+                    PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
                 await pipe.WaitForConnectionAsync(_stopping.Token);
                 show();
             }
-            catch (OperationCanceledException) { return; }
+            catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException) { return; }
             catch (IOException ex)
             {
                 // Another launch hung up before it was answered; the next one still gets through.
@@ -84,5 +85,6 @@ public sealed class OneCopy : IDisposable
     {
         _stopping.Cancel();
         _lock.Dispose();
+        _stopping.Dispose();
     }
 }
