@@ -492,6 +492,21 @@ charging; the dock charges whatever is in the slot. Swarm II's desktop app
 does not show it; its phone app shows it as the Charging Hub's battery
 *(research)*. The USB Transmitter, with no slot, reports 0.
 
+The spare's reading is not steady while it charges *(measured, 8 Oct)*. A
+battery that read 10% in the headset went into the dock; the dock first kept
+the previous spare's 100, then read 55, 57, 65 and 69 over about an hour and a
+half while charging, and 45 just before it was taken out, which is what the
+headset then read for it (49, falling to 46). The reading is therefore
+inflated and uneven while the dock is charging, and settles only at rest or
+when full. The dock-side figure behaves like a voltage estimate, not a count.
+
+In the other direction, the headset's own `0x240` falls fast for a few minutes
+after a battery goes in: 49, 46, 35, 32, 31 over about twenty minutes, 1% in 30
+seconds at the end, far faster than the headset drains in use *(measured)*.
+Watching all 89 values for two and a half minutes during that fall, `0x240` was
+the only one besides the signal strength that moved, so the headset reports no
+better figure. Neither number is the app's to correct.
+
 The second and third fields are 17 and 1 for the Charging Dock and 33 and
 0 for the USB Transmitter, on every reading. They look like the kind of
 transmitter and whether it has a battery slot, but nothing has moved them
