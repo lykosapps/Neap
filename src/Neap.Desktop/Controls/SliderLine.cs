@@ -5,8 +5,8 @@ namespace Neap.Desktop.Controls;
 
 /// <summary>
 /// A row of a slider and what goes with it, such as its reading and a mute:
-/// the slider at its preferred width while there is room, narrower when there
-/// isn't, and everything else always at its own size.
+/// the slider takes the width the rest leaves, so it runs the length of its
+/// box, and everything else is always at its own size.
 /// </summary>
 /// <remarks>
 /// A slider given a fixed width runs its reading off the edge of a narrow
@@ -20,7 +20,7 @@ public sealed class SliderLine : Panel
     /// <summary>Gets or sets the space between items.</summary>
     public double Spacing { get; set; } = 12;
 
-    /// <summary>Gets or sets the slider's width when there is room for it.</summary>
+    /// <summary>Gets or sets the slider's width when the row is measured without a limit.</summary>
     public double Preferred { get; set; } = 220;
 
     /// <summary>Gets or sets the item that gives way when the row is short of room.</summary>
@@ -75,5 +75,5 @@ public sealed class SliderLine : Panel
     }
 
     private double FlexibleWidth(double available, double taken) =>
-        double.IsInfinity(available) ? Preferred : Math.Clamp(available - taken, 0, Preferred);
+        double.IsInfinity(available) ? Preferred : Math.Max(0, available - taken);
 }

@@ -463,7 +463,7 @@
                         CornerRadius="{TemplateBinding CornerRadius}"
                         MinHeight="{TemplateBinding MinHeight}"
                         Padding="{TemplateBinding Padding}">
-                    <Grid x:Name="Layout" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                    <Grid x:Name="Layout" VerticalAlignment="Center" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
                         <PathIcon Width="20" Height="20" Margin="0,0,16,0" VerticalAlignment="Center"
                                   Data="{TemplateBinding Icon}" IsVisible="{TemplateBinding Icon, Converter={x:Static ObjectConverters.IsNotNull}}" />
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2" MinWidth="0">
