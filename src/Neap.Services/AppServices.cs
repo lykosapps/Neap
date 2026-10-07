@@ -62,8 +62,14 @@ public static class AppServices
         if (Mix.ChatApps.Count > 0) Mix.Start();
     }
 
+    private static bool _stopped;
+
+    /// <summary>Puts everything back and lets go of the headset, once however many times it is asked.</summary>
+    /// <remarks>The window stops the app before it closes, and the app's exit stops it again.</remarks>
     public static void Stop()
     {
+        if (_stopped) return;
+        _stopped = true;
         Updates?.Dispose();
         Recorder?.Dispose();
         MicFollow?.Dispose();
