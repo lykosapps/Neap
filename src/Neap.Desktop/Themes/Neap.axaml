@@ -490,7 +490,7 @@
     <!-- Groups the cards below it. Quiet: the cards are the content. -->
     <Style Selector="TextBlock.sectionheader">
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Margin" Value="0,16,0,4" />
+        <Setter Property="Margin" Value="0,24,0,8" />
         <Setter Property="AutomationProperties.HeadingLevel" Value="2" />
     </Style>
 
