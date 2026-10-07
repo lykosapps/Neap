@@ -70,6 +70,13 @@
                             Background="{DynamicResource NeapPanelBrush}"
                             BorderBrush="{DynamicResource NeapPanelStrokeBrush}"
                             CornerRadius="8">
+                            <!-- The toolkit paints its own fill over the expander's; clear it so the panel's gradient shows. -->
+                            <Expander.Resources>
+                                <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="Transparent" />
+                                <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="Transparent" />
+                                <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed" Color="Transparent" />
+                                <SolidColorBrush x:Key="ExpanderContentBackground" Color="Transparent" />
+                            </Expander.Resources>
                             <Expander.Header>
                                 <c:SettingsCard
                                     loc:Uid.Value="Device_Details"
