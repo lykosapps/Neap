@@ -64,7 +64,12 @@
                     -->
                     <c:HeadsetSection loc:Uid.Value="Device_DetailsSection">
                         <TextBlock loc:Uid.Value="Device_AboutHeading" Classes="sectionheader" />
-                        <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="{DynamicResource NeapPanelBrush}"
+                            BorderBrush="{DynamicResource NeapPanelStrokeBrush}"
+                            CornerRadius="8">
                             <Expander.Header>
                                 <c:SettingsCard
                                     loc:Uid.Value="Device_Details"
