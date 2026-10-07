@@ -38,7 +38,7 @@ public sealed class SettingChoice : UserControl
         AvaloniaProperty.Register<SettingChoice, string>(nameof(Description), "");
 
     private readonly StackPanel _options = new() { Spacing = 4, IsEnabled = false };
-    private readonly TextBlock _title = new() { Classes = { "tiletitle" } };
+    private readonly TextBlock _title = new() { Classes = { "cardtitle" } };
     private readonly TextBlock _description = new() { Classes = { "caption", "secondary" } };
     private readonly SettingLink _link;
     private bool _painting;

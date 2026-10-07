@@ -112,6 +112,59 @@ internal static class HighContrast
         Brush("NeapTileOnDisabledBrush", p.Gray);
         Brush("NeapTileOnDisabledTextBrush", p.Window);
 
+        // The page and the rail share the window's colour; the chosen place
+        // is marked by its bar, not by a fill.
+        Brush("NeapBodyBrush", p.Window);
+        Brush("NeapNavSelectedBrush", p.Window);
+        Brush("NeapNavHoverBrush", p.Window);
+
+        // Buttons, the lists that open from them and the switch: outlined in
+        // the text colour, and the highlight where they are on. These are the
+        // names the controls look for, set here because a name that points at
+        // another would find the dark theme's.
+        foreach (string name in new[]
+        {
+            "NeapButtonBrush", "NeapButtonHoverBrush", "NeapButtonPressedBrush", "NeapButtonDisabledBrush", "NeapFlyoutBrush",
+            "ButtonBackground", "ButtonBackgroundPointerOver", "ButtonBackgroundPressed", "ButtonBackgroundDisabled",
+            "ComboBoxBackground", "ComboBoxBackgroundPointerOver", "ComboBoxBackgroundPressed", "ComboBoxBackgroundDisabled",
+            "ComboBoxDropDownBackground", "FlyoutPresenterBackground", "MenuFlyoutPresenterBackground",
+            "ExpanderHeaderBackground", "ExpanderHeaderBackgroundPointerOver",
+        })
+            Brush(name, p.Window);
+        Brush("ExpanderContentBackground", Colors.Transparent);
+        foreach (string name in new[]
+        {
+            "NeapButtonStrokeBrush", "ButtonBorderBrush", "ButtonBorderBrushPointerOver", "ButtonBorderBrushPressed",
+            "ComboBoxBorderBrush", "ComboBoxBorderBrushPointerOver", "ComboBoxBorderBrushPressed", "ComboBoxDropDownBorderBrush",
+            "ExpanderHeaderBorderBrush", "ExpanderContentBorderBrush",
+        })
+            Brush(name, p.Text);
+        Brush("ButtonBorderBrushDisabled", p.Gray);
+        foreach (string name in new[]
+        {
+            "NeapAccentFillBrush", "NeapAccentFillHoverBrush", "NeapAccentFillPressedBrush", "AccentButtonBackground",
+            "AccentButtonBackgroundPointerOver", "AccentButtonBackgroundPressed", "ToggleSwitchFillOn",
+            "AccentFillColorDefaultBrush", "AccentFillColorSecondaryBrush", "AccentFillColorTertiaryBrush",
+            "SliderTrackValueFill", "SliderTrackValueFillPointerOver", "SliderTrackValueFillPressed",
+            "SliderThumbBackground", "SliderThumbBackgroundPointerOver", "SliderThumbBackgroundPressed",
+            "RadioButtonOuterEllipseCheckedFill", "RadioButtonOuterEllipseCheckedFillPointerOver",
+            "RadioButtonOuterEllipseCheckedFillPressed", "RadioButtonOuterEllipseCheckedStroke",
+            "RadioButtonOuterEllipseCheckedStrokePointerOver", "RadioButtonOuterEllipseCheckedStrokePressed",
+            "CheckBoxCheckBackgroundFillChecked", "CheckBoxCheckBackgroundFillCheckedPointerOver",
+            "CheckBoxCheckBackgroundFillCheckedPressed", "CheckBoxCheckBackgroundStrokeChecked",
+            "CheckBoxCheckBackgroundStrokeCheckedPointerOver", "CheckBoxCheckBackgroundStrokeCheckedPressed",
+            "ToggleSwitchFillOnPointerOver", "ToggleSwitchFillOnPressed",
+        })
+            Brush(name, p.Highlight);
+        foreach (string name in new[]
+        {
+            "NeapOnAccentBrush", "AccentButtonForeground", "AccentButtonForegroundPointerOver", "AccentButtonForegroundPressed",
+            "ToggleSwitchKnobFillOn", "ToggleSwitchKnobFillOnPointerOver", "ToggleSwitchKnobFillOnPressed",
+            "RadioButtonCheckGlyphFill", "RadioButtonCheckGlyphFillPointerOver", "RadioButtonCheckGlyphFillPressed",
+            "CheckBoxCheckGlyphForegroundChecked",
+        })
+            Brush(name, p.HighlightText);
+
         // The dial's knob.
         Brush("NeapKnobBrush", p.Window);
         Brush("NeapKnobCapStrokeBrush", p.Text);

@@ -116,7 +116,7 @@ public partial class TransmittersPanel : UserControl
         {
             Text = row.Name,
             VerticalAlignment = VerticalAlignment.Center,
-            Classes = { inUse ? "tiletitle" : "bodystrong" },
+            Classes = { inUse ? "cardtitle" : "bodystrong" },
         });
         var state = new TextBlock
         {

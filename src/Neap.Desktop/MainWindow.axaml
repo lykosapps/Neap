@@ -14,7 +14,7 @@
     <!--
         Neap's own ground behind everything, in place of the system's grey.
     -->
-    <Grid RowDefinitions="48,Auto,Auto,*">
+    <Grid RowDefinitions="40,Auto,Auto,*">
 
         <!--
             The title row carries the headset's connection state, the one
@@ -22,8 +22,11 @@
             Right-aligned.
         -->
         <Grid ColumnDefinitions="Auto,*,Auto">
-            <!-- The app's mark beside its name. Decoration only: the name says it. -->
-            <StackPanel Margin="16,0,0,0" Orientation="Horizontal" Spacing="12">
+            <!--
+                The app's mark beside its name. Not shown: the system's own
+                title bar above already says it, and twice reads as a mistake.
+            -->
+            <StackPanel Margin="16,0,0,0" Orientation="Horizontal" Spacing="12" IsVisible="False">
                 <Image
                     Width="16"
                     Height="16"
@@ -108,7 +111,9 @@
                 </DockPanel>
             </SplitView.Pane>
 
-            <ContentControl x:Name="Body" />
+            <Border Classes="pagebody">
+                <ContentControl x:Name="Body" />
+            </Border>
         </SplitView>
     </Grid>
 </Window>

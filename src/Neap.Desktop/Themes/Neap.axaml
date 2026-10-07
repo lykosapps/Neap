@@ -46,6 +46,84 @@
                     <SolidColorBrush x:Key="NeapToneCriticalBrush" Color="#FF99A4" />
                     <SolidColorBrush x:Key="NeapQuietBrush" Color="#0DFFFFFF" />
                     <SolidColorBrush x:Key="NeapQuietHoverBrush" Color="#16FFFFFF" />
+
+                    <!-- The page sits a step above the ground the rail is on, as in the Windows app. -->
+                    <SolidColorBrush x:Key="NeapBodyBrush" Color="#171322" />
+                    <SolidColorBrush x:Key="NeapNavSelectedBrush" Color="#25213B" />
+                    <SolidColorBrush x:Key="NeapNavHoverBrush" Color="#1D192E" />
+
+                    <!-- Buttons and the lists that open from them, in Neap's colours in place of the system's grey. -->
+                    <SolidColorBrush x:Key="NeapButtonBrush" Color="#2A2340" />
+                    <SolidColorBrush x:Key="NeapButtonHoverBrush" Color="#342C4D" />
+                    <SolidColorBrush x:Key="NeapButtonPressedBrush" Color="#231D36" />
+                    <SolidColorBrush x:Key="NeapButtonDisabledBrush" Color="#1F1A2B" />
+                    <SolidColorBrush x:Key="NeapButtonStrokeBrush" Color="#37304D" />
+                    <SolidColorBrush x:Key="NeapFlyoutBrush" Color="#231D36" />
+                    <SolidColorBrush x:Key="NeapAccentFillBrush" Color="#C8BEFF" />
+                    <SolidColorBrush x:Key="NeapAccentFillHoverBrush" Color="#BEB3FA" />
+                    <SolidColorBrush x:Key="NeapAccentFillPressedBrush" Color="#B2A6EE" />
+                    <SolidColorBrush x:Key="NeapOnAccentBrush" Color="#15112A" />
+                    <StaticResource x:Key="ButtonBackground" ResourceKey="NeapButtonBrush" />
+                    <StaticResource x:Key="ButtonBackgroundPointerOver" ResourceKey="NeapButtonHoverBrush" />
+                    <StaticResource x:Key="ButtonBackgroundPressed" ResourceKey="NeapButtonPressedBrush" />
+                    <StaticResource x:Key="ButtonBackgroundDisabled" ResourceKey="NeapButtonDisabledBrush" />
+                    <StaticResource x:Key="ButtonBorderBrush" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ButtonBorderBrushPointerOver" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ButtonBorderBrushPressed" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ButtonBorderBrushDisabled" ResourceKey="NeapButtonDisabledBrush" />
+                    <StaticResource x:Key="ComboBoxBackground" ResourceKey="NeapButtonBrush" />
+                    <StaticResource x:Key="ComboBoxBackgroundPointerOver" ResourceKey="NeapButtonHoverBrush" />
+                    <StaticResource x:Key="ComboBoxBackgroundPressed" ResourceKey="NeapButtonPressedBrush" />
+                    <StaticResource x:Key="ComboBoxBackgroundDisabled" ResourceKey="NeapButtonDisabledBrush" />
+                    <StaticResource x:Key="ComboBoxBorderBrush" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ComboBoxBorderBrushPointerOver" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ComboBoxBorderBrushPressed" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ComboBoxDropDownBackground" ResourceKey="NeapFlyoutBrush" />
+                    <StaticResource x:Key="ComboBoxDropDownBorderBrush" ResourceKey="NeapPanelStrokeBrush" />
+                    <StaticResource x:Key="FlyoutPresenterBackground" ResourceKey="NeapFlyoutBrush" />
+                    <StaticResource x:Key="MenuFlyoutPresenterBackground" ResourceKey="NeapFlyoutBrush" />
+                    <StaticResource x:Key="AccentButtonBackground" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="AccentButtonBackgroundPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="AccentButtonBackgroundPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="AccentButtonForeground" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="AccentButtonForegroundPointerOver" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="AccentButtonForegroundPressed" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="AccentFillColorDefaultBrush" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="AccentFillColorSecondaryBrush" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="AccentFillColorTertiaryBrush" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="SliderTrackValueFill" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="SliderTrackValueFillPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="SliderTrackValueFillPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="SliderThumbBackground" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="SliderThumbBackgroundPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="SliderThumbBackgroundPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedFill" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedFillPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedFillPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedStroke" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedStrokePointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedStrokePressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="RadioButtonCheckGlyphFill" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="RadioButtonCheckGlyphFillPointerOver" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="RadioButtonCheckGlyphFillPressed" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundFillChecked" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundFillCheckedPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundStrokeChecked" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundStrokeCheckedPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundStrokeCheckedPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="CheckBoxCheckGlyphForegroundChecked" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="ToggleSwitchFillOn" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="ToggleSwitchFillOnPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="ToggleSwitchFillOnPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="ToggleSwitchKnobFillOn" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="ToggleSwitchKnobFillOnPointerOver" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="ToggleSwitchKnobFillOnPressed" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="ExpanderHeaderBackground" ResourceKey="NeapQuietBrush" />
+                    <StaticResource x:Key="ExpanderHeaderBackgroundPointerOver" ResourceKey="NeapQuietHoverBrush" />
+                    <StaticResource x:Key="ExpanderHeaderBorderBrush" ResourceKey="NeapPanelStrokeBrush" />
+                    <SolidColorBrush x:Key="ExpanderContentBackground" Color="Transparent" />
+                    <StaticResource x:Key="ExpanderContentBorderBrush" ResourceKey="NeapPanelStrokeBrush" />
                     <Color x:Key="SystemAccentColor">#9D8CFF</Color>
                     <Color x:Key="SystemAccentColorLight1">#B2A5FF</Color>
                     <Color x:Key="SystemAccentColorLight2">#C8BEFF</Color>
@@ -81,6 +159,82 @@
                     <SolidColorBrush x:Key="NeapToneCriticalBrush" Color="#C42B1C" />
                     <SolidColorBrush x:Key="NeapQuietBrush" Color="#B3FFFFFF" />
                     <SolidColorBrush x:Key="NeapQuietHoverBrush" Color="#FFFFFFFF" />
+
+                    <SolidColorBrush x:Key="NeapBodyBrush" Color="#F7F5FB" />
+                    <SolidColorBrush x:Key="NeapNavSelectedBrush" Color="#DBD6F1" />
+                    <SolidColorBrush x:Key="NeapNavHoverBrush" Color="#E6E2F3" />
+
+                    <SolidColorBrush x:Key="NeapButtonBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="NeapButtonHoverBrush" Color="#F6F3FB" />
+                    <SolidColorBrush x:Key="NeapButtonPressedBrush" Color="#ECE8F5" />
+                    <SolidColorBrush x:Key="NeapButtonDisabledBrush" Color="#F3F0F8" />
+                    <SolidColorBrush x:Key="NeapButtonStrokeBrush" Color="#E2DDEB" />
+                    <SolidColorBrush x:Key="NeapFlyoutBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="NeapAccentFillBrush" Color="#6D5AD9" />
+                    <SolidColorBrush x:Key="NeapAccentFillHoverBrush" Color="#6350CF" />
+                    <SolidColorBrush x:Key="NeapAccentFillPressedBrush" Color="#5845BD" />
+                    <SolidColorBrush x:Key="NeapOnAccentBrush" Color="#FFFFFF" />
+                    <StaticResource x:Key="ButtonBackground" ResourceKey="NeapButtonBrush" />
+                    <StaticResource x:Key="ButtonBackgroundPointerOver" ResourceKey="NeapButtonHoverBrush" />
+                    <StaticResource x:Key="ButtonBackgroundPressed" ResourceKey="NeapButtonPressedBrush" />
+                    <StaticResource x:Key="ButtonBackgroundDisabled" ResourceKey="NeapButtonDisabledBrush" />
+                    <StaticResource x:Key="ButtonBorderBrush" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ButtonBorderBrushPointerOver" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ButtonBorderBrushPressed" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ButtonBorderBrushDisabled" ResourceKey="NeapButtonDisabledBrush" />
+                    <StaticResource x:Key="ComboBoxBackground" ResourceKey="NeapButtonBrush" />
+                    <StaticResource x:Key="ComboBoxBackgroundPointerOver" ResourceKey="NeapButtonHoverBrush" />
+                    <StaticResource x:Key="ComboBoxBackgroundPressed" ResourceKey="NeapButtonPressedBrush" />
+                    <StaticResource x:Key="ComboBoxBackgroundDisabled" ResourceKey="NeapButtonDisabledBrush" />
+                    <StaticResource x:Key="ComboBoxBorderBrush" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ComboBoxBorderBrushPointerOver" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ComboBoxBorderBrushPressed" ResourceKey="NeapButtonStrokeBrush" />
+                    <StaticResource x:Key="ComboBoxDropDownBackground" ResourceKey="NeapFlyoutBrush" />
+                    <StaticResource x:Key="ComboBoxDropDownBorderBrush" ResourceKey="NeapPanelStrokeBrush" />
+                    <StaticResource x:Key="FlyoutPresenterBackground" ResourceKey="NeapFlyoutBrush" />
+                    <StaticResource x:Key="MenuFlyoutPresenterBackground" ResourceKey="NeapFlyoutBrush" />
+                    <StaticResource x:Key="AccentButtonBackground" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="AccentButtonBackgroundPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="AccentButtonBackgroundPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="AccentButtonForeground" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="AccentButtonForegroundPointerOver" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="AccentButtonForegroundPressed" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="AccentFillColorDefaultBrush" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="AccentFillColorSecondaryBrush" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="AccentFillColorTertiaryBrush" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="SliderTrackValueFill" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="SliderTrackValueFillPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="SliderTrackValueFillPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="SliderThumbBackground" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="SliderThumbBackgroundPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="SliderThumbBackgroundPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedFill" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedFillPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedFillPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedStroke" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedStrokePointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="RadioButtonOuterEllipseCheckedStrokePressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="RadioButtonCheckGlyphFill" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="RadioButtonCheckGlyphFillPointerOver" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="RadioButtonCheckGlyphFillPressed" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundFillChecked" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundFillCheckedPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundStrokeChecked" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundStrokeCheckedPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="CheckBoxCheckBackgroundStrokeCheckedPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="CheckBoxCheckGlyphForegroundChecked" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="ToggleSwitchFillOn" ResourceKey="NeapAccentFillBrush" />
+                    <StaticResource x:Key="ToggleSwitchFillOnPointerOver" ResourceKey="NeapAccentFillHoverBrush" />
+                    <StaticResource x:Key="ToggleSwitchFillOnPressed" ResourceKey="NeapAccentFillPressedBrush" />
+                    <StaticResource x:Key="ToggleSwitchKnobFillOn" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="ToggleSwitchKnobFillOnPointerOver" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="ToggleSwitchKnobFillOnPressed" ResourceKey="NeapOnAccentBrush" />
+                    <StaticResource x:Key="ExpanderHeaderBackground" ResourceKey="NeapQuietBrush" />
+                    <StaticResource x:Key="ExpanderHeaderBackgroundPointerOver" ResourceKey="NeapQuietHoverBrush" />
+                    <StaticResource x:Key="ExpanderHeaderBorderBrush" ResourceKey="NeapPanelStrokeBrush" />
+                    <SolidColorBrush x:Key="ExpanderContentBackground" Color="Transparent" />
+                    <StaticResource x:Key="ExpanderContentBorderBrush" ResourceKey="NeapPanelStrokeBrush" />
                     <Color x:Key="SystemAccentColor">#9D8CFF</Color>
                     <Color x:Key="SystemAccentColorLight1">#B2A5FF</Color>
                     <Color x:Key="SystemAccentColorLight2">#C8BEFF</Color>
@@ -110,6 +264,19 @@
     </Style>
     <Style Selector="TextBlock.bodylarge">
         <Setter Property="FontSize" Value="18" />
+    </Style>
+    <!-- The name of a card that holds a choice or a device: a step above the rows inside it. -->
+    <Style Selector="TextBlock.cardtitle">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <!-- The page, a step above the rail it sits beside, edged on the sides that meet it. -->
+    <Style Selector="Border.pagebody">
+        <Setter Property="Background" Value="{DynamicResource NeapBodyBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapPanelStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1,1,0,0" />
+        <Setter Property="CornerRadius" Value="8,0,0,0" />
+        <Setter Property="ClipToBounds" Value="True" />
     </Style>
     <Style Selector="TextBlock.title">
         <Setter Property="FontSize" Value="28" />
@@ -305,31 +472,35 @@
         rests on colour alone.
     -->
     <Style Selector="c|NavItem">
+        <!-- Transparent, not nothing: a control with no fill takes a click only on its text and icon. -->
+        <Setter Property="Background" Value="Transparent" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="4,2" />
         <Setter Property="Height" Value="44" />
         <Setter Property="CornerRadius" Value="6" />
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid Background="{TemplateBinding Background}">
-                    <Border x:Name="Marker" Width="3" Height="18" CornerRadius="2"
-                            HorizontalAlignment="Left" VerticalAlignment="Center" IsVisible="False"
-                            Background="{DynamicResource SystemAccentColorLight1}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="14,0,12,0" VerticalAlignment="Center">
-                        <PathIcon Data="{TemplateBinding Icon}" Width="20" Height="20"
-                                  Foreground="{DynamicResource NeapTextBrush}" />
-                        <ContentPresenter x:Name="NavContent" Content="{TemplateBinding Content}"
-                                          VerticalAlignment="Center" TextElement.Foreground="{DynamicResource NeapTextBrush}" />
-                    </StackPanel>
-                </Grid>
+                <Border Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
+                    <Grid>
+                        <Border x:Name="Marker" Width="3" Height="18" CornerRadius="2"
+                                HorizontalAlignment="Left" VerticalAlignment="Center" IsVisible="False"
+                                Background="{DynamicResource SystemAccentColorLight1}" />
+                        <StackPanel Orientation="Horizontal" Spacing="12" Margin="14,0,12,0" VerticalAlignment="Center">
+                            <PathIcon Data="{TemplateBinding Icon}" Width="20" Height="20"
+                                      Foreground="{DynamicResource NeapTextBrush}" />
+                            <ContentPresenter x:Name="NavContent" Content="{TemplateBinding Content}"
+                                              VerticalAlignment="Center" TextElement.Foreground="{DynamicResource NeapTextBrush}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </ControlTemplate>
         </Setter>
     </Style>
     <Style Selector="c|NavItem:pointerover">
-        <Setter Property="Background" Value="{DynamicResource NeapQuietHoverBrush}" />
+        <Setter Property="Background" Value="{DynamicResource NeapNavHoverBrush}" />
     </Style>
     <Style Selector="c|NavItem:selected">
-        <Setter Property="Background" Value="{DynamicResource NeapQuietBrush}" />
+        <Setter Property="Background" Value="{DynamicResource NeapNavSelectedBrush}" />
     </Style>
     <Style Selector="c|NavItem:selected /template/ Border#Marker">
         <Setter Property="IsVisible" Value="True" />
