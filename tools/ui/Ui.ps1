@@ -198,6 +198,65 @@ function Stop-NeapPretend {
     }
 }
 
+# Starts the app for real, against the real headset, settings and log. Only for
+# the checks that need the hardware, and only inside Protect-RealRun.
+function Start-NeapReal {
+    param([string]$Page = 'home', [string[]]$Flags = @())
+    Wake-Screen
+    # A copy left from before would take the headset, or answer for this one.
+    Get-CimInstance Win32_Process -Filter "Name='Neap.Desktop.exe'" | Where-Object { $_.CommandLine -notmatch '--pretend' } |
+        ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+    Start-Sleep -Milliseconds 800
+    $script:Proc = Start-Process $script:Exe -ArgumentList (@('--page', $Page) + $Flags) -PassThru
+    $script:Window = $null
+    Wait-Until {
+        $script:Window = $A::RootElement.FindFirst($Scope::Children, (New-Condition ProcessIdProperty ([int]$script:Proc.Id)))
+        $null -ne $script:Window
+    } 30 | Out-Null
+    if ($script:Window) { $script:Handle = [IntPtr]$script:Window.Current.NativeWindowHandle }
+}
+function Stop-NeapReal { Stop-NeapPretend }
+
+# Runs a block of checks that use the real app, and puts back afterwards what a
+# real run touches: the owner's own copy of the earlier app is stopped for the
+# run and started again, the sign-in shortcut is restored to what it was, and
+# the settings and log are kept as they were before.
+function Protect-RealRun([scriptblock]$Block) {
+    $keep = Join-Path $script:Out 'real-run-backup'
+    New-Item -ItemType Directory -Force -Path $keep | Out-Null
+    $folder = Join-Path $env:LOCALAPPDATA 'Neap'
+    $shortcut = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Startup\Neap.lnk'
+    $link = New-Object -ComObject WScript.Shell
+    $before = if (Test-Path $shortcut) { $l = $link.CreateShortcut($shortcut); @{ Target = $l.TargetPath; Arguments = $l.Arguments; Directory = $l.WorkingDirectory } }
+    foreach ($file in 'app-settings.json', 'app.log') { if (Test-Path (Join-Path $folder $file)) { Copy-Item (Join-Path $folder $file) (Join-Path $keep $file) -Force } }
+
+    $earlier = @(Get-CimInstance Win32_Process -Filter "Name='Neap.exe'" | Where-Object { $_.CommandLine -notmatch '--pretend' })
+    foreach ($p in $earlier) { Note "stopping the owner's copy for the run: $($p.ExecutablePath)"; Stop-Process -Id $p.ProcessId -Force }
+    if ($earlier) { Start-Sleep -Seconds 2 }
+    try { & $Block }
+    finally {
+        Stop-NeapReal
+        Start-Sleep -Seconds 2
+        if ($before) {
+            $l = $link.CreateShortcut($shortcut)
+            if ($l.TargetPath -ne $before.Target -or $l.Arguments -ne $before.Arguments) {
+                Note "the sign-in shortcut now points at $($l.TargetPath); putting it back"
+                $l.TargetPath = $before.Target; $l.Arguments = $before.Arguments; $l.WorkingDirectory = $before.Directory; $l.Save()
+            }
+        }
+        foreach ($p in $earlier) {
+            Note "starting the owner's copy again"
+            Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $p.CommandLine; CurrentDirectory = (Split-Path $p.ExecutablePath) } | Out-Null
+        }
+    }
+}
+
+# What the real app wrote to its log since a line count, for proving what ran.
+function Get-RealLog([int]$Skip = 0) {
+    $path = Join-Path $env:LOCALAPPDATA 'Neap\app.log'
+    if (Test-Path $path) { $stream = [IO.File]::Open($path, 'Open', 'Read', 'ReadWrite'); $lines = (New-Object IO.StreamReader($stream)).ReadToEnd() -split "`r?`n"; $stream.Dispose(); $lines | Select-Object -Skip $Skip }
+}
+
 # Resizes the window, in physical pixels, and waits for the layout to settle by
 # watching where the named element ends up.
 function Set-NeapSize([int]$Width, [int]$Height, [string]$Anchor) {

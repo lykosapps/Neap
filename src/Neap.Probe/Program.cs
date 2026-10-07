@@ -96,6 +96,7 @@ try
         case "tone": return Tone(args.Length > 1 ? double.Parse(args[1], CultureInfo.InvariantCulture) : 5);
         case "mixapp": return MixApp(args[1], args.Length > 2 ? args[2] : "demo");
         case "recover": return RecoverMix();
+        case "volumes": return Volumes();
         case "sound" when OperatingSystem.IsLinux(): return LinuxSound();
         case "micmute" when OperatingSystem.IsLinux(): return LinuxMicMute(args.Length > 1 ? args[1] : "");
         case "setformat" when OperatingSystem.IsWindows():
@@ -398,6 +399,18 @@ static int LinuxSound()
     foreach (var stream in pulse.Streams())
         Console.WriteLine($"  stream {stream.Index,3}  on {stream.Sink,3}  {stream.Program}  pid {stream.ProcessId}  "
                         + $"volume {stream.Volume:0.00} x{stream.Channels}  {(stream.Playing ? "playing" : "paused")}");
+    return 0;
+}
+
+// What each application's volume is on the headset now, read only: for seeing
+// what a mix has done to them, and whether a recovery put them back.
+static int Volumes()
+{
+    using var playback = Neap.Core.Mix.Playback.ForThisSystem();
+    using var headset = playback.Headset();
+    if (headset is null) return 1;
+    foreach (var session in headset.Sessions())
+        Console.WriteLine($"{session.Program,-20} {session.Volume:0.00}{(session.Playing ? "  playing" : "")}");
     return 0;
 }
 
