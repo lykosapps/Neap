@@ -64,13 +64,13 @@
                     -->
                     <c:HeadsetSection loc:Uid.Value="Device_DetailsSection">
                         <TextBlock loc:Uid.Value="Device_AboutHeading" Classes="sectionheader" />
+                        <!-- Information, not a setting, so it sits on the lit panel the cards on Home have; the expander inside is left clear. -->
+                        <Border Classes="card compact" Padding="0" ClipToBounds="True">
                         <Expander
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
-                            Background="{DynamicResource NeapPanelBrush}"
-                            BorderBrush="{DynamicResource NeapPanelStrokeBrush}"
-                            CornerRadius="8">
-                            <!-- The toolkit paints its own fill over the expander's; clear it so the panel's gradient shows. -->
+                            Background="Transparent"
+                            BorderThickness="0">
                             <Expander.Resources>
                                 <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="Transparent" />
                                 <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="Transparent" />
@@ -94,6 +94,7 @@
                                 </StackPanel>
                             </StackPanel>
                         </Expander>
+                        </Border>
                     </c:HeadsetSection>
                 </c:HeadsetSection>
 
