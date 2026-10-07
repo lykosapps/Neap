@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Styling;
 using Neap.Desktop.Localization;
 
@@ -21,6 +22,7 @@ public class App : Application
         // pretend run can be shown in either theme whatever the system is set to.
         HighContrast.Install(this);
         ChooseTheme();
+        if (Motion.Enabled) Styles.Add(new StyleInclude(new Uri("avares://Neap.Desktop/")) { Source = new Uri("avares://Neap.Desktop/Themes/Motion.axaml") });
         if (PlatformSettings is { } settings) settings.ColorValuesChanged += (_, _) => ChooseTheme();
 
         AppLog.Write(Pretend.Active ? "started with the pretend headset" : Startup.LaunchedAtLogin ? "started at login" : "started");

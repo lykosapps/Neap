@@ -1,0 +1,22 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        What opens over the page, a drop-down's list or a menu, fades in rather
+        than appearing. Added to the app only while animation is on in the
+        system; see Motion.
+    -->
+    <Style Selector="Border#PopupBorder, FlyoutPresenter, MenuFlyoutPresenter">
+        <Style.Animations>
+            <Animation Duration="0:0:0.12" Easing="CubicEaseOut">
+                <KeyFrame Cue="0%">
+                    <Setter Property="Opacity" Value="0" />
+                </KeyFrame>
+                <KeyFrame Cue="100%">
+                    <Setter Property="Opacity" Value="1" />
+                </KeyFrame>
+            </Animation>
+        </Style.Animations>
+    </Style>
+</Styles>

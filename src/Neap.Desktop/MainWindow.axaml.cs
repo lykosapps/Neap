@@ -46,6 +46,7 @@ public partial class MainWindow : Window
         Foot.SelectionChanged += (_, _) => OnChosen(Foot, Places);
         SizeChanged += (_, e) => FitRail(e.NewSize.Width);
         NavToggle.Click += (_, _) => Rail.IsPaneOpen = !Rail.IsPaneOpen;
+        Body.PageTransition = new EntranceTransition();
         DrawOwnTitleBar();
 
         Open(Pretend.Page ?? "home");

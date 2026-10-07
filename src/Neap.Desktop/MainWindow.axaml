@@ -98,7 +98,7 @@
 
             <Grid>
                 <Border x:Name="PageFrame" Classes="pagebody">
-                    <ContentControl x:Name="Body" />
+                    <TransitioningContentControl x:Name="Body" />
                 </Border>
 
                 <!--
