@@ -328,6 +328,11 @@
         <Setter Property="Padding" Value="16,12" />
     </Style>
 
+    <!-- The toolkit draws a full-screen button beside the caption buttons; a Windows title bar has none, and it would sit over the status. -->
+    <Style Selector="Button#PART_FullScreenButton">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+
     <!-- A dialog on Neap's own ground, as the window is, in place of the system's grey. -->
     <Style Selector="Window.neapground">
         <Setter Property="Background" Value="{DynamicResource NeapGroundBrush}" />
