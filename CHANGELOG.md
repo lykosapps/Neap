@@ -17,8 +17,10 @@ and date.
   microphone, rather than whenever it's open. A profile for Teams calls comes
   on as a call starts, and the default comes back when it ends.
 - Neap recognises the Turtle Beach Atlas Air, finds its speakers and
-  microphone, and reads its settings. It doesn't change them yet: that waits
-  until an owner has tried each one.
+  microphone, and shows only what it has: no chat wheel, noise cancellation,
+  lights, Charging Dock or CrossPlay. Its settings can be changed, in testing
+  with an owner of one.
+- The game and chat mix on Home links to its keyboard shortcuts.
 - What's new is always in Settings, beside Neap's version. With no update
   waiting, it shows what's new in the version you have, without going online.
 

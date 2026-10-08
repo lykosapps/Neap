@@ -2,6 +2,8 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Neap.Core;
+using Neap.Core.Diagnostics;
 using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
@@ -103,6 +105,7 @@ public sealed class NoiseControlPanel : UserControl
     private void Paint()
     {
         var mode = AppServices.Noise.Mode;
+        IsVisible = HeadsetModels.Shows(AppServices.Headset.Model, Feature.NoiseControl);
         _modes.IsEnabled = AppServices.Noise.CanChoose;
         _painting = true;
         try

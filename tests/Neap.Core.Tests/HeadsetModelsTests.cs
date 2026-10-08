@@ -17,10 +17,10 @@ public class HeadsetModelsTests
         Assert.Null(HeadsetModels.Of(0x1234));
 
     [Fact]
-    public void OnlyTheStealthProIIsSettingsAreChanged()
+    public void TheStealthProIIsSettingsAreChangedAndAnUnknownHeadsetsAreNot()
     {
         Assert.True(HeadsetModels.StealthProII.Writable);
-        Assert.False(HeadsetModels.AtlasAir.Writable);
+        Assert.False(HeadsetModels.Of(0x1234) is { Writable: true });
     }
 
     [Fact]
@@ -40,6 +40,20 @@ public class HeadsetModelsTests
         Assert.DoesNotContain(Feature.NoiseControl, HeadsetModels.AtlasAir.Features);
         Assert.DoesNotContain(Feature.Lights, HeadsetModels.AtlasAir.Features);
     }
+
+    [Theory]
+    [InlineData("superhuman_hearing", false)]
+    [InlineData("noise_gate_threshold", false)]
+    [InlineData("wake_on_motion", false)]
+    [InlineData("eq_band_1", true)]
+    [InlineData("mic_monitoring", true)]
+    [InlineData("firmware_version", true)]
+    public void AnAtlasAirShowsOnlyTheSettingsOfItsFunctions(string setting, bool shown) =>
+        Assert.Equal(shown, HeadsetModels.Shows(HeadsetModels.AtlasAir, setting));
+
+    [Fact]
+    public void BeforeAHeadsetIsKnownEverythingIsShown() =>
+        Assert.True(HeadsetModels.Shows(null, "superhuman_hearing"));
 
     [Theory]
     [InlineData("Speakers (Stealth Pro II Xbox Headset)", true)]

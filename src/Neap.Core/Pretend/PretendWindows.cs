@@ -30,8 +30,11 @@ public sealed class PretendWindows
     public const string OutputName = "Pretend Headset (Charging Dock)";
     public const string InputName = "Pretend Headset Microphone (Charging Dock)";
 
+    /// <summary>The device the pretend headset's sound goes through: the Charging Dock, or an Atlas Air's transmitter.</summary>
     private static readonly string Dock =
-        PretendHeadset.DockProduct.ToString("X4", CultureInfo.InvariantCulture);
+        (Environment.GetCommandLineArgs().Contains(PretendHeadset.AtlasFlag, StringComparer.OrdinalIgnoreCase)
+            ? PretendHeadset.AtlasTransmitterProduct : PretendHeadset.DockProduct)
+        .ToString("X4", CultureInfo.InvariantCulture);
 
     private readonly object _gate = new();
     private readonly Endpoint _output = new(OutputName, 45,

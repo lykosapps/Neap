@@ -3,7 +3,9 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Neap.Core;
 using Neap.Core.Connection;
+using Neap.Core.Diagnostics;
 using Neap.Core.Mix;
 
 namespace Neap.Desktop.Controls;
@@ -54,6 +56,8 @@ public partial class MixPanel : UserControl
             AppServices.Mix.Apply((int)Math.Round(args.NewValue));
         };
         Refresh.Click += (_, _) => _ = LoadCandidates();
+        KeysLink.IsVisible = AppServices.Hotkeys.Supported;
+        KeysLink.Click += (_, _) => (TopLevel.GetTopLevel(this) as MainWindow)?.Open("controls");
     }
 
     /// <summary>
@@ -157,7 +161,8 @@ public partial class MixPanel : UserControl
 
         // The wheel arrives over the very link that is missing, so the app
         // cannot fix this itself; it says what still moves the mix.
-        WheelBar.IsOpen = ExplainsWheel && chosen && (status.SettingsUnreachable || status.NoSound);
+        WheelBar.IsOpen = ExplainsWheel && chosen && (status.SettingsUnreachable || status.NoSound)
+            && HeadsetModels.Shows(AppServices.Headset.Model, Feature.ChatWheel);
         WheelBar.Message = StateCopy.MixWithoutWheel();
 
         // The chat application is playing to another device. It keeps its own

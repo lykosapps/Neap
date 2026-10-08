@@ -63,6 +63,9 @@ public static class Pretend
     /// <summary>With <see cref="Flag"/>, opens the game equaliser in parametric mode with <see cref="SampleAdjustments"/>.</summary>
     public const string ParametricFlag = "--parametric";
 
+    /// <summary>With <see cref="Flag"/>, pretends to be an Atlas Air rather than a Stealth Pro II.</summary>
+    public const string AtlasFlag = PretendHeadset.AtlasFlag;
+
     /// <summary>With <see cref="Flag"/>, finds a newer version when checking for updates.</summary>
     public const string UpdateFlag = "--update";
 
@@ -192,7 +195,7 @@ public static class Pretend
         return at >= 0 && at + 1 < args.Count ? args[at + 1] : null;
     }
 
-    public static PretendHeadset? Headset { get; } = Active ? new PretendHeadset { Refusing = Given(NoAccessFlag) } : null;
+    public static PretendHeadset? Headset { get; } = Active ? new PretendHeadset(atlas: Given(AtlasFlag)) { Refusing = Given(NoAccessFlag) } : null;
 
     public static PretendWindows? Windows { get; } = Active ? new PretendWindows() : null;
 

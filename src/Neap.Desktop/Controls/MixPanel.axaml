@@ -124,5 +124,11 @@
             </StackPanel>
         </Expander>
 
+        <!--
+            The keys move the mix as the chat wheel does, and are a headset's only
+            way to do it without one, so the mix links to where they are set.
+        -->
+        <Button x:Name="KeysLink" loc:Uid.Value="Mix_KeysLink" />
+
     </StackPanel>
 </UserControl>

@@ -7,6 +7,12 @@ to GitHub, these become issues.
 
 ## Next, after 0.2.0 (released 8 October)
 
+- **Before the next public release: the Atlas Air carries only what its
+  tester confirmed.** Its test build has every function, writes included
+  (see DECISIONS.md). Before a release, set its list of functions, and
+  whether its settings may be changed, to what the tester confirmed on
+  GitHub issue 1.
+
 - **Screen reader on both systems.** Narrator on Windows and Orca on Linux
   have not been run on the new app.
 - **The Linux AppImage on more than the Steam Deck.** GitHub builds it and the

@@ -21,6 +21,26 @@
   muted say, and the profile flickers, or a call app records from a program
   with a different name from the one assigned.
 
+## 2026-10-08 — A new headset's test build has every function; its release has only what was confirmed
+
+- **Options:** keep a new headset's settings read only until each is
+  confirmed; unlock only what is easy to undo; or unlock every function in
+  the build its tester tries.
+- **Chosen:** the build a tester tries has every function Neap has for that
+  headset, writes included, saving and deleting presets too, and the tester
+  reports what works. The public release carries only the functions the
+  tester confirmed; the rest are hidden or read only until they are. Each
+  headset's functions, and whether its settings may be changed, are listed in
+  one place in Core.
+- **Why:** reading a setting does not prove writing it does the same thing
+  (the Stealth Pro II accepts a mute it ignores, and ignores a write to the
+  chat wheel), so nothing unconfirmed goes to everyone. But a tester who can
+  only look cannot find what is wrong, and unlocking a function at a time
+  costs a round trip with a volunteer for each. The checklist starts by
+  asking the tester to note their own saved presets.
+- **Revisit when** a test build harms a tester's headset or settings, or a
+  headset has more than one tester.
+
 ## 2026-10-08 — The battery readings are shown as the hardware can be trusted
 
 - **Options:** show whatever each device reports; smooth it in the app; or show

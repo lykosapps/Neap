@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Neap.Core;
 using Neap.Core.Protocol;
 using Neap.Core.Settings;
 
@@ -45,6 +46,10 @@ public partial class DevicePage : UserControl
     /// </remarks>
     private void PaintRaw()
     {
+        // The ring is the Charging Dock's, so it goes with CrossPlay.
+        KeepRingCard.IsVisible = AppServices.Ring.Supported && HeadsetModels.ShowsCrossPlay(AppServices.Headset.Model);
+        Formats.IsVisible = AudioFormats.Supported || KeepRingCard.IsVisible;
+
         var values = AppServices.Headset.Values;
         if (RawRows.Children.Count != values.Count) RawRows.Children.Clear();
 

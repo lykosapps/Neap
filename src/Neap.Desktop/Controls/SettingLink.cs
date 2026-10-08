@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Neap.Core;
 using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
@@ -15,6 +16,10 @@ namespace Neap.Desktop.Controls;
 /// Loaded at the new place before Unloaded at the old one, so an Unloaded
 /// while still loaded is ignored; otherwise the control stops listening for
 /// good and misses the headset's own buttons.
+/// </para>
+/// <para>
+/// A setting for a function the connected headset doesn't have is hidden, with
+/// the control around it; see <see cref="HeadsetModels.Shows(HeadsetModel?, string)"/>.
 /// </para>
 /// <para>
 /// A name the registry does not know is a mistake in a page, so it is logged
@@ -96,6 +101,7 @@ internal sealed class SettingLink
 
     private void Paint()
     {
+        if (Key is not null) _owner.IsVisible = HeadsetModels.Shows(AppServices.Headset.Model, Key.Name);
         Painting = true;
         try { _paint(); }
         finally { Painting = false; }

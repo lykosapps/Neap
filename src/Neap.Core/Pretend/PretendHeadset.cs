@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using Neap.Core.Connection;
+using Neap.Core.Diagnostics;
 using Neap.Core.Hid;
 using Neap.Core.Presets;
 using Neap.Core.Protocol;
@@ -50,6 +51,11 @@ public sealed class PretendHeadset : IDeviceSource
     public const ushort DockProduct = 0x229B;
     public const ushort TransmitterProduct = 0x229D;
     public const ushort HeadsetProduct = 0x229E;
+    public const ushort AtlasTransmitterProduct = 0x225E;
+    public const ushort AtlasHeadsetProduct = 0x2260;
+
+    /// <summary>With the pretend flag, pretends to be an Atlas Air; see the constructor.</summary>
+    public const string AtlasFlag = "--atlas";
     public const string HeadsetName = "Pretend Headset";
     public const string Serial = "PRETEND-0000001";
 
@@ -89,8 +95,17 @@ public sealed class PretendHeadset : IDeviceSource
     private readonly List<PretendRefusal> _unraised = new();
     private bool _on = true;
 
-    public PretendHeadset()
+    /// <summary>The product id of the device it is opened through: the Charging Dock, or the Atlas Air's transmitter.</summary>
+    private readonly ushort _product;
+
+    /// <param name="atlas">
+    /// Be an Atlas Air, as one owner's recording showed it: through its own
+    /// transmitter, with no transmitter slots in use, and with no answer for
+    /// the 0x5xx and 0x7xx groups or for what it doesn't have.
+    /// </param>
+    public PretendHeadset(bool atlas = false)
     {
+        _product = atlas ? AtlasTransmitterProduct : DockProduct;
         _values = Defaults();
         _game[0] = new Preset(PresetStore.FirstCustomId, "Night Raid",
             new[] { 30, 20, 0, -10, 0, 10, 30, 40, 30, 20 }, Bank.Game, true);
@@ -112,6 +127,24 @@ public sealed class PretendHeadset : IDeviceSource
             ["0", "0", "0", "0", "0", "0", "0", "0", "00:00:00:00:00:00"],
         ];
         _control = [["2", "80", "60"], ["1", "100", "100"], ["0", "0", "0"], ["0", "0", "0"]];
+        if (atlas) BeAtlasAir();
+    }
+
+    private void BeAtlasAir()
+    {
+        var lacks = HeadsetCheck.Needs
+            .Where(need => !HeadsetModels.AtlasAir.Features.Contains(need.Key))
+            .SelectMany(need => need.Value)
+            .Select(name => Registry.ByName[name].Key)
+            .ToHashSet();
+        foreach (int key in _values.Keys.ToList())
+            if (lacks.Contains(key) || key >> 8 is 0x5 or 0x7) _values.Remove(key);
+        _values[0x110] = AtlasHeadsetProduct.ToString("X4", CultureInfo.InvariantCulture);
+        for (int slot = 0; slot < _info.Length; slot++)
+        {
+            _info[slot] = ["0", "0", "0", "0", "0", "0", "0", "0", "00:00:00:00:00:00"];
+            _control[slot] = ["0", "0", "0"];
+        }
     }
 
     /// <summary>A frame was refused. Raised on the thread that sent it.</summary>
@@ -224,7 +257,7 @@ public sealed class PretendHeadset : IDeviceSource
     // -- the device source -------------------------------------------------
 
     public IReadOnlyList<HidDeviceInfo> Candidates() =>
-        [new HidDeviceInfo("pretend:229B", HidControl.VendorId, DockProduct,
+        [new HidDeviceInfo($"pretend:{_product:X4}", HidControl.VendorId, _product,
             HidControl.UsagePage, Frames.ReportLength, 0, Frames.ReportLength)];
 
     /// <summary>Whether opening the dock is refused, as Linux does until its udev rule is in place.</summary>
@@ -232,7 +265,7 @@ public sealed class PretendHeadset : IDeviceSource
 
     public IHidTransport Open(HidDeviceInfo device) =>
         Refusing ? throw new AccessDeniedException("pretend: no permission to open the dock")
-        : device.ProductId == DockProduct
+        : device.ProductId == _product
             ? new Link(this)
             : throw new TransportException($"no pretend device 0x{device.ProductId:x4}");
 
@@ -242,9 +275,9 @@ public sealed class PretendHeadset : IDeviceSource
     /// <summary>One open handle on the dock. Closing it leaves the headset as it was.</summary>
     private sealed class Link(PretendHeadset headset) : IHidTransport
     {
-        public ushort ProductId => DockProduct;
+        public ushort ProductId => headset._product;
 
-        public string Describe() => $"pretend 0x{HidControl.VendorId:x4}:0x{DockProduct:x4}";
+        public string Describe() => $"pretend 0x{HidControl.VendorId:x4}:0x{headset._product:x4}";
 
         public void SendOutput(ReadOnlySpan<byte> report) => headset.Receive(report);
 

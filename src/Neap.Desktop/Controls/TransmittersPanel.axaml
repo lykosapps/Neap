@@ -10,7 +10,7 @@
     -->
     <StackPanel>
         <TextBlock loc:Uid.Value="Transmitters_Heading" Classes="sectionheader" />
-        <TextBlock loc:Uid.Value="Transmitters_Note" Classes="sectionnote" />
+        <TextBlock x:Name="CrossPlayNote" loc:Uid.Value="Transmitters_Note" Classes="sectionnote" />
         <StackPanel Spacing="12">
             <ContentPresenter x:Name="InUse" />
             <Grid

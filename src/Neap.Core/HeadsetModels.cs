@@ -8,10 +8,11 @@ namespace Neap.Core;
 /// <param name="Name">The name on the box, for what a person reads.</param>
 /// <param name="SoundName">The words its speakers and microphone carry in their names on the PC, lowercase.</param>
 /// <param name="Writable">Whether changing its settings has been confirmed on the headset; until it has, Neap only reads them.</param>
+/// <param name="CrossPlay">Whether it pairs with several transmitters, a Charging Dock among them, and switches between them with its CrossPlay button.</param>
 /// <param name="Hardware">Its headset, docks and transmitters, by USB product id.</param>
 /// <param name="Features">What it has of what Neap does.</param>
 public sealed record HeadsetModel(
-    string Name, string SoundName, bool Writable,
+    string Name, string SoundName, bool Writable, bool CrossPlay,
     IReadOnlyDictionary<string, Piece> Hardware, IReadOnlySet<Feature> Features);
 
 /// <summary>The headsets Neap knows.</summary>
@@ -33,7 +34,7 @@ public static class HeadsetModels
     /// </para>
     /// </remarks>
     public static readonly HeadsetModel StealthProII = new(
-        "Stealth Pro II", "stealth pro", Writable: true,
+        "Stealth Pro II", "stealth pro", Writable: true, CrossPlay: true,
         new Dictionary<string, Piece>(StringComparer.OrdinalIgnoreCase)
         {
             // Xbox, black
@@ -55,13 +56,14 @@ public static class HeadsetModels
         },
         Enum.GetValues<Feature>().ToHashSet());
 
-    /// <summary>The Atlas Air, known from one owner's recording and its product page.</summary>
+    /// <summary>The Atlas Air, known from one owner's recording and its product page, in testing.</summary>
     /// <remarks>
     /// <para>
     /// Its transmitter is 225E and the headset reports itself as 2260, from a
     /// recording an owner sent. It answered for the same settings, under the
-    /// same keys, as the Stealth Pro II, so its values are read as the Stealth
-    /// Pro II's. Nothing is written until an owner confirms what each one does.
+    /// same keys, as the Stealth Pro II, so its values are read and written as
+    /// the Stealth Pro II's. Every function is on while its tester confirms each
+    /// one; a public release carries only those confirmed, as DECISIONS.md says.
     /// </para>
     /// <para>
     /// It has Superhuman Hearing, by its product page, but gave no answer for
@@ -70,7 +72,7 @@ public static class HeadsetModels
     /// </para>
     /// </remarks>
     public static readonly HeadsetModel AtlasAir = new(
-        "Atlas Air", "atlas air", Writable: false,
+        "Atlas Air", "atlas air", Writable: true, CrossPlay: false,
         new Dictionary<string, Piece>(StringComparer.OrdinalIgnoreCase)
         {
             ["225E"] = Piece.Transmitter,
@@ -92,6 +94,17 @@ public static class HeadsetModels
     /// <summary>Whether a speaker or microphone's name holds any of the fragments in <paramref name="match"/>, apart by |.</summary>
     public static bool SoundMatches(string name, string match = SoundNames) =>
         match.Split('|').Any(part => name.Contains(part, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>Whether a function is shown for a headset: any is while the headset is not known, as it was before Neap knew more than one.</summary>
+    public static bool Shows(HeadsetModel? model, Feature feature) =>
+        model is null || model.Features.Contains(feature);
+
+    /// <summary>Whether what goes with CrossPlay is shown: the dock, its ring and switching transmitters; see <see cref="HeadsetModel.CrossPlay"/>.</summary>
+    public static bool ShowsCrossPlay(HeadsetModel? model) => model is null || model.CrossPlay;
+
+    /// <summary>Whether a setting is shown for a headset: one that belongs to no function always is; see <see cref="HeadsetCheck.Needs"/>.</summary>
+    public static bool Shows(HeadsetModel? model, string setting) =>
+        HeadsetCheck.Needs.Where(need => need.Value.Contains(setting)).All(need => Shows(model, need.Key));
 
     /// <summary>The headset a piece of hardware belongs to, by its USB product id, or null for one Neap does not know.</summary>
     public static HeadsetModel? Of(ushort product) =>

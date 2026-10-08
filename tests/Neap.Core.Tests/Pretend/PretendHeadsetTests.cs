@@ -209,6 +209,18 @@ public class PretendHeadsetTests
     }
 
     [Fact]
+    public void AnAtlasAirIsFoundBehindItsOwnTransmitterAndSaysWhatItIs()
+    {
+        using var client = HeadsetClient.Behind(allowWrites: _ => false, out _, devices: new PretendHeadset(atlas: true));
+
+        Assert.Equal(PretendHeadset.AtlasTransmitterProduct, client!.ProductId);
+        var everything = client.ReadAll();
+        Assert.Equal("2260", everything["110"].GetString());
+        Assert.DoesNotContain(everything.Keys, key => key.Length == 3 && key[0] is '5' or '7');
+        Assert.Contains("1220", everything.Keys);
+    }
+
+    [Fact]
     public void SwitchedOffTheDockIsPresentAndNothingAnswers()
     {
         var headset = new PretendHeadset { On = false };

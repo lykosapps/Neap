@@ -2,7 +2,9 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Neap.Core;
 using Neap.Core.Connection;
+using Neap.Core.Diagnostics;
 using Neap.Core.Presets;
 using Neap.Core.Settings;
 using Path = Avalonia.Controls.Shapes.Path;
@@ -91,6 +93,7 @@ public partial class QuickSettings : UserControl
     private void PaintNoise()
     {
         var mode = AppServices.Noise.Mode;
+        NoiseTile.IsVisible = HeadsetModels.Shows(AppServices.Headset.Model, Feature.NoiseControl);
         NoiseTile.IsEnabled = AppServices.Noise.CanChoose;
         NoiseTile.IsChecked = mode is not null and not NoiseMode.Off;
         NoiseWord.Text = mode is NoiseMode known ? Strings.Get(NoiseModeWord(known)) : Strings.Get("Reading_None");

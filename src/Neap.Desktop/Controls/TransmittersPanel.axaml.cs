@@ -3,7 +3,9 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Neap.Core;
 using Neap.Core.Connection;
+using Neap.Core.Diagnostics;
 using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
@@ -75,6 +77,7 @@ public partial class TransmittersPanel : UserControl
 
         // Nothing plugged in is said once, at the top of the page.
         IsVisible = !(status.SettingsUnreachable || status.Link == Link.Absent);
+        CrossPlayNote.IsVisible = HeadsetModels.ShowsCrossPlay(AppServices.Headset.Model);
 
         InUse.Content = null;
         Others.Children.Clear();
@@ -91,7 +94,8 @@ public partial class TransmittersPanel : UserControl
         var others = new List<Control>();
         foreach (var row in rows)
         {
-            if (row.State == TransmitterState.InUse) InUse.Content = Panel(row, LightsPanel(TransmitterLights.For(status)));
+            if (row.State == TransmitterState.InUse) InUse.Content = Panel(row, LightsPanel(
+                HeadsetModels.Shows(AppServices.Headset.Model, Feature.Lights) ? TransmitterLights.For(status) : LightSet.None));
             else others.Add(Panel(row, null));
         }
         if (rows.Count == 0) others.Add(Note(Strings.Get("Transmitters_None")));

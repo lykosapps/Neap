@@ -132,6 +132,9 @@
   <data name="Mix_Chat.Text" xml:space="preserve">
     <value>Chat</value>
   </data>
+  <data name="Mix_KeysLink.Content" xml:space="preserve">
+    <value>Keyboard shortcuts</value>
+  </data>
   <data name="Mix_KeysCard.Description" xml:space="preserve">
     <value>Move the mix while you play.</value>
   </data>

@@ -35,6 +35,7 @@
                     <TextBlock loc:Uid.Value="Controls_FixedHeading" Classes="sectionheader" />
                     <Border Classes="card">
                         <Grid
+                            x:Name="FixedGrid"
                             ColumnDefinitions="Auto,*"
                             ColumnSpacing="24"
                             RowDefinitions="Auto,Auto,Auto,Auto"
@@ -54,19 +55,23 @@
                                 Grid.Column="1"
                                 Classes="secondary" />
                             <TextBlock
+                                x:Name="CrossPlay"
                                 loc:Uid.Value="Controls_CrossPlay"
                                 Grid.Row="2"
                                 Classes="bodystrong" />
                             <TextBlock
+                                x:Name="CrossPlayDoes"
                                 loc:Uid.Value="Controls_CrossPlayDoes"
                                 Grid.Row="2"
                                 Grid.Column="1"
                                 Classes="secondary" />
                             <TextBlock
+                                x:Name="BluetoothButton"
                                 loc:Uid.Value="Controls_BluetoothButton"
                                 Grid.Row="3"
                                 Classes="bodystrong" />
                             <TextBlock
+                                x:Name="BluetoothButtonDoes"
                                 loc:Uid.Value="Controls_BluetoothButtonDoes"
                                 Grid.Row="3"
                                 Grid.Column="1"
