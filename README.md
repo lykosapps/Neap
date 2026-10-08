@@ -66,8 +66,11 @@ then goes back to your default when it closes.
 
 ### The Charging Dock
 
-See the spare battery's charge while the headset is docked, set the
-brightness of both lights, and choose the audio format. Neap can also put
+See the headset's battery and whether the spare in the dock is charging,
+set the brightness of both lights, and choose the audio format. The dock's
+level is only reliable once the spare is full, so while it charges Neap says
+so with a bolt instead of a number, and a battery just put in the headset
+reads "Settling…" until its reading steadies. Neap can also put
 the dock back into high-resolution audio after an app has used the
 microphone.
 
