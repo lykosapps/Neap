@@ -9,6 +9,13 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
+## Unreleased
+
+### Fixed
+
+- What's new wraps its text, so no line is cut off at the edge, and leaves
+  out the install steps, which are for someone downloading Neap by hand.
+
 ## 0.2.1 — 2026-10-08
 
 **A small fix.**

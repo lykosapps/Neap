@@ -151,9 +151,13 @@ public static class Pretend
     private const string SampleNotes = """
         **A sample release.** Its notes read as a real one's do, with a [link](https://github.com/lykosapps/Neap/releases).
 
-        ### Install
+        ### Install on Windows
 
         1. Download the zip below.
+
+        ### Install on Linux
+
+        1. Download the AppImage below.
 
         ### First thing
 

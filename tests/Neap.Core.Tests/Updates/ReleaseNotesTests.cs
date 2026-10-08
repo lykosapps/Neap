@@ -10,10 +10,14 @@ public class ReleaseNotesTests
 
         To update from 0.1.0, quit Neap.
 
-        ### Install
+        ### Install on Windows
 
         1. Download **Neap-0.2.0-win-x64.zip** below.
         2. Unzip it and run **Neap.exe**.
+
+        ### Install on Linux
+
+        1. Download **Neap-0.2.0-x86_64.AppImage** below, make it runnable, and run it.
 
         ### Updates
 
@@ -42,6 +46,7 @@ public class ReleaseNotesTests
         var all = string.Concat(Read(Notes).Select(Words));
 
         Assert.DoesNotContain("Unzip", all, StringComparison.Ordinal);
+        Assert.DoesNotContain("AppImage", all, StringComparison.Ordinal);
         Assert.DoesNotContain("Install", all, StringComparison.Ordinal);
     }
 
@@ -112,6 +117,7 @@ public class ReleaseNotesTests
     [InlineData("")]
     [InlineData("   \n\n  ")]
     [InlineData("### Install\n\n1. Download it.")]
+    [InlineData("### Install on Windows\n\n1. Download it.")]
     public void NothingToReadGivesNoBlocks(string body)
     {
         Assert.Empty(Read(body));

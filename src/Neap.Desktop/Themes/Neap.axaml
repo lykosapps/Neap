@@ -276,14 +276,15 @@
         <Setter Property="Foreground" Value="{DynamicResource NeapTextBrush}" />
     </Style>
 
-    <Style Selector="TextBlock">
+    <!-- A selectable text block is a text block too, but a style for one does not reach the other. -->
+    <Style Selector="TextBlock, SelectableTextBlock">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
     <Style Selector="TextBlock.caption">
         <Setter Property="FontSize" Value="12" />
     </Style>
-    <Style Selector="TextBlock.bodystrong">
+    <Style Selector="TextBlock.bodystrong, SelectableTextBlock.bodystrong">
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
     <Style Selector="TextBlock.bodylarge">

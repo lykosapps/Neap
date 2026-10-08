@@ -21,7 +21,8 @@ public sealed record NoteBlock(NoteKind Kind, IReadOnlyList<NoteSpan> Spans);
 /// <remarks>
 /// <para>
 /// The release page's notes are the version's section of the changelog with
-/// the install steps added, in Markdown. The install steps are for someone
+/// the install steps added, in Markdown, under a heading for each system:
+/// Install on Windows, Install on Linux. The install steps are for someone
 /// downloading by hand, so they are left out here: the person reading is
 /// already running Neap.
 /// </para>
@@ -33,7 +34,7 @@ public sealed record NoteBlock(NoteKind Kind, IReadOnlyList<NoteSpan> Spans);
 /// </remarks>
 public static partial class ReleaseNotes
 {
-    /// <summary>The heading of the section left out.</summary>
+    /// <summary>The first word of the headings of the sections left out.</summary>
     private const string InstallHeading = "Install";
 
     /// <summary>Reads the notes. An empty or unreadable body gives no blocks.</summary>
@@ -59,7 +60,7 @@ public static partial class ReleaseNotes
             {
                 EndParagraph();
                 string text = heading.Groups[1].Value.Trim();
-                skipping = text.Equals(InstallHeading, StringComparison.OrdinalIgnoreCase);
+                skipping = text.Split(' ')[0].Equals(InstallHeading, StringComparison.OrdinalIgnoreCase);
                 if (!skipping) blocks.Add(new(NoteKind.Heading, Spans(text)));
             }
             else if (skipping)
