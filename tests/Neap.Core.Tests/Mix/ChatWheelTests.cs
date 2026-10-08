@@ -146,6 +146,18 @@ public class ChatWheelTests
         Assert.Equal(next, ChatWheel.Follow(mix, new WheelStep(from, to)));
 
     [Theory]
+    [InlineData(50, 90, 95, 60)]
+    [InlineData(50, 10, 5, 40)]
+    public void WithTheCountFarAheadTheMixMovesAtMostTwiceAsFar(int mix, int from, int to, int next) =>
+        Assert.Equal(next, ChatWheel.Follow(mix, new WheelStep(from, to)));
+
+    [Theory]
+    [InlineData(60, 95, 100, 100)]
+    [InlineData(40, 5, 0, 0)]
+    public void TheStepOntoTheCountsEndTakesTheMixTheRestOfTheWay(int mix, int from, int to, int next) =>
+        Assert.Equal(next, ChatWheel.Follow(mix, new WheelStep(from, to)));
+
+    [Theory]
     [InlineData(0, 5, 55)]
     [InlineData(100, 95, 45)]
     public void FromCentreANotchMovesAWholeNotch(int from, int to, int next) =>

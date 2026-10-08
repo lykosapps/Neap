@@ -144,8 +144,15 @@ public sealed class ChatWheel(Func<TimeSpan> clock)
     /// <para>
     /// So each step covers the same share of what is left. Turning toward game
     /// moves the mix by the fraction of the remaining count just travelled;
-    /// the same toward chat. Both arrive at the end together, with no jump, and
-    /// once the two agree this is exactly the difference.
+    /// the same toward chat. Both arrive at the end together, and once the two
+    /// agree this is exactly the difference.
+    /// </para>
+    /// <para>
+    /// With the count far ahead of the mix, that share races: the centre detent
+    /// holds the mix while the count carries on, and with the count at 90 and
+    /// the mix at 50 a step of five moved the mix 25. So the mix moves at most
+    /// twice as far as the count, and the step onto the count's end takes it
+    /// the rest of the way.
     /// </para>
     /// <para>
     /// From centre, a step moves the mix at least a whole notch. A smaller
@@ -162,11 +169,19 @@ public sealed class ChatWheel(Func<TimeSpan> clock)
             ? (from <= 0 ? mix : mix * (double)to / from)
             : (from >= 100 ? mix : 100 - (100 - mix) * (100.0 - to) / (100 - from));
         int followed = (int)Math.Round(Math.Clamp(next, 0, 100));
+        if (to is not (0 or 100))
+        {
+            int most = MostPerPoint * Math.Abs(to - from);
+            followed = Math.Clamp(followed, mix - most, mix + most);
+        }
         if (mix != 50 || to == from) return followed;
         return to > from
             ? Math.Max(followed, 50 + LeaveCentre)
             : Math.Min(followed, 50 - LeaveCentre);
     }
+
+    /// <summary>The most the mix moves for each point the count moves, short of the count's ends.</summary>
+    private const int MostPerPoint = 2;
 
     /// <summary>The least a step from centre moves the mix: just past the detent.</summary>
     private const int LeaveCentre = MixDetent.Width + 1;
