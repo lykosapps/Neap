@@ -1,5 +1,48 @@
 # Decisions
 
+## 2026-10-08 — The battery readings are shown as the hardware can be trusted
+
+- **Options:** show whatever each device reports; smooth it in the app; or show
+  a word where the number cannot be trusted.
+- **Chosen:** the spare in the Charging Dock shows a bolt and "Charging" until
+  it reports full; the headset's own reading shows "Settling…" while it falls
+  more than two points in five minutes off power. No bar is drawn without a
+  level, since an empty bar reads as empty. Every reading is written to the app
+  log with the one before it.
+- **Why:** measured with a real swap (FINDINGS.md): the dock's figure is stale
+  after a swap and runs high and uneven while charging, and the headset's falls
+  fast for some minutes after a battery goes in. Smoothing would hide real
+  changes, and no other value the headset reports moves with it.
+- **Revisit when** the log shows how long settling really takes over several
+  swaps, or the headset's charging flag is seen on its USB-C cable.
+
+## 2026-10-08 — The first public release of this work is 0.2.0, not 0.3.0
+
+- **Chosen:** 0.2.0, with the Linux work and the earlier 0.2.0 features in one
+  set of notes, opening with highlights and a how-to-update section.
+- **Why:** GitHub only ever had 0.1.0; the earlier local 0.2.0 tag was never
+  pushed, so no one had seen 0.2.0 and skipping to 0.3.0 would skip a number
+  nobody had. That tag was deleted and recreated on the final commit.
+
+## 2026-10-08 — Animation is brief, follows Windows' setting, and never loops
+
+- **Chosen:** a page changing fades up over a fifth of a second and a drop-down
+  or menu fades in over an eighth. Both are off when Windows' "Show animations"
+  is off; elsewhere they are on. A charging battery is not animated.
+- **Why:** the old toolkit gave these for free and the new one does not. An
+  endless animation would need a way to stop it to meet WCAG 2.2.2, and the
+  toolkit cannot read the reduce-motion setting on Linux.
+
+## 2026-10-08 — An agent may run the real app against the real headset for the release checks
+
+- **Chosen:** `tools/ui/run.ps1 hardware` drives the real app and reads the
+  headset back with the probe, stopping the owner's own copy for the run and
+  putting it, and the sign-in shortcut, back after. Only with the owner away,
+  since windows come to the front.
+- **Why:** it found a real fault pretend mode could not (choosing Off with the
+  Mode button cycling stepped on to transparency). What needs hands or ears
+  stays by hand: see BACKLOG.md.
+
 ## 2026-10-07 — One app for Windows and Linux, rebuilt on Avalonia
 
 - **Options:** keep the WinUI app and write a second one for Linux; one Avalonia

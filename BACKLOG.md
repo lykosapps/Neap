@@ -5,6 +5,26 @@ and the commit that did it says so. Each line says what is wrong or wanted,
 not how to fix it. Items needing the headset say so. When the project moves
 to GitHub, these become issues.
 
+## Next, after 0.2.0 (released 8 October)
+
+- **Screen reader on both systems.** Narrator on Windows and Orca on Linux
+  have not been run on the new app.
+- **The Linux AppImage on more than the Steam Deck.** GitHub builds it and the
+  tests pass on Linux, but it was last run by hand before the late interface
+  changes. Other distributions and a Wayland-only desktop are untested.
+- **Seen on screen, not yet:** the drop-down fade, the flyout lists on the
+  profile bar and spatial sound after their fix, the low, charging and weaker
+  signal colours on Home, and the narrowest layout with the menu folded.
+- **Settling time.** After a few more battery swaps, read the app log's
+  battery lines and tighten the rule that shows "Settling…". Also see the
+  headset's own bolt on its USB-C cable.
+- **Interface leftovers.** The New profile button could sit at the right and
+  drop under the note in a narrow window; the Default profile row has a few
+  pixels more room below its drop-down than above it; Delete on a profile is
+  not drawn as destructive.
+- **Updating from 0.1.0 and from 0.2.0 on an installed copy** has not been
+  run against a real release; the first update will be the test.
+
 ## Bugs
 
 - The chat mix does not move when the wheel is turned, on the Windows app,
