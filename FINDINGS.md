@@ -587,7 +587,9 @@ live only in Swarm II's own `STEALTH_PRO_II.ini` *(research)*.
   overlay with nothing running. Hiding the overlay would mean swallowing
   every volume key on the machine, or a signed HID filter driver.
 - **The chat wheel** reports on the control channel, as `0x510`, through the
-  transmitter carrying the headset's settings.
+  transmitter carrying the headset's settings. Turned slowly it reports each
+  notch, five apart; turned fast it reports about every half second, in jumps
+  of 20 to 30 (40 straight to 70, 70 to 40, 35 to 65) *(measured)*.
 - **The Bluetooth button** drives the headset's own radio and sends nothing
   to the PC, short or long press. It is not remappable.
 
@@ -675,6 +677,26 @@ A leftover of Swarm II's Waves driver stays on the headset's output after
 the driver is removed: Waves MaxxAudio named as its effects, pointing at
 components no longer registered. Windows offers no Audio enhancements
 switch for it, so it is taken to be inert *(measured)*.
+
+### The headset sleeps after seven seconds of quiet
+
+After about seven seconds with nothing to play, the start of the next sound
+is lost: the headset side wakes on sound, not on digital silence, and drops
+what plays while it wakes. Windows is not what sleeps; a stream held open
+playing silence did not help, and only sound did *(measured)*.
+
+Twelve rounds of two plain beeps a second apart, each on a freshly opened
+stream, after a quiet spell, with the owner saying which they heard
+*(measured)*:
+
+| Quiet before | Rounds | First beep | Second beep |
+|---|---|---|---|
+| 3.1 to 6.8 s | 4 | heard every time | heard every time |
+| 7.5 to 31.8 s | 8 | lost every time | heard every time |
+
+A hiss too quiet to hear before a beep wakes it: 100 ms clipped the start of
+the beep, 200 ms and 300 ms did not *(measured)*. Played without a break, the
+same hiss could be heard in a quiet room *(confirmed by the owner)*.
 
 ### Core Audio
 

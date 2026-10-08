@@ -116,8 +116,7 @@ public abstract class MixHotkeys : IHotkeys
 
     /// <summary>
     /// Move the mix one step. It goes through <see cref="MixService.Apply"/>,
-    /// so a press lands in the centre detent exactly as the wheel does,
-    /// including its cue.
+    /// so a press lands in the centre detent, cue included.
     /// </summary>
     private void Move(MixKey which)
     {

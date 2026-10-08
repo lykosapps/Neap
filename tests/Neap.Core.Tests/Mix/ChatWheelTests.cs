@@ -159,9 +159,13 @@ public class ChatWheelTests
         // The count reads 0 after the headset is switched on, so turning toward
         // chat from there covers the smallest share of what is left.
         int count = notch > 0 ? 0 : 100;
-        var snap = MixDetent.Apply(ChatWheel.Follow(50, new WheelStep(count, count + notch)), previous: 50, held: true);
+        var now = TimeSpan.Zero;
+        var detent = new MixDetent(() => now);
+        detent.Apply(50, previous: 45, wheel: true);
+        now = MixDetent.Stick;
+
+        var snap = detent.Apply(ChatWheel.Follow(50, new WheelStep(count, count + notch)), previous: 50, wheel: true);
 
         Assert.NotEqual(50, snap.Value);
-        Assert.False(snap.Held);
     }
 }

@@ -33,14 +33,16 @@ public sealed class MixService : IDisposable
 
     private readonly ChatWheel _wheel;
 
+    private readonly MixDetent _detent;
+
     private IMixEngine? _mix;
     private int? _lastApplied;
-    private bool _detentHeld;
 
     public MixService(HeadsetService headset)
     {
         var running = Stopwatch.StartNew();
         _wheel = new ChatWheel(() => running.Elapsed);
+        _detent = new MixDetent(() => running.Elapsed);
         _headset = headset;
         _headset.WheelMoved += OnWheel;
         _headset.StatusChanged += OnLink;
@@ -117,29 +119,31 @@ public sealed class MixService : IDisposable
 
     // -- setting the mix ---------------------------------------------------
 
-    /// <summary>
-    /// Set the mix. The one path both the dial and the wheel take, so the
-    /// detent behaves identically whichever moved it.
-    /// </summary>
+    /// <summary>Set the mix from the dial or the keys.</summary>
     /// <param name="value">The mix wanted, 0 to 100.</param>
     /// <param name="why">
     /// What moved it, for the log, so a mix that moves with nobody touching
     /// anything can be traced to its cause.
     /// </param>
     /// <returns>The mix applied, or null when the mix is not running.</returns>
-    public int? Apply(int value, string why = "dial")
+    public int? Apply(int value, string why = "dial") => Move(value, why, wheel: false);
+
+    /// <summary>
+    /// Set the mix. The one path the dial, the keys and the wheel all take, so
+    /// all of them land in the centre detent and sound its cue.
+    /// </summary>
+    private int? Move(int value, string why, bool wheel)
     {
         int want = Math.Clamp(value, 0, 100);
         int? previous = _lastApplied;
 
-        var snap = MixDetent.Apply(want, previous, _detentHeld);
-        _detentHeld = snap.Held;
+        var snap = _detent.Apply(want, previous, wheel);
 
         var engine = _mix;
         if (engine is null) return null;
 
         int applied = engine.SetMix(snap.Value);
-        Cue(beep: snap.Cue && applied == 50);
+        if (snap.Cue && applied == 50) PlayCentreCue();
         // Said as it happens, so a beep someone expected can be told from one never asked for.
         if (previous is int was && (was - 50) * (applied - 50) < 0)
             AppLog.Write(FormattableString.Invariant($"mix: passed centre from {was} to {applied} in one step, too far to stop ({why})"));
@@ -211,7 +215,7 @@ public sealed class MixService : IDisposable
             AppLog.Write(FormattableString.Invariant(
                 $"mix: the wheel read {doubted} straight after rest; held until the next reading confirms it"));
         if (step is WheelStep moved && _mix is not null)
-            Apply(ChatWheel.Follow(Mix, moved), FormattableString.Invariant($"wheel {moved.From}->{moved.To}"));
+            Move(ChatWheel.Follow(Mix, moved), FormattableString.Invariant($"wheel {moved.From}->{moved.To}"), wheel: true);
     }
 
     private void OnLink(HeadsetStatus status) => _wheel.Link(status);
@@ -265,28 +269,18 @@ public sealed class MixService : IDisposable
 
     // -- the centre cue ----------------------------------------------------
 
-    /// <summary>
-    /// Readies the beep on any move and plays it on reaching centre; see
-    /// <see cref="CentreCue"/>.
-    /// </summary>
-    private static void Cue(bool beep) => Task.Run(() =>
+    /// <summary>A short, soft beep on reaching centre; see <see cref="CentreCue"/>.</summary>
+    private static void PlayCentreCue() => Task.Run(() =>
     {
         // A pretend run plays nothing: the real headset may be on
         // somebody's head.
         if (Pretend.Active)
         {
-            if (beep) AppLog.Write("mix: centre cue, not played on a pretend run");
+            AppLog.Write("mix: centre cue, not played on a pretend run");
             return;
         }
-        if (beep)
-        {
-            AppLog.Write("mix: centre cue");
-            CentreCue.Play();
-        }
-        else
-        {
-            CentreCue.Wake();
-        }
+        AppLog.Write("mix: centre cue");
+        CentreCue.Play();
     });
 
     public void Dispose()

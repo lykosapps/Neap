@@ -6,88 +6,77 @@ public class CentreCueTests
 {
     private const int Rate = 48000;
 
-    private static readonly int Awake = (int)(Rate * CueSound.WakeSeconds);
-
-    private static readonly int BeepLength = CentreCue.Beep(Rate).Length;
-
-    private static float[] Read(CueSound sound, int frames, int channels = 1)
+    private static float[] Floats(byte[] bytes)
     {
-        var samples = new float[frames * channels];
-        Assert.Equal(samples.Length, sound.Read(samples));
+        var samples = new float[bytes.Length / sizeof(float)];
+        Buffer.BlockCopy(bytes, 0, samples, 0, bytes.Length);
         return samples;
     }
 
-    private static bool Heard(IEnumerable<float> samples) => samples.Any(s => Math.Abs(s) > 0.01f);
-
     [Fact]
-    public void WithNoBeepAskedForItIsAHissThatIsNotSilenceAndTooQuietToHear()
+    public void TheWindowsBeepIsMadeInTheDevicesOwnFormat()
     {
-        var samples = Read(new CueSound(Rate, 1), Rate);
+        var samples = Floats(CentreCue.FloatTone(Rate, 2, wake: true));
 
-        Assert.Contains(samples, sample => sample != 0);
-        Assert.InRange(samples.Max(Math.Abs), 0f, CueSound.HissLevel);
+        Assert.Equal(0, samples.Length % 2);
+        Assert.InRange(samples.Max(Math.Abs), 0.2f, 0.26f);
     }
 
     [Fact]
-    public void ABeepOnALineJustOpenedWaitsForTheHissToWakeTheLink()
+    public void EveryChannelGetsTheSameBeep()
     {
-        var sound = new CueSound(Rate, 1);
-        sound.Beep();
-
-        var samples = Read(sound, Awake + BeepLength);
-
-        Assert.False(Heard(samples.Take(Awake)));
-        Assert.True(Heard(samples.Skip(Awake)));
-    }
-
-    [Fact]
-    public void ABeepOnALineAlreadyAwakePlaysAtOnce()
-    {
-        var sound = new CueSound(Rate, 1);
-        Read(sound, Awake);
-        sound.Beep();
-
-        Assert.True(Heard(Read(sound, Rate / 20)));
-    }
-
-    [Fact]
-    public void TheBeepEndsAndTheHissCarriesOn()
-    {
-        var sound = new CueSound(Rate, 1);
-        Read(sound, Awake);
-        sound.Beep();
-        Read(sound, BeepLength);
-
-        var after = Read(sound, Rate);
-
-        Assert.InRange(after.Max(Math.Abs), 0f, CueSound.HissLevel);
-    }
-
-    [Fact]
-    public void EveryChannelGetsTheSameSound()
-    {
-        var sound = new CueSound(Rate, 2);
-        sound.Beep();
-
-        var samples = Read(sound, Awake + BeepLength, channels: 2);
+        var samples = Floats(CentreCue.FloatTone(Rate, 2, wake: true));
 
         for (int frame = 0; frame < samples.Length / 2; frame++)
             Assert.Equal(samples[frame * 2], samples[frame * 2 + 1]);
     }
 
     [Fact]
-    public void ItFadesInAndOutRatherThanClicking()
+    public void TheWindowsBeepIsThe16BitBeepWithAHissBeforeIt()
     {
-        var beep = CentreCue.Beep(Rate);
+        int beep = CentreCue.Tone(Rate).Length / 2;
+        int hiss = (int)(Rate * CentreCue.WakeSeconds);
 
-        Assert.InRange(beep.Max(Math.Abs), 0.2f, 0.26f);
-        Assert.True(Math.Abs(beep[0]) < 0.001f);
-        Assert.True(Math.Abs(beep[^1]) < 0.01f);
+        Assert.Equal(hiss + beep, Floats(CentreCue.FloatTone(Rate, 1, wake: true)).Length);
     }
 
     [Fact]
-    public void TheLinuxBeepIsTheSameBeepIn16Bit()
+    public void TheHissBeforeTheBeepIsNotSilenceAndTooQuietToHear()
     {
-        Assert.Equal(BeepLength * 2, CentreCue.Tone(Rate).Length);
+        var samples = Floats(CentreCue.FloatTone(Rate, 1, wake: true));
+        var hiss = samples.Take((int)(Rate * CentreCue.WakeSeconds)).ToArray();
+
+        Assert.Contains(hiss, sample => sample != 0);
+        Assert.InRange(hiss.Max(Math.Abs), 0f, 0.001f);
+    }
+
+    [Fact]
+    public void AnAwakeHeadsetGetsTheBeepAtOnce()
+    {
+        int beep = CentreCue.Tone(Rate).Length / 2;
+
+        Assert.Equal(beep, Floats(CentreCue.FloatTone(Rate, 1, wake: false)).Length);
+    }
+
+    [Fact]
+    public void SomethingPlayingKeepsTheHeadsetAwake() =>
+        Assert.False(CentreCue.Asleep(playing: true, sinceBeep: TimeSpan.FromMinutes(5)));
+
+    [Fact]
+    public void ABeepAMomentAgoKeepsTheHeadsetAwake() =>
+        Assert.False(CentreCue.Asleep(playing: false, sinceBeep: CentreCue.Awake - TimeSpan.FromMilliseconds(1)));
+
+    [Fact]
+    public void AfterAQuietSpellTheHeadsetIsAsleep() =>
+        Assert.True(CentreCue.Asleep(playing: false, sinceBeep: CentreCue.Awake));
+
+    [Fact]
+    public void ItFadesInAndOutRatherThanClicking()
+    {
+        var samples = Floats(CentreCue.FloatTone(Rate, 1, wake: true));
+        int start = (int)(Rate * CentreCue.WakeSeconds);
+
+        Assert.True(Math.Abs(samples[start]) < 0.001f);
+        Assert.True(Math.Abs(samples[^1]) < 0.01f);
     }
 }
