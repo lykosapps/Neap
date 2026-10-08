@@ -272,6 +272,7 @@ public sealed class MixService : IDisposable
             AppLog.Write("mix: centre cue, not played on a pretend run");
             return;
         }
+        AppLog.Write("mix: centre cue");
         CentreCue.Play();
     });
 
