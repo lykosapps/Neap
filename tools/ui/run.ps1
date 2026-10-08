@@ -45,7 +45,7 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 # at a time, so they never overlap.
 if ($Check -eq 'all') {
     $worst = 0
-    foreach ($name in 'banner', 'settings', 'profiles') {
+    foreach ($name in 'banner', 'notes', 'settings', 'profiles') {
         Write-Host "### $name"
         & $PSCommandPath $name -TimeoutSeconds $TimeoutSeconds
         $worst = [Math]::Max($worst, $LASTEXITCODE)

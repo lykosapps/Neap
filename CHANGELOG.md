@@ -9,13 +9,6 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
-## Unreleased
-
-### Fixed
-
-- What's new wraps its text, so no line is cut off at the edge, and leaves
-  out the install steps, which are for someone downloading Neap by hand.
-
 ## 0.2.1 — 2026-10-08
 
 **A small fix.**
@@ -32,6 +25,8 @@ and date.
 - On Windows, the beep is no longer lost after the headset has been quiet for
   a few seconds. It plays at once while anything else is playing, and a third
   of a second late after a quiet spell.
+- What's new wraps its text, so no line is cut off at the edge, and leaves
+  out the install steps, which are for someone downloading Neap by hand.
 
 ## 0.2.0 — 2026-10-08
 
