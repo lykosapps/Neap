@@ -9,7 +9,9 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
-## Unreleased
+## 0.2.1 — 2026-10-08
+
+**A small fix.**
 
 ### Fixed
 
