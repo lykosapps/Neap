@@ -37,7 +37,7 @@
                         <Grid
                             ColumnDefinitions="Auto,*"
                             ColumnSpacing="24"
-                            RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                            RowDefinitions="Auto,Auto,Auto,Auto"
                             RowSpacing="12">
                             <TextBlock loc:Uid.Value="Controls_VolumeWheel" Classes="bodystrong" />
                             <TextBlock
@@ -45,39 +45,30 @@
                                 Grid.Column="1"
                                 Classes="secondary" />
                             <TextBlock
-                                loc:Uid.Value="Controls_ChatWheel"
-                                Grid.Row="1"
-                                Classes="bodystrong" />
-                            <TextBlock
-                                loc:Uid.Value="Controls_ChatWheelDoes"
-                                Grid.Row="1"
-                                Grid.Column="1"
-                                Classes="secondary" />
-                            <TextBlock
                                 loc:Uid.Value="Controls_BoomArm"
-                                Grid.Row="2"
+                                Grid.Row="1"
                                 Classes="bodystrong" />
                             <TextBlock
                                 loc:Uid.Value="Controls_BoomArmDoes"
-                                Grid.Row="2"
+                                Grid.Row="1"
                                 Grid.Column="1"
                                 Classes="secondary" />
                             <TextBlock
                                 loc:Uid.Value="Controls_CrossPlay"
-                                Grid.Row="3"
+                                Grid.Row="2"
                                 Classes="bodystrong" />
                             <TextBlock
                                 loc:Uid.Value="Controls_CrossPlayDoes"
-                                Grid.Row="3"
+                                Grid.Row="2"
                                 Grid.Column="1"
                                 Classes="secondary" />
                             <TextBlock
                                 loc:Uid.Value="Controls_BluetoothButton"
-                                Grid.Row="4"
+                                Grid.Row="3"
                                 Classes="bodystrong" />
                             <TextBlock
                                 loc:Uid.Value="Controls_BluetoothButtonDoes"
-                                Grid.Row="4"
+                                Grid.Row="3"
                                 Grid.Column="1"
                                 Classes="secondary" />
                         </Grid>

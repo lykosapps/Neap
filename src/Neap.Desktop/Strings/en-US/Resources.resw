@@ -240,12 +240,6 @@
   <data name="Controls_VolumeWheelDoes.Text" xml:space="preserve">
     <value>Sets the volume.</value>
   </data>
-  <data name="Controls_ChatWheel.Text" xml:space="preserve">
-    <value>Chat wheel</value>
-  </data>
-  <data name="Controls_ChatWheelDoes.Text" xml:space="preserve">
-    <value>Balances game and chat.</value>
-  </data>
   <data name="Controls_BoomArm.Text" xml:space="preserve">
     <value>Boom arm</value>
   </data>

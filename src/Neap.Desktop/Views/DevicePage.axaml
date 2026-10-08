@@ -76,6 +76,8 @@
                                 <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="Transparent" />
                                 <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed" Color="Transparent" />
                                 <SolidColorBrush x:Key="ExpanderContentBackground" Color="Transparent" />
+                                <!-- The row inside has its own padding; the toolkit's would double it. -->
+                                <Thickness x:Key="ExpanderHeaderPadding">0</Thickness>
                             </Expander.Resources>
                             <Expander.Header>
                                 <c:SettingsCard
