@@ -59,6 +59,9 @@ public partial class SpatialTile : UserControl
     private readonly TextBlock _driverNote = new() { Classes = { "caption", "secondary" }, IsVisible = false };
     private readonly TextBlock _equalizerNote = new() { Classes = { "caption", "secondary" }, IsVisible = false };
     private readonly Flyout _flyout;
+
+    /// <summary>Whether a format other than Off is on, which is what the tile shows.</summary>
+    private bool _lit;
     private bool _painting;
     private string? _knownEndpointId;
     private SpatialFormat? _known;
@@ -91,7 +94,13 @@ public partial class SpatialTile : UserControl
 
         // The tile only opens the list; whether it is lit is Paint's alone,
         // from what is on, so a click here never needs to move it.
-        Face.Click += (_, _) => _flyout.ShowAt(Face);
+        // A click toggles the tile, but opening the list chooses nothing: it
+        // stays as the system has it until a format is picked.
+        Face.Click += (_, _) =>
+        {
+            Face.IsChecked = _lit;
+            _flyout.ShowAt(Face);
+        };
 
         _flyout.Opened += (_, _) => (_formats.ContainerFromIndex(Math.Max(0, _formats.SelectedIndex)) as Control)?.Focus();
         _formats.SelectionChanged += async (_, _) =>
@@ -189,7 +198,8 @@ public partial class SpatialTile : UserControl
 
             // Lit whenever anything but Off is chosen, the same as every
             // other tile that can be on.
-            Face.IsChecked = panel.Active is { } chosen && chosen != SpatialFormat.Off;
+            _lit = panel.Active is { } chosen && chosen != SpatialFormat.Off;
+            Face.IsChecked = _lit;
             Word.Text = panel.Active is { } active ? Label(active)
                 : panel.Unrecognised ? Strings.Get("Spatial_Unrecognised")
                 : Strings.Get("Reading_None");
