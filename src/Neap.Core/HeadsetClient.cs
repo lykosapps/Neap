@@ -77,7 +77,7 @@ public sealed class HeadsetClient : IDisposable
     /// while the headset is connected elsewhere.
     /// </para>
     /// </remarks>
-    /// <param name="allowWrites">Whether the returned client may write to the headset.</param>
+    /// <param name="allowWrites">Whether the returned client may write to the headset, by the product id of the device it opens.</param>
     /// <param name="present">How many candidate devices were found.</param>
     /// <param name="askLast">A product id to ask after the others, when its answer is in doubt.</param>
     /// <param name="devices">Where to look; what the operating system has when not given.</param>
@@ -87,7 +87,7 @@ public sealed class HeadsetClient : IDisposable
     /// present but none has the headset.
     /// </returns>
     /// <exception cref="DeviceNotFoundException">No candidate device is present.</exception>
-    public static HeadsetClient? Behind(bool allowWrites, out int present, ushort? askLast = null,
+    public static HeadsetClient? Behind(Func<ushort, bool> allowWrites, out int present, ushort? askLast = null,
         IDeviceSource? devices = null,
         Action<string, Exception>? failed = null)
     {
@@ -106,7 +106,7 @@ public sealed class HeadsetClient : IDisposable
                 // closed, and so is the one kept once the app lets it go. The
                 // app re-asks every device every few seconds while the
                 // headset is off, so an unowned handle leaks on each pass.
-                client = new HeadsetClient(allowWrites, devices.Open(device),
+                client = new HeadsetClient(allowWrites(device.ProductId), devices.Open(device),
                     ownsTransport: true);
                 client.Drain();
                 if (client.ReadCategory("GSI", AskWindow).Count > 0) return client;

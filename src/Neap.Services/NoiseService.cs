@@ -41,8 +41,8 @@ public sealed class NoiseService : IDisposable
     /// <summary>Gets whether a press of the Mode button steps through all three modes.</summary>
     public bool Cycling => _noise.Cycling;
 
-    /// <summary>Gets whether the mode is known and both of its settings can be written.</summary>
-    public bool CanChoose => Mode is not null
+    /// <summary>Gets whether the mode is known and both of its settings can be written, on a headset whose settings Neap changes.</summary>
+    public bool CanChoose => Mode is not null && !_headset.ReadOnly
         && Registry.ByKey[NoiseControl.AncKey].Writable
         && Registry.ByKey[NoiseControl.LevelKey].Writable;
 

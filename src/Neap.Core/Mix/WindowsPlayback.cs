@@ -36,7 +36,7 @@ internal sealed class WindowsPlayback : IPlayback
         try
         {
             var current = _devices.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-            if (current.FriendlyName.Contains(Audio.AudioEndpoints.DefaultMatch, StringComparison.OrdinalIgnoreCase))
+            if (HeadsetModels.SoundMatches(current.FriendlyName, Audio.AudioEndpoints.DefaultMatch))
                 return new Device(current);
             current.Dispose();
             return null;

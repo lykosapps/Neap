@@ -222,7 +222,7 @@ public sealed class SettingRow : SettingsCard
         // reading with nothing to change is not unavailable, and greyed out it
         // reads as one.
         bool readout = _toggle is null && _slider is null && _choice is null && _buttons is null;
-        IsEnabled = known && (readout || _link.Key is { Writable: true });
+        IsEnabled = known && (readout || _link.CanWrite);
     }
 
     private void Paint()

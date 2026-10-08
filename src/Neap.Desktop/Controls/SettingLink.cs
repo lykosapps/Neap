@@ -54,6 +54,9 @@ internal sealed class SettingLink
     /// <summary>Gets the setting, once the control has loaded and found it.</summary>
     public SettingKey? Key { get; private set; }
 
+    /// <summary>Gets whether the setting can be changed: one Neap writes, on a headset whose settings it changes.</summary>
+    public bool CanWrite => Key is { Writable: true } && !AppServices.Headset.ReadOnly;
+
     /// <summary>Gets whether the control is being painted, when its change events are not the person's.</summary>
     public bool Painting { get; private set; }
 

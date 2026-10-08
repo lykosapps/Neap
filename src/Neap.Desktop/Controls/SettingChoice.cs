@@ -110,7 +110,7 @@ public sealed class SettingChoice : UserControl
     private void Paint()
     {
         int? value = _link.Value;
-        _options.IsEnabled = value is not null && _link.Key is { Writable: true };
+        _options.IsEnabled = value is not null && _link.CanWrite;
         _painting = true;
         try
         {

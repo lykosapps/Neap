@@ -31,44 +31,10 @@ public static class Transmitters
     /// <summary>What a Turtle Beach device in this family actually is.</summary>
     public enum Piece { Unknown, Dock, Transmitter, Headset }
 
-    /// <summary>
-    /// The whole Stealth Pro II family by product id, read out of Swarm II's
-    /// own product catalogue rather than guessed at.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The catalogue is in Swarm's settings.json, zlib-compressed behind a
-    /// four-byte header. It is the authority for which id is which; the order
-    /// of firmware folders is not. It confirms 229B as the white Xbox dock and
-    /// 229D as its transmitter, and names 2283 as the black Xbox dock. The
-    /// vendor's own files name what captures only show anonymously.
-    /// </para>
-    /// <para>
-    /// Swarm calls the docking device a base; the box calls it a "CrossPlay
-    /// 2.0 Transmitter Dock". The box wins for anything a person reads,
-    /// because that is the word they were sold.
-    /// </para>
-    /// </remarks>
+    /// <summary>Every piece of hardware of every headset Neap knows, by product id; see <see cref="HeadsetModels"/>.</summary>
     public static readonly IReadOnlyDictionary<string, Piece> Family =
-        new Dictionary<string, Piece>(StringComparer.OrdinalIgnoreCase)
-        {
-            // Xbox, black
-            ["2283"] = Piece.Dock,
-            ["2284"] = Piece.Dock,
-            ["2285"] = Piece.Transmitter,
-            ["2286"] = Piece.Headset,
-            ["229F"] = Piece.Transmitter,
-            // Xbox, white
-            ["229B"] = Piece.Dock,
-            ["229C"] = Piece.Dock,
-            ["229D"] = Piece.Transmitter,
-            ["229E"] = Piece.Headset,
-            ["22A0"] = Piece.Transmitter,
-            // PC
-            ["2287"] = Piece.Dock,
-            ["2288"] = Piece.Transmitter,
-            ["2289"] = Piece.Headset,
-        };
+        HeadsetModels.All.SelectMany(model => model.Hardware)
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.OrdinalIgnoreCase);
 
     public static Piece PieceOf(string product) =>
         Family.TryGetValue(product, out var piece) ? piece : Piece.Unknown;

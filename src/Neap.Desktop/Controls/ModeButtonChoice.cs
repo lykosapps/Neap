@@ -102,7 +102,7 @@ public sealed class ModeButtonChoice : UserControl
     private void Paint()
     {
         var shown = ModeButton.Shown(_link.Value, AppServices.Noise.Cycling);
-        _options.IsEnabled = shown is not null && _link.Key is { Writable: true };
+        _options.IsEnabled = shown is not null && _link.CanWrite;
         _painting = true;
         try
         {

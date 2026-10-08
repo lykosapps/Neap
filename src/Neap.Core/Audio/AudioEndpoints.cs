@@ -34,13 +34,13 @@ public sealed record EndpointInfo(string Name, bool MatchedHeadset, int Percent,
 [SupportedOSPlatform("windows")]
 public static class AudioEndpoints
 {
-    /// <summary>The name fragment that identifies the headset's own endpoints.</summary>
+    /// <summary>The name fragments that identify the headset's own endpoints; see <see cref="HeadsetModels.SoundNames"/>.</summary>
     /// <remarks>
     /// Volume targets the headset's endpoint rather than the Windows default;
     /// otherwise moving the slider while the default is a pair of speakers
     /// would change the speakers instead.
     /// </remarks>
-    public const string DefaultMatch = "stealth pro";
+    public const string DefaultMatch = HeadsetModels.SoundNames;
 
     public static int GetPercent(string match = DefaultMatch, Flow flow = Flow.Output)
     {
@@ -246,7 +246,7 @@ internal sealed class Endpoint : IDisposable
         if (!Com.Failed(enumerator.GetDefaultAudioEndpoint(flow, Role.Multimedia, out var current))
             && current is not null)
         {
-            if (FriendlyName(current).Contains(match, StringComparison.OrdinalIgnoreCase))
+            if (HeadsetModels.SoundMatches(FriendlyName(current), match))
                 return current;
             Marshal.ReleaseComObject(current);
         }
@@ -259,7 +259,7 @@ internal sealed class Endpoint : IDisposable
             for (uint i = 0; i < count; i++)
             {
                 if (Com.Failed(collection.Item(i, out var device))) continue;
-                if (FriendlyName(device).Contains(match, StringComparison.OrdinalIgnoreCase))
+                if (HeadsetModels.SoundMatches(FriendlyName(device), match))
                     return device;
                 Marshal.ReleaseComObject(device);
             }

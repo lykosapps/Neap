@@ -202,7 +202,7 @@ public class PretendHeadsetTests
     [Fact]
     public void TheClientFindsItBehindTheDock()
     {
-        using var client = HeadsetClient.Behind(allowWrites: false, out int present, devices: new PretendHeadset());
+        using var client = HeadsetClient.Behind(allowWrites: _ => false, out int present, devices: new PretendHeadset());
 
         Assert.Equal(1, present);
         Assert.Equal(PretendHeadset.DockProduct, client!.ProductId);
@@ -213,7 +213,7 @@ public class PretendHeadsetTests
     {
         var headset = new PretendHeadset { On = false };
 
-        var client = HeadsetClient.Behind(allowWrites: false, out int present, devices: headset);
+        var client = HeadsetClient.Behind(allowWrites: _ => false, out int present, devices: headset);
 
         Assert.Null(client);
         Assert.Equal(1, present);

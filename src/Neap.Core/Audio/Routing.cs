@@ -103,13 +103,13 @@ public static class Routing
     /// <see cref="Endpoint.FindMatching"/>: there can be several with the same
     /// name, one of them over the USB-C cable.
     /// </remarks>
-    public static MMDevice? Headset(MMDeviceEnumerator devices, bool output, string match = "Stealth Pro")
+    public static MMDevice? Headset(MMDeviceEnumerator devices, bool output, string match = AudioEndpoints.DefaultMatch)
     {
         var flow = output ? NFlow.Render : NFlow.Capture;
         try
         {
             var current = devices.GetDefaultAudioEndpoint(flow, NRole.Multimedia);
-            if (current.FriendlyName.Contains(match, StringComparison.OrdinalIgnoreCase)) return current;
+            if (HeadsetModels.SoundMatches(current.FriendlyName, match)) return current;
             current.Dispose();
         }
         catch { }
@@ -117,7 +117,7 @@ public static class Routing
         MMDevice? found = null;
         foreach (var device in devices.EnumerateAudioEndPoints(flow, NState.Active))
         {
-            if (found is null && device.FriendlyName.Contains(match, StringComparison.OrdinalIgnoreCase))
+            if (found is null && HeadsetModels.SoundMatches(device.FriendlyName, match))
                 found = device;
             else
                 device.Dispose();
@@ -127,7 +127,7 @@ public static class Routing
 
     /// <summary>The process ids of the applications recording from the headset's microphone.</summary>
     /// <returns>Empty as well when there is no headset microphone or Windows cannot be asked.</returns>
-    public static IReadOnlyList<uint> Recorders(string match = "Stealth Pro")
+    public static IReadOnlyList<uint> Recorders(string match = AudioEndpoints.DefaultMatch)
     {
         var found = new List<uint>();
         try

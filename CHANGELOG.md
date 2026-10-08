@@ -13,11 +13,16 @@ and date.
 
 ### Added
 
+- Neap recognises the Turtle Beach Atlas Air, finds its speakers and
+  microphone, and reads its settings. It doesn't change them yet: that waits
+  until an owner has tried each one.
 - What's new is always in Settings, beside Neap's version. With no update
   waiting, it shows what's new in the version you have, without going online.
 
 ### Fixed
 
+- Neap no longer changes the settings of a headset it doesn't know, as it
+  always said it wouldn't. It only reads them.
 - A recording of another headset now says which functions the headset didn't
   answer about, rather than counting them as not found, and asks it again
   before giving up.

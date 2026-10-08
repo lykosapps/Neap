@@ -71,7 +71,7 @@ internal static class WindowsSound
         using var devices = new MMDeviceEnumerator();
         // "-" listens without beeping.
         using var output = match == "-" ? null : devices.EnumerateAudioEndPoints(NAudio.CoreAudioApi.DataFlow.Render, DeviceState.Active)
-            .FirstOrDefault(d => d.FriendlyName.Contains(match, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(d => HeadsetModels.SoundMatches(d.FriendlyName, match));
         if (output is null && match != "-") { Console.Error.WriteLine($"no output matching '{match}'"); return 1; }
 
         // A mic's meter reads nothing unless something is recording from it, so

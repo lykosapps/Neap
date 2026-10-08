@@ -54,7 +54,7 @@ public class UdevRuleTests
         var refused = new List<Exception>();
         var source = new Refusing();
 
-        var client = HeadsetClient.Behind(allowWrites: false, out int present, null, source, (_, ex) => refused.Add(ex));
+        var client = HeadsetClient.Behind(allowWrites: _ => false, out int present, null, source, (_, ex) => refused.Add(ex));
 
         Assert.Null(client);
         Assert.Equal(1, present);

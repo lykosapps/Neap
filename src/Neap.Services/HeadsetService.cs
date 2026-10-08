@@ -205,6 +205,17 @@ public sealed class HeadsetService : IDisposable
 
     public HeadsetStatus Status => _status;
 
+    /// <summary>The headset connected, or last connected, or null for one Neap does not know.</summary>
+    public HeadsetModel? Model { get; private set; }
+
+    /// <summary>Whether the headset connected is one whose settings Neap only reads; see <see cref="HeadsetModel.Writable"/>.</summary>
+    public bool ReadOnly => _readOnly;
+
+    private volatile bool _readOnly;
+
+    /// <summary>The keys whose refused change has been logged since the headset connected, so each is said once.</summary>
+    private readonly ConcurrentDictionary<int, bool> _refused = new();
+
     /// <summary>Everything the headset has reported, keyed by lowercase hex.</summary>
     public IReadOnlyDictionary<string, JsonElement> Values => _values;
 
@@ -333,6 +344,12 @@ public sealed class HeadsetService : IDisposable
     /// </remarks>
     public void SetKey(int key, int value, bool hold = true)
     {
+        if (_readOnly)
+        {
+            if (_refused.TryAdd(key, true))
+                AppLog.Write($"headset: a change to 0x{key:x} was not sent: Neap only reads the {Model?.Name ?? "headset"}'s settings for now");
+            return;
+        }
         Store(key, value, hold);
         _pending[key] = value;
         if (!_inFlight.TryAdd(key, true)) return;
@@ -776,12 +793,23 @@ public sealed class HeadsetService : IDisposable
     private HeadsetClient? Open(out int present)
     {
         bool denied = false;
-        var client = HeadsetClient.Behind(allowWrites: true, out present, _askLast, _devices, (device, ex) =>
+        // Settings are changed only on a headset where changing them has been
+        // confirmed; any other is read and nothing more.
+        var client = HeadsetClient.Behind(product => HeadsetModels.Of(product) is { Writable: true },
+            out present, _askLast, _devices, (device, ex) =>
         {
             denied |= ex is AccessDeniedException;
             NoteFault($"asking {device}", ex);
         });
         _askLast = null;
+        if (client is not null)
+        {
+            Model = HeadsetModels.Of(client.ProductId);
+            _readOnly = !client.AllowWrites;
+            _refused.Clear();
+            if (_readOnly)
+                AppLog.Write($"headset: {Model?.Name ?? "one Neap doesn't know"}, whose settings Neap only reads for now");
+        }
 
         // Said only when nothing could be opened: one transmitter that will
         // not open beside another that does is not the person's problem.
