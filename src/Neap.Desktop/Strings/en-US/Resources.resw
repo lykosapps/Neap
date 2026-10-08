@@ -718,7 +718,7 @@
     <value>Profiles</value>
   </data>
   <data name="Profiles_Note.Text" xml:space="preserve">
-    <value>Switch profiles from the bar at the top of the window. A profile with apps comes on when one of them starts, and the default comes back when the last of them closes.</value>
+    <value>Switch profiles from the bar at the top of the window. A profile with apps comes on when one of them starts, or starts using the microphone, and the default comes back when they stop.</value>
   </data>
   <data name="Profiles_Empty" xml:space="preserve">
     <value>No profiles yet. Set the headset up the way you want, then choose New profile.</value>

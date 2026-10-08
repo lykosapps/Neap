@@ -60,7 +60,8 @@ is running.
 
 Save your whole setup under a name, from noise control to both equalisers.
 Give a profile one or more games, and it comes on when one of them starts,
-then goes back to your default when it closes.
+then goes back to your default when it closes. A call app such as Teams can
+switch only while it's using the microphone, so its profile is on for calls.
 
 ![The Profiles page, with a default profile and a second profile for a game.](docs/screenshots/profiles.png)
 
