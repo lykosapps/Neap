@@ -704,6 +704,15 @@ same hiss could be heard in a quiet room *(confirmed by the owner)*.
 `S_FALSE` (1) is success: Core Audio returns it when a set changes nothing,
 such as muting what is already muted. Only a negative HRESULT is a failure.
 
+### A call holds the microphone from start to end
+
+A program recording has an active session on that microphone, which is what
+a profile set to switch on the microphone watches *(measured)*. Teams holds
+the microphone for the whole of a call: from joining, even joined muted,
+through muting and unmuting in Teams, until the call ends, when it lets go
+*(confirmed by the owner)*. Discord holds it while in a voice channel
+*(measured)*.
+
 ## The firmware layer
 
 Beneath Turtle Beach's protocol, Airoha's own commands read and write the
