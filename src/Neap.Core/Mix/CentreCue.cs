@@ -80,7 +80,11 @@ public static class CentreCue
     {
         using var devices = new MMDeviceEnumerator();
         using var headset = Routing.Headset(devices, output: true);
-        if (headset is null) return;
+        if (headset is null)
+        {
+            Trouble?.Invoke("the centre cue found no headset output to play to");
+            return;
+        }
 
         using var player = new WasapiPlayerBuilder()
             .WithDevice(headset).WithSharedMode().WithPollingSync().WithLatency(60)
@@ -107,17 +111,22 @@ public static class CentreCue
         PulseNative.RequireSimple();
         using var client = new PulseClient();
         string listening = client.DefaultSink();
-        if (client.Sinks().FirstOrDefault(s => s.Name == listening) is not { IsHeadset: true }) return;
+        if (client.Sinks().FirstOrDefault(s => s.Name == listening) is not { IsHeadset: true })
+        {
+            Trouble?.Invoke("the centre cue found no headset output to play to");
+            return;
+        }
 
         var spec = new PulseNative.SampleSpec { Format = PulseNative.SampleS16Le, Rate = rate, Channels = 1 };
         IntPtr stream = PulseNative.SimpleNew(IntPtr.Zero, PulseNative.Utf8("Neap"), PulseNative.StreamPlayback,
-            PulseNative.Utf8(listening), PulseNative.Utf8("Centre of the mix"), ref spec, IntPtr.Zero, IntPtr.Zero, out _);
-        if (stream == IntPtr.Zero) return;
+            PulseNative.Utf8(listening), PulseNative.Utf8("Centre of the mix"), ref spec, IntPtr.Zero, IntPtr.Zero, out int error);
+        if (stream == IntPtr.Zero) throw new PulseException($"could not play to {listening} (error {error})");
         try
         {
             byte[] pcm = Tone(rate);
-            if (PulseNative.SimpleWrite(stream, pcm, (nuint)pcm.Length, out _) >= 0)
-                _ = PulseNative.SimpleDrain(stream, out _);
+            if (PulseNative.SimpleWrite(stream, pcm, (nuint)pcm.Length, out error) < 0)
+                throw new PulseException($"the sound server refused the beep (error {error})");
+            _ = PulseNative.SimpleDrain(stream, out _);
         }
         finally
         {
