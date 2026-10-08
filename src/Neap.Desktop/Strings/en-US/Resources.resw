@@ -1281,6 +1281,9 @@
   <data name="Found_MissingHeading" xml:space="preserve">
     <value>Not found</value>
   </data>
+  <data name="Found_UnansweredHeading" xml:space="preserve">
+    <value>Didn't answer, so not known yet</value>
+  </data>
   <data name="Found_MovedHeading" xml:space="preserve">
     <value>Changed while you recorded</value>
   </data>

@@ -1,4 +1,5 @@
 using System.Globalization;
+using Neap.Core.Protocol;
 using Neap.Core.Settings;
 
 namespace Neap.Core.Diagnostics;
@@ -28,16 +29,17 @@ public enum Feature
 /// <summary>What a recording showed of the functions Neap has for the Stealth Pro II.</summary>
 /// <param name="Answered">Whether the headset answered Neap at all.</param>
 /// <param name="Found">Functions whose every value the headset reported.</param>
-/// <param name="Missing">Functions with a value the headset never reported.</param>
+/// <param name="Missing">Functions with a value the headset left out of a group it answered for.</param>
+/// <param name="Unanswered">Functions whose group of settings the headset gave no answer for at all.</param>
 /// <param name="Moved">Functions with a value that changed while the recording ran.</param>
 public sealed record HeadsetFindings(
     bool Answered, IReadOnlyList<Feature> Found, IReadOnlyList<Feature> Missing,
-    IReadOnlyList<Feature> Moved)
+    IReadOnlyList<Feature> Unanswered, IReadOnlyList<Feature> Moved)
 {
     /// <summary>The findings in one paragraph of plain English, for the report the developer reads.</summary>
     public string Summary => !Answered
         ? "The headset didn't answer Neap."
-        : $"Found: {Names(Found)}. Not found: {Names(Missing)}. Changed while recording: {Names(Moved)}.";
+        : $"Found: {Names(Found)}. Not found: {Names(Missing)}. Didn't answer: {Names(Unanswered)}. Changed while recording: {Names(Moved)}.";
 
     private static string Names(IReadOnlyList<Feature> features) =>
         features.Count == 0 ? "none" : string.Join(", ", features);
@@ -59,6 +61,13 @@ public sealed record HeadsetFindings(
 /// Another headset can report a key with a different meaning, and whether
 /// setting it works is only known by setting it, which Neap never does on a
 /// headset it does not know.
+/// </para>
+/// <para>
+/// Not found and didn't answer are kept apart, as they mean different things.
+/// Settings are asked for a group at a time, and each group's keys share their
+/// hundreds: 0x700 to 0x7FF is one group. A function missing from a group that
+/// answered is likely not on the headset; one whose whole group went
+/// unanswered may well be, kept somewhere Neap does not yet ask.
 /// </para>
 /// </remarks>
 public static class HeadsetCheck
@@ -93,16 +102,34 @@ public static class HeadsetCheck
     {
         var found = new List<Feature>();
         var missing = new List<Feature>();
+        var unanswered = new List<Feature>();
         var changed = new List<Feature>();
+        var groups = reported.Select(hex => Group(Convert.ToInt32(hex, 16))).ToHashSet();
         foreach (var (feature, names) in Needs)
         {
-            var keys = names.Select(Hex).ToList();
-            (keys.All(reported.Contains) ? found : missing).Add(feature);
-            if (keys.Any(moved.Contains)) changed.Add(feature);
+            var keys = names.Select(name => Registry.ByName[name].Key).ToList();
+            var hex = keys.Select(Hex).ToList();
+            if (hex.All(reported.Contains)) found.Add(feature);
+            else if (keys.Any(key => groups.Contains(Group(key)))) missing.Add(feature);
+            else unanswered.Add(feature);
+            if (hex.Any(moved.Contains)) changed.Add(feature);
         }
-        return new HeadsetFindings(reported.Count > 0, found, missing, changed);
+        return new HeadsetFindings(reported.Count > 0, found, missing, unanswered, changed);
     }
 
-    private static string Hex(string name) =>
-        Registry.ByName[name].Key.ToString("x", CultureInfo.InvariantCulture);
+    /// <summary>The groups of settings the headset gave no answer for, to be asked again.</summary>
+    /// <param name="reported">The keys the headset reported, as lowercase hex.</param>
+    /// <remarks>Only groups the registry has settings in are named: a group Neap reads nothing from is not missed.</remarks>
+    public static IReadOnlyList<string> Silent(IEnumerable<string> reported)
+    {
+        var groups = reported.Select(hex => Group(Convert.ToInt32(hex, 16))).ToHashSet();
+        return Verbs.SettingCategories
+            .Where(category => Registry.All.Any(k => k.Category == category)
+                && !Registry.All.Any(k => k.Category == category && groups.Contains(Group(k.Key))))
+            .ToList();
+    }
+
+    private static int Group(int key) => key >> 8;
+
+    private static string Hex(int key) => key.ToString("x", CultureInfo.InvariantCulture);
 }

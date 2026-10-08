@@ -34,6 +34,9 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
 {
     private static readonly TimeSpan Listen = TimeSpan.FromSeconds(1);
 
+    /// <summary>How long a group that gave no answer is waited on when asked again.</summary>
+    private static readonly TimeSpan SilentWait = TimeSpan.FromSeconds(4);
+
     private readonly ConcurrentDictionary<uint, string> _names = new();
     private Recording? _recording;
     private Task? _began;
@@ -169,6 +172,21 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
         try { await headset.Refresh(); }
         catch (Exception ex) { unread.Add($"headset values: {ex.Message}"); }
         var values = headset.Values.ToDictionary(p => p.Key, p => p.Value.Clone());
+
+        // A group that gave no answer is asked once more, and given longer: on a
+        // headset Neap doesn't know, a group it keeps elsewhere would otherwise
+        // read as functions it doesn't have.
+        if (values.Count > 0)
+            foreach (string group in HeadsetCheck.Silent(values.Keys))
+            {
+                try
+                {
+                    var again = await headset.Post(client => client.ReadCategory(group, SilentWait));
+                    foreach (var (key, value) in again) values[key] = value.Clone();
+                    if (again.Count == 0) unread.Add($"{group}: no answer, asked twice");
+                }
+                catch (Exception ex) { unread.Add($"{group}: {ex.Message}"); }
+            }
 
         IReadOnlyList<Transmitter> slots = [];
         try { slots = await headset.Post(client => Transmitters.ReadAll(client)); }

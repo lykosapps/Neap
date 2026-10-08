@@ -49,6 +49,7 @@ public static class RecordingDialogs
             Line(body, Strings.Get("Found_Note"), secondary: true);
             Group(body, "Found_FoundHeading", findings.Found);
             Group(body, "Found_MissingHeading", findings.Missing);
+            if (findings.Unanswered.Count > 0) Group(body, "Found_UnansweredHeading", findings.Unanswered);
             if (findings.Moved.Count > 0) Group(body, "Found_MovedHeading", findings.Moved);
         }
 

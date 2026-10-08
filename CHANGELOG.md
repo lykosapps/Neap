@@ -18,6 +18,9 @@ and date.
 
 ### Fixed
 
+- A recording of another headset now says which functions the headset didn't
+  answer about, rather than counting them as not found, and asks it again
+  before giving up.
 - A link in What's new sits in line with the words around it, rather than
   above them.
 
