@@ -56,7 +56,7 @@
             OpenPaneLength="220"
             PaneBackground="{DynamicResource NeapGroundBrush}">
             <SplitView.Pane>
-                <DockPanel>
+                <DockPanel Margin="8">
                     <!-- Settings sits apart at the foot, as the Windows app has it. -->
                     <ListBox
                         x:Name="Foot"
