@@ -214,11 +214,8 @@ public sealed class MixService : IDisposable
         if (_wheel.Doubted is int doubted)
             AppLog.Write(FormattableString.Invariant(
                 $"mix: the wheel read {doubted} straight after rest; held until the next reading confirms it"));
-        int before = Mix;
         if (step is WheelStep moved && _mix is not null)
             Move(ChatWheel.Follow(Mix, moved), FormattableString.Invariant($"wheel {moved.From}->{moved.To}"), wheel: true);
-        // Temporary: every reading and where it took the mix, to see how turning past centre feels.
-        AppLog.Write(FormattableString.Invariant($"mix: wheel read {count} at {Environment.TickCount64 % 1_000_000} ms, mix {before} -> {Mix}"));
     }
 
     private void OnLink(HeadsetStatus status) => _wheel.Link(status);

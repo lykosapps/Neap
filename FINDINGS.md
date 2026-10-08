@@ -588,9 +588,9 @@ live only in Swarm II's own `STEALTH_PRO_II.ini` *(research)*.
   every volume key on the machine, or a signed HID filter driver.
 - **The chat wheel** reports on the control channel, as `0x510`, through the
   transmitter carrying the headset's settings. The wheel turns smoothly,
-  without notches, and the count stops at 0 and 100. Turned slowly it reports
-  in steps of five or ten; turned fast it reports about every half second, in jumps
-  of 20 to 30 (40 straight to 70, 70 to 40, 35 to 65) *(measured)*.
+  without notches, and the count stops at 0 and 100. At an ordinary pace it
+  reports every 0.1 to 0.2 s in steps of five or ten; turned fast, a single
+  reading jumps 20 to 30 (40 straight to 70, 70 to 40, 35 to 65) *(measured)*.
 - **The Bluetooth button** drives the headset's own radio and sends nothing
   to the PC, short or long press. It is not remappable.
 
