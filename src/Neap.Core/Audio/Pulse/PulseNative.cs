@@ -133,6 +133,25 @@ internal static class PulseNative
         public int VolumeWritable;
     }
 
+    /// <remarks>Only as far as <see cref="Corked"/>; nothing after it is read.</remarks>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct SourceOutputInfo
+    {
+        public uint Index;
+        public IntPtr Name;
+        public uint OwnerModule;
+        public uint Client;
+        public uint Source;
+        public SampleSpec SampleSpec;
+        public ChannelMap ChannelMap;
+        public ulong BufferUsec;
+        public ulong SourceUsec;
+        public IntPtr ResampleMethod;
+        public IntPtr Driver;
+        public IntPtr Proplist;
+        public int Corked;
+    }
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate void ServerInfoCallback(IntPtr context, IntPtr info, IntPtr userdata);
 
@@ -212,6 +231,9 @@ internal static class PulseNative
     [DllImport(Library, EntryPoint = "pa_context_set_sink_input_volume")]
     internal static extern IntPtr ContextSetSinkInputVolume(
         IntPtr context, uint index, ref ChannelVolumes volume, SuccessCallback callback, IntPtr userdata);
+
+    [DllImport(Library, EntryPoint = "pa_context_get_source_output_info_list")]
+    internal static extern IntPtr ContextGetSourceOutputInfoList(IntPtr context, InfoListCallback callback, IntPtr userdata);
 
     [DllImport(Library, EntryPoint = "pa_operation_get_state")]
     internal static extern int OperationGetState(IntPtr operation);

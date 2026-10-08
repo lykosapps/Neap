@@ -772,7 +772,8 @@ function Profiles {
 
 # Switching as apps start and close. Profiles leaves Gaming on, with Pretend
 # Chat assigned and running; this adds Desk as the default, then closes and
-# starts Pretend Chat through the pretend Windows.
+# starts Pretend Chat through the pretend Windows, then sets it to switch
+# only while it is using the microphone and starts and stops it recording.
 function AutoSwitching {
     $script:step = 'switching profiles as apps start and close'
     Page 'Profiles'
@@ -803,6 +804,23 @@ function AutoSwitching {
     Check (Until { (& $on) -eq 'Desk' } 8) 'Pretend Chat closing puts the default, Desk, back on'
     Ask 'start PretendChat' | Out-Null
     Check (Until { (& $on) -eq 'Gaming' } 8) 'Pretend Chat starting again puts Gaming back on'
+
+    $script:step = 'switching profiles as an app uses the microphone'
+    $apps = Control 'Apps for Gaming' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -eq $apps) { Fail 'the Gaming row offers to choose its apps'; return }
+    (Pattern $apps ([System.Windows.Automation.InvokePattern])).Invoke()
+    $when = { Control 'When Pretend Chat switches' ([System.Windows.Automation.ControlType]::ComboBox) }
+    if (-not (Until { $null -ne (& $when) })) { Fail 'the apps picker asks when Pretend Chat switches'; return }
+    Check ((Shown (& $when)) -eq "While it's open") 'Pretend Chat switches while it is open until told otherwise'
+    Choose (& $when) "While it's using the microphone"
+    Screenshot 'profile-apps-microphone'
+    (Pattern (Control 'OK' ([System.Windows.Automation.ControlType]::Button)) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Check (Until { $null -ne (Find $script:window 'NameProperty' 'Pretend Chat (while using the microphone)') }) 'the Gaming row says Pretend Chat switches on the microphone'
+    Check (Until { (& $on) -eq 'Desk' } 8) 'Pretend Chat open but off the microphone puts the default, Desk, back on'
+    Ask 'record PretendChat' | Out-Null
+    Check (Until { (& $on) -eq 'Gaming' } 8) 'Pretend Chat using the microphone puts Gaming on'
+    Ask 'unrecord PretendChat' | Out-Null
+    Check (Until { (& $on) -eq 'Desk' } 8) 'Pretend Chat letting go of the microphone puts Desk back on'
     Collect
 }
 

@@ -2,18 +2,21 @@ namespace Neap.Core.Profiles;
 
 /// <summary>
 /// Which profile to switch to as the apps assigned to profiles start and
-/// close.
+/// close, or start and stop using a microphone.
 /// </summary>
 /// <remarks>
 /// <para>
-/// An app starting switches to its profile. When two are running, the one
-/// that started last decides, and when it closes the other's profile comes
-/// back. When the last one closes, the default profile comes back, or with
-/// no default, whichever was on before the first of them started.
+/// An app counts while it is open, or for one set to switch on the
+/// microphone, while it is using one: a call app runs all day, and only its
+/// calls want their own profile. An app starting to count switches to its
+/// profile. When two count at once, the one that started last decides, and
+/// when it stops the other's profile comes back. When the last one stops,
+/// the default profile comes back, or with no default, whichever was on
+/// before the first of them started.
 /// </para>
 /// <para>
-/// Only an app closing switches back; an app losing focus does not. A
-/// profile chosen by hand while an app is running holds: closing apps then
+/// Only an app stopping switches back; an app losing focus does not. A
+/// profile chosen by hand while an app counts holds: apps stopping then
 /// changes nothing, and the next app to start switches as usual.
 /// </para>
 /// <para>
@@ -28,21 +31,30 @@ public sealed class AutoSwitch
     private bool _held;
 
     /// <summary>
-    /// Takes in which programs are running now.
+    /// Takes in which programs are running now, and which are using a microphone.
     /// </summary>
     /// <param name="running">Every running program, by process name.</param>
+    /// <param name="onMicrophone">Every program using a microphone, by process name.</param>
     /// <param name="profiles">The saved profiles, with the apps assigned to each.</param>
     /// <param name="defaultId">The default profile, or null if none is set.</param>
     /// <param name="activeId">The profile on now, or null if none is.</param>
     /// <returns>The profile to switch to, or null to leave things as they are.</returns>
-    public string? Observe(IEnumerable<string> running, IReadOnlyList<Profile> profiles, string? defaultId, string? activeId)
+    public string? Observe(IEnumerable<string> running, IEnumerable<string> onMicrophone,
+        IReadOnlyList<Profile> profiles, string? defaultId, string? activeId)
     {
         var owner = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var microphone = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var profile in profiles)
+        {
             foreach (string app in profile.AssignedApps)
                 owner[app] = profile.Id;
+            microphone.UnionWith(profile.MicrophoneApps);
+        }
 
-        var assigned = running.Where(owner.ContainsKey).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var assigned = running.Where(app => !microphone.Contains(app))
+            .Concat(onMicrophone.Where(microphone.Contains))
+            .Where(owner.ContainsKey)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
         var closed = _running.Where(app => !assigned.Contains(app)).ToList();
         // Several found at once, as when Neap starts after them, have no order
         // of their own; by name keeps it the same from one run to the next.
@@ -70,7 +82,7 @@ public sealed class AutoSwitch
     }
 
     /// <summary>The person chose a profile themselves.</summary>
-    /// <remarks>While an assigned app is running, their choice holds until the next app starts.</remarks>
+    /// <remarks>While an assigned app counts, their choice holds until the next app starts.</remarks>
     public void Chose()
     {
         if (_running.Count > 0) _held = true;

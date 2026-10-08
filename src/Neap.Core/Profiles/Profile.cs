@@ -29,12 +29,17 @@ public sealed record ProfileSettings(
     ModeChoice ModeButton,
     int DialFunction);
 
-/// <summary>
-/// A profile, saved under a name the person chose. <see cref="AssignedApps"/>
-/// is by process name, e.g. "witcher3.exe"; switching to it automatically is
-/// a later version's job, not this one's.
-/// </summary>
-public sealed record Profile(string Id, string Name, IReadOnlyList<string> AssignedApps, ProfileSettings Settings);
+/// <summary>A profile, saved under a name the person chose, with the apps that switch to it.</summary>
+/// <param name="Id">What the profile is known by, whatever it is called.</param>
+/// <param name="Name">The name the person gave it.</param>
+/// <param name="AssignedApps">The apps that switch to it, by process name, "witcher3" for witcher3.exe.</param>
+/// <param name="MicrophoneApps">
+/// Of <paramref name="AssignedApps"/>, those that switch to it only while
+/// they are using a microphone, rather than while they are open.
+/// </param>
+/// <param name="Settings">What it puts on the headset.</param>
+public sealed record Profile(string Id, string Name, IReadOnlyList<string> AssignedApps,
+    IReadOnlyList<string> MicrophoneApps, ProfileSettings Settings);
 
 /// <summary>Whether a profile's saved equaliser presets are still there to apply.</summary>
 public static class ProfileCheck
@@ -96,7 +101,7 @@ public static class ProgramName
     public static string Of(string path) => Path.GetFileNameWithoutExtension(path);
 }
 
-/// <summary>Which profile an app belongs to, kept to at most one.</summary>
+/// <summary>Which profile an app belongs to, kept to at most one, and when it switches to it.</summary>
 public static class ProfileAssignment
 {
     /// <summary>
@@ -104,13 +109,25 @@ public static class ProfileAssignment
     /// belonged to before: an app going to two profiles at once would leave
     /// nothing to decide between them later.
     /// </summary>
+    /// <remarks>An app moved from another profile switches while it is open, whatever it did there.</remarks>
     public static IReadOnlyList<Profile> Assign(IReadOnlyList<Profile> profiles, string profileId, string app) =>
-        profiles.Select(p => p.Id == profileId ? p with { AssignedApps = Added(p.AssignedApps, app) }
-            : p with { AssignedApps = Removed(p.AssignedApps, app) }).ToList();
+        profiles.Select(p => p.Id == profileId ? p with { AssignedApps = Added(p.AssignedApps, app) } : Without(p, app)).ToList();
 
     /// <summary>Takes an app away from whichever profile holds it.</summary>
     public static IReadOnlyList<Profile> Unassign(IReadOnlyList<Profile> profiles, string app) =>
-        profiles.Select(p => p with { AssignedApps = Removed(p.AssignedApps, app) }).ToList();
+        profiles.Select(p => Without(p, app)).ToList();
+
+    /// <summary>
+    /// Sets whether an assigned app switches to its profile only while it is
+    /// using a microphone, or while it is open. An app no profile holds is
+    /// left alone.
+    /// </summary>
+    public static IReadOnlyList<Profile> SwitchOnMicrophone(IReadOnlyList<Profile> profiles, string app, bool onMicrophone) =>
+        profiles.Select(p => p.AssignedApps.FirstOrDefault(a => string.Equals(a, app, StringComparison.OrdinalIgnoreCase)) is not { } assigned ? p
+            : p with { MicrophoneApps = onMicrophone ? Added(p.MicrophoneApps, assigned) : Removed(p.MicrophoneApps, assigned) }).ToList();
+
+    private static Profile Without(Profile profile, string app) =>
+        profile with { AssignedApps = Removed(profile.AssignedApps, app), MicrophoneApps = Removed(profile.MicrophoneApps, app) };
 
     private static IReadOnlyList<string> Added(IReadOnlyList<string> apps, string app) =>
         apps.Contains(app, StringComparer.OrdinalIgnoreCase) ? apps : [.. apps, app];

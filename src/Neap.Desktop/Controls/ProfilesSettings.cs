@@ -89,7 +89,7 @@ public sealed class ProfilesSettings : UserControl
     {
         var profiles = AppServices.Profiles.All;
         string? defaultId = AppServices.Profiles.DefaultId;
-        string shown = string.Join("\n", profiles.Select(p => $"{p.Id}|{p.Name}|{string.Join(",", p.AssignedApps.Select(Named))}"))
+        string shown = string.Join("\n", profiles.Select(p => $"{p.Id}|{p.Name}|{string.Join(",", p.AssignedApps.Select(app => Described(p, app)))}"))
             + $"\n{_confirmingDeleteId}\n{defaultId}";
         if (shown == _shown) return;
         _shown = shown;
@@ -159,7 +159,7 @@ public sealed class ProfilesSettings : UserControl
         {
             Header = profile.Name,
             Description = profile.AssignedApps.Count > 0
-                ? Strings.List(profile.AssignedApps.Select(Named).ToList())
+                ? Strings.List(profile.AssignedApps.Select(app => Described(profile, app)).ToList())
                 : Strings.Get("Profile_NoApps"),
             Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { apps, rename, delete } },
         };
@@ -175,41 +175,61 @@ public sealed class ProfilesSettings : UserControl
     /// Lists what is making sound now, and every app already assigned to this
     /// profile whether it is running or not, so it can always be taken away.
     /// A program that is not running, such as a game about to be started, is
-    /// picked as a file.
+    /// picked as a file. Each app checked has a choice of when it switches:
+    /// while it is open, or while it is using the microphone.
     /// </remarks>
     private async Task OpenAppPicker(Profile profile)
     {
         await LoadNames();
-        var assigned = AppServices.Profiles.All.FirstOrDefault(p => p.Id == profile.Id)?.AssignedApps
-            ?? Array.Empty<string>();
+        var saved = AppServices.Profiles.All.FirstOrDefault(p => p.Id == profile.Id) ?? profile;
         var candidates = await AppServices.Mix.Candidates("a profile's apps picker");
 
         var list = new StackPanel { Spacing = 8 };
-        var listed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var boxes = new Dictionary<string, CheckBox>(StringComparer.OrdinalIgnoreCase);
 
         void Add(string process, string display, bool isChecked)
         {
-            if (!listed.Add(process)) return;
-            var box = new CheckBox { Content = display, Tag = process, IsChecked = isChecked };
+            if (boxes.ContainsKey(process)) return;
+            var box = new CheckBox { Content = display, IsChecked = isChecked };
+            var when = new ComboBox
+            {
+                Items =
+                {
+                    new ComboBoxItem { Content = Strings.Get("Profile_WhileOpen") },
+                    new ComboBoxItem { Content = Strings.Get("Profile_WhileOnMicrophone") },
+                },
+                SelectedIndex = saved.MicrophoneApps.Contains(process, StringComparer.OrdinalIgnoreCase) ? 1 : 0,
+                IsVisible = isChecked,
+            };
+            AutomationProperties.SetName(when, Strings.Format("Profile_SwitchWhen", display));
+            when.SelectionChanged += (_, _) => AppServices.Profiles.SwitchOnMicrophone(process, when.SelectedIndex == 1);
             box.IsCheckedChanged += (_, _) =>
             {
+                when.IsVisible = box.IsChecked == true;
                 if (box.IsChecked == true) AppServices.Profiles.Assign(profile.Id, process, display);
-                else AppServices.Profiles.Unassign(process);
+                else
+                {
+                    AppServices.Profiles.Unassign(process);
+                    // Unassigning forgets when it switched, so checking it again starts from open.
+                    when.SelectedIndex = 0;
+                }
             };
-            list.Children.Add(box);
+            boxes[process] = box;
+            DockPanel.SetDock(when, Dock.Right);
+            list.Children.Add(new DockPanel { Children = { when, box } });
         }
 
         // Added with the box already in its state, so adding a row is not a choice.
         foreach (var candidate in candidates)
-            Add(candidate.Process, candidate.Display, assigned.Contains(candidate.Process, StringComparer.OrdinalIgnoreCase));
-        foreach (string process in assigned)
+            Add(candidate.Process, candidate.Display, saved.AssignedApps.Contains(candidate.Process, StringComparer.OrdinalIgnoreCase));
+        foreach (string process in saved.AssignedApps)
             Add(process, Named(process), true);
 
         var hint = new TextBlock
         {
             Text = Strings.Get("Profile_AppsHint"),
             Classes = { "caption", "secondary" },
-            IsVisible = listed.Count == 0,
+            IsVisible = boxes.Count == 0,
         };
 
         var browse = new Button { Content = Strings.Get("Profile_Browse") };
@@ -221,7 +241,7 @@ public sealed class ProfilesSettings : UserControl
             Add(picked.Process, picked.Display, isChecked: false);
 
             // Picking a program means assigning it, whether or not it was already listed.
-            list.Children.OfType<CheckBox>().First(b => (string)b.Tag! == picked.Process).IsChecked = true;
+            boxes[picked.Process].IsChecked = true;
         };
 
         await new NeapDialog
@@ -230,7 +250,7 @@ public sealed class ProfilesSettings : UserControl
             Body = new ScrollViewer
             {
                 MaxHeight = 360,
-                Content = new StackPanel { MinWidth = 260, Spacing = 12, Children = { list, hint, browse } },
+                Content = new StackPanel { MinWidth = 360, Spacing = 12, Children = { list, hint, browse } },
             },
             CloseButtonText = Strings.Get("Dialog_OK"),
         }.ShowAsync(this);
@@ -258,6 +278,12 @@ public sealed class ProfilesSettings : UserControl
     }
 
     private string Named(string process) => _names.GetValueOrDefault(process) ?? AppServices.Profiles.DisplayName(process);
+
+    /// <summary>An assigned app as its profile's row lists it, saying so when it switches only on the microphone.</summary>
+    private string Described(Profile profile, string app) =>
+        profile.MicrophoneApps.Contains(app, StringComparer.OrdinalIgnoreCase)
+            ? Strings.Format("Profile_AppOnMicrophone", Named(app))
+            : Named(app);
 
     /// <summary>
     /// The in-place confirmation that replaces a profile's row while its

@@ -279,6 +279,7 @@ public sealed class AppSettings
         [JsonPropertyName("mode_button_cycles")] public bool ModeButtonCycles { get; set; }
         [JsonPropertyName("dial_function")] public int DialFunction { get; set; }
         [JsonPropertyName("assigned_apps")] public List<string> AssignedApps { get; set; } = new();
+        [JsonPropertyName("microphone_apps")] public List<string> MicrophoneApps { get; set; } = new();
     }
 
     private static readonly string Path = System.IO.Path.Combine(AppFolder.Path, "app-settings.json");

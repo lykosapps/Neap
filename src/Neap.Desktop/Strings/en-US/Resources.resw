@@ -765,6 +765,18 @@
   <data name="Profile_AppsTitle" xml:space="preserve">
     <value>Apps for {0}</value>
   </data>
+  <data name="Profile_SwitchWhen" xml:space="preserve">
+    <value>When {0} switches</value>
+  </data>
+  <data name="Profile_WhileOpen" xml:space="preserve">
+    <value>While it's open</value>
+  </data>
+  <data name="Profile_WhileOnMicrophone" xml:space="preserve">
+    <value>While it's using the microphone</value>
+  </data>
+  <data name="Profile_AppOnMicrophone" xml:space="preserve">
+    <value>{0} (while using the microphone)</value>
+  </data>
   <data name="Profile_AppsHint" xml:space="preserve">
     <value>Nothing is making sound right now. Start the app, or browse for it.</value>
   </data>

@@ -1,3 +1,4 @@
+using Neap.Core.Audio;
 using Neap.Core.Hid;
 
 namespace Neap.Services;
@@ -47,8 +48,9 @@ public static class AppServices
         Noise = new NoiseService(Headset);
         Presets = new PresetService(Headset);
         Profiles = new ProfileService(Headset);
-        AutoSwitch = new AutoSwitchService(Profiles, Headset,
-            Pretend.Windows is { } windows ? windows.Programs : AutoSwitchService.RunningPrograms);
+        AutoSwitch = Pretend.Windows is { } windows
+            ? new AutoSwitchService(Profiles, Headset, windows.Programs, windows.Recording)
+            : new AutoSwitchService(Profiles, Headset, AutoSwitchService.RunningPrograms, MicrophoneUsers.Now);
         Recorder = new SessionRecorder(Headset);
         MicFollow = new MicFollowsHeadset(Headset);
         Hotkeys = Platform.Current.CreateHotkeys(Mix);

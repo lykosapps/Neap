@@ -86,6 +86,7 @@ internal sealed class PulseClient : IDisposable
     private readonly InfoListCallback _onSink;
     private readonly InfoListCallback _onSource;
     private readonly InfoListCallback _onStream;
+    private readonly InfoListCallback _onRecording;
     private readonly SuccessCallback _onSuccess;
 
     private string _defaultSink = "";
@@ -93,6 +94,7 @@ internal sealed class PulseClient : IDisposable
     private readonly List<PulseSink> _sources = new();
     private string _defaultSource = "";
     private readonly List<PulseStream> _streams = new();
+    private readonly List<(uint Source, string Program)> _recording = new();
     private bool _succeeded;
 
     internal PulseClient()
@@ -102,6 +104,7 @@ internal sealed class PulseClient : IDisposable
         _onSink = OnSink;
         _onSource = OnSource;
         _onStream = OnStream;
+        _onRecording = OnRecording;
         _onSuccess = OnSuccess;
     }
 
@@ -160,6 +163,20 @@ internal sealed class PulseClient : IDisposable
             _streams.Clear();
             Run(c => ContextGetSinkInputInfoList(c, _onStream, IntPtr.Zero), "the applications playing");
             return _streams.ToList();
+        }
+    }
+
+    /// <summary>The programs recording from a microphone, by the name of their file or failing that the name they give themselves.</summary>
+    /// <remarks>A program recording what an output plays, through its monitor, is not using a microphone.</remarks>
+    /// <exception cref="PulseException">The server could not be reached or did not answer.</exception>
+    internal IReadOnlyList<string> Recording()
+    {
+        lock (_gate)
+        {
+            var microphones = Sources().Select(s => s.Index).ToHashSet();
+            _recording.Clear();
+            Run(c => ContextGetSourceOutputInfoList(c, _onRecording, IntPtr.Zero), "the applications recording");
+            return _recording.Where(r => microphones.Contains(r.Source)).Select(r => r.Program).ToList();
         }
     }
 
@@ -354,6 +371,17 @@ internal sealed class PulseClient : IDisposable
         _streams.Add(new PulseStream(stream.Index, stream.Sink, program, pid,
             (float)(sum / stream.Volume.Channels), stream.Volume.Channels, stream.Corked == 0,
             Property(stream.Proplist, "application.name")));
+    }
+
+    private void OnRecording(IntPtr context, IntPtr info, int eol, IntPtr userdata)
+    {
+        if (eol != 0 || info == IntPtr.Zero) return;
+        var recording = Marshal.PtrToStructure<SourceOutputInfo>(info);
+        if (recording.Corked != 0) return;
+
+        string program = Property(recording.Proplist, "application.process.binary");
+        if (program.Length == 0) program = Property(recording.Proplist, "application.name");
+        _recording.Add((recording.Source, program));
     }
 
     /// <remarks>The loudest channel, as the desktop's mixer shows it: the server's own number over its normal, not a gain.</remarks>

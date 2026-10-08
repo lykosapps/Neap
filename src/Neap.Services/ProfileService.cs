@@ -222,7 +222,7 @@ public sealed class ProfileService : IDisposable
         string id = Guid.NewGuid().ToString("N");
         AppSettings.Update(a =>
         {
-            a.Profiles.Add(ToStored(new Profile(id, name, [], settings)));
+            a.Profiles.Add(ToStored(new Profile(id, name, [], [], settings)));
             a.ActiveProfileId = id;
         });
         Chosen?.Invoke();
@@ -303,17 +303,27 @@ public sealed class ProfileService : IDisposable
         Changed?.Invoke();
     }
 
+    /// <summary>Sets whether an assigned app switches to its profile only while it is using a microphone, or while it is open.</summary>
+    public void SwitchOnMicrophone(string app, bool onMicrophone)
+    {
+        Persist(ProfileAssignment.SwitchOnMicrophone(All, app, onMicrophone));
+        Changed?.Invoke();
+    }
+
     private static void Persist(IReadOnlyList<Profile> profiles) => AppSettings.Update(a =>
     {
         foreach (var profile in profiles)
             if (a.Profiles.FirstOrDefault(p => p.Id == profile.Id) is { } stored)
+            {
                 stored.AssignedApps = profile.AssignedApps.ToList();
+                stored.MicrophoneApps = profile.MicrophoneApps.ToList();
+            }
     });
 
     private static bool Same(string a, string b) =>
         string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
 
-    private static Profile ToProfile(AppSettings.StoredProfile s) => new(s.Id, s.Name, s.AssignedApps, new ProfileSettings(
+    private static Profile ToProfile(AppSettings.StoredProfile s) => new(s.Id, s.Name, s.AssignedApps, s.MicrophoneApps, new ProfileSettings(
         s.NoiseMode, s.NoiseLevel, s.SuperhumanHearing, s.ShhPreset, s.ShhLevel,
         s.NoiseGate, s.NoiseGateThreshold, s.AiNoiseReduction, s.MicMonitoring,
         s.GamePreset, s.MicPreset, s.Spatial, s.AutoShutoff,
@@ -324,6 +334,7 @@ public sealed class ProfileService : IDisposable
         Id = profile.Id,
         Name = profile.Name,
         AssignedApps = profile.AssignedApps.ToList(),
+        MicrophoneApps = profile.MicrophoneApps.ToList(),
         NoiseMode = profile.Settings.NoiseMode,
         NoiseLevel = profile.Settings.NoiseLevel,
         SuperhumanHearing = profile.Settings.SuperhumanHearing,

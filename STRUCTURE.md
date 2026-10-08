@@ -73,7 +73,8 @@ task's frequent moves, reachable without leaving the page someone's on.
 Naming, deleting, assigning apps and setting the default live on the
 Profiles page, so the bar never grows past what fits under a title bar. Once a profile has
 apps assigned, its own switch also happens automatically as those apps
-start and close, with no screen to visit at all.
+start and close, or start and stop using the microphone, with no screen to
+visit at all.
 
 ## Where new things go
 

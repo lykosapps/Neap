@@ -195,6 +195,30 @@ public sealed class PretendWindows
         }
     }
 
+    private readonly HashSet<string> _recording = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Every program recording from a microphone, by process name: whatever a script started recording.</summary>
+    public IReadOnlyList<string> Recording()
+    {
+        lock (_gate) return _recording.Order(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    /// <summary>A program starts recording from a microphone, as on a call.</summary>
+    public void Record(string process)
+    {
+        lock (_gate) _recording.Add(process);
+    }
+
+    /// <summary>A program stops recording.</summary>
+    /// <exception cref="ArgumentException">Nothing by that name is recording.</exception>
+    public void StopRecording(string process)
+    {
+        lock (_gate)
+        {
+            if (!_recording.Remove(process)) throw new ArgumentException($"no program called '{process}' is recording");
+        }
+    }
+
     // -- the mix ------------------------------------------------------------
 
     /// <summary>The applications with audio open on the headset.</summary>

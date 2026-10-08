@@ -1,5 +1,26 @@
 # Decisions
 
+## 2026-10-08 — A profile's app can switch only while it is using the microphone
+
+- **Options for a call app such as Teams, open all day:** follow the window
+  in front; switch while the app is using a microphone; leave it to
+  switching by hand.
+- **Chosen:** each app assigned to a profile has a choice of when it
+  switches: while it's open, as before and by default, or while it's using
+  the microphone. A call's profile comes on as the call starts and the
+  default comes back as it ends, whatever window is in front.
+- **Why:** on a call, people tab to slides, notes and a browser. Following
+  the window would change the sound mid-call, and would undo the choice of
+  28 September for games. Using the microphone is what a call is, and the
+  system already says which programs are recording, without administrator
+  rights.
+- **Any microphone counts,** not only the headset's, and only while the
+  program is recording, which is when the system shows its own microphone
+  mark. On Linux, a program recording what an output plays is not counted.
+- **Revisit if** a call app lets go of the microphone during a call, when
+  muted say, and the profile flickers, or a call app records from a program
+  with a different name from the one assigned.
+
 ## 2026-10-08 — The battery readings are shown as the hardware can be trusted
 
 - **Options:** show whatever each device reports; smooth it in the app; or show

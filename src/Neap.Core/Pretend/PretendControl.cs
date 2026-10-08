@@ -33,6 +33,8 @@ namespace Neap.Core.Pretend;
 ///   mix                     the mix being applied, or null
 ///   programs                every program running, by process name
 ///   start NAME | stop NAME  a program starts or closes
+///   recording               every program recording from a microphone
+///   record NAME | unrecord NAME  a program starts or stops recording
 ///   registry                every confirmed setting, its limits and its options' labels
 /// </code>
 /// <para>
@@ -148,6 +150,9 @@ public sealed class PretendControl : IDisposable
                 ("programs", 1) => new JsonArray(_windows.Programs().Select(p => (JsonNode?)p).ToArray()),
                 ("start", >= 2) => Done(() => _windows.Start(Rest(line))),
                 ("stop", >= 2) => Done(() => _windows.Stop(Rest(line))),
+                ("recording", 1) => new JsonArray(_windows.Recording().Select(p => (JsonNode?)p).ToArray()),
+                ("record", >= 2) => Done(() => _windows.Record(Rest(line))),
+                ("unrecord", >= 2) => Done(() => _windows.StopRecording(Rest(line))),
                 ("registry", 1) => new JsonArray(Registry.All.Select(Describe).ToArray()),
                 _ => throw new ArgumentException($"not a command: '{line}'"),
             };

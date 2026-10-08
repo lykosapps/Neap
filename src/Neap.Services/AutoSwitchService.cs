@@ -4,13 +4,15 @@ using Neap.Core.Profiles;
 namespace Neap.Services;
 
 /// <summary>
-/// Switches profiles as the apps assigned to them start and close.
+/// Switches profiles as the apps assigned to them start and close, or start
+/// and stop using a microphone.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Which profile should be on is <see cref="AutoSwitch"/>'s rule. This looks at
-/// the running programs every couple of seconds, from the notification area as
-/// much as the window, and puts the rule's answer on the headset once it can.
+/// the running programs, and those using a microphone, every couple of
+/// seconds, from the notification area as much as the window, and puts the
+/// rule's answer on the headset once it can.
 /// </para>
 /// <para>
 /// It waits rather than lose anything: while the profile that is on has
@@ -22,8 +24,8 @@ namespace Neap.Services;
 /// <para>
 /// Polling rather than Windows' process events: those need administrator
 /// rights, and a program is matched by name the same way whether it was
-/// running when Neap started or started since. With no app assigned to any
-/// profile, the programs are not listed at all.
+/// running when Neap started or started since. Neither list is asked for
+/// while no profile has an app that needs it.
 /// </para>
 /// </remarks>
 public sealed class AutoSwitchService : IDisposable
@@ -33,6 +35,7 @@ public sealed class AutoSwitchService : IDisposable
     private readonly ProfileService _profiles;
     private readonly HeadsetService _headset;
     private readonly Func<IReadOnlyCollection<string>> _programs;
+    private readonly Func<IReadOnlyCollection<string>> _onMicrophone;
     private readonly AutoSwitch _rule = new();
     private readonly IDisposable _timer;
     private string? _waiting;
@@ -43,11 +46,14 @@ public sealed class AutoSwitchService : IDisposable
     /// <param name="profiles">The profiles to switch between.</param>
     /// <param name="headset">The headset, whose state decides when a switch can happen.</param>
     /// <param name="programs">Every running program, by process name; called off the UI thread.</param>
-    public AutoSwitchService(ProfileService profiles, HeadsetService headset, Func<IReadOnlyCollection<string>> programs)
+    /// <param name="onMicrophone">Every program using a microphone, by process name; called off the UI thread.</param>
+    public AutoSwitchService(ProfileService profiles, HeadsetService headset,
+        Func<IReadOnlyCollection<string>> programs, Func<IReadOnlyCollection<string>> onMicrophone)
     {
         _profiles = profiles;
         _headset = headset;
         _programs = programs;
+        _onMicrophone = onMicrophone;
         _profiles.Changed += OnProfilesChanged;
         _profiles.Chosen += OnChosen;
         _headset.StatusChanged += OnStatus;
@@ -78,21 +84,24 @@ public sealed class AutoSwitchService : IDisposable
         try
         {
             var profiles = _profiles.All;
-            IReadOnlyCollection<string> running = profiles.Any(p => p.AssignedApps.Count > 0)
+            IReadOnlyCollection<string> running = profiles.Any(p => p.AssignedApps.Count > p.MicrophoneApps.Count)
                 ? await Task.Run(_programs)
                 : [];
-            if (_rule.Observe(running, profiles, _profiles.DefaultId, _profiles.ActiveId) is not { } target) return;
+            IReadOnlyCollection<string> onMicrophone = profiles.Any(p => p.MicrophoneApps.Count > 0)
+                ? await Task.Run(_onMicrophone)
+                : [];
+            if (_rule.Observe(running, onMicrophone, profiles, _profiles.DefaultId, _profiles.ActiveId) is not { } target) return;
 
             _waiting = target;
             string name = profiles.FirstOrDefault(p => p.Id == target)?.Name ?? target;
-            AppLog.Write($"profiles: an app with a profile started or closed, so {name} is next");
+            AppLog.Write($"profiles: an app with a profile started or stopped, so {name} is next");
             Changed?.Invoke();
             await TryApply(read: true);
         }
         catch (Exception ex)
         {
             // Once per fault, not every two seconds.
-            string line = $"profiles: could not look at the running programs: {ex.Message}";
+            string line = $"profiles: could not look at the running programs or the microphones: {ex.Message}";
             if (line != _lastFault) AppLog.Write(line);
             _lastFault = line;
         }

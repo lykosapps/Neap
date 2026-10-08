@@ -13,6 +13,9 @@ and date.
 
 ### Added
 
+- An app given to a profile can switch to it only while it's using the
+  microphone, rather than whenever it's open. A profile for Teams calls comes
+  on as a call starts, and the default comes back when it ends.
 - Neap recognises the Turtle Beach Atlas Air, finds its speakers and
   microphone, and reads its settings. It doesn't change them yet: that waits
   until an owner has tried each one.
