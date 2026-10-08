@@ -32,17 +32,31 @@ public class CentreCueTests
     }
 
     [Fact]
-    public void ItIsTheSameLengthWhateverTheFormat()
+    public void TheWindowsBeepIsThe16BitBeepWithAHissBeforeIt()
     {
-        Assert.Equal(CentreCue.Tone(Rate).Length / 2, Floats(CentreCue.FloatTone(Rate, 1)).Length);
+        int beep = CentreCue.Tone(Rate).Length / 2;
+        int hiss = (int)(Rate * CentreCue.WakeSeconds);
+
+        Assert.Equal(hiss + beep, Floats(CentreCue.FloatTone(Rate, 1)).Length);
+    }
+
+    [Fact]
+    public void TheHissBeforeTheBeepIsNotSilenceAndTooQuietToHear()
+    {
+        var samples = Floats(CentreCue.FloatTone(Rate, 1));
+        var hiss = samples.Take((int)(Rate * CentreCue.WakeSeconds)).ToArray();
+
+        Assert.Contains(hiss, sample => sample != 0);
+        Assert.InRange(hiss.Max(Math.Abs), 0f, 0.001f);
     }
 
     [Fact]
     public void ItFadesInAndOutRatherThanClicking()
     {
         var samples = Floats(CentreCue.FloatTone(Rate, 1));
+        int start = (int)(Rate * CentreCue.WakeSeconds);
 
-        Assert.True(Math.Abs(samples[0]) < 0.001f);
+        Assert.True(Math.Abs(samples[start]) < 0.001f);
         Assert.True(Math.Abs(samples[^1]) < 0.01f);
     }
 }

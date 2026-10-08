@@ -16,6 +16,12 @@ public static class CentreCue
 {
     private const double Seconds = 0.13, Frequency = 620.0;
 
+    /// <summary>How long the hiss before the beep lasts, in seconds.</summary>
+    internal const double WakeSeconds = 0.5;
+
+    /// <summary>The loudest the hiss gets: about -66 dB, too quiet to hear.</summary>
+    private const float HissLevel = 0.0005f;
+
     /// <summary>Where a cue that would not play is said, for the app's log. Unset, nothing is.</summary>
     public static Action<string>? Trouble { get; set; }
 
@@ -48,17 +54,34 @@ public static class CentreCue
         return pcm;
     }
 
-    /// <summary>32-bit float at <paramref name="rate"/>, every one of <paramref name="channels"/> given the same beep.</summary>
+    /// <summary>
+    /// 32-bit float at <paramref name="rate"/>, every one of <paramref name="channels"/> given the same
+    /// sound: a hiss for <see cref="WakeSeconds"/>, then the beep.
+    /// </summary>
+    /// <remarks>
+    /// The headset's wireless link wakes on sound but not on digital silence, and loses what plays
+    /// while it wakes. A beep on its own is lost whenever the link has been quiet; with a hiss
+    /// before it, measured on the headset, 100 ms clipped the start and 200 ms did not.
+    /// </remarks>
     internal static byte[] FloatTone(int rate, int channels)
     {
+        float[] hiss = Hiss(rate);
         float[] beep = Beep(rate);
-        var samples = new float[beep.Length * channels];
-        for (int i = 0; i < beep.Length; i++)
+        var samples = new float[(hiss.Length + beep.Length) * channels];
+        for (int i = 0; i < hiss.Length + beep.Length; i++)
             for (int channel = 0; channel < channels; channel++)
-                samples[i * channels + channel] = beep[i];
+                samples[i * channels + channel] = i < hiss.Length ? hiss[i] : beep[i - hiss.Length];
         var bytes = new byte[samples.Length * sizeof(float)];
         Buffer.BlockCopy(samples, 0, bytes, 0, bytes.Length);
         return bytes;
+    }
+
+    private static float[] Hiss(int rate)
+    {
+        var hiss = new float[(int)(rate * WakeSeconds)];
+        for (int i = 0; i < hiss.Length; i++)
+            hiss[i] = (Random.Shared.NextSingle() * 2 - 1) * HissLevel;
+        return hiss;
     }
 
     private static float[] Beep(int rate)
