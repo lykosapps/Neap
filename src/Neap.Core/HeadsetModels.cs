@@ -4,16 +4,43 @@ using static Neap.Core.Transmitters;
 
 namespace Neap.Core;
 
+/// <summary>A control on a headset that does one thing, which Neap describes rather than sets.</summary>
+public enum FixedControl
+{
+    VolumeWheel,
+
+    /// <summary>The microphone mutes when flipped up.</summary>
+    FlipToMute,
+
+    /// <summary>Switches between the transmitters it is paired with.</summary>
+    CrossPlay,
+
+    /// <summary>The Stealth Pro II's: Bluetooth on and off, and pairing.</summary>
+    BluetoothButton,
+
+    /// <summary>Switches between the transmitter and Bluetooth.</summary>
+    QuickSwitch,
+
+    /// <summary>The Atlas Air's: pairing, and answering and ending calls.</summary>
+    BluetoothCallButton,
+}
+
 /// <summary>A headset Neap knows, and what it knows of it.</summary>
 /// <param name="Name">The name on the box, for what a person reads.</param>
 /// <param name="SoundName">The words its speakers and microphone carry in their names on the PC, lowercase.</param>
 /// <param name="Writable">Whether changing its settings has been confirmed on the headset; until it has, Neap only reads them.</param>
-/// <param name="CrossPlay">Whether it pairs with several transmitters, a Charging Dock among them, and switches between them with its CrossPlay button.</param>
 /// <param name="Hardware">Its headset, docks and transmitters, by USB product id.</param>
 /// <param name="Features">What it has of what Neap does.</param>
+/// <param name="Unread">Of <paramref name="Features"/>, those Neap cannot yet read on it, offered without a reading so they can be tried.</param>
+/// <param name="Controls">Its controls that do one thing, in the order they are listed.</param>
 public sealed record HeadsetModel(
-    string Name, string SoundName, bool Writable, bool CrossPlay,
-    IReadOnlyDictionary<string, Piece> Hardware, IReadOnlySet<Feature> Features);
+    string Name, string SoundName, bool Writable,
+    IReadOnlyDictionary<string, Piece> Hardware, IReadOnlySet<Feature> Features,
+    IReadOnlySet<Feature> Unread, IReadOnlyList<FixedControl> Controls)
+{
+    /// <summary>Whether it pairs with several transmitters, a Charging Dock among them, and switches between them with its CrossPlay button.</summary>
+    public bool CrossPlay => Controls.Contains(FixedControl.CrossPlay);
+}
 
 /// <summary>The headsets Neap knows.</summary>
 public static class HeadsetModels
@@ -34,7 +61,7 @@ public static class HeadsetModels
     /// </para>
     /// </remarks>
     public static readonly HeadsetModel StealthProII = new(
-        "Stealth Pro II", "stealth pro", Writable: true, CrossPlay: true,
+        "Stealth Pro II", "stealth pro", Writable: true,
         new Dictionary<string, Piece>(StringComparer.OrdinalIgnoreCase)
         {
             // Xbox, black
@@ -54,9 +81,11 @@ public static class HeadsetModels
             ["2288"] = Piece.Transmitter,
             ["2289"] = Piece.Headset,
         },
-        Enum.GetValues<Feature>().ToHashSet());
+        Enum.GetValues<Feature>().ToHashSet(),
+        new HashSet<Feature>(),
+        [FixedControl.VolumeWheel, FixedControl.FlipToMute, FixedControl.CrossPlay, FixedControl.BluetoothButton]);
 
-    /// <summary>The Atlas Air, known from one owner's recording and its product page, in testing.</summary>
+    /// <summary>The Atlas Air, from one owner's recording and Turtle Beach's support pages for it, in testing.</summary>
     /// <remarks>
     /// <para>
     /// Its transmitter is 225E and the headset reports itself as 2260, from a
@@ -66,13 +95,17 @@ public static class HeadsetModels
     /// one; a public release carries only those confirmed, as DECISIONS.md says.
     /// </para>
     /// <para>
-    /// It has Superhuman Hearing, by its product page, but gave no answer for
-    /// where the Stealth Pro II keeps it, so it is left out until it can be
-    /// read. It has no chat wheel, noise cancellation, lights or dock.
+    /// What it has is from Turtle Beach's support articles for it: the Swarm II
+    /// app's desktop and mobile versions, and the quick start guide, which is
+    /// the word on its physical controls (see FINDINGS.md). It has no chat
+    /// wheel, Mode button, second wheel, noise cancellation, wake on motion or
+    /// dock. Superhuman Hearing, the noise gate, voice prompts and the
+    /// transmitter's light gave no reading in the owner's recording, so they
+    /// are offered unread for the tester to try.
     /// </para>
     /// </remarks>
     public static readonly HeadsetModel AtlasAir = new(
-        "Atlas Air", "atlas air", Writable: true, CrossPlay: false,
+        "Atlas Air", "atlas air", Writable: true,
         new Dictionary<string, Piece>(StringComparer.OrdinalIgnoreCase)
         {
             ["225E"] = Piece.Transmitter,
@@ -82,8 +115,11 @@ public static class HeadsetModels
         {
             Feature.Battery, Feature.MasterVolume, Feature.GameEqualiser, Feature.Microphone,
             Feature.MicMonitoring, Feature.AiNoiseReduction, Feature.MicrophoneEqualiser,
-            Feature.ModeButton, Feature.LowerDial, Feature.AutoShutOff,
-        });
+            Feature.AutoShutOff, Feature.SuperhumanHearing, Feature.NoiseGate,
+            Feature.VoicePrompts, Feature.Lights,
+        },
+        new HashSet<Feature> { Feature.SuperhumanHearing, Feature.NoiseGate, Feature.VoicePrompts, Feature.Lights },
+        [FixedControl.VolumeWheel, FixedControl.FlipToMute, FixedControl.QuickSwitch, FixedControl.BluetoothCallButton]);
 
     public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];
 
@@ -101,6 +137,13 @@ public static class HeadsetModels
 
     /// <summary>Whether what goes with CrossPlay is shown: the dock, its ring and switching transmitters; see <see cref="HeadsetModel.CrossPlay"/>.</summary>
     public static bool ShowsCrossPlay(HeadsetModel? model) => model is null || model.CrossPlay;
+
+    /// <summary>The controls that do one thing to list for a headset: the Stealth Pro II's while it is not known.</summary>
+    public static IReadOnlyList<FixedControl> ControlsOf(HeadsetModel? model) => (model ?? StealthProII).Controls;
+
+    /// <summary>Whether a setting is offered without a reading, as one of the functions a headset has that Neap cannot yet read.</summary>
+    public static bool Unread(HeadsetModel? model, string setting) =>
+        model is not null && HeadsetCheck.Needs.Any(need => need.Value.Contains(setting) && model.Unread.Contains(need.Key));
 
     /// <summary>Whether a setting is shown for a headset: one that belongs to no function always is; see <see cref="HeadsetCheck.Needs"/>.</summary>
     public static bool Shows(HeadsetModel? model, string setting) =>

@@ -241,7 +241,8 @@ public sealed class SettingRow : SettingsCard
         }
         if (_link.Value is not { } value)
         {
-            Known(false);
+            // An unread setting keeps its control, so it can be tried.
+            Known(_link.Unread);
             return;
         }
         Known(true);

@@ -7,8 +7,14 @@ namespace Neap.Desktop.Controls;
 /// other when there is not.
 /// </summary>
 /// <remarks>
+/// <para>
 /// A settings row narrower than its slider and reading cuts the reading off,
 /// so two rows share the width only while each still has room for them.
+/// </para>
+/// <para>
+/// A card hidden, as for a function the headset doesn't have, gives up its
+/// place, so the other moves to the first rather than leaving a gap beside it.
+/// </para>
 /// </remarks>
 public sealed class SideBySide : Grid
 {
@@ -21,6 +27,14 @@ public sealed class SideBySide : Grid
         ColumnDefinitions = new ColumnDefinitions("*,*");
         RowDefinitions = new RowDefinitions("Auto,Auto");
         SizeChanged += (_, _) => Arrange();
+        Children.CollectionChanged += (_, e) =>
+        {
+            foreach (var child in e.NewItems?.OfType<Control>() ?? [])
+                child.PropertyChanged += (_, change) =>
+                {
+                    if (change.Property == IsVisibleProperty) Arrange();
+                };
+        };
     }
 
     protected override Type StyleKeyOverride => typeof(Grid);
@@ -29,9 +43,10 @@ public sealed class SideBySide : Grid
     {
         bool beside = Bounds.Width >= BesideFrom;
         RowSpacing = beside ? 0 : 4;
-        for (int i = 0; i < Children.Count && i < 2; i++)
+        var shown = Children.Where(child => child.IsVisible).Take(2).ToList();
+        for (int i = 0; i < shown.Count; i++)
         {
-            var child = Children[i];
+            var child = shown[i];
             SetColumn(child, beside ? i : 0);
             SetRow(child, beside ? 0 : i);
             SetColumnSpan(child, beside ? 1 : 2);

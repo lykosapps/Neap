@@ -34,16 +34,44 @@ public class HeadsetModelsTests
             HeadsetModels.All.SelectMany(model => model.Hardware.Keys).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 
     [Fact]
-    public void TheAtlasAirShowsNothingItLacks()
+    public void TheAtlasAirShowsNothingItsSupportPagesSayItLacks()
     {
         Assert.DoesNotContain(Feature.ChatWheel, HeadsetModels.AtlasAir.Features);
         Assert.DoesNotContain(Feature.NoiseControl, HeadsetModels.AtlasAir.Features);
-        Assert.DoesNotContain(Feature.Lights, HeadsetModels.AtlasAir.Features);
+        Assert.DoesNotContain(Feature.ModeButton, HeadsetModels.AtlasAir.Features);
+        Assert.DoesNotContain(Feature.LowerDial, HeadsetModels.AtlasAir.Features);
+        Assert.False(HeadsetModels.AtlasAir.CrossPlay);
     }
 
+    [Fact]
+    public void WhatItHasButNeapCannotReadIsOfferedUnread()
+    {
+        Assert.True(HeadsetModels.Unread(HeadsetModels.AtlasAir, "superhuman_hearing"));
+        Assert.True(HeadsetModels.Unread(HeadsetModels.AtlasAir, "noise_gate_threshold"));
+        Assert.False(HeadsetModels.Unread(HeadsetModels.AtlasAir, "eq_band_1"));
+        Assert.False(HeadsetModels.Unread(HeadsetModels.StealthProII, "superhuman_hearing"));
+        Assert.False(HeadsetModels.Unread(null, "superhuman_hearing"));
+    }
+
+    [Fact]
+    public void EveryUnreadFunctionIsOneTheHeadsetHas() =>
+        Assert.All(HeadsetModels.All, model => Assert.Subset(model.Features.ToHashSet(), model.Unread.ToHashSet()));
+
+    [Fact]
+    public void TheAtlasAirListsItsOwnButtons() =>
+        Assert.Equal(
+            [FixedControl.VolumeWheel, FixedControl.FlipToMute, FixedControl.QuickSwitch, FixedControl.BluetoothCallButton],
+            HeadsetModels.AtlasAir.Controls);
+
+    [Fact]
+    public void BeforeAHeadsetIsKnownTheStealthProIIsButtonsAreListed() =>
+        Assert.Equal(HeadsetModels.StealthProII.Controls, HeadsetModels.ControlsOf(null));
+
     [Theory]
-    [InlineData("superhuman_hearing", false)]
-    [InlineData("noise_gate_threshold", false)]
+    [InlineData("superhuman_hearing", true)]
+    [InlineData("noise_gate_threshold", true)]
+    [InlineData("mode_button_function", false)]
+    [InlineData("dial_function", false)]
     [InlineData("wake_on_motion", false)]
     [InlineData("eq_band_1", true)]
     [InlineData("mic_monitoring", true)]

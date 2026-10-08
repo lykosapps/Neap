@@ -62,6 +62,9 @@ internal sealed class SettingLink
     /// <summary>Gets whether the setting can be changed: one Neap writes, on a headset whose settings it changes.</summary>
     public bool CanWrite => Key is { Writable: true } && !AppServices.Headset.ReadOnly;
 
+    /// <summary>Gets whether the setting is offered without a reading, on a headset that has it where Neap cannot yet read it.</summary>
+    public bool Unread => Key is not null && HeadsetModels.Unread(AppServices.Headset.Model, Key.Name);
+
     /// <summary>Gets whether the control is being painted, when its change events are not the person's.</summary>
     public bool Painting { get; private set; }
 

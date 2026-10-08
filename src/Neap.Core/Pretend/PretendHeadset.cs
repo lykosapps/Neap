@@ -101,7 +101,8 @@ public sealed class PretendHeadset : IDeviceSource
     /// <param name="atlas">
     /// Be an Atlas Air, as one owner's recording showed it: through its own
     /// transmitter, with no transmitter slots in use, and with no answer for
-    /// the 0x5xx and 0x7xx groups or for what it doesn't have.
+    /// the 0x5xx and 0x7xx groups, for what it doesn't have or for what Neap
+    /// cannot yet read on it.
     /// </param>
     public PretendHeadset(bool atlas = false)
     {
@@ -133,7 +134,7 @@ public sealed class PretendHeadset : IDeviceSource
     private void BeAtlasAir()
     {
         var lacks = HeadsetCheck.Needs
-            .Where(need => !HeadsetModels.AtlasAir.Features.Contains(need.Key))
+            .Where(need => !HeadsetModels.AtlasAir.Features.Contains(need.Key) || HeadsetModels.AtlasAir.Unread.Contains(need.Key))
             .SelectMany(need => need.Value)
             .Select(name => Registry.ByName[name].Key)
             .ToHashSet();

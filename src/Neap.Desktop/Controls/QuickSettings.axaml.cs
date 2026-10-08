@@ -103,7 +103,7 @@ public partial class QuickSettings : UserControl
     private void PaintShh()
     {
         int? value = _shh.Value;
-        ShhTile.IsEnabled = value is not null && _shh.CanWrite;
+        ShhTile.IsEnabled = (value is not null || _shh.Unread) && _shh.CanWrite;
         ShhTile.IsChecked = value == 1;
         ShhWord.Text = SettingWord(value);
         AutomationProperties.SetItemStatus(ShhTile, ShhWord.Text);

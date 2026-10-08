@@ -106,7 +106,7 @@ public partial class SettingTile : UserControl
     private void Paint()
     {
         int? value = _link.Value;
-        Face.IsEnabled = value is not null && _link.CanWrite;
+        Face.IsEnabled = (value is not null || _link.Unread) && _link.CanWrite;
         Face.IsChecked = value == 1;
         StateWord.Text = QuickSettings.SettingWord(value);
         bool open = value == 1 && Inside is not null;

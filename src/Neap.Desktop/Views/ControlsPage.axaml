@@ -19,8 +19,8 @@
                         side, each with every job it can do in view rather than behind a
                         list.
                     -->
-                    <TextBlock loc:Uid.Value="Controls_OnHeadsetHeading" Classes="sectionheader" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <TextBlock x:Name="OnHeadsetHeading" loc:Uid.Value="Controls_OnHeadsetHeading" Classes="sectionheader" />
+                    <Grid x:Name="Assignable" ColumnDefinitions="*,*" ColumnSpacing="12">
                         <c:ModeButtonChoice loc:Uid.Value="Controls_ModeButton" />
                         <c:SettingChoice
                             loc:Uid.Value="Controls_LowerDial"
@@ -40,16 +40,16 @@
                             ColumnSpacing="24"
                             RowDefinitions="Auto,Auto,Auto,Auto"
                             RowSpacing="12">
-                            <TextBlock loc:Uid.Value="Controls_VolumeWheel" Classes="bodystrong" />
-                            <TextBlock
+                            <TextBlock x:Name="VolumeWheel" loc:Uid.Value="Controls_VolumeWheel" Classes="bodystrong" />
+                            <TextBlock x:Name="VolumeWheelDoes"
                                 loc:Uid.Value="Controls_VolumeWheelDoes"
                                 Grid.Column="1"
                                 Classes="secondary" />
-                            <TextBlock
+                            <TextBlock x:Name="BoomArm"
                                 loc:Uid.Value="Controls_BoomArm"
                                 Grid.Row="1"
                                 Classes="bodystrong" />
-                            <TextBlock
+                            <TextBlock x:Name="BoomArmDoes"
                                 loc:Uid.Value="Controls_BoomArmDoes"
                                 Grid.Row="1"
                                 Grid.Column="1"
@@ -74,6 +74,18 @@
                                 x:Name="BluetoothButtonDoes"
                                 loc:Uid.Value="Controls_BluetoothButtonDoes"
                                 Grid.Row="3"
+                                Grid.Column="1"
+                                Classes="secondary" />
+                            <TextBlock x:Name="QuickSwitch" loc:Uid.Value="Controls_QuickSwitch" Classes="bodystrong" />
+                            <TextBlock
+                                x:Name="QuickSwitchDoes"
+                                loc:Uid.Value="Controls_QuickSwitchDoes"
+                                Grid.Column="1"
+                                Classes="secondary" />
+                            <TextBlock x:Name="BluetoothCallButton" loc:Uid.Value="Controls_BluetoothCallButton" Classes="bodystrong" />
+                            <TextBlock
+                                x:Name="BluetoothCallButtonDoes"
+                                loc:Uid.Value="Controls_BluetoothCallButtonDoes"
                                 Grid.Column="1"
                                 Classes="secondary" />
                         </Grid>

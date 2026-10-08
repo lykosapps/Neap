@@ -65,6 +65,33 @@ Only `229B`, `229D` and `229E` have been plugged in here *(measured)*. The
 Xbox and PC editions are different hardware and their transmitters are not
 interchangeable *(research)*.
 
+### The Atlas Air
+
+Neap's first other headset. An owner's recording from Neap 0.2.0, sent on
+GitHub issue 1, shows it on transmitter `225E`, reporting itself as `2260`
+at `0x110`, firmware 6.163.1646.0, with all four transmitter slots empty. It
+answered for the same settings under the Stealth Pro II's keys, with nothing
+at all from `0x500` to `0x5FF` or `0x700` to `0x7FF`, even when asked again.
+`0x260` followed Windows' volume as it was turned. Its speakers and
+microphone are named "Atlas Air" *(measured, on the owner's PC)*.
+
+What it has, from Turtle Beach's support articles for it *(research)*:
+
+- **Swarm II, desktop:** master volume, Superhuman Hearing (on/off; Legacy,
+  Footsteps or Gunshots), a game and chat mix, Chat Boost, Waves 3D, high
+  bandwidth audio, microphone mute, sensitivity, monitoring, a noise gate
+  with its level, high bandwidth microphone, game and microphone equalisers
+  with four presets each and custom ones, auto shut-off (off, 5, 10, 20 or
+  30 minutes), the transmitter's light brightness, and voice and tone prompt
+  level.
+- **Swarm II, mobile:** the same, and a lower volume wheel and Mode button
+  that can be given a job. This conflicts with the quick start guide.
+- **Quick start guide,** the word on its controls: a master volume wheel, a
+  power button, a QuickSwitch button (wireless or Bluetooth), a Bluetooth
+  button (held, pairing; pressed, calls and playback) and a flip-to-mute
+  microphone. No Mode button, second wheel, chat wheel, noise cancellation
+  or dock.
+
 ## The control channel
 
 Each device presents two HID collections. One is standard consumer control

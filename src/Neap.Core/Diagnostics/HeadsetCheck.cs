@@ -80,7 +80,7 @@ public static class HeadsetCheck
             [Feature.MasterVolume] = ["master_volume"],
             [Feature.VoicePrompts] = ["voice_prompt_volume"],
             [Feature.NoiseControl] = ["anc", "anc_level"],
-            [Feature.SuperhumanHearing] = ["superhuman_hearing", "shh_level"],
+            [Feature.SuperhumanHearing] = ["superhuman_hearing", "shh_preset", "shh_level"],
             [Feature.GameEqualiser] = ["eq_preset", "eq_band_1"],
             [Feature.Microphone] = ["mic_muted", "mic_volume"],
             [Feature.MicMonitoring] = ["mic_monitoring"],

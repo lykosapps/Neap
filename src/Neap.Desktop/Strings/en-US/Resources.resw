@@ -261,6 +261,18 @@
   <data name="Controls_BluetoothButtonDoes.Text" xml:space="preserve">
     <value>Turns Bluetooth on and off, and pairs your phone.</value>
   </data>
+  <data name="Controls_QuickSwitch.Text" xml:space="preserve">
+    <value>QuickSwitch</value>
+  </data>
+  <data name="Controls_QuickSwitchDoes.Text" xml:space="preserve">
+    <value>Switches the headset between its transmitter and Bluetooth.</value>
+  </data>
+  <data name="Controls_BluetoothCallButton.Text" xml:space="preserve">
+    <value>Bluetooth button</value>
+  </data>
+  <data name="Controls_BluetoothCallButtonDoes.Text" xml:space="preserve">
+    <value>Held, it pairs your phone. Pressed, it answers or ends a call.</value>
+  </data>
   <data name="Device_LightsLabel" xml:space="preserve">
     <value>Lights</value>
   </data>

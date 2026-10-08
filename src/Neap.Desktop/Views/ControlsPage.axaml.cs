@@ -1,41 +1,60 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Neap.Core;
+using Neap.Core.Diagnostics;
 
 namespace Neap.Desktop.Views;
 
 public partial class ControlsPage : UserControl
 {
+    private readonly Dictionary<FixedControl, (TextBlock Name, TextBlock Does)> _fixed;
+
     public ControlsPage()
     {
         InitializeComponent();
         Keyboard.IsVisible = AppServices.Hotkeys.Supported;
+        _fixed = new()
+        {
+            [FixedControl.VolumeWheel] = (VolumeWheel, VolumeWheelDoes),
+            [FixedControl.FlipToMute] = (BoomArm, BoomArmDoes),
+            [FixedControl.CrossPlay] = (CrossPlay, CrossPlayDoes),
+            [FixedControl.BluetoothButton] = (BluetoothButton, BluetoothButtonDoes),
+            [FixedControl.QuickSwitch] = (QuickSwitch, QuickSwitchDoes),
+            [FixedControl.BluetoothCallButton] = (BluetoothCallButton, BluetoothCallButtonDoes),
+        };
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        AppServices.Headset.Changed += PaintFixed;
-        PaintFixed();
+        AppServices.Headset.Changed += PaintHeadset;
+        PaintHeadset();
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
-        AppServices.Headset.Changed -= PaintFixed;
+        AppServices.Headset.Changed -= PaintHeadset;
     }
 
-    /// <summary>Lists only the fixed controls the connected headset has.</summary>
-    /// <remarks>
-    /// CrossPlay and the Bluetooth button are the Stealth Pro II's. Another
-    /// headset's own buttons are not yet known, so they are left out rather
-    /// than described wrongly.
-    /// </remarks>
-    private void PaintFixed()
+    /// <summary>Shows the controls the connected headset has: those that take a job, and those listed for what they do.</summary>
+    private void PaintHeadset()
     {
-        bool stealth = HeadsetModels.ShowsCrossPlay(AppServices.Headset.Model);
-        CrossPlay.IsVisible = CrossPlayDoes.IsVisible = BluetoothButton.IsVisible = BluetoothButtonDoes.IsVisible = stealth;
-        // Rows left empty would still be spaced, so they go with their contents.
-        FixedGrid.RowDefinitions = new RowDefinitions(stealth ? "Auto,Auto,Auto,Auto" : "Auto,Auto");
+        var model = AppServices.Headset.Model;
+        OnHeadsetHeading.IsVisible = Assignable.IsVisible =
+            HeadsetModels.Shows(model, Feature.ModeButton) || HeadsetModels.Shows(model, Feature.LowerDial);
+
+        // One row each, in the headset's order; rows left empty would still be
+        // spaced, so there are only as many as there are controls.
+        var listed = HeadsetModels.ControlsOf(model).ToList();
+        foreach (var (control, (name, does)) in _fixed)
+        {
+            int row = listed.IndexOf(control);
+            name.IsVisible = does.IsVisible = row >= 0;
+            if (row < 0) continue;
+            Grid.SetRow(name, row);
+            Grid.SetRow(does, row);
+        }
+        FixedGrid.RowDefinitions = new RowDefinitions(string.Join(',', listed.Select(_ => "Auto")));
     }
 }
