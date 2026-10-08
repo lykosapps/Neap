@@ -139,7 +139,7 @@ public sealed class MixService : IDisposable
         if (engine is null) return null;
 
         int applied = engine.SetMix(snap.Value);
-        if (snap.Cue && applied == 50) PlayCentreCue();
+        Cue(beep: snap.Cue && applied == 50);
         Note(why, previous, applied);
         _lastApplied = applied;
         Changed?.Invoke();
@@ -262,18 +262,28 @@ public sealed class MixService : IDisposable
 
     // -- the centre cue ----------------------------------------------------
 
-    /// <summary>A short, soft beep on reaching centre; see <see cref="CentreCue"/>.</summary>
-    private static void PlayCentreCue() => Task.Run(() =>
+    /// <summary>
+    /// Readies the beep on any move and plays it on reaching centre; see
+    /// <see cref="CentreCue"/>.
+    /// </summary>
+    private static void Cue(bool beep) => Task.Run(() =>
     {
         // A pretend run plays nothing: the real headset may be on
         // somebody's head.
         if (Pretend.Active)
         {
-            AppLog.Write("mix: centre cue, not played on a pretend run");
+            if (beep) AppLog.Write("mix: centre cue, not played on a pretend run");
             return;
         }
-        AppLog.Write("mix: centre cue");
-        CentreCue.Play();
+        if (beep)
+        {
+            AppLog.Write("mix: centre cue");
+            CentreCue.Play();
+        }
+        else
+        {
+            CentreCue.Wake();
+        }
     });
 
     public void Dispose()

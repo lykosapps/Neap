@@ -17,8 +17,8 @@ and date.
 
 - The beep when the game and chat mix reaches the centre plays again on Windows.
   In 0.2.0 it went silent.
-- The beep is no longer lost after the headset has been quiet for a few seconds.
-  It now sounds a third of a second after the mix lands on the centre.
+- The beep is no longer lost after the headset has been quiet, or when the
+  wheel is turned quickly, and it sounds as the mix reaches the centre.
 
 ## 0.2.0 — 2026-10-08
 

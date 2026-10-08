@@ -8,25 +8,52 @@ namespace Neap.Core.Mix;
 
 /// <summary>A short, soft beep on reaching centre, played straight to the headset.</summary>
 /// <remarks>
+/// <para>
 /// Not the default output: the mix is about the headset, and the person may
 /// well be listening on it while the system plays elsewhere. Generated rather
 /// than shipped, so there is no audio asset to carry.
+/// </para>
+/// <para>
+/// On Windows the beep is laid over a hiss too quiet to hear, on a line to the
+/// headset that opens as soon as the mix moves and closes once it has been
+/// still for a few seconds. By the time the mix reaches centre the headset's
+/// link is awake, so the beep is heard at once; see <see cref="CueSound"/>.
+/// </para>
 /// </remarks>
 public static class CentreCue
 {
     private const double Seconds = 0.13, Frequency = 620.0;
 
-    /// <summary>How long the hiss before the beep lasts, in seconds.</summary>
-    internal const double WakeSeconds = 0.3;
+    /// <summary>How long the line to the headset stays open after the mix last moved.</summary>
+    private static readonly TimeSpan KeepOpen = TimeSpan.FromSeconds(5);
 
-    /// <summary>The loudest the hiss gets: about -66 dB, too quiet to hear.</summary>
-    private const float HissLevel = 0.0005f;
+    private static readonly Lock Gate = new();
+    private static readonly Timer Idle = new(_ => Close());
+    private static IDisposable? _line;
+    private static CueSound? _sound;
+    private static long _usedAt;
 
     /// <summary>Where a cue that would not play is said, for the app's log. Unset, nothing is.</summary>
     public static Action<string>? Trouble { get; set; }
 
-    /// <summary>Plays the beep, and returns once it has finished or two seconds have passed.</summary>
-    /// <remarks>A cue that will not play is not worth an error, so nothing is thrown; it is said to <see cref="Trouble"/>.</remarks>
+    /// <summary>The mix moved: opens the line to the headset, if it is not open, so a beep at centre is heard at once.</summary>
+    public static void Wake()
+    {
+        try
+        {
+            if (OperatingSystem.IsWindows()) lock (Gate) Ready();
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            Trouble?.Invoke($"the line for the centre cue would not open: {ex.Message}");
+        }
+    }
+
+    /// <summary>Plays the beep.</summary>
+    /// <remarks>
+    /// On Linux, returns once it has finished. A cue that will not play is not
+    /// worth an error, so nothing is thrown; it is said to <see cref="Trouble"/>.
+    /// </remarks>
     public static void Play()
     {
         try
@@ -54,37 +81,7 @@ public static class CentreCue
         return pcm;
     }
 
-    /// <summary>
-    /// 32-bit float at <paramref name="rate"/>, every one of <paramref name="channels"/> given the same
-    /// sound: a hiss for <see cref="WakeSeconds"/>, then the beep.
-    /// </summary>
-    /// <remarks>
-    /// The headset's wireless link wakes on sound but not on digital silence, and loses what plays
-    /// while it wakes. A beep on its own is lost whenever the link has been quiet; with a hiss
-    /// before it, measured on the headset, 100 ms clipped the start and 200 ms did not.
-    /// </remarks>
-    internal static byte[] FloatTone(int rate, int channels)
-    {
-        float[] hiss = Hiss(rate);
-        float[] beep = Beep(rate);
-        var samples = new float[(hiss.Length + beep.Length) * channels];
-        for (int i = 0; i < hiss.Length + beep.Length; i++)
-            for (int channel = 0; channel < channels; channel++)
-                samples[i * channels + channel] = i < hiss.Length ? hiss[i] : beep[i - hiss.Length];
-        var bytes = new byte[samples.Length * sizeof(float)];
-        Buffer.BlockCopy(samples, 0, bytes, 0, bytes.Length);
-        return bytes;
-    }
-
-    private static float[] Hiss(int rate)
-    {
-        var hiss = new float[(int)(rate * WakeSeconds)];
-        for (int i = 0; i < hiss.Length; i++)
-            hiss[i] = (Random.Shared.NextSingle() * 2 - 1) * HissLevel;
-        return hiss;
-    }
-
-    private static float[] Beep(int rate)
+    internal static float[] Beep(int rate)
     {
         int total = (int)(rate * Seconds), fade = (int)(rate * 0.012);
         var beep = new float[total];
@@ -101,29 +98,87 @@ public static class CentreCue
     [SupportedOSPlatform("windows")]
     private static void PlayOnWindows()
     {
-        using var devices = new MMDeviceEnumerator();
-        using var headset = Routing.Headset(devices, output: true);
+        lock (Gate)
+        {
+            if (Ready() is CueSound sound) sound.Beep();
+            else Trouble?.Invoke("the centre cue found no headset output to play to");
+        }
+    }
+
+    /// <summary>Keeps the line open for another <see cref="KeepOpen"/>, opening it if need be.</summary>
+    /// <returns>The sound on the line, or null when there is no headset to play to.</returns>
+    [SupportedOSPlatform("windows")]
+    private static CueSound? Ready()
+    {
+        _usedAt = Environment.TickCount64;
+        Idle.Change(KeepOpen, Timeout.InfiniteTimeSpan);
+        if (_sound is null) Open();
+        return _sound;
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static void Open()
+    {
+        var devices = new MMDeviceEnumerator();
+        var headset = Routing.Headset(devices, output: true);
         if (headset is null)
         {
-            Trouble?.Invoke("the centre cue found no headset output to play to");
+            devices.Dispose();
             return;
         }
 
-        using var player = new WasapiPlayerBuilder()
-            .WithDevice(headset).WithSharedMode().WithPollingSync().WithLatency(60)
+        var player = new WasapiPlayerBuilder()
+            .WithDevice(headset).WithSharedMode().WithLatency(60)
             .Build();
+        try
+        {
+            // Made in the device's own format, as the player does not convert:
+            // a sound in any other plays as silence, with no error.
+            var format = player.DeviceMixFormat;
+            var sound = new CueSound(format.SampleRate, format.Channels);
+            player.PlaybackStopped += (_, args) =>
+            {
+                if (args.Exception is not null)
+                    Trouble?.Invoke($"the line for the centre cue stopped: {args.Exception.Message}");
+            };
+            player.Init(sound.ToWaveProvider());
+            player.Play();
+            _sound = sound;
+            _line = new Line(player, headset, devices);
+        }
+        catch
+        {
+            player.Dispose();
+            headset.Dispose();
+            devices.Dispose();
+            throw;
+        }
+    }
 
-        // Made in the device's own format, as the player does not convert: a
-        // beep in any other plays as silence, with no error.
-        var format = player.DeviceMixFormat;
-        using var source = new RawSourceWaveStream(
-            new MemoryStream(FloatTone(format.SampleRate, format.Channels)),
-            WaveFormat.CreateIeeeFloatWaveFormat(format.SampleRate, format.Channels));
-        using var finished = new ManualResetEventSlim();
-        player.PlaybackStopped += (_, _) => finished.Set();
-        player.Init(source);
-        player.Play();
-        finished.Wait(TimeSpan.FromSeconds(2));
+    private static void Close()
+    {
+        IDisposable? line;
+        lock (Gate)
+        {
+            // A move since the timer fired keeps the line open.
+            if (Environment.TickCount64 - _usedAt < KeepOpen.TotalMilliseconds) return;
+            line = _line;
+            _line = null;
+            _sound = null;
+        }
+        line?.Dispose();
+    }
+
+    [SupportedOSPlatform("windows")]
+    private sealed class Line(WasapiPlayer player, MMDevice headset, MMDeviceEnumerator devices) : IDisposable
+    {
+        public void Dispose()
+        {
+            player.Stop();
+            player.Dispose();
+            headset.Dispose();
+            devices.Dispose();
+        }
     }
 
     [SupportedOSPlatform("linux")]
