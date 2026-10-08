@@ -140,6 +140,9 @@ public sealed class MixService : IDisposable
 
         int applied = engine.SetMix(snap.Value);
         Cue(beep: snap.Cue && applied == 50);
+        // Said as it happens, so a beep someone expected can be told from one never asked for.
+        if (previous is int was && (was - 50) * (applied - 50) < 0)
+            AppLog.Write(FormattableString.Invariant($"mix: passed centre from {was} to {applied} in one step, too far to stop ({why})"));
         Note(why, previous, applied);
         _lastApplied = applied;
         Changed?.Invoke();
