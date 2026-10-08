@@ -17,7 +17,7 @@ public static class CentreCue
     private const double Seconds = 0.13, Frequency = 620.0;
 
     /// <summary>How long the hiss before the beep lasts, in seconds.</summary>
-    internal const double WakeSeconds = 0.5;
+    internal const double WakeSeconds = 0.3;
 
     /// <summary>The loudest the hiss gets: about -66 dB, too quiet to hear.</summary>
     private const float HissLevel = 0.0005f;
