@@ -144,10 +144,12 @@ public static class Registry
             R(0x402, "led_brightness_2", "TX1", 0, 100,
               note: "light 2: on the Charging Dock, the battery slot ring. Slot one's"),
 
-            R(0x510, "game_chat_mix", "3DT", 0, 100,
+            R(0x510, "game_chat_mix", "3DT", 0, 100, writable: false,
               note: "the chat wheel reports its position here. The headset cannot mix on "
                   + "a PC — it receives one stream — so treat this as an INPUT and apply "
-                  + "the mix on the PC, which is what Swarm II does."),
+                  + "the mix on the PC, which is what Swarm II does. Writing it is ignored: "
+                  + "it reads back unchanged and the wheel carries on from where it was. "
+                  + "Measured"),
 
             T(0x600, "mic_muted", "Mic", writable: false,
               note: "1 while the boom arm is flipped up, which mutes the mic. Writing "

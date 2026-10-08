@@ -216,7 +216,7 @@ either way.
 
 | Key | Meaning |
 |---|---|
-| `0x510` | game and chat mix, 0–100. The chat wheel reports its position here |
+| `0x510` | game and chat mix, 0–100. The chat wheel reports its position here. Writing it is ignored: set to 80 and then 50, it read back unchanged each time, and the wheel carried on from where it was *(measured)* |
 | `0x600` | microphone muted by the boom arm, 0/1: 1 while it is flipped up. Writing 1 with the arm down is accepted and does not mute; the microphone went on picking up speech. A Windows mute of the microphone does not change it *(both measured)* |
 | `0x610` | a **mirror** of the Windows recording level, not a control |
 | `0x620` | microphone monitoring (sidetone), 0–100 |
@@ -587,8 +587,9 @@ live only in Swarm II's own `STEALTH_PRO_II.ini` *(research)*.
   overlay with nothing running. Hiding the overlay would mean swallowing
   every volume key on the machine, or a signed HID filter driver.
 - **The chat wheel** reports on the control channel, as `0x510`, through the
-  transmitter carrying the headset's settings. Turned slowly it reports each
-  notch, five apart; turned fast it reports about every half second, in jumps
+  transmitter carrying the headset's settings. The wheel turns smoothly,
+  without notches, and the count stops at 0 and 100. Turned slowly it reports
+  in steps of five or ten; turned fast it reports about every half second, in jumps
   of 20 to 30 (40 straight to 70, 70 to 40, 35 to 65) *(measured)*.
 - **The Bluetooth button** drives the headset's own radio and sends nothing
   to the PC, short or long press. It is not remappable.
