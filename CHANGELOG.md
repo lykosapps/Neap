@@ -22,9 +22,9 @@ and date.
   and beeps; keep turning and it carries on.
 - Turning the chat wheel on past the centre no longer sends the mix racing
   ahead of the wheel.
-- The beep is no longer lost after the headset has been quiet for a few
-  seconds. It plays at once while anything else is playing, and a third of a
-  second late after a quiet spell.
+- On Windows, the beep is no longer lost after the headset has been quiet for
+  a few seconds. It plays at once while anything else is playing, and a third
+  of a second late after a quiet spell.
 
 ## 0.2.0 — 2026-10-08
 
