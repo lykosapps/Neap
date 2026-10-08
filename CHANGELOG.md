@@ -9,6 +9,13 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
+## Unreleased
+
+### Fixed
+
+- The beep when the game and chat mix reaches the centre plays again on Windows.
+  In 0.2.0 it went silent.
+
 ## 0.2.0 — 2026-10-08
 
 **Neap now runs on Linux, and updates itself.**

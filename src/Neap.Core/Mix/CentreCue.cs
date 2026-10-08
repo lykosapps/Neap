@@ -37,18 +37,42 @@ public static class CentreCue
     /// <summary>Mono, 16-bit, little-endian, at <paramref name="rate"/>.</summary>
     internal static byte[] Tone(int rate)
     {
+        float[] beep = Beep(rate);
+        var pcm = new byte[beep.Length * 2];
+        for (int i = 0; i < beep.Length; i++)
+        {
+            short sample = (short)(beep[i] * short.MaxValue);
+            pcm[i * 2] = (byte)(sample & 0xFF);
+            pcm[i * 2 + 1] = (byte)((sample >> 8) & 0xFF);
+        }
+        return pcm;
+    }
+
+    /// <summary>32-bit float at <paramref name="rate"/>, every one of <paramref name="channels"/> given the same beep.</summary>
+    internal static byte[] FloatTone(int rate, int channels)
+    {
+        float[] beep = Beep(rate);
+        var samples = new float[beep.Length * channels];
+        for (int i = 0; i < beep.Length; i++)
+            for (int channel = 0; channel < channels; channel++)
+                samples[i * channels + channel] = beep[i];
+        var bytes = new byte[samples.Length * sizeof(float)];
+        Buffer.BlockCopy(samples, 0, bytes, 0, bytes.Length);
+        return bytes;
+    }
+
+    private static float[] Beep(int rate)
+    {
         int total = (int)(rate * Seconds), fade = (int)(rate * 0.012);
-        var pcm = new byte[total * 2];
+        var beep = new float[total];
         for (int i = 0; i < total; i++)
         {
             double amplitude = 0.25;
             if (i < fade) amplitude *= (double)i / fade;
             else if (i > total - fade) amplitude *= (double)(total - i) / fade;
-            short sample = (short)(amplitude * short.MaxValue * Math.Sin(2 * Math.PI * Frequency * i / rate));
-            pcm[i * 2] = (byte)(sample & 0xFF);
-            pcm[i * 2 + 1] = (byte)((sample >> 8) & 0xFF);
+            beep[i] = (float)(amplitude * Math.Sin(2 * Math.PI * Frequency * i / rate));
         }
-        return pcm;
+        return beep;
     }
 
     [SupportedOSPlatform("windows")]
@@ -62,9 +86,12 @@ public static class CentreCue
             .WithDevice(headset).WithSharedMode().WithPollingSync().WithLatency(60)
             .Build();
 
-        // Made at the device's own rate, so nothing has to convert it.
-        int rate = player.DeviceMixFormat.SampleRate;
-        using var source = new RawSourceWaveStream(new MemoryStream(Tone(rate)), new WaveFormat(rate, 16, 1));
+        // Made in the device's own format, as the player does not convert: a
+        // beep in any other plays as silence, with no error.
+        var format = player.DeviceMixFormat;
+        using var source = new RawSourceWaveStream(
+            new MemoryStream(FloatTone(format.SampleRate, format.Channels)),
+            WaveFormat.CreateIeeeFloatWaveFormat(format.SampleRate, format.Channels));
         using var finished = new ManualResetEventSlim();
         player.PlaybackStopped += (_, _) => finished.Set();
         player.Init(source);
