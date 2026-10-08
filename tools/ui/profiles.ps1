@@ -10,9 +10,10 @@ page, with the pretend headset answering, and the window resized in place.
 
 .PARAMETER Parts
 Which parts to run: A the rail, B the page with none saved and saving one,
-C a saved profile, D a narrow window. All by default.
+C a saved profile, D a narrow window, E when an app switches its profile.
+All by default.
 #>
-param([string]$Parts = 'ABCD')
+param([string]$Parts = 'ABCDE')
 
 . "$PSScriptRoot\Ui.ps1"
 
@@ -21,6 +22,14 @@ $anchor = 'New profile'
 function Resize([int]$Width, [int]$Height) { Set-NeapSize $Width $Height 'Profiles' }
 
 function Get-Box($Element) { $Element.Current.BoundingRectangle }
+
+# An item of a list that is open, which sits in a window of its own.
+function Find-Item([string]$Name) {
+    foreach ($window in $A::RootElement.FindAll($Scope::Children, (New-Condition ProcessIdProperty ([int]$script:Proc.Id)))) {
+        $item = $window.FindFirst($Scope::Descendants, (New-Condition NameProperty $Name))
+        if ($item) { return $item }
+    }
+}
 
 # The New profile button on the page, not the one in the profile menu.
 function Find-NewButton {
@@ -94,6 +103,42 @@ foreach ($theme in 'dark', 'light') {
                 Press (Find-Named 'Keep Game night')
                 Check (Wait-Until { $null -ne (Find-Named 'Rename Game night') } 4) 'Keep puts the row back'
             }
+        }
+
+        if ($Parts.Contains('E') -and $theme -eq 'dark' -and (Find-Named 'Game night')) {
+            Section 'when an app switches its profile'
+            Press (@(Find-All 'Apps for Game night')[0])
+            Check (Wait-Until { $null -ne (Find-Named 'Pretend Chat') } 5) 'the apps dialog lists Pretend Chat'
+            $when = 'When Pretend Chat switches'
+            Check ($null -eq (Find-Named $when)) 'there is no choice of when until the app is checked'
+            Press (Find-Named 'Pretend Chat')
+            Check (Wait-Until { $null -ne (Find-Named $when) } 4) 'checking Pretend Chat offers a choice of when it switches'
+            $choice = Find-Named $when
+            if ($choice) {
+                $chosen = { @($choice.GetCurrentPattern([System.Windows.Automation.SelectionPattern]::Pattern).Current.GetSelection() | ForEach-Object { $_.Current.Name }) }
+                Check ((& $chosen) -contains "While it's open") 'it switches while it is open until told otherwise'
+                Check ($choice.Current.IsKeyboardFocusable -and (Get-Box $choice).Height -ge 24) 'the choice is keyboard reachable and at least 24 high'
+                Open-Menu $choice
+                Check (Wait-Until { $null -ne (Find-Item "While it's using the microphone") } 4) 'the choice offers the microphone'
+                $item = Find-Item "While it's using the microphone"
+                if ($item) { $item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select() }
+                Close-Menu $choice
+                Check (Wait-Until { (& $chosen) -contains "While it's using the microphone" } 3) 'the microphone can be chosen'
+            }
+            Press (Find-Named 'OK')
+            # The row's list of apps is not reachable by UI Automation, so it is checked by eye.
+            Check (Wait-Until { $null -eq (Find-Named $when) } 3) 'OK closes the apps dialog'
+            Save-Shot 'profiles-row-microphone' -Top 500 | ForEach-Object { $_.Dispose() }
+            Press (@(Find-All 'Apps for Game night')[0])
+            Check (Wait-Until { $null -ne (Find-Named $when) } 5) 'opened again, the choice is there'
+            if (Find-Named $when) {
+                $kept = @((Find-Named $when).GetCurrentPattern([System.Windows.Automation.SelectionPattern]::Pattern).Current.GetSelection() | ForEach-Object { $_.Current.Name })
+                Check ($kept -contains "While it's using the microphone") 'opened again, it still says the microphone'
+            }
+            Press (Find-Named 'Pretend Chat')
+            Check (Wait-Until { $null -eq (Find-Named $when) } 3) 'unchecking Pretend Chat takes the choice away'
+            Press (Find-Named 'OK')
+            Check (Wait-Until { $null -eq (Find-Named 'Pretend Chat') } 3) 'OK closes the apps dialog again'
         }
 
         if ($Parts.Contains('D') -and $theme -eq 'dark' -and (Find-Named 'Game night')) {
