@@ -29,8 +29,8 @@ public static class CentreCue
     /// </remarks>
     internal static readonly TimeSpan Awake = TimeSpan.FromSeconds(6);
 
-    /// <summary>When the last beep finished, from <see cref="Environment.TickCount64"/>.</summary>
-    private static long _lastBeep = long.MinValue / 2;
+    /// <summary>When the last beep finished, from <see cref="Environment.TickCount64"/>, or 0 before the first.</summary>
+    private static long _lastBeep;
 
     /// <summary>Where a cue that would not play is said, for the app's log. Unset, nothing is.</summary>
     public static Action<string>? Trouble { get; set; }
@@ -66,13 +66,15 @@ public static class CentreCue
 
     /// <summary>Whether the headset has to be woken before a beep can be heard.</summary>
     /// <param name="playing">Whether anything is playing on the headset now.</param>
-    /// <param name="sinceBeep">How long since the last beep finished.</param>
+    /// <param name="lastBeep">When the last beep finished, from <see cref="Environment.TickCount64"/>, or 0 before the first.</param>
+    /// <param name="now">The time now, from <see cref="Environment.TickCount64"/>.</param>
     /// <remarks>
     /// After <see cref="Awake"/> of quiet the headset sleeps, wakes on sound but
     /// not on digital silence, and loses what plays while it wakes. Anything
     /// playing keeps it awake, as a game does, and so does a beep a moment ago.
     /// </remarks>
-    internal static bool Asleep(bool playing, TimeSpan sinceBeep) => !playing && sinceBeep >= Awake;
+    internal static bool Asleep(bool playing, long lastBeep, long now) =>
+        !playing && (lastBeep == 0 || now - lastBeep >= (long)Awake.TotalMilliseconds);
 
     /// <summary>
     /// 32-bit float at <paramref name="rate"/>, every one of <paramref name="channels"/> given the same
@@ -133,7 +135,8 @@ public static class CentreCue
 
         bool wake = Asleep(
             headset.AudioMeterInformation.MasterPeakValue > 0,
-            TimeSpan.FromMilliseconds(Environment.TickCount64 - Interlocked.Read(ref _lastBeep)));
+            Interlocked.Read(ref _lastBeep),
+            Environment.TickCount64);
 
         // Made in the device's own format, as the player does not convert: a
         // beep in any other plays as silence, with no error.

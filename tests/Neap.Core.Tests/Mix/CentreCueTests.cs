@@ -58,17 +58,23 @@ public class CentreCueTests
         Assert.Equal(beep, Floats(CentreCue.FloatTone(Rate, 1, wake: false)).Length);
     }
 
+    private static readonly long AwakeMs = (long)CentreCue.Awake.TotalMilliseconds;
+
     [Fact]
     public void SomethingPlayingKeepsTheHeadsetAwake() =>
-        Assert.False(CentreCue.Asleep(playing: true, sinceBeep: TimeSpan.FromMinutes(5)));
+        Assert.False(CentreCue.Asleep(playing: true, lastBeep: 0, now: 50_000_000));
 
     [Fact]
     public void ABeepAMomentAgoKeepsTheHeadsetAwake() =>
-        Assert.False(CentreCue.Asleep(playing: false, sinceBeep: CentreCue.Awake - TimeSpan.FromMilliseconds(1)));
+        Assert.False(CentreCue.Asleep(playing: false, lastBeep: 50_000_000, now: 50_000_000 + AwakeMs - 1));
 
     [Fact]
     public void AfterAQuietSpellTheHeadsetIsAsleep() =>
-        Assert.True(CentreCue.Asleep(playing: false, sinceBeep: CentreCue.Awake));
+        Assert.True(CentreCue.Asleep(playing: false, lastBeep: 50_000_000, now: 50_000_000 + AwakeMs));
+
+    [Fact]
+    public void BeforeTheFirstBeepAQuietHeadsetIsAsleep() =>
+        Assert.True(CentreCue.Asleep(playing: false, lastBeep: 0, now: 50_000_000));
 
     [Fact]
     public void ItFadesInAndOutRatherThanClicking()
