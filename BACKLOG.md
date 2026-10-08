@@ -15,6 +15,9 @@ to GitHub, these become issues.
 
 - **Screen reader on both systems.** Narrator on Windows and Orca on Linux
   have not been run on the new app.
+- **A screen reader cannot hear a profile's apps.** On the Profiles page,
+  the line under each profile listing its apps, and whether one switches
+  only on the microphone, never reaches a screen reader.
 - **The Linux AppImage on more than the Steam Deck.** GitHub builds it and the
   tests pass on Linux, but it was last run by hand before the late interface
   changes. Other distributions and a Wayland-only desktop are untested.
