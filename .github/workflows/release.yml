@@ -3,6 +3,11 @@ name: Release
 # Push a tag such as v0.1.0 to build the app on GitHub and attach it to a
 # release, so every download can be traced to a commit and rebuilt by anyone.
 # Two downloads: a zip for Windows, and an AppImage for Linux.
+#
+# A tag with a fourth number, such as v0.2.1.1, is a test build: a
+# pre-release, with the changelog's Unreleased section as its notes. Neap
+# never offers a pre-release as an update, and it compares only the first
+# three numbers, so a tester on 0.2.1.1 is offered 0.2.2 when it is out.
 on:
   push:
     tags: ['v*']
@@ -119,9 +124,11 @@ jobs:
           $version = $env:TAG.TrimStart('v')
           $zip = "Neap-$version-win-x64.zip"
           $image = "Neap-$version-x86_64.AppImage"
+          $test = $version -match '^\d+\.\d+\.\d+\.\d+$'
+          $heading = if ($test) { 'Unreleased' } else { $version }
           $lines = Get-Content CHANGELOG.md
-          $start = [array]::FindIndex($lines, [Predicate[string]]{ param($l) $l -match "^## $([regex]::Escape($version))\b" })
-          if ($start -lt 0) { throw "CHANGELOG.md has no section for $version." }
+          $start = [array]::FindIndex($lines, [Predicate[string]]{ param($l) $l -match "^## $([regex]::Escape($heading))\b" })
+          if ($start -lt 0) { throw "CHANGELOG.md has no section for $heading." }
           $end = [array]::FindIndex($lines, $start + 1, [Predicate[string]]{ param($l) $l -match '^## ' })
           if ($end -lt 0) { $end = $lines.Count }
           $section = $lines[($start + 1)..($end - 1)]
@@ -131,6 +138,12 @@ jobs:
           $first = [array]::FindIndex($section, [Predicate[string]]{ param($l) $l -match '^### ' -and $l -notmatch '^### (Highlights|Updating)\s*$' })
           if ($first -lt 0) { $first = $section.Count }
           $lead = if ($first -gt 0) { $section[0..($first - 1)] } else { @() }
+          if ($test) {
+            $lead = @(
+              '**A test build,** for trying what comes next before it is released. Neap does not offer it as an update, and offers the next release once it is out.'
+              ''
+            ) + $lead
+          }
           $rest = if ($first -lt $section.Count) { $section[$first..($section.Count - 1)] } else { @() }
           $install = @(
             '### Install on Windows'
@@ -168,7 +181,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $version = $env:TAG.TrimStart('v')
+          $kind = if ($version -match '^\d+\.\d+\.\d+\.\d+$') { @('--prerelease', '--title', "Neap $version, test build") } else { @('--title', "Neap $version") }
           gh release create $env:TAG `
             "dist/Neap-$version-win-x64.zip" "dist/Neap-$version-win-x64.zip.sha256" `
             "dist/Neap-$version-x86_64.AppImage" "dist/Neap-$version-x86_64.AppImage.sha256" `
-            --title "Neap $version" --notes-file notes.md
+            @kind --notes-file notes.md
