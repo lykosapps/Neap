@@ -710,8 +710,8 @@ A program recording has an active session on that microphone, which is what
 a profile set to switch on the microphone watches *(measured)*. Teams holds
 the microphone for the whole of a call: from joining, even joined muted,
 through muting and unmuting in Teams, until the call ends, when it lets go
-*(confirmed by the owner)*. Discord holds it while in a voice channel
-*(measured)*.
+*(confirmed by the owner)*. Discord was seen holding it too *(measured)*;
+when it lets go was not checked.
 
 ## The firmware layer
 
