@@ -16,6 +16,11 @@ and date.
 - What's new is always in Settings, beside Neap's version. With no update
   waiting, it shows what's new in the version you have, without going online.
 
+### Fixed
+
+- A link in What's new sits in line with the words around it, rather than
+  above them.
+
 ## 0.2.1 — 2026-10-08
 
 **A small fix.**

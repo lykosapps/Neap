@@ -161,13 +161,16 @@ public static class UpdateDialogs
         {
             if (span.Link is { } link)
             {
-                var anchor = new HyperlinkButton { Content = span.Text, Padding = new Thickness(0), NavigateUri = null };
+                var anchor = new HyperlinkButton { Content = span.Text, Padding = new Thickness(0), BorderThickness = new Thickness(0), MinHeight = 0, NavigateUri = null };
                 anchor.Click += async (_, _) =>
                 {
                     try { await Platform.Current.Open(link); }
                     catch (Exception ex) { AppLog.Write($"could not open a link in the release notes: {ex.Message}"); }
                 };
-                text.Inlines!.Add(new InlineUIContainer(anchor));
+                // A control in a line sits on the baseline by its bottom edge, which
+                // lifts its words above the text around it; set by the bottom of the
+                // text instead, the two share a baseline.
+                text.Inlines!.Add(new InlineUIContainer(anchor) { BaselineAlignment = BaselineAlignment.TextBottom });
             }
             else
             {
