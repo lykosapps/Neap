@@ -37,17 +37,25 @@ public static partial class ReleaseNotes
     /// <summary>The first word of the headings of the sections left out.</summary>
     private const string InstallHeading = "Install";
 
+    /// <summary>The changelog Neap was built with, in Markdown; empty if it was not built in.</summary>
+    public static string BuiltIn { get; } = ReadBuiltIn();
+
     /// <summary>Reads the notes. An empty or unreadable body gives no blocks.</summary>
+    /// <remarks>
+    /// A line that is not a heading or a new bullet carries on the paragraph or
+    /// bullet before it, as the changelog wraps its lines.
+    /// </remarks>
     public static IReadOnlyList<NoteBlock> Of(string body)
     {
         var blocks = new List<NoteBlock>();
-        var paragraph = new List<string>();
+        var lines = new List<string>();
+        var kind = NoteKind.Paragraph;
         bool skipping = false;
 
-        void EndParagraph()
+        void End()
         {
-            if (paragraph.Count > 0) blocks.Add(new(NoteKind.Paragraph, Spans(string.Join(' ', paragraph))));
-            paragraph.Clear();
+            if (lines.Count > 0) blocks.Add(new(kind, Spans(string.Join(' ', lines))));
+            lines.Clear();
         }
 
         // The release workflow writes the notes with a byte-order mark, which
@@ -58,7 +66,7 @@ public static partial class ReleaseNotes
             var heading = Heading().Match(line);
             if (heading.Success)
             {
-                EndParagraph();
+                End();
                 string text = heading.Groups[1].Value.Trim();
                 skipping = text.Split(' ')[0].Equals(InstallHeading, StringComparison.OrdinalIgnoreCase);
                 if (!skipping) blocks.Add(new(NoteKind.Heading, Spans(text)));
@@ -69,20 +77,44 @@ public static partial class ReleaseNotes
             }
             else if (line.Length == 0)
             {
-                EndParagraph();
+                End();
             }
             else if (Bullet().Match(line) is { Success: true } bullet)
             {
-                EndParagraph();
-                blocks.Add(new(NoteKind.Bullet, Spans(bullet.Groups[1].Value)));
+                End();
+                kind = NoteKind.Bullet;
+                lines.Add(bullet.Groups[1].Value);
             }
             else
             {
-                paragraph.Add(line);
+                if (lines.Count == 0) kind = NoteKind.Paragraph;
+                lines.Add(line);
             }
         }
-        EndParagraph();
+        End();
         return blocks;
+    }
+
+    /// <summary>Reads one version's section of the changelog, as <see cref="Of"/> reads a release's notes.</summary>
+    /// <param name="changelog">The changelog, in Markdown.</param>
+    /// <param name="version">The version, as major, minor and patch.</param>
+    /// <returns>The section's blocks, or none when the changelog has no section for the version.</returns>
+    public static IReadOnlyList<NoteBlock> ForVersion(string changelog, Version version)
+    {
+        string[] lines = changelog.ReplaceLineEndings("\n").Split('\n');
+        string heading = "## " + version.ToString(3);
+        int start = Array.FindIndex(lines, l => l == heading || l.StartsWith(heading + " ", StringComparison.Ordinal));
+        if (start < 0) return [];
+        int end = Array.FindIndex(lines, start + 1, l => l.StartsWith("## ", StringComparison.Ordinal));
+        return Of(string.Join('\n', lines[(start + 1)..(end < 0 ? lines.Length : end)]));
+    }
+
+    private static string ReadBuiltIn()
+    {
+        using var stream = typeof(ReleaseNotes).Assembly.GetManifestResourceStream("Neap.CHANGELOG.md");
+        if (stream is null) return "";
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 
     private static List<NoteSpan> Spans(string text)

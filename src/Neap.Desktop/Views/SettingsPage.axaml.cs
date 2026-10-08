@@ -61,7 +61,7 @@ public partial class SettingsPage : UserControl
             if (look.Action == UpdateAction.Update) await AppServices.Updates.Update();
             else await AppServices.Updates.Check();
         };
-        WhatsNew.Click += async (_, _) => await UpdateDialogs.ShowNotes(this);
+        WhatsNew.Click += async (_, _) => await UpdateDialogs.ShowWhatsNew(this);
         DownloadPage.Click += async (_, _) =>
         {
             if (AppServices.Updates.Newer is { } release) await UpdateDialogs.OpenPage(release);
@@ -173,7 +173,7 @@ public partial class SettingsPage : UserControl
 
         UpdateButton.Content = Strings.Get(look.Action == UpdateAction.Update ? "Settings_UpdateInstall" : "Settings_UpdateCheck");
         UpdateButton.Classes.Set("accent", look.Leads);
-        WhatsNew.IsVisible = look.Notes;
+        WhatsNew.IsVisible = UpdateDialogs.HasNotes;
         DownloadPage.IsVisible = look.Download;
         DownloadPage.Content = Strings.Get("Settings_UpdateDownload");
 

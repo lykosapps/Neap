@@ -9,6 +9,13 @@ Each change a person could notice gets a line under **Unreleased**, in the
 section it belongs to. At a release, Unreleased takes the version number
 and date.
 
+## Unreleased
+
+### Added
+
+- What's new is always in Settings, beside Neap's version. With no update
+  waiting, it shows what's new in the version you have, without going online.
+
 ## 0.2.1 — 2026-10-08
 
 **A small fix.**

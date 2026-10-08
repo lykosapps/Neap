@@ -29,8 +29,9 @@ Who it's for: see [USERS.md](USERS.md).
   auto shut-off, wake on motion, and firmware/serial/raw values behind an
   expander. Serves transmitter and device information.
 - **Settings** (footer) — Neap itself: its version and whether it is up to
-  date, with What's new and Update and restart (Download, on Linux), whether
-  to check for updates by itself, and whether it starts when you sign in.
+  date, with What's new (the newer version's while one is out, otherwise the
+  running version's) and Update and restart (Download, on Linux), whether to
+  check for updates by itself, and whether it starts when you sign in.
   Then Problems and other
   headsets: recording headset activity to send with a bug report, and a link
   to the guide for helping support another headset. The licence line is at

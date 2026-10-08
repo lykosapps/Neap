@@ -8,9 +8,22 @@ using Neap.Core.Updates;
 
 namespace Neap.Desktop.Controls;
 
-/// <summary>The dialog that says what is new in the version on offer.</summary>
+/// <summary>The dialog that says what is new, in the version on offer or the one running.</summary>
 public static class UpdateDialogs
 {
+    /// <summary>What's new in the version that is running, from the changelog built into it.</summary>
+    private static readonly IReadOnlyList<NoteBlock> Installed = ReadInstalled();
+
+    /// <summary>Whether there are notes to show: a newer version's, or the running one's.</summary>
+    public static bool HasNotes => UpdateLook.Of(AppServices.Updates.Shown).Notes || Installed.Count > 0;
+
+    /// <summary>Shows what's new: in the newer version while one is on offer, otherwise in the one running.</summary>
+    public static async Task ShowWhatsNew(Control over)
+    {
+        if (UpdateLook.Of(AppServices.Updates.Shown).Notes) await ShowNotes(over);
+        else if (Installed.Count > 0 && AppInfo.Version is { } version) await Notes(version, Installed).ShowAsync(over);
+    }
+
     /// <summary>Shows the newer version's notes, and offers to install it.</summary>
     /// <remarks>
     /// <para>
@@ -22,15 +35,6 @@ public static class UpdateDialogs
     /// The dialog is a snapshot: it offers what the stage was when it opened,
     /// Update and restart, or Download where Neap can't update itself, and
     /// nothing while an update is already running.
-    /// </para>
-    /// <para>
-    /// The notes can be longer than the dialog, and a scroll area is not a
-    /// stop for the Tab key unless it is made one, so without that the
-    /// keyboard could reach only the buttons. It is made one, named for the
-    /// dialog, and focus starts on it, so the arrow keys and Page Down read the
-    /// notes at once. Enter does not start the update from there: the primary
-    /// button is not the default, so an update begins only when its own button
-    /// is chosen.
     /// </para>
     /// </remarks>
     public static async Task ShowNotes(Control over)
@@ -45,11 +49,32 @@ public static class UpdateDialogs
             return;
         }
 
+        var look = UpdateLook.Of(updates.Shown);
+        var dialog = Notes(release.Version, blocks);
+        if (!look.Busy)
+            dialog.PrimaryButtonText = Strings.Get(look.Download ? "Settings_UpdateDownload" : "Settings_UpdateInstall");
+
+        if (!await dialog.ShowAsync(over)) return;
+        if (look.Download) await OpenPage(release);
+        else await updates.Update();
+    }
+
+    /// <summary>The notes for a version in a dialog with only Close; the caller adds the update's button.</summary>
+    /// <remarks>
+    /// The notes can be longer than the dialog, and a scroll area is not a
+    /// stop for the Tab key unless it is made one, so without that the
+    /// keyboard could reach only the buttons. It is made one, named for the
+    /// dialog, and focus starts on it, so the arrow keys and Page Down read the
+    /// notes at once. Enter does not start the update from there: the primary
+    /// button is not the default, so an update begins only when its own button
+    /// is chosen.
+    /// </remarks>
+    private static NeapDialog Notes(Version version, IReadOnlyList<NoteBlock> blocks)
+    {
         var body = new StackPanel { Spacing = 8 };
         foreach (var block in blocks) body.Children.Add(Draw(block));
 
-        var look = UpdateLook.Of(updates.Shown);
-        string title = Strings.Format("Notes_Title", AppInfo.Name, release.Version.ToString(3));
+        string title = Strings.Format("Notes_Title", AppInfo.Name, version.ToString(3));
         var notes = new ScrollViewer
         {
             Content = body,
@@ -66,13 +91,16 @@ public static class UpdateDialogs
             Body = notes,
             CloseButtonText = Strings.Get("Dialog_Close"),
         };
-        if (!look.Busy)
-            dialog.PrimaryButtonText = Strings.Get(look.Download ? "Settings_UpdateDownload" : "Settings_UpdateInstall");
         dialog.Opened += (_, _) => notes.Focus();
+        return dialog;
+    }
 
-        if (!await dialog.ShowAsync(over)) return;
-        if (look.Download) await OpenPage(release);
-        else await updates.Update();
+    private static IReadOnlyList<NoteBlock> ReadInstalled()
+    {
+        if (AppInfo.Version is not { } version) return [];
+        var blocks = ReleaseNotes.ForVersion(ReleaseNotes.BuiltIn, version);
+        if (blocks.Count == 0) AppLog.Write($"updates: no notes for version {version.ToString(3)} are built in, so What's new shows only a newer version's");
+        return blocks;
     }
 
     /// <summary>Says the version an update put in place did not open, and offers the download.</summary>

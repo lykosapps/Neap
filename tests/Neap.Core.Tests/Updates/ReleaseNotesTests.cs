@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+using Neap.Core.Tests.Resources;
 using Neap.Core.Updates;
 
 namespace Neap.Core.Tests.Updates;
@@ -121,5 +123,61 @@ public class ReleaseNotesTests
     public void NothingToReadGivesNoBlocks(string body)
     {
         Assert.Empty(Read(body));
+    }
+
+    /// <summary>A changelog as the repository keeps it: wrapped lines, newest version first.</summary>
+    private const string Changelog = """
+        # Changelog
+
+        Intro, not part of any version.
+
+        ## Unreleased
+
+        - Not out yet.
+
+        ## 0.2.1 — 2026-10-08
+
+        **A small fix.**
+
+        ### Fixed
+
+        - The beep plays again on Windows.
+          In 0.2.0 it went silent.
+
+        ## 0.2.0 — 2026-10-08
+
+        - Linux.
+        """;
+
+    [Fact]
+    public void AVersionsSectionIsReadUpToTheNextVersion()
+    {
+        var blocks = ReleaseNotes.ForVersion(Changelog, new Version(0, 2, 1));
+
+        Assert.Equal([NoteKind.Paragraph, NoteKind.Heading, NoteKind.Bullet], blocks.Select(b => b.Kind));
+        Assert.Equal("Fixed", Words(blocks[1]));
+    }
+
+    [Fact]
+    public void AWrappedBulletIsOneBullet()
+    {
+        var blocks = ReleaseNotes.ForVersion(Changelog, new Version(0, 2, 1));
+
+        Assert.Equal("The beep plays again on Windows. In 0.2.0 it went silent.", Words(blocks[^1]));
+    }
+
+    [Fact]
+    public void AVersionTheChangelogLacksHasNoNotes()
+    {
+        Assert.Empty(ReleaseNotes.ForVersion(Changelog, new Version(0, 2, 2)));
+    }
+
+    [Fact]
+    public void TheBuiltInChangelogHasNotesForTheVersionBeingBuilt()
+    {
+        string props = File.ReadAllText(Path.Combine(AppSource.RepoRoot(), "Directory.Build.props"));
+        var version = Version.Parse(Regex.Match(props, "<Version>([^<]+)</Version>").Groups[1].Value);
+
+        Assert.NotEmpty(ReleaseNotes.ForVersion(ReleaseNotes.BuiltIn, version));
     }
 }

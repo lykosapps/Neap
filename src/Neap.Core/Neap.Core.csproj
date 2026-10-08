@@ -13,4 +13,9 @@
          the routing checks read. -->
     <PackageReference Include="NAudio.Wasapi" Version="3.1.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- What's new, for the version that is running, read without asking GitHub. -->
+    <EmbeddedResource Include="..\..\CHANGELOG.md" LogicalName="Neap.CHANGELOG.md" />
+  </ItemGroup>
 </Project>

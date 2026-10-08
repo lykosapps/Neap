@@ -112,7 +112,7 @@ if ($Parts.Contains('B')) {
         $texts = @(Get-Texts)
         Check ($texts -contains 'You have the latest version.') 'it says Neap is up to date'
         Check ($null -eq (Find-Named 'Update and restart')) 'there is no Update and restart to press'
-        Check ($null -eq (Find-Named "What's new")) 'there is no What''s new to read'
+        Check ($null -ne (Find-Named "What's new")) 'What''s new is there, for the version running'
         Check ($null -ne (Find-Named 'Check now')) 'Check now is offered'
         Check ($null -eq (Find-All $offer | Select-Object -First 1)) 'no banner is showing'
         Save-Shot 'settings-uptodate' -Top 700 | ForEach-Object { $_.Dispose() }
