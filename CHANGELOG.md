@@ -11,21 +11,29 @@ and date.
 
 ## 0.2.0 — 2026-10-08
 
-**Neap now runs on Linux.** One app with the same pages, colours and words on
-Windows and on Linux. On Linux it has been used with the real headset on a
-Steam Deck, in desktop mode; other desktops have been run only against a
-pretend headset.
+**Neap now runs on Linux, and updates itself.**
 
-**Own another Turtle Beach headset? Help bring Neap to it.** The Stealth
-600 Gen 3, 700 Gen 3, 500 and Atlas Air share the Stealth Pro II's
-platform, and support for them can start from a ten-minute recording made in
-Neap. No technical knowledge needed.
-[Here's how](https://github.com/lykosapps/Neap/blob/main/docs/MAPPING.md).
+### Highlights
 
-To update from 0.1.0, quit Neap from its icon by the clock, then unzip
-this version over your Neap folder. Your settings and profiles are kept.
-From this version on, Neap tells you when a newer one is out, and on Windows
-updates itself.
+- **Linux.** The same app, with the same pages, colours and words, on Windows
+  and on Linux. Used with the real headset on a Steam Deck in desktop mode;
+  other desktops have been run only against a pretend headset.
+- **Help bring Neap to your headset.** Own another Turtle Beach headset? The
+  Stealth 600 Gen 3, 700 Gen 3, 500 and Atlas Air share the Stealth Pro II's
+  platform, and support for them can start from a ten-minute recording made in
+  Neap. No technical knowledge needed.
+  [Here's how](https://github.com/lykosapps/Neap/blob/main/docs/MAPPING.md).
+- **Updates itself on Windows.** A banner tells you when a newer version is
+  out, and one button installs it and keeps your settings.
+
+### Updating
+
+- **From 0.1.0:** quit Neap from its icon by the clock, then unzip this
+  version over your Neap folder. Your settings and profiles are kept.
+- **From 0.2.0 on, Windows:** choose **Update and restart** in the banner or in
+  Settings.
+- **From 0.2.0 on, Linux:** Neap opens the download page; download the new
+  file in place of the old one.
 
 ### New on Linux
 
