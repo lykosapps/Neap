@@ -30,6 +30,7 @@ public sealed class HeadsetClient : IDisposable
     private readonly List<DeviceEvent> _setAside = new();
     private int _counter;
     private long _lastSet;
+    private byte[]? _heard;
 
     /// <summary>How long a read waits after a write before it is sent.</summary>
     /// <remarks>
@@ -41,6 +42,16 @@ public sealed class HeadsetClient : IDisposable
     internal static readonly TimeSpan AfterWrite = TimeSpan.FromMilliseconds(100);
 
     public bool AllowWrites { get; }
+
+    /// <summary>
+    /// The first report that arrived during the last <see cref="ReadCategory"/>
+    /// that went unanswered, in hex; null when nothing arrived at all.
+    /// </summary>
+    /// <remarks>
+    /// A device that sends something other than the reply asked for is not
+    /// silent, and the two need telling apart when the headset reads as off.
+    /// </remarks>
+    public string? Unanswered { get; private set; }
 
     /// <param name="allowWrites">Whether this client may write to the headset at all.</param>
     /// <param name="transport">The channel to the device, or the first plugged in to ask when none is given.</param>
@@ -110,6 +121,9 @@ public sealed class HeadsetClient : IDisposable
                     ownsTransport: true);
                 client.Drain();
                 if (client.ReadCategory("GSI", AskWindow).Count > 0) return client;
+                if (client.Unanswered is { } heard)
+                    failed?.Invoke(device.Path,
+                        new InvalidDataException($"it sent something other than the reply asked for: {heard}"));
             }
             catch (Exception ex)
             {
@@ -160,7 +174,10 @@ public sealed class HeadsetClient : IDisposable
     /// </remarks>
     private List<DeviceEvent> Receive()
     {
-        var payload = Frames.PayloadOf(_transport.GetInput());
+        var report = _transport.GetInput();
+        var payload = Frames.PayloadOf(report);
+        if (!payload.IsEmpty || report is not [HidControl.InReportId, ..])
+            _heard ??= report[..(report.AsSpan().LastIndexOfAnyExcept((byte)0) + 1)];
         if (payload.IsEmpty) return [];
 
         _buffer.AddRange(payload.ToArray());
@@ -194,6 +211,8 @@ public sealed class HeadsetClient : IDisposable
         if (_lastSet != 0 && sinceWrite < AfterWrite) Thread.Sleep(AfterWrite - sinceWrite);
         _transport.SendOutput(Frames.Build(verb, counter: NextCounter()));
 
+        _heard = null;
+        Unanswered = null;
         var values = new Dictionary<string, JsonElement>();
         var clock = Stopwatch.StartNew();
         while (clock.Elapsed < wait)
@@ -210,6 +229,7 @@ public sealed class HeadsetClient : IDisposable
             }
             Thread.Sleep(3);
         }
+        if (values.Count == 0 && _heard is not null) Unanswered = Convert.ToHexString(_heard);
         return values;
     }
 

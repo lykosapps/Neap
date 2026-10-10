@@ -43,6 +43,11 @@ to GitHub, these become issues.
   spinner never finished and the microphone button could not be used. A
   second program asking the same transmitter at the same time may have caused
   the drops; not yet reproduced without one. Needs the headset.
+- Neap showed the headset as off for 30 hours, over restarts of Neap and the
+  PC and a switch off and on, while sound played through the Charging Dock.
+  Only unplugging the dock and plugging it back in brought it back. Whether
+  the dock stopped answering or answered with something Neap could not read
+  is not known; the log now records which, the next time. Needs the headset.
 
 ### Known limits, recorded rather than fixed
 

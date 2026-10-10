@@ -49,6 +49,38 @@ public class HeadsetClientTests
     }
 
     [Fact]
+    public void ASilentDeviceLeavesNothingToReport()
+    {
+        using var client = new HeadsetClient(transport: new PretendHeadset { On = false }.Open());
+
+        Assert.Empty(client.ReadCategory("GSI", Window));
+        Assert.Null(client.Unanswered);
+    }
+
+    [Fact]
+    public void SomethingOtherThanTheReplyIsReportedRatherThanTakenForSilence()
+    {
+        var headset = new PretendHeadset { On = false };
+        headset.Push("{\"UP\":\"3DT\",\"KVP\":{\"510\":\"40\"}}");
+        using var client = new HeadsetClient(transport: headset.Open());
+
+        Assert.Empty(client.ReadCategory("GSI", Window));
+        string heard = Encoding.Latin1.GetString(Convert.FromHexString(client.Unanswered!));
+        Assert.Contains("\"UP\":\"3DT\"", heard, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AnAnsweredReadReportsNothing()
+    {
+        var headset = new PretendHeadset();
+        headset.Push("{\"UP\":\"3DT\",\"KVP\":{\"510\":\"40\"}}");
+        using var client = new HeadsetClient(transport: headset.Open());
+
+        Assert.NotEmpty(client.ReadCategory("GSI", Window));
+        Assert.Null(client.Unanswered);
+    }
+
+    [Fact]
     public void AReplySpanningSeveralReportsArrivesWhole()
     {
         using var client = new HeadsetClient(transport: new PretendHeadset().Open());
