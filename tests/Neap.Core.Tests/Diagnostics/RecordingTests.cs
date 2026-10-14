@@ -156,11 +156,35 @@ public class RecordingTests
     }
 
     [Fact]
+    public void AFailureThatRepeatsIsNotedOnceUntilItClears()
+    {
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values()));
+        recording.Failed(Start.AddSeconds(1), "Sound: this system cannot yet say where its sound is going");
+        recording.Failed(Start.AddSeconds(2), "Sound: this system cannot yet say where its sound is going");
+        recording.Sampled(Start.AddSeconds(3), Sound);
+        recording.Failed(Start.AddSeconds(4), "Sound: this system cannot yet say where its sound is going");
+
+        string[] during = Section(Written(recording), "During");
+
+        Assert.Equal(["14:32:01.0", "14:32:03.0", "14:32:04.0"], during.Select(l => l[..10]));
+    }
+
+    [Fact]
+    public void TheHeaderNamesTheSystem()
+    {
+        string text = Written(new Recording("Neap 0.2.1", "Linux 7.2.9-2-cachyos"));
+
+        Assert.Contains("System: Linux 7.2.9-2-cachyos", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("Windows:", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void TheTimelineStopsGrowingAndSaysSo()
     {
         var recording = new Recording("Neap", "10");
         for (int i = 0; i < Recording.MostLines + 10; i++)
-            recording.Failed(Start, "nothing");
+            recording.Failed(Start, $"nothing {i}");
 
         string[] during = Section(Written(recording), "During");
 

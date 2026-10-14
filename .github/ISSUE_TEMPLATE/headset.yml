@@ -43,4 +43,4 @@ body:
   - type: input
     id: windows
     attributes:
-      label: Windows version
+      label: Operating system

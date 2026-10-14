@@ -52,8 +52,8 @@ public sealed record Snapshot(
 /// </para>
 /// </remarks>
 /// <param name="app">The app's name and version.</param>
-/// <param name="windows">The Windows version.</param>
-public sealed class Recording(string app, string windows)
+/// <param name="system">The operating system and its version.</param>
+public sealed class Recording(string app, string system)
 {
     /// <summary>The most lines the timeline keeps.</summary>
     public const int MostLines = 5000;
@@ -66,6 +66,7 @@ public sealed class Recording(string app, string windows)
     private Snapshot? _end;
     private SoundSurvey? _lastSound;
     private readonly Dictionary<(bool Output, string Name), SoundDevice> _levels = [];
+    private string? _lastFailed;
 
     /// <summary>Values met in the recording that identify one person's hardware: the serial number and the radio addresses.</summary>
     public IReadOnlyList<string> Secrets
@@ -121,6 +122,7 @@ public sealed class Recording(string app, string windows)
                     if (was is null || was.Device != now.Device) Add(at, $"default  {Default(now)}");
                 }
             _lastSound = sound;
+            _lastFailed = null;
             foreach (var device in sound.Devices)
             {
                 if (_levels.TryGetValue((device.Output, device.Name), out var was) && Steady(was) == Steady(device)) continue;
@@ -135,10 +137,19 @@ public sealed class Recording(string app, string windows)
         }
     }
 
-    /// <summary>Notes something that could not be read during the recording.</summary>
+    /// <summary>Notes something that could not be read during the recording, once until a reading succeeds.</summary>
+    /// <remarks>
+    /// What a system cannot do fails the same way every second, and a line a
+    /// second for it fills the timeline with one fact.
+    /// </remarks>
     public void Failed(DateTime at, string what)
     {
-        lock (_gate) Add(at, $"failed   {what}");
+        lock (_gate)
+        {
+            if (what == _lastFailed) return;
+            _lastFailed = what;
+            Add(at, $"failed   {what}");
+        }
     }
 
     /// <summary>Takes the snapshot the recording ends with.</summary>
@@ -192,7 +203,7 @@ public sealed class Recording(string app, string windows)
         lock (_gate)
         {
             var plugged = Plugged();
-            return IssueForm.For(plugged, app, windows,
+            return IssueForm.For(plugged, app, system,
                 IssueForm.SupportRequest(plugged) ? Findings().Summary : null);
         }
     }
@@ -213,7 +224,7 @@ public sealed class Recording(string app, string windows)
         {
             text.AppendLine("Neap recording");
             text.AppendLine(Culture, $"App: {app}");
-            text.AppendLine(Culture, $"Windows: {windows}");
+            text.AppendLine(Culture, $"System: {system}");
             if (_start is { } first)
             {
                 text.AppendLine(Invariant($"Started: {first.At:yyyy-MM-dd HH:mm:ss}"));

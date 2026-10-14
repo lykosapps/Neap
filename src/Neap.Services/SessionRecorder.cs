@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using Neap.Core;
 using Neap.Core.Audio;
 using Neap.Core.Diagnostics;
@@ -69,7 +70,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
     {
         if (_recording is not null) return;
         var recording = new Recording(
-            $"{AppInfo.Name} {AppInfo.Version?.ToString(3)}", Environment.OSVersion.Version.ToString());
+            $"{AppInfo.Name} {AppInfo.Version?.ToString(3)}", RuntimeInformation.OSDescription);
         _recording = recording;
         _names.Clear();
         _stopping = new CancellationTokenSource();

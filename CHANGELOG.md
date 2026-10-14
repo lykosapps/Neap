@@ -47,6 +47,9 @@ and date.
 - A recording keeps going for well over an hour. It notes a sound level when
   it changes rather than every second, which filled it after about 37
   minutes.
+- A recording made on Linux names Linux and its version, rather than calling
+  it Windows, and says once rather than every second that it can't yet tell
+  where sound is going.
 
 ## 0.2.1 — 2026-10-08
 

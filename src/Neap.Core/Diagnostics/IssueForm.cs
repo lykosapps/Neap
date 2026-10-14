@@ -7,7 +7,7 @@ namespace Neap.Core.Diagnostics;
 /// <remarks>
 /// <para>
 /// A person reporting a problem is spared every field the app already
-/// knows: its version, the Windows version, the hardware plugged in and,
+/// knows: its version, the operating system, the hardware plugged in and,
 /// for another headset, what Neap found on it. GitHub fills a form's fields
 /// from the link that opens it, by each field's id in the form's definition
 /// under .github/ISSUE_TEMPLATE.
@@ -40,9 +40,9 @@ public static class IssueForm
     /// <summary>The link that opens the right form, filled in.</summary>
     /// <param name="plugged">The product ids of the Turtle Beach devices plugged in, as four hex digits.</param>
     /// <param name="app">The app's name and version.</param>
-    /// <param name="windows">The Windows version.</param>
+    /// <param name="system">The operating system and its version.</param>
     /// <param name="found">What Neap found on another headset, or null for none to fill in.</param>
-    public static Uri For(IReadOnlyCollection<string> plugged, string app, string windows, string? found = null)
+    public static Uri For(IReadOnlyCollection<string> plugged, string app, string system, string? found = null)
     {
         var products = plugged.Select(p => p.ToUpperInvariant()).Distinct().ToList();
 
@@ -50,7 +50,8 @@ public static class IssueForm
         {
             ("template", SupportRequest(products) ? Headset : Problem),
             ("version", app),
-            ("windows", windows),
+            // The field keeps the id "windows" so that links from earlier versions still fill it.
+            ("windows", system),
         };
         if (products.Count > 0) fields.Add(("hardware", string.Join(", ", products.Select(Named))));
         if (found is not null) fields.Add(("found", found));
