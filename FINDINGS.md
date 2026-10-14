@@ -104,6 +104,27 @@ catalogue gives each entry's product ids; it says nothing about what each
 headset can do, so the support articles above and an owner's recording are
 still needed.
 
+### The Stealth 600 Gen 3
+
+What it has, from Turtle Beach's "Swarm II App (Desktop Version)" article for
+the Xbox version, updated 24 June 2026 *(research)*: master volume (on/off and
+a level), Superhuman Hearing (on/off; Legacy, Footsteps or Gunshots), a game
+and chat mix, Chat Boost, microphone mute, sensitivity, monitoring (on/off and
+a level), a noise gate (on/off and a level), game and microphone ten-band
+equalisers with four presets each (game: Signature Sound, Bass Boost, Bass and
+Treble Boost, Vocal Boost; microphone: Signature Sound, Full, Clarity, Smooth)
+and custom ones, auto shut-off (none, 5, 10, 20 or 30 minutes; 30 by
+default), the transmitter's light brightness, and voice and tone prompt level.
+The lower volume dial can be given microphone monitoring level, bass boost
+level, treble boost level or noise gate level, and in Xbox mode the game and
+chat mix, which is its default there; the Mode button can cycle game presets
+or switch the noise gate, with a different default in each transmitter mode.
+
+What it does not list: noise cancellation or transparency, a charging dock or
+spare battery, wake on motion, spatial sound. The PC and PlayStation versions
+have their own articles, not yet read. It is the Atlas Air's list plus the
+dial and the Mode button.
+
 ## The control channel
 
 Each device presents two HID collections. One is standard consumer control
