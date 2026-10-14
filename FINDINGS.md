@@ -812,6 +812,25 @@ the same channel behind the 2025 "RACE" Bluetooth headphone vulnerabilities
 across many brands. Neap stays away from it, which the no-flash rule already
 ensures.
 
+A second pass in Ghidra on the headset's main-chip code *(research,
+4.107.703)* checked the lighting claim directly. The decompressed headset image
+holds both processors' code. The main chip's part is built to run from
+`0x080C9000`, and 1,753 of its pointers line up with its text at that
+address. What it showed:
+
+- **The pin map is fixed per model.** At start-up the firmware reads the
+  product id, picks a built-in table of 13 or 25 pin descriptors for that
+  model, and sets the pins up once. Nothing stored changes it.
+- **The lighting task is event-driven.** It is registered as `TB LED Task`
+  and waits on internal events; the lighting code logs under `TB_LED_LOG`.
+  Which event lights which light was not traced.
+- **Inconclusive:** no call reads `NVID_APP_LED_PATTERN` (`0xF283`) with a
+  fixed key. That fits "nothing feeds it", but `NVID_TB_USR_TX2_LED_INTENSITY`
+  (`0xF403`), which does change brightness, is also never read with a fixed
+  key, so the absence does not tell the two apart. Many reads build the key at
+  run time. The on-device test above (blanking the table changed nothing)
+  remains the stronger evidence.
+
 ## Pitfalls
 
 - **A transmitter answers for a headset it can no longer reach**, with the
