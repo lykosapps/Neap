@@ -26,6 +26,15 @@ and date.
 
 ### Fixed
 
+- On the Atlas Air, the master volume no longer jumps to 100% and back as it
+  is moved, from the slider or the headset's wheel.
+- On the Atlas Air, Bluetooth says whether the headset is listening over it.
+  It used to say "Connected" on the transmitter and "Not connected" on
+  Bluetooth.
+- On the Atlas Air, profiles no longer stay on "Reading the headset's
+  settings…". They wait only for settings the headset has.
+- Mic monitoring is hidden on the Atlas Air until a tester finds where it is
+  kept. The setting Neap was changing turns on and off with the mute instead.
 - Neap no longer changes the settings of a headset it doesn't know, as it
   always said it wouldn't. It only reads them.
 - A recording of another headset now says which functions the headset didn't

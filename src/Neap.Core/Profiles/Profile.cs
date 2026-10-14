@@ -92,6 +92,15 @@ public static class ProfileGate
         Link.Connected => ProfileReadiness.Reading,
         _ => ProfileReadiness.HeadsetNotAnswering,
     };
+
+    /// <summary>Whether a profile reads and writes a setting on a headset: one it has and Neap can read.</summary>
+    /// <remarks>
+    /// A profile is ready once every setting it holds has been read, so one
+    /// that waited on a setting the headset lacks would never be ready. A
+    /// setting it does not hold is left alone when a profile is switched to.
+    /// </remarks>
+    public static bool Holds(HeadsetModel? model, string setting) =>
+        HeadsetModels.Shows(model, setting) && !HeadsetModels.Unread(model, setting);
 }
 
 /// <summary>How an app is named in a profile: the way the running one is, by its process name.</summary>

@@ -1,3 +1,4 @@
+using Neap.Core;
 using Neap.Core.Audio;
 using Neap.Core.Connection;
 using Neap.Core.Presets;
@@ -43,6 +44,7 @@ public sealed class ProfileService : IDisposable
     private Task? _refreshing;
     private IDisposable? _spatialWatch;
     private string? _watchedEndpoint;
+    private string? _waitingFor;
 
     public ProfileService(HeadsetService headset) => _headset = headset;
 
@@ -92,18 +94,25 @@ public sealed class ProfileService : IDisposable
 
     private async Task<ProfileSettings?> ReadCurrent()
     {
-        if (AppServices.Noise.Mode is not { } mode) return null;
-        if (!_headset.TryGetNumberByKey(NoiseControl.LevelKey, out int level)) return null;
-        if (!Flag("superhuman_hearing", out bool shh)) return null;
-        if (!_headset.TryGetNumber("shh_preset", out int shhPreset)) return null;
-        if (!_headset.TryGetNumber("shh_level", out int shhLevel)) return null;
-        if (!Flag("noise_gate", out bool gate)) return null;
-        if (!_headset.TryGetNumber("noise_gate_threshold", out int gateThreshold)) return null;
-        if (!Flag("ai_noise_reduction", out bool ai)) return null;
-        if (!_headset.TryGetNumber("mic_monitoring", out int monitoring)) return null;
-        if (!_headset.TryGetNumber("auto_shutoff", out int autoShutoff)) return null;
-        if (!_headset.TryGetNumber("dial_function", out int dial)) return null;
-        if (!_headset.TryGetNumber("mode_button_function", out int modeFunction)) return null;
+        var model = _headset.Model;
+        var mode = NoiseMode.Off;
+        if (ProfileGate.Holds(model, "anc"))
+        {
+            if (AppServices.Noise.Mode is not { } noise) return Waiting("anc");
+            mode = noise;
+        }
+        if (!Number(model, "anc_level", out int level)) return null;
+        if (!Number(model, "superhuman_hearing", out int shh)) return null;
+        if (!Number(model, "shh_preset", out int shhPreset)) return null;
+        if (!Number(model, "shh_level", out int shhLevel)) return null;
+        if (!Number(model, "noise_gate", out int gate)) return null;
+        if (!Number(model, "noise_gate_threshold", out int gateThreshold)) return null;
+        if (!Number(model, "ai_noise_reduction", out int ai)) return null;
+        if (!Number(model, "mic_monitoring", out int monitoring)) return null;
+        if (!Number(model, "auto_shutoff", out int autoShutoff)) return null;
+        if (!Number(model, "dial_function", out int dial)) return null;
+        if (!Number(model, "mode_button_function", out int modeFunction)) return null;
+        _waitingFor = null;
 
         // Both equaliser banks are read here, in the background, rather than
         // on the first switch: saving without them stores no preset, and
@@ -125,7 +134,7 @@ public sealed class ProfileService : IDisposable
         else if (spatial.Active is { } active) format = active;
         else return null;
 
-        return new ProfileSettings(mode, level, shh, shhPreset, shhLevel, gate, gateThreshold, ai,
+        return new ProfileSettings(mode, level, shh != 0, shhPreset, shhLevel, gate != 0, gateThreshold, ai != 0,
             monitoring, AppServices.Presets.State(Bank.Game)?.Baseline?.Name,
             AppServices.Presets.State(Bank.Mic)?.Baseline?.Name, format, autoShutoff,
             new ModeChoice(modeFunction, AppServices.Noise.Cycling), dial);
@@ -146,11 +155,22 @@ public sealed class ProfileService : IDisposable
             : Platform.Current.Spatial.Watch(endpointId, () => _ui.Post(() => _ = Refresh()));
     }
 
-    private bool Flag(string name, out bool value)
+    /// <summary>Reads a setting a profile holds on this headset, or 0 for one it does not; see <see cref="ProfileGate.Holds"/>.</summary>
+    /// <returns>False while a setting it holds has not been read yet.</returns>
+    private bool Number(HeadsetModel? model, string name, out int value)
     {
-        bool ok = _headset.TryGetNumber(name, out int raw);
-        value = raw != 0;
-        return ok;
+        value = 0;
+        if (!ProfileGate.Holds(model, name) || _headset.TryGetNumber(name, out value)) return true;
+        Waiting(name);
+        return false;
+    }
+
+    /// <summary>Notes in the log, once, the setting the current settings wait on, so a profile that is never ready says why.</summary>
+    private ProfileSettings? Waiting(string name)
+    {
+        if (_waitingFor != name) AppLog.Write($"profiles: waiting for the headset's {name}");
+        _waitingFor = name;
+        return null;
     }
 
     /// <summary>
@@ -186,18 +206,24 @@ public sealed class ProfileService : IDisposable
         if (s.MicPreset is { } mp && mic.Presets.FirstOrDefault(p => p.Name == mp) is { } micPreset)
             await AppServices.Presets.Select(Bank.Mic, micPreset);
 
-        AppServices.Noise.Choose(s.NoiseMode, s.NoiseLevel);
-        _headset.Set("superhuman_hearing", s.SuperhumanHearing ? 1 : 0);
-        _headset.Set("shh_preset", s.ShhPreset);
-        _headset.Set("shh_level", s.ShhLevel);
-        _headset.Set("noise_gate", s.NoiseGate ? 1 : 0);
-        _headset.Set("noise_gate_threshold", s.NoiseGateThreshold);
-        _headset.Set("ai_noise_reduction", s.AiNoiseReduction ? 1 : 0);
-        _headset.Set("mic_monitoring", s.MicMonitoring);
-        _headset.Set("auto_shutoff", s.AutoShutoff);
-        _headset.Set("dial_function", s.DialFunction);
-        _headset.Set("mode_button_function", s.ModeButton.Function);
-        AppServices.Noise.SetCycling(s.ModeButton.Cycles);
+        var model = _headset.Model;
+        void Set(string name, int value)
+        {
+            if (ProfileGate.Holds(model, name)) _headset.Set(name, value);
+        }
+
+        if (ProfileGate.Holds(model, "anc")) AppServices.Noise.Choose(s.NoiseMode, s.NoiseLevel);
+        Set("superhuman_hearing", s.SuperhumanHearing ? 1 : 0);
+        Set("shh_preset", s.ShhPreset);
+        Set("shh_level", s.ShhLevel);
+        Set("noise_gate", s.NoiseGate ? 1 : 0);
+        Set("noise_gate_threshold", s.NoiseGateThreshold);
+        Set("ai_noise_reduction", s.AiNoiseReduction ? 1 : 0);
+        Set("mic_monitoring", s.MicMonitoring);
+        Set("auto_shutoff", s.AutoShutoff);
+        Set("dial_function", s.DialFunction);
+        Set("mode_button_function", s.ModeButton.Function);
+        if (ProfileGate.Holds(model, "mode_button_function")) AppServices.Noise.SetCycling(s.ModeButton.Cycles);
         await Platform.Current.Spatial.Apply(s.Spatial);
 
         AppSettings.Update(a => a.ActiveProfileId = profile.Id);

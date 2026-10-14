@@ -5,7 +5,9 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Neap.Core;
 using Neap.Core.Audio;
+using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
 
@@ -68,8 +70,10 @@ public sealed class SystemVolumeRow : SettingsCard
 
     private Flow Flow => Capture ? Flow.Input : Flow.Output;
 
-    /// <summary>The registry name of the headset's mirror of this level.</summary>
-    private string MirrorName => Capture ? "mic_volume" : "master_volume";
+    /// <summary>The key of the headset's mirror of this level, which differs between headsets for the output.</summary>
+    private int MirrorKey => Capture
+        ? Registry.ByName["mic_volume"].Key
+        : HeadsetModels.VolumeKeyOf(AppServices.Headset.Model);
 
     /// <remarks>
     /// Listens and polls on every load, not only the first: a row is unloaded
@@ -194,7 +198,7 @@ public sealed class SystemVolumeRow : SettingsCard
     /// </remarks>
     private void Paint()
     {
-        if (_slider is null || !AppServices.Headset.TryGetNumber(MirrorName, out int level)) return;
+        if (_slider is null || !AppServices.Headset.TryGetNumberByKey(MirrorKey, out int level)) return;
         _painting = true;
         try
         {

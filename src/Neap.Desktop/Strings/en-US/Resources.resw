@@ -1087,6 +1087,12 @@
   <data name="Transmitters_BluetoothOff" xml:space="preserve">
     <value>Not connected</value>
   </data>
+  <data name="Transmitters_BluetoothInUse" xml:space="preserve">
+    <value>In use</value>
+  </data>
+  <data name="Transmitters_BluetoothNotInUse" xml:space="preserve">
+    <value>Not in use</value>
+  </data>
   <data name="Home_SignalStrong" xml:space="preserve">
     <value>Strong</value>
   </data>

@@ -16,6 +16,22 @@ public class LinkStateTests
         Assert.Equal(bluetooth, LinkState.Bluetooth(value));
     }
 
+    [Theory]
+    [InlineData(3, BluetoothState.Connected)]
+    [InlineData(2, BluetoothState.NotConnected)]
+    public void TheStealthProIISaysWhetherBluetoothIsConnected(int value, BluetoothState state)
+    {
+        Assert.Equal(state, LinkState.BluetoothOf(HeadsetModels.StealthProII, value));
+        Assert.Equal(state, LinkState.BluetoothOf(null, value));
+    }
+
+    /// <summary>One owner's Atlas Air read 1 on its transmitter and 0 while switched to Bluetooth.</summary>
+    [Theory]
+    [InlineData(1, BluetoothState.NotInUse)]
+    [InlineData(0, BluetoothState.InUse)]
+    public void TheAtlasAirSaysWhetherItIsListeningOverBluetooth(int value, BluetoothState state) =>
+        Assert.Equal(state, LinkState.BluetoothOf(HeadsetModels.AtlasAir, value));
+
     [Fact]
     public void AnUnseenAttachmentIsUnknown()
     {

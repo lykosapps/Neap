@@ -40,6 +40,12 @@ public sealed record HeadsetModel(
 {
     /// <summary>Whether it pairs with several transmitters, a Charging Dock among them, and switches between them with its CrossPlay button.</summary>
     public bool CrossPlay => Controls.Contains(FixedControl.CrossPlay);
+
+    /// <summary>The key of its copy of the system's output level, which the master volume follows between polls.</summary>
+    public int VolumeKey { get; init; } = 0x2A0;
+
+    /// <summary>Whether its link state says what it is listening through rather than whether Bluetooth is connected; see <see cref="Settings.LinkState.BluetoothOf"/>.</summary>
+    public bool LinkStateIsSource { get; init; }
 }
 
 /// <summary>The headsets Neap knows.</summary>
@@ -103,6 +109,14 @@ public static class HeadsetModels
     /// transmitter's light gave no reading in the owner's recording, so they
     /// are offered unread for the tester to try.
     /// </para>
+    /// <para>
+    /// A second recording, of an hour's use, showed three keys meaning
+    /// something else on it. 0x260 follows the system's output level while
+    /// 0x2a0 stays at 100. 0x290 is 1 on its transmitter and 0 while it is
+    /// switched to Bluetooth. And 0x620, the Stealth Pro II's mic monitoring,
+    /// turns on and off with the mute, so mic monitoring is left out until
+    /// its tester finds where it is kept.
+    /// </para>
     /// </remarks>
     public static readonly HeadsetModel AtlasAir = new(
         "Atlas Air", "atlas air", Writable: true,
@@ -114,12 +128,16 @@ public static class HeadsetModels
         new HashSet<Feature>
         {
             Feature.Battery, Feature.MasterVolume, Feature.GameEqualiser, Feature.Microphone,
-            Feature.MicMonitoring, Feature.AiNoiseReduction, Feature.MicrophoneEqualiser,
+            Feature.AiNoiseReduction, Feature.MicrophoneEqualiser,
             Feature.AutoShutOff, Feature.SuperhumanHearing, Feature.NoiseGate,
             Feature.VoicePrompts, Feature.Lights,
         },
         new HashSet<Feature> { Feature.SuperhumanHearing, Feature.NoiseGate, Feature.VoicePrompts, Feature.Lights },
-        [FixedControl.VolumeWheel, FixedControl.FlipToMute, FixedControl.QuickSwitch, FixedControl.BluetoothCallButton]);
+        [FixedControl.VolumeWheel, FixedControl.FlipToMute, FixedControl.QuickSwitch, FixedControl.BluetoothCallButton])
+    {
+        VolumeKey = 0x260,
+        LinkStateIsSource = true,
+    };
 
     public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];
 
@@ -137,6 +155,9 @@ public static class HeadsetModels
 
     /// <summary>Whether what goes with CrossPlay is shown: the dock, its ring and switching transmitters; see <see cref="HeadsetModel.CrossPlay"/>.</summary>
     public static bool ShowsCrossPlay(HeadsetModel? model) => model is null || model.CrossPlay;
+
+    /// <summary>The key of a headset's copy of the system's output level: the Stealth Pro II's while it is not known.</summary>
+    public static int VolumeKeyOf(HeadsetModel? model) => (model ?? StealthProII).VolumeKey;
 
     /// <summary>The controls that do one thing to list for a headset: the Stealth Pro II's while it is not known.</summary>
     public static IReadOnlyList<FixedControl> ControlsOf(HeadsetModel? model) => (model ?? StealthProII).Controls;

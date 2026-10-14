@@ -11,6 +11,19 @@ public enum Attachment
     Usb,
 }
 
+/// <summary>What the headset says of Bluetooth.</summary>
+public enum BluetoothState
+{
+    Connected,
+    NotConnected,
+
+    /// <summary>Switched to Bluetooth, on a headset that says which it is listening through.</summary>
+    InUse,
+
+    /// <summary>Listening through its transmitter, on a headset that says which it is listening through.</summary>
+    NotInUse,
+}
+
 /// <summary>
 /// Keys 0x290 and 0x250: the headset's own account of how it is attached, and
 /// whether it is taking power.
@@ -88,6 +101,20 @@ public static class LinkState
     public const int TransmitterFlagKey = 0x150;
 
     public static bool Bluetooth(int value) => (value & 1) != 0;
+
+    /// <summary>What a headset's 0x290 says of Bluetooth.</summary>
+    /// <remarks>
+    /// The Atlas Air reads 0x290 another way. In one owner's recording it was
+    /// 1 on its transmitter and 0 while switched to Bluetooth, and a phone's
+    /// signal level kept arriving after it switched back to the transmitter,
+    /// so 1 does not mean Bluetooth is disconnected. It says which of the two
+    /// it is listening through, and nothing about whether Bluetooth is
+    /// connected while it is not in use.
+    /// </remarks>
+    public static BluetoothState BluetoothOf(HeadsetModel? model, int value) =>
+        model is { LinkStateIsSource: true }
+            ? value == 0 ? BluetoothState.InUse : BluetoothState.NotInUse
+            : Bluetooth(value) ? BluetoothState.Connected : BluetoothState.NotConnected;
 
     public static Attachment How(int value) => (value >> 1) switch
     {

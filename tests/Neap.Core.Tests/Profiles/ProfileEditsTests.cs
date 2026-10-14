@@ -41,6 +41,30 @@ public class ProfileEditsTests
     public void AProfileNeedsTheHeadsetAnsweringAndRead(Link link, bool read, ProfileReadiness expected) =>
         Assert.Equal(expected, ProfileGate.Of(link, read));
 
+    /// <summary>A profile that waited on a setting the headset lacks or Neap cannot read would never be ready.</summary>
+    [Theory]
+    [InlineData("auto_shutoff", true)]
+    [InlineData("ai_noise_reduction", true)]
+    [InlineData("anc", false)]
+    [InlineData("mode_button_function", false)]
+    [InlineData("dial_function", false)]
+    [InlineData("superhuman_hearing", false)]
+    [InlineData("noise_gate", false)]
+    [InlineData("mic_monitoring", false)]
+    public void AnAtlasAirsProfileHoldsOnlyWhatItCanRead(string setting, bool held) =>
+        Assert.Equal(held, ProfileGate.Holds(HeadsetModels.AtlasAir, setting));
+
+    [Theory]
+    [InlineData("anc")]
+    [InlineData("mode_button_function")]
+    [InlineData("superhuman_hearing")]
+    [InlineData("mic_monitoring")]
+    public void AStealthProIIsProfileHoldsEverySetting(string setting)
+    {
+        Assert.True(ProfileGate.Holds(HeadsetModels.StealthProII, setting));
+        Assert.True(ProfileGate.Holds(null, setting));
+    }
+
     [Theory]
     [InlineData("Games", "witcher3.exe", "witcher3")]
     [InlineData("Steam/steamapps/common/Some Game", "Some Game.exe", "Some Game")]

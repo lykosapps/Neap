@@ -230,7 +230,13 @@ public partial class TransmittersPanel : UserControl
     {
         if (_bluetooth is null) return;
         _bluetooth.Text = AppServices.Headset.TryGetNumberByKey(LinkState.Key, out int link)
-            ? Strings.Get(LinkState.Bluetooth(link) ? "Transmitters_BluetoothOn" : "Transmitters_BluetoothOff")
+            ? Strings.Get(LinkState.BluetoothOf(AppServices.Headset.Model, link) switch
+            {
+                BluetoothState.Connected => "Transmitters_BluetoothOn",
+                BluetoothState.InUse => "Transmitters_BluetoothInUse",
+                BluetoothState.NotInUse => "Transmitters_BluetoothNotInUse",
+                _ => "Transmitters_BluetoothOff",
+            })
             : Strings.Get("Reading_None");
     }
 

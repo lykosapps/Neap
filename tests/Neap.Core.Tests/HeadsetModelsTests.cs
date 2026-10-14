@@ -74,10 +74,20 @@ public class HeadsetModelsTests
     [InlineData("dial_function", false)]
     [InlineData("wake_on_motion", false)]
     [InlineData("eq_band_1", true)]
-    [InlineData("mic_monitoring", true)]
+    [InlineData("mic_monitoring", false)]
     [InlineData("firmware_version", true)]
     public void AnAtlasAirShowsOnlyTheSettingsOfItsFunctions(string setting, bool shown) =>
         Assert.Equal(shown, HeadsetModels.Shows(HeadsetModels.AtlasAir, setting));
+
+    [Theory]
+    [InlineData("Stealth Pro II", 0x2A0)]
+    [InlineData("Atlas Air", 0x260)]
+    public void EachHeadsetKeepsItsCopyOfTheSystemVolumeUnderItsOwnKey(string name, int key) =>
+        Assert.Equal(key, HeadsetModels.VolumeKeyOf(HeadsetModels.All.Single(model => model.Name == name)));
+
+    [Fact]
+    public void BeforeAHeadsetIsKnownItsVolumeIsTheStealthProIIs() =>
+        Assert.Equal(0x2A0, HeadsetModels.VolumeKeyOf(null));
 
     [Fact]
     public void BeforeAHeadsetIsKnownEverythingIsShown() =>
