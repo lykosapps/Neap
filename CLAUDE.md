@@ -74,7 +74,14 @@ preparing code for experienced reviewers.
   beside it that uses `Ui.ps1`. `run.ps1 access` walks every page in both
   themes for names, target sizes, Tab order, a visible focus mark and text
   contrast; it takes about six minutes and the keyboard focus, so it is not
-  part of `all` and needs the machine to itself.
+  part of `all` and needs the machine to itself. `run.ps1 atlas` checks the
+  pretend Atlas Air.
+- **Size the check to the change.** Notes and docs need only the build. A
+  rule in Core needs its tests, and the check for its page if what the page
+  shows changes. One screen needs that screen's check. What every screen
+  shares (startup, navigation, themes, `Ui.ps1` and `run.ps1`) needs `all`.
+  A release needs `all`, `access`, `tools/pretend.ps1` and the checks on the
+  headset. Run a check of a minute or more in the background.
 - **Sample, do not snapshot.** One reading after the fact shows where a value
   settled, not whether it moved.
 - **Read the app's folder from outside Claude.** The desktop app runs
