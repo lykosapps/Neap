@@ -216,8 +216,37 @@ public class PretendHeadsetTests
         Assert.Equal(PretendHeadset.AtlasTransmitterProduct, client!.ProductId);
         var everything = client.ReadAll();
         Assert.Equal("2260", everything["110"].GetString());
-        Assert.DoesNotContain(everything.Keys, key => key.Length == 3 && key[0] is '5' or '7');
         Assert.Contains("1220", everything.Keys);
+    }
+
+    /// <summary>As one owner's recording showed it at the start.</summary>
+    [Fact]
+    public void AnAtlasAirAnswersAsOneOwnersDid()
+    {
+        var link = new PretendHeadset(atlas: true).Open();
+
+        string general = Json(Exchange(link, Frames.Build("SGSI")));
+        string sound = Json(Exchange(link, Frames.Build("SSAF")));
+
+        Assert.Contains("\"260\":\"45\"", general, StringComparison.Ordinal);
+        Assert.Contains("\"2a0\":\"100\"", general, StringComparison.Ordinal);
+        Assert.Contains("\"290\":\"1\"", general, StringComparison.Ordinal);
+        Assert.Equal("{\"OR\":\"SAF\",\"KVP\":{\"720\":\"0\"}}", sound);
+    }
+
+    [Fact]
+    public void AnAtlasAirDoesNotAnswerForTheGameAndChatMix() =>
+        Assert.Empty(Exchange(new PretendHeadset(atlas: true).Open(), Frames.Build("S3DT")));
+
+    [Fact]
+    public void AnAtlasAirsMonitoringValueFollowsItsMute()
+    {
+        var headset = new PretendHeadset(atlas: true);
+        var link = headset.Open();
+
+        headset.Report(0x600, "1");
+
+        Assert.Equal("{\"UP\":\"Mic\",\"KVP\":{\"600\":\"1\",\"620\":\"1\"}}", Json(Waiting(link)));
     }
 
     [Fact]

@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using Neap.Core.Connection;
-using Neap.Core.Diagnostics;
 using Neap.Core.Hid;
 using Neap.Core.Presets;
 using Neap.Core.Protocol;
@@ -74,6 +73,12 @@ public sealed class PretendHeadset : IDeviceSource
         [0x220] = "GSI",
     };
 
+    /// <summary>The keys one owner's Atlas Air did not report, of those the Stealth Pro II does.</summary>
+    private static readonly int[] AtlasLacks = [0x2E0, 0x510, 0x640, 0x650, 0x700, 0x710, 0x730, 0x740, 0x750, 0x760];
+
+    /// <summary>The category one owner's Atlas Air gave no answer for, asked twice.</summary>
+    private const string AtlasSilent = "3DT";
+
     private const int NameKey = 0x220;
     private const int SlotBlock = 0x400;
     private const int SlotStride = 0x20;
@@ -94,15 +99,16 @@ public sealed class PretendHeadset : IDeviceSource
     private readonly List<PretendRefusal> _refusals = new();
     private readonly List<PretendRefusal> _unraised = new();
     private bool _on = true;
+    private bool _atlas;
 
     /// <summary>The product id of the device it is opened through: the Charging Dock, or the Atlas Air's transmitter.</summary>
     private readonly ushort _product;
 
     /// <param name="atlas">
     /// Be an Atlas Air, as one owner's recording showed it: through its own
-    /// transmitter, with no transmitter slots in use, and with no answer for
-    /// the 0x5xx and 0x7xx groups, for what it doesn't have or for what Neap
-    /// cannot yet read on it.
+    /// transmitter, with no transmitter slots in use, no answer for the game
+    /// and chat mix, its volume mirrored at 0x260 with 0x2a0 at 100, 0x290 at
+    /// 1 on its transmitter, and 0x620 turning on and off with the mute.
     /// </param>
     public PretendHeadset(bool atlas = false)
     {
@@ -133,14 +139,15 @@ public sealed class PretendHeadset : IDeviceSource
 
     private void BeAtlasAir()
     {
-        var lacks = HeadsetCheck.Needs
-            .Where(need => !HeadsetModels.AtlasAir.Features.Contains(need.Key) || HeadsetModels.AtlasAir.Unread.Contains(need.Key))
-            .SelectMany(need => need.Value)
-            .Select(name => Registry.ByName[name].Key)
-            .ToHashSet();
-        foreach (int key in _values.Keys.ToList())
-            if (lacks.Contains(key) || key >> 8 is 0x5 or 0x7) _values.Remove(key);
+        _atlas = true;
+        foreach (int key in AtlasLacks) _values.Remove(key);
         _values[0x110] = AtlasHeadsetProduct.ToString("X4", CultureInfo.InvariantCulture);
+        _values[0x260] = _values[0x2A0];
+        _values[0x2A0] = "100";
+        _values[0x290] = "1";
+        _values[0x2D0] = "0";
+        _values[0x620] = _values[0x600];
+        _values[0x630] = "20";
         for (int slot = 0; slot < _info.Length; slot++)
         {
             _info[slot] = ["0", "0", "0", "0", "0", "0", "0", "0", "00:00:00:00:00:00"];
@@ -224,8 +231,10 @@ public sealed class PretendHeadset : IDeviceSource
         string wire = setting.Validate(value);
         lock (_gate)
         {
-            _values[key] = wire;
-            if (_on) Notify(new Dictionary<int, string> { [key] = wire });
+            var changed = new Dictionary<int, string> { [key] = wire };
+            if (_atlas && key == 0x600) changed[0x620] = wire;
+            foreach (var (at, to) in changed) _values[at] = to;
+            if (_on) Notify(changed);
         }
     }
 
@@ -363,8 +372,8 @@ public sealed class PretendHeadset : IDeviceSource
 
     private void Answer(string verb)
     {
-        if (!_on) return;
         string category = Verbs.Readers.First(pair => pair.Value == verb).Key;
+        if (!_on || (_atlas && category == AtlasSilent)) return;
         var kvp = new StringBuilder();
 
         if (Verbs.TransmitterCategories.Contains(category))
@@ -639,6 +648,8 @@ public sealed class PretendHeadset : IDeviceSource
             [0x230] = "2",
             [0x240] = "76",
             [0x250] = "0",
+            // At 100 throughout ten days of Swarm II's logs.
+            [0x260] = "100",
             [0x280] = "2",
             [0x290] = "3",
             [0x2A0] = "45",

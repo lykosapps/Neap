@@ -127,6 +127,11 @@ public static class Registry
                   + "changes only the number the headset reports, and Windows overwrites "
                   + "that the moment anything touches the volume. To change what you "
                   + "hear, set the Windows volume instead and this follows."),
+            // From one owner's Atlas Air recording: it followed the system's
+            // output level for an hour while 0x2a0 stayed at 100.
+            R(0x260, "volume_mirror", "GSI", 0, 100, writable: false,
+              note: "the Atlas Air's mirror of the system output volume, as 0x2a0 is "
+                  + "the Stealth Pro II's"),
             R(0x320, "link_rssi", "BT", writable: false,
               note: "signal strength. Sits in the BT block but is NOT the phone link: it "
                   + "keeps reporting a steady value with the phone's Bluetooth off, so it "
