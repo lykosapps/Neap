@@ -92,6 +92,40 @@ What it has, from Turtle Beach's support articles for it *(research)*:
   microphone. No Mode button, second wheel, chat wheel, noise cancellation
   or dock.
 
+A second recording, an hour of Neap 0.2.1 on the same issue, shows three
+keys meaning something else on it *(measured, on the owner's PC)*:
+
+- `0x260` followed the Windows output level throughout, 58 at the start and
+  76 at the end as the endpoint was, while `0x2A0` stayed at 100. `0x260` is
+  its volume mirror.
+- `0x290` read 1 on its transmitter and 0 while QuickSwitch had it on
+  Bluetooth, flipping three times in thirty seconds as the owner tried it.
+  Bit 0 is not "Bluetooth connected" here. Once Bluetooth was connected,
+  `0x310` sent a signed level every ten seconds, -40 to -79, and went on
+  sending it after the headset switched back to its transmitter.
+- `0x620` turned on and off with the mute at `0x600`, three times, in the
+  same notification. Whatever it is, it is not mic monitoring alone, and the
+  owner heard no monitoring.
+
+`0x720` answered from the start this time, and `0x700`, `0x710`, `0x730`
+and `0x740` were there by the end, after the owner had used their controls.
+`0x630` read 20 rather than 1 and went to 0 when switched off. `3DT`, the
+game and chat mix, still never answered, asked twice.
+
+Swarm II's catalogue gives the Atlas Air its own device plugin, `ATLAS_AIR`,
+for the transmitter (`225E`, type 129) and the headset (`2260`, type 130,
+listed under the transmitter), on the same "tb" v2 controller library as the
+Stealth Pro II *(research)*. The Stealth Pro II's plugin declares only types
+163 to 176, so it does not serve the Atlas Air. Swarm II fetches a device's
+plugin only when that device is first plugged in, so a PC that has only seen
+the Stealth Pro II has no Atlas Air plugin to read *(research)*.
+
+The shared library under that plugin, `Turtlebeach.Mosit`, has Airoha-level
+commands for sidetone level and state and for voice prompts, separate from
+`set_kvp`. The bridge Swarm II's plugins call it through does not expose them
+in the installed copy, so whether the Atlas Air uses them in place of `0x620`
+and `0x2D0` is not known until its plugin is read *(research)*.
+
 ### Which headsets share the platform
 
 Swarm II's catalogue (`settings.json`, a zlib-compressed JSON list of 140
