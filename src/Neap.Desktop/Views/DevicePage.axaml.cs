@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Neap.Core;
@@ -21,6 +22,18 @@ public partial class DevicePage : UserControl
         KeepRingCard.IsVisible = AppServices.Ring.Supported;
         KeepRing.IsChecked = AppServices.Ring.KeepPurple;
         KeepRing.IsCheckedChanged += (_, _) => AppServices.Ring.KeepPurple = KeepRing.IsChecked == true;
+        CopyReported.Click += async (_, _) => await CopyRaw();
+    }
+
+    /// <summary>Puts everything the headset reports on the clipboard, a value a line, as it is listed.</summary>
+    private async Task CopyRaw()
+    {
+        if (TopLevel.GetTopLevel(this)?.Clipboard is not { } clipboard)
+        {
+            AppLog.Write("device: could not copy what the headset reports: there is no clipboard");
+            return;
+        }
+        await clipboard.SetTextAsync(string.Join(Environment.NewLine, RawRows.Children.OfType<TextBlock>().Select(row => row.Text)));
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -64,7 +77,7 @@ public partial class DevicePage : UserControl
             if (row < RawRows.Children.Count && RawRows.Children[row] is TextBlock existing)
                 existing.Text = text;
             else
-                RawRows.Children.Add(new TextBlock
+                RawRows.Children.Add(new SelectableTextBlock
                 {
                     Text = text,
                     FontFamily = Monospace,

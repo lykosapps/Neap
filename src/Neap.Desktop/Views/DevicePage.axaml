@@ -90,7 +90,16 @@
                                 <c:SettingRow loc:Uid.Value="Device_Firmware" Setting="firmware_version" />
                                 <c:SettingRow loc:Uid.Value="Device_SerialNumber" Setting="serial_number" />
                                 <StackPanel Margin="16,12" Spacing="8">
-                                    <TextBlock loc:Uid.Value="Device_ReportedHeading" Classes="label" />
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            loc:Uid.Value="Device_ReportedHeading"
+                                            Classes="label" />
+                                        <Button
+                                            x:Name="CopyReported"
+                                            Grid.Column="1"
+                                            loc:Uid.Value="Device_CopyReported" />
+                                    </Grid>
                                     <TextBlock loc:Uid.Value="Device_RawNote" Classes="caption secondary" />
                                     <StackPanel x:Name="RawRows" Spacing="2" />
                                 </StackPanel>

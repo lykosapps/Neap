@@ -354,6 +354,12 @@
   <data name="Device_ReportedHeading.Text" xml:space="preserve">
     <value>Everything the headset reports</value>
   </data>
+  <data name="Device_CopyReported.Content" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Device_CopyReported.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Copy everything the headset reports</value>
+  </data>
   <data name="Device_RawNote.Text" xml:space="preserve">
     <value>Read-only. Greyed values aren't identified yet.</value>
   </data>

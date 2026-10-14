@@ -35,6 +35,8 @@ and date.
   settings…". They wait only for settings the headset has.
 - Mic monitoring is hidden on the Atlas Air until a tester finds where it is
   kept. The setting Neap was changing turns on and off with the mute instead.
+- What the headset reports, under Device, can be selected and copied, and
+  a Copy button puts all of it on the clipboard.
 - Neap no longer changes the settings of a headset it doesn't know, as it
   always said it wouldn't. It only reads them.
 - A recording of another headset now says which functions the headset didn't
