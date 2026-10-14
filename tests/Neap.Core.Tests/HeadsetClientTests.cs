@@ -140,6 +140,33 @@ public class HeadsetClientTests
     }
 
     [Fact]
+    public void EachWriteIsToldWithWhetherItWasSent()
+    {
+        using var client = new HeadsetClient(allowWrites: true, transport: new PretendHeadset().Open());
+        var told = new List<WriteAttempt>();
+        client.Wrote += told.Add;
+
+        client.Set(0x760, 55);
+        Assert.Throws<ArgumentException>(() => client.Set(0x760, 101));
+
+        Assert.Equal(new WriteAttempt(0x760, "55", null), told[0]);
+        Assert.Equal((0x760, "101"), (told[1].Key, told[1].Value));
+        Assert.False(string.IsNullOrEmpty(told[1].Refused));
+    }
+
+    [Fact]
+    public void AWriteFromAReadOnlyClientIsToldAsRefused()
+    {
+        using var client = new HeadsetClient(allowWrites: false, transport: new PretendHeadset().Open());
+        var told = new List<WriteAttempt>();
+        client.Wrote += told.Add;
+
+        Assert.Throws<WritesDisabledException>(() => client.Set(0x750, 1));
+
+        Assert.Contains("read-only", Assert.Single(told).Refused, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void EachTransmitterSlotsLightingCanBeSet()
     {
         var headset = new PretendHeadset();

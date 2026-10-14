@@ -21,6 +21,8 @@ and date.
   lights, Charging Dock or CrossPlay. Its settings can be changed, in testing
   with an owner of one.
 - The game and chat mix on Home links to its keyboard shortcuts.
+- A recording lists each change Neap sends to the headset beside what the
+  headset says, and says why when a change wasn't sent.
 - What's new is always in Settings, beside Neap's version. With no update
   waiting, it shows what's new in the version you have, without going online.
 

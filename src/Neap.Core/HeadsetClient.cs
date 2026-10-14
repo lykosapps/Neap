@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using Neap.Core.Hid;
 using Neap.Core.Protocol;
@@ -10,6 +11,12 @@ public class WritesDisabledException : Exception
 {
     public WritesDisabledException(string message) : base(message) { }
 }
+
+/// <summary>A change the app asked the headset for, and whether it was sent.</summary>
+/// <param name="Key">The setting's key.</param>
+/// <param name="Value">The value as sent, or as asked for when it was not.</param>
+/// <param name="Refused">Why it was not sent, or null when it was.</param>
+public sealed record WriteAttempt(int Key, string Value, string? Refused);
 
 /// <summary>
 /// Reads and writes headset settings. Reads are always allowed; a write needs
@@ -306,12 +313,30 @@ public sealed class HeadsetClient : IDisposable
     /// </exception>
     public void Set(int key, object value)
     {
-        if (!AllowWrites)
-            throw new WritesDisabledException(
-                $"refusing to set 0x{key:x}: this client is read-only");
-        _transport.SendOutput(Frames.SetKey(key, Registry.WireValue(key, value), NextCounter()));
-        _lastSet = Stopwatch.GetTimestamp();
+        string wire;
+        try
+        {
+            if (!AllowWrites)
+                throw new WritesDisabledException(
+                    $"refusing to set 0x{key:x}: this client is read-only");
+            wire = Registry.WireValue(key, value);
+            _transport.SendOutput(Frames.SetKey(key, wire, NextCounter()));
+            _lastSet = Stopwatch.GetTimestamp();
+        }
+        catch (Exception ex)
+        {
+            Wrote?.Invoke(new WriteAttempt(key, Convert.ToString(value, CultureInfo.InvariantCulture) ?? "", ex.Message));
+            throw;
+        }
+        Wrote?.Invoke(new WriteAttempt(key, wire, null));
     }
+
+    /// <summary>A write was sent, or refused or failed before it could be. Raised on the thread that wrote.</summary>
+    /// <remarks>
+    /// The headset sends no reply to a write. Whether it took the value shows
+    /// only in what it reports next, so a recording keeps the two side by side.
+    /// </remarks>
+    public event Action<WriteAttempt>? Wrote;
 
     public void Dispose()
     {

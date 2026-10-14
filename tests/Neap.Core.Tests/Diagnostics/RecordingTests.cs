@@ -74,6 +74,22 @@ public class RecordingTests
     }
 
     [Fact]
+    public void NeapsOwnWritesAreKeptWithWhetherTheyWereSent()
+    {
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values()));
+        recording.Wrote(Start.AddSeconds(1), new WriteAttempt(0x2d0, "50", null));
+        recording.Heard(Start.AddSeconds(1.1), new DeviceEvent("UP", "GSI", Values(("2d0", "\"50\""))));
+        recording.Wrote(Start.AddSeconds(2), new WriteAttempt(0x2d0, "60", "Neap only reads the Atlas Air's settings for now"));
+
+        string[] during = Section(Written(recording), "During");
+
+        Assert.Matches(@"^14:32:01\.0  write    0x2d0\s+\w+\s+50$", during[0]);
+        Assert.StartsWith("14:32:01.1  headset  UP/GSI  0x2d0", during[1], StringComparison.Ordinal);
+        Assert.EndsWith(" 60  not sent: Neap only reads the Atlas Air's settings for now", during[2], StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ALevelIsNotedOnlyWhenItChanges()
     {
         var recording = new Recording("Neap", "10");

@@ -17,7 +17,8 @@ namespace Neap.Services;
 /// <para>
 /// It only listens. Everything the headset is asked goes through
 /// <see cref="HeadsetService"/>, which reads and never writes for this, so a
-/// recording cannot change a setting or fight the app for the headset.
+/// recording cannot change a setting or fight the app for the headset. It
+/// hears of the changes the rest of the app sends, and of any refused.
 /// </para>
 /// <para>
 /// Nothing leaves the PC. The file is saved where the person can find it,
@@ -81,6 +82,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
         Findings = null;
 
         headset.Heard += Hear;
+        headset.Wrote += NoteWrite;
         _began = Task.Run(async () => recording.Began(await Snap()));
         var stopping = _stopping.Token;
         _sampler = Task.Run(() => Sample(recording, stopping));
@@ -95,6 +97,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
         Saving = true;
         Changed?.Invoke();
         headset.Heard -= Hear;
+        headset.Wrote -= NoteWrite;
         _stopping!.Cancel();
         try
         {
@@ -134,12 +137,15 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
     {
         if (_recording is null || Saving) return;
         headset.Heard -= Hear;
+        headset.Wrote -= NoteWrite;
         _stopping?.Cancel();
         _recording = null;
         AppLog.Write("recording: the app quit while recording, so it was not saved");
     }
 
     private void Hear(DeviceEvent evt) => _recording?.Heard(DateTime.Now, evt);
+
+    private void NoteWrite(WriteAttempt write) => _recording?.Wrote(DateTime.Now, write);
 
     private void Sample(Recording recording, CancellationToken stopping)
     {

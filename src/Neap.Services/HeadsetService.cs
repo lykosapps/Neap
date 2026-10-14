@@ -194,6 +194,13 @@ public sealed class HeadsetService : IDisposable
     /// </remarks>
     public event Action<DeviceEvent>? Heard;
 
+    /// <summary>
+    /// A change was sent to the headset, or was refused or failed before it
+    /// could be. Raised on the headset thread, or on the caller's when Neap
+    /// only reads this headset, so a handler must be quick.
+    /// </summary>
+    public event Action<WriteAttempt>? Wrote;
+
     /// <summary>The chat wheel's absolute counter.</summary>
     /// <remarks>
     /// Kept out of the value store. It is a free-spinning encoder whose counter
@@ -346,8 +353,10 @@ public sealed class HeadsetService : IDisposable
     {
         if (_readOnly)
         {
+            string why = $"Neap only reads the {Model?.Name ?? "headset"}'s settings for now";
             if (_refused.TryAdd(key, true))
-                AppLog.Write($"headset: a change to 0x{key:x} was not sent: Neap only reads the {Model?.Name ?? "headset"}'s settings for now");
+                AppLog.Write($"headset: a change to 0x{key:x} was not sent: {why}");
+            Wrote?.Invoke(new WriteAttempt(key, value.ToString(CultureInfo.InvariantCulture), why));
             return;
         }
         Store(key, value, hold);
@@ -373,11 +382,14 @@ public sealed class HeadsetService : IDisposable
         // mark, which would block that key until restart. Clear it here; the
         // latest value stays pending for the next write. A write the registry
         // refuses is a bug in the caller, so it is logged; a headset that is
-        // not there is already on screen.
+        // not there is already on screen, but is still told to a recording,
+        // as the write never reached the client that tells the rest.
         write.ContinueWith(failed =>
         {
             if (failed.Exception?.GetBaseException() is ArgumentException refused)
                 NoteFault($"write 0x{key:x}", refused);
+            if (failed.Exception?.GetBaseException() is HeadsetUnavailableException gone)
+                Wrote?.Invoke(new WriteAttempt(key, value.ToString(CultureInfo.InvariantCulture), gone.Message));
             _inFlight.TryRemove(key, out _);
         }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
     }
@@ -810,6 +822,7 @@ public sealed class HeadsetService : IDisposable
         if (client is not null)
         {
             _toldUnanswered = false;
+            client.Wrote += attempt => Wrote?.Invoke(attempt);
             Model = HeadsetModels.Of(client.ProductId);
             _readOnly = !client.AllowWrites;
             _refused.Clear();

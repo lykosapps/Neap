@@ -23,16 +23,22 @@ public sealed record Snapshot(
 
 /// <summary>
 /// A record of a stretch of time, for a person to send with a bug report:
-/// what was there at the start, everything the headset said and every level
-/// Windows showed in between, what was there at the end, and the app's log.
+/// what was there at the start, everything the headset said, every change
+/// Neap asked it for and every level Windows showed in between, what was
+/// there at the end, and the app's log.
 /// </summary>
 /// <remarks>
 /// <para>
 /// A problem is usually something that happens, not something that is: a
 /// volume that drops, a setting that will not stay, a connection that comes
 /// and goes. One reading after the fact shows where things settled, not what
-/// moved them, so the headset's notifications and Windows' levels are kept
-/// in time order between the two snapshots.
+/// moved them, so the headset's notifications, Neap's writes and Windows'
+/// levels are kept in time order between the two snapshots.
+/// </para>
+/// <para>
+/// A write that was refused or could not be sent says why. One that was
+/// sent gets no reply from the headset; what it reports next shows whether
+/// it took the value.
 /// </para>
 /// <para>
 /// Unnamed values are kept and marked rather than dropped. They are how a
@@ -108,6 +114,13 @@ public sealed class Recording(string app, string system)
                 _heard.Add(pair.Key);
                 Add(at, $"headset  {evt.Kind}/{evt.Category}  {Value(pair.Key, pair.Value)}");
             }
+    }
+
+    /// <summary>Notes a change Neap asked the headset for, and why it was not sent if it was not.</summary>
+    public void Wrote(DateTime at, WriteAttempt write)
+    {
+        string line = Value(write.Key.ToString("x", CultureInfo.InvariantCulture), write.Value);
+        lock (_gate) Add(at, write.Refused is null ? $"write    {line}" : $"write    {line}  not sent: {write.Refused}");
     }
 
     /// <summary>Notes any change to the levels Windows shows, or to where it sends sound.</summary>
@@ -315,8 +328,9 @@ public sealed class Recording(string app, string system)
 
     private const string Unnamed = "not yet identified";
 
-    private static string Value(string key, JsonElement value) =>
-        $"0x{key,-5} {NameOf(key) ?? Unnamed,-26} {DeviceEvent.Render(value)}";
+    private static string Value(string key, JsonElement value) => Value(key, DeviceEvent.Render(value));
+
+    private static string Value(string key, string value) => $"0x{key,-5} {NameOf(key) ?? Unnamed,-26} {value}";
 
     private static string? NameOf(string key) =>
         int.TryParse(key, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int number)
