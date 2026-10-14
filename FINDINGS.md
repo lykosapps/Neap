@@ -125,6 +125,33 @@ spare battery, wake on motion, spatial sound. The PC and PlayStation versions
 have their own articles, not yet read. It is the Atlas Air's list plus the
 dial and the Mode button.
 
+### The Stealth 700 Gen 3
+
+From the Xbox version's article, updated 22 June 2026 *(research)*: the
+600 Gen 3's list, with the same equaliser presets, dial and Mode button jobs,
+and Superhuman Hearing also getting a level from 0 to 100. The hotkey
+functions it lists: volume mute, Superhuman Hearing, noise gate, microphone
+mute and microphone monitoring. Its quick controls differ: an upper volume
+dial that moves Swarm II's master volume, a lower dial, a Mode button, and on
+the right earcup a separate Bluetooth volume dial, a CrossPlay button and a
+Bluetooth multifunction button. The master volume does not move Bluetooth
+audio. The article says the firmware must first be updated from the mobile
+Swarm II before the desktop app can change settings. No noise cancellation,
+dock or spatial sound.
+
+### The Stealth 500
+
+From the Xbox version's article, updated 23 June 2026 *(research)*: the
+leanest of the family. It has master volume, Superhuman Hearing (on/off and
+type, no level listed), microphone mute, sensitivity, monitoring and noise
+gate, both ten-band equalisers with four presets each (±9 dB per band) and
+custom ones, auto shut-off, hotkeys, the transmitter's light brightness and
+prompt level. It does not list a game and chat mix, Chat Boost or an
+Assignment page, so no mappable dial or Mode button. Its presets are split
+into Onboard, saved to the USB Audio Adapter and always available, and
+Software, kept in Swarm II until moved onto the headset. There are separate
+articles for PC, PlayStation and a Nintendo Switch 2 version, not yet read.
+
 ## The control channel
 
 Each device presents two HID collections. One is standard consumer control
