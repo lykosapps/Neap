@@ -891,6 +891,59 @@ address. What it showed:
   run time. The on-device test above (blanking the table changed nothing)
   remains the stronger evidence.
 
+### How Swarm II updates firmware
+
+Read from Swarm II's shipped programs, statically, with nothing run and
+nothing sent to a device *(research, Swarm II as installed 14 October 2026;
+the images are 4.107.703)*. The headset's plugin does not update anything
+itself. It hands the work to a .NET library, `Turtlebeach.Mosit`, which wraps
+Airoha's own native update library, `AirohaHidCoreLib.dll`. The native library
+was not opened, so the transfer itself is unread.
+
+The sequence, as the plugin and the .NET library call it:
+
+1. **Pick the files.** The folder's `version.ini` names the headset's main
+   package, its second-chip package (`slavefile`) and a settings file for each
+   (`nvkey`, `slavenvkey`). The transmitter has one package and one settings
+   file. A missing package stops the update with a logged error.
+2. **Check the package.** The library asks the native side for the package's
+   own description and returns yes or no for the connected device (headset or
+   transmitter, over the air or wired). That it refuses a mismatch is
+   inferred from the name and the checks around it, not observed.
+3. **Check the battery.** A low battery stops the update before it starts, and
+   the level is passed to the native side.
+4. **Transfer.** The main package path and, for the headset's two chips, the
+   second package path are handed to the native library, which sends them and
+   reports progress and status through callbacks. Nothing in the .NET code
+   sees the bytes.
+5. **Apply.** The status handler calls the native "apply new firmware" entry
+   point; the log line reads "Start to apply new firmware". What the device
+   does at that point is unread.
+6. **Restore settings.** The settings files are written to the device with
+   the same stored-setting commands as *The firmware layer* (write, then
+   validate), on a background thread, and the device is rebooted. That this
+   comes after the apply step is inferred from the log lines.
+7. **Report.** The screen moves from "required" or "optional" to progress to
+   done or failed. Failure says to try again or skip.
+
+Facts that shape any attempt to copy it:
+
+- **Swarm II's own text** says the headset supports over-the-air updates with
+  no cable, and that "connecting 2 USB wireless transmitters is only required
+  for firmware updates". Whether an update fails with one transmitter was not
+  tested.
+- **"Required" versus "optional" comes from the shipped files**, compared with
+  the version the device reports. How the files arrive on the PC (Swarm II's
+  own updater) was not traced.
+- **The dangerous part is the native library.** The transfer, apply and any
+  checks sit behind about twenty native entry points. Nothing in the .NET
+  wrapper looked like a signature or checksum check, but the wrapper's code
+  was read as call lists, not decompiled, so that is not established.
+  Whether the device refuses a damaged or foreign image is unknown.
+- **Unresolved:** what the native library sends on the wire, how it recovers a
+  transfer cut halfway, and whether a transmitter or headset left half-updated
+  can be revived without Swarm II.
+
 ## Pitfalls
 
 - **A transmitter answers for a headset it can no longer reach**, with the
