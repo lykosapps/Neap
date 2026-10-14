@@ -92,6 +92,18 @@ What it has, from Turtle Beach's support articles for it *(research)*:
   microphone. No Mode button, second wheel, chat wheel, noise cancellation
   or dock.
 
+### Which headsets share the platform
+
+Swarm II's catalogue (`settings.json`, a zlib-compressed JSON list of 140
+Turtle Beach products) tags 61 headset and transmitter entries with the same
+chip family as the Stealth Pro II *(research, Swarm II as installed for the
+Stealth Pro II)*: the Stealth 500 (PC, PlayStation, Xbox, Switch), 600 and 700
+(PC, PlayStation, Xbox), the Atlas Air and the Stealth Pro II itself. The older
+Stealth Pro and the Atlas 200 use other chips and are not in this family. The
+catalogue gives each entry's product ids; it says nothing about what each
+headset can do, so the support articles above and an owner's recording are
+still needed.
+
 ## The control channel
 
 Each device presents two HID collections. One is standard consumer control
