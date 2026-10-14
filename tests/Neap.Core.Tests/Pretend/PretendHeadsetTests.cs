@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Neap.Core.Audio;
 using Neap.Core.Connection;
 using Neap.Core.Hid;
 using Neap.Core.Presets;
@@ -237,6 +238,30 @@ public class PretendHeadsetTests
     [Fact]
     public void AnAtlasAirDoesNotAnswerForTheGameAndChatMix() =>
         Assert.Empty(Exchange(new PretendHeadset(atlas: true).Open(), Frames.Build("S3DT")));
+
+    [Fact]
+    public void AnAtlasAirsVolumeFollowsTheSystemAt260WhileTheOneAt2a0StaysAt100()
+    {
+        var headset = new PretendHeadset(atlas: true);
+        var link = headset.Open();
+
+        new PretendWindows(headset).SetPercent(70, Flow.Output);
+
+        Assert.Equal(("70", "100"), (headset.Value(0x260), headset.Value(0x2A0)));
+        Assert.Equal("{\"UP\":\"GSI\",\"KVP\":{\"260\":\"70\"}}", Json(Waiting(link)));
+    }
+
+    [Fact]
+    public void AStealthProIIsMirrorsFollowTheSystemsLevels()
+    {
+        var headset = new PretendHeadset();
+        var windows = new PretendWindows(headset);
+
+        windows.SetPercent(70, Flow.Output);
+        windows.SetPercent(30, Flow.Input);
+
+        Assert.Equal(("70", "30", "100"), (headset.Value(0x2A0), headset.Value(0x610), headset.Value(0x260)));
+    }
 
     [Fact]
     public void AnAtlasAirsMonitoringValueFollowsItsMute()

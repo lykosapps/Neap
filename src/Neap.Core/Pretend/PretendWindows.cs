@@ -17,7 +17,8 @@ public sealed record PretendSession(string Process, string Display, bool Playing
 /// <para>
 /// A pretend run happens on a machine somebody is using, so nothing here
 /// reaches Windows. Changing the volume or format changes only these values,
-/// and the mix sets no application's volume.
+/// and the mix sets no application's volume. A level that changes is passed
+/// to the pretend headset, whose mirror of it follows as the headset's does.
 /// </para>
 /// <para>
 /// Windows points every role at the pretend Charging Dock and there is no
@@ -25,7 +26,8 @@ public sealed record PretendSession(string Process, string Display, bool Playing
 /// place.
 /// </para>
 /// </remarks>
-public sealed class PretendWindows
+/// <param name="headset">The pretend headset whose mirrors of the levels follow them, or null for none.</param>
+public sealed class PretendWindows(PretendHeadset? headset = null)
 {
     public const string OutputName = "Pretend Headset (Charging Dock)";
     public const string InputName = "Pretend Headset Microphone (Charging Dock)";
@@ -115,6 +117,7 @@ public sealed class PretendWindows
     public void SetPercent(int percent, Flow flow)
     {
         lock (_gate) Of(flow).Percent = Math.Clamp(percent, 0, 100);
+        headset?.Follow(flow, percent);
     }
 
     public void SetMuted(bool muted, Flow flow)

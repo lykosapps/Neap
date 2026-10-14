@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using Neap.Core.Audio;
 using Neap.Core.Connection;
 using Neap.Core.Hid;
 using Neap.Core.Presets;
@@ -152,6 +153,22 @@ public sealed class PretendHeadset : IDeviceSource
         {
             _info[slot] = ["0", "0", "0", "0", "0", "0", "0", "0", "00:00:00:00:00:00"];
             _control[slot] = ["0", "0", "0"];
+        }
+    }
+
+    /// <summary>
+    /// The system's output or microphone level moved, and the headset's
+    /// mirror of it follows and is reported, as the headset's does.
+    /// </summary>
+    public void Follow(Flow flow, int percent)
+    {
+        int key = flow == Flow.Input ? Registry.ByName["mic_volume"].Key
+            : (_atlas ? HeadsetModels.AtlasAir : HeadsetModels.StealthProII).VolumeKey;
+        string value = Math.Clamp(percent, 0, 100).ToString(CultureInfo.InvariantCulture);
+        lock (_gate)
+        {
+            _values[key] = value;
+            if (_on) Notify(new Dictionary<int, string> { [key] = value });
         }
     }
 

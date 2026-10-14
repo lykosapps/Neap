@@ -197,7 +197,7 @@ public static class Pretend
 
     public static PretendHeadset? Headset { get; } = Active ? new PretendHeadset(atlas: Given(AtlasFlag)) { Refusing = Given(NoAccessFlag) } : null;
 
-    public static PretendWindows? Windows { get; } = Active ? new PretendWindows() : null;
+    public static PretendWindows? Windows { get; } = Active ? new PretendWindows(Headset) : null;
 
     private static PretendControl? _control;
 
