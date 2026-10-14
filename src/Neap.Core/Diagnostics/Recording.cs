@@ -40,6 +40,13 @@ public sealed record Snapshot(
 /// mapped.
 /// </para>
 /// <para>
+/// A level is noted when it changes, not every second. Windows is sampled
+/// every second, and a steady level written each time fills the timeline
+/// within the hour with lines that say nothing new. The peak moves every
+/// second while anything plays, so only its going silent or coming back
+/// counts as a change.
+/// </para>
+/// <para>
 /// The timeline stops growing at <see cref="MostLines"/> and says so, so a
 /// recording left running cannot grow without limit.
 /// </para>
@@ -58,6 +65,7 @@ public sealed class Recording(string app, string windows)
     private Snapshot? _start;
     private Snapshot? _end;
     private SoundSurvey? _lastSound;
+    private readonly Dictionary<(bool Output, string Name), SoundDevice> _levels = [];
 
     /// <summary>Values met in the recording that identify one person's hardware: the serial number and the radio addresses.</summary>
     public IReadOnlyList<string> Secrets
@@ -101,7 +109,7 @@ public sealed class Recording(string app, string windows)
             }
     }
 
-    /// <summary>Notes the levels Windows showed, and any change to where it sends sound.</summary>
+    /// <summary>Notes any change to the levels Windows shows, or to where it sends sound.</summary>
     public void Sampled(DateTime at, SoundSurvey sound)
     {
         lock (_gate)
@@ -113,7 +121,17 @@ public sealed class Recording(string app, string windows)
                     if (was is null || was.Device != now.Device) Add(at, $"default  {Default(now)}");
                 }
             _lastSound = sound;
-            foreach (var device in sound.Devices) Add(at, $"sound    {Level(device)}");
+            foreach (var device in sound.Devices)
+            {
+                if (_levels.TryGetValue((device.Output, device.Name), out var was) && Steady(was) == Steady(device)) continue;
+                _levels[(device.Output, device.Name)] = device;
+                Add(at, $"sound    {Level(device)}");
+            }
+            foreach (var gone in _levels.Values.Where(was => !sound.Devices.Any(d => d.Output == was.Output && d.Name == was.Name)).ToList())
+            {
+                _levels.Remove((gone.Output, gone.Name));
+                Add(at, $"sound    {Device(gone)}  no longer active");
+            }
         }
     }
 
@@ -301,10 +319,19 @@ public sealed class Recording(string app, string windows)
         $"{(role.Output ? "output" : "input"),-6} {role.Role,-14} "
         + (role.Device.Length == 0 ? "(none)" : $"{role.Device}  [{(role.Product.Length > 0 ? Named(role.Product) : "not the headset")}]");
 
+    private static string Device(SoundDevice device) =>
+        $"{(device.Output ? "output" : "input")} {device.Name} [{Named(device.Product)}]";
+
+    /// <summary>A device's level with its peak cut to sound or silence, for telling whether it changed.</summary>
+    private static string Steady(SoundDevice device) => Level(device with { Peak = device.Peak < Quietest ? 0 : 1 });
+
+    /// <summary>The quietest peak a level line shows as anything but silence.</summary>
+    private const float Quietest = 0.0005f;
+
     private static string Level(SoundDevice device)
     {
         string line = Invariant(
-            $"{(device.Output ? "output" : "input")} {device.Name} [{Named(device.Product)}]  {device.Percent}%{(device.Muted ? " muted" : "")}  peak {device.Peak:0.000}");
+            $"{Device(device)}  {device.Percent}%{(device.Muted ? " muted" : "")}  peak {device.Peak:0.000}");
         if (device.Apps.Count == 0) return line;
         return line + "  apps: " + string.Join(", ", device.Apps.Select(a =>
             Invariant($"{a.Name} {a.Percent}%{(a.Muted ? " muted" : "")}{(a.Playing ? " playing" : "")}")));

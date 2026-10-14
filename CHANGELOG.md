@@ -44,6 +44,9 @@ and date.
   before giving up.
 - A link in What's new sits in line with the words around it, rather than
   above them.
+- A recording keeps going for well over an hour. It notes a sound level when
+  it changes rather than every second, which filled it after about 37
+  minutes.
 
 ## 0.2.1 — 2026-10-08
 

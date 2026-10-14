@@ -74,6 +74,43 @@ public class RecordingTests
     }
 
     [Fact]
+    public void ALevelIsNotedOnlyWhenItChanges()
+    {
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values()));
+        var device = Sound.Devices[0];
+        SoundSurvey With(SoundDevice now) => Sound with { Devices = [now] };
+
+        recording.Sampled(Start.AddSeconds(1), Sound);
+        recording.Sampled(Start.AddSeconds(2), With(device with { Peak = 0.31f }));
+        recording.Sampled(Start.AddSeconds(3), With(device with { Percent = 46 }));
+        recording.Sampled(Start.AddSeconds(4), With(device with { Percent = 46, Peak = 0 }));
+        recording.Sampled(Start.AddSeconds(5), With(device with { Percent = 46, Peak = 0 }));
+        recording.Sampled(Start.AddSeconds(6), Sound with { Devices = [] });
+
+        string[] during = Section(Written(recording), "During");
+
+        Assert.Equal(4, during.Length);
+        Assert.Contains("45%  peak 0.120", during[0], StringComparison.Ordinal);
+        Assert.Contains("46%  peak 0.120", during[1], StringComparison.Ordinal);
+        Assert.Contains("46%  peak 0.000", during[2], StringComparison.Ordinal);
+        Assert.Equal("14:32:06.0  sound    output Headset (Charging Dock) [Charging Dock 229B]  no longer active", during[3]);
+    }
+
+    [Fact]
+    public void AnHourOfSteadyLevelsFitsWithRoomToSpare()
+    {
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values()));
+        var device = Sound.Devices[0];
+
+        for (int second = 0; second < 3600; second++)
+            recording.Sampled(Start.AddSeconds(second), Sound with { Devices = [device with { Peak = 0.1f + second % 7 / 100f }] });
+
+        Assert.Single(Section(Written(recording), "During"));
+    }
+
+    [Fact]
     public void AMoveOfWindowsDefaultIsNoted()
     {
         var recording = new Recording("Neap", "10");
