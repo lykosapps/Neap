@@ -124,14 +124,27 @@ if ($Parts.Contains('A') -or $Parts.Contains('B') -or $Parts.Contains('D') -or $
 
             if ($Parts.Contains('E')) {
                 Section 'focus when the layout changes'
-                Resize 1536 820
-                $notes = Find-Named "What's new"
-                $notes.SetFocus()
-                Check (Wait-Until { $notes.Current.HasKeyboardFocus } 2) "What's new has focus at a wide size"
-                Resize 625 700
-                $focused = $A::FocusedElement
-                Note ("after narrowing, focus is on '{0}' in Neap: {1}" -f $focused.Current.Name, ($focused.Current.ProcessId -eq $script:Proc.Id))
-                Check ($focused.Current.ProcessId -eq $script:Proc.Id -and $focused.Current.Name -ne '') 'focus stays inside the app, on something named'
+                # Where focus lands in the app can only be judged while its
+                # window is in front: one brought forward meanwhile takes the
+                # focus with it. So it is tried again, three times at most.
+                $judged = $false
+                for ($try = 1; $try -le 3 -and -not $judged; $try++) {
+                    Resize 1536 820
+                    $notes = Find-Named "What's new"
+                    $notes.SetFocus()
+                    $hadFocus = Wait-Until { $notes.Current.HasKeyboardFocus } 2
+                    Resize 625 700
+                    if ([NeapUi]::GetForegroundWindow() -ne $script:Handle) {
+                        Note "try ${try}: another window came to the front while the window narrowed"
+                        continue
+                    }
+                    $judged = $true
+                    Check $hadFocus "What's new has focus at a wide size"
+                    $focused = $A::FocusedElement
+                    Note ("after narrowing, focus is on '{0}' in Neap: {1}" -f $focused.Current.Name, ($focused.Current.ProcessId -eq $script:Proc.Id))
+                    Check ($focused.Current.ProcessId -eq $script:Proc.Id -and $focused.Current.Name -ne '') 'focus stays inside the app, on something named'
+                }
+                Check $judged 'focus could be judged with the window in front'
             }
 
             if ($Parts.Contains('D')) {

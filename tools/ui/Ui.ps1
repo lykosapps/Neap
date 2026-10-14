@@ -36,6 +36,7 @@ public static class NeapUi {
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] public static extern int GetCurrentPackageFullName(ref int length, StringBuilder name);
     [DllImport("kernel32.dll")] public static extern uint SetThreadExecutionState(uint flags);
     [DllImport("user32.dll")] public static extern void mouse_event(uint flags, int dx, int dy, uint data, UIntPtr extra);
+    [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
 }
 '@
 [NeapUi]::SetProcessDPIAware() | Out-Null
@@ -178,16 +179,23 @@ function Close-Menu($Element) {
 function Start-NeapPretend {
     param([string]$Theme = 'dark', [string]$Page = 'home', [switch]$KeepSettings, [string[]]$Flags = @('--update'))
     Wake-Screen
-    $already = Get-CimInstance Win32_Process -Filter "Name='Neap.exe'" | Where-Object { $_.CommandLine -match '--pretend' }
-    if ($already) { throw 'a practice run of Neap is already open; only one can run at a time' }
+    # A copy just stopped can take a moment to let go of its lock, and a
+    # launch that finds the lock held leaves quietly with no window.
+    if (-not (Wait-Until { -not (Get-PretendCopies) } 10)) { throw 'a practice run of Neap is already open; only one can run at a time' }
     if (-not $KeepSettings) { Remove-Item (Join-Path $env:LOCALAPPDATA 'Neap\Pretend') -Recurse -Force -ErrorAction SilentlyContinue }
     $arguments = @('--pretend', '--behind', '--page', $Page, "--$Theme") + $Flags
     $script:Proc = Start-Process $script:Exe -ArgumentList $arguments -PassThru
     $script:Window = $null
     Wait-Until {
         $script:Window = $A::RootElement.FindFirst($Scope::Children, (New-Condition ProcessIdProperty ([int]$script:Proc.Id)))
-        $null -ne $script:Window
+        $null -ne $script:Window -or $script:Proc.HasExited
     } 20 | Out-Null
+    if (-not $script:Window) {
+        $log = Join-Path $env:LOCALAPPDATA 'Neap\Pretend\app.log'
+        $last = if (Test-Path $log) { (Get-Content $log -Tail 3) -join ' / ' } else { 'no log' }
+        $how = if ($script:Proc.HasExited) { "it quit with code $($script:Proc.ExitCode)" } else { 'it is still running without one' }
+        throw "the app opened no window: $how. Its log ends: $last"
+    }
     $script:Handle = [IntPtr]$script:Window.Current.NativeWindowHandle
     Assert-ScreenLit
 }
@@ -196,6 +204,9 @@ function Stop-NeapPretend {
         Stop-Process -Id $script:Proc.Id -Force -ErrorAction SilentlyContinue
         $script:Proc.WaitForExit(4000) | Out-Null
     }
+}
+function Get-PretendCopies {
+    @(Get-CimInstance Win32_Process -Filter "Name='Neap.Desktop.exe'" | Where-Object { $_.CommandLine -match '--pretend' })
 }
 
 # Starts the app for real, against the real headset, settings and log. Only for
@@ -230,7 +241,7 @@ function Protect-RealRun([scriptblock]$Block) {
     $before = if (Test-Path $shortcut) { $l = $link.CreateShortcut($shortcut); @{ Target = $l.TargetPath; Arguments = $l.Arguments; Directory = $l.WorkingDirectory } }
     foreach ($file in 'app-settings.json', 'app.log') { if (Test-Path (Join-Path $folder $file)) { Copy-Item (Join-Path $folder $file) (Join-Path $keep $file) -Force } }
 
-    $earlier = @(Get-CimInstance Win32_Process -Filter "Name='Neap.exe'" | Where-Object { $_.CommandLine -notmatch '--pretend' })
+    $earlier = @(Get-CimInstance Win32_Process -Filter "Name='Neap.Desktop.exe'" | Where-Object { $_.CommandLine -notmatch '--pretend' })
     foreach ($p in $earlier) { Note "stopping the owner's copy for the run: $($p.ExecutablePath)"; Stop-Process -Id $p.ProcessId -Force }
     if ($earlier) { Start-Sleep -Seconds 2 }
     try { & $Block }

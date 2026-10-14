@@ -47,8 +47,10 @@ if ($Check -eq 'all') {
     $worst = 0
     foreach ($name in 'banner', 'notes', 'settings', 'profiles') {
         Write-Host "### $name"
-        & $PSCommandPath $name -TimeoutSeconds $TimeoutSeconds
-        $worst = [Math]::Max($worst, $LASTEXITCODE)
+        # A check that stops on an error fails, and the next one still runs.
+        try { & $PSCommandPath $name -TimeoutSeconds $TimeoutSeconds; $code = $LASTEXITCODE }
+        catch { Write-Host "  FAIL  $name stopped: $_" -ForegroundColor Red; $code = 1 }
+        $worst = [Math]::Max($worst, $code)
     }
     exit $worst
 }
@@ -109,7 +111,7 @@ if (-not $Inside) {
         if ($null -eq $code) {
             Write-Host "the check had not finished after $TimeoutSeconds s; stopping it"
             Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'ui\\run.ps1.* -Inside' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
-            Get-CimInstance Win32_Process -Filter "Name='Neap.exe'" | Where-Object { $_.CommandLine -match '--pretend' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+            Get-CimInstance Win32_Process -Filter "Name='Neap.Desktop.exe'" | Where-Object { $_.CommandLine -match '--pretend' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
             exit 2
         }
         Write-Host "(log: $log)"
@@ -117,7 +119,13 @@ if (-not $Inside) {
     }
 }
 
-if ($Parts) { & $script -Parts $Parts } else { & $script }
-$code = $LASTEXITCODE
+try {
+    if ($Parts) { & $script -Parts $Parts } else { & $script }
+    $code = $LASTEXITCODE
+}
+catch {
+    Write-Host "  FAIL  the check stopped: $_" -ForegroundColor Red
+    $code = 1
+}
 Write-Host "== finished, exit $code"
 exit $code
