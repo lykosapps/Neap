@@ -6,6 +6,7 @@ using Neap.Core.Audio;
 using Neap.Core.Diagnostics;
 using Neap.Core.Hid;
 using Neap.Core.Protocol;
+using Neap.Core.Updates;
 
 namespace Neap.Services;
 
@@ -71,7 +72,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
     {
         if (_recording is not null) return;
         var recording = new Recording(
-            $"{AppInfo.Name} {AppInfo.Version?.ToString(3)}", RuntimeInformation.OSDescription);
+            $"{AppInfo.Name} {(AppInfo.Version is { } version ? Release.Display(version) : "")}", RuntimeInformation.OSDescription);
         _recording = recording;
         _names.Clear();
         _stopping = new CancellationTokenSource();

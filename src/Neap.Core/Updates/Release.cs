@@ -36,8 +36,12 @@ public sealed partial record Release(Version Version, Uri Page, Uri? Zip, Uri? H
     private static string ZipNameFor(Version version) =>
         string.Create(CultureInfo.InvariantCulture, $"Neap-{version.ToString(3)}-win-x64.zip");
 
+    /// <summary>A version as Neap shows it: a release's three numbers, or a test build's four.</summary>
+    /// <remarks>A test build carries its tag's fourth number, which tells a report from a test build apart from one from the release.</remarks>
+    public static string Display(Version version) => version.ToString(version.Revision > 0 ? 4 : 3);
+
     /// <summary>Whether this release is newer than the version running.</summary>
-    /// <remarks>Only major, minor and patch count: a build's fourth part is always zero.</remarks>
+    /// <remarks>Only major, minor and patch count: a test build's fourth number never makes it newer than the release it follows.</remarks>
     public bool IsNewerThan(Version running) =>
         Version > new Version(running.Major, running.Minor, Math.Max(running.Build, 0));
 

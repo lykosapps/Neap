@@ -64,6 +64,13 @@ public class ReleaseTests
         Assert.False(Release.Parse(Json(tag: "v0.3.0")).IsNewerThan(new Version(0, 3, 0, 0)));
     }
 
+    /// <summary>A report from test build 0.2.1.1 once read as 0.2.1, the release that came before it.</summary>
+    [Theory]
+    [InlineData(0, 2, 1, 0, "0.2.1")]
+    [InlineData(0, 2, 1, 1, "0.2.1.1")]
+    public void AReleaseShowsThreeNumbersAndATestBuildFour(int major, int minor, int patch, int test, string shown) =>
+        Assert.Equal(shown, Release.Display(new Version(major, minor, patch, test)));
+
     [Fact]
     public void TheNotesComeWithTheRelease()
     {

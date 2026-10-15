@@ -41,6 +41,8 @@ and date.
   kept. The setting Neap was changing turns on and off with the mute instead.
 - What the headset reports, under Device, can be selected and copied, and
   a Copy button puts all of it on the clipboard.
+- Settings and recordings show a test build's full version, such as
+  0.2.1.1, rather than the release it follows.
 - When a transmitter opens but the headset gives no answer, the log and any
   recording say so, rather than leaving "Quiet" unexplained.
 - Neap no longer changes the settings of a headset it doesn't know, as it

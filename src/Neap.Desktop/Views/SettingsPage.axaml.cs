@@ -92,7 +92,7 @@ public partial class SettingsPage : UserControl
         AppName.Text = AppInfo.Name;
         if (AppInfo.Version is { } version)
         {
-            AppVersion.Text = Strings.Format("Settings_AboutVersion", $"{version.Major}.{version.Minor}.{version.Build}");
+            AppVersion.Text = Strings.Format("Settings_AboutVersion", Release.Display(version));
             AppVersion.IsVisible = true;
         }
 
