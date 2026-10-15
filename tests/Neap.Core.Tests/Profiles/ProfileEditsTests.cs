@@ -31,6 +31,35 @@ public class ProfileEditsTests
     public void ASavedPresetThatIsNowUnnamedIsAnEdit() =>
         Assert.True(ProfileEdits.IsEdited(With("Bass Boost", "Clarity"), With(null, "Clarity")));
 
+    /// <summary>An Atlas Air has no noise cancellation, dial or Mode button, and reads them as nothing.</summary>
+    private static ProfileSettings OnAnAtlasAir(int autoShutoff = 0) => new(
+        NoiseMode.Off, 0, false, 0, 0, false, 0, false, 0,
+        "Bass Boost", "Clarity", SpatialFormat.Off, autoShutoff, new ModeChoice(0, false), 0);
+
+    [Fact]
+    public void AStealthProIIsProfileIsNotEditedByWhatTheAtlasAirLacks()
+    {
+        var saved = With("Bass Boost", "Clarity");
+
+        var live = ProfileEdits.Keeping(OnAnAtlasAir(), saved, HeadsetModels.AtlasAir);
+
+        Assert.False(ProfileEdits.IsEdited(saved, live));
+        Assert.Equal((NoiseMode.Cancelling, 80, 1), (live.NoiseMode, live.NoiseLevel, live.DialFunction));
+    }
+
+    [Fact]
+    public void WhatTheAtlasAirHasStillCountsAsAnEdit() =>
+        Assert.True(ProfileEdits.IsEdited(With("Bass Boost", "Clarity"),
+            ProfileEdits.Keeping(OnAnAtlasAir(autoShutoff: 2), With("Bass Boost", "Clarity"), HeadsetModels.AtlasAir)));
+
+    [Fact]
+    public void AHeadsetThatHoldsEverythingKeepsItsOwnSettings() =>
+        Assert.Equal(OnAnAtlasAir(), ProfileEdits.Keeping(OnAnAtlasAir(), With("Bass Boost", "Clarity"), HeadsetModels.StealthProII));
+
+    [Fact]
+    public void WithNoProfileTheLiveSettingsStand() =>
+        Assert.Equal(OnAnAtlasAir(), ProfileEdits.Keeping(OnAnAtlasAir(), null, HeadsetModels.AtlasAir));
+
     [Theory]
     [InlineData(Link.Connected, true, ProfileReadiness.Ready)]
     [InlineData(Link.Connected, false, ProfileReadiness.Reading)]

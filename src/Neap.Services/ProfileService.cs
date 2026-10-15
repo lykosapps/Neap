@@ -134,10 +134,10 @@ public sealed class ProfileService : IDisposable
         else if (spatial.Active is { } active) format = active;
         else return null;
 
-        return new ProfileSettings(mode, level, shh != 0, shhPreset, shhLevel, gate != 0, gateThreshold, ai != 0,
+        return ProfileEdits.Keeping(new ProfileSettings(mode, level, shh != 0, shhPreset, shhLevel, gate != 0, gateThreshold, ai != 0,
             monitoring, AppServices.Presets.State(Bank.Game)?.Baseline?.Name,
             AppServices.Presets.State(Bank.Mic)?.Baseline?.Name, format, autoShutoff,
-            new ModeChoice(modeFunction, AppServices.Noise.Cycling), dial);
+            new ModeChoice(modeFunction, AppServices.Noise.Cycling), dial), Active?.Settings, model);
     }
 
     private static async Task<(BankState Game, BankState Mic)> EnsureBanks() => (

@@ -35,6 +35,8 @@ and date.
   Bluetooth.
 - On the Atlas Air, profiles no longer stay on "Reading the headset's
   settings…". They wait only for settings the headset has.
+- A profile saved on one headset no longer shows as changed on another that
+  lacks some of its settings, and saving over it keeps them.
 - Mic monitoring is hidden on the Atlas Air until a tester finds where it is
   kept. The setting Neap was changing turns on and off with the mute instead.
 - What the headset reports, under Device, can be selected and copied, and

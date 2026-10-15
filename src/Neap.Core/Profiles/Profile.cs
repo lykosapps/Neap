@@ -69,6 +69,34 @@ public static class ProfileEdits
     /// </summary>
     public static bool IsEdited(ProfileSettings saved, ProfileSettings live) =>
         saved with { GamePreset = saved.GamePreset ?? live.GamePreset, MicPreset = saved.MicPreset ?? live.MicPreset } != live;
+
+    /// <summary>The live settings, with those the headset does not hold taken from the active profile; see <see cref="ProfileGate.Holds"/>.</summary>
+    /// <remarks>
+    /// A profile saved on one headset and used on another that lacks some of
+    /// its settings, noise cancellation on the Atlas Air among them, would
+    /// otherwise read as edited for ever, and saving over it would lose what
+    /// the first headset had.
+    /// </remarks>
+    public static ProfileSettings Keeping(ProfileSettings live, ProfileSettings? active, HeadsetModel? model)
+    {
+        if (active is null) return live;
+        bool Holds(string setting) => ProfileGate.Holds(model, setting);
+        return live with
+        {
+            NoiseMode = Holds("anc") ? live.NoiseMode : active.NoiseMode,
+            NoiseLevel = Holds("anc_level") ? live.NoiseLevel : active.NoiseLevel,
+            SuperhumanHearing = Holds("superhuman_hearing") ? live.SuperhumanHearing : active.SuperhumanHearing,
+            ShhPreset = Holds("shh_preset") ? live.ShhPreset : active.ShhPreset,
+            ShhLevel = Holds("shh_level") ? live.ShhLevel : active.ShhLevel,
+            NoiseGate = Holds("noise_gate") ? live.NoiseGate : active.NoiseGate,
+            NoiseGateThreshold = Holds("noise_gate_threshold") ? live.NoiseGateThreshold : active.NoiseGateThreshold,
+            AiNoiseReduction = Holds("ai_noise_reduction") ? live.AiNoiseReduction : active.AiNoiseReduction,
+            MicMonitoring = Holds("mic_monitoring") ? live.MicMonitoring : active.MicMonitoring,
+            AutoShutoff = Holds("auto_shutoff") ? live.AutoShutoff : active.AutoShutoff,
+            ModeButton = Holds("mode_button_function") ? live.ModeButton : active.ModeButton,
+            DialFunction = Holds("dial_function") ? live.DialFunction : active.DialFunction,
+        };
+    }
 }
 
 /// <summary>Whether a profile can be switched to or saved right now, and if not, why.</summary>
