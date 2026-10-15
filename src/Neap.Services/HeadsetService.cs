@@ -811,17 +811,13 @@ public sealed class HeadsetService : IDisposable
             out present, _askLast, _devices, (device, ex) =>
         {
             denied |= ex is AccessDeniedException;
-            if (ex is InvalidDataException)
-            {
-                if (_toldUnanswered) return;
-                _toldUnanswered = true;
-            }
+            if (ex is InvalidDataException or TimeoutException && !_toldQuiet.Add(ex.GetType())) return;
             NoteFault($"asking {device}", ex);
         });
         _askLast = null;
         if (client is not null)
         {
-            _toldUnanswered = false;
+            _toldQuiet.Clear();
             client.Wrote += attempt => Wrote?.Invoke(attempt);
             Model = HeadsetModels.Of(client.ProductId);
             _readOnly = !client.AllowWrites;
@@ -836,9 +832,9 @@ public sealed class HeadsetService : IDisposable
         return client;
     }
 
-    /// <summary>Whether the log already says a device sent something other than the reply asked for, since the headset last answered.</summary>
-    /// <remarks>Asked every few seconds while the headset reads as off, one line is enough.</remarks>
-    private bool _toldUnanswered;
+    /// <summary>The ways a device has failed to answer that the log already says, since the headset last answered: no answer at all, or something other than the reply asked for.</summary>
+    /// <remarks>Asked every few seconds while the headset reads as off, one line of each is enough.</remarks>
+    private readonly HashSet<Type> _toldQuiet = [];
 
     /// <summary>A device whose answer is in doubt, to ask after the others next time.</summary>
     private ushort? _askLast;

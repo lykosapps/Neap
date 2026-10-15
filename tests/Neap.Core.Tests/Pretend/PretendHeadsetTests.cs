@@ -285,6 +285,20 @@ public class PretendHeadsetTests
         Assert.Equal(1, present);
     }
 
+    /// <summary>A transmitter that opens and stays silent is said, not passed over without a word.</summary>
+    [Fact]
+    public void ASilentDeviceIsToldAsGivingNoAnswer()
+    {
+        var told = new List<(string Device, Exception Why)>();
+
+        HeadsetClient.Behind(allowWrites: _ => false, out _, devices: new PretendHeadset { On = false },
+            failed: (device, ex) => told.Add((device, ex)));
+
+        var (device, why) = Assert.Single(told);
+        Assert.Equal("pretend:229B", device);
+        Assert.IsType<TimeoutException>(why);
+    }
+
     [Fact]
     public void AFrameLongerThanTheReportIsRefusedAsTheRealDeviceRefusesIt()
     {

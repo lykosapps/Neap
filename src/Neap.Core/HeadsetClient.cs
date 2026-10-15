@@ -128,9 +128,9 @@ public sealed class HeadsetClient : IDisposable
                     ownsTransport: true);
                 client.Drain();
                 if (client.ReadCategory("GSI", AskWindow).Count > 0) return client;
-                if (client.Unanswered is { } heard)
-                    failed?.Invoke(device.Path,
-                        new InvalidDataException($"it sent something other than the reply asked for: {heard}"));
+                failed?.Invoke(device.Path, client.Unanswered is { } heard
+                    ? new InvalidDataException($"it sent something other than the reply asked for: {heard}")
+                    : new TimeoutException("it opened and gave no answer"));
             }
             catch (Exception ex)
             {
