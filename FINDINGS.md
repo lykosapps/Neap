@@ -1020,6 +1020,36 @@ Swarm II's own files are worth reading before capturing: its catalogue
 snapshot of every category and key it knows, which is how the preset slot
 categories were found) and its device plugin.
 
+Swarm II keeps a settings file per headset, `<MODEL>.ini`, in
+`%APPDATA%\Turtle Beach\Swarm II\Setting` *(measured, Swarm II on the owner's
+PC)*. Its `m_device_setting` entry is a QSettings-escaped Qt data stream of
+every category, key and value Swarm holds for that headset, five times over,
+one for each of its profile slots: 477 values for the Stealth Pro II, in the
+same categories and keys as `set_kvp`. No Turtle Beach code needs reading to
+get them.
+
+Comparing the file before and after a change in Swarm names the key behind
+the control. Five changes made in one session with Swarm, then Swarm closed,
+gave:
+
+| Change | Keys that moved |
+|---|---|
+| Mic monitoring slider | `0x620` 0 → 100 |
+| Game equaliser preset | `0x1210` 3 → 1, its bands, and the name at `0x12C0` |
+| Auto shut-off | `0x280` 2 → 4 |
+| The headset's volume wheel | `0x260` and `0x2A0`, both 54 → 36 |
+| Superhuman Hearing on, then off again | nothing: the value ended where it began |
+
+Three limits follow. The file is only certainly written when Swarm closes:
+one session saved three times in a minute while in use, the next only on
+closing, so a change can only be named alone by closing Swarm after it. A
+change undone before the save leaves no trace. And the file holds what the
+person named things, the headset's name and their profile names, which a
+report would leave out.
+
+`0x260` moved with the volume here, the same as `0x2A0`, which does not
+match the ten days of Swarm logs under *Transmitter slots*, where it stayed at 100.
+
 ## Open questions
 
 1. The 17 unidentified values, listed in the registry as `*_unknown_*`. Each
