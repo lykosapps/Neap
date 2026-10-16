@@ -58,6 +58,19 @@ public class HeadsetClientTests
     }
 
     [Fact]
+    public void ADeviceThatOpensAndSaysNothingIsToldWithWhatWasTried()
+    {
+        var told = new List<Exception>();
+
+        var client = HeadsetClient.Behind(_ => false, out _, devices: new PretendHeadset { On = false },
+            failed: (_, ex) => told.Add(ex), window: TimeSpan.FromMilliseconds(100));
+
+        Assert.Null(client);
+        var silent = Assert.IsType<TimeoutException>(Assert.Single(told));
+        Assert.Matches(@"gave no answer: \d+ reads of \d+ bytes with nothing in them, to a request of \d+ bytes", silent.Message);
+    }
+
+    [Fact]
     public void SomethingOtherThanTheReplyIsReportedRatherThanTakenForSilence()
     {
         var headset = new PretendHeadset { On = false };

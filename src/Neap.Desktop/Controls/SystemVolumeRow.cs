@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
@@ -128,7 +129,9 @@ public sealed class SystemVolumeRow : SettingsCard
         _slider.ValueChanged += (_, args) =>
         {
             if (_readout is not null) _readout.Text = Strings.Format("Level_Percent", (int)args.NewValue);
-            if (!_painting) _ = SoundVolume.SetVolume((int)args.NewValue, Flow);
+            if (_painting) return;
+            _chosenAt = Stopwatch.GetTimestamp();
+            _ = SoundVolume.SetVolume((int)args.NewValue, Flow);
         };
         _readout = new TextBlock
         {
@@ -167,6 +170,19 @@ public sealed class SystemVolumeRow : SettingsCard
 
     private static Geometry Glyph(string key) => (Geometry)Application.Current!.FindResource(key)!;
 
+    /// <summary>When the person last moved the slider, as a timestamp.</summary>
+    private long _chosenAt;
+
+    /// <summary>How long after a change the headset's report of the level is left alone.</summary>
+    /// <remarks>
+    /// The headset's mirror reports each level a moment after the system has
+    /// it, and a report of one the slider has already passed pulls it back
+    /// under the person's finger, then forward again as the next arrives.
+    /// </remarks>
+    private static readonly TimeSpan ChoiceHold = TimeSpan.FromMilliseconds(1500);
+
+    private bool JustChosen() => _chosenAt != 0 && Stopwatch.GetElapsedTime(_chosenAt) < ChoiceHold;
+
     /// <summary>Reads the level and mute state from the system. A slider being dragged is left alone.</summary>
     private async Task Refresh()
     {
@@ -179,7 +195,7 @@ public sealed class SystemVolumeRow : SettingsCard
                 _mute.IsChecked = state.Muted;
                 _muteIcon!.Data = Glyph(state.Muted ? "IconMute" : "IconVolume");
             }
-            if (_slider is not null && !_slider.IsPointerOver)
+            if (_slider is not null && !_slider.IsPointerOver && !JustChosen())
             {
                 _slider.Value = state.Percent;
                 if (_readout is not null) _readout.Text = Strings.Format("Level_Percent", state.Percent);
@@ -198,7 +214,7 @@ public sealed class SystemVolumeRow : SettingsCard
     /// </remarks>
     private void Paint()
     {
-        if (_slider is null || !AppServices.Headset.TryGetNumberByKey(MirrorKey, out int level)) return;
+        if (_slider is null || JustChosen() || !AppServices.Headset.TryGetNumberByKey(MirrorKey, out int level)) return;
         _painting = true;
         try
         {

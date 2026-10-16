@@ -809,6 +809,12 @@ public sealed class HeadsetService : IDisposable
     /// headset.
     /// </returns>
     /// <exception cref="DeviceNotFoundException">Nothing is plugged in at all.</exception>
+    /// <summary>Whether the devices have been asked since the app started.</summary>
+    private bool _askedBefore;
+
+    /// <summary>How long each device is given the first time: longer than later, so a slow answer is not taken for silence.</summary>
+    private static readonly TimeSpan FirstAsk = TimeSpan.FromSeconds(3);
+
     private HeadsetClient? Open(out int present)
     {
         bool denied = false;
@@ -820,7 +826,8 @@ public sealed class HeadsetService : IDisposable
             denied |= ex is AccessDeniedException;
             if (ex is InvalidDataException or TimeoutException && !_toldQuiet.Add(ex.GetType())) return;
             NoteFault($"asking {device}", ex);
-        });
+        }, _askedBefore ? null : FirstAsk);
+        _askedBefore = true;
         _askLast = null;
         if (client is not null)
         {

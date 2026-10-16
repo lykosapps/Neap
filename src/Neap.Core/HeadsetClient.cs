@@ -38,6 +38,7 @@ public sealed class HeadsetClient : IDisposable
     private int _counter;
     private long _lastSet;
     private byte[]? _heard;
+    private int _reads;
 
     /// <summary>How long a read waits after a write before it is sent.</summary>
     /// <remarks>
@@ -100,6 +101,7 @@ public sealed class HeadsetClient : IDisposable
     /// <param name="askLast">A product id to ask after the others, when its answer is in doubt.</param>
     /// <param name="devices">Where to look; what the operating system has when not given.</param>
     /// <param name="failed">Told why a device could not be opened or asked, with its description, so a headset that is there but not answering can be told from one that is not.</param>
+    /// <param name="window">How long to give each device to answer; a short while when not given.</param>
     /// <returns>
     /// The client for the device that answered, or null when devices are
     /// present but none has the headset.
@@ -107,7 +109,7 @@ public sealed class HeadsetClient : IDisposable
     /// <exception cref="DeviceNotFoundException">No candidate device is present.</exception>
     public static HeadsetClient? Behind(Func<ushort, bool> allowWrites, out int present, ushort? askLast = null,
         IDeviceSource? devices = null,
-        Action<string, Exception>? failed = null)
+        Action<string, Exception>? failed = null, TimeSpan? window = null)
     {
         devices ??= SystemDevices.Instance;
         var candidates = devices.Candidates().OrderBy(d => d.ProductId == askLast).ToList();
@@ -127,10 +129,11 @@ public sealed class HeadsetClient : IDisposable
                 client = new HeadsetClient(allowWrites(device.ProductId), devices.Open(device),
                     ownsTransport: true);
                 client.Drain();
-                if (client.ReadCategory("GSI", AskWindow).Count > 0) return client;
+                if (client.ReadCategory("GSI", window ?? AskWindow).Count > 0) return client;
                 failed?.Invoke(device.Path, client.Unanswered is { } heard
                     ? new InvalidDataException($"it sent something other than the reply asked for: {heard}")
-                    : new TimeoutException("it opened and gave no answer"));
+                    : new TimeoutException($"it opened and gave no answer: {client._reads} reads of "
+                        + $"{device.InputLength} bytes with nothing in them, to a request of {device.OutputLength} bytes"));
             }
             catch (Exception ex)
             {
@@ -182,6 +185,7 @@ public sealed class HeadsetClient : IDisposable
     private List<DeviceEvent> Receive()
     {
         var report = _transport.GetInput();
+        _reads++;
         var payload = Frames.PayloadOf(report);
         if (!payload.IsEmpty || report is not [HidControl.InReportId, ..])
             _heard ??= report[..(report.AsSpan().LastIndexOfAnyExcept((byte)0) + 1)];
@@ -219,6 +223,7 @@ public sealed class HeadsetClient : IDisposable
         _transport.SendOutput(Frames.Build(verb, counter: NextCounter()));
 
         _heard = null;
+        _reads = 0;
         Unanswered = null;
         var values = new Dictionary<string, JsonElement>();
         var clock = Stopwatch.StartNew();
