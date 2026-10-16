@@ -44,6 +44,11 @@ preparing code for experienced reviewers.
   everything works from the keyboard, text meets 4.5:1, and light, dark and
   high contrast themes all work, including a theme change while a page is
   open.
+- **Every headset has a tracker.** Support for each headset is tracked in
+  `docs/headsets/`, one file per model, in the format its `README.md` sets
+  out: Turtle Beach's feature list, what Neap does with each feature, and how
+  sure we are on Windows and on Linux. Update it in the same commit as any
+  recording, tester reply, finding or test build for that headset.
 - **Nothing fails silently.** A refused write, a missing resource or an
   unavailable device either leaves a line in the app log or says so on
   screen. A parser that only matches what it expects turns "cannot read" into
