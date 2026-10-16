@@ -41,7 +41,7 @@ answers, so nothing works there yet.
 | Feature | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|
 | Microphone mute | Has | Seen | Blocked | `0x600` | Shows on at start with the boom up; see Problems. |
-| Sensitivity | Has | Fails | Blocked | `0x610`, 0–100 (Read) | Jumps to 100% when the tester speaks; see Problems. |
+| Sensitivity | Has | Fails | Blocked | Done on the PC; on the Stealth Pro II `0x610` mirrors the PC's microphone level. Swarm II writes `0x610` here, 0–100 (Read). | Jumps to 100% when the tester speaks; see Problems. |
 | Monitoring, on/off | Hidden | Untried | Blocked | Swarm II's switch writes nothing (Read) | Probably no on/off; the level alone. |
 | Monitoring, level | Hidden | Untried | Blocked | `0x630`, 0–100 (Read) | Offer at `0x630` in a test build. |
 | Noise gate, on/off | Has, test | Confirmed | Blocked | `0x700` | — |
@@ -107,7 +107,7 @@ From the quick start guide. Neap describes them; it doesn't set them.
 | Linux: the headset never answers | 0.2.1.2 | Open | See Next. |
 | Master volume shakes on big dial turns | 0.2.1.2 | Much better in 0.2.1.3; rare | Leave unless it gets worse. |
 | Microphone shows on at start with the boom up, until it's lowered and raised | 0.2.1.2 | Open | Check what Neap reads at start. |
-| Sensitivity slider jumps to 100% when the tester speaks | 0.2.1.2 | Open; 0.2.1.3's slider fix may cover it | Ask the tester. |
+| Sensitivity slider jumps to 100% when the tester speaks | 0.2.1.2 | Open; 0.2.1.3's slider fix may cover it | Ask the tester. Also check whether a chat app's automatic gain is raising the PC's microphone level. |
 | Game and chat mix isn't saved in profiles | 0.2.1.2 | Open | Check how profiles keep the mix on a headset without `3DT`. |
 | Profiles page doesn't say which profile is active | 0.2.1.2 | Request | Decide. |
 | Master volume's mute button is highlighted when muted | 0.2.1.2 | Question from the tester | Confirm it's by design and reply. |

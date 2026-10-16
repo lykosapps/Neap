@@ -7,7 +7,7 @@ keeps the evidence in full; these files are the working list.
 
 | Headset | File | Where it stands |
 |---|---|---|
-| Stealth Pro II | — | Supported. Every function confirmed on the owner's headset. |
+| Stealth Pro II | [stealth-pro-ii.md](stealth-pro-ii.md) | Supported on Windows and the Steam Deck. |
 | Atlas Air | [atlas-air.md](atlas-air.md) | In testing on Windows; does not connect on Linux. |
 
 ## Keeping a file up to date
