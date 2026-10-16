@@ -2,7 +2,7 @@
 
 One file per headset Neap supports or is working towards, each in the format
 below, so every headset is tracked the same way: what it has, what Neap does
-with it, and how sure we are on each system. [FINDINGS.md](../FINDINGS.md)
+with it, and how sure we are on each system. [FINDINGS.md](../../FINDINGS.md)
 keeps the evidence in full; these files are the working list.
 
 | Headset | File | Where it stands |
@@ -16,7 +16,7 @@ keeps the evidence in full; these files are the working list.
   finding from Swarm II or Turtle Beach's pages, or a test build.
 - Change the row, then add a line to **Evidence** saying what arrived and when.
 - A public release carries only the features confirmed on that system; the
-  rest stay hidden or read only ([DECISIONS.md](../DECISIONS.md), 8 October 2026).
+  rest stay hidden or read only ([DECISIONS.md](../../DECISIONS.md), 8 October 2026).
 
 ## How sure
 
