@@ -147,6 +147,10 @@ public sealed class PretendHeadset : IDeviceSource
         _values[0x2A0] = "100";
         _values[0x290] = "1";
         _values[0x2D0] = "0";
+        _values[0x800] = "0";
+        _values[0x810] = "1";
+        _values[0x820] = "50";
+        _values[0xC00] = "60";
         _values[0x620] = _values[0x600];
         _values[0x630] = "20";
         for (int slot = 0; slot < _info.Length; slot++)

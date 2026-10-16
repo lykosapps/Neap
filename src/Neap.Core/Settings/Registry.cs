@@ -183,6 +183,20 @@ public static class Registry
             // named with the best current hypothesis and left non-writable.
             E(0x730, "shh_preset", "SAF", ShhPresetOptions),
             R(0x740, "shh_level", "SAF", 0, 100, note: "Superhuman Hearing intensity"),
+
+            // The Atlas Air's own places for Superhuman Hearing and voice
+            // prompts, named from Swarm II's settings file for it, as 0x730
+            // and 0x740 were. The values are from one snapshot, so which is
+            // which is a reading of their order, to be confirmed by ear on
+            // the headset; see HeadsetModel.OwnKeys.
+            T(0x800, "atlas_superhuman_hearing", "SHH"),
+            E(0x810, "atlas_shh_preset", "SHH", ShhPresetOptions),
+            R(0x820, "atlas_shh_level", "SHH", 0, 100, note: "Superhuman Hearing intensity"),
+            R(0x830, "atlas_shh_unknown_830", "SHH", writable: false,
+              note: "UNCONFIRMED. The fourth value in Swarm's Superhuman Hearing group"),
+            R(0xC00, "atlas_voice_prompt_volume", "Prm", 0, 100),
+            R(0xC10, "atlas_prm_unknown_c10", "Prm", writable: false,
+              note: "UNCONFIRMED. The second value in Swarm's voice prompt group"),
             R(0x640, "mic_unknown_640", "Mic", writable: false,
               note: "UNCONFIRMED. Candidates: boom-mic-present flag, or an AI noise "
                   + "reduction mode sitting after the enable at 0x630"),

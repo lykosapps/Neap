@@ -126,6 +126,34 @@ commands for sidetone level and state and for voice prompts, separate from
 in the installed copy, so whether the Atlas Air uses them in place of `0x620`
 and `0x2D0` is not known until its plugin is read *(research)*.
 
+Swarm II's settings file for the Atlas Air, from the same owner (`ATLAS_AIR.ini`,
+Neap 0.2.1.2 test, 15 Oct), groups the headset's values under names of its own
+*(research)*:
+
+- `SHH`, `0x800` to `0x830`: `0`, `0`, `60`, `0`. Read in the order of the
+  Stealth Pro II's `0x720` to `0x740`, the first is on or off, the second the
+  type and the third the intensity. The fourth is unknown.
+- `Prm`, `0xC00` and `0xC10`: `15` and `0`. `0xC00` is read as the voice prompt
+  volume. `0xC10` is unknown.
+- `Swm`, `0x500` to `0x540`: `1`, `50`, `0`, `0`, `0`. The place of the Stealth
+  Pro II's `3DT` group, which the Atlas Air never answers for.
+- `NG`, `0x700` and `0x710`: the noise gate, the same keys as the Stealth Pro II.
+- `TX`, `0x400` to `0x490`: `1`, `2`, `0`, `50`, then zeros, with `100` at
+  `0x480`. One of these is probably the transmitter's light; which is not known.
+- No `0x720`, `0x730`, `0x740` or `0x2D0` at all, which are the keys Neap sent
+  for Superhuman Hearing and voice prompts. The tester heard no change from
+  Neap's controls for either, and a clear one from Swarm II's.
+
+The order and values are one snapshot, not a capture of a control being
+moved, so the readings above are to be confirmed by ear, as `0x730` and
+`0x740` were.
+
+The Linux recordings from the other tester (CachyOS) show the transmitter's
+control collection opening once the udev rule is in place and giving no answer
+to the first question, with nothing at all coming back. Only one collection
+is asked, so a wrong choice between the two plugged in is ruled out *(measured,
+on the tester's PC)*.
+
 ### Which headsets share the platform
 
 Swarm II's catalogue (`settings.json`, a zlib-compressed JSON list of 140

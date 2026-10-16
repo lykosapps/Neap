@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using Neap.Core.Diagnostics;
 using static Neap.Core.Transmitters;
 
@@ -46,6 +47,12 @@ public sealed record HeadsetModel(
 
     /// <summary>Whether its link state says what it is listening through rather than whether Bluetooth is connected; see <see cref="Settings.LinkState.BluetoothOf"/>.</summary>
     public bool LinkStateIsSource { get; init; }
+
+    /// <summary>Where it keeps a setting the Stealth Pro II keeps elsewhere, by the Stealth Pro II's key.</summary>
+    public IReadOnlyDictionary<int, int> OwnKeys { get; init; } = new Dictionary<int, int>();
+
+    /// <summary>The groups of settings it has besides those every headset is asked for.</summary>
+    public IReadOnlyList<string> ExtraCategories { get; init; } = [];
 }
 
 /// <summary>The headsets Neap knows.</summary>
@@ -117,6 +124,13 @@ public static class HeadsetModels
     /// turns on and off with the mute, so mic monitoring is left out until
     /// its tester finds where it is kept.
     /// </para>
+    /// <para>
+    /// Swarm II's settings file for it, from the same owner, lists Superhuman
+    /// Hearing at 0x800 to 0x820 and voice prompts at 0xC00, in groups of
+    /// their own, and none of 0x720 to 0x740 or 0x2D0 (see FINDINGS.md). Which
+    /// of those is which is read from the order and values in that file, so
+    /// <see cref="HeadsetModel.OwnKeys"/> is a test of it, to be confirmed by ear.
+    /// </para>
     /// </remarks>
     public static readonly HeadsetModel AtlasAir = new(
         "Atlas Air", "atlas air", Writable: true,
@@ -137,6 +151,14 @@ public static class HeadsetModels
     {
         VolumeKey = 0x260,
         LinkStateIsSource = true,
+        OwnKeys = new Dictionary<int, int>
+        {
+            [0x720] = 0x800,
+            [0x730] = 0x810,
+            [0x740] = 0x820,
+            [0x2D0] = 0xC00,
+        },
+        ExtraCategories = ["SHH", "Prm"],
     };
 
     public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];
@@ -158,6 +180,29 @@ public static class HeadsetModels
 
     /// <summary>The key of a headset's copy of the system's output level: the Stealth Pro II's while it is not known.</summary>
     public static int VolumeKeyOf(HeadsetModel? model) => (model ?? StealthProII).VolumeKey;
+
+    /// <summary>The key to write a setting to on a headset: its own where it keeps the setting elsewhere, else the one given.</summary>
+    public static int KeyOnHeadset(HeadsetModel? model, int key) =>
+        model is not null && model.OwnKeys.TryGetValue(key, out int own) ? own : key;
+
+    /// <summary>What a headset reported, with each setting it keeps elsewhere moved to the Stealth Pro II's key, where the app looks for it.</summary>
+    /// <remarks>
+    /// The key a headset has no use for of its own, which it may still answer
+    /// with a value of another meaning, is dropped so the moved one is not
+    /// overwritten.
+    /// </remarks>
+    public static IReadOnlyDictionary<string, JsonElement> AtStandardKeys(
+        HeadsetModel? model, IReadOnlyDictionary<string, JsonElement> reported)
+    {
+        if (model is null || model.OwnKeys.Count == 0) return reported;
+        var standard = new Dictionary<string, JsonElement>(reported);
+        foreach (int key in model.OwnKeys.Keys)
+            standard.Remove(key.ToString("x", CultureInfo.InvariantCulture));
+        foreach (var (key, own) in model.OwnKeys)
+            if (reported.TryGetValue(own.ToString("x", CultureInfo.InvariantCulture), out var value))
+                standard[key.ToString("x", CultureInfo.InvariantCulture)] = value;
+        return standard;
+    }
 
     /// <summary>The controls that do one thing to list for a headset: the Stealth Pro II's while it is not known.</summary>
     public static IReadOnlyList<FixedControl> ControlsOf(HeadsetModel? model) => (model ?? StealthProII).Controls;

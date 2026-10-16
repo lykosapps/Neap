@@ -1,4 +1,7 @@
+using System.Text.Json;
 using Neap.Core.Diagnostics;
+using Neap.Core.Protocol;
+using Neap.Core.Settings;
 
 namespace Neap.Core.Tests;
 
@@ -106,4 +109,48 @@ public class HeadsetModelsTests
     public void TheSoundNamesLookedForCoverEveryKnownHeadset() =>
         Assert.All(HeadsetModels.All, model =>
             Assert.True(HeadsetModels.SoundMatches(model.SoundName)));
+
+    [Fact]
+    public void TheAtlasAirIsWrittenToItsOwnKeysAndTheStealthProIIToTheStandardOnes()
+    {
+        Assert.Equal(0x820, HeadsetModels.KeyOnHeadset(HeadsetModels.AtlasAir, 0x740));
+        Assert.Equal(0xC00, HeadsetModels.KeyOnHeadset(HeadsetModels.AtlasAir, 0x2D0));
+        Assert.Equal(0x740, HeadsetModels.KeyOnHeadset(HeadsetModels.StealthProII, 0x740));
+        Assert.Equal(0x740, HeadsetModels.KeyOnHeadset(null, 0x740));
+    }
+
+    [Fact]
+    public void TheAtlasAirsReadingsMoveToTheStandardKeysAndItsStandardOnesAreDropped()
+    {
+        var reported = new Dictionary<string, JsonElement>
+        {
+            ["800"] = JsonSerializer.SerializeToElement(1),
+            ["820"] = JsonSerializer.SerializeToElement(60),
+            ["730"] = JsonSerializer.SerializeToElement(2),
+            ["240"] = JsonSerializer.SerializeToElement(34),
+        };
+
+        var standard = HeadsetModels.AtStandardKeys(HeadsetModels.AtlasAir, reported);
+
+        Assert.Equal(1, standard["720"].GetInt32());
+        Assert.Equal(60, standard["740"].GetInt32());
+        Assert.False(standard.ContainsKey("730"));
+        Assert.Equal(34, standard["240"].GetInt32());
+    }
+
+    [Fact]
+    public void ReadingsFromOtherHeadsetsAreLeftAlone()
+    {
+        var reported = new Dictionary<string, JsonElement> { ["740"] = JsonSerializer.SerializeToElement(9) };
+
+        Assert.Same(reported, HeadsetModels.AtStandardKeys(HeadsetModels.StealthProII, reported));
+        Assert.Same(reported, HeadsetModels.AtStandardKeys(null, reported));
+    }
+
+    [Fact]
+    public void EveryKeyTheAtlasAirKeepsElsewhereIsInTheRegistryAndItsGroupCanBeAsked()
+    {
+        Assert.All(HeadsetModels.AtlasAir.OwnKeys.Values, key => Assert.True(Registry.ByKey[key].Writable));
+        Assert.All(HeadsetModels.AtlasAir.ExtraCategories, group => Assert.True(Verbs.Readers.ContainsKey(group)));
+    }
 }

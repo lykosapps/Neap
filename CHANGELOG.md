@@ -20,6 +20,9 @@ and date.
   microphone, and shows only what it has: no chat wheel, noise cancellation,
   lights, Charging Dock or CrossPlay. Its settings can be changed, in testing
   with an owner of one.
+- On the Atlas Air, Superhuman Hearing and voice prompts use the places
+  Swarm II keeps them, rather than the Stealth Pro II's. In testing with an
+  owner of one.
 - The game and chat mix on Home links to its keyboard shortcuts.
 - A recording lists each change Neap sends to the headset beside what the
   headset says, and says why when a change wasn't sent.

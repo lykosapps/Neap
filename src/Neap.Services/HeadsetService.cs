@@ -439,7 +439,7 @@ public sealed class HeadsetService : IDisposable
     /// <summary>A full re-read of every settings category. Around 1.2 seconds.</summary>
     public Task Refresh() => Post(client =>
     {
-        Merge(client.ReadAll(), authoritative: true);
+        Merge(client.ReadAll(categories: Categories()), authoritative: true);
         return true;
     });
 
@@ -489,7 +489,7 @@ public sealed class HeadsetService : IDisposable
                     // Clear anything left on the wire before the first read,
                     // or a stale reply answers the first question asked.
                     client.Drain();
-                    var everything = client.ReadAll();
+                    var everything = client.ReadAll(categories: Categories());
 
                     // Opening the transmitter proves only that the
                     // transmitter is there. If nothing came back, the headset
@@ -719,6 +719,7 @@ public sealed class HeadsetService : IDisposable
     /// </summary>
     private void Merge(IReadOnlyDictionary<string, JsonElement> incoming, bool authoritative)
     {
+        incoming = AtStandardKeys(incoming);
         bool moved = false;
         long now = Stopwatch.GetTimestamp();
         string wheel = Hex(WheelKey);
@@ -763,7 +764,13 @@ public sealed class HeadsetService : IDisposable
     /// </para>
     /// </remarks>
     private int OnTheWire(int key) =>
-        key is 0x401 or 0x402 ? _lightingBlock + (key - 0x400) : key;
+        key is 0x401 or 0x402 ? _lightingBlock + (key - 0x400) : HeadsetModels.KeyOnHeadset(Model, key);
+
+    /// <summary>The groups of settings to ask the connected headset for: every headset's, and any of its own.</summary>
+    private IEnumerable<string> Categories() => Verbs.SettingCategories.Concat(Model?.ExtraCategories ?? []);
+
+    private IReadOnlyDictionary<string, JsonElement> AtStandardKeys(IReadOnlyDictionary<string, JsonElement> reported) =>
+        HeadsetModels.AtStandardKeys(Model, reported);
 
     /// <summary>Throw away everything the headset told us.</summary>
     /// <remarks>
