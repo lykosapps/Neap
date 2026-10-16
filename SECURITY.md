@@ -20,7 +20,6 @@ rule. The problems that matter most are ones that could:
 
 - send the headset a write outside the confirmed settings registry, or a
   value outside a setting's range, which the client is meant to refuse;
-- reach the firmware update path, which this project never uses;
 - leave other applications' volumes turned down after the app exits, beyond
   what the volume journal restores;
 - let another program or user on the machine drive the app;

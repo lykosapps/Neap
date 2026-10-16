@@ -24,8 +24,8 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
 1. **A device that shares the headset's product id, or one that is simply malfunctioning, sends malformed or hostile HID data.**
    Fixed. `HeadsetClient` caps how much unparsed data it will hold onto (8 KB), and every array read from a device reply is bounds-checked and returns "not known" rather than throwing (`Transmitters.At`). A reply that does not parse is kept as evidence, not silently dropped. Nothing here can grow without bound or crash the reader.
 
-2. **A write reaches the firmware path, or a transmitter slot's base address.**
-   Fixed. `Registry.WireValue` is the one path to the headset and refuses both outright, whatever asked for it. Covered by direct tests as of today, not only indirectly through the pretend headset's own.
+2. **A write reaches a transmitter slot's base address.**
+   Fixed. `Registry.WireValue` is the one path to the headset and refuses it outright, whatever asked for it. Covered by direct tests as of today, not only indirectly through the pretend headset's own.
 
 3. **Another local program drives the app, or a pretend-mode script, over the named pipe `--pretend` opens.**
    Fixed. The pipe is opened `CurrentUserOnly`, so only the same Windows account can connect, and it does not exist unless the app was started with `--pretend`. Nobody running the ordinary app has this surface at all.

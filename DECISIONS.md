@@ -1,5 +1,18 @@
 # Decisions
 
+## 2026-10-16 — The firmware rules are lifted
+
+- **Options:** keep firmware off limits; lift the rules so Neap can build on
+  the firmware and flash work done in SP2Tools.
+- **Chosen:** lift them. This replaces the decision of 5 October that
+  firmware is studied only from Swarm II's files. Reading the device's
+  flash, the firmware update path and keeping firmware files in the
+  repository are no longer ruled out.
+- **Still in place:** every write goes through the registry, and a
+  transmitter slot's base address is never written.
+- **Revisit if:** a firmware change leaves a headset that cannot be
+  recovered, or Turtle Beach objects to its files being published.
+
 ## 2026-10-08 — A profile's app can switch only while it is using the microphone
 
 - **Options for a call app such as Teams, open all day:** follow the window
