@@ -252,6 +252,8 @@
     <CornerRadius x:Key="NeapRadiusTag">4</CornerRadius>
     <CornerRadius x:Key="NeapRadiusPill">10</CornerRadius>
     <x:Double x:Key="NeapIconRow">16</x:Double>
+    <x:Double x:Key="NeapIconTile">20</x:Double>
+    <x:Double x:Key="NeapTileHeadHeight">24</x:Double>
 
     <!-- Neap's own controls. -->
     <x:Double x:Key="NeapSegmentHeight">32</x:Double>

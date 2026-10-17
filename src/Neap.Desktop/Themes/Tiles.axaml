@@ -185,6 +185,36 @@
         <Setter Property="BorderThickness" Value="2" />
     </Style>
 
+    <!--
+        One anatomy for every tile on Home: a head row with the icon at the
+        left and the tile's affordance at the right, then the title, then the
+        state, then the tile's own control. The head row is one fixed height,
+        so titles line up across a row of tiles.
+    -->
+    <Style Selector="StackPanel.tilebody">
+        <Setter Property="Spacing" Value="{StaticResource NeapSpaceHairline}" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <Style Selector="Grid.tilehead">
+        <Setter Property="Height" Value="{StaticResource NeapTileHeadHeight}" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+    <Style Selector="PathIcon.tileicon">
+        <Setter Property="Width" Value="{StaticResource NeapIconTile}" />
+        <Setter Property="Height" Value="{StaticResource NeapIconTile}" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="PathIcon.tilechevron">
+        <Setter Property="Width" Value="{StaticResource NeapIconRow}" />
+        <Setter Property="Height" Value="{StaticResource NeapIconRow}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Grid.tilehead > Border.switchglyph">
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
     <!-- A tile's name and its state, under its icon. -->
     <Style Selector="TextBlock.tiletitle">
         <Setter Property="FontWeight" Value="SemiBold" />

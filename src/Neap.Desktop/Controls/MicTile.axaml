@@ -7,25 +7,25 @@
 
     <Grid>
     <ToggleButton x:Name="Face" Classes="tile" IsEnabled="False">
-        <Grid RowDefinitions="*,Auto,Auto" RowSpacing="{StaticResource NeapSpaceHairline}">
-            <PathIcon
-                x:Name="Icon"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Data="{StaticResource IconMicrophone}" />
-            <Border
-                x:Name="Glyph"
-                Classes="switchglyph"
-                AutomationProperties.AccessibilityView="Raw"
-                IsVisible="False">
-                <Ellipse />
-            </Border>
+        <StackPanel Classes="tilebody">
+            <Grid Classes="tilehead">
+                <PathIcon
+                    x:Name="Icon"
+                    Classes="tileicon"
+                    Data="{StaticResource IconMicrophone}" />
+                <Border
+                    x:Name="Glyph"
+                    Classes="switchglyph"
+                    AutomationProperties.AccessibilityView="Raw"
+                    IsVisible="False">
+                    <Ellipse />
+                </Border>
+            </Grid>
             <TextBlock
                 loc:Uid.Value="Quick_Microphone"
-                Grid.Row="1"
                 Classes="tiletitle" />
-            <TextBlock x:Name="Word" Grid.Row="2" Classes="tilestate" />
-        </Grid>
+            <TextBlock x:Name="Word" Classes="tilestate" />
+        </StackPanel>
     </ToggleButton>
 
     <c:SettingsCard x:Name="Row" Icon="{StaticResource IconMicrophone}" IsVisible="False" />

@@ -30,18 +30,17 @@
             x:Name="NoiseTile"
             MinHeight="{StaticResource NeapTileMinHeight}"
             Classes="card">
-            <Grid RowDefinitions="*,Auto,Auto" RowSpacing="{StaticResource NeapSpaceHairline}">
-                <PathIcon
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    AutomationProperties.AccessibilityView="Raw"
-                    Data="{StaticResource IconNoise}" />
+            <StackPanel Classes="tilebody">
+                <Grid Classes="tilehead">
+                    <PathIcon
+                        Classes="tileicon"
+                        AutomationProperties.AccessibilityView="Raw"
+                        Data="{StaticResource IconNoise}" />
+                </Grid>
                 <TextBlock
                     loc:Uid.Value="Quick_NoiseControl"
-                    Grid.Row="1"
                     Classes="tiletitle" />
                 <Border
-                    Grid.Row="2"
                     Margin="{StaticResource NeapSectionGap}"
                     Classes="segmented">
                     <StackPanel
@@ -55,7 +54,7 @@
                         <RadioButton x:Name="NoiseTransparent" GroupName="home_noise" Theme="{StaticResource SegmentButton}" />
                     </StackPanel>
                 </Border>
-            </Grid>
+            </StackPanel>
         </Border>
 
         <!--
@@ -68,20 +67,19 @@
             x:Name="EqualiserTile"
             MinHeight="{StaticResource NeapTileMinHeight}"
             Classes="card">
-            <Grid RowDefinitions="*,Auto,Auto,Auto" RowSpacing="{StaticResource NeapSpaceHairline}">
-                <PathIcon
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    AutomationProperties.AccessibilityView="Raw"
-                    Data="{StaticResource IconEqualiser}" />
+            <StackPanel Classes="tilebody">
+                <Grid Classes="tilehead">
+                    <PathIcon
+                        Classes="tileicon"
+                        AutomationProperties.AccessibilityView="Raw"
+                        Data="{StaticResource IconEqualiser}" />
+                </Grid>
                 <TextBlock
                     loc:Uid.Value="Quick_Preset"
-                    Grid.Row="1"
                     Classes="tiletitle" />
                 <Button
                     x:Name="PresetPicker"
                     loc:Uid.Value="Quick_PresetPicker"
-                    Grid.Row="2"
                     Margin="{StaticResource NeapSectionGap}"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Stretch"
@@ -117,9 +115,8 @@
                 <Button
                     x:Name="EqualiserLink"
                     loc:Uid.Value="Quick_EqualiserSettings"
-                    Grid.Row="3"
                     Classes="link" />
-            </Grid>
+            </StackPanel>
         </Border>
 
         <!--
@@ -131,23 +128,23 @@
             loc:Uid.Value="Quick_ShhTile"
             Classes="tile home"
             IsEnabled="False">
-            <Grid RowDefinitions="*,Auto,Auto" RowSpacing="{StaticResource NeapSpaceHairline}">
-                <PathIcon
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    AutomationProperties.AccessibilityView="Raw"
-                    Data="{StaticResource IconHearing}" />
-                <Border
-                    Classes="switchglyph"
-                    AutomationProperties.AccessibilityView="Raw">
-                    <Ellipse />
-                </Border>
+            <StackPanel Classes="tilebody">
+                <Grid Classes="tilehead">
+                    <PathIcon
+                        Classes="tileicon"
+                        AutomationProperties.AccessibilityView="Raw"
+                        Data="{StaticResource IconHearing}" />
+                    <Border
+                        Classes="switchglyph"
+                        AutomationProperties.AccessibilityView="Raw">
+                        <Ellipse />
+                    </Border>
+                </Grid>
                 <TextBlock
                     loc:Uid.Value="Quick_Shh"
-                    Grid.Row="1"
                     Classes="tiletitle" />
-                <TextBlock x:Name="ShhWord" Grid.Row="2" Classes="tilestate" />
-            </Grid>
+                <TextBlock x:Name="ShhWord" Classes="tilestate" />
+            </StackPanel>
         </ToggleButton>
 
         <!-- Spatial sound, on the systems that have it. -->

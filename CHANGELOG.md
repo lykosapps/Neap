@@ -13,7 +13,8 @@ and date.
 
 ### Added
 
-- The Neap mark and name sit at the top of the menu, above the profile switcher. When the menu is icons only, just the mark shows.
+- The Neap mark and name sit at the top of the menu, above the profile switcher, at a size that reads. When the menu is icons only, just the mark shows.
+- Every tile on Home has the same layout: icon and switch or arrow on top, then the name, then its state, so names line up across a row. On Game and chat, Keyboard shortcuts moves up beside the title.
 - A max loudness boost on the Audio page raises the Stealth Pro II's own level,
   so everything through the dock plays louder — for when the headset is too
   quiet even at full volume. It starts at +0 dB until you move it, is saved on
