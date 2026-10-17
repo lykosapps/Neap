@@ -1,5 +1,29 @@
 # Decisions
 
+## 2026-10-17 — A calmer, compact look, drawn from shared tokens
+
+- **Options:** keep the violet-tinted look and its gradients; adopt a
+  ready-made Avalonia theme (FluentAvalonia, Semi, SukiUI); restyle on
+  Avalonia's own Fluent theme with Neap's own tokens, after MultiDrive.
+- **Chosen:** Neap's own tokens on the Fluent theme, following
+  `docs/design/PRINCIPLES.md`. Neutral grey grounds, so the violet accent and
+  the game and chat pair are the only colour. Flat panels with depth from
+  steps of fill, not gradients, shadows or outlines. Compact sizes: 13px body
+  text, 40px rows. Inter, carried by the app. The dark theme's primary button
+  stays pale lavender with dark text.
+- **How it is built:** every colour and size is a token in
+  `Themes/Tokens.axaml`; the toolkit's own keys point at them from one list in
+  `FluentKeys.cs` for light, dark and high contrast; Neap's templated
+  controls have control themes; pages share one `PageView` frame.
+- **Why:** each theme repeated the toolkit's keys by hand and high contrast a
+  third time, so they drifted, and sizes were typed in dozens of places. The
+  gradients dated the look and made contrast hard to measure. MultiDrive
+  showed the qualities wanted, calm, flat and roomy with one accent, and is
+  taken as a reference for those, not copied: its colours, layouts and parts
+  are not used.
+- **Revisit if:** a 13px body proves too small for people to read at arm's
+  length, or the neutral ground makes Neap hard to tell from other apps.
+
 ## 2026-10-16 — The firmware rules are lifted
 
 - **Options:** keep firmware off limits; lift the rules so Neap can build on
