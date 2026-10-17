@@ -142,8 +142,14 @@ Newest first.
   within a minute, five times between 7 and 16 October: the headset off or
   out of reach. Report sizes are 62 bytes on both systems. While switched to
   Bluetooth the headset went on answering through the transmitter, so
-  Bluetooth alone doesn't cause it. With the headset off, Windows' first ask
-  sometimes gets an unasked report, `070700055C0300802C01`; Linux never has.
+  Bluetooth alone doesn't cause it. Every silent spell ended the moment the
+  headset itself reported in (its sound link and battery first, then
+  "Connected"), and one began as it switched itself off mid-session, so on
+  Windows silence means the headset isn't linked. Just after the transmitter
+  is plugged in, Windows' first ask gets an unasked report,
+  `070700055C0300802C01`; Linux never has. On Linux, Neap stayed Quiet for
+  ten minutes and more, so a headset in use should have linked in that time
+  unless something else is wrong.
 - 2026-10-17 — 0.2.1.4 built from the plugin's findings: the changes in Next,
   checked by the tests against the pretend Atlas Air. The screen check and the headset are still to come.
 - 2026-10-17 — Turtle Beach's Swarm II article for the Atlas Air read: the
