@@ -130,7 +130,9 @@
                             they cannot be used, so none moves under the pointer
                             when a band is first dragged. Discard, first, appears
                             to their left once there is an edit to discard, so
-                            they stay put. Overwrite's label names the preset and
+                            they stay put. Undo, Redo and Compare are quiet, in front
+                            of them: they are for trying things, not for keeping them.
+                            Overwrite's label names the preset and
                             changes width. It is left out for a factory preset, which can
                             never be overwritten. Saving a new preset is the
                             accent once there is an edit to keep, since it keeps
@@ -145,6 +147,35 @@
                             HorizontalAlignment="Right"
                             ItemSpacing="{StaticResource NeapSpaceS}"
                             LineSpacing="{StaticResource NeapSpaceS}">
+                            <Button
+                                x:Name="UndoButton"
+                                loc:Uid.Value="Equaliser_Undo"
+                                Classes="quiet iconbutton"
+                                IsEnabled="False">
+                                <PathIcon
+                                    Width="{StaticResource NeapIconRow}"
+                                    Height="{StaticResource NeapIconRow}"
+                                    AutomationProperties.AccessibilityView="Raw"
+                                    Data="{StaticResource IconUndo}" />
+                            </Button>
+                            <Button
+                                x:Name="RedoButton"
+                                loc:Uid.Value="Equaliser_Redo"
+                                Classes="quiet iconbutton"
+                                IsEnabled="False">
+                                <PathIcon
+                                    Width="{StaticResource NeapIconRow}"
+                                    Height="{StaticResource NeapIconRow}"
+                                    AutomationProperties.AccessibilityView="Raw"
+                                    Data="{StaticResource IconUndo}"
+                                    RenderTransform="scale(-1, 1)" />
+                            </Button>
+                            <!-- Held, not clicked: see CompareHold. -->
+                            <Button
+                                x:Name="CompareButton"
+                                loc:Uid.Value="Equaliser_Compare"
+                                Classes="quiet"
+                                HorizontalContentAlignment="Center" />
                             <Button
                                 x:Name="DiscardButton"
                                 loc:Uid.Value="Equaliser_DiscardButton"
@@ -177,6 +208,12 @@
                         </WrapPanel>
                     </Grid>
 
+                    <!-- Only when Compare could not change what is heard. -->
+                    <TextBlock
+                        x:Name="CompareTrouble"
+                        Classes="secondary"
+                        IsVisible="False" />
+
                     <!--
                         Parametric and the curve take the whole width of the
                         card, so they line up with the choice of mode above them.
@@ -193,7 +230,16 @@
                         then they fold into two rows of five.
                     -->
                     <StackPanel x:Name="Curve" HorizontalAlignment="Stretch">
-                        <c:EqualiserCurve x:Name="Response" Height="280" />
+                        <Grid>
+                            <c:EqualiserCurve x:Name="Response" Height="280" />
+                            <Border
+                                x:Name="FlatCaption"
+                                Classes="comparecaption"
+                                IsHitTestVisible="False"
+                                IsVisible="False">
+                                <TextBlock loc:Uid.Value="Equaliser_Flat" />
+                            </Border>
+                        </Grid>
                         <Grid x:Name="Bands" Margin="{StaticResource NeapSectionGap}" RowSpacing="{StaticResource NeapSpaceS}" />
                     </StackPanel>
 

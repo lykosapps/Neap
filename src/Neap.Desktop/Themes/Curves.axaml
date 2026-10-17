@@ -180,4 +180,54 @@
         <Setter Property="Stroke" Value="{DynamicResource NeapGroundBrush}" />
         <Setter Property="StrokeThickness" Value="2" />
     </Style>
+
+    <!--
+        A point that can be moved says so: it grows while it is pointed at,
+        dragged or chosen with the keyboard, over a soft halo. The halo takes
+        a ring in the text colour while the keyboard has the point, which is
+        the focus mark. Both plots share them.
+    -->
+    <Style Selector="Ellipse.bandhandle.active, Ellipse.curvehandle.active">
+        <Setter Property="RenderTransform" Value="scale(1.35)" />
+    </Style>
+    <Style Selector="Ellipse.bandhalo">
+        <Setter Property="Fill" Value="{DynamicResource NeapGameBrush}" />
+        <Setter Property="Opacity" Value="0.25" />
+    </Style>
+    <Style Selector="Ellipse.bandhalo.focus">
+        <Setter Property="Stroke" Value="{DynamicResource NeapTextBrush}" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Opacity" Value="0.6" />
+    </Style>
+
+    <!-- Held fingers cover a point, so on a touch screen it is bigger, as every other target is. -->
+    <Style Selector="Window.touch Ellipse.bandhandle">
+        <Setter Property="RenderTransform" Value="scale(1.5)" />
+    </Style>
+    <Style Selector="Window.touch Ellipse.bandhandle.active">
+        <Setter Property="RenderTransform" Value="scale(1.9)" />
+    </Style>
+    <Style Selector="Window.touch Ellipse.curvehandle">
+        <Setter Property="RenderTransform" Value="scale(1.3)" />
+    </Style>
+    <Style Selector="Window.touch Ellipse.curvehandle.active">
+        <Setter Property="RenderTransform" Value="scale(1.6)" />
+    </Style>
+    <Style Selector="Window.touch Ellipse.bandhalo">
+        <Setter Property="RenderTransform" Value="scale(1.5)" />
+    </Style>
+
+    <!-- Said over a plot while Compare is held and the headset plays flat. -->
+    <Style Selector="Border.comparecaption">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="0,16,0,0" />
+        <Setter Property="Padding" Value="12,4" />
+        <Setter Property="Background" Value="{DynamicResource NeapTextBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusPill}" />
+    </Style>
+    <Style Selector="Border.comparecaption > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource NeapGroundBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
 </Styles>

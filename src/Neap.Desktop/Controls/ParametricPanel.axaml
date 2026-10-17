@@ -36,7 +36,16 @@
             </StackPanel>
         </StackPanel>
 
-        <c:ParametricCurve x:Name="Shape" Height="280" />
+        <Grid>
+            <c:ParametricCurve x:Name="Shape" Height="280" />
+            <Border
+                x:Name="FlatCaption"
+                Classes="comparecaption"
+                IsHitTestVisible="False"
+                IsVisible="False">
+                <TextBlock loc:Uid.Value="Equaliser_Flat" />
+            </Border>
+        </Grid>
 
         <!-- Only when the headset misses by enough to hear. -->
         <StackPanel

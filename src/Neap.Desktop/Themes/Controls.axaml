@@ -23,6 +23,11 @@
         <Setter Property="Background" Value="{DynamicResource NeapQuietHoverBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource NeapButtonStrokeBrush}" />
     </Style>
+    <!-- A quiet button that cannot be used is dimmed, not boxed. -->
+    <Style Selector="Button.quiet:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
     <Style Selector="Button.quiet:pressed /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource NeapButtonPressedBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource NeapButtonStrokeBrush}" />

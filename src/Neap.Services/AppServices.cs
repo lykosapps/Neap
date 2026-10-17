@@ -72,6 +72,8 @@ public static class AppServices
     {
         if (_stopped) return;
         _stopped = true;
+        // Before the headset is let go, so a curve taken off for a comparison goes back on.
+        Presets?.EndAllCompares();
         Updates?.Dispose();
         Recorder?.Dispose();
         MicFollow?.Dispose();

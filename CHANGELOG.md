@@ -24,6 +24,13 @@ and date.
   equaliser preset, with the headset's name, state and battery above them. It
   closes on Escape or when you click elsewhere. The window is now "Open Neap"
   on the icon's menu, and on the panel.
+- The equaliser is easier to try things on. Points show they can be dragged:
+  a resize cursor, a halo and a larger point under the pointer, and a bubble
+  with the value while one is moved. The curve takes the keyboard, with Left
+  and Right to choose a band and Up and Down to move it, and Shift for a
+  bigger step. Compare plays the headset flat for as long as you hold it and
+  puts your curve back when you let go. Undo and Redo, or Ctrl+Z and Ctrl+Y,
+  step back through the edits made to the curve since the page was opened.
 - The Neap mark and name sit at the top of the menu, above the profile
   switcher. When the menu is icons only, just the mark shows.
 - Every tile on Home has the same layout: icon and switch or arrow on top,
