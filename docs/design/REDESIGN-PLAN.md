@@ -1,145 +1,127 @@
 # Redesign plan
 
-Brings Neap's screens to the [design principles](PRINCIPLES.md). The screens
-change, and what they do does not. Every setting, word and automation name
-stays as it is unless a step says otherwise.
+The current position of Neap's redesign: what is being built next and in what
+order. How the screens should look and behave is in the
+[design principles](PRINCIPLES.md). Finished rounds are summarised in the log
+at the end.
 
-## Where it starts
+## This round: a stronger look, and Home, Audio and Equaliser rebuilt
 
-What the current code gives the redesign:
+### What the owner chose
 
-- **Already in good shape.**
-  - Every brush is a token.
-  - No hex appears outside the theme files.
-  - All text is in the resource file.
-  - The rail already adapts to width.
-  - Avalonia 12.1.3 with the Fluent theme, and no third-party UI library.
-- **What makes a restyle hard.**
-  1. **Fluent overrides are written out three times.** There are about 80
-     aliases for dark, the same again for light, and a third time as lists
-     in `HighContrast.cs`.
-  2. **High contrast is built in code.** Several surfaces have never been
-     seen on screen in it, and no check covers it.
-  3. **There are no `ControlTheme`s.** Custom controls get their template
-     through selectors.
-  4. **Sizes and radii are literals.** Spacing, radii and icon sizes are
-     typed in AXAML and repeated as constants in C#.
-  5. **The page skeleton is copied into all seven pages.**
-  6. **Panels and tiles use gradients.**
-  7. **Type classes overlap.** Three of them share 28/semibold.
-  8. **Two title-bar values are hard-coded.** The 40px height and a 138px
-     caption-button width.
-  9. **Several controls have no focus style of their own.** The rail and
-     setting cards rely on Fluent's.
-  10. **Layout is built in code.** Pages and controls have no view models,
-      so layout is partly written in C#.
-- **Out of scope.** The redesign does not introduce view models. It is a
-  restyle, and the code-behind pattern stays. Moving to MVVM would be its
-  own decision.
+- **Ultraviolet accent.** `#6D4AFF` fills with white text, replacing the pale
+  lavender button. Game keeps the twilight hue of the accent; chat keeps the
+  moon.
+- **A darker neutral.** The ground is `#08080A`, cards are `#121214`, and
+  inset rows are `#1A1A1E`. There is no tint: the accent is the only colour.
+- **Thoughtful spacing.** A clear rhythm: 24 between sections, 8 between
+  cards, 12 inside a card, and 4 between a name and its line. Desktop stays
+  compact. A small window, such as the Steam Deck's, gets one step roomier,
+  with targets a finger can hit.
+- **A more custom look.**
+  - Segmented controls in place of radio lists.
+  - Neap's own sliders, with thicker tracks and the value on the thumb while
+    dragging, and its own switches.
+  - The profile switcher at the top of the left menu, on Windows and Linux
+    alike, in place of the row it has under the title bar today.
+  - The half-moon-over-a-wave mark redrawn in ultraviolet, with a one-shape
+    tray icon that stays readable at 16px.
+- **The equaliser gets its own page,** with Game and Microphone tabs.
+- **Audio and Microphone become one page,** Audio, in two sections: what you
+  hear, and your microphone.
+- **The left menu** becomes Home, Audio, Equaliser, Controls, Profiles and
+  Device, with Settings at the foot: six places, as now.
+- **New screens, same plumbing.** Layouts and controls are rebuilt. How the
+  screens talk to the headset does not change.
+- **Dark first.** Every screen is designed and judged in dark. Light gets
+  matching values and passes the same checks. High contrast keeps working.
 
-## Phases
+### Phases
 
-Phases 1 and 2 run one after the other, because everything after them
-depends on them. Phases 3 and 4 run as parallel sessions. Each session owns
-its own files, so no two sessions touch the same file.
+Phase 0 and phase 2 run in this session. Phases 1 and 3 run as Sonnet
+sessions in parallel, each in its own worktree and owning its own files.
+The orchestrator reviews every branch, merges it and runs the screen checks.
 
 ```
-1 Foundations ──► 2 Shell ──┬─► 3A Cards and tiles ──┐
-                            ├─► 3B Fluent controls ──┤
-                            ├─► 3C Dial and curves ──┼─► 4 Pages (4 in parallel) ──► 5 Verify
-                            └─► 3D Dialogs and bars ─┘
+0 Design sign-off ──► 1A Tokens ────────┐
+                      1B Controls ──────┼─► 2 Left menu ──┬─► 3A Home ─────────┐
+                      1C Mark and icons ┘                 ├─► 3B Audio ────────┼─► 4 Verify
+                                                          └─► 3C Equaliser page┘
 ```
 
-### 1. Foundations (one session)
+#### 0. Design sign-off (this session, with the owner)
 
-- **Split the theme files by job.** `Tokens.axaml` holds every colour and
-  size. `FluentKeys.cs` points Fluent's own keys at Neap's tokens, once, for
-  every theme. Each later session then owns its own file.
-- **Write the new palette as tokens.**
-  - Use flat, neutral fills with no violet tint: ground, card, inset.
-  - Choose Neap's own values, not MultiDrive's. Keep Neap's violet as the
-    accent, and keep the dark theme's pale lavender primary button with
-    dark text.
-  - Use the accent in its strong and tint strengths.
-  - Keep game and chat, the tones and the text levels.
-  - Set light, dark and high-contrast values side by side.
-- **Define Fluent's overrides once.** One list in `FluentKeys.cs` serves
-  light, dark and high contrast. A token missing from a theme leaves a line
-  in the app log.
-- **Add the spacing, radius and icon-size scales as resources.** Merge the
-  type classes to one per role.
-- **Embed Inter through Avalonia's own font package** and make it the
-  app's font.
-- **Done when** the theme files take every value from a token, the app
-  shows the neutral palette, Inter and the compact sizes, and `run.ps1 all`
-  passes, with screenshots in all three themes. Sizes typed into pages and
-  controls move to tokens as phases 2 to 4 touch each file.
+- **Update the principles** for the new palette, rhythm, adaptive density and
+  custom controls, and redraw the page map in `STRUCTURE.md`.
+- **Mockups in dark for sign-off:** Home, the merged Audio page and the
+  Equaliser page, each at desktop size and at Steam Deck size.
+- **Two or three redraws of the mark** for the owner to choose from, each with
+  its tray version.
+- **Decision records** for the equaliser page, the merged Audio page and the
+  switcher's new place.
+- **Done when** the owner signs off the mockups and picks a mark.
 
-### 2. Shell (one session)
-
-- **Make the page scaffold a shared control**, and use it in all seven
-  pages.
-- **Restyle the rail** with a pill selection, groups, an optional badge,
-  and its own `ControlTheme` and focus style.
-- **Rework the title bar.** It blends into the window, and its height and
-  caption width are measured, not hard-coded. Linux keeps the system bar.
-- **Done when** `run.ps1 all` passes, the rail works by keyboard in all
-  three themes, and the window narrows to 640px with nothing cut off.
-
-### 3. Components (four sessions in parallel)
+#### 1. Foundations (three sessions in parallel)
 
 | Session | Owns | Work |
 | --- | --- | --- |
-| **3A Cards and tiles** | `Themes/Tiles.axaml`, `SettingsCard`, `SettingRow`, `SettingTile`, `SpatialTile`, `NoiseControlPanel`, `Notice` | Card, inset row and setting row as `ControlTheme`s; drop gradients; one tile shell in place of two |
-| **3B Fluent controls** | `FluentKeys.cs`, a new `Themes/Controls.axaml` | Buttons (primary, secondary, quiet), toggle, slider, combo box, radio, check box, expander and flyout restyled through Fluent's keys and a few nested-selector styles |
-| **3C Dial and curves** | `Themes/Dial.axaml`, `Themes/Curves.axaml`, `GameChatDial`, `EqualiserPanel`, `ParametricPanel`, `MixPanel` | Flat track and fill, the accent rules for indicators on dark, and inline letter spacing removed |
-| **3D Dialogs and bars** | `NeapDialog`, `UpdateBar`, `ProfileBar`, `HeadsetStatusStrip`, the `*Dialogs.cs` files | Built from the card and button parts; `Thickness` and radius constants in C# replaced by classes |
+| **1A Tokens** | `Themes/Tokens.axaml`, `HighContrast.cs`, the contrast test | Ultraviolet and the darker neutral in dark, light to match, high contrast; the spacing rhythm; one step roomier below a window size |
+| **1B Controls** | `Themes/Controls.axaml`, `FluentKeys.cs`, new control files | A segmented control that screen readers still announce as a choice of one; Neap's slider and switch as control themes; focus marks; 24px targets, 40px at touch size |
+| **1C Mark and icons** | `Assets/`, the project file's icon entries, the tray code's icon choice | The chosen mark as source art; `app.ico` at every size; the logo; a tray icon drawn for 16 to 32px on Windows and Linux |
 
-- **Each session is done when** its controls show correctly in all three
-  themes, the check for its screen passes, and `run.ps1 access` finds
-  nothing new.
-- **Run the screen checks one at a time.** Only one practice copy of the
-  app can run at once, so sessions queue for `tools/ui` rather than
-  running together.
+#### 2. Left menu (this session)
 
-### 4. Pages (four sessions in parallel)
+- **Move the profile switcher** to the top of the left menu. The row under the
+  title bar goes, along with its edited mark.
+- **Change the menu's places:** Microphone leaves and Equaliser joins. The
+  Alt-letter keys are re-drawn, and the narrow, icons-only menu still works.
+- **Update the screen checks** that look for the profile bar or the Microphone
+  page.
+- **Done when** `run.ps1 all` and the keyboard walk pass, and the switcher
+  works in a narrow window.
 
-| Session | Pages |
-| --- | --- |
-| 4A | Home |
-| 4B | Audio, Microphone |
-| 4C | Controls, Device |
-| 4D | Profiles, Settings |
+#### 3. Pages (three sessions in parallel)
 
-- **Each page is rebuilt from the parts above:** cards, inset rows, setting
-  rows, and container queries for side-by-side cards. No new tokens or
-  styles are added at this stage. A gap goes back to phases 1 to 3.
-- **Done when** the page's check passes and screenshots in three themes
-  match the principles.
+| Session | Page | Work |
+| --- | --- | --- |
+| **3A Home** | Home | The headset at a glance and the mix lead. Tiles that say what they do: a switch looks like a switch, and one that opens something says so. No empty half page. Keyboard shortcuts placed as a real link |
+| **3B Audio** | Audio, with Microphone folded in | Two sections, What you hear and Your microphone. One row pattern throughout. Noise control as a segmented control. A short link to the Equaliser page in each section |
+| **3C Equaliser** | A new Equaliser page | Game and Microphone tabs; presets beside a large curve; bands, parametric mode and the test tone. Home's Equaliser tile opens it on the Game tab |
 
-### 5. Verify (one session)
+#### 4. Verify (this session)
 
-- **Run the full set.** That is `run.ps1 all`, `run.ps1 access` in both
-  themes, `tools/pretend.ps1` and `run.ps1 atlas`.
-- **Add the missing high-contrast check.** It is a new script beside the
-  others that walks every page in high contrast and fills the gap noted in
-  the backlog.
-- **Run the headset checks with the owner,** because the dial, meters and
-  tiles draw live readings.
-- **Compare Neap with MultiDrive, side by side.** The two should look like
-  the same school of design, not the same app. Anything that reads as a
-  copy goes back to the phase that made it.
-- **Refresh the screenshots in `docs/screenshots`.**
-- **Record the redesign in `DECISIONS.md`.** Add a `CHANGELOG.md` line per
-  phase that changes what a person sees.
+- **Run the full set:** `run.ps1 all`, `access`, `looks` and `atlas`.
+- **Fix the pretend walk** (`tools/pretend.ps1`). It already fails three steps
+  on the app as it was before the redesign, and now has to find the
+  equaliser on its new page.
+- **Tidy the release:** new README pictures, changelog lines and the
+  decisions.
+- **Run the headset checks with the owner,** then the owner decides whether to
+  merge into main.
 
-## Rules for every session
+### What could go wrong
 
-- **Keep the names the checks look for.** Automation names, ids and
-  visible words stay the same. The checks look for literal English such as
-  "Update and restart" and "Not now", and for the ids `PrimaryButton`,
-  `CloseButton` and `profile_working`.
-- **Commit small, with the check passing.** Each commit builds and passes
-  its tests, and follows the commit rules in `CLAUDE.md`.
-- **Compare screenshots before and after,** in all three themes, for every
-  surface the session touched.
+- **Lost announcements:** a segmented control built from plain buttons would
+  stop screen readers saying "one of three". It is built on radio buttons with
+  a new look, so it keeps them.
+- **Broken checks:** the checks look for literal names: "No profile", the
+  Microphone page, and the equaliser on Audio. Phases 2 and 3 update each
+  check they break, in the same commit.
+- **Profiles harder to find:** the switcher loses its row. It must stay one
+  move from every page and announce the active profile.
+- **Tray icon formats:** the tray icon goes through a third-party package on
+  Windows and the desktop's own tray on Linux. Each has its own sizes, so 1C
+  checks both.
+
+## Log
+
+### 2026-10-17: first round finished
+
+- **The look moved onto shared tokens:** neutral grounds, flat panels,
+  compact sizes and Inter, plus one list of Fluent keys for every theme.
+- **Every page shares one frame;** the rail item, cards, tiles, controls,
+  dial and dialogs each have control themes.
+- **Checked:** the screen checks, the accessibility walk, the pretend Atlas
+  Air and pictures in three themes, with no new failures against the app
+  before the redesign.
+- **Recorded** in `DECISIONS.md` under 17 October 2026.
