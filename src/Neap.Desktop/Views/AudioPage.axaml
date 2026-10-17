@@ -67,6 +67,16 @@
                                 Setting="voice_prompt_volume" />
                         </c:HeadsetSection>
                     </c:SideBySide>
+
+                    <!--
+                        A headset-side level that makes everything louder, for the
+                        "too quiet at maximum" complaint. It hides itself on a
+                        headset that does not answer for it; see LoudnessBoostRow.
+                    -->
+                    <c:LoudnessBoostRow
+                        loc:Uid.Value="Audio_LoudnessBoost"
+                        Margin="0,8,0,0"
+                        Icon="{StaticResource IconVolume}" />
                     <c:SpatialTile Margin="0,16,0,0" AsRow="True" />
 
                     <!--

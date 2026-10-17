@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
+using Neap.Core.Audio;
 using Neap.Core.Hid;
 using Neap.Core.Protocol;
 using Neap.Core.Settings;
@@ -182,9 +183,15 @@ public sealed class HeadsetClient : IDisposable
     /// Long replies span several reports and an unrelated notification can
     /// land in the middle of one, so only the consumed prefix is dropped.
     /// </remarks>
-    private List<DeviceEvent> Receive()
+    private List<DeviceEvent> Receive() => Ingest(_transport.GetInput());
+
+    /// <summary>Takes in one already-read report, returning any complete events found.</summary>
+    /// <remarks>
+    /// Split from <see cref="Receive"/> so a command exchange can hand on a
+    /// report that was not its reply without losing a notification in it.
+    /// </remarks>
+    private List<DeviceEvent> Ingest(byte[] report)
     {
-        var report = _transport.GetInput();
         _reads++;
         var payload = Frames.PayloadOf(report);
         if (!payload.IsEmpty || report is not [HidControl.InReportId, ..])
@@ -334,6 +341,67 @@ public sealed class HeadsetClient : IDisposable
             throw;
         }
         Wrote?.Invoke(new WriteAttempt(key, wire, null));
+    }
+
+    // -- the loudness level (a RACE command, not a set_kvp key) -------------
+
+    /// <summary>
+    /// Whether a command must be relayed to the headset over the air: true for
+    /// a dock or transmitter, false only on the wired headset itself.
+    /// </summary>
+    private bool RelayThroughBase => Transmitters.PieceOf(ProductId) != Transmitters.Piece.Headset;
+
+    /// <summary>How long to wait for a loudness reply before giving up.</summary>
+    /// <remarks>A base only replies while it is being polled from when it enumerated, which the standing reader does; a missing reply is not proof the set did not land.</remarks>
+    private static readonly TimeSpan LoudnessWait = TimeSpan.FromMilliseconds(700);
+
+    /// <summary>
+    /// Reads the headset's playback loudness level in decibels, or null when it
+    /// gives no valid reply — which also means the feature is not usable here.
+    /// </summary>
+    public float? ReadLoudness(TimeSpan? wait = null) =>
+        Exchange(LoudnessBoost.ReadFrame(RelayThroughBase),
+            report => LoudnessBoost.LevelInReply(report), wait ?? LoudnessWait);
+
+    /// <summary>
+    /// Sets the headset's playback loudness level, held to the firmware's
+    /// range. The headset sends no reply; confirm it with <see cref="ReadLoudness"/>.
+    /// </summary>
+    /// <exception cref="WritesDisabledException">The client is read-only.</exception>
+    public void SetLoudness(float db)
+    {
+        if (!AllowWrites)
+            throw new WritesDisabledException("refusing to set the loudness level: this client is read-only");
+        _transport.SendOutput(LoudnessBoost.SetFrame(db, RelayThroughBase));
+        _lastSet = Stopwatch.GetTimestamp();
+    }
+
+    /// <summary>
+    /// Sends one request and watches the input report for a reply the matcher
+    /// accepts, keeping any notification that arrives meanwhile.
+    /// </summary>
+    /// <remarks>
+    /// The reply is a RACE command reply, not the text event protocol, so it is
+    /// matched on the raw report before the report reaches the event parser. A
+    /// report that is not the reply is taken in as usual, so a notification in
+    /// it is not lost to the exchange.
+    /// </remarks>
+    private T? Exchange<T>(byte[] request, Func<byte[], T?> match, TimeSpan wait) where T : struct
+    {
+        var sinceWrite = Stopwatch.GetElapsedTime(_lastSet);
+        if (_lastSet != 0 && sinceWrite < AfterWrite) Thread.Sleep(AfterWrite - sinceWrite);
+        _transport.SendOutput(request);
+
+        var clock = Stopwatch.StartNew();
+        while (clock.Elapsed < wait)
+        {
+            var report = _transport.GetInput();
+            if (match(report) is { } hit) return hit;
+            foreach (var evt in Ingest(report))
+                if (evt.Kind == "UP") _setAside.Add(evt);
+            Thread.Sleep(3);
+        }
+        return null;
     }
 
     /// <summary>A write was sent, or refused or failed before it could be. Raised on the thread that wrote.</summary>

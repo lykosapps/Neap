@@ -39,6 +39,10 @@ public static class Frames
 {
     public const byte RaceStart = 0x05;
     public const byte RaceCommand = 0x5A;
+
+    /// <summary>The command byte a RACE command reply carries, in place of <see cref="RaceCommand"/>.</summary>
+    public const byte RaceReply = 0x5B;
+
     public const byte OutReportId = 0x06;
     public const byte InReportId = 0x07;
 
@@ -98,6 +102,57 @@ public static class Frames
                   [$"0x{key:x}"] = Convert.ToString(value, CultureInfo.InvariantCulture) ?? "",
               },
               counter);
+
+    /// <summary>
+    /// Builds a raw RACE command frame: a command id and a binary payload,
+    /// wrapped in the same report-6 envelope as <see cref="Build"/>.
+    /// </summary>
+    /// <remarks>
+    /// For the commands that are not the <c>set_kvp</c> text protocol, such as
+    /// the DSP playback level (<see cref="Neap.Core.Audio.LoudnessBoost"/>).
+    /// When <paramref name="relayThroughBase"/> is set, bit 15 of the report's
+    /// length field (byte 2 = <c>0x80</c>) tells a base to relay the frame to
+    /// the headset over the air; a wired headset takes the same frame with the
+    /// bit clear.
+    /// </remarks>
+    public static byte[] Command(ushort commandId, ReadOnlySpan<byte> payload, bool relayThroughBase)
+    {
+        int inner = 2 + payload.Length;     // the command id, then the payload
+        int total = 4 + inner;              // RACE header is 4 bytes
+        var frame = new byte[3 + total];
+        frame[0] = OutReportId;
+        frame[1] = (byte)(total & 0xFF);
+        frame[2] = (byte)(((total >> 8) & 0xFF) | (relayThroughBase ? 0x80 : 0x00));
+        frame[3] = RaceStart;
+        frame[4] = RaceCommand;
+        frame[5] = (byte)(inner & 0xFF);
+        frame[6] = (byte)((inner >> 8) & 0xFF);
+        frame[7] = (byte)(commandId & 0xFF);
+        frame[8] = (byte)((commandId >> 8) & 0xFF);
+        payload.CopyTo(frame.AsSpan(9));
+        return frame;
+    }
+
+    /// <summary>
+    /// The payload of a RACE command reply (<see cref="RaceReply"/>) for a
+    /// given command id, or an empty span when the report is not that reply.
+    /// </summary>
+    /// <remarks>
+    /// The reply's outer length field carries the same relay bit as the
+    /// request, so it is not read; the frame is found by its markers and sized
+    /// by the inner length, which is clean. The command id is counted in the
+    /// inner length, so the payload is what follows it.
+    /// </remarks>
+    public static ReadOnlySpan<byte> CommandReply(ReadOnlySpan<byte> report, ushort commandId)
+    {
+        if (report.Length < 9 || report[0] != InReportId
+            || report[3] != RaceStart || report[4] != RaceReply) return default;
+        if ((report[7] | (report[8] << 8)) != commandId) return default;
+        int inner = report[5] | (report[6] << 8);
+        int payloadLength = inner - 2;
+        if (payloadLength <= 0 || 9 + payloadLength > report.Length) return default;
+        return report.Slice(9, payloadLength);
+    }
 
     /// <summary>
     /// The argument object as compact JSON: no spaces, and strings escaped

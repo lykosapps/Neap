@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
@@ -102,6 +103,9 @@ public sealed class PretendHeadset : IDeviceSource
     private bool _on = true;
     private bool _atlas;
 
+    /// <summary>The playback loudness level the headset holds, in decibels; the Atlas Air does not answer for it.</summary>
+    private float _loudnessDb = LoudnessBoost.StockDb;
+
     /// <summary>The product id of the device it is opened through: the Charging Dock, or the Atlas Air's transmitter.</summary>
     private readonly ushort _product;
 
@@ -188,6 +192,9 @@ public sealed class PretendHeadset : IDeviceSource
         get { lock (_gate) return _on; }
         set { lock (_gate) _on = value; }
     }
+
+    /// <summary>The playback loudness level the headset currently holds, in decibels.</summary>
+    public float LoudnessDb { get { lock (_gate) return _loudnessDb; } }
 
     /// <summary>Every frame sent, in order.</summary>
     public IReadOnlyList<byte[]> Sent
@@ -331,7 +338,9 @@ public sealed class PretendHeadset : IDeviceSource
         lock (_gate)
         {
             _sent.Add(frame);
-            if (Unwrap(frame, out string? verb, out string? argument) is string wrong)
+            if (IsLoudnessCommand(frame))
+                Loudness(frame);
+            else if (Unwrap(frame, out string? verb, out string? argument) is string wrong)
                 Refuse(frame, wrong);
             else if (argument is null)
                 Answer(verb!);
@@ -387,6 +396,52 @@ public sealed class PretendHeadset : IDeviceSource
         var refusal = new PretendRefusal(Convert.ToHexString(frame), reason);
         _refusals.Add(refusal);
         _unraised.Add(refusal);
+    }
+
+    // -- the loudness command (a RACE command, not a set_kvp write) ----------
+
+    private const ushort SetOp = 0;
+
+    /// <summary>Whether a frame is the DSP loudness command (id 0x000A).</summary>
+    private static bool IsLoudnessCommand(byte[] frame) =>
+        frame.Length >= 9 && frame[0] == Frames.OutReportId
+        && frame[3] == Frames.RaceStart && frame[4] == Frames.RaceCommand
+        && (frame[7] | (frame[8] << 8)) == LoudnessBoost.CommandId;
+
+    /// <summary>
+    /// Answers or applies the loudness command. The Stealth Pro II replies to a
+    /// read and stores a set; the Atlas Air gives no answer, so the feature
+    /// hides on it.
+    /// </summary>
+    private void Loudness(byte[] frame)
+    {
+        if (frame.Length < 19) return;              // the id, then op(2), parameter(4) and value(4)
+        ushort op = BinaryPrimitives.ReadUInt16BigEndian(frame.AsSpan(9, 2));
+        uint param = BinaryPrimitives.ReadUInt32BigEndian(frame.AsSpan(11, 4));
+        float value = BinaryPrimitives.ReadSingleBigEndian(frame.AsSpan(15, 4));
+        if (param != LoudnessBoost.InputLevelParam || !_on || _atlas) return;
+
+        if (op == SetOp) _loudnessDb = LoudnessBoost.ClampLevel(value);
+        else ReplyLoudness();
+    }
+
+    /// <summary>Queues the reply to a loudness read: the parameter, then the current level.</summary>
+    private void ReplyLoudness()
+    {
+        var payload = new byte[8];
+        BinaryPrimitives.WriteUInt32BigEndian(payload, LoudnessBoost.InputLevelParam);
+        BinaryPrimitives.WriteSingleBigEndian(payload.AsSpan(4), _loudnessDb);
+
+        int inner = 2 + payload.Length;
+        var message = new byte[4 + inner];
+        message[0] = Frames.RaceStart;
+        message[1] = Frames.RaceReply;
+        message[2] = (byte)(inner & 0xFF);
+        message[3] = (byte)(inner >> 8);
+        message[4] = (byte)(LoudnessBoost.CommandId & 0xFF);
+        message[5] = (byte)(LoudnessBoost.CommandId >> 8);
+        payload.CopyTo(message, 6);
+        Fragment(message);
     }
 
     // -- reads --------------------------------------------------------------
@@ -603,7 +658,12 @@ public sealed class PretendHeadset : IDeviceSource
         message[4] = 0x02;
         message[5] = 0x99;
         text.CopyTo(message, 6);
+        Fragment(message);
+    }
 
+    /// <summary>Cuts one RACE message into inbound reports, each holding as much as fits.</summary>
+    private void Fragment(byte[] message)
+    {
         for (int at = 0; at < message.Length; at += PayloadPerReport)
         {
             int length = Math.Min(PayloadPerReport, message.Length - at);

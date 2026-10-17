@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 using Neap.Core;
+using Neap.Core.Audio;
 using Neap.Core.Connection;
 using Neap.Core.Hid;
 using Neap.Core.Protocol;
@@ -219,6 +220,23 @@ public sealed class HeadsetService : IDisposable
     public bool ReadOnly => _readOnly;
 
     private volatile bool _readOnly;
+
+    /// <summary>
+    /// The headset's playback loudness level, or null when it has not been read
+    /// or the headset is gone. <see cref="LoudnessReading.Available"/> is false
+    /// on a headset that does not answer the loudness command.
+    /// </summary>
+    /// <remarks>
+    /// Read on connect and after a set, because the level lives on the headset
+    /// and a Swarm recover or firmware update can reset it. See
+    /// <see cref="LoudnessBoost"/>.
+    /// </remarks>
+    public LoudnessReading? Loudness => _loudness;
+
+    private volatile LoudnessReading? _loudness;
+
+    /// <summary><see cref="Loudness"/> changed. Raised on the UI thread.</summary>
+    public event Action? LoudnessChanged;
 
     /// <summary>The keys whose refused change has been logged since the headset connected, so each is said once.</summary>
     private readonly ConcurrentDictionary<int, bool> _refused = new();
@@ -443,6 +461,54 @@ public sealed class HeadsetService : IDisposable
         return true;
     });
 
+    /// <summary>
+    /// Sets the headset's loudness boost above stock, in decibels, and confirms
+    /// it with a read.
+    /// </summary>
+    /// <remarks>
+    /// The headset sends no reply to the set, so the level shows at once at the
+    /// asked value and is then corrected to whatever the headset reports. Does
+    /// nothing useful on a headset where <see cref="Loudness"/> is unavailable;
+    /// the control is hidden there.
+    /// </remarks>
+    public void SetLoudnessBoost(float boostDb)
+    {
+        float level = LoudnessBoost.LevelForBoost(boostDb);
+        FileLoudness(new LoudnessReading(true, level));
+        var job = Post(client =>
+        {
+            client.SetLoudness(level);
+            if (client.ReadLoudness() is { } confirmed)
+                FileLoudness(new LoudnessReading(true, confirmed));
+            return true;
+        });
+        job.ContinueWith(failed =>
+        {
+            if (failed.Exception?.GetBaseException() is { } ex) NoteFault("set loudness", ex);
+        }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+    }
+
+    /// <summary>Reads the loudness level on connect and files it, hiding the feature when the headset does not answer.</summary>
+    private void ProbeLoudness(HeadsetClient client)
+    {
+        float? db;
+        try { db = client.ReadLoudness(TimeSpan.FromMilliseconds(500)); }
+        catch (Exception) { db = null; }
+        FileLoudness(db is { } level ? new LoudnessReading(true, level) : new LoudnessReading(false, 0f));
+    }
+
+    /// <summary>Files a loudness reading and tells the UI, only when it changed.</summary>
+    private void FileLoudness(LoudnessReading? reading)
+    {
+        if (_loudness == reading) return;
+        _loudness = reading;
+        if (reading is { Available: true } r)
+            AppLog.Write($"loudness: level {r.LevelDb.ToString("0.#", CultureInfo.InvariantCulture)} dB");
+        else if (reading is not null)
+            AppLog.Write("loudness: not available on this headset");
+        _ui.Post(() => LoudnessChanged?.Invoke());
+    }
+
     // -- the owner thread --------------------------------------------------
 
     private void Run()
@@ -511,6 +577,7 @@ public sealed class HeadsetService : IDisposable
                     unanswered = 0;
                     beats = 0;
                     nextBeat = Stopwatch.GetTimestamp() + BeatTicks;
+                    ProbeLoudness(client);
                     var held = Carrying(client);
                     carrying = held?.Name ?? adapter;
                     product = held?.Product ?? client.ProductId.ToString("X4", CultureInfo.InvariantCulture);
@@ -783,6 +850,7 @@ public sealed class HeadsetService : IDisposable
     {
         _link.Forget();
         _batteryTrend.Reset();
+        FileLoudness(null);
         if (_values.IsEmpty && _owned.IsEmpty) return;
         _values.Clear();
         _owned.Clear();
