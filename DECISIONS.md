@@ -1,5 +1,25 @@
 # Decisions
 
+## 2026-10-17 — A mini panel on the tray icon's left click
+
+- **Options:** leave a click on the icon opening the window; a menu of
+  actions on the icon; a small panel by the notification area with the
+  mid-game settings, with or without moving the window to the icon's menu.
+- **Chosen:** a left click opens the mini panel: the game and chat dial, the
+  microphone switch, noise cancellation (Off, Cancelling, Transparency) and
+  the equaliser preset, under the headset's name, state and battery, with a
+  button to open the window. It closes on Escape or when focus leaves it,
+  like the system's volume flyout. The window moves to "Open Neap" on the
+  icon's menu, which also lists "Mini panel". Where the desktop shows no
+  icons there is no panel.
+- **Why:** someone mid-game wants to change the mix or mute without the
+  window taking the screen and their focus from the game. Those four are
+  what Home's tiles already put first, so the panel is those controls made
+  small, with the same logic behind them. A click that opened the window
+  made the icon a slow way to reach them.
+- **Revisit if:** people miss opening the window with one click, or ask for
+  Superhuman Hearing or the profile switcher in the panel.
+
 ## 2026-10-17 — The equaliser gets a page, and Audio takes in Microphone
 
 - **Options:** keep both equalisers at the foot of Audio and Microphone;

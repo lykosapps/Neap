@@ -19,6 +19,11 @@ and date.
   level, so it follows the mix. Windows only; it stops when the window is behind
   or animation is off. When the headset's chat wheel moves the dial, the dial
   now glides to its place.
+- A click on Neap's icon by the clock opens a mini panel for mid-game: the
+  game and chat mix, mute for the microphone, noise cancellation and the
+  equaliser preset, with the headset's name, state and battery above them. It
+  closes on Escape or when you click elsewhere. The window is now "Open Neap"
+  on the icon's menu, and on the panel.
 - The Neap mark and name sit at the top of the menu, above the profile
   switcher. When the menu is icons only, just the mark shows.
 - Every tile on Home has the same layout: icon and switch or arrow on top,

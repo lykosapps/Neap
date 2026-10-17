@@ -43,16 +43,10 @@
                 <Border
                     Margin="{StaticResource NeapSectionGap}"
                     Classes="segmented">
-                    <StackPanel
+                    <c:NoiseModes
                         x:Name="NoiseModes"
                         loc:Uid.Value="Quick_NoiseTile"
-                        AutomationProperties.AutomationId="home_noise_control"
-                        IsEnabled="False"
-                        Orientation="Horizontal">
-                        <RadioButton x:Name="NoiseOff" GroupName="home_noise" Theme="{StaticResource SegmentButton}" />
-                        <RadioButton x:Name="NoiseCancelling" GroupName="home_noise" Theme="{StaticResource SegmentButton}" />
-                        <RadioButton x:Name="NoiseTransparent" GroupName="home_noise" Theme="{StaticResource SegmentButton}" />
-                    </StackPanel>
+                        AutomationProperties.AutomationId="home_noise_control" />
                 </Border>
             </StackPanel>
         </Border>
@@ -77,41 +71,11 @@
                 <TextBlock
                     loc:Uid.Value="Quick_Preset"
                     Classes="tiletitle" />
-                <Button
+                <c:PresetChoice
                     x:Name="PresetPicker"
                     loc:Uid.Value="Quick_PresetPicker"
                     Margin="{StaticResource NeapSectionGap}"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch"
-                    IsEnabled="False">
-                    <Button.Flyout>
-                        <Flyout Placement="BottomEdgeAlignedRight">
-                            <ListBox
-                                x:Name="PresetList"
-                                MinWidth="260"
-                                loc:Uid.Value="Quick_PresetList" />
-                        </Flyout>
-                    </Button.Flyout>
-                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="{StaticResource NeapSpaceS}">
-                        <TextBlock
-                            x:Name="PresetName"
-                            VerticalAlignment="Center"
-                            TextTrimming="CharacterEllipsis" />
-                        <Border
-                            x:Name="ParametricTag"
-                            Grid.Column="1"
-                            Classes="tag"
-                            IsVisible="False">
-                            <TextBlock x:Name="ParametricWord" />
-                        </Border>
-                        <PathIcon
-                            Grid.Column="2"
-                            Width="{StaticResource NeapIconRow}"
-                            Height="{StaticResource NeapIconRow}"
-                            AutomationProperties.AccessibilityView="Raw"
-                            Data="{StaticResource IconChevronDown}" />
-                    </Grid>
-                </Button>
+                    HorizontalAlignment="Stretch" />
                 <Button
                     x:Name="EqualiserLink"
                     loc:Uid.Value="Quick_EqualiserSettings"
