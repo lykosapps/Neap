@@ -436,6 +436,7 @@ public partial class EqualiserPanel : UserControl
             Text = preset.Name,
             VerticalAlignment = VerticalAlignment.Center,
             TextTrimming = Avalonia.Media.TextTrimming.CharacterEllipsis,
+            TextWrapping = Avalonia.Media.TextWrapping.NoWrap,
         };
         Grid.SetColumn(name, 1);
 
@@ -443,10 +444,15 @@ public partial class EqualiserPanel : UserControl
         {
             ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"),
             ColumnSpacing = Space.S,
+            Classes = { "face" },
             Children = { new Border { Classes = { "marker" } }, name, pill },
         };
 
+        // The chip spans the whole row, so the name has all of it until the
+        // delete button shows over its end; see Button.remove in Curves.axaml.
         var chip = new Button { Content = face, Classes = { "chip" } };
+        if (preset.Custom) Grid.SetColumnSpan(chip, 2);
+        ToolTip.SetTip(chip, preset.Name);
         AutomationProperties.SetName(chip, preset.Name);
         chip.Click += async (_, _) =>
         {
@@ -456,7 +462,7 @@ public partial class EqualiserPanel : UserControl
         };
         slot.Children.Add(chip);
         slot.Tag = new Row(preset, chip, pill);
-        slot.Classes.Add("slot");
+        if (preset.Custom) slot.Classes.Add("slot");
 
         // Only a custom preset can be deleted, and any of them can, without
         // choosing it first: the headset deletes by name.
@@ -468,6 +474,8 @@ public partial class EqualiserPanel : UserControl
                 Classes = { "remove" },
             };
             Grid.SetColumn(remove, 1);
+            remove.HorizontalAlignment = HorizontalAlignment.Right;
+            remove.Width = DeleteWidth;
             AutomationProperties.SetName(remove, Strings.Format("Equaliser_DeleteNamed", preset.Name));
             remove.Click += (_, _) =>
             {

@@ -1470,6 +1470,9 @@
   <data name="Parametric_Asked.Text" xml:space="preserve">
     <value>Your curve</value>
   </data>
+  <data name="Parametric_Gap.Text" xml:space="preserve">
+    <value>Out of reach</value>
+  </data>
   <data name="Parametric_Heard.Text" xml:space="preserve">
     <value>What you'll hear</value>
   </data>

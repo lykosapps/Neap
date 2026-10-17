@@ -13,6 +13,7 @@ and date.
 
 ### Added
 
+- Preset names on the Equaliser page stay on one line, and the gap between your curve and what you will hear is a calm grey with a legend entry.
 - The equaliser curve grows with the window, and both curves show a dB scale down the left edge.
 - The Neap mark and name sit at the top of the menu, above the profile switcher. When the menu is icons only, just the mark shows.
 - A max loudness boost on the Audio page raises the Stealth Pro II's own level,
