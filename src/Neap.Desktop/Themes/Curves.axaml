@@ -122,11 +122,18 @@
         <Setter Property="Background" Value="{DynamicResource NeapPresetSelectedBrush}" />
     </Style>
     <Style Selector="Button.remove">
+        <Setter Property="Opacity" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextSecondaryBrush}" />
         <Setter Property="Padding" Value="8" />
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <!-- Only on the row that is pointed at, focused or chosen; the keyboard reaches it with Tab all the same. -->
+    <Style Selector="Grid.slot:pointerover > Button.remove, Grid.slot:focus-within > Button.remove, Grid.slot.chosen > Button.remove">
+        <Setter Property="Opacity" Value="1" />
     </Style>
 
     <!--

@@ -126,11 +126,12 @@
                         </Border>
 
                         <!--
-                            Always there, and disabled when they cannot be used,
-                            so none moves under the pointer when a band is first
-                            dragged. Overwrite goes first because its label names
-                            the preset and changes width; the two after it stay
-                            put. It is left out for a factory preset, which can
+                            Save and Overwrite are always there, and disabled when
+                            they cannot be used, so none moves under the pointer
+                            when a band is first dragged. Discard, first, appears
+                            to their left once there is an edit to discard, so
+                            they stay put. Overwrite's label names the preset and
+                            changes width. It is left out for a factory preset, which can
                             never be overwritten. Saving a new preset is the
                             accent once there is an edit to keep, since it keeps
                             everything where overwriting loses the old curve;
@@ -144,6 +145,11 @@
                             HorizontalAlignment="Right"
                             ItemSpacing="{StaticResource NeapSpaceS}"
                             LineSpacing="{StaticResource NeapSpaceS}">
+                            <Button
+                                x:Name="DiscardButton"
+                                loc:Uid.Value="Equaliser_DiscardButton"
+                                HorizontalContentAlignment="Center"
+                                IsVisible="False" />
                             <Button
                                 x:Name="OverwriteButton"
                                 HorizontalContentAlignment="Center"
@@ -163,11 +169,6 @@
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
-                            <Button
-                                x:Name="DiscardButton"
-                                loc:Uid.Value="Equaliser_DiscardButton"
-                                HorizontalContentAlignment="Center"
-                                IsEnabled="False" />
                             <Button
                                 x:Name="SaveButton"
                                 MinWidth="104"

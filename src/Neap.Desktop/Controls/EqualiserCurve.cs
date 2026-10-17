@@ -42,6 +42,7 @@ public sealed class EqualiserCurve : UserControl
     private readonly Path _curve = new() { Classes = { "curveheard" } };
     private readonly Path _ghost = new() { Classes = { "curvestored" }, StrokeDashArray = [3, 3] };
     private readonly List<(Line Line, int Tenths)> _lines = new();
+    private readonly List<TextBlock> _marks = new();
     private readonly List<Rectangle> _grabs = new();
     private readonly List<Ellipse> _handles = new();
     private readonly List<Ellipse> _rings = new();
@@ -98,6 +99,7 @@ public sealed class EqualiserCurve : UserControl
 
         _canvas.Children.Clear();
         _lines.Clear();
+        _marks.Clear();
         _grabs.Clear();
         _handles.Clear();
         _rings.Clear();
@@ -109,6 +111,13 @@ public sealed class EqualiserCurve : UserControl
             var line = new Line { Classes = { tenths == 0 ? "curvecentre" : "curvegrid" } };
             _lines.Add((line, tenths));
             _canvas.Children.Add(line);
+
+            // The scale, quiet, on the left edge beside its line. The curve is
+            // drawn over it and a screen reader reads the fields instead.
+            var mark = new TextBlock { Text = Db.Axis(tenths), Classes = { "caption", "tertiary" }, IsHitTestVisible = false };
+            AutomationProperties.SetAccessibilityView(mark, AccessibilityView.Raw);
+            _marks.Add(mark);
+            _canvas.Children.Add(mark);
         }
 
         _canvas.Children.Add(_area);
@@ -171,11 +180,17 @@ public sealed class EqualiserCurve : UserControl
         double width = _canvas.Bounds.Width, height = _canvas.Bounds.Height;
         if (width <= 0 || height <= 0 || _live.Length == 0) return;
 
-        foreach (var (line, tenths) in _lines)
+        for (int i = 0; i < _lines.Count; i++)
         {
+            var (line, tenths) = _lines[i];
             double y = Y(tenths);
             line.StartPoint = new Point(0, y);
             line.EndPoint = new Point(width, y);
+
+            // Above its line, except the top one, which would leave the plot.
+            _marks[i].Measure(Size.Infinity);
+            Canvas.SetLeft(_marks[i], 2);
+            Canvas.SetTop(_marks[i], tenths == Maximum ? y + 1 : y - _marks[i].DesiredSize.Height);
         }
 
         var points = _live.Select((v, i) => new Point(X(i), Y(v))).ToArray();

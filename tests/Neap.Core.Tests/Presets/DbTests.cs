@@ -13,6 +13,15 @@ public class DbTests
         Assert.Equal(shown, Db.Text(tenths));
 
     [Theory]
+    [InlineData(90, "+9")]
+    [InlineData(45, "+4.5")]
+    [InlineData(0, "0")]
+    [InlineData(-60, "−6")]
+    [InlineData(-120, "−12")]
+    public void AScaleMarkDropsTheTrailingZero(int tenths, string shown) =>
+        Assert.Equal(shown, Db.Axis(tenths));
+
+    [Theory]
     [InlineData("3", 3.0)]
     [InlineData("3.5", 3.5)]
     [InlineData("-3", -3.0)]

@@ -53,6 +53,7 @@ public sealed class ParametricCurve : UserControl
     private readonly Path _heard = new() { Classes = { "curveheard" } };
     private readonly Path _asked = new() { Classes = { "curveasked" }, StrokeDashArray = [4, 3] };
     private readonly List<(Line Line, int Tenths)> _grid = new();
+    private readonly List<TextBlock> _scale = new();
     private readonly List<Line> _ticks = new();
     private readonly List<TextBlock> _labels = new();
     private readonly List<(Ellipse Grab, Ellipse Dot, TextBlock Number)> _handles = new();
@@ -121,6 +122,12 @@ public sealed class ParametricCurve : UserControl
                 var line = new Line { Classes = { tenths == 0 ? "curvecentre" : "curvegrid" } };
                 _grid.Add((line, tenths));
                 _canvas.Children.Add(line);
+
+                // The scale, quiet, on the left edge; the fields carry the values for a screen reader.
+                var mark = new TextBlock { Text = Db.Axis(tenths), Classes = { "caption", "tertiary" }, IsHitTestVisible = false };
+                AutomationProperties.SetAccessibilityView(mark, AccessibilityView.Raw);
+                _scale.Add(mark);
+                _canvas.Children.Add(mark);
             }
 
             for (int i = 0; i < ParametricEq.Centres.Count; i++)
@@ -206,11 +213,17 @@ public sealed class ParametricCurve : UserControl
         double width = _canvas.Bounds.Width, height = _canvas.Bounds.Height;
         if (width <= 0 || height <= 0 || _bands.Length == 0) return;
 
-        foreach (var (line, tenths) in _grid)
+        for (int i = 0; i < _grid.Count; i++)
         {
+            var (line, tenths) = _grid[i];
             double y = Y(tenths / 10.0);
             line.StartPoint = new Point(0, y);
             line.EndPoint = new Point(width, y);
+
+            // Above its line, except the top one, which would leave the plot.
+            _scale[i].Measure(Size.Infinity);
+            Canvas.SetLeft(_scale[i], 2);
+            Canvas.SetTop(_scale[i], tenths == Range ? y + 1 : y - _scale[i].DesiredSize.Height);
         }
 
         for (int i = 0; i < _ticks.Count; i++)

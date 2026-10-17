@@ -13,6 +13,7 @@ and date.
 
 ### Added
 
+- The equaliser curve grows with the window, and both curves show a dB scale down the left edge.
 - The Neap mark and name sit at the top of the menu, above the profile switcher. When the menu is icons only, just the mark shows.
 - A max loudness boost on the Audio page raises the Stealth Pro II's own level,
   so everything through the dock plays louder — for when the headset is too
@@ -36,6 +37,7 @@ and date.
 
 ### Changed
 
+- On the Equaliser page, Discard shows only once the curve has been edited, and a saved preset's delete button shows only on the row you point at, focus or have chosen.
 - Home is redesigned: the headset's readings across the top, Game and chat
   as one card with a Keyboard shortcuts link, and tiles that show how they
   work, such as a switch for the microphone, Off, Cancelling and
