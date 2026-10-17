@@ -1,0 +1,30 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Buttons come in three weights. The primary one has Classes="accent":
+        the accent fill with dark text. The plain Button is the secondary:
+        filled one step above its panel and outlined. Classes="quiet" is text
+        alone, with its outline and fill only while pointed at or pressed.
+        All are as high as a field and never smaller than a pointer target;
+        the toolkit's focus mark is left as it is.
+    -->
+    <Style Selector="Button">
+        <Setter Property="MinHeight" Value="{StaticResource NeapControlHeight}" />
+        <Setter Property="MinWidth" Value="{StaticResource NeapTargetMin}" />
+    </Style>
+
+    <Style Selector="Button.quiet">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.quiet:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource NeapQuietHoverBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapButtonStrokeBrush}" />
+    </Style>
+    <Style Selector="Button.quiet:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource NeapButtonPressedBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapButtonStrokeBrush}" />
+    </Style>
+</Styles>

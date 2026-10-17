@@ -127,6 +127,8 @@ internal static class HighContrast
         foreach (string name in new[] { "NeapAccentFillBrush", "NeapAccentFillHoverBrush", "NeapAccentFillPressedBrush" })
             Brush(name, p.Highlight);
         Brush("NeapOnAccentBrush", p.HighlightText);
+        Brush("NeapControlStrokeBrush", p.Text);
+        Brush("NeapControlStrokeBrush", p.Text);
 
         // The dial's knob.
         Brush("NeapKnobBrush", p.Window);

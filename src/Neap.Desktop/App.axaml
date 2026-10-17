@@ -15,6 +15,8 @@
         <StyleInclude Source="avares://Neap.Desktop/Themes/Neap.axaml" />
         <StyleInclude Source="avares://Neap.Desktop/Themes/Dial.axaml" />
         <StyleInclude Source="avares://Neap.Desktop/Themes/Tiles.axaml" />
+        <StyleInclude Source="avares://Neap.Desktop/Themes/Controls.axaml" />
+        <StyleInclude Source="avares://Neap.Desktop/Themes/Controls.axaml" />
         <StyleInclude Source="avares://Neap.Desktop/Themes/Curves.axaml" />
     </Application.Styles>
 </Application>
