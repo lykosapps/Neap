@@ -125,8 +125,8 @@ internal static class HighContrast
         Brush("NeapNavSelectedBrush", p.Window);
         Brush("NeapNavHoverBrush", p.Window);
 
-        // Buttons, the lists that open from them and the switch: outlined in
-        // the text colour, and the highlight where they are on. The toolkit's
+        // Buttons, fields, segmented controls, the lists that open from them and the switch: outlined in
+        // the text colour, where Neap's own themes draw soft fills with no edge, and the highlight where they are on. The toolkit's
         // own controls take these through FluentKeys.
         foreach (string name in new[] { "NeapButtonBrush", "NeapButtonHoverBrush", "NeapButtonPressedBrush", "NeapButtonDisabledBrush", "NeapFlyoutBrush" })
             Brush(name, p.Window);
@@ -136,6 +136,9 @@ internal static class HighContrast
             Brush(name, p.Highlight);
         Brush("NeapOnAccentBrush", p.HighlightText);
         Brush("NeapControlStrokeBrush", p.Text);
+        Brush("NeapControlEdgeBrush", p.Text);
+        Brush("NeapTrackBrush", p.Window);
+        Brush("NeapTrackHoverBrush", p.Window);
 
         // The dial's knob.
         Brush("NeapKnobBrush", p.Window);

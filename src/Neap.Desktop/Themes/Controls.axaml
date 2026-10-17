@@ -5,8 +5,8 @@
     <!--
         Buttons come in three weights. The primary one has Classes="accent":
         the accent fill with dark text. The plain Button is the secondary:
-        filled one step above its panel and outlined. Classes="quiet" is text
-        alone, with its outline and fill only while pointed at or pressed.
+        a soft fill one step above its panel, with no outline. Classes="quiet" is
+        text alone, with its fill only while pointed at or pressed.
         All are as high as a field and never smaller than a pointer target;
         the toolkit's focus mark is left as it is.
     -->
@@ -20,8 +20,7 @@
         <Setter Property="BorderBrush" Value="Transparent" />
     </Style>
     <Style Selector="Button.quiet:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource NeapQuietHoverBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapButtonStrokeBrush}" />
+        <Setter Property="Background" Value="{DynamicResource NeapButtonHoverBrush}" />
     </Style>
     <!-- A quiet button that cannot be used is dimmed, not boxed. -->
     <Style Selector="Button.quiet:disabled /template/ ContentPresenter#PART_ContentPresenter">
@@ -30,7 +29,6 @@
     </Style>
     <Style Selector="Button.quiet:pressed /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource NeapButtonPressedBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapButtonStrokeBrush}" />
     </Style>
 
     <Styles.Resources>
@@ -70,7 +68,7 @@
             </Setter>
 
             <Style Selector="^:pointerover /template/ Border#Segment">
-                <Setter Property="Background" Value="{DynamicResource NeapQuietHoverBrush}" />
+                <Setter Property="Background" Value="{DynamicResource NeapTrackHoverBrush}" />
             </Style>
             <Style Selector="^:checked">
                 <Setter Property="Foreground" Value="{DynamicResource NeapOnAccentBrush}" />
@@ -252,8 +250,8 @@
         </ControlTheme>
 
         <!--
-            A switch: a pill track, the accent when on and a 3:1 outline when
-            off, with its On or Off word beside it.
+            A switch: a pill track, the accent when on and a soft fill when off,
+            with its On or Off word beside it.
         -->
         <ControlTheme x:Key="NeapSwitch" TargetType="ToggleSwitch">
             <Setter Property="Background" Value="Transparent" />
@@ -271,8 +269,8 @@
                                         Height="{StaticResource NeapSwitchHeight}"
                                         CornerRadius="{StaticResource NeapRadiusSegment}"
                                         BorderThickness="1"
-                                        Background="Transparent"
-                                        BorderBrush="{DynamicResource NeapControlStrokeBrush}" />
+                                        Background="{DynamicResource NeapTrackBrush}"
+                                        BorderBrush="{DynamicResource NeapControlEdgeBrush}" />
                                 <Border x:Name="Ring" Margin="-3" IsVisible="False" IsHitTestVisible="False"
                                         BorderThickness="{StaticResource NeapFocusRingWidth}"
                                         BorderBrush="{DynamicResource NeapTextBrush}"
@@ -318,7 +316,7 @@
                 </Style>
             </Style>
             <Style Selector="^:pointerover:not(:checked) /template/ Border#SwitchTrack">
-                <Setter Property="Background" Value="{DynamicResource NeapQuietHoverBrush}" />
+                <Setter Property="Background" Value="{DynamicResource NeapTrackHoverBrush}" />
             </Style>
             <Style Selector="^:pointerover:checked /template/ Border#SwitchTrack">
                 <Setter Property="Background" Value="{DynamicResource NeapAccentFillHoverBrush}" />
@@ -346,8 +344,8 @@
         <Setter Property="Height" Value="{StaticResource NeapSegmentHeight}" />
         <Setter Property="Padding" Value="2" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapControlStrokeBrush}" />
-        <Setter Property="Background" Value="{DynamicResource NeapQuietBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapControlEdgeBrush}" />
+        <Setter Property="Background" Value="{DynamicResource NeapTrackBrush}" />
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusSegment}" />
         <Setter Property="HorizontalAlignment" Value="Left" />
     </Style>
