@@ -70,7 +70,23 @@
             VerticalAlignment="Center"
             Spacing="{StaticResource NeapSpaceM}">
 
-            <TextBlock loc:Uid.Value="Mix_Title" Classes="cardtitle" AutomationProperties.HeadingLevel="2" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource NeapSpaceM}">
+                <TextBlock
+                    loc:Uid.Value="Mix_Title"
+                    VerticalAlignment="Center"
+                    Classes="cardtitle"
+                    AutomationProperties.HeadingLevel="2" />
+                <!--
+                    The keys move the mix as the chat wheel does, and are a headset's only
+                    way to do it without one, so the card's header links to where they are set.
+                -->
+                <Button
+                    x:Name="KeysLink"
+                    loc:Uid.Value="Mix_KeysLink"
+                    Grid.Column="1"
+                    HorizontalAlignment="Right"
+                    Classes="link" />
+            </Grid>
 
             <!--
                 The chat wheel cannot reach the app, with what still moves the
@@ -139,12 +155,6 @@
                     </StackPanel>
                 </Expander>
             </Border>
-
-            <!--
-                The keys move the mix as the chat wheel does, and are a headset's only
-                way to do it without one, so the mix links to where they are set.
-            -->
-            <Button x:Name="KeysLink" loc:Uid.Value="Mix_KeysLink" Classes="link" />
         </StackPanel>
     </Grid>
 </UserControl>

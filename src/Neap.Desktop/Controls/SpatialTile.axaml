@@ -18,25 +18,22 @@
             loc:Uid.Value="Quick_SpatialTile"
             Classes="tile home"
             IsEnabled="False">
-            <Grid RowDefinitions="*,Auto,Auto" RowSpacing="{StaticResource NeapSpaceHairline}">
-                <PathIcon
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    AutomationProperties.AccessibilityView="Raw"
-                    Data="{StaticResource IconSpatial}" />
-                <PathIcon
-                    Width="{StaticResource NeapIconRow}"
-                    Height="{StaticResource NeapIconRow}"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    AutomationProperties.AccessibilityView="Raw"
-                    Data="{StaticResource IconChevronDown}" />
+            <StackPanel Classes="tilebody">
+                <Grid Classes="tilehead">
+                    <PathIcon
+                        Classes="tileicon"
+                        AutomationProperties.AccessibilityView="Raw"
+                        Data="{StaticResource IconSpatial}" />
+                    <PathIcon
+                        Classes="tilechevron"
+                        AutomationProperties.AccessibilityView="Raw"
+                        Data="{StaticResource IconChevronDown}" />
+                </Grid>
                 <TextBlock
                     loc:Uid.Value="Quick_Spatial"
-                    Grid.Row="1"
                     Classes="tiletitle" />
-                <TextBlock x:Name="Word" Grid.Row="2" Classes="tilestate" />
-            </Grid>
+                <TextBlock x:Name="Word" Classes="tilestate" />
+            </StackPanel>
         </ToggleButton>
 
         <c:SettingsCard

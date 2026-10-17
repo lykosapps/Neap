@@ -57,13 +57,13 @@
                         goes with the menu names and folds away with them.
                     -->
                     <StackPanel
-                        Margin="11,4,0,12"
+                        Margin="6,4,0,16"
                         DockPanel.Dock="Top"
                         Orientation="Horizontal"
-                        Spacing="9">
+                        Spacing="6">
                         <Viewbox
-                            Width="24"
-                            Height="24"
+                            Width="32"
+                            Height="32"
                             AutomationProperties.AccessibilityView="Raw">
                             <Canvas Width="120" Height="120">
                                 <Rectangle
@@ -93,7 +93,8 @@
                         </Viewbox>
                         <TextBlock
                             x:Name="BrandName"
-                            Classes="cardtitle"
+                            FontSize="17"
+                            FontWeight="SemiBold"
                             Foreground="{DynamicResource NeapTextBrush}"
                             VerticalAlignment="Center" />
                     </StackPanel>
