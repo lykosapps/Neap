@@ -34,7 +34,7 @@ answers, so nothing works there yet.
 | Game and chat mix | Listed | Yes | Has | Confirmed | Blocked | Done on the PC | Saved in profiles from 0.2.1.4; see Problems. |
 | Chat Boost | Listed | Unknown; probably only on the PC | Missing | Untried | Blocked | Unknown; probably done on the PC | Decide whether Neap should do it. |
 | Waves 3D (Games, Music, Movies) | Listed | Only with Neap's own sound processing | Missing | Read | Blocked | Done on the PC by Turtle Beach's Waves software | Not planned unless Neap does its own sound processing. |
-| High Bandwidth Audio | Listed | Probably, through the PC's sound format | Missing | Read | Blocked | Probably the PC's sound format: the transmitter offers 48 and 96 kHz | Check whether it is only Windows' format setting. |
+| High Bandwidth Audio | Listed | Yes, through the PC's sound format | Has | Seen | Missing | The PC's sound format: the transmitter offers 48 and 96 kHz | Neap's format choice on Device, Windows only; recordings read the format. Ask the tester to try 96 kHz. |
 
 ### Microphone
 
@@ -46,7 +46,7 @@ answers, so nothing works there yet.
 | Monitoring, level | Listed | Yes, at `0x630` (Read) | Has, test | Untried | Blocked | `0x630`, 0–100 (Read) | In 0.2.1.4; ask the tester to listen. |
 | Noise gate, on/off | Listed | Yes | Has, test | Confirmed | Blocked | `0x700` | — |
 | Noise gate, level | Listed | Yes | Has, test | Confirmed | Blocked | `0x710` | Heard clear at 0%, cut at 50%, almost muted at 100%. |
-| High Bandwidth Microphone | Listed | Probably, through the PC's sound format | Missing | Read | Blocked | Probably the PC's sound format: the transmitter offers 16 and 48 kHz | As High Bandwidth Audio. |
+| High Bandwidth Microphone | Listed | Yes, through the PC's sound format | Has | Seen | Missing | The PC's sound format: the transmitter offers 16 and 48 kHz | As High Bandwidth Audio. |
 
 ### Equaliser
 
