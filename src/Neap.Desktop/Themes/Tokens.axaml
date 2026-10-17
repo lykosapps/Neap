@@ -62,13 +62,10 @@
 
             <SolidColorBrush x:Key="NeapTileBrush" Color="#242427" />
             <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#2B2B2F" />
-            <SolidColorBrush x:Key="NeapTileStrokeBrush" Color="#36363B" />
-            <SolidColorBrush x:Key="NeapTileEdgeBrush" Color="#66000000" />
             <SolidColorBrush x:Key="NeapTileTextBrush" Color="#F2F2F4" />
             <SolidColorBrush x:Key="NeapTileOnBrush" Color="#A493FF" />
             <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#B4A7FF" />
             <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#C3B8FF" />
-            <SolidColorBrush x:Key="NeapTileOnEdgeBrush" Color="#4A3AA8" />
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#15112A" />
             <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#1E1E21" />
             <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
@@ -77,6 +74,7 @@
             <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#D9D3FF" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#269D8CFF" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0FFFFFFF" />
+            <SolidColorBrush x:Key="NeapCardStrokeBrush" Color="Transparent" />
 
             <!-- The dial's knob is an object on the desk: dark metal here, brushed silver in the light theme. -->
             <SolidColorBrush x:Key="NeapKnobWellBrush" Color="#0E0E11" />
@@ -142,13 +140,10 @@
 
             <SolidColorBrush x:Key="NeapTileBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#F8F8F9" />
-            <SolidColorBrush x:Key="NeapTileStrokeBrush" Color="#DCDCE0" />
-            <SolidColorBrush x:Key="NeapTileEdgeBrush" Color="#26000000" />
             <SolidColorBrush x:Key="NeapTileTextBrush" Color="#1A1A1A" />
             <SolidColorBrush x:Key="NeapTileOnBrush" Color="#5D4BC9" />
             <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#5C49C4" />
             <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#4C3BB0" />
-            <SolidColorBrush x:Key="NeapTileOnEdgeBrush" Color="#40309A" />
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#E8E8EB" />
             <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
@@ -157,6 +152,7 @@
             <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#2E2466" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D5AD9" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0A000000" />
+            <SolidColorBrush x:Key="NeapCardStrokeBrush" Color="Transparent" />
 
             <SolidColorBrush x:Key="NeapKnobWellBrush" Color="#C9C9D0" />
             <LinearGradientBrush x:Key="NeapKnobBrush" StartPoint="50%,0%" EndPoint="50%,100%">
@@ -203,6 +199,10 @@
     <CornerRadius x:Key="NeapRadiusCard">12</CornerRadius>
     <CornerRadius x:Key="NeapRadiusInset">8</CornerRadius>
     <CornerRadius x:Key="NeapRadiusDrawer">0,0,8,8</CornerRadius>
+    <CornerRadius x:Key="NeapRadiusDrawerCard">0,0,12,12</CornerRadius>
+    <CornerRadius x:Key="NeapRadiusCardTop">12,12,0,0</CornerRadius>
+    <CornerRadius x:Key="NeapRadiusInsetTop">8,8,0,0</CornerRadius>
+    <x:Double x:Key="NeapTileMinHeight">96</x:Double>
     <Thickness x:Key="NeapPaddingCard">12</Thickness>
     <Thickness x:Key="NeapPaddingRow">12,8</Thickness>
     <x:Double x:Key="NeapRowHeight">40</x:Double>
