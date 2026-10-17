@@ -18,8 +18,8 @@
                 ColumnSpacing="{StaticResource NeapSpaceXL}"
                 RowDefinitions="Auto,Auto"
                 RowSpacing="{StaticResource NeapSpaceM}">
-                <StackPanel VerticalAlignment="Bottom" Spacing="{StaticResource NeapSpaceXS}">
-                    <TextBlock x:Name="HeadsetName" Classes="label" AutomationProperties.HeadingLevel="1" />
+                <StackPanel VerticalAlignment="Center" Spacing="{StaticResource NeapSpaceXS}">
+                    <TextBlock x:Name="HeadsetName" Classes="cardtitle" AutomationProperties.HeadingLevel="1" />
                     <!-- A grid, not a row of two: the words wrap beside the dot in a narrow window instead of running under the readings. -->
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="{StaticResource NeapSpaceS}">
                         <Ellipse
@@ -32,14 +32,14 @@
                         <TextBlock
                             x:Name="HowConnected"
                             Grid.Column="1"
-                            Classes="bodylarge bodystrong"
+                            Classes="secondary"
                             VerticalAlignment="Center" />
                     </Grid>
                 </StackPanel>
                 <StackPanel
                     x:Name="Readings"
                     Grid.Column="1"
-                    VerticalAlignment="Bottom"
+                    VerticalAlignment="Center"
                     Orientation="Horizontal"
                     Spacing="{StaticResource NeapSpaceXL}" />
             </Grid>
@@ -65,23 +65,15 @@
         </Border>
 
         <!--
-            The controls, side by side when there is room for both and one
-            above the other when there is not; see Arrange. The mix goes on
-            working with only the headset's settings out of reach, so it
-            folds only when the headset is away. The settings fold whenever
+            The mix, then the settings as tiles straight on the page. The mix
+            goes on working with only the headset's settings out of reach, so
+            it folds only when the headset is away. The tiles fold whenever
             they cannot be reached.
         -->
-        <Grid
-            x:Name="Block"
-            ColumnDefinitions="*,*"
-            ColumnSpacing="{StaticResource NeapSpaceS}"
-            RowDefinitions="Auto,Auto"
-            RowSpacing="{StaticResource NeapSpaceS}">
-            <Border x:Name="MixCard" Classes="card">
-                <c:MixPanel ExplainsWheel="False" />
-            </Border>
-            <c:QuickSettings x:Name="SettingsCard" VerticalAlignment="Top" />
-        </Grid>
+        <Border x:Name="MixCard" Classes="card">
+            <c:MixPanel ExplainsWheel="False" />
+        </Border>
+        <c:QuickSettings x:Name="SettingsCard" />
 
     </StackPanel>
 </UserControl>

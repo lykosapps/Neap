@@ -41,6 +41,9 @@ public partial class MixPanel : UserControl
     public static readonly StyledProperty<bool> ExplainsWheelProperty =
         AvaloniaProperty.Register<MixPanel, bool>(nameof(ExplainsWheel), defaultValue: true);
 
+    /// <summary>The narrowest the panel can be and still hold the dial beside its own column.</summary>
+    private const double SideBySide = 480;
+
     private bool _painting;
 
     /// <summary>What the list last showed each application as, by process name.</summary>
@@ -56,8 +59,29 @@ public partial class MixPanel : UserControl
             AppServices.Mix.Apply((int)Math.Round(args.NewValue));
         };
         Refresh.Click += (_, _) => _ = LoadCandidates();
+        Layout.SizeChanged += (_, _) => Arrange();
+        DialArea.PropertyChanged += (_, change) =>
+        {
+            if (change.Property == IsVisibleProperty) Arrange();
+        };
         KeysLink.IsVisible = AppServices.Hotkeys.Supported;
         KeysLink.Click += (_, _) => (TopLevel.GetTopLevel(this) as MainWindow)?.Open("controls");
+    }
+
+    /// <summary>
+    /// Puts the dial beside the panel's own column when there is room, and
+    /// above it when there is not. Without a dial the column has the width.
+    /// </summary>
+    private void Arrange()
+    {
+        bool beside = Layout.Bounds.Width >= SideBySide;
+        bool stacked = !beside && DialArea.IsVisible;
+        Layout.ColumnSpacing = beside && DialArea.IsVisible ? Space.XL : 0;
+        Layout.RowSpacing = stacked ? Space.M : 0;
+        Grid.SetRow(Side, stacked ? 1 : 0);
+        Grid.SetColumn(Side, stacked ? 0 : 1);
+        Grid.SetColumnSpan(Side, stacked ? 2 : 1);
+        Grid.SetColumnSpan(DialArea, stacked ? 2 : 1);
     }
 
     /// <summary>

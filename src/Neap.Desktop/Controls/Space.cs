@@ -25,5 +25,8 @@ internal static class Space
     /// <summary>Gets the gap between columns of tiles or readings.</summary>
     public static double L => Get("NeapSpaceL");
 
+    /// <summary>Gets the gap between sections of a page.</summary>
+    public static double XL => Get("NeapSpaceXL");
+
     private static double Get(string key) => (double)Application.Current!.FindResource(key)!;
 }

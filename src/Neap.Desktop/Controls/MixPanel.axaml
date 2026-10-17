@@ -5,39 +5,18 @@
     xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization">
 
-    <StackPanel Spacing="{StaticResource NeapSpaceM}">
-
-        <TextBlock loc:Uid.Value="Mix_Title" Classes="label" />
-
-        <!--
-            The chat wheel cannot reach the app, with what still moves the
-            mix. Inside the mix, not in a note elsewhere, so wherever the mix
-            is shown the reason comes with it.
-        -->
-        <c:Notice x:Name="WheelBar" loc:Uid.Value="Mix_WheelBar" />
-
-        <!--
-            The chat application is playing somewhere the mix cannot reach.
-            Without this the wheel stops affecting chat and nothing says
-            why.
-        -->
-        <c:Notice x:Name="ElsewhereBar" loc:Uid.Value="Mix_ElsewhereBar" Severity="Warning" />
-
-        <!--
-            Nothing chosen yet: only the question. The dial means nothing
-            until it is answered, so it is absent rather than disabled.
-        -->
-        <TextBlock
-            x:Name="SetupLine"
-            loc:Uid.Value="Mix_Setup"
-            Classes="secondary"
-            IsVisible="False" />
+    <!--
+        The dial on the left and the card's own column beside it: its name, the
+        chat apps and the way to the keys. Arrange stacks them in a narrow card.
+    -->
+    <Grid x:Name="Layout" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
 
         <!-- Chosen: the knob, with how loud each side plays on its cap. -->
         <Grid
             x:Name="DialArea"
             Margin="0,0,0,14"
             HorizontalAlignment="Center"
+            VerticalAlignment="Center"
             IsVisible="False">
             <c:GameChatDial x:Name="Dial" loc:Uid.Value="Mix_Dial" />
             <StackPanel
@@ -85,47 +64,87 @@
                 Foreground="{DynamicResource NeapChatTextBrush}" />
         </Grid>
 
-        <!--
-            Which applications carry chat: the only thing the mix needs to
-            know. Folded to a line naming them once chosen, and open until
-            then, because the choice is the question the panel is asking.
-        -->
-        <Expander
-            x:Name="ChatFrom"
-            HorizontalAlignment="Stretch"
-            HorizontalContentAlignment="Stretch">
-            <Expander.Header>
-                <StackPanel Margin="0,8" Spacing="{StaticResource NeapSpaceHairline}">
-                    <TextBlock loc:Uid.Value="Mix_ChatFrom" Classes="caption secondary" />
-                    <TextBlock x:Name="ChosenText" TextTrimming="CharacterEllipsis" />
-                </StackPanel>
-            </Expander.Header>
-            <StackPanel Spacing="{StaticResource NeapSpaceS}">
-                <StackPanel x:Name="AppList" Spacing="{StaticResource NeapSpaceXS}" />
-                <!--
-                    Only applications with sound open on the headset are
-                    listed, so one not yet started is missing. The notice
-                    below says so instead when nothing is listed at all.
-                -->
-                <TextBlock
-                    x:Name="MissingHint"
-                    loc:Uid.Value="Mix_MissingHint"
-                    Classes="caption secondary" />
-                <c:Notice x:Name="Nothing" loc:Uid.Value="Mix_NothingPlaying" />
-                <Button x:Name="Refresh" loc:Uid.Value="Mix_Refresh">
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
-                        <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconRefresh}" />
-                        <TextBlock loc:Uid.Value="Mix_RefreshText" />
+        <StackPanel
+            x:Name="Side"
+            Grid.Column="1"
+            VerticalAlignment="Center"
+            Spacing="{StaticResource NeapSpaceM}">
+
+            <TextBlock loc:Uid.Value="Mix_Title" Classes="cardtitle" AutomationProperties.HeadingLevel="2" />
+
+            <!--
+                The chat wheel cannot reach the app, with what still moves the
+                mix. Inside the mix, not in a note elsewhere, so wherever the mix
+                is shown the reason comes with it.
+            -->
+            <c:Notice x:Name="WheelBar" loc:Uid.Value="Mix_WheelBar" />
+
+            <!--
+                The chat application is playing somewhere the mix cannot reach.
+                Without this the wheel stops affecting chat and nothing says
+                why.
+            -->
+            <c:Notice x:Name="ElsewhereBar" loc:Uid.Value="Mix_ElsewhereBar" Severity="Warning" />
+
+            <!--
+                Nothing chosen yet: only the question. The dial means nothing
+                until it is answered, so it is absent rather than disabled.
+            -->
+            <TextBlock
+                x:Name="SetupLine"
+                loc:Uid.Value="Mix_Setup"
+                Classes="secondary"
+                IsVisible="False" />
+
+            <!--
+                Which applications carry chat: the only thing the mix needs to
+                know. Folded to a line naming them once chosen, and open until
+                then, because the choice is the question the panel is asking.
+            -->
+            <Border Classes="inset">
+                <Expander
+                    x:Name="ChatFrom"
+                    CornerRadius="{StaticResource NeapRadiusInset}"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch">
+                    <Expander.Resources>
+                        <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed" Color="Transparent" />
+                    </Expander.Resources>
+                    <Expander.Header>
+                        <StackPanel Margin="0,8" Spacing="{StaticResource NeapSpaceHairline}">
+                            <TextBlock loc:Uid.Value="Mix_ChatFrom" Classes="caption secondary" />
+                            <TextBlock x:Name="ChosenText" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                    </Expander.Header>
+                    <StackPanel Spacing="{StaticResource NeapSpaceS}">
+                        <StackPanel x:Name="AppList" Spacing="{StaticResource NeapSpaceXS}" />
+                        <!--
+                            Only applications with sound open on the headset are
+                            listed, so one not yet started is missing. The notice
+                            below says so instead when nothing is listed at all.
+                        -->
+                        <TextBlock
+                            x:Name="MissingHint"
+                            loc:Uid.Value="Mix_MissingHint"
+                            Classes="caption secondary" />
+                        <c:Notice x:Name="Nothing" loc:Uid.Value="Mix_NothingPlaying" />
+                        <Button x:Name="Refresh" loc:Uid.Value="Mix_Refresh">
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
+                                <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconRefresh}" />
+                                <TextBlock loc:Uid.Value="Mix_RefreshText" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
-                </Button>
-            </StackPanel>
-        </Expander>
+                </Expander>
+            </Border>
 
-        <!--
-            The keys move the mix as the chat wheel does, and are a headset's only
-            way to do it without one, so the mix links to where they are set.
-        -->
-        <Button x:Name="KeysLink" loc:Uid.Value="Mix_KeysLink" Classes="quiet" />
-
-    </StackPanel>
+            <!--
+                The keys move the mix as the chat wheel does, and are a headset's only
+                way to do it without one, so the mix links to where they are set.
+            -->
+            <Button x:Name="KeysLink" loc:Uid.Value="Mix_KeysLink" Classes="link" />
+        </StackPanel>
+    </Grid>
 </UserControl>

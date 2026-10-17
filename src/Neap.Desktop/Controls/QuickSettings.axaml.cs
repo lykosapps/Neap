@@ -12,8 +12,9 @@ using Path = Avalonia.Controls.Shapes.Path;
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// The microphone, noise control, the equaliser preset and Superhuman
-/// Hearing, as tiles: the settings reached for mid-game or mid-call.
+/// The microphone, noise cancellation, the equaliser preset, Superhuman
+/// Hearing and spatial sound, as tiles: the settings reached for mid-game or
+/// mid-call.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -30,7 +31,15 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public partial class QuickSettings : UserControl
 {
-    private const double CurveWidth = 180, CurveHeight = 40;
+    /// <summary>The narrowest the tiles can be and still hold three to a row.</summary>
+    private const double ThreeAcross = 800;
+
+    /// <summary>The narrowest the tiles can be and still hold two to a row.</summary>
+    private const double TwoAcross = 540;
+
+    /// <summary>The columns of the grid the tiles are set out on.</summary>
+    private const int Columns = 6;
+
     private const double ListCurveWidth = 72, ListCurveHeight = 22;
 
     private const string ShhSetting = "superhuman_hearing";
@@ -41,23 +50,38 @@ public partial class QuickSettings : UserControl
     public QuickSettings()
     {
         InitializeComponent();
-        NoiseWord.Text = Strings.Get("Reading_None");
         PresetName.Text = Strings.Get("Reading_None");
         ShhWord.Text = Strings.Get("Reading_None");
         ParametricWord.Text = Strings.Get("Quick_Parametric");
+
+        Tiles.SizeChanged += (_, _) => Arrange();
+        foreach (var tile in Tiles.Children)
+            tile.PropertyChanged += (_, change) =>
+            {
+                if (change.Property == IsVisibleProperty) Arrange();
+            };
+
+        NoiseOff.Content = Strings.Get("Noise_Off");
+        NoiseCancelling.Content = Strings.Get("Noise_Cancelling");
+        NoiseTransparent.Content = Strings.Get("Noise_Transparency");
+        foreach (var (button, mode) in new[]
+        {
+            (NoiseOff, NoiseMode.Off), (NoiseCancelling, NoiseMode.Cancelling), (NoiseTransparent, NoiseMode.Transparency),
+        })
+        {
+            button.Tag = mode;
+            button.IsCheckedChanged += (_, _) =>
+            {
+                if (!_painting && button.IsChecked == true) AppServices.Noise.Choose(mode);
+            };
+        }
 
         _shh = new SettingLink(ShhTile, () => ShhSetting,
             key => AutomationProperties.SetAutomationId(ShhTile, key.Name), PaintShh);
         ShhTile.Click += (_, _) => _shh.Write(ShhTile.IsChecked == true ? 1 : 0);
 
-        NoiseTile.Click += (_, _) =>
+        EqualiserLink.Click += (_, _) =>
         {
-            if (AppServices.Noise.Mode is NoiseMode mode) AppServices.Noise.Choose(NoiseControl.Next(mode));
-        };
-
-        OpenEqualiser.Click += (_, _) =>
-        {
-            PresetPicker.Flyout?.Hide();
             if (TopLevel.GetTopLevel(this) is not MainWindow window) return;
             window.Open("equaliser");
             (window.CurrentPage as Views.EqualiserPage)?.ShowGame();
@@ -94,10 +118,50 @@ public partial class QuickSettings : UserControl
     {
         var mode = AppServices.Noise.Mode;
         NoiseTile.IsVisible = HeadsetModels.Shows(AppServices.Headset.Model, Feature.NoiseControl);
-        NoiseTile.IsEnabled = AppServices.Noise.CanChoose;
-        NoiseTile.IsChecked = mode is not null and not NoiseMode.Off;
-        NoiseWord.Text = mode is NoiseMode known ? Strings.Get(NoiseModeWord(known)) : Strings.Get("Reading_None");
-        AutomationProperties.SetItemStatus(NoiseTile, NoiseWord.Text);
+        NoiseModes.IsEnabled = AppServices.Noise.CanChoose;
+        _painting = true;
+        try
+        {
+            foreach (var button in NoiseModes.Children.OfType<RadioButton>())
+                button.IsChecked = button.Tag is NoiseMode shown && shown == mode;
+        }
+        finally { _painting = false; }
+    }
+
+    /// <summary>
+    /// Sets the visible tiles out on the grid: three to a row with room for
+    /// them, two with less and one in a narrow window. The last tile takes the
+    /// rest of its row, so no row ends short.
+    /// </summary>
+    private void Arrange()
+    {
+        double width = Tiles.Bounds.Width;
+        bool wide = width >= ThreeAcross;
+        int across = wide ? 3 : width >= TwoAcross ? 2 : 1;
+        var shown = Tiles.Children.Where(tile => tile.IsVisible).ToList();
+        int row = 0, used = 0;
+        for (int i = 0; i < shown.Count; i++)
+        {
+            // Wide, the first row holds three and the rest two.
+            int span = Columns / (wide && i >= 3 ? 2 : across);
+            if (used + span > Columns)
+            {
+                row++;
+                used = 0;
+            }
+            if (i == shown.Count - 1) span = Columns - used;
+            Grid.SetRow(shown[i], row);
+            Grid.SetColumn(shown[i], used);
+            Grid.SetColumnSpan(shown[i], span);
+            used += span;
+            if (used >= Columns)
+            {
+                row++;
+                used = 0;
+            }
+        }
+        int rows = Math.Max(1, used == 0 ? row : row + 1);
+        Tiles.RowDefinitions = new RowDefinitions(string.Join(",", Enumerable.Repeat("Auto", rows)));
     }
 
     private void PaintShh()
@@ -222,8 +286,6 @@ public partial class QuickSettings : UserControl
         ParametricTag.IsVisible = parametric;
         AutomationProperties.SetItemStatus(PresetPicker,
             parametric ? Strings.Format("Quick_PresetParametric", PresetName.Text) : PresetName.Text);
-        var bands = AppServices.Presets.LiveBands(Bank.Game) ?? state.Baseline?.Bands.ToArray();
-        PresetCurve.Data = bands is null ? null : CurveGeometry.Of(bands, CurveWidth, CurveHeight);
 
         _painting = true;
         try

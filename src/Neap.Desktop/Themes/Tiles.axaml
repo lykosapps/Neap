@@ -50,6 +50,103 @@
             <Setter Property="Opacity" Value="0.85" />
         </Style>
     </Style>
+    <!--
+        A tile placed straight on the page, as on Home: the card's fill, not
+        the inset one, since nothing sits behind it to set it against.
+    -->
+    <Style Selector=":is(ToggleButton).tile.home /template/ Border#Face, Button.tile.home /template/ Border#Face">
+        <Setter Property="Background" Value="{DynamicResource NeapPanelBrush}" />
+    </Style>
+    <Style Selector=":is(ToggleButton).tile.home:pointerover /template/ Border#Face, Button.tile.home:pointerover /template/ Border#Face">
+        <Setter Property="Background" Value="{DynamicResource NeapTileHoverBrush}" />
+    </Style>
+
+    <!--
+        A switch drawn on a tile that is one: a picture of the setting's
+        state, not a control, so the tile stays the one thing that can be
+        pressed. On the accent fill it inverts, white with an accent knob.
+    -->
+    <Style Selector="Border.switchglyph">
+        <Setter Property="Width" Value="{StaticResource NeapSwitchWidth}" />
+        <Setter Property="Height" Value="{StaticResource NeapSwitchHeight}" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusSegment}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapControlStrokeBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+    </Style>
+    <Style Selector="Border.switchglyph > Ellipse">
+        <Setter Property="Width" Value="{StaticResource NeapSwitchKnob}" />
+        <Setter Property="Height" Value="{StaticResource NeapSwitchKnob}" />
+        <Setter Property="Margin" Value="4,0" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Fill" Value="{DynamicResource NeapControlStrokeBrush}" />
+    </Style>
+    <Style Selector=":is(ToggleButton).tile:checked Border.switchglyph">
+        <Setter Property="Background" Value="{DynamicResource NeapTileOnTextBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapTileOnTextBrush}" />
+    </Style>
+    <Style Selector=":is(ToggleButton).tile:checked Border.switchglyph > Ellipse">
+        <Setter Property="Fill" Value="{DynamicResource NeapTileOnBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+
+    <!--
+        A link to another page: the accent, with an arrow after it. A button
+        underneath, so the keyboard and screen readers reach it as one.
+    -->
+    <Style Selector="Button.link">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="LinkFace"
+                        MinHeight="{StaticResource NeapTargetMin}"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        BorderThickness="{StaticResource NeapFocusRingWidth}"
+                        CornerRadius="{StaticResource NeapRadiusTag}">
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceXS}" VerticalAlignment="Center">
+                        <ContentPresenter x:Name="PART_ContentPresenter"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          VerticalAlignment="Center" />
+                        <PathIcon Width="{StaticResource NeapIconRow}"
+                                  Height="{StaticResource NeapIconRow}"
+                                  AutomationProperties.AccessibilityView="Raw"
+                                  Data="{StaticResource IconArrowUp}"
+                                  Foreground="{TemplateBinding Foreground}"
+                                  RenderTransform="rotate(90deg)" />
+                    </StackPanel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Button.link:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="TextElement.FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.link:focus-visible /template/ Border#LinkFace">
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapTextBrush}" />
+    </Style>
+    <Style Selector="Window.touch Button.link /template/ Border#LinkFace">
+        <Setter Property="MinHeight" Value="{StaticResource NeapTargetTouch}" />
+    </Style>
+
+    <!--
+        A row set into a card: a chooser or a field, one fill step above the
+        card. The quiet fill is as white as the card in light, so it takes the
+        navigation's selected fill, which is the inset's grey in both.
+    -->
+    <Style Selector="Border.inset">
+        <Setter Property="Background" Value="{DynamicResource NeapNavSelectedBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+    </Style>
+    <Style Selector="Border.inset:pointerover">
+        <Setter Property="Background" Value="{DynamicResource NeapNavHoverBrush}" />
+    </Style>
+
     <Style Selector=":is(ToggleButton).tile:checked">
         <Style Selector="^ /template/ Border#Face">
             <Setter Property="Background" Value="{DynamicResource NeapTileOnBrush}" />
