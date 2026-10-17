@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
@@ -71,14 +70,14 @@ public static class UpdateDialogs
     /// </remarks>
     private static NeapDialog Notes(Version version, IReadOnlyList<NoteBlock> blocks)
     {
-        var body = new StackPanel { Spacing = 8 };
+        var body = new StackPanel { Classes = { "dialogflow" } };
         foreach (var block in blocks) body.Children.Add(Draw(block));
 
         string title = Strings.Format("Notes_Title", AppInfo.Name, version.ToString(3));
         var notes = new ScrollViewer
         {
             Content = body,
-            MaxHeight = 420,
+            Classes = { "dialogscroll" },
             Focusable = true,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
@@ -136,11 +135,11 @@ public static class UpdateDialogs
             case NoteKind.Heading:
                 var heading = Text(block);
                 heading.Classes.Add("bodystrong");
-                heading.Margin = new Thickness(0, 8, 0, 0);
+                heading.Classes.Add("dialogsection");
                 return heading;
 
             case NoteKind.Bullet:
-                var row = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), ColumnSpacing = 8, Margin = new Thickness(12, 0, 0, 0) };
+                var row = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), Classes = { "dialogindent" } };
                 var dot = new TextBlock { Text = "•" };
                 AutomationProperties.SetAccessibilityView(dot, AccessibilityView.Raw);
                 row.Children.Add(dot);
@@ -161,7 +160,7 @@ public static class UpdateDialogs
         {
             if (span.Link is { } link)
             {
-                var anchor = new HyperlinkButton { Content = span.Text, Padding = new Thickness(0), BorderThickness = new Thickness(0), MinHeight = 0, NavigateUri = null };
+                var anchor = new HyperlinkButton { Content = span.Text, Classes = { "notelink" }, NavigateUri = null };
                 anchor.Click += async (_, _) =>
                 {
                     try { await Platform.Current.Open(link); }

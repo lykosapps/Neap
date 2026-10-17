@@ -9,13 +9,11 @@
         makes the others harder to read. The title row says only whether to
         go and look.
     -->
-    <StackPanel x:Name="ConnectionGroup" Orientation="Horizontal" Spacing="8">
+    <StackPanel x:Name="ConnectionGroup" Classes="gaprow">
         <Ellipse
             x:Name="ConnectionDot"
-            Width="8"
-            Height="8"
             VerticalAlignment="Center"
-            Classes="caution" />
+            Classes="statusdot caution" />
         <TextBlock x:Name="ConnectionText" Classes="caption" VerticalAlignment="Center" />
     </StackPanel>
 </UserControl>

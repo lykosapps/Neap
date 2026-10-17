@@ -208,6 +208,20 @@
     <x:Double x:Key="NeapRowHeight">40</x:Double>
     <x:Double x:Key="NeapNavItemHeight">36</x:Double>
     <Thickness x:Key="NeapPageMargin">24</Thickness>
+    <!-- Dialogs and notices: the space inside a dialog, between its parts, and in a banner. -->
+    <Thickness x:Key="NeapPaddingDialog">20</Thickness>
+    <Thickness x:Key="NeapPaddingNotice">16,8</Thickness>
+    <x:Double x:Key="NeapGapDialog">16</x:Double>
+    <x:Double x:Key="NeapGapStack">8</x:Double>
+    <x:Double x:Key="NeapGapNotice">12</x:Double>
+    <x:Double x:Key="NeapGapMenu">4</x:Double>
+    <Thickness x:Key="NeapIndent">12,0,0,0</Thickness>
+    <Thickness x:Key="NeapSectionGap">0,8,0,0</Thickness>
+    <x:Double x:Key="NeapDialogButtonWidth">96</x:Double>
+    <x:Double x:Key="NeapDialogScrollHeight">420</x:Double>
+    <x:Double x:Key="NeapNoticeEdge">3</x:Double>
+    <x:Double x:Key="NeapStatusDot">8</x:Double>
+    <x:Double x:Key="NeapMenuWidth">220</x:Double>
     <!-- The height of the title row, which is the height of the title bar where the app draws its own. -->
     <x:Double x:Key="NeapTitleBarHeight">40</x:Double>
 </ResourceDictionary>
