@@ -18,7 +18,7 @@ answers, so nothing works there yet.
 | System | Neap connects | How sure | Next |
 |---|---|---|---|
 | Windows | Yes, through the USB Transmitter | Confirmed | — |
-| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | Windows gives the same empty replies whenever the headset is off, so first prove the headset was on and linked: a recording with sound playing through it. 0.2.1.4 also reads what Linux queues from the input side. |
+| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | Most likely the transmitter's start-up lock-up: it answers only if something read it from the moment it was plugged in, as SP2Tools proved on the Stealth Pro II's dock. Ask the tester to unplug and replug the transmitter with Neap open. |
 
 ## Features
 
@@ -116,9 +116,9 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 - [x] Linux: a test build that also listens for answers on the input side of
       the control channel, and logs what it hears there. In 0.2.1.4.
-- [ ] Ask the Linux tester for a 0.2.1.4 recording made while sound from the
-      PC is playing through the headset, so it is certainly on and linked to
-      the transmitter.
+- [ ] Ask the Linux tester to open Neap, then unplug the transmitter and plug
+      it back in, wait half a minute, and record. If that connects, make Neap
+      say so itself when a transmitter stays silent.
 - [ ] Publish test build 0.2.1.4 and ask both testers to try it. Built:
   - [x] voice prompts on 0–15
   - [x] transmitter light at `0x430`
@@ -136,6 +136,16 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-10-17 — SP2Tools, proven on the Stealth Pro II's dock (`229B`): the
+  dock answers only if the PC has been asking it since it was plugged in.
+  Otherwise every reply is empty, `07 00 xx`, exactly as on Linux, and
+  unplugging and replugging it with a program already asking puts it right.
+  Just after plug-in it sends start-up messages, one of them
+  `05 5c 03 00 80 2c 01`, which is the unasked report the Atlas Air's
+  transmitter sent Neap on Windows straight after it was plugged in. So the
+  Atlas Air's transmitter very likely shares the lock-up. On Linux the
+  transmitter is plugged in long before Neap starts, so nothing reads those
+  messages. Read across from another device, not yet seen on an Atlas Air.
 - 2026-10-17 — The Windows tester's recordings show the transmitter giving
   the Linux symptom exactly, "opened and gave no answer: 190 reads of 62
   bytes with nothing in them, to a request of 62 bytes", then "Connected"
