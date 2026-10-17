@@ -49,6 +49,55 @@
             <SplitView.Pane>
                 <DockPanel Margin="8">
                     <!--
+                        The brand lock-up above the switcher: the mark, drawn
+                        in vectors so it is crisp at any scale, and the name.
+                        Decoration only, so the mark is hidden from screen
+                        readers and the word carries the name. The mark's
+                        centre sits over the menu icons' centre; the word
+                        goes with the menu names and folds away with them.
+                    -->
+                    <StackPanel
+                        Margin="11,4,0,12"
+                        DockPanel.Dock="Top"
+                        Orientation="Horizontal"
+                        Spacing="9">
+                        <Viewbox
+                            Width="24"
+                            Height="24"
+                            AutomationProperties.AccessibilityView="Raw">
+                            <Canvas Width="120" Height="120">
+                                <Rectangle
+                                    Width="120"
+                                    Height="120"
+                                    Fill="{DynamicResource NeapMarkGroundBrush}"
+                                    RadiusX="28"
+                                    RadiusY="28"
+                                    Stroke="{DynamicResource NeapMarkEdgeBrush}"
+                                    StrokeThickness="3" />
+                                <Ellipse
+                                    Canvas.Left="42"
+                                    Canvas.Top="27.125"
+                                    Width="36"
+                                    Height="36"
+                                    Stroke="{DynamicResource NeapMarkMoonBrush}"
+                                    StrokeThickness="5.5" />
+                                <Path
+                                    Data="M60,27.125 A18,18 0 0 1 60,63.125 Z"
+                                    Fill="{DynamicResource NeapMarkMoonBrush}" />
+                                <Path
+                                    Data="M24,86.125 C34,78.125 44,78.125 54,86.125 C64,94.125 74,94.125 84,86.125 C94,78.125 98,80.125 98,80.125"
+                                    Stroke="{DynamicResource NeapMarkWaveBrush}"
+                                    StrokeLineCap="Round"
+                                    StrokeThickness="7" />
+                            </Canvas>
+                        </Viewbox>
+                        <TextBlock
+                            x:Name="BrandName"
+                            Classes="cardtitle"
+                            Foreground="{DynamicResource NeapTextBrush}"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                    <!--
                         The active profile, at the top of the menu: one move
                         from every page. Folds to one icon with the menu.
                     -->
