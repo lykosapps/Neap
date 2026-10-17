@@ -28,7 +28,7 @@ answers, so nothing works there yet.
 |---|---|---|---|---|---|---|---|
 | Master volume, on/off | Listed | Yes | Has | Seen | Blocked | `0x2A0` | Ask the tester to try the mute. |
 | Master volume, level | Listed | Yes | Has | Confirmed | Blocked | `0x2A0`, mirror `0x260` | Slight shake on big dial turns; see Problems. |
-| Superhuman Hearing, on/off | Listed | Yes | Has, test | Confirmed | Blocked | `0x800` | Swarm II's code seems to do this on the PC, which clashes with the tester hearing it from Neap. The tester wins. |
+| Superhuman Hearing, on/off | Listed | Yes | Has, test | Confirmed | Blocked | `0x800` | The tester heard it work from Neap's writes here, which settles it over the reading of Swarm II's code. |
 | Superhuman Hearing, type (Legacy, Footsteps, Gunshots) | Listed | Yes | Has, test | Confirmed | Blocked | `0x810` | — |
 | Superhuman Hearing, level | Listed | Yes | Has, test | Confirmed | Blocked | `0x820` | — |
 | Game and chat mix | Listed | Yes | Has | Confirmed | Blocked | Done on the PC | Saved in profiles from 0.2.1.4; see Problems. |
@@ -144,8 +144,9 @@ Newest first.
   Windows tester), read without running it. AI noise reduction and the
   monitoring switch write nothing. `0x630` is the monitoring level. Voice
   prompts are `0xC00`, 0–15. The transmitter light is `0x430`, 0–100. The
-  name is always "Atlas Air". Superhuman Hearing seems to go through Waves
-  on the PC, which clashes with the tester's ears. `0x830` and `0xC10` are
+  name is always "Atlas Air". It also read Superhuman Hearing as going
+  through Waves on the PC; the tester has heard it work from the headset's
+  own keys, so that reading is set aside. `0x830` and `0xC10` are
   never used.
 - 2026-10-16 — Windows tester, 0.2.1.3. Superhuman Hearing works. Master
   volume much better. Voice prompts change only from 1 to 20%. AI noise

@@ -171,10 +171,11 @@ owner's PC), read without running it, settles more *(research)*:
 - **Name:** always the words "Atlas Air"; `0x220` is never read.
 - **Dial and buttons:** `0xA00` to `0xB20` are only in its list of defaults,
   never written.
-- **Superhuman Hearing:** the switch seems to go to Swarm II's Waves audio
-  software on the PC, not `0x800`. This clashes with the tester hearing
-  Superhuman Hearing work from Neap's writes to `0x800` to `0x820`, and the
-  tester's ears win.
+- **Superhuman Hearing:** the reading had the switch going to Swarm II's
+  Waves audio software on the PC rather than `0x800`. The tester heard
+  Superhuman Hearing work from Neap's writes to `0x800` to `0x820` *(measured,
+  by ear, on the tester's headset)*, so the headset does it and that reading
+  is set aside.
 - `0x830` and `0xC10` are never used.
 
 The Linux tester's USB listing shows the transmitter's control interface
