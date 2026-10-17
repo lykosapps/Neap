@@ -61,6 +61,9 @@ and date.
 
 ### Changed
 
+- Before any chat app is chosen, Home and the mini panel show the game and
+  chat dial faded and disabled, with the question about chat apps below it,
+  rather than leaving the dial out, so it is clear what the card is for.
 - Buttons, drop-downs, fields, tabs, switches and tiles lose their outlines for
   a flat, softer look: each is a gentle step of fill from what it sits on, and
   icons and dividing lines are quieter. The keyboard focus ring is unchanged,

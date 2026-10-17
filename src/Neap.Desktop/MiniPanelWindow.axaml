@@ -65,24 +65,15 @@
             <!--
                 The mix goes on working with only the headset's settings out of
                 reach, so it folds only when the headset is away. Without chat
-                apps chosen there is nothing to mix, so the dial is absent and
-                the line says how to get one.
+                apps chosen there is nothing to mix, so the dial is disabled and
+                the line below it says how to get one.
             -->
             <c:HeadsetSection Explain="False" WhenOff="True">
-                <StackPanel
-                    x:Name="SetupArea"
-                    Spacing="{StaticResource NeapSpaceXS}"
-                    IsVisible="False">
-                    <TextBlock loc:Uid.Value="Mix_Setup" Classes="secondary" />
-                    <Button
-                        x:Name="ChooseApps"
-                        loc:Uid.Value="Mini_ChooseApps"
-                        Classes="link" />
-                </StackPanel>
                 <Grid
                     x:Name="DialArea"
                     Margin="0,0,0,14"
-                    HorizontalAlignment="Center">
+                    HorizontalAlignment="Center"
+                    Classes="mixdial">
                     <Viewbox Width="160" Height="160">
                         <c:GameChatDial x:Name="Dial" loc:Uid.Value="Mix_Dial" />
                     </Viewbox>
@@ -132,6 +123,17 @@
                         Classes="label"
                         Foreground="{DynamicResource NeapChatTextBrush}" />
                 </Grid>
+                <StackPanel
+                    x:Name="SetupArea"
+                    Margin="{StaticResource NeapCardGap}"
+                    Spacing="{StaticResource NeapSpaceXS}"
+                    IsVisible="False">
+                    <TextBlock loc:Uid.Value="Mix_Setup" Classes="secondary" />
+                    <Button
+                        x:Name="ChooseApps"
+                        loc:Uid.Value="Mini_ChooseApps"
+                        Classes="link" />
+                </StackPanel>
             </c:HeadsetSection>
 
             <c:HeadsetSection loc:Uid.Value="Mini_Section" Spacing="{StaticResource NeapSpaceS}">

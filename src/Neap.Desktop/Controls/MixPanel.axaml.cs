@@ -68,23 +68,19 @@ public partial class MixPanel : UserControl
         };
         Refresh.Click += (_, _) => _ = LoadCandidates();
         Layout.SizeChanged += (_, _) => Arrange();
-        DialArea.PropertyChanged += (_, change) =>
-        {
-            if (change.Property == IsVisibleProperty) Arrange();
-        };
         KeysLink.IsVisible = AppServices.Hotkeys.Supported;
         KeysLink.Click += (_, _) => (TopLevel.GetTopLevel(this) as MainWindow)?.Open("controls");
     }
 
     /// <summary>
     /// Puts the dial beside the panel's own column when there is room, and
-    /// above it when there is not. Without a dial the column has the width.
+    /// above it when there is not.
     /// </summary>
     private void Arrange()
     {
         bool beside = Layout.Bounds.Width >= SideBySide;
-        bool stacked = !beside && DialArea.IsVisible;
-        Layout.ColumnSpacing = beside && DialArea.IsVisible ? Space.XL : 0;
+        bool stacked = !beside;
+        Layout.ColumnSpacing = beside ? Space.XL : 0;
         Layout.RowSpacing = stacked ? Space.M : 0;
         Grid.SetRow(Side, stacked ? 1 : 0);
         Grid.SetColumn(Side, stacked ? 0 : 1);
@@ -187,7 +183,7 @@ public partial class MixPanel : UserControl
     /// </summary>
     private void WatchLevels()
     {
-        bool wanted = IsLoaded && DialArea.IsVisible && WindowPresence.InFront && AppServices.Mix.Running && Motion.Enabled;
+        bool wanted = IsLoaded && DialArea.IsEnabled && WindowPresence.InFront && AppServices.Mix.Running && Motion.Enabled;
         if (!wanted) { StopLevels(); return; }
         if (_levelTimer is not null) return;
         _levels ??= AppServices.Mix.OpenLevels();
@@ -229,7 +225,7 @@ public partial class MixPanel : UserControl
         var apps = AppServices.Mix.ChatApps;
         bool chosen = apps.Count > 0;
         SetupLine.IsVisible = !chosen;
-        DialArea.IsVisible = chosen;
+        DialArea.IsEnabled = chosen;
         WatchLevels();
 
         ChosenText.Text = chosen
@@ -262,7 +258,6 @@ public partial class MixPanel : UserControl
         if (elsewhere is not null)
             ElsewhereBar.Message = Strings.Format("Mix_Elsewhere", elsewhere.App, elsewhere.Device);
 
-        if (!chosen) return;
         _painting = true;
         try
         {

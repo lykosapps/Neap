@@ -103,11 +103,14 @@ public partial class MiniPanelWindow : Window
         Paint();
         Place();
 
-        // Focus begins on the dial, or on the first thing that can take it while there is no dial.
+        // Focus begins on the dial, on the way to choose chat apps while the dial waits for
+        // them, or else on the first thing that can take it. Given without the focus ring,
+        // since the panel is mostly opened with a click; the ring shows from the first Tab.
         InputElement? first = Dial.IsEffectivelyVisible && Dial.IsEffectivelyEnabled ? Dial
+            : ChooseApps.IsEffectivelyVisible ? ChooseApps
             : this.GetVisualDescendants().OfType<InputElement>()
                 .FirstOrDefault(c => c.Focusable && c.IsEffectivelyVisible && c.IsEffectivelyEnabled);
-        Dispatcher.UIThread.Post(() => first?.Focus(NavigationMethod.Tab));
+        Dispatcher.UIThread.Post(() => first?.Focus());
 
         if (Pretend.Snapshot is { } file) _ = SaveAndExit(file);
     }
@@ -175,8 +178,7 @@ public partial class MiniPanelWindow : Window
 
         bool chosen = AppServices.Mix.ChatApps.Count > 0;
         SetupArea.IsVisible = !chosen;
-        DialArea.IsVisible = chosen;
-        if (!chosen) return;
+        DialArea.IsEnabled = chosen;
 
         _painting = true;
         try

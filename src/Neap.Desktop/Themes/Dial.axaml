@@ -24,6 +24,15 @@
         <Setter Property="Stroke" Value="{DynamicResource NeapChatBrush}" />
     </Style>
 
+    <!--
+        The dial with no chat apps chosen: drawn, so the card shows what it is
+        for, and faded well below its working contrast, so it plainly cannot
+        be turned yet.
+    -->
+    <Style Selector="Grid.mixdial:disabled">
+        <Setter Property="Opacity" Value="0.35" />
+    </Style>
+
     <!-- The live levels: thin arcs in each side's colour, just inside the segments. -->
     <Style Selector="c|GameChatDial Path.level">
         <Setter Property="StrokeThickness" Value="{StaticResource NeapDialLevelWidth}" />

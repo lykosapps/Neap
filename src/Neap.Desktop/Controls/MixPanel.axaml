@@ -11,13 +11,17 @@
     -->
     <Grid x:Name="Layout" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
 
-        <!-- Chosen: the knob, with how loud each side plays on its cap. -->
+        <!--
+            The knob, with how loud each side plays on its cap. Disabled until
+            chat apps are chosen, so the card shows what it is for before the
+            question below is answered.
+        -->
         <Grid
             x:Name="DialArea"
             Margin="0,0,0,14"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            IsVisible="False">
+            Classes="mixdial">
             <c:GameChatDial x:Name="Dial" loc:Uid.Value="Mix_Dial" />
             <StackPanel
                 HorizontalAlignment="Center"
@@ -103,8 +107,7 @@
             <c:Notice x:Name="ElsewhereBar" loc:Uid.Value="Mix_ElsewhereBar" Severity="Warning" />
 
             <!--
-                Nothing chosen yet: only the question. The dial means nothing
-                until it is answered, so it is absent rather than disabled.
+                Nothing chosen yet: the question the disabled dial is waiting on.
             -->
             <TextBlock
                 x:Name="SetupLine"
