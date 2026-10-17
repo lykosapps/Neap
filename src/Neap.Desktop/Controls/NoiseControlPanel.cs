@@ -32,8 +32,8 @@ public sealed class NoiseControlPanel : UserControl
     private static readonly NoiseMode[] Modes = [NoiseMode.Cancelling, NoiseMode.Transparency, NoiseMode.Off];
 
     /// <summary>The corner radius the card has, so its bottom can be squared to meet the drawer.</summary>
-    private static readonly CornerRadius CardRadius = new(16);
-    private static readonly CornerRadius CardRadiusOverDrawer = new(16, 16, 0, 0);
+    private static readonly CornerRadius CardRadius = new(12);
+    private static readonly CornerRadius CardRadiusOverDrawer = new(12, 12, 0, 0);
 
     private readonly StackPanel _modes = new() { Spacing = 4, IsEnabled = false };
     private readonly SettingRow _blocking;
@@ -74,7 +74,7 @@ public sealed class NoiseControlPanel : UserControl
         _drawer = new Border
         {
             Classes = { "drawer" },
-            CornerRadius = new CornerRadius(0, 0, 16, 16),
+            CornerRadius = new CornerRadius(0, 0, 12, 12),
             Child = _blocking,
             IsVisible = false,
         };

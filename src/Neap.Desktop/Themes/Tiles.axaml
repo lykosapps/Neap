@@ -13,62 +13,6 @@
         arm mutes it, is drawn in its own quieter colours rather than faded:
         its state still has to be read, so its text keeps 4.5:1.
     -->
-    <Styles.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Dark">
-                    <LinearGradientBrush x:Key="NeapTileBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#342C48" />
-                        <GradientStop Offset="1" Color="#2A233B" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#3A3150" />
-                    <SolidColorBrush x:Key="NeapTileStrokeBrush" Color="#45395F" />
-                    <SolidColorBrush x:Key="NeapTileEdgeBrush" Color="#66000000" />
-                    <SolidColorBrush x:Key="NeapTileTextBrush" Color="#FFFFFF" />
-                    <LinearGradientBrush x:Key="NeapTileOnBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#AB9CFF" />
-                        <GradientStop Offset="1" Color="#9181F6" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#B4A7FF" />
-                    <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#C3B8FF" />
-                    <SolidColorBrush x:Key="NeapTileOnEdgeBrush" Color="#4A3AA8" />
-                    <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#15112A" />
-                    <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#269D8CFF" />
-                    <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0FFFFFFF" />
-                    <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#272137" />
-                    <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
-                    <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#B3AEC2" />
-                    <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#433A6E" />
-                    <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#D9D3FF" />
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Light">
-                    <LinearGradientBrush x:Key="NeapTileBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#FFFFFF" />
-                        <GradientStop Offset="1" Color="#F0EDF7" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#FAF9FD" />
-                    <SolidColorBrush x:Key="NeapTileStrokeBrush" Color="#DDD8E8" />
-                    <SolidColorBrush x:Key="NeapTileEdgeBrush" Color="#26000000" />
-                    <SolidColorBrush x:Key="NeapTileTextBrush" Color="#1A1A1A" />
-                    <LinearGradientBrush x:Key="NeapTileOnBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#614ECF" />
-                        <GradientStop Offset="1" Color="#5845BD" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#5C49C4" />
-                    <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#4C3BB0" />
-                    <SolidColorBrush x:Key="NeapTileOnEdgeBrush" Color="#40309A" />
-                    <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D5AD9" />
-                    <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0A000000" />
-                    <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#E6E3EE" />
-                    <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
-                    <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#48474C" />
-                    <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#C9C1F0" />
-                    <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#2E2466" />
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
-        </ResourceDictionary>
-    </Styles.Resources>
 
     <!--
         A setting's tile, and the equaliser's, which is the same shape and
@@ -80,9 +24,9 @@
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
-        <Setter Property="Padding" Value="16" />
+        <Setter Property="Padding" Value="{StaticResource NeapPaddingCard}" />
         <Setter Property="MinHeight" Value="120" />
-        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusCard}" />
         <Setter Property="Template">
             <ControlTemplate>
                 <Panel>
@@ -158,7 +102,7 @@
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
     <Style Selector="TextBlock.tilestate">
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
         <Setter Property="Opacity" Value="0.85" />
     </Style>
 
@@ -177,26 +121,25 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="BorderBrush" Value="{DynamicResource NeapAccentTextBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
     </Style>
     <Style Selector="Border.tag > TextBlock">
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
         <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
     </Style>
 
     <!--
         What a switch or a card reveals: the same width as what it hangs
-        from, its top drawn flush against that card's own bottom edge so the
-        two read as one card split by a rule, not two stacked ones. A row
-        inside it is the drawer's own, so it draws no card of its own.
+        from and flush against its bottom, so the two read as one card split
+        by a rule, not two stacked ones. A row inside it is the drawer's own,
+        so it draws no card of its own.
     -->
     <Style Selector="Border.drawer">
-        <Setter Property="Margin" Value="0,-1,0,0" />
-        <Setter Property="Padding" Value="16,14,16,10" />
+        <Setter Property="Padding" Value="{StaticResource NeapPaddingCard}" />
         <Setter Property="Background" Value="{DynamicResource NeapPanelBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapPanelStrokeBrush}" />
-        <Setter Property="BorderThickness" Value="1,0,1,1" />
-        <Setter Property="CornerRadius" Value="0,0,8,8" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapRuleBrush}" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusDrawer}" />
     </Style>
     <Style Selector="Border.drawer c|SettingsCard">
         <Setter Property="Background" Value="Transparent" />
@@ -208,7 +151,7 @@
     <!-- A preset in Home's list: a flat row, the chosen one tinted and marked at its left edge. -->
     <Style Selector="ListBoxItem.preset">
         <Setter Property="Padding" Value="12,8" />
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
     </Style>
     <Style Selector="ListBoxItem.preset:pointerover /template/ ContentPresenter#TileContent">
         <Setter Property="Background" Value="{DynamicResource NeapPresetHoverBrush}" />

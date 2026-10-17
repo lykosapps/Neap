@@ -11,48 +11,6 @@
         an object on the desk, so it stays dark metal in the dark theme and
         turns brushed silver in the light one.
     -->
-    <Styles.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="NeapKnobWellBrush" Color="#0E0E11" />
-                    <LinearGradientBrush x:Key="NeapKnobBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#4A4854" />
-                        <GradientStop Offset="0.5" Color="#2C2B33" />
-                        <GradientStop Offset="1" Color="#1E1D23" />
-                    </LinearGradientBrush>
-                    <LinearGradientBrush x:Key="NeapKnobRimBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#55FFFFFF" />
-                        <GradientStop Offset="1" Color="#08FFFFFF" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapKnobRidgeBrush" Color="#70000000" />
-                    <SolidColorBrush x:Key="NeapKnobCapStrokeBrush" Color="#1CFFFFFF" />
-                    <RadialGradientBrush x:Key="NeapKnobShadowBrush">
-                        <GradientStop Offset="0.7" Color="#99000000" />
-                        <GradientStop Offset="1" Color="#00000000" />
-                    </RadialGradientBrush>
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="NeapKnobWellBrush" Color="#C9C9D0" />
-                    <LinearGradientBrush x:Key="NeapKnobBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#FBFBFD" />
-                        <GradientStop Offset="0.5" Color="#E6E6EB" />
-                        <GradientStop Offset="1" Color="#D2D2D9" />
-                    </LinearGradientBrush>
-                    <LinearGradientBrush x:Key="NeapKnobRimBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#FFFFFFFF" />
-                        <GradientStop Offset="1" Color="#40FFFFFF" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapKnobRidgeBrush" Color="#33000000" />
-                    <SolidColorBrush x:Key="NeapKnobCapStrokeBrush" Color="#26000000" />
-                    <RadialGradientBrush x:Key="NeapKnobShadowBrush">
-                        <GradientStop Offset="0.7" Color="#44000000" />
-                        <GradientStop Offset="1" Color="#00000000" />
-                    </RadialGradientBrush>
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
-        </ResourceDictionary>
-    </Styles.Resources>
 
     <!-- One segment of the ring, unlit and lit. -->
     <Style Selector="c|GameChatDial Path.segment">

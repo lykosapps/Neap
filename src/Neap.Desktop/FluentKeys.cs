@@ -1,0 +1,116 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Styling;
+
+namespace Neap.Desktop;
+
+/// <summary>
+/// Points the toolkit's own controls (buttons, lists, sliders, switches) at
+/// Neap's colours, once for every theme.
+/// </summary>
+/// <remarks>
+/// The controls look their colours up by the toolkit's names. Writing those
+/// names into each theme by hand meant one list for dark, one for light and
+/// one for high contrast, which drift apart; one list here serves all of
+/// them, so a theme cannot miss a name the others have.
+/// </remarks>
+internal static class FluentKeys
+{
+    /// <summary>Each toolkit name, and the Neap colour it takes.</summary>
+    private static readonly (string Fluent, string Neap)[] Map =
+    [
+        ("ButtonBackground", "NeapButtonBrush"),
+        ("ButtonBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("ButtonBackgroundPressed", "NeapButtonPressedBrush"),
+        ("ButtonBackgroundDisabled", "NeapButtonDisabledBrush"),
+        ("ButtonBorderBrush", "NeapButtonStrokeBrush"),
+        ("ButtonBorderBrushPointerOver", "NeapButtonStrokeBrush"),
+        ("ButtonBorderBrushPressed", "NeapButtonStrokeBrush"),
+        ("ButtonBorderBrushDisabled", "NeapButtonDisabledStrokeBrush"),
+        ("ComboBoxBackground", "NeapButtonBrush"),
+        ("ComboBoxBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("ComboBoxBackgroundPressed", "NeapButtonPressedBrush"),
+        ("ComboBoxBackgroundDisabled", "NeapButtonDisabledBrush"),
+        ("ComboBoxBorderBrush", "NeapButtonStrokeBrush"),
+        ("ComboBoxBorderBrushPointerOver", "NeapButtonStrokeBrush"),
+        ("ComboBoxBorderBrushPressed", "NeapButtonStrokeBrush"),
+        ("ComboBoxDropDownBackground", "NeapFlyoutBrush"),
+        ("ComboBoxDropDownBorderBrush", "NeapPanelStrokeBrush"),
+        ("ComboBoxItemBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("ComboBoxItemBackgroundPressed", "NeapButtonPressedBrush"),
+        ("ComboBoxItemBackgroundSelected", "NeapSelectedBrush"),
+        ("ComboBoxItemBackgroundSelectedPointerOver", "NeapSelectedBrush"),
+        ("ComboBoxItemBackgroundSelectedPressed", "NeapSelectedBrush"),
+        ("ListBoxItemBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("ListBoxItemBackgroundPressed", "NeapButtonPressedBrush"),
+        ("ListBoxItemBackgroundSelected", "NeapSelectedBrush"),
+        ("ListBoxItemBackgroundSelectedPointerOver", "NeapSelectedBrush"),
+        ("ListBoxItemBackgroundSelectedPressed", "NeapSelectedBrush"),
+        ("FlyoutPresenterBackground", "NeapFlyoutBrush"),
+        ("MenuFlyoutPresenterBackground", "NeapFlyoutBrush"),
+        ("AccentButtonBackground", "NeapAccentFillBrush"),
+        ("AccentButtonBackgroundPointerOver", "NeapAccentFillHoverBrush"),
+        ("AccentButtonBackgroundPressed", "NeapAccentFillPressedBrush"),
+        ("AccentButtonForeground", "NeapOnAccentBrush"),
+        ("AccentButtonForegroundPointerOver", "NeapOnAccentBrush"),
+        ("AccentButtonForegroundPressed", "NeapOnAccentBrush"),
+        ("AccentFillColorDefaultBrush", "NeapAccentFillBrush"),
+        ("AccentFillColorSecondaryBrush", "NeapAccentFillHoverBrush"),
+        ("AccentFillColorTertiaryBrush", "NeapAccentFillPressedBrush"),
+        ("SliderTrackValueFill", "NeapAccentFillBrush"),
+        ("SliderTrackValueFillPointerOver", "NeapAccentFillHoverBrush"),
+        ("SliderTrackValueFillPressed", "NeapAccentFillPressedBrush"),
+        ("SliderThumbBackground", "NeapAccentFillBrush"),
+        ("SliderThumbBackgroundPointerOver", "NeapAccentFillHoverBrush"),
+        ("SliderThumbBackgroundPressed", "NeapAccentFillPressedBrush"),
+        ("RadioButtonOuterEllipseCheckedFill", "NeapAccentFillBrush"),
+        ("RadioButtonOuterEllipseCheckedFillPointerOver", "NeapAccentFillHoverBrush"),
+        ("RadioButtonOuterEllipseCheckedFillPressed", "NeapAccentFillPressedBrush"),
+        ("RadioButtonOuterEllipseCheckedStroke", "NeapAccentFillBrush"),
+        ("RadioButtonOuterEllipseCheckedStrokePointerOver", "NeapAccentFillHoverBrush"),
+        ("RadioButtonOuterEllipseCheckedStrokePressed", "NeapAccentFillPressedBrush"),
+        ("RadioButtonCheckGlyphFill", "NeapOnAccentBrush"),
+        ("RadioButtonCheckGlyphFillPointerOver", "NeapOnAccentBrush"),
+        ("RadioButtonCheckGlyphFillPressed", "NeapOnAccentBrush"),
+        ("CheckBoxCheckBackgroundFillChecked", "NeapAccentFillBrush"),
+        ("CheckBoxCheckBackgroundFillCheckedPointerOver", "NeapAccentFillHoverBrush"),
+        ("CheckBoxCheckBackgroundFillCheckedPressed", "NeapAccentFillPressedBrush"),
+        ("CheckBoxCheckBackgroundStrokeChecked", "NeapAccentFillBrush"),
+        ("CheckBoxCheckBackgroundStrokeCheckedPointerOver", "NeapAccentFillHoverBrush"),
+        ("CheckBoxCheckBackgroundStrokeCheckedPressed", "NeapAccentFillPressedBrush"),
+        ("CheckBoxCheckGlyphForegroundChecked", "NeapOnAccentBrush"),
+        ("ToggleSwitchFillOn", "NeapAccentFillBrush"),
+        ("ToggleSwitchFillOnPointerOver", "NeapAccentFillHoverBrush"),
+        ("ToggleSwitchFillOnPressed", "NeapAccentFillPressedBrush"),
+        ("ToggleSwitchKnobFillOn", "NeapOnAccentBrush"),
+        ("ToggleSwitchKnobFillOnPointerOver", "NeapOnAccentBrush"),
+        ("ToggleSwitchKnobFillOnPressed", "NeapOnAccentBrush"),
+        ("ExpanderHeaderBackground", "NeapQuietBrush"),
+        ("ExpanderHeaderBackgroundPointerOver", "NeapQuietHoverBrush"),
+        ("ExpanderHeaderBorderBrush", "NeapPanelStrokeBrush"),
+        ("ExpanderContentBorderBrush", "NeapPanelStrokeBrush"),
+    ];
+
+    /// <summary>Toolkit names that show nothing behind them in every theme.</summary>
+    private static readonly string[] Clear = ["ComboBoxItemBackground", "ListBoxItemBackground", "ExpanderContentBackground"];
+
+    /// <summary>Adds the toolkit's names to each of the app's themes, after high contrast is installed.</summary>
+    public static void Install(Application app)
+    {
+        foreach (var variant in new[] { ThemeVariant.Light, ThemeVariant.Dark, HighContrast.OverLight, HighContrast.OverDark })
+        {
+            if (!app.Resources.ThemeDictionaries.TryGetValue(variant, out var provider) || provider is not ResourceDictionary dictionary)
+            {
+                dictionary = [];
+                app.Resources.ThemeDictionaries[variant] = dictionary;
+            }
+            foreach (var (fluent, neap) in Map)
+            {
+                if (app.TryGetResource(neap, variant, out object? brush)) dictionary[fluent] = brush;
+                else AppLog.Write($"theme: no {neap} in {variant}, so {fluent} keeps the toolkit's colour");
+            }
+            foreach (string name in Clear) dictionary[name] = Brushes.Transparent;
+        }
+    }
+}

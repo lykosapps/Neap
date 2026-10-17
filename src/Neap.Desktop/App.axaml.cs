@@ -21,6 +21,7 @@ public class App : Application
         // colours, and gets them as they change while the app is open. A
         // pretend run can be shown in either theme whatever the system is set to.
         HighContrast.Install(this);
+        FluentKeys.Install(this);
         ChooseTheme();
         if (Motion.Enabled) Styles.Add(new StyleInclude(new Uri("avares://Neap.Desktop/")) { Source = new Uri("avares://Neap.Desktop/Themes/Motion.axaml") });
         if (PlatformSettings is { } settings) settings.ColorValuesChanged += (_, _) => ChooseTheme();

@@ -10,7 +10,7 @@ namespace Neap.Desktop;
 
 /// <summary>
 /// The look for someone who has asked their system for high contrast: the
-/// system's own colours in place of Neap's twilight, so text is as readable as
+/// system's own colours in place of Neap's, so text is as readable as
 /// they set it to be.
 /// </summary>
 /// <remarks>
@@ -118,51 +118,15 @@ internal static class HighContrast
         Brush("NeapNavHoverBrush", p.Window);
 
         // Buttons, the lists that open from them and the switch: outlined in
-        // the text colour, and the highlight where they are on. These are the
-        // names the controls look for, set here because a name that points at
-        // another would find the dark theme's.
-        foreach (string name in new[]
-        {
-            "NeapButtonBrush", "NeapButtonHoverBrush", "NeapButtonPressedBrush", "NeapButtonDisabledBrush", "NeapFlyoutBrush",
-            "ButtonBackground", "ButtonBackgroundPointerOver", "ButtonBackgroundPressed", "ButtonBackgroundDisabled",
-            "ComboBoxBackground", "ComboBoxBackgroundPointerOver", "ComboBoxBackgroundPressed", "ComboBoxBackgroundDisabled",
-            "ComboBoxDropDownBackground", "FlyoutPresenterBackground", "MenuFlyoutPresenterBackground",
-            "ExpanderHeaderBackground", "ExpanderHeaderBackgroundPointerOver",
-        })
+        // the text colour, and the highlight where they are on. The toolkit's
+        // own controls take these through FluentKeys.
+        foreach (string name in new[] { "NeapButtonBrush", "NeapButtonHoverBrush", "NeapButtonPressedBrush", "NeapButtonDisabledBrush", "NeapFlyoutBrush" })
             Brush(name, p.Window);
-        Brush("ExpanderContentBackground", Colors.Transparent);
-        foreach (string name in new[]
-        {
-            "NeapButtonStrokeBrush", "ButtonBorderBrush", "ButtonBorderBrushPointerOver", "ButtonBorderBrushPressed",
-            "ComboBoxBorderBrush", "ComboBoxBorderBrushPointerOver", "ComboBoxBorderBrushPressed", "ComboBoxDropDownBorderBrush",
-            "ExpanderHeaderBorderBrush", "ExpanderContentBorderBrush",
-        })
-            Brush(name, p.Text);
-        Brush("ButtonBorderBrushDisabled", p.Gray);
-        foreach (string name in new[]
-        {
-            "NeapAccentFillBrush", "NeapAccentFillHoverBrush", "NeapAccentFillPressedBrush", "AccentButtonBackground",
-            "AccentButtonBackgroundPointerOver", "AccentButtonBackgroundPressed", "ToggleSwitchFillOn",
-            "AccentFillColorDefaultBrush", "AccentFillColorSecondaryBrush", "AccentFillColorTertiaryBrush",
-            "SliderTrackValueFill", "SliderTrackValueFillPointerOver", "SliderTrackValueFillPressed",
-            "SliderThumbBackground", "SliderThumbBackgroundPointerOver", "SliderThumbBackgroundPressed",
-            "RadioButtonOuterEllipseCheckedFill", "RadioButtonOuterEllipseCheckedFillPointerOver",
-            "RadioButtonOuterEllipseCheckedFillPressed", "RadioButtonOuterEllipseCheckedStroke",
-            "RadioButtonOuterEllipseCheckedStrokePointerOver", "RadioButtonOuterEllipseCheckedStrokePressed",
-            "CheckBoxCheckBackgroundFillChecked", "CheckBoxCheckBackgroundFillCheckedPointerOver",
-            "CheckBoxCheckBackgroundFillCheckedPressed", "CheckBoxCheckBackgroundStrokeChecked",
-            "CheckBoxCheckBackgroundStrokeCheckedPointerOver", "CheckBoxCheckBackgroundStrokeCheckedPressed",
-            "ToggleSwitchFillOnPointerOver", "ToggleSwitchFillOnPressed",
-        })
+        Brush("NeapButtonStrokeBrush", p.Text);
+        Brush("NeapButtonDisabledStrokeBrush", p.Gray);
+        foreach (string name in new[] { "NeapAccentFillBrush", "NeapAccentFillHoverBrush", "NeapAccentFillPressedBrush" })
             Brush(name, p.Highlight);
-        foreach (string name in new[]
-        {
-            "NeapOnAccentBrush", "AccentButtonForeground", "AccentButtonForegroundPointerOver", "AccentButtonForegroundPressed",
-            "ToggleSwitchKnobFillOn", "ToggleSwitchKnobFillOnPointerOver", "ToggleSwitchKnobFillOnPressed",
-            "RadioButtonCheckGlyphFill", "RadioButtonCheckGlyphFillPointerOver", "RadioButtonCheckGlyphFillPressed",
-            "CheckBoxCheckGlyphForegroundChecked",
-        })
-            Brush(name, p.HighlightText);
+        Brush("NeapOnAccentBrush", p.HighlightText);
 
         // The dial's knob.
         Brush("NeapKnobBrush", p.Window);

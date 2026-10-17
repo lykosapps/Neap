@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Media;
 
 namespace Neap.Desktop;
 
@@ -26,6 +27,12 @@ internal static class Program
         }
 
         AppDomain.CurrentDomain.UnhandledException += (_, e) => AppLog.Write($"crashed: {e.ExceptionObject}");
-        return AppBuilder.Configure<App>().UsePlatformDetect().StartWithClassicDesktopLifetime(args);
+        // Inter, carried by the app and the default for every window and
+        // pop-up, so text looks the same on Windows and Linux.
+        return AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .WithInterFont()
+            .With(new FontManagerOptions { DefaultFamilyName = "fonts:Inter#Inter" })
+            .StartWithClassicDesktopLifetime(args);
     }
 }

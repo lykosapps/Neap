@@ -33,6 +33,15 @@ and date.
 - What's new is always in Settings, beside Neap's version. With no update
   waiting, it shows what's new in the version you have, without going online.
 
+### Changed
+
+- A calmer, more compact look: neutral grey backgrounds in place of the
+  violet-tinted ones, flat panels without gradients or outlines, smaller
+  text and tighter rows, so more of each page fits on screen. Neap's violet
+  now marks only what is on, chosen or playing.
+- Text uses the Inter typeface, carried by the app, so it looks the same on
+  Windows and Linux.
+
 ### Fixed
 
 - A headset with no name of its own now shows its own model name. An Atlas Air

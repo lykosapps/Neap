@@ -52,9 +52,9 @@ its own files, so no two sessions touch the same file.
 
 ### 1. Foundations (one session)
 
-- **Split the theme files by job.** Create `Tokens.axaml` (colour, spacing,
-  radius, type and icon sizes) and `Fluent.axaml` (Fluent's keys pointed at
-  Neap tokens, once). Each later session then owns its own file.
+- **Split the theme files by job.** `Tokens.axaml` holds every colour and
+  size. `FluentKeys.cs` points Fluent's own keys at Neap's tokens, once, for
+  every theme. Each later session then owns its own file.
 - **Write the new palette as tokens.**
   - Use flat, neutral fills with no violet tint: ground, card, inset.
   - Choose Neap's own values, not MultiDrive's. Keep Neap's violet as the
@@ -63,16 +63,17 @@ its own files, so no two sessions touch the same file.
   - Use the accent in its strong and tint strengths.
   - Keep game and chat, the tones and the text levels.
   - Set light, dark and high-contrast values side by side.
-- **Define Fluent's overrides once.** Start with a short spike: can one
-  alias dictionary serve light and dark? If not, generate both from one
-  list. Either way, high contrast reads the same list.
+- **Define Fluent's overrides once.** One list in `FluentKeys.cs` serves
+  light, dark and high contrast. A token missing from a theme leaves a line
+  in the app log.
 - **Add the spacing, radius and icon-size scales as resources.** Merge the
   type classes to one per role.
 - **Embed Inter through Avalonia's own font package** and make it the
   app's font.
-- **Done when** the app looks broadly the same as today, but every value
-  comes from a token. Check with `run.ps1 all`, plus screenshots in all
-  three themes.
+- **Done when** the theme files take every value from a token, the app
+  shows the neutral palette, Inter and the compact sizes, and `run.ps1 all`
+  passes, with screenshots in all three themes. Sizes typed into pages and
+  controls move to tokens as phases 2 to 4 touch each file.
 
 ### 2. Shell (one session)
 
@@ -90,7 +91,7 @@ its own files, so no two sessions touch the same file.
 | Session | Owns | Work |
 | --- | --- | --- |
 | **3A Cards and tiles** | `Themes/Tiles.axaml`, `SettingsCard`, `SettingRow`, `SettingTile`, `SpatialTile`, `NoiseControlPanel`, `Notice` | Card, inset row and setting row as `ControlTheme`s; drop gradients; one tile shell in place of two |
-| **3B Fluent controls** | `Themes/Fluent.axaml` | Buttons (primary, secondary, quiet), toggle, slider, combo box, radio, check box, expander and flyout restyled through Fluent's keys and a few nested-selector styles |
+| **3B Fluent controls** | `FluentKeys.cs`, a new `Themes/Controls.axaml` | Buttons (primary, secondary, quiet), toggle, slider, combo box, radio, check box, expander and flyout restyled through Fluent's keys and a few nested-selector styles |
 | **3C Dial and curves** | `Themes/Dial.axaml`, `Themes/Curves.axaml`, `GameChatDial`, `EqualiserPanel`, `ParametricPanel`, `MixPanel` | Flat track and fill, the accent rules for indicators on dark, and inline letter spacing removed |
 | **3D Dialogs and bars** | `NeapDialog`, `UpdateBar`, `ProfileBar`, `HeadsetStatusStrip`, the `*Dialogs.cs` files | Built from the card and button parts; `Thickness` and radius constants in C# replaced by classes |
 
