@@ -30,7 +30,7 @@ public sealed class ModeButtonChoice : UserControl
     public static readonly StyledProperty<string> DescriptionProperty =
         AvaloniaProperty.Register<ModeButtonChoice, string>(nameof(Description), "");
 
-    private readonly StackPanel _options = new() { Spacing = Space.XS, IsEnabled = false };
+    private readonly StackPanel _options = new() { Spacing = Space.S, IsEnabled = false };
     private readonly TextBlock _title = new() { Classes = { "cardtitle" } };
     private readonly TextBlock _description = new() { Classes = { "caption", "secondary" } };
     private readonly TextBlock _needsApp = new() { Classes = { "caption", "secondary" }, IsVisible = false };
@@ -82,7 +82,8 @@ public sealed class ModeButtonChoice : UserControl
         foreach (var choice in ModeButton.Choices)
         {
             string label = choice.Cycles ? Strings.Get("Mode_NoiseCycle") : OptionNames.For(key, choice.Function);
-            var button = new RadioButton { Content = label, Tag = choice, GroupName = key.Name };
+            var button = NeapControls.ChoiceRow(label, key.Name);
+            button.Tag = choice;
             button.IsCheckedChanged += (_, _) =>
             {
                 if (button.IsChecked == true) Choose(choice);

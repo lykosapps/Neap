@@ -20,10 +20,11 @@
                 -->
                 <TextBlock x:Name="OnHeadsetHeading" loc:Uid.Value="Controls_OnHeadsetHeading" Classes="sectionheader" />
                 <Grid x:Name="Assignable" ColumnDefinitions="*,*" ColumnSpacing="{StaticResource NeapSpaceM}">
-                    <c:ModeButtonChoice loc:Uid.Value="Controls_ModeButton" />
+                    <c:ModeButtonChoice loc:Uid.Value="Controls_ModeButton" VerticalContentAlignment="Stretch" />
                     <c:SettingChoice
                         loc:Uid.Value="Controls_LowerDial"
                         Grid.Column="1"
+                        VerticalContentAlignment="Stretch"
                         Setting="dial_function" />
                 </Grid>
 

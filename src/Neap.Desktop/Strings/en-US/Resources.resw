@@ -435,6 +435,9 @@
   <data name="Settings_StartMinimised" xml:space="preserve">
     <value>Starts minimised, as this desktop has no notification area.</value>
   </data>
+  <data name="Settings_StartPractice" xml:space="preserve">
+    <value>Practice runs can't change this.</value>
+  </data>
   <data name="Settings_StartWithWindows.Header" xml:space="preserve">
     <value>Start when you sign in</value>
   </data>
@@ -1622,7 +1625,7 @@
     <value>30 minutes</value>
   </data>
   <data name="Dial_MicMonitoring" xml:space="preserve">
-    <value>Mic monitoring volume</value>
+    <value>Microphone monitoring volume</value>
     <comment>What the headset's lower dial does.</comment>
   </data>
   <data name="Dial_Mix" xml:space="preserve">
