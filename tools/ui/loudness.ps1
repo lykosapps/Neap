@@ -37,11 +37,11 @@ if ($Parts.Contains('A')) {
         $slider = Find-SliderNamed $row
         $rv = $null
         if ($slider -and $slider.TryGetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern, [ref]$rv)) {
-            Check ($rv.Current.Maximum -eq 6) 'the slider tops out at +6 dB'
-            $rv.SetValue(6)
+            Check ($rv.Current.Maximum -eq 18) 'the slider tops out at +18 dB'
+            $rv.SetValue(18)
         }
-        Check (Wait-Until { (Get-Texts) -contains '+6 dB' } 5) 'at the top the slider reads +6 dB'
-        Check (Wait-Until { (Get-Texts) -contains 'Headset level: -6 dB' } 5) 'and the headset level reads -6 dB'
+        Check (Wait-Until { (Get-Texts) -contains '+18 dB' } 5) 'at the top the slider reads +18 dB'
+        Check (Wait-Until { (Get-Texts) -contains 'Headset level: +6 dB' } 5) 'and the headset level reads +6 dB'
         if ($rv) { $rv.SetValue(0) }
         Check (Wait-Until { (Get-Texts) -contains 'Headset level: -12 dB' } 5) 'back at +0 the headset level reads -12 dB again'
 

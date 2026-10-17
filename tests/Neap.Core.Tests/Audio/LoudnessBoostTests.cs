@@ -44,7 +44,7 @@ public class LoudnessBoostTests
     {
         Assert.Equal(LoudnessBoost.MaxDb, LoudnessBoost.ClampLevel(50f));
         Assert.Equal(LoudnessBoost.MinDb, LoudnessBoost.ClampLevel(-200f));
-        Assert.Equal(-6f, LoudnessBoost.LevelForBoost(LoudnessBoost.MaxBoostDb));
+        Assert.Equal(6f, LoudnessBoost.LevelForBoost(LoudnessBoost.MaxBoostDb));
         Assert.Equal(LoudnessBoost.StockDb, LoudnessBoost.LevelForBoost(0f));
     }
 
