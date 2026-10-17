@@ -1,9 +1,12 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.Versioning;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform;
 using Avalonia.Threading;
+using Microsoft.Win32;
 using Neap.Core.Connection;
 using Neap.Core.Updates;
 using Neap.Desktop.Controls;
@@ -47,9 +50,10 @@ public partial class MainWindow : IDisposable
         quit.Click += (_, _) => Quit();
         _tray = new TrayIcon
         {
-            Icon = Icon,
+            Icon = TrayPicture(),
             Menu = new NativeMenu { open, new NativeMenuItemSeparator(), quit },
         };
+        if (Application.Current?.PlatformSettings is { } settings) settings.ColorValuesChanged += RepaintTrayPicture;
         _tray.Clicked += (_, _) => Reveal();
         if (Application.Current is { } app) TrayIcon.SetIcons(app, new TrayIcons { _tray });
 
@@ -60,6 +64,26 @@ public partial class MainWindow : IDisposable
         AppServices.AudioRoute.Changed += () => Dispatcher.UIThread.Post(PaintTray);
         PaintTray();
     }
+
+    /// <summary>The notification-area glyph: light on a dark taskbar, dark on a light one.</summary>
+    /// <remarks>
+    /// Windows has a taskbar shade, set apart from the app's own theme. A Linux
+    /// panel gives no such answer and is dark far more often than not, so it
+    /// gets the light glyph.
+    /// </remarks>
+    private static WindowIcon TrayPicture()
+    {
+        string shade = OperatingSystem.IsWindows() && TaskbarIsLight() ? "light" : "dark";
+        return new WindowIcon(AssetLoader.Open(new Uri($"avares://Neap.Desktop/Assets/tray-{shade}.ico")));
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static bool TaskbarIsLight() =>
+        Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize", "SystemUsesLightTheme", 0) is 1;
+
+    /// <summary>Swaps the glyph when Windows reports a colour change, such as the taskbar's shade.</summary>
+    private void RepaintTrayPicture(object? sender, PlatformColorValues colours) =>
+        Dispatcher.UIThread.Post(() => _tray?.Icon = TrayPicture());
 
     /// <summary>
     /// Says the headset's state and battery on the notification-area icon, so
@@ -176,6 +200,7 @@ public partial class MainWindow : IDisposable
 
     public void Dispose()
     {
+        if (Application.Current?.PlatformSettings is { } settings) settings.ColorValuesChanged -= RepaintTrayPicture;
         _tray?.Dispose();
         GC.SuppressFinalize(this);
     }
