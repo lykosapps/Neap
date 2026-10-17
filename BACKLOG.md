@@ -17,8 +17,8 @@ to GitHub, these become issues.
   Pro II through the dock (17 October): louder at +6 dB, kept across a power
   cycle, back to stock at +0 (`tools\ui\run.ps1 hardware -Parts WVZ`). Still
   to check: distortion at +9 and +12 dB with the equaliser or Superhuman
-  Hearing up; the headset wired by USB-C and the USB Transmitter; and that it
-  stays hidden on a real Atlas Air. Needs the headset. GitHub issue 6.
+  Hearing up; and the headset wired by USB-C and through the USB Transmitter.
+  Other headsets are never sent the command. Needs the headset. GitHub issue 6.
 
 - **Screen reader on both systems.** Narrator on Windows and Orca on Linux
   have not been run on the new app.

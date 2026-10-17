@@ -42,6 +42,10 @@ public static class SupportMatrix
             foreach (var model in models) sb.Append(' ').Append(Cell(model, feature)).Append(" |");
             sb.AppendLine();
         }
+
+        sb.Append("| Max loudness boost |");
+        foreach (var model in models) sb.Append(' ').Append(model.HasLoudnessBoost ? "Yes" : "—").Append(" |");
+        sb.AppendLine();
         return sb.ToString();
     }
 

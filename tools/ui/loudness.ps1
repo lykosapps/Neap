@@ -1,8 +1,9 @@
 <#
 .SYNOPSIS
 Checks the max loudness boost control on the Audio page in pretend mode: that
-it shows for the Stealth Pro II, describes itself, starts at Normal, follows
-the slider, and stays hidden on the Atlas Air, which does not answer for it.
+it shows for the Stealth Pro II with its boost on the slider and the headset's
+level apart from it, and stays hidden on the Atlas Air, as it is for the
+Stealth Pro II only.
 
 .DESCRIPTION
 Run through run.ps1. Launches the published app in pretend mode on the Audio
@@ -15,13 +16,12 @@ param([string]$Parts = 'AB')
 
 . "$PSScriptRoot\Ui.ps1"
 
-$row = 'Max loudness boost'
+$row = 'Max loudness boost (Stealth Pro II only)'
 
 function Find-SliderNamed([string]$Name) {
     @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Slider)))) |
         Where-Object { $_.Current.Name -eq $Name } | Select-Object -First 1
 }
-
 
 if ($Parts.Contains('A')) {
     Section 'the Stealth Pro II: the boost is there and follows the slider'
@@ -48,7 +48,7 @@ if ($Parts.Contains('A')) {
 }
 
 if ($Parts.Contains('B')) {
-    Section 'the Atlas Air: the boost is hidden, as it does not answer for it'
+    Section 'the Atlas Air: the boost is hidden, as it is for the Stealth Pro II only'
     Start-NeapPretend -Page audio -Flags @('--atlas')
     try {
         # The master volume row names its slider, which FindFirst reaches

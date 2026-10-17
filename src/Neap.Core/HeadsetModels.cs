@@ -53,6 +53,13 @@ public sealed record HeadsetModel(
 
     /// <summary>The groups of settings it has besides those every headset is asked for.</summary>
     public IReadOnlyList<string> ExtraCategories { get; init; } = [];
+
+    /// <summary>Whether it has the loudness boost; see <see cref="Audio.LoudnessBoost"/>.</summary>
+    /// <remarks>
+    /// The boost writes a level the headset keeps, by a command confirmed only on
+    /// the Stealth Pro II, so no other headset is sent it, even to ask.
+    /// </remarks>
+    public bool HasLoudnessBoost { get; init; }
 }
 
 /// <summary>The headsets Neap knows.</summary>
@@ -96,7 +103,10 @@ public static class HeadsetModels
         },
         Enum.GetValues<Feature>().ToHashSet(),
         new HashSet<Feature>(),
-        [FixedControl.VolumeWheel, FixedControl.FlipToMute, FixedControl.CrossPlay, FixedControl.BluetoothButton]);
+        [FixedControl.VolumeWheel, FixedControl.FlipToMute, FixedControl.CrossPlay, FixedControl.BluetoothButton])
+    {
+        HasLoudnessBoost = true,
+    };
 
     /// <summary>The Atlas Air, from one owner's recording and Turtle Beach's support pages for it, in testing.</summary>
     /// <remarks>

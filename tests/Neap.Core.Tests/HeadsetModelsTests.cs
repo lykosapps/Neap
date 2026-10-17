@@ -154,6 +154,10 @@ public class HeadsetModelsTests
         Assert.All(HeadsetModels.AtlasAir.ExtraCategories, group => Assert.True(Verbs.Readers.ContainsKey(group)));
     }
 
+    [Fact]
+    public void OnlyTheStealthProIIHasTheLoudnessBoost() =>
+        Assert.Equal(["Stealth Pro II"], HeadsetModels.All.Where(m => m.HasLoudnessBoost).Select(m => m.Name));
+
     public static IEnumerable<object[]> ModelNames =>
         HeadsetModels.All.Select(model => new object[] { model.Name });
 

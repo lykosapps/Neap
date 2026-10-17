@@ -286,9 +286,9 @@ Protect-RealRun {
         if ($null -ne $boost) {
             Section "setting the loudness boost to +$boost dB"
             Use-Page 'audio' {
-                Wait-Until { $null -ne (Find-Named 'Max loudness boost') } 10 | Out-Null
+                Wait-Until { $null -ne (Find-Named 'Max loudness boost (Stealth Pro II only)') } 10 | Out-Null
                 $slider = @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Slider)))) |
-                    Where-Object { $_.Current.Name -eq 'Max loudness boost' } | Select-Object -First 1
+                    Where-Object { $_.Current.Name -eq 'Max loudness boost (Stealth Pro II only)' } | Select-Object -First 1
                 Check ($null -ne $slider) 'the boost is on the Audio page'
                 if ($slider) { $slider.GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).SetValue([double]$boost); Start-Sleep -Seconds 3 }
             }

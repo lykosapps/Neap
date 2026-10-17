@@ -27,3 +27,4 @@ the models, not this file.
 | Lights | Yes | Offered |
 | Auto shut-off | Yes | Yes |
 | Wake on motion | Yes | — |
+| Max loudness boost | Yes | — |

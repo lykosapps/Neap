@@ -489,8 +489,14 @@ public sealed class HeadsetService : IDisposable
     }
 
     /// <summary>Reads the loudness level on connect and files it, hiding the feature when the headset does not answer.</summary>
+    /// <remarks>Only a headset whose model has the boost is asked; any other is not sent the command at all.</remarks>
     private void ProbeLoudness(HeadsetClient client)
     {
+        if (Model is not { HasLoudnessBoost: true })
+        {
+            FileLoudness(new LoudnessReading(false, 0f));
+            return;
+        }
         float? db;
         try { db = client.ReadLoudness(TimeSpan.FromMilliseconds(500)); }
         catch (Exception) { db = null; }
