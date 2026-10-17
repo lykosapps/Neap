@@ -24,81 +24,81 @@ answers, so nothing works there yet.
 
 ### Audio
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Master volume, on/off | Has | Seen | Blocked | `0x2A0` | Ask the tester to try the mute. |
-| Master volume, level | Has | Confirmed | Blocked | `0x2A0`, mirror `0x260` | Slight shake on big dial turns; see Problems. |
-| Superhuman Hearing, on/off | Has, test | Confirmed | Blocked | `0x800` | Swarm II's code seems to do this on the PC, which clashes with the tester hearing it from Neap. The tester wins. |
-| Superhuman Hearing, type (Legacy, Footsteps, Gunshots) | Has, test | Confirmed | Blocked | `0x810` | — |
-| Superhuman Hearing, level | Has, test | Confirmed | Blocked | `0x820` | — |
-| Game and chat mix | Has | Confirmed | Blocked | Done on the PC | Not saved in profiles; see Problems. |
-| Chat Boost | Missing | Untried | Blocked | Unknown; probably done on the PC | Decide whether Neap should do it. |
-| Waves 3D (Games, Music, Movies) | Missing | Read | Blocked | Done on the PC by Turtle Beach's Waves software | Not planned unless Neap does its own sound processing. |
-| High Bandwidth Audio | Missing | Read | Blocked | Probably the PC's sound format: the transmitter offers 48 and 96 kHz | Check whether it is only Windows' format setting. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Master volume, on/off | Listed | Yes | Has | Seen | Blocked | `0x2A0` | Ask the tester to try the mute. |
+| Master volume, level | Listed | Yes | Has | Confirmed | Blocked | `0x2A0`, mirror `0x260` | Slight shake on big dial turns; see Problems. |
+| Superhuman Hearing, on/off | Listed | Yes | Has, test | Confirmed | Blocked | `0x800` | Swarm II's code seems to do this on the PC, which clashes with the tester hearing it from Neap. The tester wins. |
+| Superhuman Hearing, type (Legacy, Footsteps, Gunshots) | Listed | Yes | Has, test | Confirmed | Blocked | `0x810` | — |
+| Superhuman Hearing, level | Listed | Yes | Has, test | Confirmed | Blocked | `0x820` | — |
+| Game and chat mix | Listed | Yes | Has | Confirmed | Blocked | Done on the PC | Not saved in profiles; see Problems. |
+| Chat Boost | Listed | Unknown; probably only on the PC | Missing | Untried | Blocked | Unknown; probably done on the PC | Decide whether Neap should do it. |
+| Waves 3D (Games, Music, Movies) | Listed | Only with Neap's own sound processing | Missing | Read | Blocked | Done on the PC by Turtle Beach's Waves software | Not planned unless Neap does its own sound processing. |
+| High Bandwidth Audio | Listed | Probably, through the PC's sound format | Missing | Read | Blocked | Probably the PC's sound format: the transmitter offers 48 and 96 kHz | Check whether it is only Windows' format setting. |
 
 ### Microphone
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Microphone mute | Has | Seen | Blocked | `0x600` | Shows on at start with the boom up; see Problems. |
-| Sensitivity | Has | Fails | Blocked | Done on the PC; on the Stealth Pro II `0x610` mirrors the PC's microphone level. Swarm II writes `0x610` here, 0–100 (Read). | Jumps to 100% when the tester speaks; see Problems. |
-| Monitoring, on/off | Hidden | Untried | Blocked | Swarm II's switch writes nothing (Read) | Probably no on/off; the level alone. |
-| Monitoring, level | Hidden | Untried | Blocked | `0x630`, 0–100 (Read) | Offer at `0x630` in a test build. |
-| Noise gate, on/off | Has, test | Confirmed | Blocked | `0x700` | — |
-| Noise gate, level | Has, test | Confirmed | Blocked | `0x710` | Heard clear at 0%, cut at 50%, almost muted at 100%. |
-| High Bandwidth Microphone | Missing | Read | Blocked | Probably the PC's sound format: the transmitter offers 16 and 48 kHz | As High Bandwidth Audio. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Microphone mute | Listed | Yes | Has | Seen | Blocked | `0x600` | Shows on at start with the boom up; see Problems. |
+| Sensitivity | Listed | Yes | Has | Fails | Blocked | Done on the PC; on the Stealth Pro II `0x610` mirrors the PC's microphone level. Swarm II writes `0x610` here, 0–100 (Read). | Jumps to 100% when the tester speaks; see Problems. |
+| Monitoring, on/off | Listed | Unknown: Swarm II's switch writes nothing | Hidden | Untried | Blocked | Swarm II's switch writes nothing (Read) | Probably no on/off; the level alone. |
+| Monitoring, level | Listed | Yes, at `0x630` (Read) | Hidden | Untried | Blocked | `0x630`, 0–100 (Read) | Offer at `0x630` in a test build. |
+| Noise gate, on/off | Listed | Yes | Has, test | Confirmed | Blocked | `0x700` | — |
+| Noise gate, level | Listed | Yes | Has, test | Confirmed | Blocked | `0x710` | Heard clear at 0%, cut at 50%, almost muted at 100%. |
+| High Bandwidth Microphone | Listed | Probably, through the PC's sound format | Missing | Read | Blocked | Probably the PC's sound format: the transmitter offers 16 and 48 kHz | As High Bandwidth Audio. |
 
 ### Equaliser
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Game equaliser, 4 presets | Has | Seen | Blocked | `0x1210` | Ask the tester to listen. |
-| Game equaliser, 10 bands | Has | Seen | Blocked | `0x1220`–`0x12B0` | As above. |
-| Mic equaliser, 4 presets | Has | Seen | Blocked | `0x1310` | As above. |
-| Mic equaliser, 10 bands | Has | Seen | Blocked | `0x1320`–`0x13B0` | As above. |
-| Custom presets, save and delete | Has | Untried | Blocked | `0x1600`–`0x1630` | Ask the tester to save and delete one. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Game equaliser, 4 presets | Listed | Yes | Has | Seen | Blocked | `0x1210` | Ask the tester to listen. |
+| Game equaliser, 10 bands | Listed | Yes | Has | Seen | Blocked | `0x1220`–`0x12B0` | As above. |
+| Mic equaliser, 4 presets | Listed | Yes | Has | Seen | Blocked | `0x1310` | As above. |
+| Mic equaliser, 10 bands | Listed | Yes | Has | Seen | Blocked | `0x1320`–`0x13B0` | As above. |
+| Custom presets, save and delete | Listed | Yes | Has | Untried | Blocked | `0x1600`–`0x1630` | Ask the tester to save and delete one. |
 
 ### Additional settings
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Battery level | Has | Seen | Blocked | `0x240` | — |
-| Connection and transmitter status | Has | Confirmed | Blocked | `0x290` | — |
-| Drivers status, platform | Not planned | — | — | — | Swarm II's own drivers; nothing for Neap to show. |
-| Auto shut-off (never, 5, 10, 20, 30 min) | Has | Seen | Blocked | `0x280` | Ask the tester to check one. |
-| Battery pop-up warnings | Missing | — | — | Done on the PC | Decide whether Neap should warn. |
-| Transmitter light brightness | Wrong | Fails | Blocked | Neap writes `0x401`; Swarm II uses `0x430` in group `TX`, 0–100 (Read) | Move to `0x430` in a test build. On the Stealth Pro II `0x430` is inside the second transmitter slot, so check the Atlas Air reports it in `TX` before writing. |
-| Voice and tone prompt level | Wrong | Fails | Blocked | `0xC00`; Swarm II's range is 0–15 (Read) | Map the slider to 0–15. The tester heard changes only up to about 20. |
-| Firmware updates | Not planned | — | — | — | Neap never writes firmware. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Battery level | Listed | Yes | Has | Seen | Blocked | `0x240` | — |
+| Connection and transmitter status | Listed | Yes | Has | Confirmed | Blocked | `0x290` | — |
+| Drivers status, platform | Listed | — | Not planned | — | — | — | Swarm II's own drivers; nothing for Neap to show. |
+| Auto shut-off (never, 5, 10, 20, 30 min) | Listed | Yes | Has | Seen | Blocked | `0x280` | Ask the tester to check one. |
+| Battery pop-up warnings | Listed | Yes, on the PC | Missing | — | — | Done on the PC | Decide whether Neap should warn. |
+| Transmitter light brightness | Listed | Yes, at `0x430` (Read) | Wrong | Fails | Blocked | Neap writes `0x401`; Swarm II uses `0x430` in group `TX`, 0–100 (Read) | Move to `0x430` in a test build. On the Stealth Pro II `0x430` is inside the second transmitter slot, so check the Atlas Air reports it in `TX` before writing. |
+| Voice and tone prompt level | Listed | Yes | Wrong | Fails | Blocked | `0xC00`; Swarm II's range is 0–15 (Read) | Map the slider to 0–15. The tester heard changes only up to about 20. |
+| Firmware updates | Listed | Yes, but Neap never writes firmware | Not planned | — | — | — | Neap never writes firmware. |
 
 ### Swarm II's own settings
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Updates | Has | Seen | Seen | — | Neap's own; both logs show the check running. |
-| Start with the PC | Has | Untried | Untried | — | Neap's own. |
-| Language | Not planned | — | — | — | English only, written so it can be translated. |
-| Macro manager | Not planned | — | — | — | Out of scope. |
-| Profiles | Has | Seen | Blocked | — | Neap's own, by the app in use. Show which is active; see Problems. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Updates | Listed | Neap's own | Has | Seen | Seen | — | Neap's own; both logs show the check running. |
+| Start with the PC | Listed | Neap's own | Has | Untried | Untried | — | Neap's own. |
+| Language | Listed | Yes | Not planned | — | — | — | English only, written so it can be translated. |
+| Macro manager | Listed | Yes, on the PC | Not planned | — | — | — | Out of scope. |
+| Profiles | Listed | Neap's own | Has | Seen | Blocked | — | Neap's own, by the app in use. Show which is active; see Problems. |
 
 ### Physical controls
 
 From the quick start guide. Neap describes them; it doesn't set them.
 
-| Control | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Volume wheel | Has | Confirmed | Blocked | `0x260` | — |
-| Flip-to-mute microphone | Has | Seen | Blocked | `0x600` | See Problems. |
-| QuickSwitch (transmitter or Bluetooth) | Has | Seen | Blocked | `0x290` | — |
-| Bluetooth button (pairing, calls) | Has | Confirmed | Blocked | `0x290`, signal `0x310` | The tester says Bluetooth shows properly. |
+| Control | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Volume wheel | Quick start guide | — | Has | Confirmed | Blocked | `0x260` | — |
+| Flip-to-mute microphone | Quick start guide | — | Has | Seen | Blocked | `0x600` | See Problems. |
+| QuickSwitch (transmitter or Bluetooth) | Quick start guide | — | Has | Seen | Blocked | `0x290` | — |
+| Bluetooth button (pairing, calls) | Quick start guide | — | Has | Confirmed | Blocked | `0x290`, signal `0x310` | The tester says Bluetooth shows properly. |
 
 ### Shown by Neap, not on the Atlas Air
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| AI noise reduction | Hide | Fails | — | Neap writes `0x630`, which is mic monitoring here | Not in Turtle Beach's list; Swarm II's switch writes nothing. Hide it. |
-| Dial and button functions | Hide | — | — | `0xA00`–`0xB20`, never written by Swarm II (Read) | Not in Turtle Beach's list. Hide them. |
-| Headset name | Wrong | Fails | — | `0x220` holds "My Headset" | Swarm II always shows "Atlas Air". Show the model name, and not "Stealth Pro II" when nothing is connected. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| AI noise reduction | Not listed | No: the headset doesn't have it | Hide | Fails | — | Neap writes `0x630`, which is mic monitoring here | Not in Turtle Beach's list; Swarm II's switch writes nothing. Hide it. |
+| Dial and button functions | Not listed; the mobile article lists them, the quick start guide doesn't | No: Swarm II writes none | Hidden | — | — | `0xA00`–`0xB20`, never written by Swarm II (Read) | Already hidden on the Atlas Air. |
+| Headset name | — | Yes | Wrong | Fails | — | `0x220` holds "My Headset" | Swarm II always shows "Atlas Air". Show the model name, and not "Stealth Pro II" when nothing is connected. |
 
 ## Problems
 
@@ -122,7 +122,7 @@ From the quick start guide. Neap describes them; it doesn't set them.
   - [ ] voice prompts on 0–15
   - [ ] transmitter light at `0x430`
   - [ ] mic monitoring level at `0x630`
-  - [ ] hide AI noise reduction and the dial and button functions
+  - [ ] hide AI noise reduction
   - [ ] show "Atlas Air" as the name
 - [ ] Fix the microphone state at start and the sensitivity jump, once the
       tester has tried 0.2.1.3's slider fix.

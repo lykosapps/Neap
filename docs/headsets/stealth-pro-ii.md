@@ -31,90 +31,90 @@ system tried with a real headset.
 
 ### Driver and profile
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Driver: Turtle Beach, Dolby Atmos, Waves | Not planned | — | — | — | Neap works with whatever driver the PC uses. Spatial sound covers Dolby on Windows. |
-| On-board profile slots (5) | Not planned | — | — | — | Neap keeps its own profiles, switched by the game or app in use. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Driver: Turtle Beach, Dolby Atmos, Waves | Listed | Partly: Dolby through Windows' spatial sound | Not planned | — | — | — | Neap works with whatever driver the PC uses. Spatial sound covers Dolby on Windows. |
+| On-board profile slots (5) | Listed | Unknown | Not planned | — | — | — | Neap keeps its own profiles, switched by the game or app in use. |
 
 ### Audio
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Master volume, on/off | Has | Confirmed | Confirmed | Done on the PC | — |
-| Master volume, level | Has | Confirmed | Confirmed | `0x2A0`, mirror `0x260` | — |
-| Superhuman Hearing, on/off | Has | Confirmed | Confirmed | `0x720` | — |
-| Superhuman Hearing, type (Legacy, Footsteps, Gunshots) | Has | Confirmed | Confirmed | `0x730` | — |
-| Superhuman Hearing, intensity | Has | Confirmed | Confirmed | `0x740` | — |
-| Game and chat mix | Has | Confirmed | Confirmed | Done on the PC; the chat wheel reports at `0x510` | Works on the Xbox edition, unlike Swarm II's. Once, the mix didn't follow the wheel; see Problems. |
-| Active noise cancellation, on/off | Has | Confirmed | Confirmed | `0x750` | Neap adds transparency: noise cancellation at zero. |
-| Active noise cancellation, level | Has | Confirmed | Confirmed | `0x760` | — |
-| Chat Boost (Bold, Dynamic, Active) | Missing | — | — | Waves software on the PC | Decide whether Neap should do it. |
-| Waves 3D (Games, Music, Movies) | Missing | — | — | Waves software on the PC | Not planned unless Neap does its own sound processing. |
-| High Bandwidth Audio (24-bit, 96 kHz) | Has | Confirmed | Missing | The PC's audio format | Neap also puts the dock back into high resolution after an app has used the mic. Linux has no format choice yet. |
-| Spatial sound | Has | Confirmed | Missing | Windows | Windows only. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Master volume, on/off | Listed | Yes | Has | Confirmed | Confirmed | Done on the PC | — |
+| Master volume, level | Listed | Yes | Has | Confirmed | Confirmed | `0x2A0`, mirror `0x260` | — |
+| Superhuman Hearing, on/off | Listed | Yes | Has | Confirmed | Confirmed | `0x720` | — |
+| Superhuman Hearing, type (Legacy, Footsteps, Gunshots) | Listed | Yes | Has | Confirmed | Confirmed | `0x730` | — |
+| Superhuman Hearing, intensity | Listed | Yes | Has | Confirmed | Confirmed | `0x740` | — |
+| Game and chat mix | Listed, Waves driver only | Yes, on the PC | Has | Confirmed | Confirmed | Done on the PC; the chat wheel reports at `0x510` | Works on the Xbox edition, unlike Swarm II's. Once, the mix didn't follow the wheel; see Problems. |
+| Active noise cancellation, on/off | Listed | Yes | Has | Confirmed | Confirmed | `0x750` | Neap adds transparency: noise cancellation at zero. |
+| Active noise cancellation, level | Listed | Yes | Has | Confirmed | Confirmed | `0x760` | — |
+| Chat Boost (Bold, Dynamic, Active) | Listed, Waves driver only | Only with Neap's own sound processing | Missing | — | — | Waves software on the PC | Decide whether Neap should do it. |
+| Waves 3D (Games, Music, Movies) | Listed, Waves driver only | Only with Neap's own sound processing | Missing | — | — | Waves software on the PC | Not planned unless Neap does its own sound processing. |
+| High Bandwidth Audio (24-bit, 96 kHz) | Listed | Yes | Has | Confirmed | Missing | The PC's audio format | Neap also puts the dock back into high resolution after an app has used the mic. Linux has no format choice yet. |
+| Spatial sound | Not listed | Yes, on Windows | Has | Confirmed | Missing | Windows | Windows only. |
 
 ### Microphone
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Mute | Has | Confirmed | Confirmed | Done on the PC; `0x600` reads the boom arm, and a write to it is ignored | — |
-| Sensitivity | Has | Confirmed | Confirmed | Done on the PC; `0x610` mirrors the PC's microphone level | — |
-| Monitoring, on/off and level | Has | Confirmed | Confirmed | `0x620` | — |
-| Noise gate, on/off | Has | Confirmed | Confirmed | `0x700` | — |
-| Noise gate, level | Has | Confirmed | Confirmed | `0x710` | — |
-| High Bandwidth Microphone (16-bit, 48 kHz) | Has | Confirmed | Missing | The PC's audio format | As High Bandwidth Audio. |
-| AI noise reduction | Has | Confirmed | Confirmed | `0x630` | — |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Mute | Listed | Yes | Has | Confirmed | Confirmed | Done on the PC; `0x600` reads the boom arm, and a write to it is ignored | — |
+| Sensitivity | Listed | Yes | Has | Confirmed | Confirmed | Done on the PC; `0x610` mirrors the PC's microphone level | — |
+| Monitoring, on/off and level | Listed | Yes | Has | Confirmed | Confirmed | `0x620` | — |
+| Noise gate, on/off | Listed | Yes | Has | Confirmed | Confirmed | `0x700` | — |
+| Noise gate, level | Listed | Yes | Has | Confirmed | Confirmed | `0x710` | — |
+| High Bandwidth Microphone (16-bit, 48 kHz) | Listed | Yes | Has | Confirmed | Missing | The PC's audio format | As High Bandwidth Audio. |
+| AI noise reduction | Listed | Yes | Has | Confirmed | Confirmed | `0x630` | — |
 
 ### Equaliser
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Game equaliser, 4 presets and 10 bands | Has | Confirmed | Confirmed | `0x1210`–`0x12C0` | Neap adds a parametric equaliser and a test tone. |
-| Mic equaliser, 4 presets and 10 bands | Has | Confirmed | Confirmed | `0x1310`–`0x13C0` | — |
-| Custom presets on the headset, save and delete | Has | Confirmed | Confirmed | `0x1600`–`0x1630` | Swarm II's software-only presets aren't in Neap; Neap's are all on the headset. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Game equaliser, 4 presets and 10 bands | Listed | Yes | Has | Confirmed | Confirmed | `0x1210`–`0x12C0` | Neap adds a parametric equaliser and a test tone. |
+| Mic equaliser, 4 presets and 10 bands | Listed | Yes | Has | Confirmed | Confirmed | `0x1310`–`0x13C0` | — |
+| Custom presets on the headset, save and delete | Listed | Yes | Has | Confirmed | Confirmed | `0x1600`–`0x1630` | Swarm II's software-only presets aren't in Neap; Neap's are all on the headset. |
 
 ### Assignment
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Mode button: noise cancellation, cycle game presets, noise gate | Has | Confirmed | Confirmed | `0xB20` | While Neap runs, the Mode button steps through noise cancellation, transparency and off. |
-| Lower wheel: monitoring, game and chat mix, bass, treble, noise gate | Has | Confirmed | Confirmed | `0xA20` | — |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | While Neap runs, the Mode button steps through noise cancellation, transparency and off. |
+| Lower wheel: monitoring, game and chat mix, bass, treble, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xA20` | — |
 
 ### Additional settings
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Battery level | Has | Confirmed | Confirmed | `0x240` | Shown as "Settling…" until a fresh battery's reading steadies. |
-| Spare battery charging in the dock | Has | Confirmed | Confirmed | `0x250` | Shown with a bolt while it charges, since the level isn't reliable then. |
-| Drivers status | Not planned | — | — | — | Swarm II's own drivers. |
-| Connection, transmitter status, platform | Has | Confirmed | Confirmed | `0x290`, `0x400`–`0x460` | — |
-| Pop-up battery warnings | Missing | — | — | Done on the PC | Decide whether Neap should warn. |
-| Battery in the notification area | Has | Confirmed | Confirmed | — | Shown in the icon's status. |
-| Auto shut-off (off, 5, 10, 20, 30 min) | Has | Confirmed | Confirmed | `0x280` | — |
-| Wake on motion | Has | Confirmed | Confirmed | `0x2E0` | Turtle Beach's article lists it in Swarm II's desktop app, but the README says the desktop app lacks it. Check, and correct the README. |
-| Hotkeys: volume mute, Superhuman Hearing, noise gate, mic mute, noise cancellation | Missing | — | — | — | Neap has hotkeys for the mix only. Profile hotkeys are on the backlog. |
-| Voice prompt for each transmitter (none, 1–4) | Missing | — | — | Unknown | Turtle Beach's article lists it under Charging Hub. Find where it's kept. |
-| Voice prompt volume | Has | Confirmed | Confirmed | `0x2D0` | Swarm II's desktop app has had it switched off since 1.0.0.47. |
-| Dock light brightness, two lights | Has | Confirmed | Confirmed | `0x401`, `0x402` | — |
-| Firmware updates | Not planned | — | — | — | Neap never writes firmware. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Battery level | Listed | Yes | Has | Confirmed | Confirmed | `0x240` | Shown as "Settling…" until a fresh battery's reading steadies. |
+| Spare battery charging in the dock | Not listed | Yes | Has | Confirmed | Confirmed | `0x250` | Shown with a bolt while it charges, since the level isn't reliable then. |
+| Drivers status | Listed | — | Not planned | — | — | — | Swarm II's own drivers. |
+| Connection, transmitter status, platform | Listed | Yes | Has | Confirmed | Confirmed | `0x290`, `0x400`–`0x460` | — |
+| Pop-up battery warnings | Listed | Yes, on the PC | Missing | — | — | Done on the PC | Decide whether Neap should warn. |
+| Battery in the notification area | Listed | Yes | Has | Confirmed | Confirmed | — | Shown in the icon's status. |
+| Auto shut-off (off, 5, 10, 20, 30 min) | Listed | Yes | Has | Confirmed | Confirmed | `0x280` | — |
+| Wake on motion | Listed | Yes | Has | Confirmed | Confirmed | `0x2E0` | Turtle Beach's article lists it in Swarm II's desktop app, but the README says the desktop app lacks it. Check, and correct the README. |
+| Hotkeys: volume mute, Superhuman Hearing, noise gate, mic mute, noise cancellation | Listed | Yes, on the PC | Missing | — | — | — | Neap has hotkeys for the mix only. Profile hotkeys are on the backlog. |
+| Voice prompt for each transmitter (none, 1–4) | Listed | Unknown: not yet found | Missing | — | — | Unknown | Turtle Beach's article lists it under Charging Hub. Find where it's kept. |
+| Voice prompt volume | Listed; mobile app only since June 2026 | Yes | Has | Confirmed | Confirmed | `0x2D0` | Swarm II's desktop app has had it switched off since 1.0.0.47. |
+| Dock light brightness, two lights | Listed | Yes | Has | Confirmed | Confirmed | `0x401`, `0x402` | — |
+| Firmware updates | Listed | Yes, but Neap never writes firmware | Not planned | — | — | — | Neap never writes firmware. |
 
 ### Swarm II's own settings
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Updates | Has | Confirmed | Confirmed | — | One button on Windows; Linux opens the download page. |
-| Start with the PC | Has | Confirmed | Confirmed | — | — |
-| Language | Not planned | — | — | — | English only, written so it can be translated. |
-| Macro manager | Not planned | — | — | — | Out of scope. |
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Updates | Listed | Neap's own | Has | Confirmed | Confirmed | — | One button on Windows; Linux opens the download page. |
+| Start with the PC | Listed | Neap's own | Has | Confirmed | Confirmed | — | — |
+| Language | Listed | Yes | Not planned | — | — | — | English only, written so it can be translated. |
+| Macro manager | Listed | Yes, on the PC | Not planned | — | — | — | Out of scope. |
 
 ### Physical controls
 
-| Control | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
-| Volume wheel | Has | Confirmed | Confirmed | `0x260` | — |
-| Flip-to-mute microphone | Has | Confirmed | Confirmed | `0x600` | — |
-| CrossPlay button (switch transmitters) | Has | Confirmed | Confirmed | `0x400`–`0x460` | Moving between PCs needs the headset switched off and on; see Problems. |
-| Bluetooth button | Has | Confirmed | Confirmed | `0x290`, `0x320` | — |
+| Control | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
+| Volume wheel | Quick start guide | — | Has | Confirmed | Confirmed | `0x260` | — |
+| Flip-to-mute microphone | Quick start guide | — | Has | Confirmed | Confirmed | `0x600` | — |
+| CrossPlay button (switch transmitters) | Quick start guide | — | Has | Confirmed | Confirmed | `0x400`–`0x460` | Moving between PCs needs the headset switched off and on; see Problems. |
+| Bluetooth button | Quick start guide | — | Has | Confirmed | Confirmed | `0x290`, `0x320` | — |
 
 ## Problems
 

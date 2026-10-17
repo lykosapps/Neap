@@ -18,6 +18,36 @@ keeps the evidence in full; these files are the working list.
 - A public release carries only the features confirmed on that system; the
   rest stay hidden or read only ([DECISIONS.md](../../DECISIONS.md), 8 October 2026).
 
+## What Turtle Beach says
+
+The **Turtle Beach** column says whether Turtle Beach lists the feature for
+this headset, and where:
+
+| Words | Meaning |
+|---|---|
+| Listed | In Turtle Beach's Swarm II article for this headset. |
+| Listed, with a condition | Listed, but only in some cases, such as "Waves driver only". |
+| Quick start guide | A physical control, from the guide that comes with the headset. |
+| Not listed | Not in any of Turtle Beach's pages for this headset. Say if the pages disagree. |
+| — | Not a headset feature, such as the name Neap shows. |
+
+## Whether Neap can do it
+
+The **Neap can** column says whether Neap could offer the feature at all, so
+"missing" or "unconfirmed" is never taken to mean "can be added":
+
+| Words | Meaning |
+|---|---|
+| Yes | The headset does it, or Neap already does it on the PC. Say where it's kept when known only from Swarm II, as "Yes, at `0x430` (Read)". |
+| Yes, on the PC | Neap can do it itself on the PC, without the headset. |
+| Only on the PC | Swarm II does it on the PC, not the headset; Neap would have to build its own. |
+| Only with Neap's own sound processing | Swarm II does it in audio software Neap doesn't have, such as Waves. |
+| Probably, … | Likely, with the reason; to be proven. |
+| Unknown | Not yet known whether the headset can do it, or how. |
+| No | The headset can't do it, and the PC can't stand in. Say why. |
+| Neap's own | A Neap feature that stands in for one of Swarm II's. |
+| — | Nothing to do: Neap only shows it, or it doesn't apply. |
+
 ## How sure
 
 Use these words in the **Windows** and **Linux** columns, from best to worst:
@@ -72,8 +102,8 @@ controls, then anything Neap shows that the headset doesn't have.
 
 ### <Section, as Swarm II names it>
 
-| Feature | Neap | Windows | Linux | Keys | Next |
-|---|---|---|---|---|---|
+| Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
+|---|---|---|---|---|---|---|---|
 
 ## Problems
 
