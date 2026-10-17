@@ -29,6 +29,8 @@
             <SolidColorBrush x:Key="NeapNavSelectedBrush" Color="#1A1A1E" />
             <SolidColorBrush x:Key="NeapNavHoverBrush" Color="#141417" />
             <SolidColorBrush x:Key="NeapQuietBrush" Color="#1A1A1E" />
+            <!-- A panel set into a card, holding the options of the row above it. -->
+            <SolidColorBrush x:Key="NeapInsetBrush" Color="#1A1A1E" />
             <SolidColorBrush x:Key="NeapQuietHoverBrush" Color="#222226" />
             <SolidColorBrush x:Key="NeapSelectedBrush" Color="#2A2250" />
 
@@ -95,6 +97,7 @@
             <SolidColorBrush x:Key="NeapNavSelectedBrush" Color="#E2E2E6" />
             <SolidColorBrush x:Key="NeapNavHoverBrush" Color="#EAEAED" />
             <SolidColorBrush x:Key="NeapQuietBrush" Color="#B3FFFFFF" />
+            <SolidColorBrush x:Key="NeapInsetBrush" Color="#EFEFF2" />
             <SolidColorBrush x:Key="NeapQuietHoverBrush" Color="#FFFFFFFF" />
             <SolidColorBrush x:Key="NeapSelectedBrush" Color="#E4DCFF" />
 
@@ -119,9 +122,9 @@
             <SolidColorBrush x:Key="NeapButtonBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapButtonHoverBrush" Color="#F6F6F7" />
             <SolidColorBrush x:Key="NeapButtonPressedBrush" Color="#EDEDF0" />
-            <SolidColorBrush x:Key="NeapButtonDisabledBrush" Color="#F3F3F5" />
+            <SolidColorBrush x:Key="NeapButtonDisabledBrush" Color="#EFEFF2" />
             <SolidColorBrush x:Key="NeapButtonStrokeBrush" Color="#DCDCE0" />
-            <SolidColorBrush x:Key="NeapButtonDisabledStrokeBrush" Color="#F3F3F5" />
+            <SolidColorBrush x:Key="NeapButtonDisabledStrokeBrush" Color="#EFEFF2" />
             <SolidColorBrush x:Key="NeapFlyoutBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapAccentFillBrush" Color="#6D4AFF" />
             <SolidColorBrush x:Key="NeapAccentFillHoverBrush" Color="#6340F2" />
@@ -207,7 +210,7 @@
     <CornerRadius x:Key="NeapRadiusCardTop">12,12,0,0</CornerRadius>
     <CornerRadius x:Key="NeapRadiusInsetTop">8,8,0,0</CornerRadius>
     <x:Double x:Key="NeapTileMinHeight">96</x:Double>
-    <Thickness x:Key="NeapPaddingCard">12</Thickness>
+    <Thickness x:Key="NeapPaddingCard">16</Thickness>
     <Thickness x:Key="NeapPaddingRow">12,8</Thickness>
     <x:Double x:Key="NeapRowHeight">40</x:Double>
     <x:Double x:Key="NeapNavItemHeight">36</x:Double>
@@ -219,6 +222,8 @@
     <Thickness x:Key="NeapPaddingNotice">16,8</Thickness>
     <Thickness x:Key="NeapIndent">12,0,0,0</Thickness>
     <Thickness x:Key="NeapSectionGap">0,8,0,0</Thickness>
+    <!-- The space between stacked cards, and above the link under the last one. -->
+    <Thickness x:Key="NeapCardGap">0,12,0,0</Thickness>
     <x:Double x:Key="NeapDialogButtonWidth">96</x:Double>
     <x:Double x:Key="NeapDialogScrollHeight">420</x:Double>
     <x:Double x:Key="NeapNoticeEdge">3</x:Double>

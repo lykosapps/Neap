@@ -198,6 +198,9 @@
   <data name="Audio_AroundYouHeading.Text" xml:space="preserve">
     <value>What you hear</value>
   </data>
+  <data name="Audio_VolumeHeading.Text" xml:space="preserve">
+    <value>Volume</value>
+  </data>
   <data name="Audio_Shh.Header" xml:space="preserve">
     <value>Superhuman Hearing</value>
   </data>
@@ -389,6 +392,9 @@
   </data>
   <data name="Microphone_MeterUnavailable" xml:space="preserve">
     <value>The level can't be shown. Check that apps may use the microphone in your system's privacy settings.</value>
+  </data>
+  <data name="Microphone_NoiseHandlingHeading.Text" xml:space="preserve">
+    <value>Background noise</value>
   </data>
   <data name="Microphone_Sensitivity.Header" xml:space="preserve">
     <value>Sensitivity</value>

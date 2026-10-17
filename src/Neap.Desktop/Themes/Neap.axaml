@@ -236,6 +236,16 @@
         <Setter Property="HorizontalContentAlignment" Value="Center" />
     </Style>
 
+    <!-- The options of the row above, set into the same card and lined up under that row's name; high contrast draws its edge. -->
+    <Style Selector="Border.options">
+        <Setter Property="Background" Value="{DynamicResource NeapInsetBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+        <Setter Property="Padding" Value="12" />
+        <Setter Property="Margin" Value="32,0,0,0" />
+    </Style>
+
     <!-- A panel as quiet as a row of settings: the same corners and padding. -->
     <Style Selector="Border.card.compact">
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
@@ -325,7 +335,7 @@
     <Style Selector="TextBlock.sectionheader">
         <Setter Property="FontSize" Value="{StaticResource NeapFontSection}" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Margin" Value="0,24,0,8" />
+        <Setter Property="Margin" Value="0,32,0,12" />
         <Setter Property="AutomationProperties.HeadingLevel" Value="2" />
     </Style>
 

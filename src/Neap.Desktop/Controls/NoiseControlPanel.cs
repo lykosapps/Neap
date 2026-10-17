@@ -33,7 +33,7 @@ public sealed class NoiseControlPanel : UserControl
     private static readonly NoiseMode[] Modes = [NoiseMode.Off, NoiseMode.Cancelling, NoiseMode.Transparency];
 
     private readonly StackPanel _modes = new() { IsEnabled = false };
-    private readonly StackPanel _strength;
+    private readonly Border _strength;
     private bool _painting;
 
     public NoiseControlPanel()
@@ -59,22 +59,20 @@ public sealed class NoiseControlPanel : UserControl
             Icon = (Geometry)Application.Current!.FindResource("IconNoise")!,
             Content = NeapControls.Pill(_modes),
         };
-        _strength = new StackPanel
+        _strength = new Border
         {
+            Classes = { "options" },
             IsVisible = false,
-            Children =
+            Child = new SettingRow
             {
-                new SettingRow
-                {
-                    Classes = { "sub" },
-                    Setting = "anc_level",
-                    Minimum = NoiseControl.LeastBlocking,
-                    Header = Strings.Get("Noise_Blocking"),
-                },
+                Classes = { "sub" },
+                Setting = "anc_level",
+                Minimum = NoiseControl.LeastBlocking,
+                Header = Strings.Get("Noise_Blocking"),
             },
         };
 
-        Content = new StackPanel { Children = { row, _strength } };
+        Content = new StackPanel { Spacing = Space.XS, Children = { row, _strength } };
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
