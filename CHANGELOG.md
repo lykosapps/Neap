@@ -35,6 +35,13 @@ and date.
 
 ### Changed
 
+- A stronger look: an ultraviolet accent in both themes, and in the dark
+  theme a deeper, single ground behind everything.
+- In a small window, such as the Steam Deck's, text, rows and the menu step
+  up a size so they are easier to read and touch.
+- The app icon is redrawn as a split half moon over one wave, and the icon by
+  the clock is its own simpler drawing that follows a light or dark taskbar
+  on Windows.
 - A calmer, more compact look: neutral grey backgrounds in place of the
   violet-tinted ones, flat panels without gradients or outlines, smaller
   text and tighter rows, so more of each page fits on screen. Neap's violet
