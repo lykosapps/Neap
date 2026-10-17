@@ -335,10 +335,12 @@ public sealed class SessionMix : IMixEngine
     }
 
     /// <remarks>The program is named only once there is a chat application to compare it with.</remarks>
-    private static bool IsChat(IPlaybackSession session, List<string> chatApps)
+    private static bool IsChat(IPlaybackSession session, List<string> chatApps) =>
+        chatApps.Count > 0 && IsChatProgram(session.Program, chatApps);
+
+    /// <summary>Whether a program's name matches one of the chat applications.</summary>
+    internal static bool IsChatProgram(string program, IReadOnlyList<string> chatApps)
     {
-        if (chatApps.Count == 0) return false;
-        string program = session.Program;
         if (program.Length == 0) return false;
         foreach (string app in chatApps)
             if (program.Contains(app, StringComparison.OrdinalIgnoreCase)) return true;

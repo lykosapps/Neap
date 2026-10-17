@@ -250,6 +250,7 @@
     <x:Double x:Key="NeapDialFocusSize">196</x:Double>
     <x:Double x:Key="NeapDialSegmentWidth">8</x:Double>
     <x:Double x:Key="NeapDialPointerWidth">4</x:Double>
+    <x:Double x:Key="NeapDialLevelWidth">3</x:Double>
     <!-- The curves' small shapes, and the icons in a row. -->
     <CornerRadius x:Key="NeapRadiusTag">4</CornerRadius>
     <CornerRadius x:Key="NeapRadiusPill">10</CornerRadius>
