@@ -10,13 +10,15 @@ The plan for getting there is in [REDESIGN-PLAN.md](REDESIGN-PLAN.md).
 
 ## The look in one paragraph
 
-A plain, near-black window. Large rounded cards sit on it, and darker rows
-are set into the cards. There are no shadows, gradients or borders on
-surfaces: depth comes from steps in fill. Small, quiet text sits in generous
-space. Thin outline icons are used throughout. A single violet accent marks
-only what is on, selected, in progress or the main action. The light theme
-is the same structure in pale tones, and high contrast is the same structure
-in system colours.
+A deep, neutral near-black window. Large rounded cards sit on it, and
+lighter rows are set into the cards. There are no shadows, gradients or
+borders on surfaces: depth comes from steps in fill. Quiet text sits in a
+clear rhythm of space. Thin outline icons are used throughout. One strong
+ultraviolet marks only what is on, selected, in progress or the main action,
+and Neap's own segmented controls, sliders and switches make it feel made
+for the headset rather than borrowed from the system. The light theme is the
+same structure in pale tones, and high contrast is the same structure in
+system colours.
 
 ## Inspired, not copied
 
@@ -36,7 +38,7 @@ its accent. Neap takes those qualities and keeps its own identity.
   - The half-moon mark.
   - The twilight game and moon chat pair.
   - The game and chat dial.
-  - The violet accent: Neap's own violet, not MultiDrive's indigo.
+  - The ultraviolet accent, Neap's own, not MultiDrive's indigo.
 - **Nothing borrowed.** Neap uses no MultiDrive icon, image, typeface
   choice made only to match it, or component that only makes sense in
   MultiDrive.
@@ -53,10 +55,13 @@ its accent. Neap takes those qualities and keeps its own identity.
   never gets a shadow or a border just to stand out.
   - *Why:* MultiDrive separates everything with fill steps. It reads as
     calm and keeps contrast easy to measure.
-- **A neutral ground.** The window, card and inset fills are neutral greys
-  in the dark theme and near-whites in the light one, with no violet tint.
-  The colour in Neap comes from the accent and the game and chat pair,
-  which stand out more for it.
+- **A deep neutral ground.** The window, card and inset fills are neutral
+  greys in the dark theme and near-whites in the light one, with no tint:
+  ground `#08080A`, card `#121214`, inset `#1A1A1E` in dark. The colour in
+  Neap comes from the accent and the game and chat pair, which stand out
+  more for it.
+- **The inset is lighter than the card in dark.** On a near-black card, a
+  darker inset would vanish, so rows set into a card step up, not down.
 - **Flat fills only.** No radial or linear gradients on panels or tiles.
   - *Why:* gradients make the contrast check sample a different colour at
     each point, and they are the main thing that dates the current look.
@@ -75,9 +80,10 @@ its accent. Neap takes those qualities and keeps its own identity.
 - **Every colour is a token.** A colour is a named brush in a theme
   dictionary, with `Light`, `Dark` and a high-contrast value. No hex
   appears outside the theme files.
-- **One accent, used with discipline.** Use it for on, selected, in
-  progress, the primary action and the focus ring. Never use it for
-  decoration or headings.
+- **One accent, used with discipline.** Ultraviolet: `#6D4AFF` as a fill
+  with white text, and a lighter `#9C88FF` for indicators with no text on
+  the dark ground. Use it for on, selected, in progress, the primary action
+  and the focus ring. Never use it for decoration or headings.
 - **Accent in two strengths.** A strong accent is for fills with text on
   them. A darkened tint of the accent is for tracks, chips and badges. On
   the dark ground, an indicator with no text (a ring, a slider thumb or a
@@ -114,9 +120,13 @@ its accent. Neap takes those qualities and keeps its own identity.
 - **`Spacing` between siblings, `Padding` inside a container, `Margin` only
   for exceptions.** Every value comes from the spacing scale.
 - **Spacing scale: 4, 8, 12, 16, 24, 32.**
-  - 8 is the gap between cards.
-  - 12 is the padding inside a card.
-  - 24 is the page margin.
+- **One rhythm, so the eye can group without lines.**
+  - 4 between a name and the line under it.
+  - 8 between cards, and between rows in a card.
+  - 12 inside a card.
+  - 24 between sections, and the page margin.
+  - The space above a heading is always larger than the space below it, so
+    a heading belongs to what follows.
 - **Corner radii: 12 for cards, 8 for inset rows and tiles, 6 for buttons
   and inputs, full round for pills and badges.** These are tokens, not
   constants in C#.
@@ -142,10 +152,12 @@ its accent. Neap takes those qualities and keeps its own identity.
   - Label 11 in capitals with letter spacing.
   - No size or spacing is set inline. One class per role: no two classes
     with the same values.
-- **Compact, but readable.** Body text is 13 and setting rows are 40px,
-  so more of a page fits on screen. Nothing goes below 11, and every
-  target stays at least 24px. MultiDrive's 11–12px body text is a step
-  too far for a settings app read at arm's length.
+- **Compact at the desk, roomier on a small touch screen.** On a desktop
+  window body text is 13 and setting rows are 40px, so more of a page fits.
+  In a window the size of the Steam Deck's, 1280 by 800 or smaller, the
+  same tokens take one step up: body 14, rows 48, and every control a
+  40px target for a finger. Nothing goes below 11 anywhere, and no target
+  is smaller than 24px.
 - **Inter, on both systems.** It is embedded through Avalonia's own font
   package, so Windows and Linux render the same text. The device details
   keep their monospace font.
@@ -197,13 +209,24 @@ its accent. Neap takes those qualities and keeps its own identity.
 - **Setting row.** An icon, a name, an optional one-line description and
   the control on the right. It is 40px high, and the whole row is
   the click target where that makes sense.
-- **Navigation rail.** An icon and a name, in groups split by hairlines.
-  The selected item is a rounded pill one fill step lighter. A count badge
-  in the accent tint is allowed. Settings sits at the foot.
+- **Left menu.** The profile switcher sits at its top, the same on Windows
+  and Linux, showing the active profile. Below it: Home, Audio, Equaliser,
+  Controls, Profiles and Device, each an icon and a name. The selected item
+  is a rounded pill one fill step lighter, with its accent bar. Settings
+  sits at the foot. In a narrow window the menu shows icons only, and the
+  switcher becomes one profile icon.
+- **Segmented control.** A choice of two to four short options, shown as one
+  pill with the chosen segment filled in the accent. It is built on radio
+  buttons, so a screen reader still says which of how many is chosen. Use it
+  in place of a radio list wherever the options fit on one line.
+- **Slider.** Neap's own: a thicker track filled in the accent up to the
+  thumb, and the value shown on the thumb while it is dragged. The value
+  also stays as text beside the slider.
+- **Switch.** Neap's own shape: a pill track, filled in the accent when on,
+  with its state also said in words beside it.
 - **Buttons.**
-  - Primary is an accent fill. It appears at most once per view. In the
-    dark theme the fill is Neap's pale lavender with dark text. In the
-    light theme it is a deeper violet with white text.
+  - Primary is the ultraviolet fill with white text, in both themes. It
+    appears at most once per view.
   - Secondary is outlined.
   - Quiet is text only.
   - Buttons don't carry icons unless the button is icon only, and then it
@@ -247,10 +270,9 @@ its accent. Neap takes those qualities and keeps its own identity.
 
 ## 9. Words
 
+- **How Neap writes is in [COPY.md](COPY.md).**
 - **All text is in `Strings/en-US/Resources.resw`.** Write whole sentences,
   never fragments joined in code.
-- **Restraint by default.** Use a name and a value. Add help text only
-  where a setting can't be understood without it.
 
 ---
 
@@ -259,7 +281,7 @@ its accent. Neap takes those qualities and keeps its own identity.
 | Take, as a quality | Leave |
 | --- | --- |
 | Fill-step depth, large radii, flat surfaces | Its exact colours, sizes and radii |
-| A neutral ground, so the accent carries the colour | Its indigo accent: Neap keeps its own violet |
+| A neutral ground, so the accent carries the colour | Its indigo accent: Neap has its own ultraviolet |
 | One disciplined accent, with a darker tint for tracks | 11–12px body text: Neap's is 13 |
 | Slim icon-and-name rail with a pill selection | Dark only: Neap keeps light and high contrast |
 | Unavailable choices shown dimmed with a reason | Its dashboard grid, source-and-target cards and bottom action row |

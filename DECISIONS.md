@@ -1,5 +1,57 @@
 # Decisions
 
+## 2026-10-17 — The equaliser gets a page, and Audio takes in Microphone
+
+- **Options:** keep both equalisers at the foot of Audio and Microphone;
+  fold them to one row there; give them a page of their own, with or
+  without merging Audio and Microphone.
+- **Chosen:** an Equaliser page with Game and Microphone tabs, and one Audio
+  page in two sections, What you hear and Your microphone. The left menu
+  becomes Home, Audio, Equaliser, Controls, Profiles and Device, with
+  Settings at the foot.
+- **Why:** each equaliser was bigger than everything else on its page put
+  together, and sat below the fold, so the everyday settings above it were
+  scrolled past to reach it and it was scrolled to every time. Tuning sound
+  is its own, occasional job. Without their equalisers, Audio and
+  Microphone are a handful of rows each, and read naturally as one page.
+  The menu keeps its size.
+- **Revisit if:** people coming from Swarm II can't find the microphone
+  settings, or the merged page grows past two screens.
+
+## 2026-10-17 — The profile switcher moves to the top of the left menu
+
+- **Options:** keep the row under the title bar; put it in the title bar on
+  Windows and somewhere else on Linux; the top or the foot of the left menu
+  on both.
+- **Chosen:** the top of the left menu, on Windows and Linux alike.
+- **Why:** the row cost a full line on every page to show one name. Linux
+  can't put it in the title bar, which the desktop draws, and the owner
+  wanted one place on both systems. At the top it is the first thing seen
+  and one move away mid-game.
+- **Revisit if:** a narrow window makes the switcher hard to find as an
+  icon.
+
+## 2026-10-17 — Ultraviolet on a darker neutral, roomier on small screens
+
+- **Chosen:** an ultraviolet accent, `#6D4AFF` with white text, replacing
+  the pale lavender button; a ground of `#08080A`; spacing one step roomier
+  in a window the size of the Steam Deck's; Neap's own segmented controls,
+  sliders and switches; the mark redrawn on the same idea.
+- **Why:** the owner wanted a stronger, more modern and more custom look.
+  The Deck is a touch screen, where 40px rows are tight for a finger.
+- **Revisit if:** the ultraviolet reads as another brand's, or the Deck's
+  larger size makes desktop-sized windows look sparse.
+
+## 2026-10-17 — Copy principles
+
+- **Chosen:** `docs/design/COPY.md`: name things by what they do for you,
+  one name per thing, short enough to read at a glance, help text that
+  earns its place, a way out of every state, warm and not cute, and words
+  that translate.
+- **Why:** the only rule was "plain and restrained". With Audio and
+  Microphone merged, five noise names would sit on one page, and the
+  equaliser had three scopes under one name.
+
 ## 2026-10-17 — A calmer, compact look, drawn from shared tokens
 
 - **Options:** keep the violet-tinted look and its gradients; adopt a
