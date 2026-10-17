@@ -26,6 +26,14 @@
                     StrokeThickness="2" />
                 <TextBlock loc:Uid.Value="Parametric_Heard" Classes="caption secondary" />
             </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
+                <Border
+                    Width="22"
+                    Height="10"
+                    VerticalAlignment="Center"
+                    Background="{DynamicResource NeapCurveGapBrush}" />
+                <TextBlock loc:Uid.Value="Parametric_Gap" Classes="caption secondary" />
+            </StackPanel>
         </StackPanel>
 
         <c:ParametricCurve x:Name="Shape" Height="280" />

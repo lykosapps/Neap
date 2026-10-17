@@ -13,8 +13,14 @@ and date.
 
 ### Added
 
-- The Neap mark and name sit at the top of the menu, above the profile switcher, at a size that reads. When the menu is icons only, just the mark shows.
-- Every tile on Home has the same layout: icon and switch or arrow on top, then the name, then its state, so names line up across a row. On Game and chat, Keyboard shortcuts moves up beside the title.
+- The Neap mark and name sit at the top of the menu, above the profile
+  switcher. When the menu is icons only, just the mark shows.
+- Every tile on Home has the same layout: icon and switch or arrow on top,
+  then the name, then its state, so names line up across a row. On Game and
+  chat, Keyboard shortcuts moves up beside the title.
+- The equaliser curve grows with the window and shows a dB scale, preset
+  names stay on one line, and the part of your curve the headset can't reach
+  is shaded grey and named in the legend.
 - A max loudness boost on the Audio page raises the Stealth Pro II's own level,
   so everything through the dock plays louder — for when the headset is too
   quiet even at full volume. It starts at +0 dB until you move it, is saved on
@@ -37,6 +43,7 @@ and date.
 
 ### Changed
 
+- On the Equaliser page, Discard shows only once the curve has been edited, and a saved preset's delete button shows only on the row you point at, focus or have chosen.
 - Home is redesigned: the headset's readings across the top, Game and chat
   as one card with a Keyboard shortcuts link, and tiles that show how they
   work, such as a switch for the microphone, Off, Cancelling and

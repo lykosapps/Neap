@@ -80,6 +80,7 @@
             <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#CFC6FF" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#337B61FF" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0FFFFFFF" />
+            <SolidColorBrush x:Key="NeapCurveGapBrush" Color="#26E6E8EC" />
             <SolidColorBrush x:Key="NeapCardStrokeBrush" Color="Transparent" />
 
             <!-- The dial's knob: a flat disc, a step lighter than the panel it sits on, with a quiet edge. -->
@@ -152,6 +153,7 @@
             <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#2E2466" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D4AFF" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0A000000" />
+            <SolidColorBrush x:Key="NeapCurveGapBrush" Color="#2615171C" />
             <SolidColorBrush x:Key="NeapCardStrokeBrush" Color="Transparent" />
 
             <SolidColorBrush x:Key="NeapKnobBrush" Color="#EDEDF1" />

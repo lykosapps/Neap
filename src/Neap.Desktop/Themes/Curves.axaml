@@ -57,8 +57,7 @@
         <Setter Property="StrokeThickness" Value="1.5" />
     </Style>
     <Style Selector="Path.curvegap">
-        <Setter Property="Fill" Value="{DynamicResource NeapToneCautionBrush}" />
-        <Setter Property="Opacity" Value="0.3" />
+        <Setter Property="Fill" Value="{DynamicResource NeapCurveGapBrush}" />
     </Style>
 
     <!-- A parametric adjustment's numbered point: filled when it is the one the fields show. -->
@@ -122,11 +121,21 @@
         <Setter Property="Background" Value="{DynamicResource NeapPresetSelectedBrush}" />
     </Style>
     <Style Selector="Button.remove">
+        <Setter Property="Opacity" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextSecondaryBrush}" />
         <Setter Property="Padding" Value="8" />
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <!-- Only on the row that is pointed at, focused or chosen; the keyboard reaches it with Tab all the same. -->
+    <Style Selector="Grid.slot:pointerover Grid.face, Grid.slot:focus-within Grid.face, Grid.slot.chosen Grid.face">
+        <Setter Property="Margin" Value="0,0,32,0" />
+    </Style>
+    <Style Selector="Grid.slot:pointerover > Button.remove, Grid.slot:focus-within > Button.remove, Grid.slot.chosen > Button.remove">
+        <Setter Property="Opacity" Value="1" />
     </Style>
 
     <!--

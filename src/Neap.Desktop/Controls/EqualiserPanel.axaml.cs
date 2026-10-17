@@ -5,6 +5,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Neap.Core.Connection;
 using Neap.Core.Presets;
 using Neap.Desktop.Localization;
@@ -58,7 +59,11 @@ public partial class EqualiserPanel : UserControl
     /// <summary>The narrowest width at which the presets and the editor sit side by side.</summary>
     private const double BesideFrom = 720;
 
+    /// <summary>The shortest and tallest the curve is drawn, whatever the window.</summary>
+    private const double CurveLeast = 280, CurveMost = 580;
+
     private readonly List<BandCell> _cells = new();
+    private ScrollViewer? _scroller;
     private BankState? _state;
     private string? _confirmingDelete;
     private bool _folded;
@@ -116,6 +121,7 @@ public partial class EqualiserPanel : UserControl
         };
         Bands.SizeChanged += (_, _) => FoldBands();
         Layout.SizeChanged += (_, _) => Arrange();
+        EditorCard.SizeChanged += (_, _) => FitCurve();
 
         // Each button is acted on as ticked, not through the group, which
         // changes only after painting and would send the mode just shown
@@ -191,6 +197,22 @@ public partial class EqualiserPanel : UserControl
             AppServices.Headset.StatusChanged += OnStatusChanged;
     }
 
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        _scroller = this.FindAncestorOfType<ScrollViewer>();
+        if (_scroller is not null) _scroller.SizeChanged += OnScrollerSized;
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        if (_scroller is not null) _scroller.SizeChanged -= OnScrollerSized;
+        _scroller = null;
+    }
+
+    private void OnScrollerSized(object? sender, SizeChangedEventArgs e) => FitCurve();
+
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
@@ -236,6 +258,30 @@ public partial class EqualiserPanel : UserControl
         // parametric panel stops its test tone.
         if (waiting) Parametric.IsVisible = false;
         Mode.IsVisible = !waiting && ParametricEq.Covers(Bank);
+    }
+
+    /// <summary>
+    /// Grows the curve, in either mode, so the editor card reaches the page's
+    /// bottom margin: as tall as the window allows, between the least and the
+    /// most that read well.
+    /// </summary>
+    /// <remarks>
+    /// The card's other contents are measured as its height less the curve's,
+    /// so the answer is the same however often it is worked out.
+    /// </remarks>
+    private void FitCurve()
+    {
+        if (_scroller is null || EditorCard.Bounds.Height <= 0) return;
+        if (EditorCard.TranslatePoint(default, _scroller) is not { } at) return;
+
+        double now = Parametric.IsVisible ? Parametric.CurveHeight : Response.Height;
+        double around = EditorCard.Bounds.Height - now;
+        double top = at.Y + _scroller.Offset.Y;
+        double height = Math.Clamp(_scroller.Viewport.Height - Space.XL - top - around, CurveLeast, CurveMost);
+        if (Math.Abs(height - now) < 0.5) return;
+
+        Response.Height = height;
+        Parametric.CurveHeight = height;
     }
 
     /// <summary>Puts the presets beside the editor when there is room for both, and above it when there is not.</summary>
@@ -390,6 +436,7 @@ public partial class EqualiserPanel : UserControl
             Text = preset.Name,
             VerticalAlignment = VerticalAlignment.Center,
             TextTrimming = Avalonia.Media.TextTrimming.CharacterEllipsis,
+            TextWrapping = Avalonia.Media.TextWrapping.NoWrap,
         };
         Grid.SetColumn(name, 1);
 
@@ -397,10 +444,15 @@ public partial class EqualiserPanel : UserControl
         {
             ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"),
             ColumnSpacing = Space.S,
+            Classes = { "face" },
             Children = { new Border { Classes = { "marker" } }, name, pill },
         };
 
+        // The chip spans the whole row, so the name has all of it until the
+        // delete button shows over its end; see Button.remove in Curves.axaml.
         var chip = new Button { Content = face, Classes = { "chip" } };
+        if (preset.Custom) Grid.SetColumnSpan(chip, 2);
+        ToolTip.SetTip(chip, preset.Name);
         AutomationProperties.SetName(chip, preset.Name);
         chip.Click += async (_, _) =>
         {
@@ -410,6 +462,7 @@ public partial class EqualiserPanel : UserControl
         };
         slot.Children.Add(chip);
         slot.Tag = new Row(preset, chip, pill);
+        if (preset.Custom) slot.Classes.Add("slot");
 
         // Only a custom preset can be deleted, and any of them can, without
         // choosing it first: the headset deletes by name.
@@ -421,6 +474,8 @@ public partial class EqualiserPanel : UserControl
                 Classes = { "remove" },
             };
             Grid.SetColumn(remove, 1);
+            remove.HorizontalAlignment = HorizontalAlignment.Right;
+            remove.Width = DeleteWidth;
             AutomationProperties.SetName(remove, Strings.Format("Equaliser_DeleteNamed", preset.Name));
             remove.Click += (_, _) =>
             {
@@ -665,7 +720,7 @@ public partial class EqualiserPanel : UserControl
         DraftPill.IsVisible = edited;
 
         var can = EqualiserActions.For(edited, _state.Baseline);
-        DiscardButton.IsEnabled = can.Discard;
+        DiscardButton.IsVisible = can.Discard;
         SaveButton.IsEnabled = can.Save;
         SaveButton.Content = Strings.Get(can.Duplicate ? "Equaliser_Duplicate" : "Equaliser_SaveAsNew");
         SaveButton.Classes.Set("accent", can.SaveLeads);
@@ -704,6 +759,7 @@ public partial class EqualiserPanel : UserControl
 
             var row = (Row)((Grid)list.Children[index]).Tag!;
             row.Chip.Classes.Set("chosen", selected);
+            ((Grid)list.Children[index]).Classes.Set("chosen", selected);
             row.Pill.IsVisible = selected && edited;
             // The colour says it to the eye; this says it to a screen reader.
             AutomationProperties.SetItemStatus(row.Chip, selected ? Strings.Get("Equaliser_Selected") : "");

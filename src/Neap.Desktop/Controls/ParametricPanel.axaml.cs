@@ -64,6 +64,13 @@ public partial class ParametricPanel : UserControl
     /// <summary>Raised after the adjustments change, so the equaliser can repaint around them.</summary>
     public event Action? Changed;
 
+    /// <summary>The height of the curve, set by the page to fit the window.</summary>
+    public double CurveHeight
+    {
+        get => Shape.Height;
+        set => Shape.Height = value;
+    }
+
     public ParametricPanel()
     {
         InitializeComponent();

@@ -92,6 +92,7 @@ internal static class HighContrast
         Brush("NeapInsetBrush", p.Window);
         Brush("NeapQuietHoverBrush", p.Window);
         Brush("NeapPresetHoverBrush", p.Window);
+        Brush("NeapCurveGapBrush", p.Gray);
         Brush("NeapPresetSelectedBrush", p.Window);
 
         // Cards, setting rows and tiles share the window colour here, so an outline is all that sets their edge.
