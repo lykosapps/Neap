@@ -111,3 +111,42 @@ dotnet test --project tests/Neap.Core.Tests -c Release
 dotnet format Neap.sln --verify-no-changes
 dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained
 ```
+
+## Working with the owner
+
+These rules travel with the repository, so they apply on any Claude account or
+machine. The reasons and the cases behind them are in `knowledge/`.
+
+- **Read first.** At the start of a session, read `knowledge/INDEX.md`, then
+  the newest hand-over note in `.claude/` (local only) if there is one.
+- **Knowledge is append-only.** Never delete or replace text in `knowledge/`.
+  Mark it `SUPERSEDED (date, reason)` and add the new text beside it. New
+  durable facts go into `knowledge/` or the project documents, never only into
+  local Claude memory.
+- **Reply format.** Lead with the answer in bold, in the first sentence. Use
+  `###` headers, `---` dividers and bold-lead bullets, put technical terms in
+  backticks, and keep the explanations. This replaces the Tenon working
+  standard's length and no-paths rules here.
+- **Device actions.** Safe reads and commands that don't persist go ahead on
+  the real headset without asking. Writes to chip settings or firmware, and
+  anything else that persists, need an explicit go-ahead, asked with a 1 to 5
+  risk rating, what could go wrong and the expected outcome. Stop the try-it
+  copy before opening the control collection, since a second reader steals
+  its reports.
+- **Delegate.** Hand self-contained work to subagents and always name the
+  model: Sonnet by default, Haiku for lookups and checks, and the main session
+  for judgement and for checking their work before it is committed.
+- **Run long work in the background,** with a time limit and a log file, and
+  say in a line what is running.
+- **Don't take the screen.** Checks that raise windows wait until the owner
+  says they are away. Real launches against the headset follow the safeguards
+  in `knowledge/feedback_no_real_launch.md`.
+- **Once approved, carry it through,** side steps included. When the owner is
+  away, batch anything that needs approval to the very end.
+- **Label files.** Say whether each file mentioned is in the repo, local only,
+  or outside the project.
+- **"Mirror"** in a message means: restate it in cleaner words first.
+- **Testers get one-step asks:** one thing they can send whole, with exact
+  steps.
+
+Everything else: `knowledge/INDEX.md`.

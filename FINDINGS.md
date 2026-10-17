@@ -361,6 +361,12 @@ measures the 2.4 GHz link *(inferred)*. `0x300` accepts a write and keeps it
 across a power cycle, but is not a Bluetooth switch: Bluetooth connects
 either way.
 
+One write to the Bluetooth flag key, during early probing, made every
+physical button on the headset stop responding. Nothing else was written at
+the time, and taking the battery out fixed it. It has not happened again and
+the cause was never found, so treat writes to this key range as riskier than
+other settings until it is understood *(measured, once)*.
+
 ### Mix, microphone and noise
 
 | Key | Meaning |

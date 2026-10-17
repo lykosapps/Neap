@@ -1,0 +1,38 @@
+RETIRED 2026-10-17: old memory index of the orphaned folder E:\Dev\neap\neap; see ../INDEX.md
+
+- [Parsers must not drop silently](parsers-must-not-drop-silently.md) — a pattern that only matches what you expect turns "cannot parse" into "does not exist"; cost three wrong conclusions on the headset protocol
+- [Read the vendor's own files](read-the-vendors-own-files.md) — the vendor app's config and state files name the structures captures only show anonymously; this is what cracked the preset listing
+- [Confirm which device you're addressing](confirm-which-device-youre-addressing.md) — a command sent to the wrong device answers happily; prove the target before trusting any result
+- [Semantics come from the manual](semantics-come-from-the-manual.md) — a control that sends nothing isn't broken, it acts somewhere else; the vendor's support docs named the Master Volume toggle as a mute in one line
+- [Suspect our code before the hardware](suspect-our-code-before-the-hardware.md) — "intermittent" device faults are usually two code paths of ours; cost two wrong write-ups in one session
+- [Reading it back proves nothing](reading-it-back-proves-nothing.md) — a value that round-trips confirms the write, not the effect; cost an hour on the audio format
+- [Design by removal, not addition](design-by-removal-not-addition.md) — show what is needed at that moment and nothing more; fix a confusing state by replacing it, not by adding a control to explain it
+- [Taskbar quick access wanted](taskbar-quick-access-wanted.md) — the WinUI app is a normal window, but a small taskbar panel for mid-game controls is the eventual intent; keep those controls separable
+- [Test the build you ship](test-the-build-you-ship.md) — a dev build that runs proves nothing about the release build; the WinUI app ran all session in Debug and crashed on every Release launch
+- [Drive the app through accessibility](drive-the-app-through-accessibility.md) — injected clicks never reach the WinUI content; UI Automation does, and it is the only way to verify UI work unattended
+- [A mechanism is not an affordance](a-mechanism-is-not-an-affordance.md) — if two things are possible, show two controls; a second meaning reachable only by guessing is not being offered
+- [Sample, do not snapshot](sample-dont-snapshot.md) — one reading after the fact measures where a value settled, not whether it moved; cost a wrong finding on the chat wheel
+- [Never round-trip source through PowerShell](never-round-trip-source-through-powershell.md) — Get-Content | Set-Content mangles non-ASCII silently; it turned five files of em dashes and icon glyphs into tofu
+- [The machine is in use](the-machine-is-in-use.md) — the owner uses the PC all day while I work; state moving, gaps and volume changes are normal — a line at most, never dig in; no on-screen UI runs while they work
+- [Public identity and commits](public-identity-and-commits.md) — commit as lykosapps, in UTC, with no AI trailer; the old history is a bundle and never gets pushed
+- [Act without asking once approved](act-without-asking-once-approved.md) — after a yes, carry it through (app restarts, branch moves) without asking again at each step
+- [Ask about effort before each part](ask-about-effort-before-each-part.md) — before each review part, say whether the model and effort suit it, then wait
+- [Review runs through without stopping](review-runs-through-without-stopping.md) — finish review Parts 5–7 unattended; hardware checks and decisions batched for the end
+- [Standard checks to add](standard-checks-to-add.md) — formatting check before each commit is on (26 Sep); to do: standards review and required checks per pull request once on GitHub
+- [Close only your own copies](close-only-your-own-copies.md) — other sessions run Neap too; stop only your build folder's copies and wait for another pretend run
+- [Redesign review verdict](redesign-review-verdict.md) — A is the base, rebuilt fresh from main; all eight decisions accepted as recommended
+- [Fixes left on option branches](fixes-left-on-option-branches.md) — the rebuild came from main and lost fixes made on the redesign branches; search all branches before debugging a known-looking bug
+- [Backlog lives in the repo](backlog-lives-in-repo.md) — bugs, features and to-dos go in BACKLOG.md; add new ones there, remove lines when done
+- [Neap folders](neap-folders.md) — since 25 Sep: E:\Dev\neap\neap (project), \build (daily copy, start with Windows), \archive (bundles, USB captures)
+- [Update Tenon plugins](update-tenon-plugins.md) — after a Tenon commit, run plugin update with the desktop app's claude.exe; new sessions pick it up
+- [Claude account per project](claude-account-per-project.md) — Tenon/Neap = personal Claude (gmail); gmail is right; work email means the stale record returned
+- [Parametric EQ direction](parametric-eq-direction.md) — built 25 Sep with test tone; decisions made along the way
+- [Always update the daily copy](always-update-daily-copy.md) — publish every committed Neap change to E:\Dev\neap\build without asking
+- [Other headsets support](other-headsets-support.md) — which Turtle Beach models could work, what's blocked, community plan once public
+- [No prompts while away](away-no-prompts.md) — batch prompt-raising steps to the end when the owner is away
+- [Tenon process kit](tenon-process-kit.md) — cross-project skills plugin, private repo; decisions, build waves, status
+- [Neap app data is sandboxed for Claude](neap-appdata-sandboxed.md) — shell sees a stale copy of Neap's log; read the real one via an unsandboxed process
+- [Efficient verification](efficient-verification.md) — fast/headless checks first; run the full pretend walk once, not in a loop
+- [Diagnose the symptom, not my own innocence](diagnose-symptom-not-blame.md) — check the likely specific cause first, before generic health checks or self-defense
+- [Dolby Access per-profile EQ](dolby-access-eq-per-profile.md) — no public API; app-service channel is packaged-apps-only; found the value in Dolby's own settings file but hadn't proven it's per-profile before the session broke off
+- [Bluetooth-flag write bricked buttons](bluetooth-flag-write-bricked-buttons.md) — writing that key once stopped every headset button responding; battery pull fixed it, cause never found
