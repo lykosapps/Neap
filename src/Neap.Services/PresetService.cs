@@ -72,6 +72,12 @@ public sealed class PresetService
     /// <summary>How many times where the banks were left has been noted; only the latest note is written.</summary>
     private int _leaves;
 
+    /// <summary>Each bank's Compare, where the curve taken off the headset is kept until it is put back.</summary>
+    private readonly Dictionary<Bank, CompareHold> _compares = new();
+
+    /// <summary>How many writes to a band have been refused, so a run of writes can tell whether any was.</summary>
+    private int _refusals;
+
     /// <remarks>
     /// Follows the headset before any screen paints from it: the service
     /// subscribes first, so every screen sees the preset chosen on the
@@ -83,6 +89,11 @@ public sealed class PresetService
         _headset.Changed += () =>
         {
             foreach (var state in _banks.Values) Follow(state);
+        };
+        _headset.Wrote += attempt =>
+        {
+            if (attempt.Refused is not null && _banks.Values.Any(state => state.Spec.Bands.Contains(attempt.Key)))
+                Interlocked.Increment(ref _refusals);
         };
     }
 
@@ -287,6 +298,119 @@ public sealed class PresetService
         if (!_banks.TryGetValue(bank, out var state)) return;
         if (index < 0 || index >= state.Spec.Bands.Count) return;
         _headset.SetKey(state.Spec.Bands[index], Math.Clamp(PresetStore.Snap(tenths), BandFloor, BandCeiling));
+    }
+
+    /// <summary>The curve as an undo would put it back, or null if the headset has not reported its bands.</summary>
+    public EqualiserSnapshot? Snapshot(Bank bank) =>
+        _banks.TryGetValue(bank, out var state) && LiveBands(state) is { } live
+            ? new EqualiserSnapshot(live, _adjustments.TryGetValue(bank, out var held) ? held.ToList() : null, state.Baseline?.Id)
+            : null;
+
+    /// <summary>Puts a curve back the way an edit does: the preset first, if it was another, then whichever bands or adjustments differ.</summary>
+    /// <remarks>
+    /// A preset that has since been deleted cannot be chosen again, so the
+    /// bands are put back under whichever preset the curve is on now.
+    /// </remarks>
+    public async Task Restore(Bank bank, EqualiserSnapshot snapshot)
+    {
+        if (!_banks.TryGetValue(bank, out var state)) return;
+
+        if (snapshot.BaselineId != state.Baseline?.Id
+            && state.Presets.FirstOrDefault(p => p.Id == snapshot.BaselineId) is { } preset)
+        {
+            await Select(bank, preset);
+            // Choosing a preset made parametrically opens it parametrically,
+            // which is not how the curve was shaped.
+            if (snapshot.Adjustments is null && IsParametric(bank)) UseBands(bank);
+        }
+
+        if (snapshot.Adjustments is { } adjustments)
+        {
+            SetAdjustments(bank, adjustments);
+            return;
+        }
+        var live = LiveBands(state);
+        for (int i = 0; i < snapshot.Bands.Count; i++)
+            if (live is null || live[i] != snapshot.Bands[i]) SetBand(bank, i, snapshot.Bands[i]);
+    }
+
+    // -- compare -----------------------------------------------------------
+
+    /// <summary>Whether the headset is playing the bank flat for a comparison.</summary>
+    public bool IsComparing(Bank bank) => _compares.TryGetValue(bank, out var hold) && hold.Held;
+
+    /// <summary>
+    /// Plays the bank flat, to hear the curve against none, by writing 0 dB to
+    /// each band the way an edit does.
+    /// </summary>
+    /// <remarks>
+    /// The curve is kept here and put back by <see cref="EndCompare"/>. Only
+    /// the bands change: the preset, the adjustments and the saved presets are
+    /// left alone.
+    /// </remarks>
+    /// <returns>Whether the headset took every write.</returns>
+    public async Task<bool> BeginCompare(Bank bank)
+    {
+        if (!_banks.TryGetValue(bank, out var state) || LiveBands(state) is not { } live) return false;
+        var hold = Compare(bank);
+        if (hold.Press(live) is not { } flat) return true;
+
+        if (await WriteBands(state, flat)) return true;
+        hold.PressFailed();
+        AppLog.Write($"compare: the {bank} equaliser could not be played flat");
+        return false;
+    }
+
+    /// <summary>Puts the curve back after a comparison, or tries again after a restore that failed.</summary>
+    /// <returns>Whether the headset took every write, which is also true when nothing was owed.</returns>
+    public async Task<bool> EndCompare(Bank bank)
+    {
+        if (!_banks.TryGetValue(bank, out var state) || !_compares.TryGetValue(bank, out var hold)) return true;
+        if (hold.Release() is not { } curve) return true;
+
+        if (await WriteBands(state, curve)) return true;
+        hold.RestoreFailed(curve);
+        AppLog.Write($"compare: the {bank} equaliser's curve could not be put back");
+        return false;
+    }
+
+    /// <summary>Puts back every curve taken off for a comparison, for when the app is closing; the writes are queued, not waited for.</summary>
+    public void EndAllCompares()
+    {
+        foreach (var (bank, hold) in _compares)
+            if (_banks.TryGetValue(bank, out var state) && hold.Release() is { } curve)
+                QueueBands(state, curve);
+    }
+
+    private CompareHold Compare(Bank bank)
+    {
+        if (!_compares.TryGetValue(bank, out var hold)) _compares[bank] = hold = new CompareHold();
+        return hold;
+    }
+
+    private void QueueBands(BankState state, IReadOnlyList<int> target)
+    {
+        for (int i = 0; i < target.Count; i++) SetBand(state.Bank, i, target[i]);
+    }
+
+    /// <summary>Writes every band and waits until the headset has had them all.</summary>
+    /// <remarks>
+    /// The headset sends no reply to a set. A write refused or lost before it
+    /// is sent is raised as it happens, and a job queued after the writes
+    /// finishes once they have all been tried, so counting the refusals
+    /// across it says whether any was.
+    /// </remarks>
+    private async Task<bool> WriteBands(BankState state, IReadOnlyList<int> target)
+    {
+        int refusedBefore = Volatile.Read(ref _refusals);
+        QueueBands(state, target);
+        try { await _headset.Post(_ => true); }
+        catch (Exception ex)
+        {
+            AppLog.Write($"compare: the headset did not take the {state.Bank} equaliser's bands: {ex.Message}");
+            return false;
+        }
+        return Volatile.Read(ref _refusals) == refusedBefore;
     }
 
     /// <summary>Select a preset.</summary>

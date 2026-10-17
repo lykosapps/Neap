@@ -1709,4 +1709,46 @@
   <data name="State_MixWithDial" xml:space="preserve">
     <value>You can still move the mix with the dial.</value>
   </data>
+  <data name="Equaliser_Compare.Content" xml:space="preserve">
+    <value>Compare</value>
+  </data>
+  <data name="Equaliser_Compare.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Hold to hear it flat</value>
+  </data>
+  <data name="Equaliser_Flat.Text" xml:space="preserve">
+    <value>Hearing it flat</value>
+  </data>
+  <data name="Equaliser_CompareFlatFailed" xml:space="preserve">
+    <value>Couldn't play it flat. Let go of Compare to put your curve back.</value>
+  </data>
+  <data name="Equaliser_CompareRestoreFailed" xml:space="preserve">
+    <value>Couldn't put your curve back on the headset. Hold Compare and let go to try again.</value>
+  </data>
+  <data name="Equaliser_Undo.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Equaliser_Undo.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Equaliser_Redo.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="Equaliser_Redo.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="Equaliser_CurveName" xml:space="preserve">
+    <value>Equaliser curve</value>
+  </data>
+  <data name="Equaliser_CurveHelp" xml:space="preserve">
+    <value>Left and Right choose a band. Up and Down change it.</value>
+  </data>
+  <data name="Parametric_CurveName" xml:space="preserve">
+    <value>Adjustments curve</value>
+  </data>
+  <data name="Parametric_CurveHelp" xml:space="preserve">
+    <value>Up and Down change the gain. Left and Right change the frequency.</value>
+  </data>
+  <data name="Parametric_Bubble" xml:space="preserve">
+    <value>{0}, {1} dB</value>
+  </data>
 </root>

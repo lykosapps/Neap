@@ -364,6 +364,29 @@ public static class ParametricEq
     }
 
     /// <summary>
+    /// Where an arrow key moves an adjustment: its gain by a step, and its
+    /// frequency by a twelfth of an octave, or a third with Shift held.
+    /// </summary>
+    /// <param name="start">The adjustment as it is.</param>
+    /// <param name="across">1 for Right, -1 for Left, otherwise 0.</param>
+    /// <param name="up">1 for Up, -1 for Down, otherwise 0.</param>
+    /// <param name="coarse">Shift is held.</param>
+    public static Adjustment Nudged(Adjustment start, int across, int up, bool coarse)
+    {
+        int frequency = start.Frequency;
+        if (across != 0)
+        {
+            double moved = start.Frequency * Math.Pow(2, across * (coarse ? 1.0 / 3 : 1.0 / 12));
+            double step = Math.Pow(10, Math.Floor(Math.Log10(moved)) - 2);
+            frequency = (int)(Math.Round(moved / step) * step);
+            // Rounding must not hold the point where it is.
+            if (frequency == start.Frequency) frequency += across;
+        }
+        int gain = start.Gain + up * ResponseCurve.KeyStep(coarse);
+        return (start with { Frequency = frequency, Gain = gain }).Held();
+    }
+
+    /// <summary>
     /// The frequency at a point across a plot of this width, held inside the
     /// range and rounded to three significant figures.
     /// </summary>

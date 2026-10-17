@@ -268,4 +268,39 @@ public class ParametricEqTests
     [InlineData(275, 11200)]
     public void APointAcrossThePlotMeansAFrequencyInsideTheRange(double x, int frequency) =>
         Assert.Equal(frequency, ParametricEq.FrequencyAt(x, 300));
+
+    [Fact]
+    public void ArrowKeysMoveGainByAStepAndFrequencyByATwelfthOfAnOctave()
+    {
+        var start = new Adjustment(1000, 0, 10);
+
+        var up = ParametricEq.Nudged(start, 0, 1, coarse: false);
+        var right = ParametricEq.Nudged(start, 1, 0, coarse: false);
+        var left = ParametricEq.Nudged(start, -1, 0, coarse: false);
+
+        Assert.Equal(PresetStore.BandStep, up.Gain);
+        Assert.Equal(1000, up.Frequency);
+        Assert.Equal(1060, right.Frequency);
+        Assert.Equal(944, left.Frequency);
+    }
+
+    [Fact]
+    public void ShiftMovesFourStepsAndAThirdOfAnOctave()
+    {
+        var start = new Adjustment(1000, 0, 10);
+
+        var moved = ParametricEq.Nudged(start, 1, -1, coarse: true);
+
+        Assert.Equal(-4 * PresetStore.BandStep, moved.Gain);
+        Assert.Equal(1260, moved.Frequency);
+    }
+
+    [Fact]
+    public void ArrowKeysStayInsideTheRangeAndAlwaysMoveALowFrequency()
+    {
+        Assert.Equal(Adjustment.LowestFrequency, ParametricEq.Nudged(new Adjustment(20, 0, 10), -1, 0, false).Frequency);
+        Assert.Equal(Adjustment.HighestFrequency, ParametricEq.Nudged(new Adjustment(20000, 0, 10), 1, 0, true).Frequency);
+        Assert.Equal(Adjustment.MostGain, ParametricEq.Nudged(new Adjustment(1000, 90, 10), 0, 1, true).Gain);
+        Assert.NotEqual(20, ParametricEq.Nudged(new Adjustment(20, 0, 10), 1, 0, false).Frequency);
+    }
 }
