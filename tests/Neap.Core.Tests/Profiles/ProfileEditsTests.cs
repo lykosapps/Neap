@@ -31,9 +31,9 @@ public class ProfileEditsTests
     public void ASavedPresetThatIsNowUnnamedIsAnEdit() =>
         Assert.True(ProfileEdits.IsEdited(With("Bass Boost", "Clarity"), With(null, "Clarity")));
 
-    /// <summary>An Atlas Air has no noise cancellation, dial or Mode button, and reads them as nothing.</summary>
+    /// <summary>An Atlas Air has no noise cancellation, AI noise reduction, dial or Mode button, and reads them as nothing.</summary>
     private static ProfileSettings OnAnAtlasAir(int autoShutoff = 0) => new(
-        NoiseMode.Off, 0, false, 0, 0, false, 0, false, 0,
+        NoiseMode.Off, 0, false, 0, 0, false, 0, false, 50,
         "Bass Boost", "Clarity", SpatialFormat.Off, autoShutoff, new ModeChoice(0, false), 0);
 
     [Fact]
@@ -73,13 +73,13 @@ public class ProfileEditsTests
     /// <summary>A profile that waited on a setting the headset lacks or Neap cannot read would never be ready.</summary>
     [Theory]
     [InlineData("auto_shutoff", true)]
-    [InlineData("ai_noise_reduction", true)]
+    [InlineData("ai_noise_reduction", false)]
     [InlineData("anc", false)]
     [InlineData("mode_button_function", false)]
     [InlineData("dial_function", false)]
     [InlineData("superhuman_hearing", false)]
     [InlineData("noise_gate", false)]
-    [InlineData("mic_monitoring", false)]
+    [InlineData("mic_monitoring", true)]
     public void AnAtlasAirsProfileHoldsOnlyWhatItCanRead(string setting, bool held) =>
         Assert.Equal(held, ProfileGate.Holds(HeadsetModels.AtlasAir, setting));
 

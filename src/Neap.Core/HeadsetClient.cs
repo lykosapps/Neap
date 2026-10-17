@@ -133,7 +133,8 @@ public sealed class HeadsetClient : IDisposable
                 failed?.Invoke(device.Path, client.Unanswered is { } heard
                     ? new InvalidDataException($"it sent something other than the reply asked for: {heard}")
                     : new TimeoutException($"it opened and gave no answer: {client._reads} reads of "
-                        + $"{device.InputLength} bytes with nothing in them, to a request of {device.OutputLength} bytes"));
+                        + $"{device.InputLength} bytes with nothing in them, to a request of {device.OutputLength} bytes, "
+                        + $"from {client.Device}"));
             }
             catch (Exception ex)
             {

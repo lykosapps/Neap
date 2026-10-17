@@ -11,14 +11,14 @@ answers, so nothing works there yet.
   updated 20 March 2026.
 - **Testers:** one on Windows, one on Linux (CachyOS), on
   [issue 1](https://github.com/lykosapps/Neap/issues/1).
-- **Latest test build:** 0.2.1.3.
+- **Latest test build:** 0.2.1.3. 0.2.1.4 is built, not yet published.
 
 ## Connection
 
 | System | Neap connects | How sure | Next |
 |---|---|---|---|
 | Windows | Yes, through the USB Transmitter | Confirmed | — |
-| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | Find why; see Next. |
+| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | 0.2.1.4 also reads what Linux queues from the input side; ask for a recording. |
 
 ## Features
 
@@ -43,7 +43,7 @@ answers, so nothing works there yet.
 | Microphone mute | Listed | Yes | Has | Seen | Blocked | `0x600` | Shows on at start with the boom up; see Problems. |
 | Sensitivity | Listed | Yes | Has | Fails | Blocked | Done on the PC; on the Stealth Pro II `0x610` mirrors the PC's microphone level. Swarm II writes `0x610` here, 0–100 (Read). | Jumps to 100% when the tester speaks; see Problems. |
 | Monitoring, on/off | Listed | Unknown: Swarm II's switch writes nothing | Hidden | Untried | Blocked | Swarm II's switch writes nothing (Read) | Probably no on/off; the level alone. |
-| Monitoring, level | Listed | Yes, at `0x630` (Read) | Hidden | Untried | Blocked | `0x630`, 0–100 (Read) | Offer at `0x630` in a test build. |
+| Monitoring, level | Listed | Yes, at `0x630` (Read) | Has, test | Untried | Blocked | `0x630`, 0–100 (Read) | In 0.2.1.4; ask the tester to listen. |
 | Noise gate, on/off | Listed | Yes | Has, test | Confirmed | Blocked | `0x700` | — |
 | Noise gate, level | Listed | Yes | Has, test | Confirmed | Blocked | `0x710` | Heard clear at 0%, cut at 50%, almost muted at 100%. |
 | High Bandwidth Microphone | Listed | Probably, through the PC's sound format | Missing | Read | Blocked | Probably the PC's sound format: the transmitter offers 16 and 48 kHz | As High Bandwidth Audio. |
@@ -67,8 +67,8 @@ answers, so nothing works there yet.
 | Drivers status, platform | Listed | — | Not planned | — | — | — | Swarm II's own drivers; nothing for Neap to show. |
 | Auto shut-off (never, 5, 10, 20, 30 min) | Listed | Yes | Has | Seen | Blocked | `0x280` | Ask the tester to check one. |
 | Battery pop-up warnings | Listed | Yes, on the PC | Missing | — | — | Done on the PC | Decide whether Neap should warn. |
-| Transmitter light brightness | Listed | Yes, at `0x430` (Read) | Wrong | Fails | Blocked | Neap writes `0x401`; Swarm II uses `0x430` in group `TX`, 0–100 (Read) | Move to `0x430` in a test build. On the Stealth Pro II `0x430` is inside the second transmitter slot, so check the Atlas Air reports it in `TX` before writing. |
-| Voice and tone prompt level | Listed | Yes | Wrong | Fails | Blocked | `0xC00`; Swarm II's range is 0–15 (Read) | Map the slider to 0–15. The tester heard changes only up to about 20. |
+| Transmitter light brightness | Listed | Yes, at `0x430` (Read) | Has, test | Untried | Blocked | `0x430` in group `TX`, 0–100 (Read) | In 0.2.1.4: written and read there. Ask the tester. |
+| Voice and tone prompt level | Listed | Yes | Has, test | Untried | Blocked | `0xC00`, 0–15 (Read) | 0–15 in 0.2.1.4; ask whether every step changes it. |
 | Firmware updates | Listed | Yes, but Neap never writes firmware | Not planned | — | — | — | Neap never writes firmware. |
 
 ### Swarm II's own settings
@@ -96,9 +96,9 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| AI noise reduction | Not listed | No: the headset doesn't have it | Hide | Fails | — | Neap writes `0x630`, which is mic monitoring here | Not in Turtle Beach's list; Swarm II's switch writes nothing. Hide it. |
+| AI noise reduction | Not listed | No: the headset doesn't have it | Hidden | Fails | — | Neap writes `0x630`, which is mic monitoring here | Not offered from 0.2.1.4. |
 | Dial and button functions | Not listed; the mobile article lists them, the quick start guide doesn't | No: Swarm II writes none | Hidden | — | — | `0xA00`–`0xB20`, never written by Swarm II (Read) | Already hidden on the Atlas Air. |
-| Headset name | — | Yes | Wrong | Fails | — | `0x220` holds "My Headset" | Swarm II always shows "Atlas Air". Show the model name, and not "Stealth Pro II" when nothing is connected. |
+| Headset name | — | Yes | Has | Untried | — | `0x220` holds "My Headset" | "Atlas Air" from 0.2.1.4, and "Headset" with nothing connected. |
 
 ## Problems
 
@@ -114,16 +114,16 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 ## Next
 
-- [ ] Linux: a test build that also listens for answers on the input side of
-      the control channel, and logs what it hears there.
+- [x] Linux: a test build that also listens for answers on the input side of
+      the control channel, and logs what it hears there. In 0.2.1.4.
 - [ ] Ask the Linux tester whether the headset was on the transmitter, not
       Bluetooth, while recording.
-- [ ] Test build 0.2.1.4, Windows:
-  - [ ] voice prompts on 0–15
-  - [ ] transmitter light at `0x430`
-  - [ ] mic monitoring level at `0x630`
-  - [ ] hide AI noise reduction
-  - [ ] show "Atlas Air" as the name
+- [ ] Publish test build 0.2.1.4 and ask both testers to try it. Built:
+  - [x] voice prompts on 0–15
+  - [x] transmitter light at `0x430`
+  - [x] mic monitoring level at `0x630`
+  - [x] hide AI noise reduction
+  - [x] show "Atlas Air" as the name
 - [ ] Fix the microphone state at start and the sensitivity jump, once the
       tester has tried 0.2.1.3's slider fix.
 - [ ] Ask the Windows tester to check the equalisers, a custom preset, auto
@@ -135,6 +135,8 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-10-17 — 0.2.1.4 built from the plugin's findings: the changes in Next,
+  checked by the tests against the pretend Atlas Air. The screen check and the headset are still to come.
 - 2026-10-17 — Turtle Beach's Swarm II article for the Atlas Air read: the
   feature list above. It has no AI noise reduction, no dial or button
   functions and no noise cancellation.

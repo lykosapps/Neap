@@ -194,7 +194,12 @@ public static class Registry
             R(0x820, "atlas_shh_level", "SHH", 0, 100, note: "Superhuman Hearing intensity"),
             R(0x830, "atlas_shh_unknown_830", "SHH", writable: false,
               note: "UNCONFIRMED. The fourth value in Swarm's Superhuman Hearing group"),
-            R(0xC00, "atlas_voice_prompt_volume", "Prm", 0, 100),
+            R(0xC00, "atlas_voice_prompt_volume", "Prm", 0, 15,
+              note: "0 to 15, the range of Swarm II's slider for it, read from its Atlas Air plugin"),
+            R(0x430, "atlas_transmitter_light", "TX", 0, 100,
+              note: "UNCONFIRMED. The Atlas Air's transmitter light, from Swarm II's plugin for it. "
+                  + "On the Stealth Pro II this key is inside the second transmitter's block, which "
+                  + "only the Atlas Air's own key is ever written to"),
             R(0xC10, "atlas_prm_unknown_c10", "Prm", writable: false,
               note: "UNCONFIRMED. The second value in Swarm's voice prompt group"),
             R(0x640, "mic_unknown_640", "Mic", writable: false,

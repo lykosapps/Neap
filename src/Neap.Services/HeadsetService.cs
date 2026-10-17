@@ -762,9 +762,15 @@ public sealed class HeadsetService : IDisposable
     /// mean "the LEDs of the transmitter you are using" for reads and writes
     /// alike.
     /// </para>
+    /// <para>
+    /// A headset that keeps its light elsewhere, as the Atlas Air does, has
+    /// it in <see cref="HeadsetModel.OwnKeys"/>, which comes first.
+    /// </para>
     /// </remarks>
     private int OnTheWire(int key) =>
-        key is 0x401 or 0x402 ? _lightingBlock + (key - 0x400) : HeadsetModels.KeyOnHeadset(Model, key);
+        key is 0x401 or 0x402 && Model?.OwnKeys.ContainsKey(key) != true
+            ? _lightingBlock + (key - 0x400)
+            : HeadsetModels.KeyOnHeadset(Model, key);
 
     /// <summary>The groups of settings to ask the connected headset for: every headset's, and any of its own.</summary>
     private IEnumerable<string> Categories() => Verbs.SettingCategories.Concat(Model?.ExtraCategories ?? []);

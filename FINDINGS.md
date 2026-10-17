@@ -154,6 +154,35 @@ to the first question, with nothing at all coming back. Only one collection
 is asked, so a wrong choice between the two plugged in is ruled out *(measured,
 on the tester's PC)*.
 
+Swarm II's plugin for the Atlas Air (`ATLAS_AIR.dll` 1.0.0.24, from the same
+owner's PC), read without running it, settles more *(research)*:
+
+- **AI noise reduction:** the Microphone page's switch calls a function that
+  returns at once, and so does the Monitoring switch. Neither writes
+  anything. Turtle Beach's article for the headset has no AI noise
+  reduction. `0x630` is the mic monitoring level, 0 to 100, which is why it
+  read 20 and went to 0 when Neap's AI noise reduction switch turned it
+  "off".
+- **Voice prompts:** `0xC00` in `Prm`, on a slider from 0 to 15. The tester
+  heard no change above about 20.
+- **Transmitter light:** `0x430` in a group `TX`, 0 to 100, not the Stealth Pro
+  II's `0x401`. On the Stealth Pro II `0x430` is inside the second
+  transmitter slot's block, so only the Atlas Air's own key is written there.
+- **Name:** always the words "Atlas Air"; `0x220` is never read.
+- **Dial and buttons:** `0xA00` to `0xB20` are only in its list of defaults,
+  never written.
+- **Superhuman Hearing:** the switch seems to go to Swarm II's Waves audio
+  software on the PC, not `0x800`. This clashes with the tester hearing
+  Superhuman Hearing work from Neap's writes to `0x800` to `0x820`, and the
+  tester's ears win.
+- `0x830` and `0xC10` are never used.
+
+The Linux tester's USB listing shows the transmitter's control interface
+(interface 3) with an interrupt input and no interrupt output, so Linux sends
+Neap's requests as SET_REPORT on the control pipe, as Windows does
+*(measured, on the tester's PC)*. Linux also queues what the interrupt input
+carries for a read, which Neap does not otherwise read.
+
 ### Which headsets share the platform
 
 Swarm II's catalogue (`settings.json`, a zlib-compressed JSON list of 140

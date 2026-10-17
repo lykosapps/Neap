@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Neap.Core;
 using Neap.Core.Connection;
 using Neap.Core.Settings;
 
@@ -105,10 +106,9 @@ public partial class QuickControls : UserControl
         var headset = AppServices.Headset;
         var status = headset.Status;
 
-        // The name its owner gave the headset, where it has one.
         headset.Values.TryGetValue(HeadsetLabel.Key.ToString("x", CultureInfo.InvariantCulture), out var given);
-        HeadsetName.Text = HeadsetLabel.Given(given.ValueKind == JsonValueKind.Undefined ? null : given.ToString())
-            ?? Strings.Get("Headset_Model");
+        HeadsetName.Text = HeadsetModels.Label(headset.Model, given.ValueKind == JsonValueKind.Undefined ? null : given.ToString())
+            ?? Strings.Get("Headset_Unknown");
 
         var look = StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status));
         Tones.Apply(StateDot, look.Tone);

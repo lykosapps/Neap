@@ -23,6 +23,8 @@ and date.
 - On the Atlas Air, Superhuman Hearing and voice prompts use the places
   Swarm II keeps them, rather than the Stealth Pro II's. In testing with an
   owner of one.
+- On the Atlas Air, mic monitoring and the transmitter's light use the places
+  Swarm II keeps them. In testing with an owner of one.
 - The game and chat mix on Home links to its keyboard shortcuts.
 - A recording lists each change Neap sends to the headset beside what the
   headset says, and says why when a change wasn't sent.
@@ -44,8 +46,16 @@ and date.
   settings…". They wait only for settings the headset has.
 - A profile saved on one headset no longer shows as changed on another that
   lacks some of its settings, and saving over it keeps them.
-- Mic monitoring is hidden on the Atlas Air until a tester finds where it is
-  kept. The setting Neap was changing turns on and off with the mute instead.
+- On the Atlas Air, AI noise reduction is no longer offered. The headset
+  doesn't have it, and the switch was changing its mic monitoring level.
+- On the Atlas Air, voice prompts go from 0 to 15, as in Swarm II, so every
+  step changes how loud they are.
+- Home calls the Atlas Air "Atlas Air", as Swarm II does, rather than the name
+  it holds. With nothing connected, it says "Headset" rather than
+  "Stealth Pro II".
+- On Linux, a headset that seems to say nothing is also listened for where
+  Linux keeps what the headset sends unasked. If it still says nothing, the
+  log says what arrived there.
 - What the headset reports, under Device, can be selected and copied, and
   a Copy button puts all of it on the clipboard.
 - Settings and recordings show a test build's full version, such as

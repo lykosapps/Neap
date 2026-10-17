@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Neap.Core;
 using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
@@ -201,7 +202,7 @@ public sealed class SettingRow : SettingsCard
     private void ShowValue(int value)
     {
         if (_readout is not null)
-            _readout.Text = _link.Key is { IsPercent: true }
+            _readout.Text = _link.Key is { } key && HeadsetModels.OnHeadset(AppServices.Headset.Model, key).IsPercent
                 ? Strings.Format("Level_Percent", value)
                 : value.ToString(CultureInfo.CurrentCulture);
     }
@@ -248,7 +249,14 @@ public sealed class SettingRow : SettingsCard
         Known(true);
 
         if (_toggle is not null) _toggle.IsChecked = value == 1;
-        if (_slider is not null) { _slider.Value = value; ShowValue(value); }
+        if (_slider is not null)
+        {
+            // The headset in use may keep the setting elsewhere, with a range
+            // of its own.
+            _slider.Maximum = HeadsetModels.OnHeadset(AppServices.Headset.Model, key).Maximum ?? 100;
+            _slider.Value = value;
+            ShowValue(value);
+        }
         if (_choice is not null)
             foreach (var item in _choice.Items.OfType<ComboBoxItem>())
                 if (item.Tag is int tag && tag == value) { _choice.SelectedItem = item; break; }

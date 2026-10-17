@@ -579,8 +579,8 @@
   <data name="List_Last" xml:space="preserve">
     <value>{0} and {1}</value>
   </data>
-  <data name="Headset_Model" xml:space="preserve">
-    <value>Stealth Pro II</value>
+  <data name="Headset_Unknown" xml:space="preserve">
+    <value>Headset</value>
   </data>
   <data name="Headset_Looking" xml:space="preserve">
     <value>Looking for the headset…</value>

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using Neap.Core.Diagnostics;
+using Neap.Core.Settings;
 using static Neap.Core.Transmitters;
 
 namespace Neap.Core;
@@ -53,6 +54,9 @@ public sealed record HeadsetModel(
 
     /// <summary>The groups of settings it has besides those every headset is asked for.</summary>
     public IReadOnlyList<string> ExtraCategories { get; init; } = [];
+
+    /// <summary>Whether the name its owner gave it is shown above its status, rather than <see cref="Name"/>.</summary>
+    public bool ShowsGivenName { get; init; } = true;
 }
 
 /// <summary>The headsets Neap knows.</summary>
@@ -121,8 +125,7 @@ public static class HeadsetModels
     /// something else on it. 0x260 follows the system's output level while
     /// 0x2a0 stays at 100. 0x290 is 1 on its transmitter and 0 while it is
     /// switched to Bluetooth. And 0x620, the Stealth Pro II's mic monitoring,
-    /// turns on and off with the mute, so mic monitoring is left out until
-    /// its tester finds where it is kept.
+    /// turns on and off with the mute, so it is not the Atlas Air's.
     /// </para>
     /// <para>
     /// Swarm II's settings file for it, from the same owner, lists Superhuman
@@ -130,6 +133,14 @@ public static class HeadsetModels
     /// their own, and none of 0x720 to 0x740 or 0x2D0 (see FINDINGS.md). Which
     /// of those is which is read from the order and values in that file, so
     /// <see cref="HeadsetModel.OwnKeys"/> is a test of it, to be confirmed by ear.
+    /// </para>
+    /// <para>
+    /// Swarm II's plugin for it, read without running it, settles four more
+    /// (see FINDINGS.md). Its AI noise reduction switch writes nothing, and
+    /// Turtle Beach's list for the headset has no such feature, so it is not
+    /// offered. 0x630, the Stealth Pro II's AI noise reduction, is its mic
+    /// monitoring level. Its transmitter's light is 0x430, in a group of its
+    /// own. And Swarm always names it "Atlas Air", whatever name it holds.
     /// </para>
     /// </remarks>
     public static readonly HeadsetModel AtlasAir = new(
@@ -142,7 +153,7 @@ public static class HeadsetModels
         new HashSet<Feature>
         {
             Feature.Battery, Feature.MasterVolume, Feature.GameEqualiser, Feature.Microphone,
-            Feature.AiNoiseReduction, Feature.MicrophoneEqualiser,
+            Feature.MicMonitoring, Feature.MicrophoneEqualiser,
             Feature.AutoShutOff, Feature.SuperhumanHearing, Feature.NoiseGate,
             Feature.VoicePrompts, Feature.Lights,
         },
@@ -157,8 +168,11 @@ public static class HeadsetModels
             [0x730] = 0x810,
             [0x740] = 0x820,
             [0x2D0] = 0xC00,
+            [0x620] = 0x630,
+            [0x401] = 0x430,
         },
-        ExtraCategories = ["SHH", "Prm"],
+        ExtraCategories = ["SHH", "Prm", "TX"],
+        ShowsGivenName = false,
     };
 
     public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];
@@ -184,6 +198,15 @@ public static class HeadsetModels
     /// <summary>The key to write a setting to on a headset: its own where it keeps the setting elsewhere, else the one given.</summary>
     public static int KeyOnHeadset(HeadsetModel? model, int key) =>
         model is not null && model.OwnKeys.TryGetValue(key, out int own) ? own : key;
+
+    /// <summary>The registry's entry for where a headset keeps a setting, whose range is the one its controls offer.</summary>
+    public static SettingKey OnHeadset(HeadsetModel? model, SettingKey key) =>
+        Registry.ByKey.TryGetValue(KeyOnHeadset(model, key.Key), out var own) ? own : key;
+
+    /// <summary>The name shown above a headset's status: the one its owner gave it where the headset shows that, else its model's.</summary>
+    /// <returns>Null while no known headset is connected and it has no name.</returns>
+    public static string? Label(HeadsetModel? model, string? given) =>
+        model is { ShowsGivenName: false } ? model.Name : HeadsetLabel.Given(given) ?? model?.Name;
 
     /// <summary>What a headset reported, with each setting it keeps elsewhere moved to the Stealth Pro II's key, where the app looks for it.</summary>
     /// <remarks>

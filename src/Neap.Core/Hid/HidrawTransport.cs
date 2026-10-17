@@ -20,6 +20,12 @@ namespace Neap.Core.Hid;
 /// or read would use the interrupt pipe instead.
 /// </para>
 /// <para>
+/// While the node is open, Linux also polls the interface's interrupt pipe
+/// and queues what arrives there for a read. A device that answers there
+/// rather than to GET_REPORT would look silent, so an empty GET_REPORT is
+/// followed by a look at that queue; see <see cref="GetInput"/>.
+/// </para>
+/// <para>
 /// Describing needs nothing but sysfs, which anyone can read. Opening needs
 /// read and write on the device node, which Linux gives only to root unless
 /// a udev rule says otherwise, so a refusal says so rather than looking like
@@ -32,6 +38,9 @@ public sealed class HidrawTransport : IHidTransport
     private const string Devices = "/sys/class/hidraw";
 
     private readonly SafeFileHandle _handle;
+    private bool _answersOnRequest;
+    private int _queued;
+    private readonly SortedSet<byte> _queuedIds = [];
 
     public string Path { get; }
     public ushort VendorId { get; }
@@ -66,8 +75,14 @@ public sealed class HidrawTransport : IHidTransport
         }
     }
 
+    /// <remarks>
+    /// Says what the interrupt pipe carried while the device gave GET_REPORT
+    /// nothing, as that is the one sign of where a silent device's answers go.
+    /// </remarks>
     public string Describe() =>
-        $"0x{VendorId:x4}:0x{ProductId:x4} usage page 0x{UsagePage:x4} on {Path}";
+        $"0x{VendorId:x4}:0x{ProductId:x4} usage page 0x{UsagePage:x4} on {Path}"
+        + (_queued == 0 ? "" : $", whose interrupt pipe carried {_queued} reports, report ids "
+            + string.Join(", ", _queuedIds.Select(id => $"0x{id:x2}")));
 
     /// <summary>Writes one output report, which must already start with its report id.</summary>
     /// <remarks>An oversized frame is refused rather than trimmed, for the reason on <see cref="HidTransport.SendOutput"/>.</remarks>
@@ -84,12 +99,27 @@ public sealed class HidrawTransport : IHidTransport
     }
 
     /// <summary>Reads one report from the headset, report id included.</summary>
+    /// <remarks>
+    /// <para>
+    /// An empty GET_REPORT, nothing after the report id, is followed by a look
+    /// at what the interrupt pipe has queued, and a queued report with the
+    /// same id is returned in its place. Reports with other ids, such as the
+    /// volume keys', are dropped, as nothing else reads this node.
+    /// </para>
+    /// <para>
+    /// Once GET_REPORT has answered, the queue is left alone, so a device that
+    /// answers there, as the Stealth Pro II does, cannot have a reply read
+    /// twice.
+    /// </para>
+    /// </remarks>
     /// <exception cref="TransportException">The read failed.</exception>
     public byte[] GetInput(byte reportId = HidControl.InReportId)
     {
         var buffer = new byte[InputLength];
         buffer[0] = reportId;
         Control(GetInputNumber, buffer, "HIDIOCGINPUT");
+        if (buffer.AsSpan(1).ContainsAnyExcept((byte)0)) _answersOnRequest = true;
+        else if (!_answersOnRequest && Queued(reportId) is { } queued) return queued;
         return buffer;
     }
 
@@ -127,6 +157,59 @@ public sealed class HidrawTransport : IHidTransport
 
     [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
     private static extern int Ioctl(int descriptor, nuint request, [In, Out] byte[] buffer);
+
+    // -- the interrupt pipe's queue ------------------------------------------
+
+    /// <summary>The first report with <paramref name="reportId"/> waiting on the interrupt pipe, or null when none is.</summary>
+    /// <remarks>Never waits: poll with no timeout says whether a read would block.</remarks>
+    /// <exception cref="TransportException">The poll or read failed.</exception>
+    private byte[]? Queued(byte reportId)
+    {
+        bool added = false;
+        try
+        {
+            _handle.DangerousAddRef(ref added);
+            int descriptor = (int)_handle.DangerousGetHandle();
+            var buffer = new byte[InputLength];
+            while (true)
+            {
+                var poll = new PollDescriptor { Descriptor = descriptor, Events = PollIn };
+                int ready = Poll(ref poll, 1, 0);
+                if (ready < 0)
+                    throw new TransportException($"poll failed ({new Win32Exception(Marshal.GetLastPInvokeError()).Message})");
+                if (ready == 0 || (poll.Returned & PollIn) == 0) return null;
+
+                Array.Clear(buffer);
+                nint read = Read(descriptor, buffer, buffer.Length);
+                if (read < 0)
+                    throw new TransportException($"read failed ({new Win32Exception(Marshal.GetLastPInvokeError()).Message})");
+                if (read == 0) return null;
+                _queued++;
+                _queuedIds.Add(buffer[0]);
+                if (buffer[0] == reportId) return buffer;
+            }
+        }
+        finally
+        {
+            if (added) _handle.DangerousRelease();
+        }
+    }
+
+    private const short PollIn = 0x1;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct PollDescriptor
+    {
+        public int Descriptor;
+        public short Events;
+        public short Returned;
+    }
+
+    [DllImport("libc", EntryPoint = "poll", SetLastError = true)]
+    private static extern int Poll(ref PollDescriptor descriptor, nuint count, int timeout);
+
+    [DllImport("libc", EntryPoint = "read", SetLastError = true)]
+    private static extern nint Read(int descriptor, [Out] byte[] buffer, nint count);
 
     // -- enumeration ---------------------------------------------------------
 
