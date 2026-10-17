@@ -277,17 +277,17 @@
 
     <!-- On a Steam Deck sized window (the touch class on the window) each grows to a 40px target. -->
     <Style Selector="Window.touch Border.segmented">
-        <Setter Property="Height" Value="{StaticResource NeapSegmentTouchHeight}" />
+        <Setter Property="Height" Value="{StaticResource NeapTargetTouch}" />
     </Style>
     <Style Selector="Window.touch Slider /template/ Border#SliderRoot">
-        <Setter Property="MinHeight" Value="{StaticResource NeapSliderTouchHeight}" />
+        <Setter Property="MinHeight" Value="{StaticResource NeapTargetTouch}" />
     </Style>
     <Style Selector="Window.touch Slider /template/ Thumb#NeapThumb">
         <Setter Property="Width" Value="{StaticResource NeapSliderThumbTouch}" />
         <Setter Property="Height" Value="{StaticResource NeapSliderThumbTouch}" />
     </Style>
     <Style Selector="Window.touch ToggleSwitch /template/ Border#SwitchRoot">
-        <Setter Property="MinHeight" Value="{StaticResource NeapSwitchTouchRow}" />
+        <Setter Property="MinHeight" Value="{StaticResource NeapTargetTouch}" />
     </Style>
     <Style Selector="Window.touch ToggleSwitch /template/ Border#SwitchTrack">
         <Setter Property="Width" Value="{StaticResource NeapSwitchTouchWidth}" />
