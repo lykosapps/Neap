@@ -49,6 +49,16 @@ public sealed class HeadsetClient : IDisposable
     /// </remarks>
     internal static readonly TimeSpan AfterWrite = TimeSpan.FromMilliseconds(100);
 
+    /// <summary>The shortest time between two reads while waiting for a reply.</summary>
+    /// <remarks>
+    /// The pace Windows sets on its own: a read there takes about 12 ms, so
+    /// with a short rest it comes to one every 15 ms or so, 190 in three
+    /// seconds on the Atlas Air's Windows tester's PC. A read on Linux takes
+    /// about 1 ms, which would otherwise ask four times as often, faster than
+    /// any headset has been seen to answer reliably.
+    /// </remarks>
+    internal static readonly TimeSpan ReadInterval = TimeSpan.FromMilliseconds(15);
+
     public bool AllowWrites { get; }
 
     /// <summary>
@@ -228,8 +238,10 @@ public sealed class HeadsetClient : IDisposable
         Unanswered = null;
         var values = new Dictionary<string, JsonElement>();
         var clock = Stopwatch.StartNew();
+        var sinceRead = new Stopwatch();
         while (clock.Elapsed < wait)
         {
+            sinceRead.Restart();
             foreach (var evt in Receive())
             {
                 if (evt.Category != category)
@@ -240,7 +252,8 @@ public sealed class HeadsetClient : IDisposable
                 foreach (var pair in evt.Values) values[pair.Key] = pair.Value;
                 if (evt.Kind == "OR") return values;
             }
-            Thread.Sleep(3);
+            var rest = ReadInterval - sinceRead.Elapsed;
+            if (rest > TimeSpan.Zero) Thread.Sleep(rest);
         }
         if (values.Count == 0 && _heard is not null) Unanswered = Convert.ToHexString(_heard);
         return values;

@@ -138,6 +138,15 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-10-17 — Before the headset first answers, Neap runs no Atlas Air
+  code on Linux: the request is the same bytes as for the Stealth Pro II,
+  and the same as on Windows, where the Atlas Air answers. The one
+  difference in Neap's own behaviour is pace: on Linux each read takes
+  about 1 ms, so Neap asked about every 4 ms (750 reads in three seconds),
+  where Windows asks about every 15 ms (190). 0.2.1.4 asks at Windows' pace
+  everywhere, as a test of whether the Atlas Air's transmitter can't keep
+  up.
+
 - 2026-10-17 — The owner's Stealth Pro II Charging Dock lent to Linux (WSL,
   kernel 6.18, through usbipd), plugged in with nothing reading it, on
   `hid-generic` as the tester's transmitter is. Neap's own connect code

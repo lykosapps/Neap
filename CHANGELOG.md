@@ -59,6 +59,8 @@ and date.
 - On Linux, a headset that seems to say nothing is also listened for where
   Linux keeps what the headset sends unasked. If it still says nothing, the
   log says what arrived there.
+- On Linux, Neap waits for the headset's replies at the same pace as on
+  Windows, rather than asking about four times as often.
 - On Linux, a transmitter that stays silent is restarted once, as if it had
   been unplugged and plugged back in, with Neap listening as it comes back.
   Some transmitters answer only if something has listened since they were
