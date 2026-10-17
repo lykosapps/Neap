@@ -1,4 +1,6 @@
 using Avalonia;
+using Avalonia.Automation;
+using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Styling;
@@ -35,6 +37,18 @@ internal static class NeapControls
         Content = content,
         GroupName = group,
     };
+
+    /// <summary>Puts a panel of radio buttons into the accessibility tree as a group, so its name and automation id are reachable.</summary>
+    /// <remarks>
+    /// A plain panel is left out of the tree, and its name and id with it. As a
+    /// group it is announced with its name before the options, and a script can
+    /// find it by the setting it writes.
+    /// </remarks>
+    public static void AsGroup(Control options)
+    {
+        AutomationProperties.SetAccessibilityView(options, AccessibilityView.Content);
+        AutomationProperties.SetControlTypeOverride(options, AutomationControlType.Group);
+    }
 
     /// <summary>A switch with its state in words beside it, at the right of its row.</summary>
     public static ToggleSwitch Switch() => new()

@@ -61,6 +61,7 @@ public partial class QuickSettings : UserControl
                 if (change.Property == IsVisibleProperty) Arrange();
             };
 
+        NeapControls.AsGroup(NoiseModes);
         NoiseOff.Content = Strings.Get("Noise_Off");
         NoiseCancelling.Content = Strings.Get("Noise_Cancelling");
         NoiseTransparent.Content = Strings.Get("Noise_Transparency");

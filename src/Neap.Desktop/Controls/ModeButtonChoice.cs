@@ -79,6 +79,7 @@ public sealed class ModeButtonChoice : UserControl
     private void Build(SettingKey key)
     {
         AutomationProperties.SetAutomationId(_options, key.Name);
+        NeapControls.AsGroup(_options);
         foreach (var choice in ModeButton.Choices)
         {
             string label = choice.Cycles ? Strings.Get("Mode_NoiseCycle") : OptionNames.For(key, choice.Function);

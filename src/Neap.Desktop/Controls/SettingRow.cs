@@ -129,6 +129,7 @@ public sealed class SettingRow : SettingsCard
                 AutomationProperties.SetName(control, spoken);
                 AutomationProperties.SetAutomationId(control, key.Name);
             }
+        if (_buttons is not null) NeapControls.AsGroup(_buttons);
     }
 
     private Control BuildToggle()

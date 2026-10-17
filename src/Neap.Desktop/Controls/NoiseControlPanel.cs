@@ -41,6 +41,7 @@ public sealed class NoiseControlPanel : UserControl
         string title = Strings.Get("Noise_Title");
         AutomationProperties.SetName(_modes, title);
         AutomationProperties.SetAutomationId(_modes, "noise_control");
+        NeapControls.AsGroup(_modes);
         foreach (var mode in Modes)
         {
             var button = NeapControls.Segment(Strings.Get(QuickSettings.NoiseModeWord(mode)), "noise_control");
