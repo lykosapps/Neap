@@ -115,7 +115,7 @@ public partial class TransmittersPanel : UserControl
     private static Border Panel(TransmitterRow row, Control? lights)
     {
         bool inUse = row.State == TransmitterState.InUse;
-        var top = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 12 };
+        var top = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
         top.Children.Add(new TextBlock
         {
             Text = row.Name,
@@ -136,7 +136,7 @@ public partial class TransmittersPanel : UserControl
         Grid.SetColumn(state, 1);
         top.Children.Add(state);
 
-        var body = new StackPanel { Spacing = 8, Children = { top } };
+        var body = new StackPanel { Spacing = Space.S, Children = { top } };
         string detail = row.State switch
         {
             TransmitterState.SelectedButUnplugged => Strings.Get("Transmitters_SetToThis"),
@@ -157,8 +157,8 @@ public partial class TransmittersPanel : UserControl
         var line = new Grid
         {
             ColumnDefinitions = new ColumnDefinitions("*,Auto"),
-            ColumnSpacing = 12,
-            Margin = new Thickness(0, 8, 0, 0),
+            ColumnSpacing = Space.M,
+            Margin = new Thickness(0, Space.S, 0, 0),
         };
         var label = new TextBlock { Text = Strings.Get("Transmitters_SpareBattery") };
         Control reading;
@@ -190,7 +190,7 @@ public partial class TransmittersPanel : UserControl
     private static Control? LightsPanel(LightSet lights)
     {
         if (lights == LightSet.None) return null;
-        var panel = new StackPanel { Spacing = 4, Margin = new Thickness(0, 8, 0, 0) };
+        var panel = new StackPanel { Spacing = Space.XS, Margin = new Thickness(0, Space.S, 0, 0) };
         panel.Children.Add(new TextBlock { Text = Strings.Get("Device_LightsLabel"), Classes = { "label" } });
         if (lights == LightSet.Dock)
         {
@@ -212,12 +212,12 @@ public partial class TransmittersPanel : UserControl
         Description = Strings.Get(note),
         Background = Avalonia.Media.Brushes.Transparent,
         BorderThickness = new Thickness(0),
-        Padding = new Thickness(0, 8),
+        Padding = new Thickness(0, Space.S),
     };
 
     private Border BluetoothPanel()
     {
-        var top = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 12 };
+        var top = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
         top.Children.Add(new TextBlock { Text = Strings.Get("Transmitters_Bluetooth"), Classes = { "bodystrong" } });
         _bluetooth = new TextBlock { Classes = { "secondary" } };
         Grid.SetColumn(_bluetooth, 1);

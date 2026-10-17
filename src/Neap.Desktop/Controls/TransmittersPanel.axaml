@@ -11,13 +11,13 @@
     <StackPanel>
         <TextBlock loc:Uid.Value="Transmitters_Heading" Classes="sectionheader" />
         <TextBlock x:Name="CrossPlayNote" loc:Uid.Value="Transmitters_Note" Classes="sectionnote" />
-        <StackPanel Spacing="12">
+        <StackPanel Spacing="{StaticResource NeapSpaceM}">
             <ContentPresenter x:Name="InUse" />
             <Grid
                 x:Name="Others"
                 ColumnDefinitions="*,*"
-                ColumnSpacing="12"
-                RowSpacing="12" />
+                ColumnSpacing="{StaticResource NeapSpaceM}"
+                RowSpacing="{StaticResource NeapSpaceM}" />
         </StackPanel>
     </StackPanel>
 </UserControl>

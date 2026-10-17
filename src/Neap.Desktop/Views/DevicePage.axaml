@@ -24,7 +24,7 @@
                 <StackPanel x:Name="Formats">
                     <TextBlock loc:Uid.Value="Device_AudioFormatHeading" Classes="sectionheader" />
                     <TextBlock loc:Uid.Value="Device_FormatNote" Classes="sectionnote" />
-                    <StackPanel Spacing="4">
+                    <StackPanel Spacing="{StaticResource NeapSpaceXS}">
                         <c:FormatRow
                             x:Name="OutputFormat"
                             loc:Uid.Value="Device_HeadsetOutput"
@@ -46,7 +46,7 @@
 
                 <!-- How the headset switches itself off and back on: set once, like the format. -->
                 <TextBlock loc:Uid.Value="Device_PowerHeading" Classes="sectionheader" />
-                <StackPanel Spacing="4">
+                <StackPanel Spacing="{StaticResource NeapSpaceXS}">
                     <c:SettingRow
                         loc:Uid.Value="Device_AutoShutOff"
                         Icon="{StaticResource IconPower}"
@@ -85,11 +85,11 @@
                                 BorderThickness="0"
                                 Icon="{StaticResource IconDevice}" />
                         </Expander.Header>
-                        <StackPanel Spacing="4">
+                        <StackPanel Spacing="{StaticResource NeapSpaceXS}">
                             <c:SettingRow loc:Uid.Value="Device_Firmware" Setting="firmware_version" />
                             <c:SettingRow loc:Uid.Value="Device_SerialNumber" Setting="serial_number" />
-                            <StackPanel Margin="16,12" Spacing="8">
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <StackPanel Margin="{StaticResource NeapPaddingCard}" Spacing="{StaticResource NeapSpaceS}">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource NeapSpaceM}">
                                     <TextBlock
                                         VerticalAlignment="Center"
                                         loc:Uid.Value="Device_ReportedHeading"
@@ -100,7 +100,7 @@
                                         loc:Uid.Value="Device_CopyReported" />
                                 </Grid>
                                 <TextBlock loc:Uid.Value="Device_RawNote" Classes="caption secondary" />
-                                <StackPanel x:Name="RawRows" Spacing="2" />
+                                <StackPanel x:Name="RawRows" Spacing="{StaticResource NeapSpaceHairline}" />
                             </StackPanel>
                         </StackPanel>
                     </Expander>
