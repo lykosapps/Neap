@@ -36,6 +36,9 @@ and date.
 
 ### Fixed
 
+- A headset with no name of its own now shows its own model name. An Atlas Air
+  without a given name used to show as "Stealth Pro II"; a headset Neap doesn't
+  recognise now shows simply as "Headset".
 - On the Atlas Air, the master volume no longer jumps to 100% and back as it
   is moved, from the slider or the headset's wheel.
 - The volume and microphone sliders no longer jump back while they are moved.
