@@ -18,7 +18,6 @@
         <Grid.RowDefinitions>
             <RowDefinition MinHeight="{StaticResource NeapTitleBarHeight}" Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 

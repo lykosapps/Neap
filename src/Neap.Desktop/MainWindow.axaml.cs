@@ -46,6 +46,10 @@ public partial class MainWindow : Window
         string title = Pretend.Active ? Strings.Format("Window_PretendTitle", AppInfo.Name) : AppInfo.Name;
         Title = title;
 
+        // A script driving a practice run while somebody works opens it
+        // without taking the keyboard from them.
+        if (Pretend.Behind) ShowActivated = false;
+
         Activated += (_, _) => WindowPresence.Set(true);
         Deactivated += (_, _) => WindowPresence.Set(false);
 
