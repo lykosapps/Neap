@@ -65,8 +65,14 @@ its accent. Neap takes those qualities and keeps its own identity.
 - **Flat fills only.** No radial or linear gradients on panels or tiles.
   - *Why:* gradients make the contrast check sample a different colour at
     each point, and they are the main thing that dates the current look.
-- **Borders mean state.** A 1px accent ring means selected or focused. A
-  border on an input means "you can type here". Plain cards have none.
+- **No outlines at rest.** Controls are soft fills one gentle step from
+  the surface they sit on, with hover one step more and pressed one step
+  back; the accent marks only what is selected, on or primary. Buttons,
+  drop-downs, fields, segmented controls, switches and tiles draw no edge.
+  The focus ring and high contrast keep their outlines.
+  - *Why:* a flat, low-contrast page is calmer, and the fill step already
+    says "this is a control". High contrast removes the steps, so there the
+    outline is what identifies a control.
 - **Window chrome blends in.** On Windows the title bar is the window
   ground, with the app's own content in it. On Linux it is the system's.
   - *Why:* Avalonia's support for extending into the title bar on Linux is

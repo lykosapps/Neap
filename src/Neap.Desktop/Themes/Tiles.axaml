@@ -71,7 +71,8 @@
         <Setter Property="Height" Value="{StaticResource NeapSwitchHeight}" />
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusSegment}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapControlStrokeBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapControlEdgeBrush}" />
+        <Setter Property="Background" Value="{DynamicResource NeapTrackBrush}" />
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="IsHitTestVisible" Value="False" />
