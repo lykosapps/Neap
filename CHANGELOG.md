@@ -35,6 +35,17 @@ and date.
 
 ### Changed
 
+- Home is redesigned: the headset's readings across the top, Game and chat
+  as one card with a Keyboard shortcuts link, and tiles that show how they
+  work, such as a switch for the microphone, Off, Cancelling and
+  Transparency for noise cancellation, and a preset choice on the equaliser.
+- Audio holds what you hear and your microphone in two sections, with noise
+  cancellation, Superhuman Hearing and spatial sound as choices you can see
+  at once, and a link from each section to its equaliser.
+- The Equaliser page lists your presets beside a larger curve, with Game and
+  Microphone as tabs and the test tone folded away until it is wanted.
+- Clearer words: Noise cancellation, Strength, Noise reduction, Loudness
+  boost and Microphone monitoring, and every failure says what to do next.
 - The profile switcher sits at the top of the left menu, and becomes one
   profile icon when the menu shows icons only.
 - The equalisers have a page of their own, Equaliser, with a Game and a

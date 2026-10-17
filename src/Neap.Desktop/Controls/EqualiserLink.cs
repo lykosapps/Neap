@@ -47,7 +47,11 @@ public sealed class EqualiserLink : Button
         {
             if (TopLevel.GetTopLevel(this) is not MainWindow window) return;
             window.Open("equaliser");
-            if (Bank == Bank.Game) (window.CurrentPage as EqualiserPage)?.ShowGame();
+            if (window.CurrentPage is EqualiserPage page)
+            {
+                if (Bank == Bank.Game) page.ShowGame();
+                else page.ShowMicrophone();
+            }
         };
     }
 
