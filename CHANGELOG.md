@@ -43,6 +43,16 @@ and date.
   Windows and Linux.
 - The menu on the left has a softer chosen-place highlight, and shows a ring around
   the place the keyboard is on. Pages sit slightly closer to the edges.
+- Cards, rows and tiles are flat, and tiles are shorter. In high contrast,
+  cards, rows and tiles have an outline so their edges stay visible.
+- Buttons, switches, boxes and sliders are more compact, switches and boxes
+  are easier to see when off, and the mute button follows the theme,
+  including high contrast.
+- The game and chat dial is flatter and a little smaller, and its keyboard
+  focus ring is easier to see in the light theme.
+- Dialogs and the update banner share the app's spacing, a dialog's main
+  button uses the accent colour, and long dialog headings wrap instead of
+  being cut off.
 
 ### Fixed
 
