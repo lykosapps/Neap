@@ -2,6 +2,7 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using System.Globalization;
 using Avalonia.Media;
 using Neap.Core.Audio;
 
@@ -65,7 +66,7 @@ public sealed class LoudnessBoostRow : SettingsCard
         };
         _slider.ValueChanged += (_, args) =>
         {
-            if (_readout is not null) _readout.Text = Readout((int)args.NewValue);
+            if (_readout is not null) _readout.Text = Readout(LoudnessBoost.LevelForBoost((float)args.NewValue));
             if (_painting) return;
             AppServices.Headset.SetLoudnessBoost((float)args.NewValue);
         };
@@ -87,8 +88,10 @@ public sealed class LoudnessBoostRow : SettingsCard
         AutomationProperties.SetName(_slider, Header ?? Strings.Get("Audio_LoudnessBoost.Header"));
     }
 
-    private static string Readout(int boost) =>
-        boost <= 0 ? Strings.Get("LoudnessBoost_Normal") : Strings.Format("LoudnessBoost_Decibels", boost);
+    /// <summary>The level as the headset reports it, such as "-12 dB" or "0 dB".</summary>
+    private static string Readout(float db) =>
+        Strings.Format("LoudnessBoost_Decibels",
+            ((int)MathF.Round(db)).ToString("+0;-0;0", CultureInfo.CurrentCulture));
 
     private void Refresh()
     {
@@ -100,7 +103,7 @@ public sealed class LoudnessBoostRow : SettingsCard
         try
         {
             _slider.Value = look.BoostDb;
-            if (_readout is not null) _readout.Text = Readout(look.BoostDb);
+            if (_readout is not null) _readout.Text = Readout(look.LevelDb);
         }
         finally { _painting = false; }
     }

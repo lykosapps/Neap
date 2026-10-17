@@ -31,14 +31,14 @@ if ($Parts.Contains('A')) {
         Wait-Until { $null -ne (Find-Named $row) } 10 | Out-Null
         $control = Find-Named $row
         Check ($null -ne $control) "the '$row' control is on the Audio page"
-        Check ((Get-Texts) -contains 'Normal') 'it starts at Normal, with no boost'
+        Check ((Get-Texts) -contains '-12 dB') 'it starts at the stock level, -12 dB'
 
         $slider = Find-SliderNamed $row
         $rv = $null
         if ($slider -and $slider.TryGetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern, [ref]$rv)) { $rv.SetValue(6) }
-        Check (Wait-Until { (Get-Texts) -contains '+6 dB' } 5) 'moving the slider to +6 dB shows +6 dB'
+        Check (Wait-Until { (Get-Texts) -contains '-6 dB' } 5) 'a +6 dB boost reads as -6 dB on the headset'
         if ($rv) { $rv.SetValue(0) }
-        Check (Wait-Until { (Get-Texts) -contains 'Normal' } 5) 'back at 0 it shows Normal again'
+        Check (Wait-Until { (Get-Texts) -contains '-12 dB' } 5) 'back at the bottom it reads -12 dB again'
 
         Save-Shot 'loudness-stealth' -Whole | ForEach-Object { $_.Dispose() }
     }

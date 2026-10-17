@@ -20,11 +20,22 @@ public class LoudnessBoostLookTests
         Assert.True(look.Shown);
         Assert.True(look.Enabled);
         Assert.Equal(0, look.BoostDb);
+        Assert.Equal(-12f, look.LevelDb);
     }
 
     [Fact]
-    public void ShowsHowFarAboveStockTheLevelSits() =>
-        Assert.Equal(3, LoudnessBoostLook.For(new LoudnessReading(true, -9f), readOnly: false).BoostDb);
+    public void ShowsHowFarAboveStockTheLevelSits()
+    {
+        var look = LoudnessBoostLook.For(new LoudnessReading(true, -9f), readOnly: false);
+
+        Assert.Equal(3, look.BoostDb);
+        Assert.Equal(-9f, look.LevelDb);
+    }
+
+    [Fact]
+    public void TheReadoutLevelIsTheReportedLevelEvenPastTheSlidersRange() =>
+        // Set to -20 elsewhere: the slider clamps to 0, the readout still reports -20.
+        Assert.Equal(-20f, LoudnessBoostLook.For(new LoudnessReading(true, -20f), readOnly: false).LevelDb);
 
     [Fact]
     public void NotChangeableOnAReadOnlyHeadset() =>
