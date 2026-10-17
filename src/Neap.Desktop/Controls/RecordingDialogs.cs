@@ -1,5 +1,4 @@
 using System.Globalization;
-using Avalonia;
 using Avalonia.Controls;
 using Neap.Core.Diagnostics;
 
@@ -16,7 +15,7 @@ public static class RecordingDialogs
     /// </remarks>
     public static async Task ShowHowTo(Control over)
     {
-        var body = new StackPanel { Spacing = 8 };
+        var body = new StackPanel { Classes = { "dialogflow" } };
         Heading(body, "Record_ProblemHeading");
         Line(body, Strings.Get("Record_ProblemSteps"));
         Heading(body, "Record_HeadsetHeading");
@@ -39,7 +38,7 @@ public static class RecordingDialogs
     /// <returns>Whether the person chose to report it.</returns>
     public static async Task<bool> ConfirmFindings(Control over, HeadsetFindings findings)
     {
-        var body = new StackPanel { Spacing = 8 };
+        var body = new StackPanel { Classes = { "dialogflow" } };
         if (!findings.Answered)
         {
             Line(body, Strings.Get("Found_NoAnswer"));
@@ -93,13 +92,13 @@ public static class RecordingDialogs
     private static void Heading(StackPanel body, string key) => body.Children.Add(new TextBlock
     {
         Text = Strings.Get(key),
-        Classes = { "bodystrong" },
-        Margin = new Thickness(0, 8, 0, 0),
+        Classes = { "bodystrong", "dialogsection" },
     });
 
     private static void Line(StackPanel body, string text, bool indent = false, bool secondary = false)
     {
-        var line = new TextBlock { Text = text, Margin = new Thickness(indent ? 12 : 0, 0, 0, 0) };
+        var line = new TextBlock { Text = text };
+        if (indent) line.Classes.Add("dialogindent");
         if (secondary) line.Classes.Add("secondary");
         body.Children.Add(line);
     }
@@ -108,7 +107,7 @@ public static class RecordingDialogs
     private static ScrollViewer Scrolling(Control body) => new()
     {
         Content = body,
-        MaxHeight = 420,
+        Classes = { "dialogscroll" },
         HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
         VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
     };

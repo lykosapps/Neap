@@ -155,9 +155,11 @@
         <Setter Property="ClipToBounds" Value="True" />
     </Style>
     <!-- A dialog's heading, or the name a panel is showing. -->
+    <!-- A dialog's heading or a panel's name: the section size, which fits a 440 wide dialog; at the page-title size a long heading would not. -->
     <Style Selector="TextBlock.title">
-        <Setter Property="FontSize" Value="{StaticResource NeapFontPageTitle}" />
+        <Setter Property="FontSize" Value="{StaticResource NeapFontSection}" />
         <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
     <Style Selector="TextBlock.secondary">
         <Setter Property="Foreground" Value="{DynamicResource NeapTextSecondaryBrush}" />
@@ -240,13 +242,16 @@
         <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
     </Style>
 
-    <!-- The update banner: a flat wash of the accent hue, with an accent edge down its left. -->
+    <!-- The update banner: a calm wash of the accent hue on the neutral ground, with a thin accent edge down its left. -->
     <Style Selector="Border.update">
         <Setter Property="Background" Value="{DynamicResource NeapNoticeBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource NeapPanelStrokeBrush}" />
         <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="Padding" Value="{StaticResource NeapPaddingNotice}" />
     </Style>
     <Style Selector="Border.updateedge">
+        <Setter Property="Width" Value="{StaticResource NeapNoticeEdge}" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="Background" Value="{DynamicResource NeapGameBrush}" />
     </Style>
 

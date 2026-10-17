@@ -110,7 +110,7 @@ public sealed class ProfileBar : UserControl
 
         // Save and Discard share the row evenly, rather than sitting at
         // their own width with empty space beside them.
-        _editRow = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*"), ColumnSpacing = 8, IsVisible = false };
+        _editRow = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*"), Classes = { "profileface" }, IsVisible = false };
         Grid.SetColumn(_discardButton, 1);
         _editRow.Children.Add(_saveButton);
         _editRow.Children.Add(_discardButton);
@@ -121,9 +121,8 @@ public sealed class ProfileBar : UserControl
         // always here, at a stable spot the list below can't push down.
         var actionsSection = new Border
         {
-            Padding = new Thickness(0, 0, 0, 8),
-            Classes = { "underlined" },
-            Child = new StackPanel { Spacing = 8, Children = { _editRow, _new } },
+            Classes = { "underlined", "profileactions" },
+            Child = new StackPanel { Classes = { "dialogflow" }, Children = { _editRow, _new } },
         };
 
         _flyout = new Flyout
@@ -131,8 +130,7 @@ public sealed class ProfileBar : UserControl
             Placement = PlacementMode.BottomEdgeAlignedLeft,
             Content = new StackPanel
             {
-                MinWidth = 220,
-                Spacing = 4,
+                Classes = { "profilemenu" },
                 Children = { _notice, actionsSection, _list },
             },
         };
@@ -157,7 +155,7 @@ public sealed class ProfileBar : UserControl
         };
 
         // A grid, so the name shortens within whatever width Fit gives it.
-        var faceContent = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"), ColumnSpacing = 8 };
+        var faceContent = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"), Classes = { "profileface" } };
         Grid.SetColumn(_editedPill, 1);
         Grid.SetColumn(_working, 2);
         faceContent.Children.Add(_name);
@@ -291,8 +289,7 @@ public sealed class ProfileBar : UserControl
                     string tag = Strings.Get("Profile_DefaultTag");
                     item.Content = new StackPanel
                     {
-                        Orientation = Orientation.Horizontal,
-                        Spacing = 8,
+                        Classes = { "gaprow" },
                         Children =
                         {
                             new TextBlock { Text = profile.Name, VerticalAlignment = VerticalAlignment.Center },
