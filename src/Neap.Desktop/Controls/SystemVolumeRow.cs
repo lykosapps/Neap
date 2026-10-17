@@ -136,6 +136,7 @@ public sealed class SystemVolumeRow : SettingsCard
         };
         _readout = new TextBlock
         {
+            Classes = { "secondary" },
             MinWidth = 52,
             TextAlignment = TextAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center,

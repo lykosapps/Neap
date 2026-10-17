@@ -117,7 +117,7 @@ public sealed class HeadsetSection : StackPanel
     private void Gather()
     {
         if (_body is not null) return;
-        _body = new StackPanel();
+        _body = new StackPanel { Spacing = Spacing };
         var content = Children.ToList();
         Children.Clear();
         foreach (var child in content) _body.Children.Add(child);

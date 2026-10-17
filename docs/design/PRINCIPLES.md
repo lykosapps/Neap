@@ -122,9 +122,10 @@ its accent. Neap takes those qualities and keeps its own identity.
 - **Spacing scale: 4, 8, 12, 16, 24, 32.**
 - **One rhythm, so the eye can group without lines.**
   - 4 between a name and the line under it.
-  - 8 between cards, and between rows in a card.
-  - 12 inside a card.
-  - 24 between sections, and the page margin.
+  - 16 inside a card, and 8 between its rows. A row that has options
+    keeps them in an inset panel under it, 12 inside, with no rules.
+  - 12 between stacked cards, and between the last card and a link under it.
+  - 32 above a section heading, 12 below it, and 24 for the page margin.
   - The space above a heading is always larger than the space below it, so
     a heading belongs to what follows.
 - **Corner radii: 12 for cards, 8 for inset rows and tiles, 6 for buttons
@@ -202,7 +203,7 @@ its accent. Neap takes those qualities and keeps its own identity.
 
 ## 6. Components
 
-- **Card.** Card fill, radius 12, padding 12, no border. It has a title at
+- **Card.** Card fill, radius 12, padding 16, no border. It has a title at
   top left and, optionally, one quiet action at top right.
 - **Inset row.** Ground fill, radius 8. It is used for list rows and readings
   inside a card.

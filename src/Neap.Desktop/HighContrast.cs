@@ -89,6 +89,7 @@ internal static class HighContrast
         Brush("NeapToneNeutralBrush", p.Text);
         Brush("NeapToneCriticalBrush", p.Text);
         Brush("NeapQuietBrush", p.Window);
+        Brush("NeapInsetBrush", p.Window);
         Brush("NeapQuietHoverBrush", p.Window);
         Brush("NeapPresetHoverBrush", p.Window);
         Brush("NeapPresetSelectedBrush", p.Window);

@@ -186,6 +186,7 @@ public sealed class SettingRow : SettingsCard
 
         _readout = new TextBlock
         {
+            Classes = { "secondary" },
             MinWidth = 52,
             TextAlignment = Avalonia.Media.TextAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center,
@@ -199,6 +200,7 @@ public sealed class SettingRow : SettingsCard
     {
         _readout = new TextBlock
         {
+            Classes = { "secondary" },
             VerticalAlignment = VerticalAlignment.Center,
             FontFeatures = Avalonia.Media.FontFeatureCollection.Parse("tnum"),
         };
