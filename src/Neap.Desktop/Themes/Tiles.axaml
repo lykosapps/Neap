@@ -85,11 +85,11 @@
         <Setter Property="Fill" Value="{DynamicResource NeapControlStrokeBrush}" />
     </Style>
     <Style Selector=":is(ToggleButton).tile:checked Border.switchglyph">
-        <Setter Property="Background" Value="{DynamicResource NeapTileOnTextBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapTileOnTextBrush}" />
+        <Setter Property="Background" Value="{DynamicResource NeapTileOnGlyphBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapTileOnGlyphBrush}" />
     </Style>
     <Style Selector=":is(ToggleButton).tile:checked Border.switchglyph > Ellipse">
-        <Setter Property="Fill" Value="{DynamicResource NeapTileOnBrush}" />
+        <Setter Property="Fill" Value="{DynamicResource NeapTileOnKnobBrush}" />
         <Setter Property="HorizontalAlignment" Value="Right" />
     </Style>
 
@@ -141,7 +141,7 @@
         navigation's selected fill, which is the inset's grey in both.
     -->
     <Style Selector="Border.inset">
-        <Setter Property="Background" Value="{DynamicResource NeapNavSelectedBrush}" />
+        <Setter Property="Background" Value="{DynamicResource NeapInsetBrush}" />
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
     </Style>
     <Style Selector="Border.inset:pointerover">

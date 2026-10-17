@@ -64,7 +64,10 @@ and date.
 - Buttons, drop-downs, fields, tabs, switches and tiles lose their outlines for
   a flat, softer look: each is a gentle step of fill from what it sits on, and
   icons and dividing lines are quieter. The keyboard focus ring is unchanged,
-  and high contrast keeps every outline.
+  and high contrast keeps every outline. A tile that is on, such as the
+  microphone on Home, is a soft violet tint rather than solid violet, and the
+  panels set into a card, such as the chat app list, are a lighter grey in the
+  light theme.
 - On the Equaliser page, Discard shows only once the curve has been edited, and a saved preset's delete button shows only on the row you point at, focus or have chosen.
 - On Controls, each job for the Mode button and the lower dial is a full-width row you can press anywhere, the chosen one tinted, and the two cards are the same height. The dial's first job is named Microphone monitoring volume.
 - Audio's sliders all end at the same edge, with Master volume's mute beside the slider's line instead of shortening it.

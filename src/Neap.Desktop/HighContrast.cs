@@ -107,6 +107,8 @@ internal static class HighContrast
         Brush("NeapTileOnHoverBrush", p.Highlight);
         Brush("NeapTileOnStrokeBrush", p.Text);
         Brush("NeapTileOnTextBrush", p.HighlightText);
+        Brush("NeapTileOnGlyphBrush", p.HighlightText);
+        Brush("NeapTileOnKnobBrush", p.Highlight);
         Brush("NeapTileDisabledBrush", p.Window);
         Brush("NeapTileDisabledStrokeBrush", p.Gray);
         Brush("NeapTileDisabledTextBrush", p.Gray);

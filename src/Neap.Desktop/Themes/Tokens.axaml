@@ -73,15 +73,18 @@
             <SolidColorBrush x:Key="NeapTileBrush" Color="#1A1A1E" />
             <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#232327" />
             <SolidColorBrush x:Key="NeapTileTextBrush" Color="#F2F2F4" />
-            <SolidColorBrush x:Key="NeapTileOnBrush" Color="#5E3CEC" />
-            <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#6643F2" />
+            <SolidColorBrush x:Key="NeapTileOnBrush" Color="#2A2250" />
+            <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#322A5E" />
             <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="Transparent" />
-            <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#F2F2F4" />
+            <!-- The switch drawn on a tile that is on: the accent track and a white knob, on the tile's soft tint. -->
+            <SolidColorBrush x:Key="NeapTileOnGlyphBrush" Color="#6D4AFF" />
+            <SolidColorBrush x:Key="NeapTileOnKnobBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#141416" />
             <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#B0B0B6" />
-            <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#2E2554" />
-            <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#CFC6FF" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#1C1830" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#B8B0E0" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#337B61FF" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0FFFFFFF" />
             <SolidColorBrush x:Key="NeapCurveGapBrush" Color="#26E6E8EC" />
@@ -149,15 +152,18 @@
             <SolidColorBrush x:Key="NeapTileBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#F8F8F9" />
             <SolidColorBrush x:Key="NeapTileTextBrush" Color="#1A1A1A" />
-            <SolidColorBrush x:Key="NeapTileOnBrush" Color="#5E3CEC" />
-            <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#5636E0" />
+            <SolidColorBrush x:Key="NeapTileOnBrush" Color="#E4DCFF" />
+            <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#DCD2FF" />
             <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="Transparent" />
-            <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#1C1240" />
+            <!-- The switch drawn on a tile that is on: the accent track and a white knob, on the tile's soft tint. -->
+            <SolidColorBrush x:Key="NeapTileOnGlyphBrush" Color="#6D4AFF" />
+            <SolidColorBrush x:Key="NeapTileOnKnobBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#E8E8EB" />
             <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#48474C" />
-            <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#CFC4FF" />
-            <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#2E2466" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#EEE9FF" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#4A3F80" />
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D4AFF" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0A000000" />
             <SolidColorBrush x:Key="NeapCurveGapBrush" Color="#2615171C" />
