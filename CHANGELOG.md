@@ -41,6 +41,8 @@ and date.
   now marks only what is on, chosen or playing.
 - Text uses the Inter typeface, carried by the app, so it looks the same on
   Windows and Linux.
+- The menu on the left has a softer chosen-place highlight, and shows a ring around
+  the place the keyboard is on. Pages sit slightly closer to the edges.
 
 ### Fixed
 

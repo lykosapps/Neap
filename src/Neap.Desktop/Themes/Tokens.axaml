@@ -207,4 +207,7 @@
     <Thickness x:Key="NeapPaddingRow">12,8</Thickness>
     <x:Double x:Key="NeapRowHeight">40</x:Double>
     <x:Double x:Key="NeapNavItemHeight">36</x:Double>
+    <Thickness x:Key="NeapPageMargin">24</Thickness>
+    <!-- The height of the title row, which is the height of the title bar where the app draws its own. -->
+    <x:Double x:Key="NeapTitleBarHeight">40</x:Double>
 </ResourceDictionary>

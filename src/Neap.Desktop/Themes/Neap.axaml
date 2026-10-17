@@ -3,6 +3,71 @@
     xmlns:c="using:Neap.Desktop.Controls"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <Styles.Resources>
+        <!-- A page's frame: the scroller, the margin and the column, so a page lists only its content. -->
+        <ControlTheme x:Key="{x:Type c:PageView}" TargetType="c:PageView">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <ScrollViewer x:Name="Scroller" HorizontalScrollBarVisibility="Disabled">
+                        <ContentPresenter
+                            Margin="{StaticResource NeapPageMargin}"
+                            MaxWidth="1040"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}" />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </Setter>
+        </ControlTheme>
+
+        <!--
+            The navigation rail: an icon and a name. The chosen place is a
+            pill one fill step above the rail, and also carries a bar on its
+            edge in the accent, so it never rests on colour alone. The
+            keyboard's place is a ring in the accent, as on the tiles.
+        -->
+        <ControlTheme x:Key="{x:Type c:NavItem}" TargetType="c:NavItem">
+            <!-- Transparent, not nothing: a control with no fill takes a click only on its text and icon. -->
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="4,2" />
+            <Setter Property="Height" Value="{StaticResource NeapNavItemHeight}" />
+            <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
+                        <Grid>
+                            <Border x:Name="Ring" CornerRadius="{TemplateBinding CornerRadius}"
+                                    BorderThickness="2" IsHitTestVisible="False" IsVisible="False"
+                                    BorderBrush="{DynamicResource SystemAccentColorLight2}" />
+                            <Border x:Name="Marker" Width="3" Height="18" CornerRadius="2"
+                                    HorizontalAlignment="Left" VerticalAlignment="Center" IsVisible="False"
+                                    Background="{DynamicResource NeapGameTextBrush}" />
+                            <StackPanel Orientation="Horizontal" Spacing="12" Margin="8,0,12,0" VerticalAlignment="Center">
+                                <PathIcon Data="{TemplateBinding Icon}" Width="20" Height="20"
+                                          Foreground="{DynamicResource NeapTextBrush}" />
+                                <ContentPresenter x:Name="NavContent" Content="{TemplateBinding Content}"
+                                                  VerticalAlignment="Center" TextElement.Foreground="{DynamicResource NeapTextBrush}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="{DynamicResource NeapNavHoverBrush}" />
+            </Style>
+            <Style Selector="^:selected">
+                <Setter Property="Background" Value="{DynamicResource NeapNavSelectedBrush}" />
+                <Style Selector="^ /template/ Border#Marker">
+                    <Setter Property="IsVisible" Value="True" />
+                </Style>
+            </Style>
+            <Style Selector="^:focus-visible /template/ Border#Ring">
+                <Setter Property="IsVisible" Value="True" />
+            </Style>
+        </ControlTheme>
+    </Styles.Resources>
+
     <!--
         Neap's own look, the same on every system. The values come from
         Tokens.axaml; these styles say where they go.
@@ -248,11 +313,6 @@
         <Setter Property="Fill" Value="{DynamicResource NeapMeterUnlitBrush}" />
     </Style>
 
-    <!-- Every page's column, held to a width that reads on a wide screen. -->
-    <Style Selector="StackPanel.pagecolumn">
-        <Setter Property="MaxWidth" Value="1040" />
-    </Style>
-
     <!-- The icons: Material Design's, drawn from one path each and coloured by the text they sit beside. -->
     <!--
         An icon is a picture, not a thing to read: whatever carries it has the
@@ -262,45 +322,5 @@
         <Setter Property="Width" Value="24" />
         <Setter Property="Height" Value="24" />
         <Setter Property="AutomationProperties.AccessibilityView" Value="Raw" />
-    </Style>
-
-    <!--
-        The navigation rail: an icon and a name, the chosen place marked by a
-        bar on its edge in the accent as well as by its fill, so it never
-        rests on colour alone.
-    -->
-    <Style Selector="c|NavItem">
-        <!-- Transparent, not nothing: a control with no fill takes a click only on its text and icon. -->
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="Margin" Value="4,2" />
-        <Setter Property="Height" Value="{StaticResource NeapNavItemHeight}" />
-        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
-        <Setter Property="Template">
-            <ControlTemplate>
-                <Border Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
-                    <Grid>
-                        <Border x:Name="Marker" Width="3" Height="18" CornerRadius="2"
-                                HorizontalAlignment="Left" VerticalAlignment="Center" IsVisible="False"
-                                Background="{DynamicResource NeapGameTextBrush}" />
-                        <StackPanel Orientation="Horizontal" Spacing="12" Margin="8,0,12,0" VerticalAlignment="Center">
-                            <PathIcon Data="{TemplateBinding Icon}" Width="20" Height="20"
-                                      Foreground="{DynamicResource NeapTextBrush}" />
-                            <ContentPresenter x:Name="NavContent" Content="{TemplateBinding Content}"
-                                              VerticalAlignment="Center" TextElement.Foreground="{DynamicResource NeapTextBrush}" />
-                        </StackPanel>
-                    </Grid>
-                </Border>
-            </ControlTemplate>
-        </Setter>
-    </Style>
-    <Style Selector="c|NavItem:pointerover">
-        <Setter Property="Background" Value="{DynamicResource NeapNavHoverBrush}" />
-    </Style>
-    <Style Selector="c|NavItem:selected">
-        <Setter Property="Background" Value="{DynamicResource NeapNavSelectedBrush}" />
-    </Style>
-    <Style Selector="c|NavItem:selected /template/ Border#Marker">
-        <Setter Property="IsVisible" Value="True" />
     </Style>
 </Styles>

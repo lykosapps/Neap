@@ -5,126 +5,124 @@
     xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization">
 
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="32">
-            <StackPanel Classes="pagecolumn">
+    <c:PageView>
+        <StackPanel>
 
-                <TextBlock loc:Uid.Value="Settings_Title" Classes="pagetitle" />
+            <TextBlock loc:Uid.Value="Settings_Title" Classes="pagetitle" />
 
-                <!--
-                    Neap itself, and whether it is up to date, first: the
-                    update banner and the notice by the clock both lead
-                    here, so what they promise is the first thing seen. On
-                    the same lit panel as the headset's controls.
-                -->
-                <Border Classes="card">
-                    <Grid
-                        x:Name="NeapCard"
-                        ColumnDefinitions="*,Auto"
-                        RowDefinitions="Auto,Auto"
-                        RowSpacing="16">
+            <!--
+                Neap itself, and whether it is up to date, first: the
+                update banner and the notice by the clock both lead
+                here, so what they promise is the first thing seen. On
+                the same lit panel as the headset's controls.
+            -->
+            <Border Classes="card">
+                <Grid
+                    x:Name="NeapCard"
+                    ColumnDefinitions="*,Auto"
+                    RowDefinitions="Auto,Auto"
+                    RowSpacing="16">
 
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
-                            <Image
-                                Width="56"
-                                Height="56"
-                                VerticalAlignment="Top"
-                                AutomationProperties.AccessibilityView="Raw"
-                                Source="avares://Neap.Desktop/Assets/logo.png" />
-                            <StackPanel Grid.Column="1" Spacing="2">
-                                <StackPanel Orientation="Horizontal" Spacing="12">
-                                    <TextBlock
-                                        x:Name="AppName"
-                                        VerticalAlignment="Bottom"
-                                        Classes="cardtitle" />
-                                    <TextBlock
-                                        x:Name="AppVersion"
-                                        Margin="0,0,0,4"
-                                        VerticalAlignment="Bottom"
-                                        Classes="label"
-                                        IsVisible="False" />
-                                </StackPanel>
-
-                                <!-- Said when it changes, not as a download's percentage ticks over. -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                        <Image
+                            Width="56"
+                            Height="56"
+                            VerticalAlignment="Top"
+                            AutomationProperties.AccessibilityView="Raw"
+                            Source="avares://Neap.Desktop/Assets/logo.png" />
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
                                 <TextBlock
-                                    x:Name="UpdateStatus"
-                                    Margin="0,6,0,0"
-                                    Classes="secondary"
+                                    x:Name="AppName"
+                                    VerticalAlignment="Bottom"
+                                    Classes="cardtitle" />
+                                <TextBlock
+                                    x:Name="AppVersion"
+                                    Margin="0,0,0,4"
+                                    VerticalAlignment="Bottom"
+                                    Classes="label"
                                     IsVisible="False" />
                             </StackPanel>
-                        </Grid>
 
-                        <StackPanel
-                            x:Name="UpdateActions"
-                            Grid.Row="1"
-                            Orientation="Horizontal"
-                            Spacing="8">
-                            <Button
-                                x:Name="WhatsNew"
-                                loc:Uid.Value="Settings_UpdateNotes"
+                            <!-- Said when it changes, not as a download's percentage ticks over. -->
+                            <TextBlock
+                                x:Name="UpdateStatus"
+                                Margin="0,6,0,0"
+                                Classes="secondary"
                                 IsVisible="False" />
-                            <Button x:Name="DownloadPage" IsVisible="False" />
-                            <Button x:Name="UpdateButton" />
                         </StackPanel>
-
                     </Grid>
-                </Border>
 
-                <StackPanel Margin="0,4,0,0" Spacing="4">
-                    <c:SettingsCard
-                        x:Name="CheckForUpdatesCard"
-                        loc:Uid.Value="Settings_CheckForUpdates"
-                        Icon="{StaticResource IconUpdate}">
-                        <ToggleSwitch x:Name="CheckForUpdates" />
-                    </c:SettingsCard>
-                    <!--
-                        Starting with the system is left out where the system has no
-                        way to do it.
-                    -->
-                    <c:SettingsCard
-                        x:Name="StartCard"
-                        loc:Uid.Value="Settings_StartWithWindows"
-                        Icon="{StaticResource IconPower}">
-                        <ToggleSwitch x:Name="StartWhenSignedIn" />
-                    </c:SettingsCard>
-                </StackPanel>
+                    <StackPanel
+                        x:Name="UpdateActions"
+                        Grid.Row="1"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Button
+                            x:Name="WhatsNew"
+                            loc:Uid.Value="Settings_UpdateNotes"
+                            IsVisible="False" />
+                        <Button x:Name="DownloadPage" IsVisible="False" />
+                        <Button x:Name="UpdateButton" />
+                    </StackPanel>
 
-                <TextBlock loc:Uid.Value="Settings_DiagnosticsHeading" Classes="sectionheader" />
-                <StackPanel Spacing="4">
-                    <c:SettingsCard
-                        x:Name="Record"
-                        loc:Uid.Value="Settings_Record"
-                        Icon="{StaticResource IconRecord}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button x:Name="RecordHelp" loc:Uid.Value="Settings_RecordHelp" Classes="iconbutton">
-                                <PathIcon Width="14" Height="14" Data="{StaticResource IconHelp}" />
-                            </Button>
-                            <Button
-                                x:Name="ReportRecording"
-                                loc:Uid.Value="Settings_RecordReport"
-                                IsVisible="False" />
-                            <Button x:Name="RecordButton" />
-                        </StackPanel>
-                    </c:SettingsCard>
-                    <c:SettingsCard
-                        x:Name="MapCard"
-                        loc:Uid.Value="Settings_MapHeadset"
-                        Icon="{StaticResource IconDevice}">
-                        <Button x:Name="MapHeadset" Classes="iconbutton">
-                            <PathIcon Width="14" Height="14" Data="{StaticResource IconLaunch}" />
-                        </Button>
-                    </c:SettingsCard>
-                </StackPanel>
+                </Grid>
+            </Border>
 
-                <!-- What has to be said and nothing a card could say instead, last and quiet. -->
-                <TextBlock
-                    loc:Uid.Value="Settings_Legal"
-                    MaxWidth="760"
-                    Margin="0,24,0,0"
-                    HorizontalAlignment="Left"
-                    Classes="caption secondary" />
-
+            <StackPanel Margin="0,4,0,0" Spacing="4">
+                <c:SettingsCard
+                    x:Name="CheckForUpdatesCard"
+                    loc:Uid.Value="Settings_CheckForUpdates"
+                    Icon="{StaticResource IconUpdate}">
+                    <ToggleSwitch x:Name="CheckForUpdates" />
+                </c:SettingsCard>
+                <!--
+                    Starting with the system is left out where the system has no
+                    way to do it.
+                -->
+                <c:SettingsCard
+                    x:Name="StartCard"
+                    loc:Uid.Value="Settings_StartWithWindows"
+                    Icon="{StaticResource IconPower}">
+                    <ToggleSwitch x:Name="StartWhenSignedIn" />
+                </c:SettingsCard>
             </StackPanel>
-        </Grid>
-    </ScrollViewer>
+
+            <TextBlock loc:Uid.Value="Settings_DiagnosticsHeading" Classes="sectionheader" />
+            <StackPanel Spacing="4">
+                <c:SettingsCard
+                    x:Name="Record"
+                    loc:Uid.Value="Settings_Record"
+                    Icon="{StaticResource IconRecord}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button x:Name="RecordHelp" loc:Uid.Value="Settings_RecordHelp" Classes="iconbutton">
+                            <PathIcon Width="14" Height="14" Data="{StaticResource IconHelp}" />
+                        </Button>
+                        <Button
+                            x:Name="ReportRecording"
+                            loc:Uid.Value="Settings_RecordReport"
+                            IsVisible="False" />
+                        <Button x:Name="RecordButton" />
+                    </StackPanel>
+                </c:SettingsCard>
+                <c:SettingsCard
+                    x:Name="MapCard"
+                    loc:Uid.Value="Settings_MapHeadset"
+                    Icon="{StaticResource IconDevice}">
+                    <Button x:Name="MapHeadset" Classes="iconbutton">
+                        <PathIcon Width="14" Height="14" Data="{StaticResource IconLaunch}" />
+                    </Button>
+                </c:SettingsCard>
+            </StackPanel>
+
+            <!-- What has to be said and nothing a card could say instead, last and quiet. -->
+            <TextBlock
+                loc:Uid.Value="Settings_Legal"
+                MaxWidth="760"
+                Margin="0,24,0,0"
+                HorizontalAlignment="Left"
+                Classes="caption secondary" />
+
+        </StackPanel>
+    </c:PageView>
 </UserControl>

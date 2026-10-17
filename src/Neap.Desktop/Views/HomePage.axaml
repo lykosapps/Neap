@@ -4,18 +4,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:c="using:Neap.Desktop.Controls">
 
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="32">
-            <StackPanel
-                Classes="pagecolumn"
-                Spacing="16">
+    <c:PageView>
+        <StackPanel Spacing="16">
 
-                <!-- Nothing plugged in is said first, in words. -->
-                <c:HeadsetNotice />
+            <!-- Nothing plugged in is said first, in words. -->
+            <c:HeadsetNotice />
 
-                <c:QuickControls />
+            <c:QuickControls />
 
-            </StackPanel>
-        </Grid>
-    </ScrollViewer>
+        </StackPanel>
+    </c:PageView>
 </UserControl>

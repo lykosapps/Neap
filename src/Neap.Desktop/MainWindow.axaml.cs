@@ -22,13 +22,19 @@ public partial class MainWindow : Window
     /// <summary>The width below which the rail folds into a button that opens it over the page; the Windows app's own threshold.</summary>
     private const double Narrow = 641;
 
-    /// <summary>The title row's height, which is the height of the title bar where the app draws its own.</summary>
-    private const double TitleRowHeight = 40;
-
     /// <summary>The width Windows gives its three caption buttons, which the status keeps clear of where the app draws its own title bar.</summary>
+    /// <remarks>
+    /// Avalonia does not report it: <see cref="Window.WindowDecorationMargin"/>
+    /// is the thickness of the frame and title bar, and the buttons are drawn
+    /// by Windows over the extended client area. It is the width at 100% scale
+    /// in device-independent units, so it holds at other scales.
+    /// </remarks>
     private const double CaptionButtons = 138;
 
     private readonly Dictionary<string, Control> _pages = new();
+
+    /// <summary>Gets the title row's height, which is the height of the title bar where the app draws its own.</summary>
+    private double TitleRowHeight => (double)this.FindResource("NeapTitleBarHeight")!;
 
     public MainWindow()
     {
@@ -179,7 +185,7 @@ public partial class MainWindow : Window
     private async Task SaveAndExit(string file)
     {
         await Task.Delay(Pretend.SettleTime);
-        if (Pretend.ScrolledBy is double by && (Body.Content as UserControl)?.Content is ScrollViewer scroller)
+        if (Pretend.ScrolledBy is double by && (Body.Content as UserControl)?.Content is PageView { Scroller: { } scroller })
         {
             if (double.IsInfinity(by)) scroller.ScrollToEnd();
             else scroller.Offset = new Vector(0, by);

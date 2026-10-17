@@ -14,7 +14,13 @@
     <!--
         Neap's own ground behind everything, in place of the system's grey.
     -->
-    <Grid RowDefinitions="40,Auto,Auto,*">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition MinHeight="{StaticResource NeapTitleBarHeight}" Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
         <!--
             The title row carries the headset's connection state, the one
@@ -107,8 +113,8 @@
                 -->
                 <Button
                     x:Name="NavToggle"
-                    Width="40"
-                    Height="40"
+                    Width="{StaticResource NeapTitleBarHeight}"
+                    Height="{StaticResource NeapTitleBarHeight}"
                     Padding="0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
