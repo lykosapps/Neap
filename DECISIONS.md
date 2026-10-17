@@ -1,5 +1,19 @@
 # Decisions
 
+## 2026-10-17 — Profiles hold the game and chat mix on a headset with no chat wheel
+
+- **Options:** keep the mix out of every profile; hold it in every profile;
+  hold it only where the headset has no chat wheel.
+- **Chosen:** a profile saves and restores the mix on a headset Neap knows
+  has no chat wheel, such as the Atlas Air. On the Stealth Pro II it is left
+  out, as before, and a profile saved there keeps whatever mix it had.
+- **Why:** the mix was left out because the chat wheel owns it: a profile
+  moving it would leave the wheel and the mix disagreeing. A headset with no
+  chat wheel has nothing that owns it, and its tester expected a profile to
+  keep it.
+- **Revisit if** a headset with a chat wheel has testers asking for the same,
+  or the mix moving on a switch surprises people mid-game.
+
 ## 2026-10-16 — The firmware rules are lifted
 
 - **Options:** keep firmware off limits; lift the rules so Neap can build on

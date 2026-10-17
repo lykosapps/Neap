@@ -1,16 +1,23 @@
 using Neap.Core.Audio;
 using Neap.Core.Connection;
+using Neap.Core.Diagnostics;
 using Neap.Core.Settings;
 
 namespace Neap.Core.Profiles;
 
 /// <summary>What you hear and how you're heard, saved together under one name.</summary>
 /// <remarks>
+/// <para>
 /// Left out on purpose: every volume, since the wheel and Windows already own
-/// those, the game/chat mix, lighting, and Dolby Access's own equaliser.
-/// Spatial sound itself is included even though it is Windows' setting rather
-/// than the headset's, because switching it with everything else is the point
-/// of a profile.
+/// those, lighting, and Dolby Access's own equaliser. Spatial sound itself is
+/// included even though it is Windows' setting rather than the headset's,
+/// because switching it with everything else is the point of a profile.
+/// </para>
+/// <para>
+/// The game/chat mix is held only on a headset with no chat wheel, where
+/// nothing on the headset owns it; see <see cref="ProfileGate.HoldsMix"/>.
+/// <see cref="Mix"/> is null for a profile that holds none.
+/// </para>
 /// </remarks>
 public sealed record ProfileSettings(
     NoiseMode NoiseMode,
@@ -27,7 +34,8 @@ public sealed record ProfileSettings(
     SpatialFormat Spatial,
     int AutoShutoff,
     ModeChoice ModeButton,
-    int DialFunction);
+    int DialFunction,
+    int? Mix = null);
 
 /// <summary>A profile, saved under a name the person chose, with the apps that switch to it.</summary>
 /// <param name="Id">What the profile is known by, whatever it is called.</param>
@@ -67,8 +75,14 @@ public static class ProfileEdits
     /// preset the profile never saved, because the equaliser had not been read
     /// when it was, is not something the person can have changed.
     /// </summary>
+    /// <remarks>The same goes for a mix the profile never saved.</remarks>
     public static bool IsEdited(ProfileSettings saved, ProfileSettings live) =>
-        saved with { GamePreset = saved.GamePreset ?? live.GamePreset, MicPreset = saved.MicPreset ?? live.MicPreset } != live;
+        saved with
+        {
+            GamePreset = saved.GamePreset ?? live.GamePreset,
+            MicPreset = saved.MicPreset ?? live.MicPreset,
+            Mix = saved.Mix ?? live.Mix,
+        } != live;
 
     /// <summary>The live settings, with those the headset does not hold taken from the active profile; see <see cref="ProfileGate.Holds"/>.</summary>
     /// <remarks>
@@ -95,6 +109,7 @@ public static class ProfileEdits
             AutoShutoff = Holds("auto_shutoff") ? live.AutoShutoff : active.AutoShutoff,
             ModeButton = Holds("mode_button_function") ? live.ModeButton : active.ModeButton,
             DialFunction = Holds("dial_function") ? live.DialFunction : active.DialFunction,
+            Mix = ProfileGate.HoldsMix(model) ? live.Mix : active.Mix,
         };
     }
 }
@@ -129,6 +144,14 @@ public static class ProfileGate
     /// </remarks>
     public static bool Holds(HeadsetModel? model, string setting) =>
         HeadsetModels.Shows(model, setting) && !HeadsetModels.Unread(model, setting);
+
+    /// <summary>Whether a profile holds the game/chat mix on a headset: one known to have no chat wheel.</summary>
+    /// <remarks>
+    /// On a headset with a chat wheel the wheel owns the mix, and a profile
+    /// moving it would leave the wheel saying one thing and the mix another.
+    /// </remarks>
+    public static bool HoldsMix(HeadsetModel? model) =>
+        model is not null && !model.Features.Contains(Feature.ChatWheel);
 }
 
 /// <summary>How an app is named in a profile: the way the running one is, by its process name.</summary>

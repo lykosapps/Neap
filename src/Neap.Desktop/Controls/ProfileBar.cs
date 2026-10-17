@@ -213,8 +213,10 @@ public sealed class ProfileBar : UserControl
         base.OnLoaded(e);
         AppServices.Profiles.Changed += Paint;
         AppServices.AutoSwitch.Changed += Paint;
-        AppServices.Headset.Changed += OnHeadsetChanged;
+        AppServices.Headset.Changed += Reread;
         AppServices.Headset.StatusChanged += OnStatusChanged;
+        // A profile holds the mix on a headset with no chat wheel.
+        AppServices.Mix.Changed += Reread;
         Paint();
         await AppServices.Profiles.Refresh();
     }
@@ -224,11 +226,12 @@ public sealed class ProfileBar : UserControl
         base.OnUnloaded(e);
         AppServices.Profiles.Changed -= Paint;
         AppServices.AutoSwitch.Changed -= Paint;
-        AppServices.Headset.Changed -= OnHeadsetChanged;
+        AppServices.Headset.Changed -= Reread;
         AppServices.Headset.StatusChanged -= OnStatusChanged;
+        AppServices.Mix.Changed -= Reread;
     }
 
-    private async void OnHeadsetChanged() => await AppServices.Profiles.Refresh();
+    private async void Reread() => await AppServices.Profiles.Refresh();
 
     private async void OnStatusChanged(HeadsetStatus status) => await AppServices.Profiles.Refresh();
 

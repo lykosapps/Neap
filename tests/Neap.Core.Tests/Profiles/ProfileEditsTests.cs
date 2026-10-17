@@ -57,6 +57,39 @@ public class ProfileEditsTests
         Assert.Equal(OnAnAtlasAir(), ProfileEdits.Keeping(OnAnAtlasAir(), With("Bass Boost", "Clarity"), HeadsetModels.StealthProII));
 
     [Fact]
+    public void OnAHeadsetWithNoChatWheelTheMixIsHeld()
+    {
+        Assert.True(ProfileGate.HoldsMix(HeadsetModels.AtlasAir));
+        Assert.False(ProfileGate.HoldsMix(HeadsetModels.StealthProII));
+        Assert.False(ProfileGate.HoldsMix(null));
+    }
+
+    [Fact]
+    public void AMovedMixIsAnEditOnAnAtlasAir()
+    {
+        var saved = OnAnAtlasAir() with { Mix = 50 };
+
+        var live = ProfileEdits.Keeping(OnAnAtlasAir() with { Mix = 70 }, saved, HeadsetModels.AtlasAir);
+
+        Assert.True(ProfileEdits.IsEdited(saved, live));
+    }
+
+    [Fact]
+    public void OnAStealthProIITheProfilesMixIsKeptAndTheWheelsIsNotAnEdit()
+    {
+        var saved = With("Bass Boost", "Clarity") with { Mix = 50 };
+
+        var live = ProfileEdits.Keeping(With("Bass Boost", "Clarity") with { Mix = 80 }, saved, HeadsetModels.StealthProII);
+
+        Assert.Equal(50, live.Mix);
+        Assert.False(ProfileEdits.IsEdited(saved, live));
+    }
+
+    [Fact]
+    public void AMixTheProfileNeverSavedIsNotAnEdit() =>
+        Assert.False(ProfileEdits.IsEdited(OnAnAtlasAir(), OnAnAtlasAir() with { Mix = 30 }));
+
+    [Fact]
     public void WithNoProfileTheLiveSettingsStand() =>
         Assert.Equal(OnAnAtlasAir(), ProfileEdits.Keeping(OnAnAtlasAir(), null, HeadsetModels.AtlasAir));
 

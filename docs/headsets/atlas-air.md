@@ -31,7 +31,7 @@ answers, so nothing works there yet.
 | Superhuman Hearing, on/off | Listed | Yes | Has, test | Confirmed | Blocked | `0x800` | Swarm II's code seems to do this on the PC, which clashes with the tester hearing it from Neap. The tester wins. |
 | Superhuman Hearing, type (Legacy, Footsteps, Gunshots) | Listed | Yes | Has, test | Confirmed | Blocked | `0x810` | — |
 | Superhuman Hearing, level | Listed | Yes | Has, test | Confirmed | Blocked | `0x820` | — |
-| Game and chat mix | Listed | Yes | Has | Confirmed | Blocked | Done on the PC | Not saved in profiles; see Problems. |
+| Game and chat mix | Listed | Yes | Has | Confirmed | Blocked | Done on the PC | Saved in profiles from 0.2.1.4; see Problems. |
 | Chat Boost | Listed | Unknown; probably only on the PC | Missing | Untried | Blocked | Unknown; probably done on the PC | Decide whether Neap should do it. |
 | Waves 3D (Games, Music, Movies) | Listed | Only with Neap's own sound processing | Missing | Read | Blocked | Done on the PC by Turtle Beach's Waves software | Not planned unless Neap does its own sound processing. |
 | High Bandwidth Audio | Listed | Probably, through the PC's sound format | Missing | Read | Blocked | Probably the PC's sound format: the transmitter offers 48 and 96 kHz | Check whether it is only Windows' format setting. |
@@ -108,7 +108,7 @@ From the quick start guide. Neap describes them; it doesn't set them.
 | Master volume shakes on big dial turns | 0.2.1.2 | Much better in 0.2.1.3; rare | Leave unless it gets worse. |
 | Microphone shows on at start with the boom up, until it's lowered and raised | 0.2.1.2 | Probably fixed: the 0.2.1.3 recording reads the boom up from the start | Ask the tester. |
 | Sensitivity slider jumps to 100% when the tester speaks | 0.2.1.2 | Probably fixed: in the 0.2.1.3 recording the level follows the slider with no jump | Ask the tester. If it comes back, check whether Teams' automatic gain is raising the PC's microphone level. |
-| Game and chat mix isn't saved in profiles | 0.2.1.2 | By design, for every headset: profiles leave the mix to the chat wheel. The Atlas Air has no chat wheel. | Decide whether profiles keep the mix on a headset without one. |
+| Game and chat mix isn't saved in profiles | 0.2.1.2 | Fixed for 0.2.1.4: on a headset with no chat wheel, profiles save and restore the mix (decision of 17 October) | Ask the tester. |
 | Profiles page doesn't say which profile is active | 0.2.1.2 | Request | Decide. |
 | Master volume's mute button is highlighted when muted | 0.2.1.2 | By design: the mute button is on while muted | Say so in the reply. |
 

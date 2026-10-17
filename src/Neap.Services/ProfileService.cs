@@ -137,7 +137,8 @@ public sealed class ProfileService : IDisposable
         return ProfileEdits.Keeping(new ProfileSettings(mode, level, shh != 0, shhPreset, shhLevel, gate != 0, gateThreshold, ai != 0,
             monitoring, AppServices.Presets.State(Bank.Game)?.Baseline?.Name,
             AppServices.Presets.State(Bank.Mic)?.Baseline?.Name, format, autoShutoff,
-            new ModeChoice(modeFunction, AppServices.Noise.Cycling), dial), Active?.Settings, model);
+            new ModeChoice(modeFunction, AppServices.Noise.Cycling), dial,
+            ProfileGate.HoldsMix(model) && AppServices.Mix.Running ? AppServices.Mix.Mix : null), Active?.Settings, model);
     }
 
     private static async Task<(BankState Game, BankState Mic)> EnsureBanks() => (
@@ -224,6 +225,7 @@ public sealed class ProfileService : IDisposable
         Set("dial_function", s.DialFunction);
         Set("mode_button_function", s.ModeButton.Function);
         if (ProfileGate.Holds(model, "mode_button_function")) AppServices.Noise.SetCycling(s.ModeButton.Cycles);
+        if (ProfileGate.HoldsMix(model) && s.Mix is { } mix) AppServices.Mix.Apply(mix, $"profile {profile.Name}");
         await Platform.Current.Spatial.Apply(s.Spatial);
 
         AppSettings.Update(a => a.ActiveProfileId = profile.Id);
@@ -353,7 +355,7 @@ public sealed class ProfileService : IDisposable
         s.NoiseMode, s.NoiseLevel, s.SuperhumanHearing, s.ShhPreset, s.ShhLevel,
         s.NoiseGate, s.NoiseGateThreshold, s.AiNoiseReduction, s.MicMonitoring,
         s.GamePreset, s.MicPreset, s.Spatial, s.AutoShutoff,
-        new ModeChoice(s.ModeButtonFunction, s.ModeButtonCycles), s.DialFunction));
+        new ModeChoice(s.ModeButtonFunction, s.ModeButtonCycles), s.DialFunction, s.Mix));
 
     private static AppSettings.StoredProfile ToStored(Profile profile) => new()
     {
@@ -377,5 +379,6 @@ public sealed class ProfileService : IDisposable
         ModeButtonFunction = profile.Settings.ModeButton.Function,
         ModeButtonCycles = profile.Settings.ModeButton.Cycles,
         DialFunction = profile.Settings.DialFunction,
+        Mix = profile.Settings.Mix,
     };
 }
