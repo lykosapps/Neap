@@ -99,6 +99,8 @@
                                 <TextBlock Text="{TemplateBinding Header}" />
                                 <TextBlock Text="{TemplateBinding Description}" Classes="caption secondary"
                                            IsVisible="{TemplateBinding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                                <ContentPresenter Content="{TemplateBinding Below}"
+                                                  IsVisible="{TemplateBinding Below, Converter={x:Static ObjectConverters.IsNotNull}}" />
                             </StackPanel>
                             <ContentPresenter Grid.Column="2" x:Name="Control" Content="{TemplateBinding Content}"
                                               VerticalAlignment="Center" HorizontalAlignment="Right" />

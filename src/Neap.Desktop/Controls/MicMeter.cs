@@ -27,8 +27,7 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public sealed class MicMeter : UserControl
 {
-    public static readonly StyledProperty<bool> LargeProperty =
-        AvaloniaProperty.Register<MicMeter, bool>(nameof(Large));
+    private const int BarCount = 24;
 
     private static readonly TimeSpan Reading = TimeSpan.FromMilliseconds(50);
 
@@ -40,16 +39,7 @@ public sealed class MicMeter : UserControl
     private int _shown = -1;
     private int _opening;
 
-    public MicMeter() => Content = new StackPanel { Spacing = Space.XS, Children = { _meter, _trouble } };
-
-    /// <summary>Gets or sets whether the meter is drawn wide and tall, as a monitor rather than a reading in a row.</summary>
-    public bool Large
-    {
-        get => GetValue(LargeProperty);
-        set => SetValue(LargeProperty, value);
-    }
-
-    private int BarCount => Large ? 40 : 20;
+    public MicMeter() => Content = new StackPanel { Margin = new Thickness(0, Space.XS, 0, 0), Spacing = Space.XS, Children = { _meter, _trouble } };
 
     protected override async void OnLoaded(RoutedEventArgs e)
     {
@@ -67,26 +57,20 @@ public sealed class MicMeter : UserControl
         Close();
     }
 
-    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-    {
-        base.OnPropertyChanged(change);
-        if (change.Property == LargeProperty && IsLoaded) BuildBars();
-    }
-
-    /// <summary>Lays out the bars at the size the meter is set to.</summary>
+    /// <summary>Lays out the bars: a thin line under a name, not a monitor.</summary>
     private void BuildBars()
     {
         _bars.Clear();
         _meter.Children.Clear();
-        _meter.Spacing = Space.XS;
+        _meter.Spacing = Space.Hairline;
         for (int i = 0; i < BarCount; i++)
         {
             var bar = new Rectangle
             {
-                Width = Large ? 8 : 5,
-                Height = Large ? 40 : 16,
-                RadiusX = Large ? 2 : 1,
-                RadiusY = Large ? 2 : 1,
+                Width = 6,
+                Height = 6,
+                RadiusX = 1,
+                RadiusY = 1,
             };
             _bars.Add(bar);
             _meter.Children.Add(bar);

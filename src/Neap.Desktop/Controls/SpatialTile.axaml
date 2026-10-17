@@ -36,13 +36,6 @@
             x:Name="Row"
             loc:Uid.Value="Spatial_Row"
             Icon="{StaticResource IconSpatial}"
-            IsVisible="False">
-            <DropDownButton
-                x:Name="RowButton"
-                loc:Uid.Value="Spatial_RowButton"
-                MinWidth="160"
-                HorizontalContentAlignment="Left"
-                IsEnabled="False" />
-        </c:SettingsCard>
+            IsVisible="False" />
     </Grid>
 </UserControl>

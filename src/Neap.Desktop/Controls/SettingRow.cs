@@ -29,6 +29,9 @@ public sealed class SettingRow : SettingsCard
     public static readonly StyledProperty<bool> AsButtonsProperty =
         AvaloniaProperty.Register<SettingRow, bool>(nameof(AsButtons));
 
+    public static readonly StyledProperty<string> NeedsProperty =
+        AvaloniaProperty.Register<SettingRow, string>(nameof(Needs), "");
+
     private const int SliderWidth = 220;
 
     private readonly SettingLink _link;
@@ -52,6 +55,17 @@ public sealed class SettingRow : SettingsCard
         set => SetValue(SettingProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets the registry name of an on-or-off setting this row goes
+    /// with, such as "superhuman_hearing": the row is shown only while that
+    /// one is on, since it means nothing otherwise.
+    /// </summary>
+    public string Needs
+    {
+        get => GetValue(NeedsProperty);
+        set => SetValue(NeedsProperty, value);
+    }
+
     /// <summary>Gets or sets the lowest value a slider offers, where that is above the setting's own.</summary>
     public double Minimum
     {
@@ -61,8 +75,8 @@ public sealed class SettingRow : SettingsCard
 
     /// <summary>
     /// Gets or sets whether an <see cref="SettingKind.Enum"/> setting with few
-    /// options is offered as buttons, every option in view, rather than a
-    /// drop-down. For a setting whose options would not fit a row this way.
+    /// options is offered as a segmented control, every option in view, rather
+    /// than a drop-down. For a setting whose options would not fit a row this way.
     /// </summary>
     public bool AsButtons
     {
@@ -119,7 +133,7 @@ public sealed class SettingRow : SettingsCard
 
     private Control BuildToggle()
     {
-        _toggle = new ToggleSwitch { OnContent = Strings.Get("Switch_On"), OffContent = Strings.Get("Switch_Off") };
+        _toggle = NeapControls.Switch();
         _toggle.IsCheckedChanged += (_, _) => _link.Write(_toggle.IsChecked == true ? 1 : 0);
         return _toggle;
     }
@@ -141,36 +155,29 @@ public sealed class SettingRow : SettingsCard
 
     private Control BuildButtons(SettingKey key, IReadOnlyDictionary<int, string> options)
     {
-        _buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S };
+        _buttons = new StackPanel();
         string group = key.Name;
         foreach (var option in options)
         {
-            var button = new RadioButton
-            {
-                Content = OptionNames.For(key, option.Key),
-                Tag = option.Key,
-                GroupName = group,
-            };
+            var button = NeapControls.Segment(OptionNames.For(key, option.Key), group);
+            button.Tag = option.Key;
             button.IsCheckedChanged += (_, _) =>
             {
                 if (!_paintingButtons && button.IsChecked == true) _link.Write((int)button.Tag!);
             };
             _buttons.Children.Add(button);
         }
-        return _buttons;
+        return NeapControls.Pill(_buttons);
     }
 
     private Control BuildSlider(SettingKey key)
     {
-        _slider = new Slider
-        {
-            Minimum = double.IsNaN(Minimum) ? key.Minimum ?? 0 : Math.Max(Minimum, key.Minimum ?? 0),
-            Maximum = key.Maximum ?? 100,
-            VerticalAlignment = VerticalAlignment.Center,
-            // No tooltip on the thumb: the number is in the row already, and
-            // the tooltip covers the row above while dragging.
-            IsSnapToTickEnabled = false,
-        };
+        _slider = NeapControls.Slider();
+        _slider.Minimum = double.IsNaN(Minimum) ? key.Minimum ?? 0 : Math.Max(Minimum, key.Minimum ?? 0);
+        _slider.Maximum = key.Maximum ?? 100;
+        // No tooltip on the thumb: the number is in the row already, and
+        // the tooltip covers the row above while dragging.
+        _slider.IsSnapToTickEnabled = false;
         _slider.ValueChanged += (_, args) =>
         {
             ShowValue((int)args.NewValue);
@@ -179,7 +186,7 @@ public sealed class SettingRow : SettingsCard
 
         _readout = new TextBlock
         {
-            MinWidth = 44,
+            MinWidth = 52,
             TextAlignment = Avalonia.Media.TextAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center,
             FontFeatures = Avalonia.Media.FontFeatureCollection.Parse("tnum"),
@@ -228,6 +235,8 @@ public sealed class SettingRow : SettingsCard
     private void Paint()
     {
         if (_link.Key is not { } key) return;
+        if (Needs.Length > 0 && !(AppServices.Headset.TryGetNumberByKey(Registry.ByName[Needs].Key, out int needed) && needed == 1))
+            IsVisible = false;
         if (key.Kind == SettingKind.Text)
         {
             string? text = AppServices.Headset.GetText(key.Name);

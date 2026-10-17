@@ -633,10 +633,10 @@ function NoiseControl {
     if ((Ask 'value 0x750') -ne '1') { Fail 'the pretend headset starts with noise cancellation on'; return }
     $level = Ask 'value 0x760'
     NoiseStep { Operate $modes 'Transparency' } '1' '0' 'choosing Transparency on Audio'
-    Check ($null -eq (Find $script:window 'AutomationIdProperty' 'anc_level')) 'Blocking is hidden in transparency'
+    Check ($null -eq (Find $script:window 'AutomationIdProperty' 'anc_level')) 'Strength is hidden in transparency'
     NoiseStep { Operate $modes 'Off' } '0' $level 'choosing Off on Audio'
-    NoiseStep { Operate $modes 'Noise cancellation' } '1' $level 'choosing Noise cancellation on Audio'
-    Check (Until { $null -ne (Find $script:window 'AutomationIdProperty' 'anc_level') }) 'Blocking is shown with noise cancellation'
+    NoiseStep { Operate $modes 'Cancelling' } '1' $level 'choosing Cancelling on Audio'
+    Check (Until { $null -ne (Find $script:window 'AutomationIdProperty' 'anc_level') }) 'Strength is shown while cancelling'
 
     Page 'Home'
     $tile = Control 'Noise control' ([System.Windows.Automation.ControlType]::Button)
@@ -648,7 +648,7 @@ function NoiseControl {
 
     Page 'Controls'
     $mode = Find $script:window 'AutomationIdProperty' 'mode_button_function'
-    NoiseStep { Operate $mode 'Noise cancellation, transparency and off' } '1' $level 'choosing the Mode button cycle'
+    NoiseStep { Operate $mode 'Noise cancellation: cancelling, transparency and off' } '1' $level 'choosing the Mode button cycle'
     Check ($null -ne (Find $script:window 'NameProperty' 'Works while Neap is running. Otherwise the button turns noise cancellation on and off.')) 'the cycle says it needs Neap running'
     NoiseStep { Ask 'report anc 0' | Out-Null } '1' '0' 'a Mode press from noise cancellation'
     NoiseStep { Ask 'report anc 0' | Out-Null } '0' $level 'a Mode press from transparency'
@@ -716,7 +716,7 @@ function Profiles {
     $script:step = 'the profile bar once something no longer matches it'
     Page 'Audio'
     $ai = Find $script:window 'AutomationIdProperty' 'ai_noise_reduction'
-    if ($null -eq $ai) { Fail 'Audio has an AI noise reduction control'; return }
+    if ($null -eq $ai) { Fail 'Audio has a noise reduction control'; return }
     Operate $ai $null
     Page 'Home'
     Check (Until { $null -ne (Find $script:window 'NameProperty' 'Edited') }) 'changing a setting the profile holds marks it edited'

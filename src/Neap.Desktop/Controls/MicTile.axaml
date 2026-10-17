@@ -2,8 +2,10 @@
     x:Class="Neap.Desktop.Controls.MicTile"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization">
 
+    <Grid>
     <ToggleButton x:Name="Face" Classes="tile" IsEnabled="False">
         <Grid RowDefinitions="*,Auto,Auto" RowSpacing="{StaticResource NeapSpaceHairline}">
             <PathIcon
@@ -18,4 +20,7 @@
             <TextBlock x:Name="Word" Grid.Row="2" Classes="tilestate" />
         </Grid>
     </ToggleButton>
+
+    <c:SettingsCard x:Name="Row" Icon="{StaticResource IconMicrophone}" IsVisible="False" />
+    </Grid>
 </UserControl>

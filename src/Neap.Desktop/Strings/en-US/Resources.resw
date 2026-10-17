@@ -181,13 +181,7 @@
     <value>Audio</value>
   </data>
   <data name="Audio_Section.What" xml:space="preserve">
-    <value>Volume, noise cancellation and the equaliser</value>
-  </data>
-  <data name="Audio_VolumeHeading.Text" xml:space="preserve">
-    <value>Volume</value>
-  </data>
-  <data name="Audio_VoicePrompts.Description" xml:space="preserve">
-    <value>How loud the headset's spoken alerts are.</value>
+    <value>Noise cancellation, volume and spatial sound</value>
   </data>
   <data name="Audio_VoicePrompts.Header" xml:space="preserve">
     <value>Voice prompts</value>
@@ -195,37 +189,28 @@
   <data name="Audio_MasterVolume.Header" xml:space="preserve">
     <value>Master volume</value>
   </data>
-  <data name="Audio_MasterVolume.Description" xml:space="preserve">
-    <value>The volume wheel on the headset moves this too.</value>
-  </data>
   <data name="Audio_LoudnessBoost.Header" xml:space="preserve">
-    <value>Max loudness boost (Stealth Pro II only)</value>
-  </data>
-  <data name="Audio_LoudnessBoost.Description" xml:space="preserve">
-    <value>Makes game sound through the dock louder.</value>
+    <value>Loudness boost</value>
   </data>
   <data name="Audio_HeadsetSection.What" xml:space="preserve">
-    <value>Noise cancellation, Superhuman Hearing and the equaliser</value>
+    <value>Noise cancellation and Superhuman Hearing</value>
   </data>
   <data name="Audio_AroundYouHeading.Text" xml:space="preserve">
-    <value>Around you</value>
+    <value>What you hear</value>
   </data>
-  <data name="Audio_ShhTile.Title" xml:space="preserve">
+  <data name="Audio_Shh.Header" xml:space="preserve">
     <value>Superhuman Hearing</value>
   </data>
-  <data name="Audio_ShhTile.Description" xml:space="preserve">
+  <data name="Audio_Shh.Description" xml:space="preserve">
     <value>Makes footsteps and quiet sounds easier to hear.</value>
   </data>
   <data name="Audio_Type.Header" xml:space="preserve">
-    <value>Type</value>
+    <value>Sound</value>
   </data>
   <data name="Audio_Intensity.Header" xml:space="preserve">
-    <value>Intensity</value>
+    <value>Strength</value>
   </data>
   <data name="Spatial_Row.Header" xml:space="preserve">
-    <value>Spatial sound</value>
-  </data>
-  <data name="Spatial_RowButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Spatial sound</value>
   </data>
   <data name="Controls_Title.Text" xml:space="preserve">
@@ -394,25 +379,16 @@
     <value>Your headset uses one at a time. Press CrossPlay on the headset to switch between them.</value>
   </data>
   <data name="Microphone_Section.What" xml:space="preserve">
-    <value>Mute, level, monitoring, noise reduction, the noise gate and the equaliser</value>
+    <value>Microphone, level, monitoring, noise reduction and the noise gate</value>
   </data>
   <data name="Microphone_VoiceHeading.Text" xml:space="preserve">
-    <value>Your voice</value>
-  </data>
-  <data name="Microphone_LevelLabel.Text" xml:space="preserve">
-    <value>What they hear</value>
-  </data>
-  <data name="Microphone_LevelNote.Text" xml:space="preserve">
-    <value>Speak to see it move.</value>
+    <value>Your microphone</value>
   </data>
   <data name="Microphone_Meter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Microphone level</value>
   </data>
   <data name="Microphone_MeterUnavailable" xml:space="preserve">
     <value>The level can't be shown. Check that apps may use the microphone in your system's privacy settings.</value>
-  </data>
-  <data name="Microphone_Sensitivity.Description" xml:space="preserve">
-    <value>How loud you come through.</value>
   </data>
   <data name="Microphone_Sensitivity.Header" xml:space="preserve">
     <value>Sensitivity</value>
@@ -421,28 +397,25 @@
     <value>Hear your own voice in the headset.</value>
   </data>
   <data name="Microphone_MicMonitoring.Header" xml:space="preserve">
-    <value>Mic monitoring</value>
+    <value>Microphone monitoring</value>
   </data>
   <data name="Microphone_HeadsetSection.What" xml:space="preserve">
-    <value>Mute, monitoring, noise reduction, the noise gate and the equaliser</value>
+    <value>Microphone, monitoring, noise reduction and the noise gate</value>
   </data>
-  <data name="Microphone_NoiseHandlingHeading.Text" xml:space="preserve">
-    <value>Background noise</value>
+  <data name="Microphone_Ai.Description" xml:space="preserve">
+    <value>Removes background noise from what others hear.</value>
   </data>
-  <data name="Microphone_AiTile.Description" xml:space="preserve">
-    <value>Removes background noise from your voice.</value>
+  <data name="Microphone_Ai.Header" xml:space="preserve">
+    <value>Noise reduction</value>
   </data>
-  <data name="Microphone_AiTile.Title" xml:space="preserve">
-    <value>AI noise reduction</value>
-  </data>
-  <data name="Microphone_GateTile.Description" xml:space="preserve">
+  <data name="Microphone_Gate.Description" xml:space="preserve">
     <value>Stays silent until you speak.</value>
   </data>
-  <data name="Microphone_GateTile.Title" xml:space="preserve">
+  <data name="Microphone_Gate.Header" xml:space="preserve">
     <value>Noise gate</value>
   </data>
   <data name="Microphone_Threshold.Description" xml:space="preserve">
-    <value>How loud you have to be before the gate opens.</value>
+    <value>How loud you have to be to be heard.</value>
   </data>
   <data name="Microphone_Threshold.Header" xml:space="preserve">
     <value>Threshold</value>
@@ -1031,7 +1004,19 @@
     <value>Headset level: {0} dB</value>
   </data>
   <data name="LoudnessBoost_Caution" xml:space="preserve">
-    <value>Turn it up slowly to protect your hearing, and back off if it distorts.</value>
+    <value>Turn it up slowly to protect your hearing.</value>
+  </data>
+  <data name="LoudnessBoost_Unsupported" xml:space="preserve">
+    <value>Stealth Pro II only</value>
+  </data>
+  <data name="Equaliser_Open" xml:space="preserve">
+    <value>Open →</value>
+  </data>
+  <data name="Equaliser_LinkNamed" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Equaliser_LinkSpoken" xml:space="preserve">
+    <value>Open {0}</value>
   </data>
   <data name="Volume_Mute" xml:space="preserve">
     <value>Mute</value>
@@ -1366,7 +1351,7 @@
     <value>Voice prompts</value>
   </data>
   <data name="Feature_NoiseControl" xml:space="preserve">
-    <value>Noise control</value>
+    <value>Noise cancellation</value>
   </data>
   <data name="Feature_SuperhumanHearing" xml:space="preserve">
     <value>Superhuman Hearing</value>
@@ -1378,10 +1363,10 @@
     <value>Microphone</value>
   </data>
   <data name="Feature_MicMonitoring" xml:space="preserve">
-    <value>Mic monitoring</value>
+    <value>Microphone monitoring</value>
   </data>
   <data name="Feature_AiNoiseReduction" xml:space="preserve">
-    <value>AI noise reduction</value>
+    <value>Noise reduction</value>
   </data>
   <data name="Feature_NoiseGate" xml:space="preserve">
     <value>Noise gate</value>
@@ -1438,13 +1423,13 @@
     <value>Spatial sound formats</value>
   </data>
   <data name="Noise_Title" xml:space="preserve">
-    <value>Noise control</value>
+    <value>Noise cancellation</value>
   </data>
   <data name="Noise_Description" xml:space="preserve">
-    <value>Blocks the room around you, or lets it in.</value>
+    <value>Blocks the room in your headset, or lets it in.</value>
   </data>
   <data name="Noise_Cancelling" xml:space="preserve">
-    <value>Noise cancellation</value>
+    <value>Cancelling</value>
   </data>
   <data name="Noise_Transparency" xml:space="preserve">
     <value>Transparency</value>
@@ -1453,13 +1438,10 @@
     <value>Off</value>
   </data>
   <data name="Noise_Blocking" xml:space="preserve">
-    <value>Blocking</value>
-  </data>
-  <data name="Noise_BlockingDescription" xml:space="preserve">
-    <value>How much of the room noise cancellation keeps out.</value>
+    <value>Strength</value>
   </data>
   <data name="Mode_NoiseCycle" xml:space="preserve">
-    <value>Noise cancellation, transparency and off</value>
+    <value>Noise cancellation: cancelling, transparency and off</value>
   </data>
   <data name="Mode_NoiseCycleNeedsApp" xml:space="preserve">
     <value>Works while Neap is running. Otherwise the button turns noise cancellation on and off.</value>
@@ -1664,7 +1646,7 @@
     <value>Off</value>
   </data>
   <data name="Spatial_Unrecognised" xml:space="preserve">
-    <value>Something else</value>
+    <value>Another format</value>
     <comment>A spatial sound format is on, set outside Neap, that Neap does not know by name.</comment>
   </data>
   <data name="Spatial_WindowsSonic" xml:space="preserve">
@@ -1689,7 +1671,7 @@
     <value>Couldn't change spatial sound</value>
   </data>
   <data name="Spatial_Refused" xml:space="preserve">
-    <value>Your system wouldn't switch the headset to {0}.</value>
+    <value>Your system didn't switch to {0}. Try again, or choose it in your system's sound settings.</value>
   </data>
   <data name="Spatial_NoHeadset" xml:space="preserve">
     <value>Connect the headset to choose its spatial sound.</value>
