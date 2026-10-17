@@ -45,7 +45,7 @@ foreach ($theme in 'dark', 'light') {
 
         if ($Parts.Contains('A') -and $theme -eq 'dark') {
             Section 'the rail'
-            $rail = 'Home', 'Audio', 'Microphone', 'Controls', 'Profiles', 'Device', 'Settings'
+            $rail = 'Home', 'Audio', 'Equaliser', 'Controls', 'Profiles', 'Device', 'Settings'
             $items = foreach ($name in $rail) {
                 Find-All $name | Where-Object { $_.GetSupportedPatterns() -contains [System.Windows.Automation.SelectionItemPattern]::Pattern } | Select-Object -First 1
             }

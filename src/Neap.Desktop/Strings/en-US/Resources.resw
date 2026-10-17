@@ -27,11 +27,11 @@
   <data name="Main_NavAudio.AccessKey" xml:space="preserve">
     <value>A</value>
   </data>
-  <data name="Main_NavMicrophone.Content" xml:space="preserve">
-    <value>Microphone</value>
+  <data name="Main_NavEqualiser.Content" xml:space="preserve">
+    <value>Equaliser</value>
   </data>
-  <data name="Main_NavMicrophone.AccessKey" xml:space="preserve">
-    <value>M</value>
+  <data name="Main_NavEqualiser.AccessKey" xml:space="preserve">
+    <value>E</value>
   </data>
   <data name="Main_NavControls.Content" xml:space="preserve">
     <value>Controls</value>
@@ -62,6 +62,21 @@
   </data>
   <data name="Main_TrayQuit" xml:space="preserve">
     <value>Quit</value>
+  </data>
+  <data name="EqualiserPage_Title.Text" xml:space="preserve">
+    <value>Equaliser</value>
+  </data>
+  <data name="EqualiserPage_Section.What" xml:space="preserve">
+    <value>The equaliser</value>
+  </data>
+  <data name="EqualiserPage_Bank.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Equaliser to edit</value>
+  </data>
+  <data name="EqualiserPage_Game.Content" xml:space="preserve">
+    <value>Game</value>
+  </data>
+  <data name="EqualiserPage_Mic.Content" xml:space="preserve">
+    <value>Microphone</value>
   </data>
   <data name="Equaliser_Edited.Text" xml:space="preserve">
     <value>Edited</value>
@@ -212,9 +227,6 @@
   </data>
   <data name="Spatial_RowButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Spatial sound</value>
-  </data>
-  <data name="Audio_EqualiserHeading.Text" xml:space="preserve">
-    <value>Equaliser</value>
   </data>
   <data name="Controls_Title.Text" xml:space="preserve">
     <value>Controls</value>
@@ -381,9 +393,6 @@
   <data name="Transmitters_Note.Text" xml:space="preserve">
     <value>Your headset uses one at a time. Press CrossPlay on the headset to switch between them.</value>
   </data>
-  <data name="Microphone_Title.Text" xml:space="preserve">
-    <value>Microphone</value>
-  </data>
   <data name="Microphone_Section.What" xml:space="preserve">
     <value>Mute, level, monitoring, noise reduction, the noise gate and the equaliser</value>
   </data>
@@ -437,9 +446,6 @@
   </data>
   <data name="Microphone_Threshold.Header" xml:space="preserve">
     <value>Threshold</value>
-  </data>
-  <data name="Microphone_EqualiserHeading.Text" xml:space="preserve">
-    <value>Equaliser</value>
   </data>
   <data name="Settings_Title.Text" xml:space="preserve">
     <value>Settings</value>

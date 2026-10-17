@@ -12,7 +12,7 @@ Who it's for: see [USERS.md](USERS.md).
   or off with Superhuman Hearing, master and voice-prompt volume, the
   loudness boost, and Windows' spatial sound (Windows only). Your
   microphone: mic on/off with a live meter, sensitivity, monitoring, AI
-  noise reduction and the noise gate. Each section links to its equaliser.
+  noise reduction and the noise gate. Both equalisers are on the Equaliser page.
   Serves noise control, levels and microphone settings: the occasional
   changes, on one page.
 - **Equaliser** — the game and microphone equalisers, one tab each: presets
@@ -52,7 +52,9 @@ the footer. Seven places, one level deep.
 Home is selected on launch. There's no back button because the menu is
 always there to move sideways instead. In a window narrower than 641 pixels
 the menu folds into one button over the page's top corner, which opens it
-over the page and closes it once a place is chosen. One shortcut: Home's equaliser tile opens the Equaliser page on its Game
+over the page and closes it once a place is chosen. Between 641 and 1007
+pixels the menu shows icons only, and the profile switcher becomes one
+profile icon that opens the same menu. One shortcut: Home's equaliser tile opens the Equaliser page on its Game
 tab. Closing the window leaves a
 tray icon running, whose own menu only opens or quits the app — it doesn't
 expose any page. On a Linux desktop with no notification area, closing the
