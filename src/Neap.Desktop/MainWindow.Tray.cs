@@ -7,6 +7,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using Microsoft.Win32;
+using Neap.Core;
 using Neap.Core.Connection;
 using Neap.Core.Updates;
 using Neap.Desktop.Controls;
@@ -19,12 +20,16 @@ namespace Neap.Desktop;
 /// </summary>
 /// <remarks>
 /// The mix, the chat wheel and the headset's own controls are the point of
-/// running, and none of them need a window. Quit is on the icon's menu.
+/// running, and none of them need a window. A click on the icon opens the
+/// mini panel, with the four settings changed mid-game; the window and Quit
+/// are on the icon's menu.
 /// </remarks>
 public partial class MainWindow : IDisposable
 {
     private TrayIcon? _tray;
     private bool _quitting;
+    private MiniPanelWindow? _mini;
+    private long _miniClosedAt;
 
     /// <summary>Gives memory back every minute while the window is hidden, on Windows.</summary>
     private IDisposable? _trimming;
@@ -41,20 +46,27 @@ public partial class MainWindow : IDisposable
         OneCopy.Current?.ListenForShow(() => Dispatcher.UIThread.Post(Reveal));
         AppServices.Updates.Installed += program => Dispatcher.UIThread.Post(() => _ = Restart(program));
 
-        // Without an icon to be got back by, the window closing closes the app.
-        if (!TrayAvailability.Exists) return;
+        // Without an icon to be got back by, the window closing closes the app,
+        // and the mini panel, which only the icon opens, is not offered.
+        if (!TrayAvailability.Exists)
+        {
+            AppLog.Write("mini panel: not offered, as this desktop shows no notification-area icons");
+            return;
+        }
 
         var open = new NativeMenuItem(Strings.Get("Main_TrayOpen"));
         open.Click += (_, _) => Reveal();
+        var mini = new NativeMenuItem(Strings.Get("Main_TrayMini"));
+        mini.Click += (_, _) => ToggleMini();
         var quit = new NativeMenuItem(Strings.Get("Main_TrayQuit"));
         quit.Click += (_, _) => Quit();
         _tray = new TrayIcon
         {
             Icon = TrayPicture(),
-            Menu = new NativeMenu { open, new NativeMenuItemSeparator(), quit },
+            Menu = new NativeMenu { open, mini, new NativeMenuItemSeparator(), quit },
         };
         if (Application.Current?.PlatformSettings is { } settings) settings.ColorValuesChanged += RepaintTrayPicture;
-        _tray.Clicked += (_, _) => Reveal();
+        _tray.Clicked += (_, _) => ToggleMini();
         if (Application.Current is { } app) TrayIcon.SetIcons(app, new TrayIcons { _tray });
 
         AppServices.Updates.Found += release => Dispatcher.UIThread.Post(() => TellAboutUpdate(release));
@@ -63,6 +75,31 @@ public partial class MainWindow : IDisposable
         AppServices.Headset.Changed += () => Dispatcher.UIThread.Post(PaintTray);
         AppServices.AudioRoute.Changed += () => Dispatcher.UIThread.Post(PaintTray);
         PaintTray();
+    }
+
+    /// <summary>Opens the mini panel, or closes it when it is open.</summary>
+    /// <remarks>
+    /// A click on the icon takes focus from an open panel, which closes it
+    /// before the click arrives; <see cref="MiniPanel.Opens"/> tells that
+    /// click apart from one that asks to open it.
+    /// </remarks>
+    private void ToggleMini()
+    {
+        if (!MiniPanel.Opens(_mini is not null, Stopwatch.GetElapsedTime(_miniClosedAt)))
+        {
+            _mini?.Close();
+            return;
+        }
+        AppLog.Write("mini panel: opened from the notification area");
+        var panel = new MiniPanelWindow { Main = this };
+        panel.Closed += (_, _) =>
+        {
+            _miniClosedAt = panel.ClosedAt;
+            _mini = null;
+        };
+        _mini = panel;
+        panel.Show();
+        panel.Activate();
     }
 
     /// <summary>The notification-area glyph: light on a dark taskbar, dark on a light one.</summary>

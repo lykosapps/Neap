@@ -58,7 +58,28 @@
     <value>S</value>
   </data>
   <data name="Main_TrayOpen" xml:space="preserve">
-    <value>Open</value>
+    <value>Open Neap</value>
+  </data>
+  <data name="Main_TrayMini" xml:space="preserve">
+    <value>Mini panel</value>
+  </data>
+  <data name="Mini_Open.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Open Neap</value>
+  </data>
+  <data name="Mini_Open.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Open Neap</value>
+  </data>
+  <data name="Mini_Section.What" xml:space="preserve">
+    <value>Microphone, noise cancellation and equaliser</value>
+  </data>
+  <data name="Mini_Noise.Header" xml:space="preserve">
+    <value>Noise cancellation</value>
+  </data>
+  <data name="Mini_Equaliser.Header" xml:space="preserve">
+    <value>Equaliser</value>
+  </data>
+  <data name="Mini_ChooseApps.Content" xml:space="preserve">
+    <value>Choose in Neap</value>
   </data>
   <data name="Main_TrayQuit" xml:space="preserve">
     <value>Quit</value>

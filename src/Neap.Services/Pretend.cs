@@ -72,6 +72,12 @@ public static class Pretend
     /// <summary>With <see cref="UpdateFlag"/>, makes the simulated update end in a new version that will not stay open.</summary>
     public const string UpdateFailsFlag = "--update-fails";
 
+    /// <summary>With <see cref="Flag"/>, opens the mini panel alone, in place of the window, so a picture of it can be taken.</summary>
+    public const string MiniFlag = "--mini";
+
+    /// <summary>With <see cref="MiniFlag"/>, draws the mini panel at touch size, as a small window gets it.</summary>
+    public const string TouchFlag = "--touch";
+
     public static bool Active { get; } = Given(Flag);
 
     /// <summary>Whether a pretend run is shown in high contrast.</summary>
@@ -110,6 +116,12 @@ public static class Pretend
         : Given(LightFlag) ? PretendTheme.Light
         : Given(DarkFlag) ? PretendTheme.Dark
         : null;
+
+    /// <summary>Whether the mini panel opens alone, in place of the window.</summary>
+    public static bool Mini { get; } = Active && Given(MiniFlag);
+
+    /// <summary>Whether the mini panel is drawn at touch size.</summary>
+    public static bool Touch { get; } = Active && Given(TouchFlag);
 
     /// <summary>The rail tag of the page the app opens on, or null for Home.</summary>
     /// <remarks>

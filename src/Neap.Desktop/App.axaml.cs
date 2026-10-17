@@ -36,7 +36,8 @@ public class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow();
+            // A picture of the mini panel is taken of it alone.
+            desktop.MainWindow = Pretend.Mini ? new MiniPanelWindow() : new MainWindow();
             desktop.Exit += (_, _) => AppServices.Stop();
         }
         base.OnFrameworkInitializationCompleted();

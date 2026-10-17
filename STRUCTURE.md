@@ -56,10 +56,14 @@ over the page and closes it once a place is chosen. Between 641 and 1007
 pixels the menu shows icons only, and the profile switcher becomes one
 profile icon that opens the same menu. One shortcut: Home's equaliser tile opens the Equaliser page on its Game
 tab. Closing the window leaves a
-tray icon running, whose own menu only opens or quits the app — it doesn't
-expose any page. On a Linux desktop with no notification area, closing the
-window closes the app instead, since an icon nothing shows could not be got
-back. On Windows the app draws its own title bar, with the window's buttons
+tray icon running. A left click on it opens the mini panel: a small card by
+the notification area with the four things changed mid-game (the game and
+chat mix, the microphone, noise cancellation and the equaliser preset), which
+closes on Escape or when focus leaves it, and has a button that opens the
+window. The icon's menu opens the window (Open Neap), opens the mini panel, or
+quits; it exposes no page. On a Linux desktop with no notification area,
+closing the window closes the app instead, since an icon nothing shows could
+not be got back, and there is no mini panel to open. On Windows the app draws its own title bar, with the window's buttons
 on its top row; on Linux the desktop's own title bar stays.
 
 When a newer version of Neap is out, a banner sits at the very top, under

@@ -37,6 +37,8 @@
     <Style Selector="c|GameChatDial">
         <Setter Property="Width" Value="{StaticResource NeapDialSize}" />
         <Setter Property="Height" Value="{StaticResource NeapDialSize}" />
+        <!-- The ring below is the focus mark; the toolkit's square one drawn as well would box the dial in. -->
+        <Setter Property="FocusAdorner" Value="{x:Null}" />
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid Background="Transparent">
