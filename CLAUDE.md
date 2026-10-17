@@ -70,7 +70,8 @@ preparing code for experienced reviewers.
   themes for names, target sizes, Tab order, a visible focus mark and text
   contrast; it takes about six minutes and the keyboard focus, so it is not
   part of `all` and needs the machine to itself. `run.ps1 atlas` checks the
-  pretend Atlas Air.
+  pretend Atlas Air. `run.ps1 looks` saves a picture of every page in dark,
+  light and high contrast for a person to look over.
 - **Size the check to the change.** Notes and docs need only the build. A
   rule in Core needs its tests, and the check for its page if what the page
   shows changes. One screen needs that screen's check. What every screen

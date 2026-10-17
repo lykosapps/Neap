@@ -77,11 +77,15 @@ function Get-WindowBitmap {
 }
 
 # Whether a picture of the window has anything in it. The desktop is no guide:
-# a black wallpaper with the taskbar hidden is black with the screen on.
+# a black wallpaper with the taskbar hidden is black with the screen on. The
+# window is sampled all over, since high contrast draws on pure black and only
+# its text and outlines are lit.
 function Test-BitmapLit($Bitmap) {
     $lit = 0
-    foreach ($x in 100, 300, 500) { foreach ($y in 150, 300, 450) { if ($x -lt $Bitmap.Width -and $y -lt $Bitmap.Height -and $Bitmap.GetPixel($x, $y).GetBrightness() -gt 0.04) { $lit++ } } }
-    $lit -gt 2
+    for ($x = 8; $x -lt $Bitmap.Width; $x += 16) {
+        for ($y = 8; $y -lt $Bitmap.Height; $y += 16) { if ($Bitmap.GetPixel($x, $y).GetBrightness() -gt 0.04) { $lit++ } }
+    }
+    $lit -gt 20
 }
 
 # Stops the check, saying why, if the window will not come out lit.
