@@ -128,6 +128,19 @@
         <Setter Property="FontSize" Value="{StaticResource NeapFontBody}" />
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
+    <!-- Touch size (the window sets the class): body text steps up. It sits here so the role classes below, which come later, keep their own sizes. -->
+    <Style Selector="Window.touch TextBlock, Window.touch SelectableTextBlock">
+        <Setter Property="FontSize" Value="{StaticResource NeapFontBodyTouch}" />
+    </Style>
+    <Style Selector="Window.touch Button, Window.touch ToggleButton, Window.touch ComboBox, Window.touch ListBoxItem">
+        <Setter Property="FontSize" Value="{StaticResource NeapFontBodyTouch}" />
+    </Style>
+    <Style Selector="Window.touch c|NavItem">
+        <Setter Property="Height" Value="{StaticResource NeapNavItemHeightTouch}" />
+    </Style>
+    <Style Selector="Window.touch c|SettingsCard">
+        <Setter Property="MinHeight" Value="{StaticResource NeapRowHeightTouch}" />
+    </Style>
     <Style Selector="TextBlock.caption">
         <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
     </Style>

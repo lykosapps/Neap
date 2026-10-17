@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
+using Neap.Core;
 using Neap.Desktop.Controls;
 using Neap.Desktop.Localization;
 using Neap.Desktop.Views;
@@ -50,7 +51,11 @@ public partial class MainWindow : Window
 
         Places.SelectionChanged += (_, _) => OnChosen(Places, Foot);
         Foot.SelectionChanged += (_, _) => OnChosen(Foot, Places);
-        SizeChanged += (_, e) => FitRail(e.NewSize.Width);
+        SizeChanged += (_, e) =>
+        {
+            FitRail(e.NewSize.Width);
+            FitDensity(e.NewSize);
+        };
         NavToggle.Click += (_, _) => Rail.IsPaneOpen = !Rail.IsPaneOpen;
         Body.PageTransition = new EntranceTransition();
         DrawOwnTitleBar();
@@ -110,6 +115,10 @@ public partial class MainWindow : Window
         // The page moves down clear of the button, rather than have it sit against the page's title.
         PageFrame.Margin = folded ? new Thickness(0, TitleRowHeight, 0, 0) : new Thickness(0);
     }
+
+    /// <summary>Marks the window <c>touch</c> while it is small enough for the roomier size, which the styles take their larger sizes from.</summary>
+    private void FitDensity(Size size) =>
+        Classes.Set("touch", Density.For(size.Width, size.Height) == DensityMode.Touch);
 
     /// <summary>
     /// Where the app draws its own title bar, as on Windows, with the system's
