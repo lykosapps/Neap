@@ -114,9 +114,9 @@ its accent. Neap takes those qualities and keeps its own identity.
 - **`Spacing` between siblings, `Padding` inside a container, `Margin` only
   for exceptions.** Every value comes from the spacing scale.
 - **Spacing scale: 4, 8, 12, 16, 24, 32.**
-  - 12 is the gap between cards.
-  - 16 is the padding inside a card.
-  - 32 is the page margin.
+  - 8 is the gap between cards.
+  - 12 is the padding inside a card.
+  - 24 is the page margin.
 - **Corner radii: 12 for cards, 8 for inset rows and tiles, 6 for buttons
   and inputs, full round for pills and badges.** These are tokens, not
   constants in C#.
@@ -135,16 +135,17 @@ its accent. Neap takes those qualities and keeps its own identity.
 
 - **One type ramp, as style classes.**
   - Caption 12.
-  - Body 14.
-  - Card title 16, semibold.
-  - Section 20, semibold.
-  - Page title 28, semibold.
-  - Label 12 in capitals with letter spacing.
+  - Body 13.
+  - Card title 15, semibold.
+  - Section 18, semibold.
+  - Page title 24, semibold.
+  - Label 11 in capitals with letter spacing.
   - No size or spacing is set inline. One class per role: no two classes
     with the same values.
-- **Body stays at 14.** MultiDrive uses 11–12px body text, which is too
-  small for a settings app read at arm's length. Take its quietness, not
-  its size.
+- **Compact, but readable.** Body text is 13 and setting rows are 40px,
+  so more of a page fits on screen. Nothing goes below 11, and every
+  target stays at least 24px. MultiDrive's 11–12px body text is a step
+  too far for a settings app read at arm's length.
 - **Inter, on both systems.** It is embedded through Avalonia's own font
   package, so Windows and Linux render the same text. The device details
   keep their monospace font.
@@ -189,12 +190,12 @@ its accent. Neap takes those qualities and keeps its own identity.
 
 ## 6. Components
 
-- **Card.** Card fill, radius 12, padding 16, no border. It has a title at
+- **Card.** Card fill, radius 12, padding 12, no border. It has a title at
   top left and, optionally, one quiet action at top right.
 - **Inset row.** Ground fill, radius 8. It is used for list rows and readings
   inside a card.
 - **Setting row.** An icon, a name, an optional one-line description and
-  the control on the right. It is at least 48px high, and the whole row is
+  the control on the right. It is 40px high, and the whole row is
   the click target where that makes sense.
 - **Navigation rail.** An icon and a name, in groups split by hairlines.
   The selected item is a rounded pill one fill step lighter. A count badge
@@ -259,7 +260,7 @@ its accent. Neap takes those qualities and keeps its own identity.
 | --- | --- |
 | Fill-step depth, large radii, flat surfaces | Its exact colours, sizes and radii |
 | A neutral ground, so the accent carries the colour | Its indigo accent: Neap keeps its own violet |
-| One disciplined accent, with a darker tint for tracks | 11–12px body text |
+| One disciplined accent, with a darker tint for tracks | 11–12px body text: Neap's is 13 |
 | Slim icon-and-name rail with a pill selection | Dark only: Neap keeps light and high contrast |
 | Unavailable choices shown dimmed with a reason | Its dashboard grid, source-and-target cards and bottom action row |
 | Title bar that blends into the window | Its pill-shaped task progress bars |

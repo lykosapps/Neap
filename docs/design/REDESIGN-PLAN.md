@@ -142,9 +142,3 @@ its own files, so no two sessions touch the same file.
   its tests, and follows the commit rules in `CLAUDE.md`.
 - **Compare screenshots before and after,** in all three themes, for every
   surface the session touched.
-
-## Open questions for the owner
-
-1. **How far to follow MultiDrive's density.** Its cards are airy and its
-   text small. The principles keep body text at 14. Is that the right
-   balance?
