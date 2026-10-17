@@ -51,6 +51,12 @@ function Use-Page([string]$Page, [scriptblock]$Block, [int]$Settle = 5) {
     Get-RealLog $skip | Where-Object { $_ -and $_ -notmatch ' mix: named | apps: named ' } | ForEach-Object { Note "log: $_" }
 }
 
+# The slider with this name: its label shares the name, so the type tells them apart.
+function Find-Slider([string]$Name) {
+    @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Slider)))) |
+        Where-Object { $_.Current.Name -eq $Name } | Select-Object -First 1
+}
+
 # Chooses a noise mode on Audio, then reads what the headset kept.
 function Set-Noise([string]$Mode, [Nullable[int]]$Blocking = $null) {
     Use-Page 'audio' {
@@ -58,9 +64,9 @@ function Set-Noise([string]$Mode, [Nullable[int]]$Blocking = $null) {
         if (-not $radio) { Check $false "Audio offers $Mode"; return }
         if (-not $radio.GetCurrentPropertyValue([System.Windows.Automation.SelectionItemPattern]::IsSelectedProperty)) { Press $radio; Start-Sleep -Seconds 2 }
         if ($null -ne $Blocking) {
-            $slider = Find-Named 'Blocking'
+            $slider = Find-Id 'anc_level'
             if ($slider) { $slider.GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).SetValue([double]$Blocking); Start-Sleep -Seconds 2 }
-            else { Check $false 'Audio has a Blocking slider' }
+            else { Check $false 'Audio has a noise cancellation Strength slider' }
         }
     }
     Read-Headset
@@ -110,14 +116,14 @@ Protect-RealRun {
         $start = Read-Headset
         Note "started with anc=$($start.anc), level=$($start.anc_level)"
         try {
-            $v = Set-Noise 'Noise cancellation' 60
+            $v = Set-Noise 'Cancelling' 60
             Note "noise cancellation at 60%: anc=$($v.anc), level=$($v.anc_level)"
             Check ($v.anc -eq '1' -and [int]$v.anc_level -gt 0) 'noise cancellation is on, with a level above zero'
             $level = $v.anc_level
             $v = Set-Noise 'Transparency'
             Note "transparency: anc=$($v.anc), level=$($v.anc_level)"
             Check ($v.anc -eq '1' -and $v.anc_level -eq '0') 'transparency is noise cancellation at zero'
-            $v = Set-Noise 'Noise cancellation'
+            $v = Set-Noise 'Cancelling'
             Note "back to noise cancellation: anc=$($v.anc), level=$($v.anc_level)"
             Check ($v.anc -eq '1' -and $v.anc_level -eq $level) 'noise cancellation returns at the level it had'
             $v = Set-Noise 'Off'
@@ -126,7 +132,7 @@ Protect-RealRun {
         }
         finally {
             # Put the headset back as it was found.
-            $mode = if ($start.anc -eq '0') { 'Off' } elseif ($start.anc_level -eq '0') { 'Transparency' } else { 'Noise cancellation' }
+            $mode = if ($start.anc -eq '0') { 'Off' } elseif ($start.anc_level -eq '0') { 'Transparency' } else { 'Cancelling' }
             $v = Set-Noise $mode
             Check ($v.anc -eq $start.anc -and $v.anc_level -eq $start.anc_level) "the headset is back as found ($mode)"
         }
@@ -286,17 +292,17 @@ Protect-RealRun {
         if ($null -ne $boost) {
             Section "setting the loudness boost to +$boost dB"
             Use-Page 'audio' {
-                Wait-Until { $null -ne (Find-Named 'Max loudness boost (Stealth Pro II only)') } 10 | Out-Null
-                $slider = @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Slider)))) |
-                    Where-Object { $_.Current.Name -eq 'Max loudness boost (Stealth Pro II only)' } | Select-Object -First 1
+                Wait-Until { $null -ne (Find-Slider 'Loudness boost') } 10 | Out-Null
+                $slider = Find-Slider 'Loudness boost'
                 Check ($null -ne $slider) 'the boost is on the Audio page'
                 if ($slider) { $slider.GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).SetValue([double]$boost); Start-Sleep -Seconds 3 }
             }
         }
         Section 'what the headset holds for the loudness level'
         Use-Page 'audio' {
-            Wait-Until { @(Get-Texts | Where-Object { $_ -like 'Headset level:*' }).Count -gt 0 } 10 | Out-Null
-            $level = Get-Texts | Where-Object { $_ -like 'Headset level:*' } | Select-Object -First 1
+            # The level is the slider's help text, so it is read from there.
+            Wait-Until { $null -ne (Find-Slider 'Loudness boost') -and (Find-Slider 'Loudness boost').Current.HelpText -like 'Headset level:*' } 10 | Out-Null
+            $level = (Find-Slider 'Loudness boost').Current.HelpText
             Note "read on a fresh launch: $level"
             if ($null -ne $boost) { Check ($level -eq ('Headset level: {0} dB' -f (-12 + $boost))) "the headset kept +$boost dB" }
         }

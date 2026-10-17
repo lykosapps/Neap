@@ -125,7 +125,8 @@ public sealed class SystemVolumeRow : SettingsCard
         if (_built) return;
         _built = true;
 
-        _slider = new Slider { Minimum = 0, Maximum = 100, VerticalAlignment = VerticalAlignment.Center };
+        _slider = NeapControls.Slider();
+        _slider.Maximum = 100;
         _slider.ValueChanged += (_, args) =>
         {
             if (_readout is not null) _readout.Text = Strings.Format("Level_Percent", (int)args.NewValue);
@@ -135,7 +136,7 @@ public sealed class SystemVolumeRow : SettingsCard
         };
         _readout = new TextBlock
         {
-            MinWidth = 44,
+            MinWidth = 52,
             TextAlignment = TextAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center,
             FontFeatures = FontFeatureCollection.Parse("tnum"),

@@ -9,8 +9,8 @@ using Neap.Core.Settings;
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// The headset's microphone as a tile, lit while it is live, the same on
-/// Home and on the Audio page.
+/// The headset's microphone as a tile, lit while it is live, on Home, or as
+/// a settings row with a switch on the Audio page.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -36,11 +36,18 @@ namespace Neap.Desktop.Controls;
 public partial class MicTile : UserControl
 {
     public static readonly StyledProperty<bool> OnPageProperty =
-        AvaloniaProperty.Register<MicTile, bool>(nameof(OnPage));
+            AvaloniaProperty.Register<MicTile, bool>(nameof(OnPage));
+
+    public static readonly StyledProperty<bool> AsRowProperty =
+        AvaloniaProperty.Register<MicTile, bool>(nameof(AsRow));
+
+    public static readonly StyledProperty<Control?> BelowProperty =
+        AvaloniaProperty.Register<MicTile, Control?>(nameof(Below));
 
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(1);
 
     private readonly SettingLink _link;
+    private readonly ToggleSwitch _switch = NeapControls.Switch();
     private IDisposable? _poll;
     private bool? _mutedInSystem;
 
@@ -49,14 +56,52 @@ public partial class MicTile : UserControl
         InitializeComponent();
         Word.Text = Strings.Get("Reading_None");
         AutomationProperties.SetName(Face, Strings.Get("Mic_Name"));
-        _link = new SettingLink(Face, () => Microphone.ArmSetting, _ => { }, Paint);
+        Row.Header = Strings.Get("Mic_Name");
+        Row.Content = _switch;
+        _switch.IsEnabled = false;
+        _switch.OnContent = _switch.OffContent = Word.Text;
+        _link = new SettingLink(this, () => Microphone.ArmSetting, _ => { }, Paint);
 
-        Face.Click += async (_, _) =>
+        Face.Click += async (_, _) => await Toggle();
+        _switch.Click += async (_, _) => await Toggle();
+    }
+
+    /// <summary>Gets or sets whether it shows as a settings row, with a switch, rather than as Home's tile.</summary>
+    /// <remarks>One control either way, so the page's row and Home's tile can never say different things.</remarks>
+    public bool AsRow
+    {
+        get => GetValue(AsRowProperty);
+        set => SetValue(AsRowProperty, value);
+    }
+
+    /// <summary>Gets or sets what the row shows under the name, such as a level meter.</summary>
+    public Control? Below
+    {
+        get => GetValue(BelowProperty);
+        set => SetValue(BelowProperty, value);
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == AsRowProperty)
         {
-            if (!Microphone.CanChange(State)) return;
-            await SoundVolume.SetMuted(State == MicState.Live, Flow.Input);
-            await ReadSystem();
-        };
+            Face.IsVisible = !AsRow;
+            Row.IsVisible = AsRow;
+        }
+        else if (change.Property == BelowProperty) Row.Below = Below;
+        else if (change.Property == OnPageProperty)
+        {
+            Glyph.IsVisible = OnPage;
+            Face.Classes.Set("home", OnPage);
+        }
+    }
+
+    private async Task Toggle()
+    {
+        if (!Microphone.CanChange(State)) return;
+        await SoundVolume.SetMuted(State == MicState.Live, Flow.Input);
+        await ReadSystem();
     }
 
     /// <summary>
@@ -67,14 +112,6 @@ public partial class MicTile : UserControl
     {
         get => GetValue(OnPageProperty);
         set => SetValue(OnPageProperty, value);
-    }
-
-    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-    {
-        base.OnPropertyChanged(change);
-        if (change.Property != OnPageProperty) return;
-        Glyph.IsVisible = OnPage;
-        Face.Classes.Set("home", OnPage);
     }
 
     private MicState State => Microphone.Of(_link.Value, _mutedInSystem);
@@ -140,7 +177,12 @@ public partial class MicTile : UserControl
             _ => Strings.Get("Reading_None"),
         };
         AutomationProperties.SetItemStatus(Face, Word.Text);
-        Icon.Data = (Geometry)Application.Current!.FindResource(
+        var icon = (Geometry)Application.Current!.FindResource(
             state is MicState.Muted or MicState.ArmUp ? "IconMicrophoneOff" : "IconMicrophone")!;
+        Icon.Data = icon;
+        Row.Icon = icon;
+        _switch.IsEnabled = Face.IsEnabled;
+        _switch.IsChecked = state == MicState.Live;
+        _switch.OnContent = _switch.OffContent = Word.Text;
     }
 }

@@ -11,7 +11,8 @@ namespace Neap.Desktop.Controls;
 
 /// <summary>
 /// The system's spatial sound for the headset, as Home's tile or a settings row:
-/// off, Windows Sonic, or Dolby Atmos where this PC has it installed.
+/// off, Windows Sonic, or Dolby Atmos where this PC has it installed. The tile
+/// opens a list of them; the row has them as a segmented control.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -55,6 +56,7 @@ public partial class SpatialTile : UserControl
 
     private const string DolbyAccess = "ms-windows-store://pdp/?productid=9N0866FS04W8";
 
+    private readonly StackPanel _segments = new() { IsEnabled = false };
     private readonly ListBox _formats = new() { MinWidth = 200 };
     private readonly TextBlock _driverNote = new() { Classes = { "caption", "secondary" }, IsVisible = false };
     private readonly TextBlock _equalizerNote = new() { Classes = { "caption", "secondary" }, IsVisible = false };
@@ -75,8 +77,9 @@ public partial class SpatialTile : UserControl
         // Where the system has no spatial sound for the headset, there is nothing to show.
         IsVisible = Platform.Current.Spatial.Supported;
         Word.Text = Strings.Get("Reading_None");
-        RowButton.Content = Word.Text;
         Uid.SetValue(_formats, "Quick_SpatialList");
+        AutomationProperties.SetName(_segments, Strings.Get("Spatial_Row.Header"));
+        Row.Content = NeapControls.Pill(_segments);
 
         // Dolby Atmos needs its driver before the system offers it at all, and
         // Dolby Access has its own equaliser, which can double up with the
@@ -111,7 +114,7 @@ public partial class SpatialTile : UserControl
         };
     }
 
-    /// <summary>Gets or sets whether it shows as a settings row, with the list on its button, rather than as Home's tile.</summary>
+    /// <summary>Gets or sets whether it shows as a settings row, with its formats as segments, rather than as Home's tile.</summary>
     /// <remarks>One control either way, so a page's row and Home's tile can never say different things.</remarks>
     public bool AsRow
     {
@@ -125,7 +128,6 @@ public partial class SpatialTile : UserControl
         if (change.Property != AsRowProperty) return;
         Face.IsVisible = !AsRow;
         Row.IsVisible = AsRow;
-        RowButton.Flyout = AsRow ? _flyout : null;
     }
 
     protected override async void OnLoaded(RoutedEventArgs e)
@@ -189,12 +191,18 @@ public partial class SpatialTile : UserControl
             if (!shown.SequenceEqual(panel.Offered))
             {
                 _formats.Items.Clear();
+                _segments.Children.Clear();
                 foreach (var format in panel.Offered)
+                {
                     _formats.Items.Add(new ListBoxItem { Content = Label(format), Tag = format, Classes = { "preset" } });
+                    _segments.Children.Add(Segment(format));
+                }
             }
             _formats.SelectedItem = _formats.Items.OfType<ListBoxItem>()
                 .FirstOrDefault(item => panel.Active is { } active && (SpatialFormat)item.Tag! == active);
-            Face.IsEnabled = RowButton.IsEnabled = panel.Offered.Count > 1;
+            foreach (var segment in _segments.Children.OfType<RadioButton>())
+                segment.IsChecked = panel.Active is { } current && (SpatialFormat)segment.Tag! == current;
+            Face.IsEnabled = _segments.IsEnabled = panel.Offered.Count > 1;
 
             // Lit whenever anything but Off is chosen, the same as every
             // other tile that can be on.
@@ -203,9 +211,7 @@ public partial class SpatialTile : UserControl
             Word.Text = panel.Active is { } active ? Label(active)
                 : panel.Unrecognised ? Strings.Get("Spatial_Unrecognised")
                 : Strings.Get("Reading_None");
-            RowButton.Content = Word.Text;
             AutomationProperties.SetItemStatus(Face, Word.Text);
-            AutomationProperties.SetItemStatus(RowButton, Word.Text);
 
             // The system never offers Dolby Atmos without the headset's Dolby
             // Atmos driver, which Swarm II installs; say so rather than
@@ -220,8 +226,26 @@ public partial class SpatialTile : UserControl
             bool dolbyOn = panel.Active == SpatialFormat.DolbyAtmos;
             _equalizerNote.Text = dolbyOn ? Strings.Get("Spatial_DolbyEqualizerNote") : "";
             _equalizerNote.IsVisible = dolbyOn;
+
+            // As a row, the one line that applies sits under the name; a format the row has no segment for is said here too.
+            Row.Description = panel.Active is null && panel.Unrecognised ? Strings.Get("Spatial_Unrecognised")
+                : dolbyOn ? _equalizerNote.Text
+                : needsDriver ? _driverNote.Text
+                : null;
         }
         finally { _painting = false; }
+    }
+
+    /// <summary>A segment of the row's control for a format the system offers.</summary>
+    private RadioButton Segment(SpatialFormat format)
+    {
+        var segment = NeapControls.Segment(Label(format), "spatial_sound");
+        segment.Tag = format;
+        segment.IsCheckedChanged += async (_, _) =>
+        {
+            if (!_painting && segment.IsChecked == true) await Choose(format);
+        };
+        return segment;
     }
 
     /// <summary>The person choosing a format from the flyout, as opposed to it being carried to a new endpoint.</summary>

@@ -1,6 +1,8 @@
+using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Neap.Core;
 using Neap.Core.Diagnostics;
 using Neap.Core.Settings;
@@ -8,8 +10,8 @@ using Neap.Core.Settings;
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// Noise control with its three modes in view, and how much noise
-/// cancellation blocks in a drawer under it while that is the mode.
+/// Noise cancellation as a row with its three modes in a segmented control,
+/// and how strong it is in a row under it while that is the mode.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -28,30 +30,21 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public sealed class NoiseControlPanel : UserControl
 {
-    private static readonly NoiseMode[] Modes = [NoiseMode.Cancelling, NoiseMode.Transparency, NoiseMode.Off];
+    private static readonly NoiseMode[] Modes = [NoiseMode.Off, NoiseMode.Cancelling, NoiseMode.Transparency];
 
-    private readonly StackPanel _modes = new() { Spacing = 4, IsEnabled = false };
-    private readonly SettingRow _blocking;
-    private readonly Border _card;
-    private readonly Border _drawer;
+    private readonly StackPanel _modes = new() { IsEnabled = false };
+    private readonly StackPanel _strength;
     private bool _painting;
 
     public NoiseControlPanel()
     {
-        // The tiles' title size, like the tile beside it: a bigger title would
-        // outrank the section heading above it.
-        var title = new TextBlock { Text = Strings.Get("Noise_Title"), Classes = { "tiletitle" } };
-        var description = new TextBlock { Text = Strings.Get("Noise_Description"), Classes = { "caption", "secondary" } };
-        AutomationProperties.SetName(_modes, title.Text);
+        string title = Strings.Get("Noise_Title");
+        AutomationProperties.SetName(_modes, title);
         AutomationProperties.SetAutomationId(_modes, "noise_control");
         foreach (var mode in Modes)
         {
-            var button = new RadioButton
-            {
-                Content = Strings.Get(QuickSettings.NoiseModeWord(mode)),
-                Tag = mode,
-                GroupName = "noise_control",
-            };
+            var button = NeapControls.Segment(Strings.Get(QuickSettings.NoiseModeWord(mode)), "noise_control");
+            button.Tag = mode;
             button.IsCheckedChanged += (_, _) =>
             {
                 if (!_painting && button.IsChecked == true) AppServices.Noise.Choose(mode);
@@ -59,27 +52,29 @@ public sealed class NoiseControlPanel : UserControl
             _modes.Children.Add(button);
         }
 
-        _blocking = new SettingRow
+        var row = new SettingsCard
         {
-            Setting = "anc_level",
-            Minimum = NoiseControl.LeastBlocking,
-            Header = Strings.Get("Noise_Blocking"),
-            Description = Strings.Get("Noise_BlockingDescription"),
+            Header = title,
+            Description = Strings.Get("Noise_Description"),
+            Icon = (Geometry)Application.Current!.FindResource("IconNoise")!,
+            Content = NeapControls.Pill(_modes),
         };
-        _drawer = new Border
+        _strength = new StackPanel
         {
-            Classes = { "drawer", "large" },
-            Child = _blocking,
             IsVisible = false,
-        };
-        _card = new Border
-        {
-            Classes = { "card" },
-            ZIndex = 1,
-            Child = new StackPanel { Spacing = 8, Children = { title, description, _modes } },
+            Children =
+            {
+                new SettingRow
+                {
+                    Classes = { "sub" },
+                    Setting = "anc_level",
+                    Minimum = NoiseControl.LeastBlocking,
+                    Header = Strings.Get("Noise_Blocking"),
+                },
+            },
         };
 
-        Content = new StackPanel { Children = { _card, _drawer } };
+        Content = new StackPanel { Children = { row, _strength } };
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -107,8 +102,6 @@ public sealed class NoiseControlPanel : UserControl
                 button.IsChecked = button.Tag is NoiseMode shown && shown == mode;
         }
         finally { _painting = false; }
-        bool open = mode == NoiseMode.Cancelling;
-        _drawer.IsVisible = open;
-        _card.Classes.Set("open", open);
+        _strength.IsVisible = mode == NoiseMode.Cancelling;
     }
 }

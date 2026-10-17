@@ -23,6 +23,9 @@ public class SettingsCard : ContentControl
     public static readonly StyledProperty<string?> DescriptionProperty =
         AvaloniaProperty.Register<SettingsCard, string?>(nameof(Description));
 
+    public static readonly StyledProperty<Control?> BelowProperty =
+        AvaloniaProperty.Register<SettingsCard, Control?>(nameof(Below));
+
     public static readonly StyledProperty<Geometry?> IconProperty =
         AvaloniaProperty.Register<SettingsCard, Geometry?>(nameof(Icon));
 
@@ -38,6 +41,13 @@ public class SettingsCard : ContentControl
     {
         get => GetValue(DescriptionProperty);
         set => SetValue(DescriptionProperty, value);
+    }
+
+    /// <summary>Something under the name and its line, such as a level meter or a caution, or none.</summary>
+    public Control? Below
+    {
+        get => GetValue(BelowProperty);
+        set => SetValue(BelowProperty, value);
     }
 
     /// <summary>The icon before the name, or none.</summary>
