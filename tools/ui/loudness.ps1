@@ -17,6 +17,7 @@ param([string]$Parts = 'AB')
 . "$PSScriptRoot\Ui.ps1"
 
 $row = 'Max loudness boost (Stealth Pro II only)'
+$caution = 'Turn it up slowly to protect your hearing, and back off if it distorts.'
 
 function Find-SliderNamed([string]$Name) {
     @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Slider)))) |
@@ -32,6 +33,7 @@ if ($Parts.Contains('A')) {
         $control = Find-Named $row
         Check ($null -ne $control) "the '$row' control is on the Audio page"
         Check ((Get-Texts) -contains '+0 dB') 'the slider starts at +0 dB'
+        Check ((Get-Texts) -contains $caution) 'the hearing caution shows with it'
         Check ((Get-Texts) -contains 'Headset level: -12 dB') 'the headset level reads -12 dB, apart from the slider'
 
         $slider = Find-SliderNamed $row
@@ -68,6 +70,7 @@ if ($Parts.Contains('B')) {
         Wait-Until { $null -ne (Find-Named 'Master volume') } 15 | Out-Null
         Check ($null -ne (Find-Named 'Master volume')) 'the Audio page is up for the Atlas Air'
         Check (-not (Wait-Until { $null -ne (Find-Named $row) } 3)) "the '$row' control is not there on the Atlas Air"
+        Check ($null -eq (Find-Named $caution)) 'nor is its hearing caution'
         Save-Shot 'loudness-atlas' -Whole | ForEach-Object { $_.Dispose() }
     }
     finally { Stop-NeapPretend }

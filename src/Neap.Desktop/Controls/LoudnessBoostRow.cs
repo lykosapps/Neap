@@ -100,11 +100,26 @@ public sealed class LoudnessBoostRow : SettingsCard
             {
                 new SliderLine { Preferred = SliderWidth, Flexible = _slider, Children = { _slider, _readout } },
                 _level,
+                Caution(),
             },
         };
 
         // Named on the slider rather than the card, since the slider takes focus.
         AutomationProperties.SetName(_slider, Header ?? Strings.Get("Audio_LoudnessBoost.Header"));
+    }
+
+    /// <summary>A quiet line under the level with a warning mark: go up slowly, and back off if it distorts.</summary>
+    /// <remarks>In the row rather than a box of its own, and in the description's colour, so it is read without shouting.</remarks>
+    private static Grid Caution()
+    {
+        var mark = new PathIcon { Width = 14, Height = 14, Margin = new Avalonia.Thickness(0, 2, 6, 0), VerticalAlignment = VerticalAlignment.Top };
+        mark.Bind(PathIcon.DataProperty, mark.GetResourceObservable("IconWarning"));
+        mark.Bind(ForegroundProperty, mark.GetResourceObservable("NeapTextSecondaryBrush"));
+        var words = new TextBlock { Text = Strings.Get("LoudnessBoost_Caution"), TextWrapping = TextWrapping.Wrap, MaxWidth = 260 };
+        words.Classes.Add("caption");
+        words.Classes.Add("secondary");
+        Grid.SetColumn(words, 1);
+        return new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), Margin = new Avalonia.Thickness(0, 6, 0, 0), Children = { mark, words } };
     }
 
     /// <summary>The boost the slider is at, such as "+0 dB" or "+12 dB".</summary>
