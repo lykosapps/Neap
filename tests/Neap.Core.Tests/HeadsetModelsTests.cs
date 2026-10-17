@@ -167,6 +167,14 @@ public class HeadsetModelsTests
         Assert.Same(prompts, HeadsetModels.OnHeadset(null, prompts));
     }
 
+    [Fact]
+    public void TheAtlasAirsMicMonitoringIsStillALevelInPercent()
+    {
+        var monitoring = Registry.ByName["mic_monitoring"];
+
+        Assert.True(HeadsetModels.OnHeadset(HeadsetModels.AtlasAir, monitoring).IsPercent);
+    }
+
     [Theory]
     [InlineData("My Headset", "Atlas Air")]
     [InlineData(null, "Atlas Air")]

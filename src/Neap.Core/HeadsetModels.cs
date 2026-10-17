@@ -200,8 +200,13 @@ public static class HeadsetModels
         model is not null && model.OwnKeys.TryGetValue(key, out int own) ? own : key;
 
     /// <summary>The registry's entry for where a headset keeps a setting, whose range is the one its controls offer.</summary>
+    /// <remarks>
+    /// Only an entry of the same kind counts: the Atlas Air keeps its mic
+    /// monitoring level at the Stealth Pro II's AI noise reduction switch, and
+    /// a level is not shown as a switch.
+    /// </remarks>
     public static SettingKey OnHeadset(HeadsetModel? model, SettingKey key) =>
-        Registry.ByKey.TryGetValue(KeyOnHeadset(model, key.Key), out var own) ? own : key;
+        Registry.ByKey.TryGetValue(KeyOnHeadset(model, key.Key), out var own) && own.Kind == key.Kind ? own : key;
 
     /// <summary>The name shown above a headset's status: the one its owner gave it where the headset shows that, else its model's.</summary>
     /// <returns>Null while no known headset is connected and it has no name.</returns>
