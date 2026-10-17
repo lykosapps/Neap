@@ -114,7 +114,7 @@ public sealed class PresetService
             // One slot per job, so a setting changed meanwhile waits for the
             // slot being read rather than the whole bank: an empty slot
             // never answers, and a bank of empty slots took seconds.
-            var presets = PresetStore.Factory(bank).ToList();
+            var presets = PresetStore.Factory(bank).Select(PresetNames.Shown).ToList();
             for (int i = 0; i < PresetStore.Spec(bank).Slots.Count; i++)
             {
                 int index = i;
@@ -459,7 +459,7 @@ public sealed class PresetService
 
         var free = state.FreeSlots;
         if (replacing is null && free.Count == 0)
-            return Strings.Get("Preset_Full");
+            return Strings.Format("Preset_Full", PresetStore.CustomSlots);
 
         var over = replacing is null
             ? null

@@ -404,13 +404,9 @@ function Band([string]$page, [string]$label, [string]$key) {
     Collect
 }
 
-# The presets open from the preset's name in a flyout, which sits outside
-# the panel in the tree, so the preset is looked for in the window.
+# The presets are a list beside the curve, each a button named for its preset.
 function Preset([string]$page, [string]$name, [string]$key, [string]$id) {
     Bank $page
-    $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
-    if ($null -eq $picker) { Fail "$page has a preset picker"; return }
-    (Pattern $picker ([System.Windows.Automation.ExpandCollapsePattern])).Expand()
     $find = { Control $name ([System.Windows.Automation.ControlType]::Button) }
     if (-not (Until { $null -ne (& $find) })) { Fail "$page lists the preset $name"; return }
     $button = & $find
@@ -418,7 +414,7 @@ function Preset([string]$page, [string]$name, [string]$key, [string]$id) {
     Ask 'clear' | Out-Null
     (Pattern $button ([System.Windows.Automation.InvokePattern])).Invoke()
     Check (Until { @(Writes | Where-Object { $_.key -eq $key -and $_.value -eq $id }).Count -gt 0 }) "$page preset $name sends $key=$id"
-    Check (Until { (Find $script:window 'AutomationIdProperty' 'PresetName').Current.Name -eq $name }) "$page names the preset $name"
+    Check (Until { (& $find).Current.ItemStatus -eq 'Selected' }) "$page marks the preset $name as selected"
     Collect
 }
 
@@ -444,25 +440,19 @@ function Drawer([string]$page, [string]$switch, [string[]]$options) {
     Collect
 }
 
-# Starting a preset from flat, and deleting one, from the list that opens
-# from the preset's name. Deleting asks first, in place.
+# Starting a preset from flat, and deleting one, from the list beside the
+# curve. Deleting asks first, in place.
 function PresetTools {
     Bank 'Game'
     $script:step = 'the preset tools on the Equaliser page'
-    $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
-    if ($null -eq $picker) { Fail 'the Equaliser page has a preset picker'; return }
-    $list = Pattern $picker ([System.Windows.Automation.ExpandCollapsePattern])
 
     Ask 'clear' | Out-Null
-    $list.Expand()
     $new = { Control 'Start a new preset' ([System.Windows.Automation.ControlType]::Button) }
     if (-not (Until { $null -ne (& $new) })) { Fail 'the preset list offers a new preset'; return }
     (Pattern (& $new) ([System.Windows.Automation.InvokePattern])).Invoke()
     Check (Until { (Find $script:window 'AutomationIdProperty' 'PresetName').Current.Name -eq 'New preset' }) 'New preset starts a preset from flat'
-    Check (Until { $list.Current.ExpandCollapseState -eq 'Collapsed' }) 'choosing New preset closes the list'
     Collect
 
-    $list.Expand()
     $delete = { Control 'Delete Night Raid' ([System.Windows.Automation.ControlType]::Button) }
     if (-not (Until { $null -ne (& $delete) })) { Fail 'the preset list offers to delete Night Raid'; return }
     (Pattern (& $delete) ([System.Windows.Automation.InvokePattern])).Invoke()
@@ -472,7 +462,6 @@ function PresetTools {
     Check (Until { @(Writes | Where-Object { $_.key -eq '0x1610' }).Count -gt 0 }) 'confirming deletes Night Raid on the headset'
     Check (Until { $null -eq (Control 'Night Raid' ([System.Windows.Automation.ControlType]::Button)) }) 'Night Raid leaves the list'
     Collect
-    $list.Collapse()
 }
 
 # Superhuman Hearing's tile on Home, and the way from Home's equaliser tile

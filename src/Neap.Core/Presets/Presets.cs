@@ -14,11 +14,11 @@ public enum Bank { Game, Mic }
 public sealed record Preset(
     int Id, string Name, IReadOnlyList<int> Bands, Bank Bank, bool Custom);
 
-/// <summary>Which keys and categories a bank lives at.</summary>
+/// <summary>Which keys and categories a bank lives at, and the centre of each of its ten bands in hertz.</summary>
 public sealed record BankSpec(
-    Bank Bank, string Label, int Select, int NameKey, IReadOnlyList<int> Bands,
+    Bank Bank, int Select, int NameKey, IReadOnlyList<int> Bands,
     string Category, IReadOnlyList<string> Slots, int DeleteKey, int CountKey,
-    IReadOnlyList<string> Frequencies);
+    IReadOnlyList<int> Hertz);
 
 /// <summary>
 /// Lists, applies, saves and deletes the equaliser presets stored on the headset.
@@ -76,15 +76,14 @@ public static class PresetStore
         Frames.SetKey(Spec(bank).NameKey, name.Trim()).Length <= Frames.ReportLength;
 
     public static readonly BankSpec Game = new(
-        Bank.Game, "Game", 0x1210, 0x12C0,
+        Bank.Game, 0x1210, 0x12C0,
         Enumerable.Range(0, 10).Select(i => 0x1220 + 0x10 * i).ToArray(),
         "AQG", Enumerable.Range(1, 5).Select(n => $"CG{n}").ToArray(),
         0x1610, 0x1600,
-        new[] { "32 Hz", "63 Hz", "125 Hz", "250 Hz", "500 Hz",
-                "1 kHz", "2 kHz", "4 kHz", "8 kHz", "16 kHz" });
+        new[] { 32, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000 });
 
     public static readonly BankSpec Microphone = new(
-        Bank.Mic, "Microphone", 0x1310, 0x13C0,
+        Bank.Mic, 0x1310, 0x13C0,
         Enumerable.Range(0, 10).Select(i => 0x1320 + 0x10 * i).ToArray(),
         "AQM", Enumerable.Range(1, 5).Select(n => $"CM{n}").ToArray(),
         0x1630, 0x1620,
@@ -92,8 +91,7 @@ public static class PresetStore
         // identical string literals, so "250 Hz" and "1 kHz", already in the
         // game list, appear only once for both banks; their placement here is
         // inferred, not read.
-        new[] { "100 Hz", "160 Hz", "250 Hz", "400 Hz", "630 Hz",
-                "1 kHz", "1.6 kHz", "2.5 kHz", "4 kHz", "6.3 kHz" });
+        new[] { 100, 160, 250, 400, 630, 1000, 1600, 2500, 4000, 6300 });
 
     public static BankSpec Spec(Bank bank) => bank == Bank.Game ? Game : Microphone;
 
@@ -102,7 +100,9 @@ public static class PresetStore
     /// Factory presets are fixed in firmware and are not in the custom slots,
     /// so there is nothing to read them from; Swarm II has them built in too.
     /// These values were measured off the headset by selecting each preset and
-    /// reading it back.
+    /// reading it back. The names are the headset's own, in English, as the
+    /// registry's option names are; what a person reads comes from the app's
+    /// resource file (see the preset service).
     /// </remarks>
     public static IReadOnlyList<Preset> Factory(Bank bank) =>
         bank == Bank.Game ? GameFactory : MicFactory;

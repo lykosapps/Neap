@@ -258,7 +258,7 @@ static int ShowPresets(Bank bank)
     var presets = PresetStore.ReadBank(client, bank);
     var current = PresetStore.ReadCurrent(client, bank);
 
-    Console.WriteLine($"{spec.Label} equaliser  ({string.Join("  ", spec.Frequencies)})");
+    Console.WriteLine($"{bank} equaliser  ({string.Join("  ", spec.Hertz.Select(hertz => $"{hertz} Hz"))})");
     foreach (var preset in presets)
     {
         string mark = current is not null && current.Id == preset.Id ? "*" : " ";

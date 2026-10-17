@@ -206,7 +206,7 @@ public sealed class EqualiserCurve : UserControl
             double ringY = Y(_stored![i]);
             Canvas.SetLeft(_rings[i], points[i].X - GhostRadius);
             Canvas.SetTop(_rings[i], ringY - GhostRadius);
-            ToolTip.SetTip(_rings[i], Strings.Format("Equaliser_BackTo", Db.Text(_stored[i])));
+            ToolTip.SetTip(_rings[i], Strings.Format("Equaliser_PutBack", Db.Text(_stored[i])));
         }
     }
 

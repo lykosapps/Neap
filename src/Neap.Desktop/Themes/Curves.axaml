@@ -123,29 +123,46 @@
     </Style>
     <Style Selector="Button.remove">
         <Setter Property="Padding" Value="8" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 
-    <!-- Says a curve has been moved from its preset. -->
+    <!--
+        Says a curve has been moved from its preset: a pill in the accent's
+        tint, since an edit is not a warning. It sits on the chosen row, which
+        is tinted too, so it reads as one step stronger.
+    -->
     <Style Selector="Border.edited">
-        <Setter Property="Padding" Value="8,2" />
+        <Setter Property="Padding" Value="8,1" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapToneCautionBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background" Value="{DynamicResource NeapPresetSelectedBrush}" />
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusPill}" />
     </Style>
     <Style Selector="Border.edited > TextBlock">
         <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
     </Style>
 
-    <!-- The preset's name over the panel: the title's size without the button's fill. -->
-    <Style Selector="DropDownButton.titlebutton">
-        <Setter Property="Margin" Value="-10,0,0,0" />
-        <Setter Property="Padding" Value="10,2,8,4" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="Transparent" />
+    <!-- The bar at the left of the chosen preset: there at no width cost on every row, seen only on that one. -->
+    <Style Selector="Border.marker">
+        <Setter Property="Width" Value="3" />
+        <Setter Property="Height" Value="16" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Background" Value="{DynamicResource NeapAccentFillBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusTag}" />
+        <Setter Property="Opacity" Value="0" />
+    </Style>
+    <Style Selector="Button.chip.chosen Border.marker">
+        <Setter Property="Opacity" Value="1" />
+    </Style>
+
+    <!-- A row in the list for the curve being edited when it is no preset: the chosen row, but not a button. -->
+    <Style Selector="Border.draft">
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+        <Setter Property="Background" Value="{DynamicResource NeapPresetSelectedBrush}" />
     </Style>
 
     <!-- The band view's point on each band. -->

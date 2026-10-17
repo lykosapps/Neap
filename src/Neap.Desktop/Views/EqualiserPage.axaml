@@ -8,30 +8,41 @@
     <c:PageView>
         <StackPanel>
 
-            <TextBlock loc:Uid.Value="EqualiserPage_Title" Classes="pagetitle" />
+            <!--
+                The page's name, with the choice of equaliser opposite it:
+                the game's or the microphone's, one at a time. The choice
+                folds away with the equaliser, and leaves the title.
+            -->
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                <TextBlock
+                    loc:Uid.Value="EqualiserPage_Title"
+                    Margin="0"
+                    VerticalAlignment="Center"
+                    Classes="pagetitle" />
+                <c:HeadsetSection Grid.Column="1" Explain="False" VerticalAlignment="Center">
+                    <Border Classes="segmented" loc:Uid.Value="EqualiserPage_Bank">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton
+                                x:Name="GameTab"
+                                loc:Uid.Value="EqualiserPage_Game"
+                                GroupName="EqBank"
+                                IsChecked="True"
+                                Theme="{StaticResource SegmentButton}" />
+                            <RadioButton
+                                x:Name="MicTab"
+                                loc:Uid.Value="EqualiserPage_Mic"
+                                GroupName="EqBank"
+                                Theme="{StaticResource SegmentButton}" />
+                        </StackPanel>
+                    </Border>
+                </c:HeadsetSection>
+            </Grid>
 
             <c:HeadsetNotice />
 
             <c:HeadsetSection loc:Uid.Value="EqualiserPage_Section">
-                <!-- One equaliser at a time: the game's or the microphone's. -->
-                <Border Classes="segmented" loc:Uid.Value="EqualiserPage_Bank">
-                    <StackPanel Orientation="Horizontal">
-                        <RadioButton
-                            x:Name="GameTab"
-                            loc:Uid.Value="EqualiserPage_Game"
-                            GroupName="EqBank"
-                            IsChecked="True"
-                            Theme="{StaticResource SegmentButton}" />
-                        <RadioButton
-                            x:Name="MicTab"
-                            loc:Uid.Value="EqualiserPage_Mic"
-                            GroupName="EqBank"
-                            Theme="{StaticResource SegmentButton}" />
-                    </StackPanel>
-                </Border>
-
-                <c:EqualiserPanel x:Name="GamePanel" Bank="Game" Margin="{StaticResource NeapSectionGap}" />
-                <c:EqualiserPanel x:Name="MicPanel" Bank="Mic" IsVisible="False" Margin="{StaticResource NeapSectionGap}" />
+                <c:EqualiserPanel x:Name="GamePanel" Bank="Game" />
+                <c:EqualiserPanel x:Name="MicPanel" Bank="Mic" IsVisible="False" />
             </c:HeadsetSection>
 
         </StackPanel>

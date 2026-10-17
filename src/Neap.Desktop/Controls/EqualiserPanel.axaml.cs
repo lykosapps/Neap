@@ -7,13 +7,13 @@ using Avalonia.Layout;
 using Avalonia.Threading;
 using Neap.Core.Connection;
 using Neap.Core.Presets;
-using Path = Avalonia.Controls.Shapes.Path;
+using Neap.Desktop.Localization;
 
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// One equaliser bank: its presets, and an editable response curve in front
-/// of them.
+/// One equaliser bank: its presets in a list, and beside it an editable
+/// response curve.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -36,12 +36,12 @@ namespace Neap.Desktop.Controls;
 /// curve is indistinguishable from the preset it came from.
 /// </para>
 /// <para>
-/// The presets open from the preset's name, as they open from Home's tile,
-/// so the curve and its controls have the panel's whole width. Each has its
-/// own small curve, and how many slots are free is said under them: there
-/// are five, and how many are left matters when deciding whether to save
-/// over one. Deleting confirms in place: the preset's row becomes Delete and
-/// Cancel, with no dialog.
+/// The presets are always on screen, beside the curve or above it when the
+/// window is narrow, with the chosen one marked and, once changed, tagged
+/// Edited. How many slots are free is said under them: there are five, and
+/// how many are left matters when deciding whether to save over one.
+/// Deleting confirms in place: the preset's row becomes Delete and Cancel,
+/// with no dialog.
 /// </para>
 /// </remarks>
 public partial class EqualiserPanel : UserControl
@@ -49,22 +49,26 @@ public partial class EqualiserPanel : UserControl
     public static readonly StyledProperty<Bank> BankProperty =
         AvaloniaProperty.Register<EqualiserPanel, Bank>(nameof(Bank), Core.Presets.Bank.Game);
 
-    private const double ListCurveWidth = 64, ListCurveHeight = 20;
-
-    /// <summary>The room kept at the end of every preset's row for its delete button, whether it has one or not.</summary>
+    /// <summary>The room kept at the end of a custom preset's row for its delete button.</summary>
     private const double DeleteWidth = 32;
 
     /// <summary>The narrowest a band's column can be and still show a value such as "+4.5" whole.</summary>
     private const double NarrowestBand = 56;
 
+    /// <summary>The narrowest width at which the presets and the editor sit side by side.</summary>
+    private const double BesideFrom = 720;
+
     private readonly List<BandCell> _cells = new();
     private BankState? _state;
     private string? _confirmingDelete;
-    private Button? _chosen;
     private bool _folded;
+    private bool _beside = true;
     private bool _painting;
 
     private sealed record BandCell(DecibelBox Field, MenuItem Revert);
+
+    /// <summary>A preset's row: the preset, its button and the tag that says it has been edited.</summary>
+    private sealed record Row(Preset Preset, Button Chip, Border Pill);
 
     private enum Wait { None, Reading, Unreadable }
 
@@ -73,6 +77,7 @@ public partial class EqualiserPanel : UserControl
         InitializeComponent();
         OverwriteButton.Content = Strings.Get("Equaliser_OverwriteAny");
         SaveButton.Content = Strings.Get("Equaliser_SaveAsNew");
+        AutomationProperties.SetName(Presets, Strings.Get(Bank == Bank.Game ? "Equaliser_GamePresets" : "Equaliser_MicPresets"));
 
         DiscardButton.Click += async (_, _) =>
         {
@@ -81,7 +86,7 @@ public partial class EqualiserPanel : UserControl
         };
         NewButton.Click += (_, _) =>
         {
-            PresetPicker.Flyout?.Hide();
+            _confirmingDelete = null;
             AppServices.Presets.StartNew(Bank);
             Paint();
         };
@@ -97,16 +102,6 @@ public partial class EqualiserPanel : UserControl
             await Overwrite();
         };
 
-        // The list opens on the preset in use, as Home's does.
-        PresetPicker.Flyout!.Opened += (_, _) => _chosen?.Focus();
-        // Anything that closes the list mid-delete leaves the preset as it was.
-        PresetPicker.Flyout!.Closed += (_, _) =>
-        {
-            if (_confirmingDelete is null) return;
-            _confirmingDelete = null;
-            Paint();
-        };
-
         // Once here, not on each load: a section can load the panel twice,
         // and every band step would then be set twice.
         Response.BandChanged += (index, tenths) =>
@@ -120,6 +115,7 @@ public partial class EqualiserPanel : UserControl
             Paint();
         };
         Bands.SizeChanged += (_, _) => FoldBands();
+        Layout.SizeChanged += (_, _) => Arrange();
 
         // Each button is acted on as ticked, not through the group, which
         // changes only after painting and would send the mode just shown
@@ -235,13 +231,24 @@ public partial class EqualiserPanel : UserControl
             Wait.Unreadable => Strings.Get("Equaliser_Unreadable"),
             _ => "",
         };
-        Curve.IsVisible = !waiting;
+        Layout.IsVisible = !waiting;
         // Hidden only while waiting, never blinked on a repaint: hiding the
         // parametric panel stops its test tone.
         if (waiting) Parametric.IsVisible = false;
         Mode.IsVisible = !waiting && ParametricEq.Covers(Bank);
-        PresetPicker.IsVisible = !waiting;
-        Actions.IsVisible = !waiting;
+    }
+
+    /// <summary>Puts the presets beside the editor when there is room for both, and above it when there is not.</summary>
+    private void Arrange()
+    {
+        bool beside = Layout.Bounds.Width >= BesideFrom;
+        if (beside == _beside) return;
+        _beside = beside;
+
+        Layout.ColumnDefinitions = beside ? new ColumnDefinitions("200,*") : new ColumnDefinitions("*");
+        Grid.SetColumn(EditorCard, beside ? 1 : 0);
+        Grid.SetRow(EditorCard, beside ? 0 : 1);
+        Layout.RowSpacing = beside ? 0 : Space.S;
     }
 
     // -- the bands ---------------------------------------------------------
@@ -249,10 +256,11 @@ public partial class EqualiserPanel : UserControl
     private void BuildBands()
     {
         var spec = PresetStore.Spec(Bank);
+        var labels = spec.Hertz.Select(hertz => FrequencyText.Of(hertz)).ToList();
 
         Response.Minimum = PresetService.BandFloor;
         Response.Maximum = PresetService.BandCeiling;
-        Response.Frequencies = spec.Frequencies;
+        Response.Frequencies = labels;
 
         Bands.ColumnDefinitions.Clear();
         Bands.RowDefinitions.Clear();
@@ -260,10 +268,10 @@ public partial class EqualiserPanel : UserControl
         _cells.Clear();
         _folded = false;
 
-        for (int i = 0; i < spec.Frequencies.Count; i++)
+        for (int i = 0; i < labels.Count; i++)
         {
             // Star columns, so the readouts stay under their own points
-            // until the panel is too narrow for them; see FoldBands.
+            // until the card is too narrow for them; see FoldBands.
             Bands.ColumnDefinitions.Add(new ColumnDefinition(1, GridUnitType.Star));
             int index = i;
 
@@ -274,7 +282,7 @@ public partial class EqualiserPanel : UserControl
                 Margin = new Thickness(Space.Hairline, 0),
             };
             // Without a name, a screen reader announces ten identical controls.
-            AutomationProperties.SetName(field, spec.Frequencies[i]);
+            AutomationProperties.SetName(field, labels[i]);
             field.Changed += decibels =>
             {
                 AppServices.Presets.SetBand(Bank, index, (int)Math.Round(decibels * 10));
@@ -293,7 +301,7 @@ public partial class EqualiserPanel : UserControl
 
             var hz = new TextBlock
             {
-                Text = spec.Frequencies[i],
+                Text = labels[i],
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Classes = { "caption", "secondary" },
             };
@@ -308,9 +316,9 @@ public partial class EqualiserPanel : UserControl
 
     /// <summary>
     /// Puts the values on one row under their points, or on two rows of five
-    /// when the panel is too narrow for ten readable values.
+    /// when the card is too narrow for ten readable values.
     /// </summary>
-    /// <remarks>Decided on the panel's width only, so the height the fold adds never undoes it.</remarks>
+    /// <remarks>Decided on the card's width only, so the height the fold adds never undoes it.</remarks>
     private void FoldBands()
     {
         int count = Bands.Children.Count;
@@ -336,27 +344,26 @@ public partial class EqualiserPanel : UserControl
 
     // -- the slots ---------------------------------------------------------
 
+    /// <summary>The list a preset's row belongs in: the headset's own above the rule, yours below.</summary>
+    private StackPanel ListFor(Preset preset) => preset.Custom ? CustomSlots : FactorySlots;
+
     private void BuildSlots()
     {
-        Slots.Children.Clear();
+        FactorySlots.Children.Clear();
+        CustomSlots.Children.Clear();
         if (_state is null) return;
 
         foreach (var preset in _state.Presets)
-            Slots.Children.Add(SlotChip(preset));
+            ListFor(preset).Children.Add(SlotChip(preset));
 
         int free = _state.FreeSlots.Count;
         NewButton.IsEnabled = free > 0;
-        FreeSlots.Text = free switch
-        {
-            0 => Strings.Get("Equaliser_NoFreeSlots"),
-            1 => Strings.Get("Equaliser_OneFreeSlot"),
-            _ => Strings.Format("Equaliser_FreeSlots", free),
-        };
+        FreeSlots.Text = Strings.Format("Equaliser_FreeSlots", free, PresetStore.CustomSlots);
     }
 
     /// <summary>
-    /// Builds a preset's row in the list: its button, with its name and curve,
-    /// and for a custom preset a delete button beside it.
+    /// Builds a preset's row in the list: its button, with its name and a tag
+    /// for an edit, and for a custom preset a delete button beside it.
     /// </summary>
     /// <remarks>
     /// The delete button sits beside the chip, not inside it; a button inside
@@ -366,39 +373,43 @@ public partial class EqualiserPanel : UserControl
     {
         var slot = new Grid
         {
-            ColumnDefinitions = new ColumnDefinitions { new(1, GridUnitType.Star), new(DeleteWidth, GridUnitType.Pixel) },
+            ColumnDefinitions = preset.Custom
+                ? new ColumnDefinitions { new(1, GridUnitType.Star), new(DeleteWidth, GridUnitType.Pixel) }
+                : new ColumnDefinitions("*"),
             ColumnSpacing = Space.XS,
-            Tag = preset,
         };
 
-        var face = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
-        face.Children.Add(new TextBlock
+        var pill = new Border { Classes = { "edited" }, IsVisible = false };
+        var edited = new TextBlock();
+        Uid.SetValue(edited, "Equaliser_Edited");
+        pill.Child = edited;
+        Grid.SetColumn(pill, 2);
+
+        var name = new TextBlock
         {
             Text = preset.Name,
             VerticalAlignment = VerticalAlignment.Center,
             TextTrimming = Avalonia.Media.TextTrimming.CharacterEllipsis,
-        });
-        var curve = new Path
-        {
-            Width = ListCurveWidth,
-            Height = ListCurveHeight,
-            VerticalAlignment = VerticalAlignment.Center,
-            Data = CurveGeometry.Of(preset.Bands, ListCurveWidth, ListCurveHeight),
-            Classes = { "minicurve" },
         };
-        Grid.SetColumn(curve, 1);
-        face.Children.Add(curve);
+        Grid.SetColumn(name, 1);
+
+        var face = new Grid
+        {
+            ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"),
+            ColumnSpacing = Space.S,
+            Children = { new Border { Classes = { "marker" } }, name, pill },
+        };
 
         var chip = new Button { Content = face, Classes = { "chip" } };
         AutomationProperties.SetName(chip, preset.Name);
         chip.Click += async (_, _) =>
         {
-            if (_confirmingDelete is not null) return;
-            PresetPicker.Flyout?.Hide();
+            _confirmingDelete = null;
             await AppServices.Presets.Select(Bank, preset);
             Paint();
         };
         slot.Children.Add(chip);
+        slot.Tag = new Row(preset, chip, pill);
 
         // Only a custom preset can be deleted, and any of them can, without
         // choosing it first: the headset deletes by name.
@@ -452,7 +463,7 @@ public partial class EqualiserPanel : UserControl
         {
             Orientation = Orientation.Horizontal,
             Spacing = Space.S,
-            Margin = new Thickness(Space.M, Space.XS),
+            Margin = new Thickness(Space.S, Space.XS),
             Children = { delete, cancel },
         };
     }
@@ -522,8 +533,9 @@ public partial class EqualiserPanel : UserControl
     /// Anything that would refuse the save is reported while typing rather
     /// than as an error afterwards: no free slots, a name already taken, or
     /// the name of one of the headset's own presets. A name at the length
-    /// limit gets a note. A taken name points at the Overwrite button, since
-    /// replacing that preset is the likeliest reason to type its name.
+    /// limit gets a note of its own. A taken name points at the Overwrite
+    /// button, since replacing that preset is the likeliest reason to type
+    /// its name.
     /// </remarks>
     private async Task<string> AskForName(string title, string suggested)
     {
@@ -534,11 +546,16 @@ public partial class EqualiserPanel : UserControl
             MaxLength = PresetStore.MaxNameLength,
         };
         var note = new TextBlock { Classes = { "caption", "secondary" } };
+        var limit = new TextBlock
+        {
+            Text = Strings.Format("Preset_TooLong", PresetStore.MaxNameLength),
+            Classes = { "caption", "secondary" },
+        };
 
         var dialog = new NeapDialog
         {
             Heading = title,
-            Body = new StackPanel { Spacing = Space.S, Children = { field, note } },
+            Body = new StackPanel { Spacing = Space.S, Children = { field, note, limit } },
             PrimaryButtonText = Strings.Get("Dialog_Save"),
             CloseButtonText = Strings.Get("Dialog_Cancel"),
         };
@@ -548,8 +565,9 @@ public partial class EqualiserPanel : UserControl
             if (_state is not { } state) return;
             string typed = (field.Text ?? "").Trim();
             var taken = state.Custom.FirstOrDefault(p => Same(p.Name, typed));
-            bool factory = PresetStore.Factory(Bank).Any(p => Same(p.Name, typed));
+            bool factory = state.Presets.Concat(PresetStore.Factory(Bank)).Any(p => !p.Custom && Same(p.Name, typed));
             int free = state.FreeSlots.Count;
+            limit.IsVisible = typed.Length >= PresetStore.MaxNameLength;
 
             if (typed.Length == 0)
             {
@@ -568,14 +586,12 @@ public partial class EqualiserPanel : UserControl
             }
             else if (free == 0)
             {
-                note.Text = Strings.Get("Equaliser_SlotsFull");
+                note.Text = Strings.Format("Equaliser_SlotsFull", PresetStore.CustomSlots);
                 dialog.IsPrimaryButtonEnabled = false;
             }
             else
             {
-                note.Text = Strings.Format("Equaliser_SlotsFree", free)
-                          + (typed.Length >= PresetStore.MaxNameLength
-                             ? " " + Strings.Get("Equaliser_NameAtLimit") : "");
+                note.Text = Strings.Format("Equaliser_FreeSlots", free, PresetStore.CustomSlots);
                 dialog.IsPrimaryButtonEnabled = true;
             }
         }
@@ -643,10 +659,10 @@ public partial class EqualiserPanel : UserControl
         Parametric.IsVisible = parametric;
         if (parametric) Parametric.Paint();
 
-        PresetName.Text = AppServices.Presets.CurrentName(Bank);
-        AutomationProperties.SetItemStatus(PresetPicker, PresetName.Text);
         bool edited = AppServices.Presets.IsEdited(Bank);
-        EditedPill.IsVisible = edited;
+        Draft.IsVisible = _state.Baseline is null;
+        PresetName.Text = AppServices.Presets.CurrentName(Bank);
+        DraftPill.IsVisible = edited;
 
         var can = EqualiserActions.For(edited, _state.Baseline);
         DiscardButton.IsEnabled = can.Discard;
@@ -663,38 +679,34 @@ public partial class EqualiserPanel : UserControl
         if (_state.Baseline is { Custom: true } replacing)
             OverwriteQuestion.Text = Strings.Format("Equaliser_OverwriteQuestion", replacing.Name);
 
-        PaintSlotStates();
+        PaintSlotStates(edited);
     }
 
-    private void PaintSlotStates()
+    private void PaintSlotStates(bool edited)
     {
         if (_state is null) return;
         var baseline = _state.Baseline;
-        _chosen = null;
-        int index = 0;
+        int factory = 0, custom = 0;
         foreach (var preset in _state.Presets)
         {
-            if (index >= Slots.Children.Count) break;
+            var list = ListFor(preset);
+            int index = preset.Custom ? custom++ : factory++;
+            if (index >= list.Children.Count) continue;
             bool selected = baseline is not null && baseline.Id == preset.Id;
 
             if (_confirmingDelete == preset.Name)
             {
-                Slots.Children[index] = ConfirmChip(preset);
+                list.Children[index] = ConfirmChip(preset);
+                continue;
             }
-            else
-            {
-                if (Slots.Children[index] is not Grid { Tag: Preset held } || held.Id != preset.Id)
-                    Slots.Children[index] = SlotChip(preset);
+            if (list.Children[index] is not Grid { Tag: Row held } || held.Preset.Id != preset.Id)
+                list.Children[index] = SlotChip(preset);
 
-                if (Slots.Children[index] is Grid { Children: [Button chip, ..] })
-                {
-                    chip.Classes.Set("chosen", selected);
-                    if (selected) _chosen = chip;
-                    // The colour says it to the eye; this says it to a screen reader.
-                    AutomationProperties.SetItemStatus(chip, selected ? Strings.Get("Equaliser_Selected") : "");
-                }
-            }
-            index++;
+            var row = (Row)((Grid)list.Children[index]).Tag!;
+            row.Chip.Classes.Set("chosen", selected);
+            row.Pill.IsVisible = selected && edited;
+            // The colour says it to the eye; this says it to a screen reader.
+            AutomationProperties.SetItemStatus(row.Chip, selected ? Strings.Get("Equaliser_Selected") : "");
         }
     }
 }
