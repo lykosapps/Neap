@@ -169,11 +169,13 @@ public partial class QuickSettings : UserControl
     private static ListBoxItem Item(Preset preset)
     {
         bool parametric = PresetService.MadeParametrically(preset);
-        var name = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        var name = new StackPanel { Orientation = Orientation.Horizontal };
+        name.Bind(StackPanel.SpacingProperty, name.GetResourceObservable("NeapSpaceS"));
         name.Children.Add(new TextBlock { Text = preset.Name, VerticalAlignment = VerticalAlignment.Center });
         if (parametric) name.Children.Add(ParametricMark());
 
-        var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 16 };
+        var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+        row.Bind(Grid.ColumnSpacingProperty, row.GetResourceObservable("NeapSpaceL"));
         row.Children.Add(name);
         var curve = Curve(preset.Bands, ListCurveWidth, ListCurveHeight);
         Grid.SetColumn(curve, 1);

@@ -28,9 +28,9 @@ public sealed class SignalMeter : UserControl
         var picture = new StackPanel
         {
             Orientation = Orientation.Horizontal,
-            Spacing = 2,
             VerticalAlignment = VerticalAlignment.Center,
         };
+        picture.Bind(StackPanel.SpacingProperty, this.GetResourceObservable("NeapSpaceHairline"));
         for (int i = 0; i < Bars; i++)
         {
             _bars[i] = new Border
@@ -45,7 +45,9 @@ public sealed class SignalMeter : UserControl
         AutomationProperties.SetAccessibilityView(picture, AccessibilityView.Raw);
 
         Value = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Classes = { textClass } };
-        Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { picture, Value } };
+        var row = new StackPanel { Orientation = Orientation.Horizontal, Children = { picture, Value } };
+        row.Bind(StackPanel.SpacingProperty, this.GetResourceObservable("NeapSpaceS"));
+        Content = row;
     }
 
     /// <summary>The word for the strength, beside the bars.</summary>

@@ -5,7 +5,7 @@
     xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization">
 
-    <StackPanel Spacing="12">
+    <StackPanel Spacing="{StaticResource NeapSpaceM}">
 
         <TextBlock loc:Uid.Value="Mix_Title" Classes="label" />
 
@@ -44,7 +44,7 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 IsHitTestVisible="False"
-                Spacing="2">
+                Spacing="{StaticResource NeapSpaceHairline}">
                 <TextBlock
                     x:Name="LeanText"
                     HorizontalAlignment="Center"
@@ -52,7 +52,7 @@
                 <StackPanel
                     HorizontalAlignment="Center"
                     Orientation="Horizontal"
-                    Spacing="12">
+                    Spacing="{StaticResource NeapSpaceM}">
                     <TextBlock
                         x:Name="GameLevel"
                         MinWidth="56"
@@ -95,13 +95,13 @@
             HorizontalAlignment="Stretch"
             HorizontalContentAlignment="Stretch">
             <Expander.Header>
-                <StackPanel Margin="0,8" Spacing="2">
+                <StackPanel Margin="0,8" Spacing="{StaticResource NeapSpaceHairline}">
                     <TextBlock loc:Uid.Value="Mix_ChatFrom" Classes="caption secondary" />
                     <TextBlock x:Name="ChosenText" TextTrimming="CharacterEllipsis" />
                 </StackPanel>
             </Expander.Header>
-            <StackPanel Spacing="8">
-                <StackPanel x:Name="AppList" Spacing="4" />
+            <StackPanel Spacing="{StaticResource NeapSpaceS}">
+                <StackPanel x:Name="AppList" Spacing="{StaticResource NeapSpaceXS}" />
                 <!--
                     Only applications with sound open on the headset are
                     listed, so one not yet started is missing. The notice
@@ -113,7 +113,7 @@
                     Classes="caption secondary" />
                 <c:Notice x:Name="Nothing" loc:Uid.Value="Mix_NothingPlaying" />
                 <Button x:Name="Refresh" loc:Uid.Value="Mix_Refresh">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
                         <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconRefresh}" />
                         <TextBlock loc:Uid.Value="Mix_RefreshText" />
                     </StackPanel>
@@ -125,7 +125,7 @@
             The keys move the mix as the chat wheel does, and are a headset's only
             way to do it without one, so the mix links to where they are set.
         -->
-        <Button x:Name="KeysLink" loc:Uid.Value="Mix_KeysLink" />
+        <Button x:Name="KeysLink" loc:Uid.Value="Mix_KeysLink" Classes="quiet" />
 
     </StackPanel>
 </UserControl>

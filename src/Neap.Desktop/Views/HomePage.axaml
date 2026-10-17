@@ -5,7 +5,7 @@
     xmlns:c="using:Neap.Desktop.Controls">
 
     <c:PageView>
-        <StackPanel Spacing="16">
+        <StackPanel Spacing="{StaticResource NeapSpaceS}">
 
             <!-- Nothing plugged in is said first, in words. -->
             <c:HeadsetNotice />
