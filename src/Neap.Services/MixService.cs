@@ -220,6 +220,27 @@ public sealed class MixService : IDisposable
 
     private void OnLink(HeadsetStatus status) => _wheel.Link(status);
 
+    // -- the level arcs ----------------------------------------------------
+
+    private static bool _noLevels;
+
+    /// <summary>
+    /// A meter of how loud each side of the mix plays, or null where this
+    /// system has no way to read one; the dial then shows no arcs.
+    /// </summary>
+    /// <remarks>A system with no meter is logged the first time it is asked, and no more.</remarks>
+    public ISideMeter? OpenLevels()
+    {
+        if (Pretend.Windows is { } pretend) return pretend.OpenMeter();
+        var meter = SideMeter.Open(() => ChatApps);
+        if (meter is null && !_noLevels)
+        {
+            _noLevels = true;
+            AppLog.Write("mix: this system has no meter on each application, so the dial shows no level arcs");
+        }
+        return meter;
+    }
+
     // -- the picker --------------------------------------------------------
 
     /// <summary>

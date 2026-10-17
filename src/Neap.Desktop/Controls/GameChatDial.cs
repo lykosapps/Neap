@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -31,6 +32,14 @@ namespace Neap.Desktop.Controls;
 /// leave the centre, because the mix holds a balanced setting against a nudge
 /// of up to four.
 /// </para>
+/// <para>
+/// A thin ring just inside the segments carries the live levels
+/// (<see cref="ShowLevels"/>): the game side's arc grows from the game end
+/// and the chat side's from the chat end. They are decoration for the eye,
+/// hidden from screen readers, which have the dial's own name and value.
+/// A value that changes by itself, the chat wheel turning it, glides to its
+/// new place when animation is on; a hand on the dial is followed at once.
+/// </para>
 /// </remarks>
 public sealed class GameChatDial : RangeBase
 {
@@ -45,8 +54,21 @@ public sealed class GameChatDial : RangeBase
 
     private const double PointerInner = 50, PointerOuter = 66;
 
+    /// <summary>The live level arcs' radius: in the gap between the knob and the segments.</summary>
+    private const double LevelRadius = 82;
+
+    private static readonly TimeSpan Glide = TimeSpan.FromMilliseconds(160);
+
+    /// <summary>Where the dial is drawn, which follows <see cref="RangeBase.Value"/> by a glide.</summary>
+    private static readonly StyledProperty<double> ShownProperty =
+        AvaloniaProperty.Register<GameChatDial, double>(nameof(Shown));
+
+    private static readonly Transitions Gliding = [new DoubleTransition { Property = ShownProperty, Duration = Glide }];
+
     private readonly Path[] _segments = new Path[MixDial.SegmentCount];
     private Path? _pointer;
+    private Path? _gameLevel, _chatLevel;
+    private bool _placed;
 
     private enum Hold { None, Ring, Knob }
     private Hold _hold;
@@ -68,13 +90,15 @@ public sealed class GameChatDial : RangeBase
     {
         base.OnApplyTemplate(e);
         _pointer = e.NameScope.Find<Path>("Pointer");
+        _gameLevel = e.NameScope.Find<Path>("GameLevel");
+        _chatLevel = e.NameScope.Find<Path>("ChatLevel");
 
         if (e.NameScope.Find<Canvas>("Ring") is { } ring)
         {
             ring.Children.Clear();
             for (int i = 0; i < MixDial.SegmentCount; i++)
             {
-                _segments[i] = new Path { Data = Arc(MixDial.Segment(i)) };
+                _segments[i] = new Path { Data = Arc(MixDial.Segment(i), RingRadius) };
                 ring.Children.Add(_segments[i]);
             }
         }
@@ -84,10 +108,46 @@ public sealed class GameChatDial : RangeBase
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == ValueProperty) Draw();
+        if (change.Property == ValueProperty) Follow();
+        else if (change.Property == ShownProperty) Draw();
     }
 
-    private int Mix => (int)Math.Round(Value);
+    private double Shown
+    {
+        get => GetValue(ShownProperty);
+        set => SetValue(ShownProperty, value);
+    }
+
+    /// <summary>Moves what is drawn to the value: at once for a hand or a first placing, by a glide otherwise.</summary>
+    /// <remarks>Animation off in the system means no glide; see <see cref="Motion"/>.</remarks>
+    private void Follow()
+    {
+        Transitions = _placed && _hold == Hold.None && Motion.Enabled ? Gliding : null;
+        _placed = true;
+        Shown = Value;
+    }
+
+    private int Mix => (int)Math.Round(Shown);
+
+    /// <summary>
+    /// Shows how loud each side is playing, each from 0 to 1 of its half of
+    /// the ring. An empty side draws nothing.
+    /// </summary>
+    public void ShowLevels(float game, float chat)
+    {
+        Level(_gameLevel, MixDial.GameLevelArc(game));
+        Level(_chatLevel, MixDial.ChatLevelArc(chat));
+    }
+
+    private static void Level(Path? path, DialArc arc)
+    {
+        if (path is null) return;
+        path.IsVisible = arc.Length >= LevelLeast;
+        if (path.IsVisible) path.Data = Arc(arc, LevelRadius);
+    }
+
+    /// <summary>The shortest arc worth drawing, in degrees: shorter is a dot.</summary>
+    private const double LevelLeast = 2;
 
     /// <summary>Lights the segments and turns the pointer. Style classes carry the colours, so a theme change needs no redraw.</summary>
     private void Draw()
@@ -110,15 +170,15 @@ public sealed class GameChatDial : RangeBase
         _pointer.Classes.Set("chat", mix > 50);
     }
 
-    private static PathGeometry Arc(DialArc arc)
+    private static PathGeometry Arc(DialArc arc, double radius)
     {
-        var (x0, y0) = MixDial.PointAt(arc.From, RingRadius);
-        var (x1, y1) = MixDial.PointAt(arc.To, RingRadius);
+        var (x0, y0) = MixDial.PointAt(arc.From, radius);
+        var (x1, y1) = MixDial.PointAt(arc.To, radius);
         var figure = new PathFigure { StartPoint = new Point(Centre + x0, Centre + y0), IsClosed = false };
         figure.Segments!.Add(new ArcSegment
         {
             Point = new Point(Centre + x1, Centre + y1),
-            Size = new Size(RingRadius, RingRadius),
+            Size = new Size(radius, radius),
             SweepDirection = SweepDirection.Clockwise,
             IsLargeArc = arc.IsLarge,
         });

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
@@ -109,6 +110,16 @@ internal sealed class WindowsPlayback : IPlayback
         public bool Ours => session.GetProcessID == Environment.ProcessId;
 
         public bool Playing => session.State == AudioSessionState.AudioSessionStateActive;
+
+        public float Peak
+        {
+            get
+            {
+                // A session that has just closed no longer has a meter.
+                try { return session.AudioMeterInformation.MasterPeakValue; }
+                catch (COMException) { return 0; }
+            }
+        }
 
         public float Volume
         {

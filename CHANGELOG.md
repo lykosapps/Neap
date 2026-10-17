@@ -13,6 +13,12 @@ and date.
 
 ### Added
 
+- The game and chat dial shows live levels: a thin arc inside the ring for each
+  side, growing from its own end as that side plays, so you can see chat
+  speaking and the game's sound as you set the mix. It reads each app's own
+  level, so it follows the mix. Windows only; it stops when the window is behind
+  or animation is off. When the headset's chat wheel moves the dial, the dial
+  now glides to its place.
 - The Neap mark and name sit at the top of the menu, above the profile
   switcher. When the menu is icons only, just the mark shows.
 - Every tile on Home has the same layout: icon and switch or arrow on top,

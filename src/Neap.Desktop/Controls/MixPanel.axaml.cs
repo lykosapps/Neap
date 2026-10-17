@@ -46,6 +46,14 @@ public partial class MixPanel : UserControl
 
     private bool _painting;
 
+    /// <summary>How often the level arcs are read: often enough to follow speech, as the microphone meter does.</summary>
+    private static readonly TimeSpan LevelReading = TimeSpan.FromMilliseconds(40);
+
+    private ISideMeter? _levels;
+    private IDisposable? _levelTimer;
+    private SideLevel _levelShown;
+    private bool _levelReading;
+
     /// <summary>What the list last showed each application as, by process name.</summary>
     private readonly Dictionary<string, string> _names = new(StringComparer.OrdinalIgnoreCase);
 
@@ -102,6 +110,7 @@ public partial class MixPanel : UserControl
         AppServices.Headset.StatusChanged += OnHeadset;
         // The wheel's notice names the keys once they are on.
         AppServices.Hotkeys.Changed += Paint;
+        WindowPresence.Changed += WatchLevels;
         // After the expander has its template: set before it, it can come up folded.
         Platform.Post(() => ChatFrom.IsExpanded = AppServices.Mix.ChatApps.Count == 0);
         Paint();
@@ -114,6 +123,8 @@ public partial class MixPanel : UserControl
         AppServices.Mix.Changed -= Paint;
         AppServices.Headset.StatusChanged -= OnHeadset;
         AppServices.Hotkeys.Changed -= Paint;
+        WindowPresence.Changed -= WatchLevels;
+        if (!IsLoaded) StopLevels();
     }
 
     /// <summary>
@@ -169,12 +180,57 @@ public partial class MixPanel : UserControl
         Paint();
     }
 
+    /// <summary>
+    /// Reads the levels only while the dial is on screen, the window is in
+    /// front and animation is on. Animation off in the system means nothing
+    /// moves by itself, and the arcs are decoration.
+    /// </summary>
+    private void WatchLevels()
+    {
+        bool wanted = IsLoaded && DialArea.IsVisible && WindowPresence.InFront && AppServices.Mix.Running && Motion.Enabled;
+        if (!wanted) { StopLevels(); return; }
+        if (_levelTimer is not null) return;
+        _levels ??= AppServices.Mix.OpenLevels();
+        if (_levels is not null) _levelTimer = Platform.Current.Ui.Every(LevelReading, ReadLevels);
+    }
+
+    private void StopLevels()
+    {
+        _levelTimer?.Dispose();
+        _levelTimer = null;
+        _levelShown = default;
+        Dial.ShowLevels(0, 0);
+        if (_levels is not { } meter) return;
+        _levels = null;
+        _ = Task.Run(meter.Dispose);
+    }
+
+    private async void ReadLevels()
+    {
+        if (_levelReading || _levels is not { } meter) return;
+        _levelReading = true;
+        try
+        {
+            var heard = await Task.Run(meter.Read);
+            if (_levelTimer is null) return;
+            _levelShown = SideLevels.Next(_levelShown, heard);
+            Dial.ShowLevels(_levelShown.Game, _levelShown.Chat);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"mix: the level arcs could not be read: {ex.Message}");
+            StopLevels();
+        }
+        finally { _levelReading = false; }
+    }
+
     private void Paint()
     {
         var apps = AppServices.Mix.ChatApps;
         bool chosen = apps.Count > 0;
         SetupLine.IsVisible = !chosen;
         DialArea.IsVisible = chosen;
+        WatchLevels();
 
         ChosenText.Text = chosen
             ? Strings.List(apps.Select(a => _names.GetValueOrDefault(a, a)).ToList())
