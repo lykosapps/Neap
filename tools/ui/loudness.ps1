@@ -31,14 +31,16 @@ if ($Parts.Contains('A')) {
         Wait-Until { $null -ne (Find-Named $row) } 10 | Out-Null
         $control = Find-Named $row
         Check ($null -ne $control) "the '$row' control is on the Audio page"
-        Check ((Get-Texts) -contains '-12 dB') 'it starts at the stock level, -12 dB'
+        Check ((Get-Texts) -contains '+0 dB') 'the slider starts at +0 dB'
+        Check ((Get-Texts) -contains 'Headset level: -12 dB') 'the headset level reads -12 dB, apart from the slider'
 
         $slider = Find-SliderNamed $row
         $rv = $null
-        if ($slider -and $slider.TryGetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern, [ref]$rv)) { $rv.SetValue(6) }
-        Check (Wait-Until { (Get-Texts) -contains '-6 dB' } 5) 'a +6 dB boost reads as -6 dB on the headset'
+        if ($slider -and $slider.TryGetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern, [ref]$rv)) { $rv.SetValue(12) }
+        Check (Wait-Until { (Get-Texts) -contains '+12 dB' } 5) 'at the top the slider reads +12 dB'
+        Check (Wait-Until { (Get-Texts) -contains 'Headset level: 0 dB' } 5) 'and the headset level reads 0 dB'
         if ($rv) { $rv.SetValue(0) }
-        Check (Wait-Until { (Get-Texts) -contains '-12 dB' } 5) 'back at the bottom it reads -12 dB again'
+        Check (Wait-Until { (Get-Texts) -contains 'Headset level: -12 dB' } 5) 'back at +0 the headset level reads -12 dB again'
 
         Save-Shot 'loudness-stealth' -Whole | ForEach-Object { $_.Dispose() }
     }

@@ -1,8 +1,8 @@
+using System.Globalization;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
-using System.Globalization;
 using Avalonia.Media;
 using Neap.Core.Audio;
 
@@ -31,6 +31,7 @@ public sealed class LoudnessBoostRow : SettingsCard
 
     private Slider? _slider;
     private TextBlock? _readout;
+    private TextBlock? _level;
     private bool _painting;
     private bool _built;
 
@@ -66,31 +67,39 @@ public sealed class LoudnessBoostRow : SettingsCard
         };
         _slider.ValueChanged += (_, args) =>
         {
-            if (_readout is not null) _readout.Text = Readout(LoudnessBoost.LevelForBoost((float)args.NewValue));
+            if (_readout is not null) _readout.Text = Boost(args.NewValue);
             if (_painting) return;
             AppServices.Headset.SetLoudnessBoost((float)args.NewValue);
         };
         _readout = new TextBlock
         {
-            MinWidth = 44,
+            MinWidth = 52,
             TextAlignment = TextAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center,
             FontFeatures = FontFeatureCollection.Parse("tnum"),
         };
-        Content = new SliderLine
+        _level = new TextBlock { Margin = new Avalonia.Thickness(0, 6, 0, 0), FontFeatures = FontFeatureCollection.Parse("tnum") };
+        Content = new StackPanel
         {
-            Preferred = SliderWidth,
-            Flexible = _slider,
-            Children = { _slider, _readout },
+            Children =
+            {
+                new SliderLine { Preferred = SliderWidth, Flexible = _slider, Children = { _slider, _readout } },
+                _level,
+            },
         };
 
         // Named on the slider rather than the card, since the slider takes focus.
         AutomationProperties.SetName(_slider, Header ?? Strings.Get("Audio_LoudnessBoost.Header"));
     }
 
-    /// <summary>The level as the headset reports it, such as "-12 dB" or "0 dB".</summary>
-    private static string Readout(float db) =>
+    /// <summary>The boost the slider is at, such as "+0 dB" or "+12 dB".</summary>
+    private static string Boost(double boost) =>
         Strings.Format("LoudnessBoost_Decibels",
+            ((int)Math.Round(boost)).ToString("+0;-0;+0", CultureInfo.CurrentCulture));
+
+    /// <summary>The level the headset reports, such as "Headset level: -12 dB".</summary>
+    private static string Level(float db) =>
+        Strings.Format("LoudnessBoost_Level",
             ((int)MathF.Round(db)).ToString("+0;-0;0", CultureInfo.CurrentCulture));
 
     private void Refresh()
@@ -103,7 +112,8 @@ public sealed class LoudnessBoostRow : SettingsCard
         try
         {
             _slider.Value = look.BoostDb;
-            if (_readout is not null) _readout.Text = Readout(look.LevelDb);
+            if (_readout is not null) _readout.Text = Boost(look.BoostDb);
+            if (_level is not null) _level.Text = Level(look.LevelDb);
         }
         finally { _painting = false; }
     }

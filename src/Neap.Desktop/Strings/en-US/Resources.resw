@@ -1021,6 +1021,9 @@
   <data name="LoudnessBoost_Decibels" xml:space="preserve">
     <value>{0} dB</value>
   </data>
+  <data name="LoudnessBoost_Level" xml:space="preserve">
+    <value>Headset level: {0} dB</value>
+  </data>
   <data name="Volume_Mute" xml:space="preserve">
     <value>Mute</value>
   </data>
