@@ -130,11 +130,7 @@ internal static class HighContrast
 
         // The dial's knob.
         Brush("NeapKnobBrush", p.Window);
-        Brush("NeapKnobCapStrokeBrush", p.Text);
-        Brush("NeapKnobRidgeBrush", p.Text);
-        Brush("NeapKnobRimBrush", p.Text);
-        Brush("NeapKnobShadowBrush", Colors.Transparent);
-        Brush("NeapKnobWellBrush", p.Window);
+        Brush("NeapKnobEdgeBrush", p.Text);
 
         foreach (string accent in new[]
         {

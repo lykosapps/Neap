@@ -78,23 +78,9 @@
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#269D8CFF" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0FFFFFFF" />
 
-            <!-- The dial's knob is an object on the desk: dark metal here, brushed silver in the light theme. -->
-            <SolidColorBrush x:Key="NeapKnobWellBrush" Color="#0E0E11" />
-            <LinearGradientBrush x:Key="NeapKnobBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                <GradientStop Offset="0" Color="#4A4854" />
-                <GradientStop Offset="0.5" Color="#2C2B33" />
-                <GradientStop Offset="1" Color="#1E1D23" />
-            </LinearGradientBrush>
-            <LinearGradientBrush x:Key="NeapKnobRimBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                <GradientStop Offset="0" Color="#55FFFFFF" />
-                <GradientStop Offset="1" Color="#08FFFFFF" />
-            </LinearGradientBrush>
-            <SolidColorBrush x:Key="NeapKnobRidgeBrush" Color="#70000000" />
-            <SolidColorBrush x:Key="NeapKnobCapStrokeBrush" Color="#1CFFFFFF" />
-            <RadialGradientBrush x:Key="NeapKnobShadowBrush">
-                <GradientStop Offset="0.7" Color="#99000000" />
-                <GradientStop Offset="1" Color="#00000000" />
-            </RadialGradientBrush>
+            <!-- The dial's knob: a flat disc, a step lighter than the panel it sits on, with a quiet edge. -->
+            <SolidColorBrush x:Key="NeapKnobBrush" Color="#2E2E33" />
+            <SolidColorBrush x:Key="NeapKnobEdgeBrush" Color="#4A4A50" />
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
@@ -158,22 +144,8 @@
             <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D5AD9" />
             <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0A000000" />
 
-            <SolidColorBrush x:Key="NeapKnobWellBrush" Color="#C9C9D0" />
-            <LinearGradientBrush x:Key="NeapKnobBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                <GradientStop Offset="0" Color="#FBFBFD" />
-                <GradientStop Offset="0.5" Color="#E6E6EB" />
-                <GradientStop Offset="1" Color="#D2D2D9" />
-            </LinearGradientBrush>
-            <LinearGradientBrush x:Key="NeapKnobRimBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                <GradientStop Offset="0" Color="#FFFFFFFF" />
-                <GradientStop Offset="1" Color="#40FFFFFF" />
-            </LinearGradientBrush>
-            <SolidColorBrush x:Key="NeapKnobRidgeBrush" Color="#33000000" />
-            <SolidColorBrush x:Key="NeapKnobCapStrokeBrush" Color="#26000000" />
-            <RadialGradientBrush x:Key="NeapKnobShadowBrush">
-                <GradientStop Offset="0.7" Color="#44000000" />
-                <GradientStop Offset="1" Color="#00000000" />
-            </RadialGradientBrush>
+            <SolidColorBrush x:Key="NeapKnobBrush" Color="#EDEDF1" />
+            <SolidColorBrush x:Key="NeapKnobEdgeBrush" Color="#C2C2CA" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
@@ -210,4 +182,18 @@
     <Thickness x:Key="NeapPageMargin">24</Thickness>
     <!-- The height of the title row, which is the height of the title bar where the app draws its own. -->
     <x:Double x:Key="NeapTitleBarHeight">40</x:Double>
+
+    <!-- The dial and the curves. -->
+    <!-- The dial: its size, the knob in it and the focus ring around it. The code draws the ring and pointer to the same proportions. -->
+    <x:Double x:Key="NeapDialSize">200</x:Double>
+    <x:Double x:Key="NeapDialKnobSize">156</x:Double>
+    <x:Double x:Key="NeapDialFocusSize">196</x:Double>
+    <x:Double x:Key="NeapDialSegmentWidth">8</x:Double>
+    <x:Double x:Key="NeapDialPointerWidth">4</x:Double>
+    <!-- The curves' small shapes, and the icons beside them. -->
+    <CornerRadius x:Key="NeapRadiusTag">4</CornerRadius>
+    <CornerRadius x:Key="NeapRadiusPill">10</CornerRadius>
+    <x:Double x:Key="NeapIconRow">16</x:Double>
+    <x:Double x:Key="NeapIconTile">20</x:Double>
+    <x:Double x:Key="NeapIconHeader">24</x:Double>
 </ResourceDictionary>

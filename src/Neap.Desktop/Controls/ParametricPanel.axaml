@@ -15,7 +15,7 @@
             Padding="12"
             BorderBrush="{DynamicResource NeapPanelStrokeBrush}"
             BorderThickness="1"
-            CornerRadius="8">
+            CornerRadius="{StaticResource NeapRadiusInset}">
             <StackPanel Spacing="8">
                 <!--
                     One row when there is room, with Cut here and Boost here
@@ -37,7 +37,7 @@
                         Grid.Column="1"
                         MinWidth="96">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <PathIcon x:Name="SweepIcon" Width="16" Height="16" />
+                            <PathIcon x:Name="SweepIcon" Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" />
                             <TextBlock x:Name="SweepText" />
                         </StackPanel>
                     </Button>
@@ -46,7 +46,7 @@
                         loc:Uid.Value="Tone_Stop"
                         Grid.Column="2"
                         VerticalAlignment="Stretch">
-                        <PathIcon Width="16" Height="16" Data="{StaticResource IconStop}" />
+                        <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconStop}" />
                     </Button>
                     <StackPanel
                         x:Name="Marks"
@@ -55,21 +55,21 @@
                         Spacing="8">
                         <Button x:Name="CutButton" loc:Uid.Value="Tone_Cut">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <PathIcon Width="16" Height="16" Data="{StaticResource IconArrowDown}" />
+                                <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconArrowDown}" />
                                 <TextBlock loc:Uid.Value="Tone_CutLabel" />
                             </StackPanel>
                         </Button>
                         <Button x:Name="BoostButton" loc:Uid.Value="Tone_Boost">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <PathIcon Width="16" Height="16" Data="{StaticResource IconArrowUp}" />
+                                <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconArrowUp}" />
                                 <TextBlock loc:Uid.Value="Tone_BoostLabel" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
                     <PathIcon
                         Grid.Column="5"
-                        Width="16"
-                        Height="16"
+                        Width="{StaticResource NeapIconRow}"
+                        Height="{StaticResource NeapIconRow}"
                         VerticalAlignment="Center"
                         Foreground="{DynamicResource NeapTextSecondaryBrush}"
                         Data="{StaticResource IconVolume}" />
@@ -139,8 +139,8 @@
             Spacing="8"
             IsVisible="False">
             <PathIcon
-                Width="16"
-                Height="16"
+                Width="{StaticResource NeapIconRow}"
+                Height="{StaticResource NeapIconRow}"
                 Margin="0,2,0,0"
                 VerticalAlignment="Top"
                 Foreground="{DynamicResource NeapToneCautionBrush}"
@@ -156,12 +156,12 @@
                 Spacing="8" />
             <Button x:Name="AddButton" loc:Uid.Value="Parametric_Add">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <PathIcon Width="16" Height="16" Data="{StaticResource IconAdd}" />
+                    <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconAdd}" />
                     <TextBlock loc:Uid.Value="Parametric_AddLabel" />
                 </StackPanel>
             </Button>
             <Button x:Name="RemoveButton" VerticalAlignment="Stretch">
-                <PathIcon Width="16" Height="16" Data="{StaticResource IconDelete}" />
+                <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconDelete}" />
             </Button>
         </StackPanel>
 
