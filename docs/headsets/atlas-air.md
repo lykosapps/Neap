@@ -18,7 +18,7 @@ answers, so nothing works there yet.
 | System | Neap connects | How sure | Next |
 |---|---|---|---|
 | Windows | Yes, through the USB Transmitter | Confirmed | — |
-| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | 0.2.1.4 also reads what Linux queues from the input side; ask for a recording. |
+| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | Windows gives the same empty replies whenever the headset is off, so first prove the headset was on and linked: a recording with sound playing through it. 0.2.1.4 also reads what Linux queues from the input side. |
 
 ## Features
 
@@ -116,8 +116,9 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 - [x] Linux: a test build that also listens for answers on the input side of
       the control channel, and logs what it hears there. In 0.2.1.4.
-- [ ] Ask the Linux tester whether the headset was on the transmitter, not
-      Bluetooth, while recording.
+- [ ] Ask the Linux tester for a 0.2.1.4 recording made while sound from the
+      PC is playing through the headset, so it is certainly on and linked to
+      the transmitter.
 - [ ] Publish test build 0.2.1.4 and ask both testers to try it. Built:
   - [x] voice prompts on 0–15
   - [x] transmitter light at `0x430`
@@ -135,6 +136,14 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-10-17 — The Windows tester's recordings show the transmitter giving
+  the Linux symptom exactly, "opened and gave no answer: 190 reads of 62
+  bytes with nothing in them, to a request of 62 bytes", then "Connected"
+  within a minute, five times between 7 and 16 October: the headset off or
+  out of reach. Report sizes are 62 bytes on both systems. While switched to
+  Bluetooth the headset went on answering through the transmitter, so
+  Bluetooth alone doesn't cause it. With the headset off, Windows' first ask
+  sometimes gets an unasked report, `070700055C0300802C01`; Linux never has.
 - 2026-10-17 — 0.2.1.4 built from the plugin's findings: the changes in Next,
   checked by the tests against the pretend Atlas Air. The screen check and the headset are still to come.
 - 2026-10-17 — Turtle Beach's Swarm II article for the Atlas Air read: the
