@@ -52,7 +52,7 @@
                                         Margin="0,4,0,0"
                                         Classes="chip">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <PathIcon Width="16" Height="16" Data="{StaticResource IconAdd}" />
+                                            <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconAdd}" />
                                             <TextBlock loc:Uid.Value="Equaliser_NewLabel" />
                                         </StackPanel>
                                     </Button>

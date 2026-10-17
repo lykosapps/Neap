@@ -9,8 +9,7 @@ using Path = Avalonia.Controls.Shapes.Path;
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// The game and chat mix as a hardware knob: a ridged knob with a pointer,
-/// inside a 270° ring of segments that light game from the left and chat
+/// The game and chat mix as a knob: a flat disc with a pointer, inside a 270° ring of segments that light game from the left and chat
 /// from the right.
 /// </summary>
 /// <remarks>
@@ -35,18 +34,16 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public sealed class GameChatDial : RangeBase
 {
-    /// <summary>The dial's width and height, as its style sets them.</summary>
-    private const double Size = 240;
+    /// <summary>The dial's width and height: the value of `NeapDialSize` in Tokens.axaml.</summary>
+    private const double Size = 200;
 
     private const double Centre = Size / 2;
-    private const double RingRadius = 108;
+    private const double RingRadius = 90;
 
-    /// <summary>The edge of the well the knob sits in: inside it a press turns the knob, outside it lands on the ring.</summary>
-    private const double KnobEdge = 97;
+    /// <summary>The edge of the knob's surround: inside it a press turns the knob, outside it lands on the ring.</summary>
+    private const double KnobEdge = 81;
 
-    private const double RidgeInner = 86, RidgeOuter = 94;
-    private const int Ridges = 90;
-    private const double PointerInner = 62, PointerOuter = 80;
+    private const double PointerInner = 50, PointerOuter = 66;
 
     private readonly Path[] _segments = new Path[MixDial.SegmentCount];
     private Path? _pointer;
@@ -71,7 +68,6 @@ public sealed class GameChatDial : RangeBase
     {
         base.OnApplyTemplate(e);
         _pointer = e.NameScope.Find<Path>("Pointer");
-        if (e.NameScope.Find<Path>("Ridges") is { } ridges) ridges.Data = RidgeLines();
 
         if (e.NameScope.Find<Canvas>("Ring") is { } ring)
         {
@@ -134,21 +130,6 @@ public sealed class GameChatDial : RangeBase
         var figure = new PathFigure { StartPoint = new Point(Centre + x0, Centre + y0), IsClosed = false };
         figure.Segments!.Add(new LineSegment { Point = new Point(Centre + x1, Centre + y1) });
         return new PathGeometry { Figures = [figure] };
-    }
-
-    private static PathGeometry RidgeLines()
-    {
-        var geometry = new PathGeometry();
-        for (int i = 0; i < Ridges; i++)
-        {
-            double angle = 360.0 * i / Ridges;
-            var (xi, yi) = MixDial.PointAt(angle, RidgeInner);
-            var (xo, yo) = MixDial.PointAt(angle, RidgeOuter);
-            var figure = new PathFigure { StartPoint = new Point(Centre + xi, Centre + yi), IsClosed = false };
-            figure.Segments!.Add(new LineSegment { Point = new Point(Centre + xo, Centre + yo) });
-            geometry.Figures!.Add(figure);
-        }
-        return geometry;
     }
 
     // -- the pointer -------------------------------------------------------

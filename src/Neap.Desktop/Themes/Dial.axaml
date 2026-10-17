@@ -4,18 +4,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!--
-        The dial's look: a raised knob with a ridged rim, inside a ring of
+        The dial's look: a flat knob with a quiet edge, inside a ring of
         segments that light in each side's colour. Every colour is a theme
         resource or a style class, so a change of theme while the page is open
-        repaints it without code; the code only places the shapes. The knob is
-        an object on the desk, so it stays dark metal in the dark theme and
-        turns brushed silver in the light one.
+        repaints it without code; the code only places the shapes. The sizes
+        are tokens, and the code draws the ring and pointer to the same
+        proportions.
     -->
 
     <!-- One segment of the ring, unlit and lit. -->
     <Style Selector="c|GameChatDial Path.segment">
         <Setter Property="Stroke" Value="{DynamicResource NeapDialTrackBrush}" />
-        <Setter Property="StrokeThickness" Value="9" />
+        <Setter Property="StrokeThickness" Value="{StaticResource NeapDialSegmentWidth}" />
     </Style>
     <Style Selector="c|GameChatDial Path.segment.game">
         <Setter Property="Stroke" Value="{DynamicResource NeapGameBrush}" />
@@ -27,7 +27,7 @@
     <!-- The knob's pointer, in the colour of the side the mix leans to. -->
     <Style Selector="c|GameChatDial Path#Pointer">
         <Setter Property="Stroke" Value="{DynamicResource NeapGameTextBrush}" />
-        <Setter Property="StrokeThickness" Value="4" />
+        <Setter Property="StrokeThickness" Value="{StaticResource NeapDialPointerWidth}" />
         <Setter Property="StrokeLineCap" Value="Round" />
     </Style>
     <Style Selector="c|GameChatDial Path#Pointer.chat">
@@ -35,23 +35,21 @@
     </Style>
 
     <Style Selector="c|GameChatDial">
-        <Setter Property="Width" Value="240" />
-        <Setter Property="Height" Value="240" />
+        <Setter Property="Width" Value="{StaticResource NeapDialSize}" />
+        <Setter Property="Height" Value="{StaticResource NeapDialSize}" />
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid Background="Transparent">
                     <!-- Where a keyboard user can see the keys are. -->
-                    <Ellipse x:Name="FocusRing" Width="236" Height="236" IsVisible="False"
-                             Stroke="{DynamicResource SystemAccentColorLight2}" StrokeThickness="2" />
+                    <Ellipse x:Name="FocusRing"
+                             Width="{StaticResource NeapDialFocusSize}" Height="{StaticResource NeapDialFocusSize}"
+                             IsVisible="False"
+                             Stroke="{DynamicResource NeapAccentTextBrush}" StrokeThickness="2" />
                     <!-- The segments, placed by the code. -->
                     <Canvas x:Name="Ring" />
-                    <Ellipse Width="194" Height="194" Fill="{DynamicResource NeapKnobWellBrush}" />
-                    <Ellipse Width="200" Height="200" Margin="0,12,0,0" Fill="{DynamicResource NeapKnobShadowBrush}" />
-                    <Ellipse Width="188" Height="188" Fill="{DynamicResource NeapKnobBrush}" />
-                    <Path x:Name="Ridges" Stroke="{DynamicResource NeapKnobRidgeBrush}" StrokeThickness="1.6" />
-                    <Ellipse Width="188" Height="188" Stroke="{DynamicResource NeapKnobRimBrush}" StrokeThickness="1" />
-                    <Ellipse Width="156" Height="156" Fill="{DynamicResource NeapKnobBrush}"
-                             Stroke="{DynamicResource NeapKnobCapStrokeBrush}" StrokeThickness="1" />
+                    <Ellipse Width="{StaticResource NeapDialKnobSize}" Height="{StaticResource NeapDialKnobSize}"
+                             Fill="{DynamicResource NeapKnobBrush}"
+                             Stroke="{DynamicResource NeapKnobEdgeBrush}" StrokeThickness="1" />
                     <Path x:Name="Pointer" />
                 </Grid>
             </ControlTemplate>
