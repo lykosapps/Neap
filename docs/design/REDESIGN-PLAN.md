@@ -56,7 +56,9 @@ its own files, so no two sessions touch the same file.
   radius, type and icon sizes) and `Fluent.axaml` (Fluent's keys pointed at
   Neap tokens, once). Each later session then owns its own file.
 - **Write the new palette as tokens.**
-  - Use flat fills: ground, card, inset.
+  - Use flat, neutral fills with no violet tint: ground, card, inset.
+  - Choose Neap's own values, not MultiDrive's. Keep Neap's violet as the
+    accent.
   - Use the accent in its strong and tint strengths.
   - Keep game and chat, the tones and the text levels.
   - Set light, dark and high-contrast values side by side.
@@ -121,6 +123,9 @@ its own files, so no two sessions touch the same file.
   the backlog.
 - **Run the headset checks with the owner,** because the dial, meters and
   tiles draw live readings.
+- **Compare Neap with MultiDrive, side by side.** The two should look like
+  the same school of design, not the same app. Anything that reads as a
+  copy goes back to the phase that made it.
 - **Refresh the screenshots in `docs/screenshots`.**
 - **Record the redesign in `DECISIONS.md`.** Add a `CHANGELOG.md` line per
   phase that changes what a person sees.
@@ -138,14 +143,11 @@ its own files, so no two sessions touch the same file.
 
 ## Open questions for the owner
 
-1. **Ground colour.** Neap's dark ground is violet-tinted (`#110E19`), and
-   MultiDrive's is neutral (`#121212`). Keep the twilight tint, or go
-   neutral and leave the violet to the accent alone?
-2. **Accent fill.** Today the dark theme's primary button is pale lavender
+1. **Accent fill.** Today the dark theme's primary button is pale lavender
    with dark text. MultiDrive's is deep indigo with white text. Both pass
    contrast. Which?
-3. **Typeface.** Embed Inter (Avalonia's own font package) for the same
+2. **Typeface.** Embed Inter (Avalonia's own font package) for the same
    look on Windows and Linux, or keep each system's font?
-4. **How far to follow MultiDrive's density.** Its cards are airy and its
+3. **How far to follow MultiDrive's density.** Its cards are airy and its
    text small. The principles keep body text at 14. Is that the right
    balance?

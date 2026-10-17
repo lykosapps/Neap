@@ -1,7 +1,7 @@
 # Design principles
 
-How Neap's screens are designed and built. The look follows MultiDrive, another
-Avalonia app: calm, flat and dark first, with one accent. The way it is built
+How Neap's screens are designed and built. The look is inspired by MultiDrive,
+another Avalonia app: calm, flat and dark first, with one accent. The way it is built
 follows Avalonia's own guidance, linked from each rule. Where the two disagree,
 Neap's standards in `CLAUDE.md` decide: WCAG 2.2 AA, light, dark and high
 contrast, and text in the resource file.
@@ -18,6 +18,32 @@ only what is on, selected, in progress or the main action. The light theme
 is the same structure in pale tones, and high contrast is the same structure
 in system colours.
 
+## Inspired, not copied
+
+MultiDrive is a reference for qualities: calm, flat, roomy, and sparing with
+its accent. Neap takes those qualities and keeps its own identity.
+
+- **Neap's own values.** No colour, size or radius is lifted from MultiDrive.
+  Neap's tokens are chosen for Neap and checked against its own contrast
+  rules. The figures from MultiDrive in this document are measurements for
+  comparison, not values to use.
+- **Neap's own layouts.** MultiDrive is a task app built around a dashboard
+  grid, source-and-target cards and a bottom action row. Neap is a device
+  app whose controls apply at once. Its pages are shaped by its own jobs:
+  the headset at a glance, the mix dial, tiles and setting rows.
+- **Neap's own signature.** These elements are Neap's alone, and each one
+  gets more room in the new look:
+  - The half-moon mark.
+  - The twilight game and moon chat pair.
+  - The game and chat dial.
+  - The violet accent: Neap's own violet, not MultiDrive's indigo.
+- **Nothing borrowed.** Neap uses no MultiDrive icon, image, typeface
+  choice made only to match it, or component that only makes sense in
+  MultiDrive.
+- **The test:** put a Neap screenshot next to MultiDrive's. They should
+  look like they come from the same school of design, and not like the
+  same app.
+
 ---
 
 ## 1. Surfaces
@@ -25,9 +51,12 @@ in system colours.
 - **Three steps of depth, no more.** These are the window ground, the card,
   and the inset row inside a card. Elevation is a change of fill. A card
   never gets a shadow or a border just to stand out.
-  - *Why:* MultiDrive separates everything with fill steps (window `#121212`,
-    card `#1f1f1f`, inset back to the ground). It reads as calm and keeps
-    contrast easy to measure.
+  - *Why:* MultiDrive separates everything with fill steps. It reads as
+    calm and keeps contrast easy to measure.
+- **A neutral ground.** The window, card and inset fills are neutral greys
+  in the dark theme and near-whites in the light one, with no violet tint.
+  The colour in Neap comes from the accent and the game and chat pair,
+  which stand out more for it.
 - **Flat fills only.** No radial or linear gradients on panels or tiles.
   - *Why:* gradients make the contrast check sample a different colour at
     each point, and they are the main thing that dates the current look.
@@ -53,15 +82,15 @@ in system colours.
   them. A darkened tint of the accent is for tracks, chips and badges. On
   the dark ground, an indicator with no text (a ring, a slider thumb or a
   progress fill) uses the lighter accent so it reaches 3:1.
-  - *Example:* MultiDrive's indigo `#4e46b4` gets only about 2.5:1 on
-    `#121212`, so it fails as a ring. Its lavender `#7b6fd8` reaches about
+  - *Example:* a deep indigo gets only about 2.5:1 on a near-black ground,
+    so it fails as a ring. A lighter lavender of the same hue reaches about
     4.5:1.
 - **Contrast floors.**
   - Text is 4.5:1 against the surface it sits on, which is the card, not
     the window.
   - Controls, their boundaries and focus marks are 3:1.
-  - On a `#1f1f1f`-type card, secondary text can be no darker than about
-    `#8c8c8c`.
+  - On a dark grey card, secondary text has to stay a mid grey or
+    lighter. Measure it against the card, not the window.
 - **Game and chat keep their own pair.** They are twilight and moon, and
   they differ in lightness as well as hue. They are not status colours and
   are never confused with the accent.
@@ -161,16 +190,14 @@ in system colours.
 
 - **Card.** Card fill, radius 12, padding 16, no border. It has a title at
   top left and, optionally, one quiet action at top right.
-- **Inset row.** Ground fill, radius 8. It is used for list rows, readings
-  and drive-style tiles inside a card.
+- **Inset row.** Ground fill, radius 8. It is used for list rows and readings
+  inside a card.
 - **Setting row.** An icon, a name, an optional one-line description and
   the control on the right. It is at least 48px high, and the whole row is
   the click target where that makes sense.
 - **Navigation rail.** An icon and a name, in groups split by hairlines.
   The selected item is a rounded pill one fill step lighter. A count badge
   in the accent tint is allowed. Settings sits at the foot.
-- **Pill progress.** Where a task is running, the bar can carry its own
-  label, as MultiDrive does for its tasks.
 - **Buttons.**
   - Primary is an accent fill. It appears at most once per view.
   - Secondary is outlined.
@@ -225,13 +252,14 @@ in system colours.
 
 ## What we take from MultiDrive, and what we don't
 
-| Take | Leave |
+| Take, as a quality | Leave |
 | --- | --- |
-| Fill-step depth, large radii, flat surfaces | 11–12px body text |
-| One disciplined accent, with a darker tint for tracks | Dark only: Neap keeps light and high contrast |
-| Slim icon-and-name rail with a pill selection | A bottom action bar on every page: Neap's settings apply at once |
-| Unavailable choices shown dimmed with a reason | The darker indigo for rings and thumbs on dark, which fails 3:1 |
-| Title bar that blends into the window | |
+| Fill-step depth, large radii, flat surfaces | Its exact colours, sizes and radii |
+| A neutral ground, so the accent carries the colour | Its indigo accent: Neap keeps its own violet |
+| One disciplined accent, with a darker tint for tracks | 11–12px body text |
+| Slim icon-and-name rail with a pill selection | Dark only: Neap keeps light and high contrast |
+| Unavailable choices shown dimmed with a reason | Its dashboard grid, source-and-target cards and bottom action row |
+| Title bar that blends into the window | Its pill-shaped task progress bars |
 
 Sources: MultiDrive's product screenshots on its site, and its maker's article
 [The story behind MultiDrive](https://dev.to/empiree/the-story-behind-multidrive-eo8),
