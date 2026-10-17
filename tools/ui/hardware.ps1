@@ -11,6 +11,8 @@ is not here.
 
 .PARAMETER Parts
 Which parts to run: A the first look, at what Home says about the headset.
+V reads the loudness level; W, X and Z set the boost to +6, +12 and +0 dB and
+read it back on a fresh launch.
 #>
 param([string]$Parts = 'A')
 
@@ -272,6 +274,32 @@ Protect-RealRun {
                 if ($e.Current.Name) { Note ("{0} | {1} | off={2}" -f $e.Current.ControlType.ProgrammaticName.Replace('ControlType.', ''), $e.Current.Name, $e.Current.IsOffscreen) }
             }
         } 8
+    }
+
+    # The loudness boost. Each set is followed by a fresh launch, which reads the
+    # level from the headset on connect, so what is read back is what the
+    # headset kept, not what the screen was last told.
+    $boosts = @{ V = $null; W = 6; X = 12; Z = 0 }
+    foreach ($part in 'V', 'W', 'X', 'Z') {
+        if (-not $Parts.Contains($part)) { continue }
+        $boost = $boosts[$part]
+        if ($null -ne $boost) {
+            Section "setting the loudness boost to +$boost dB"
+            Use-Page 'audio' {
+                Wait-Until { $null -ne (Find-Named 'Max loudness boost') } 10 | Out-Null
+                $slider = @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Slider)))) |
+                    Where-Object { $_.Current.Name -eq 'Max loudness boost' } | Select-Object -First 1
+                Check ($null -ne $slider) 'the boost is on the Audio page'
+                if ($slider) { $slider.GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).SetValue([double]$boost); Start-Sleep -Seconds 3 }
+            }
+        }
+        Section 'what the headset holds for the loudness level'
+        Use-Page 'audio' {
+            Wait-Until { @(Get-Texts | Where-Object { $_ -like 'Headset level:*' }).Count -gt 0 } 10 | Out-Null
+            $level = Get-Texts | Where-Object { $_ -like 'Headset level:*' } | Select-Object -First 1
+            Note "read on a fresh launch: $level"
+            if ($null -ne $boost) { Check ($level -eq ('Headset level: {0} dB' -f ($(if ($boost -eq 12) { '0' } else { -12 + $boost })))) "the headset kept +$boost dB" }
+        }
     }
 
     if ($Parts.Contains('P')) {

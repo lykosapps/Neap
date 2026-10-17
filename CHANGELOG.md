@@ -15,9 +15,8 @@ and date.
 
 - A max loudness boost on the Audio page raises the Stealth Pro II's own level,
   so everything through the dock plays louder — for when the headset is too
-  quiet even at full volume. It is off (0 dB) until you move it, saved on the
-  headset, and shown only on a headset that supports it. In testing on the
-  headset.
+  quiet even at full volume. It starts at +0 dB until you move it, is saved on
+  the headset, and is shown only on a headset that supports it.
 - An app given to a profile can switch to it only while it's using the
   microphone, rather than whenever it's open. A profile for Teams calls comes
   on as a call starts, and the default comes back when it ends.

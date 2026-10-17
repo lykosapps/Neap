@@ -13,13 +13,12 @@ to GitHub, these become issues.
   whether its settings may be changed, to what the tester confirmed on
   GitHub issue 1.
 
-- **Confirm the max loudness boost on the headset.** Proven on the wire by
-  SP2Tools on one Stealth Pro II (firmware 4.107.703), not yet by Neap's own
-  code against the device. Check, through the dock: the control appears; moving
-  it up is audibly louder at full volume; the level reads back and survives a
-  power cycle; 0 dB returns it to stock; and it stays hidden on the Atlas Air.
-  Watch for distortion past +6 dB with the equaliser or Superhuman Hearing up.
-  Needs the headset. GitHub issue 6.
+- **The max loudness boost, what is left to check.** Confirmed on one Stealth
+  Pro II through the dock (17 October): louder at +6 dB, kept across a power
+  cycle, back to stock at +0 (`tools\ui\run.ps1 hardware -Parts WVZ`). Still
+  to check: distortion at +9 and +12 dB with the equaliser or Superhuman
+  Hearing up; the headset wired by USB-C and the USB Transmitter; and that it
+  stays hidden on a real Atlas Air. Needs the headset. GitHub issue 6.
 
 - **Screen reader on both systems.** Narrator on Windows and Orca on Linux
   have not been run on the new app.
