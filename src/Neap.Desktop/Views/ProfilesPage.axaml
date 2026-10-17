@@ -6,10 +6,7 @@
     xmlns:loc="using:Neap.Desktop.Localization">
 
     <c:PageView>
-        <StackPanel>
-
-            <TextBlock loc:Uid.Value="Profiles_Title" Classes="pagetitle" />
-            <TextBlock loc:Uid.Value="Profiles_Note" Classes="sectionnote" />
+        <StackPanel Spacing="{StaticResource NeapSpaceL}">
 
             <!--
                 Saving the headset's settings as a profile is the same
@@ -17,15 +14,25 @@
                 where it is for the quick case. The notice says why the
                 button is off while the headset is not answering.
             -->
-            <StackPanel
-                Margin="0,4,0,12"
-                Orientation="Horizontal"
-                Spacing="12">
-                <Button x:Name="New" Classes="accent" />
+            <Grid ColumnDefinitions="*,Auto">
                 <TextBlock
-                    x:Name="Notice"
+                    loc:Uid.Value="Profiles_Title"
+                    Margin="0"
                     VerticalAlignment="Center"
-                    Classes="caption secondary" />
+                    Classes="pagetitle" />
+                <Button
+                    x:Name="New"
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Classes="accent" />
+            </Grid>
+
+            <StackPanel Spacing="{StaticResource NeapSpaceS}">
+                <TextBlock
+                    loc:Uid.Value="Profiles_Note"
+                    Margin="0"
+                    Classes="sectionnote" />
+                <TextBlock x:Name="Notice" Classes="caption secondary" />
             </StackPanel>
 
             <c:ProfilesSettings />
