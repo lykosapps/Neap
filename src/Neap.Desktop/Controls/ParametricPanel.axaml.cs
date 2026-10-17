@@ -301,7 +301,7 @@ public partial class ParametricPanel : UserControl
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Classes = { "caption", "secondary" },
             };
-            var column = new StackPanel { Spacing = 2, Children = { value, hz } };
+            var column = new StackPanel { Spacing = Space.Hairline, Children = { value, hz } };
             Grid.SetColumn(column, i);
             Sent.Children.Add(column);
             _sent.Add(value);

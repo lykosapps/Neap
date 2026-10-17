@@ -33,14 +33,14 @@ public sealed class MicMeter : UserControl
     private static readonly TimeSpan Reading = TimeSpan.FromMilliseconds(50);
 
     private readonly List<Rectangle> _bars = new();
-    private readonly StackPanel _meter = new() { Orientation = Orientation.Horizontal, Spacing = 3 };
+    private readonly StackPanel _meter = new() { Orientation = Orientation.Horizontal };
     private readonly TextBlock _trouble = new() { IsVisible = false, Classes = { "caption", "secondary" } };
     private IDisposable? _timer;
     private IMicrophoneListener? _listener;
     private int _shown = -1;
     private int _opening;
 
-    public MicMeter() => Content = new StackPanel { Spacing = 4, Children = { _meter, _trouble } };
+    public MicMeter() => Content = new StackPanel { Spacing = Space.XS, Children = { _meter, _trouble } };
 
     /// <summary>Gets or sets whether the meter is drawn wide and tall, as a monitor rather than a reading in a row.</summary>
     public bool Large
@@ -78,7 +78,7 @@ public sealed class MicMeter : UserControl
     {
         _bars.Clear();
         _meter.Children.Clear();
-        _meter.Spacing = Large ? 4 : 3;
+        _meter.Spacing = Space.XS;
         for (int i = 0; i < BarCount; i++)
         {
             var bar = new Rectangle

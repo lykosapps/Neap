@@ -271,7 +271,7 @@ public partial class EqualiserPanel : UserControl
             {
                 Minimum = PresetService.BandFloor / 10.0,
                 Maximum = PresetService.BandCeiling / 10.0,
-                Margin = new Thickness(2, 0),
+                Margin = new Thickness(Space.Hairline, 0),
             };
             // Without a name, a screen reader announces ten identical controls.
             AutomationProperties.SetName(field, spec.Frequencies[i]);
@@ -298,7 +298,7 @@ public partial class EqualiserPanel : UserControl
                 Classes = { "caption", "secondary" },
             };
 
-            var column = new StackPanel { Spacing = 4, Children = { field, hz } };
+            var column = new StackPanel { Spacing = Space.XS, Children = { field, hz } };
             Grid.SetColumn(column, i);
             Bands.Children.Add(column);
             _cells.Add(new BandCell(field, revert));
@@ -367,11 +367,11 @@ public partial class EqualiserPanel : UserControl
         var slot = new Grid
         {
             ColumnDefinitions = new ColumnDefinitions { new(1, GridUnitType.Star), new(DeleteWidth, GridUnitType.Pixel) },
-            ColumnSpacing = 4,
+            ColumnSpacing = Space.XS,
             Tag = preset,
         };
 
-        var face = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 12 };
+        var face = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
         face.Children.Add(new TextBlock
         {
             Text = preset.Name,
@@ -451,8 +451,8 @@ public partial class EqualiserPanel : UserControl
         return new StackPanel
         {
             Orientation = Orientation.Horizontal,
-            Spacing = 8,
-            Margin = new Thickness(12, 4),
+            Spacing = Space.S,
+            Margin = new Thickness(Space.M, Space.XS),
             Children = { delete, cancel },
         };
     }
@@ -538,7 +538,7 @@ public partial class EqualiserPanel : UserControl
         var dialog = new NeapDialog
         {
             Heading = title,
-            Body = new StackPanel { Spacing = 8, Children = { field, note } },
+            Body = new StackPanel { Spacing = Space.S, Children = { field, note } },
             PrimaryButtonText = Strings.Get("Dialog_Save"),
             CloseButtonText = Strings.Get("Dialog_Cancel"),
         };
