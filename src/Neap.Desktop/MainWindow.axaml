@@ -39,23 +39,9 @@
         -->
         <c:UpdateBar Grid.Row="1" />
 
-        <!--
-            The active profile: under the title bar, and under the update
-            banner when there is one, above every page, so switching one is
-            as constant as the connection dot beside it.
-        -->
-        <Border
-            Grid.Row="2"
-            Padding="16,8"
-            Background="{DynamicResource NeapPanelBrush}"
-            BorderBrush="{DynamicResource NeapPanelStrokeBrush}"
-            BorderThickness="0,0,0,1">
-            <c:ProfileBar />
-        </Border>
-
         <SplitView
             x:Name="Rail"
-            Grid.Row="3"
+            Grid.Row="2"
             CompactPaneLength="52"
             DisplayMode="CompactInline"
             IsPaneOpen="True"
@@ -63,6 +49,14 @@
             PaneBackground="{DynamicResource NeapGroundBrush}">
             <SplitView.Pane>
                 <DockPanel Margin="8">
+                    <!--
+                        The active profile, at the top of the menu: one move
+                        from every page. Folds to one icon with the menu.
+                    -->
+                    <c:ProfileBar
+                        x:Name="Profile"
+                        Margin="4,0,4,8"
+                        DockPanel.Dock="Top" />
                     <!-- Settings sits apart at the foot, as the Windows app has it. -->
                     <ListBox
                         x:Name="Foot"
@@ -83,9 +77,9 @@
                             Icon="{StaticResource IconAudio}"
                             Page="audio" />
                         <c:NavItem
-                            loc:Uid.Value="Main_NavMicrophone"
-                            Icon="{StaticResource IconMicrophone}"
-                            Page="mic" />
+                            loc:Uid.Value="Main_NavEqualiser"
+                            Icon="{StaticResource IconEqualiser}"
+                            Page="equaliser" />
                         <c:NavItem
                             loc:Uid.Value="Main_NavControls"
                             Icon="{StaticResource IconControls}"

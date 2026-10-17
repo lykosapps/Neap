@@ -10,7 +10,7 @@ namespace Neap.Desktop.Controls;
 
 /// <summary>
 /// The headset's microphone as a tile, lit while it is live, the same on
-/// Home and on the Microphone page.
+/// Home and on the Audio page.
 /// </summary>
 /// <remarks>
 /// <para>

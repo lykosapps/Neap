@@ -17,7 +17,7 @@ text enlarged in Windows. Those need a person, and are listed in the report.
 .PARAMETER Parts
 Which pages to run, as a comma-separated list. All of them by default.
 #>
-param([string]$Parts = 'home,audio,microphone,controls,profiles,device,settings')
+param([string]$Parts = 'home,audio,equaliser,controls,profiles,device,settings')
 
 . "$PSScriptRoot\Ui.ps1"
 Add-Type -AssemblyName System.Windows.Forms

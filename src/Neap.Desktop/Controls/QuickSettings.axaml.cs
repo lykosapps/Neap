@@ -17,7 +17,7 @@ namespace Neap.Desktop.Controls;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The microphone is the same <see cref="MicTile"/> as on the Microphone page.
+/// The microphone is the same <see cref="MicTile"/> as on the Audio page.
 /// </para>
 /// <para>
 /// A tile is disabled, with a dash for its state, until the headset reports
@@ -59,8 +59,8 @@ public partial class QuickSettings : UserControl
         {
             PresetPicker.Flyout?.Hide();
             if (TopLevel.GetTopLevel(this) is not MainWindow window) return;
-            window.Open("audio");
-            (window.CurrentPage as Views.AudioPage)?.ShowEqualiser();
+            window.Open("equaliser");
+            (window.CurrentPage as Views.EqualiserPage)?.ShowGame();
         };
 
         PresetList.SelectionChanged += async (_, _) =>

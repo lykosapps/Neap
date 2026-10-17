@@ -70,7 +70,7 @@ try {
     Save-Shot 'atlas-audio' -Top 700 | ForEach-Object { $_.Dispose() }
 
     Section 'mic monitoring'
-    Open-Page 'Microphone'
+    Open-Page 'Audio'
     Check (@(Find-All 'Mic monitoring').Count -eq 0) 'mic monitoring is not offered'
     Save-Shot 'atlas-mic' -Top 700 | ForEach-Object { $_.Dispose() }
 

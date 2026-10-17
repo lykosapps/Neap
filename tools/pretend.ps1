@@ -169,6 +169,16 @@ function Page([string]$name) {
     }
 }
 
+# Opens the Equaliser page and puts one bank in front: Game or Microphone.
+function Bank([string]$name) {
+    Page 'Equaliser'
+    $script:step = "the $name equaliser"
+    $tab = Control $name ([System.Windows.Automation.ControlType]::RadioButton)
+    if ($null -eq $tab) { Fail "the Equaliser page has a $name tab"; return }
+    (Pattern $tab ([System.Windows.Automation.SelectionItemPattern])).Select()
+    Start-Sleep -Milliseconds 500
+}
+
 function Screenshot([string]$name) {
     $rect = New-Object NeapWindow+Rect
     [NeapWindow]::GetWindowRect($script:handle, [ref]$rect) | Out-Null
@@ -384,7 +394,7 @@ function Settings([string]$page) {
 }
 
 function Band([string]$page, [string]$label, [string]$key) {
-    Page $page
+    Bank $page
     $band = Control $label ([System.Windows.Automation.ControlType]::Spinner)
     if ($null -eq $band) { Fail "$page has an equaliser band $label"; return }
 
@@ -397,7 +407,7 @@ function Band([string]$page, [string]$label, [string]$key) {
 # The presets open from the preset's name in a flyout, which sits outside
 # the panel in the tree, so the preset is looked for in the window.
 function Preset([string]$page, [string]$name, [string]$key, [string]$id) {
-    Page $page
+    Bank $page
     $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
     if ($null -eq $picker) { Fail "$page has a preset picker"; return }
     (Pattern $picker ([System.Windows.Automation.ExpandCollapsePattern])).Expand()
@@ -437,10 +447,10 @@ function Drawer([string]$page, [string]$switch, [string[]]$options) {
 # Starting a preset from flat, and deleting one, from the list that opens
 # from the preset's name. Deleting asks first, in place.
 function PresetTools {
-    Page 'Audio'
-    $script:step = 'the preset tools on Audio'
+    Bank 'Game'
+    $script:step = 'the preset tools on the Equaliser page'
     $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
-    if ($null -eq $picker) { Fail 'Audio has a preset picker'; return }
+    if ($null -eq $picker) { Fail 'the Equaliser page has a preset picker'; return }
     $list = Pattern $picker ([System.Windows.Automation.ExpandCollapsePattern])
 
     Ask 'clear' | Out-Null
@@ -480,11 +490,13 @@ function HomeExtras {
     $open = { Control 'Open the equaliser' ([System.Windows.Automation.ControlType]::Button) }
     if (-not (Until { $null -ne (& $open) })) { Fail "Home's preset list ends with Open the equaliser"; return }
     (Pattern (& $open) ([System.Windows.Automation.InvokePattern])).Invoke()
-    $audio = {
-        FindAll $script:window 'NameProperty' 'Audio' |
+    $equaliser = {
+        FindAll $script:window 'NameProperty' 'Equaliser' |
             Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem } | Select-Object -First 1
     }
-    Check (Until { (Pattern (& $audio) ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Open the equaliser goes to Audio'
+    Check (Until { (Pattern (& $equaliser) ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Open the equaliser goes to the Equaliser page'
+    $game = { Control 'Game' ([System.Windows.Automation.ControlType]::RadioButton) }
+    Check (Until { $null -ne (& $game) -and (Pattern (& $game) ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Open the equaliser lands on the Game tab'
     Collect
 }
 
@@ -702,9 +714,9 @@ function Profiles {
     Screenshot 'profile-active'
 
     $script:step = 'the profile bar once something no longer matches it'
-    Page 'Microphone'
+    Page 'Audio'
     $ai = Find $script:window 'AutomationIdProperty' 'ai_noise_reduction'
-    if ($null -eq $ai) { Fail 'Microphone has an AI noise reduction control'; return }
+    if ($null -eq $ai) { Fail 'Audio has an AI noise reduction control'; return }
     Operate $ai $null
     Page 'Home'
     Check (Until { $null -ne (Find $script:window 'NameProperty' 'Edited') }) 'changing a setting the profile holds marks it edited'
@@ -880,22 +892,22 @@ try {
     Check ($script:window.Current.Name -like '*pretend*') 'the window says it is a pretend run'
 
     Write-Host 'Pages'
-    foreach ($page in 'Home', 'Audio', 'Microphone', 'Controls', 'Profiles', 'Device', 'Settings') {
+    foreach ($page in 'Home', 'Audio', 'Equaliser', 'Controls', 'Profiles', 'Device', 'Settings') {
         Page $page
         Start-Sleep -Seconds 1
         Screenshot $page.ToLowerInvariant()
     }
 
     Write-Host 'Settings'
-    foreach ($page in 'Audio', 'Microphone', 'Controls', 'Device') { Settings $page }
+    foreach ($page in 'Audio', 'Controls', 'Device') { Settings $page }
     Drawer 'Audio' 'superhuman_hearing' 'shh_preset', 'shh_level'
-    Drawer 'Microphone' 'noise_gate' 'noise_gate_threshold'
+    Drawer 'Audio' 'noise_gate' 'noise_gate_threshold'
     $missed = @($script:registry | Where-Object { $_.writable -and $_.kind -ne 'Text' -and -not $script:covered[$_.name] } | ForEach-Object { $_.name })
     Write-Host "  note  writable settings with no control on these pages: $($missed -join ', ')"
 
     Write-Host 'Equaliser'
-    Band 'Audio' '1 kHz' '0x1270'
-    Preset 'Audio' 'Vocal Boost' '0x1210' '4'
+    Band 'Game' '1 kHz' '0x1270'
+    Preset 'Game' 'Vocal Boost' '0x1210' '4'
     Band 'Microphone' '1 kHz' '0x1370'
     Preset 'Microphone' 'Clarity' '0x1310' '3'
 

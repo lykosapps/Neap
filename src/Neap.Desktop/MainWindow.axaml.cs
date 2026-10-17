@@ -57,6 +57,12 @@ public partial class MainWindow : Window
             FitDensity(e.NewSize);
         };
         NavToggle.Click += (_, _) => Rail.IsPaneOpen = !Rail.IsPaneOpen;
+
+        // The profile switcher is one icon while the rail is icons only, and in full whenever the rail is open, over the page too.
+        Rail.PropertyChanged += (_, e) =>
+        {
+            if (e.Property == SplitView.IsPaneOpenProperty) Profile.Compact = !Rail.IsPaneOpen;
+        };
         Body.PageTransition = new EntranceTransition();
         DrawOwnTitleBar();
 
@@ -158,7 +164,7 @@ public partial class MainWindow : Window
             {
                 "home" => new HomePage(),
                 "audio" => new AudioPage(),
-                "mic" => new MicrophonePage(),
+                "equaliser" => new EqualiserPage(),
                 "controls" => new ControlsPage(),
                 "profiles" => new ProfilesPage(),
                 "device" => new DevicePage(),

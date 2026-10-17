@@ -18,7 +18,7 @@ powershell -ExecutionPolicy Bypass -File tools\ui\desktop.ps1
 #>
 param(
     [string]$Exe = (Join-Path $PSScriptRoot '..\..\src\Neap.Desktop\bin\Release\net10.0-windows10.0.19041.0\Neap.Desktop.exe'),
-    [string[]]$Pages = @('home', 'audio', 'mic', 'controls', 'profiles', 'device', 'settings'),
+    [string[]]$Pages = @('home', 'audio', 'equaliser', 'controls', 'profiles', 'device', 'settings'),
     [string[]]$Themes = @('--dark', '--light'),
     [string]$Extra = ''
 )

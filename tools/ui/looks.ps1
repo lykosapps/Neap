@@ -16,7 +16,7 @@ param([string]$Parts = 'DLH')
 
 . "$PSScriptRoot\Ui.ps1"
 
-$pages = 'home', 'audio', 'mic', 'controls', 'profiles', 'device', 'settings'
+$pages = 'home', 'audio', 'equaliser', 'controls', 'profiles', 'device', 'settings'
 $themes = @(
     @{ Part = 'D'; Name = 'dark'; Theme = 'dark'; Flags = @() }
     @{ Part = 'L'; Name = 'light'; Theme = 'light'; Flags = @() }
