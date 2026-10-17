@@ -107,7 +107,7 @@
                                        Value="{TemplateBinding Value, Mode=TwoWay}"
                                        IsDirectionReversed="{TemplateBinding IsDirectionReversed}">
                                     <Track.DecreaseButton>
-                                        <RepeatButton Focusable="False">
+                                        <RepeatButton Focusable="False" HorizontalAlignment="Stretch">
                                             <RepeatButton.Template>
                                                 <ControlTemplate>
                                                     <Border x:Name="Fill" CornerRadius="3"
