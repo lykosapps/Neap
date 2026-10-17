@@ -198,10 +198,10 @@ public partial class QuickControls : UserControl
         var panel = new StackPanel
         {
             MinWidth = 112,
-            Spacing = 4,
             IsVisible = false,
             Children = { label, picture },
         };
+        panel.Bind(StackPanel.SpacingProperty, panel.GetResourceObservable("NeapSpaceXS"));
         Readings.Children.Add(panel);
         return new Reading(panel, label);
     }
