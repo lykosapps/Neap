@@ -21,17 +21,17 @@
                     x:Name="NeapCard"
                     ColumnDefinitions="*,Auto"
                     RowDefinitions="Auto,Auto"
-                    RowSpacing="16">
+                    RowSpacing="{StaticResource NeapSpaceL}">
 
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="{StaticResource NeapSpaceL}">
                         <Image
                             Width="56"
                             Height="56"
                             VerticalAlignment="Top"
                             AutomationProperties.AccessibilityView="Raw"
                             Source="avares://Neap.Desktop/Assets/logo.png" />
-                        <StackPanel Grid.Column="1" Spacing="2">
-                            <StackPanel Orientation="Horizontal" Spacing="12">
+                        <StackPanel Grid.Column="1" Spacing="{StaticResource NeapSpaceS}">
+                            <StackPanel Classes="gaprow" Spacing="{StaticResource NeapSpaceM}">
                                 <TextBlock
                                     x:Name="AppName"
                                     VerticalAlignment="Bottom"
@@ -47,7 +47,6 @@
                             <!-- Said when it changes, not as a download's percentage ticks over. -->
                             <TextBlock
                                 x:Name="UpdateStatus"
-                                Margin="0,6,0,0"
                                 Classes="secondary"
                                 IsVisible="False" />
                         </StackPanel>
@@ -56,8 +55,7 @@
                     <StackPanel
                         x:Name="UpdateActions"
                         Grid.Row="1"
-                        Orientation="Horizontal"
-                        Spacing="8">
+                        Classes="gaprow">
                         <Button
                             x:Name="WhatsNew"
                             loc:Uid.Value="Settings_UpdateNotes"
@@ -69,7 +67,7 @@
                 </Grid>
             </Border>
 
-            <StackPanel Margin="0,4,0,0" Spacing="4">
+            <StackPanel Margin="{StaticResource NeapSectionGap}" Spacing="{StaticResource NeapSpaceS}">
                 <c:SettingsCard
                     x:Name="CheckForUpdatesCard"
                     loc:Uid.Value="Settings_CheckForUpdates"
@@ -89,14 +87,14 @@
             </StackPanel>
 
             <TextBlock loc:Uid.Value="Settings_DiagnosticsHeading" Classes="sectionheader" />
-            <StackPanel Spacing="4">
+            <StackPanel Spacing="{StaticResource NeapSpaceS}">
                 <c:SettingsCard
                     x:Name="Record"
                     loc:Uid.Value="Settings_Record"
                     Icon="{StaticResource IconRecord}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
+                    <StackPanel Classes="gaprow">
                         <Button x:Name="RecordHelp" loc:Uid.Value="Settings_RecordHelp" Classes="iconbutton">
-                            <PathIcon Width="14" Height="14" Data="{StaticResource IconHelp}" />
+                            <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconHelp}" />
                         </Button>
                         <Button
                             x:Name="ReportRecording"
@@ -110,7 +108,7 @@
                     loc:Uid.Value="Settings_MapHeadset"
                     Icon="{StaticResource IconDevice}">
                     <Button x:Name="MapHeadset" Classes="iconbutton">
-                        <PathIcon Width="14" Height="14" Data="{StaticResource IconLaunch}" />
+                        <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconLaunch}" />
                     </Button>
                 </c:SettingsCard>
             </StackPanel>
