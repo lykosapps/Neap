@@ -18,7 +18,7 @@ answers, so nothing works there yet.
 | System | Neap connects | How sure | Next |
 |---|---|---|---|
 | Windows | Yes, through the USB Transmitter | Confirmed | — |
-| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | Most likely the transmitter's start-up lock-up: it answers only if something read it from the moment it was plugged in, as SP2Tools proved on the Stealth Pro II's dock. 0.2.1.4 restarts a silent transmitter once and reads it as it comes back. |
+| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | Cause unknown. The start-up lock-up SP2Tools saw on the Stealth Pro II's dock didn't reproduce for Neap on that dock. 0.2.1.4 restarts a silent transmitter once and logs what it hears, as a test. |
 
 ## Features
 
@@ -137,6 +137,13 @@ From the quick start guide. Neap describes them; it doesn't set them.
 ## Evidence
 
 Newest first.
+
+- 2026-10-17 — Tried to reproduce the lock-up on the owner's Stealth Pro II
+  Charging Dock on Windows: replugged it with nothing reading it, headset on
+  and its USB-C cable out, then started Neap two and a half hours later. It
+  connected through the dock in three seconds, loudness level included. So
+  the Stealth Pro II's dock does not lock up this way for Neap; the lock-up
+  is not reproduced, and is now a weaker lead for the Atlas Air.
 
 - 2026-10-17 — SP2Tools, proven on the Stealth Pro II's dock (`229B`): the
   dock answers only if the PC has been asking it since it was plugged in.
