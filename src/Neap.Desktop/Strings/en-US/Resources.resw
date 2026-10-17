@@ -187,7 +187,7 @@
     <value>Max loudness boost (Stealth Pro II only)</value>
   </data>
   <data name="Audio_LoudnessBoost.Description" xml:space="preserve">
-    <value>Raises the headset's own level so game sound through the dock plays louder. Above about +6 dB it can distort, more so with the equaliser or Superhuman Hearing turned up.</value>
+    <value>Raises the headset's own level so game sound through the dock plays louder. At the top it can distort, more so with the equaliser or Superhuman Hearing turned up.</value>
   </data>
   <data name="Audio_HeadsetSection.What" xml:space="preserve">
     <value>Noise cancellation, Superhuman Hearing and the equaliser</value>

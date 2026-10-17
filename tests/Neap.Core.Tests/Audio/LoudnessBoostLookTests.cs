@@ -43,7 +43,7 @@ public class LoudnessBoostLookTests
 
     [Theory]
     [InlineData(-20f, 0)]   // set below stock elsewhere: shows the lowest the control offers
-    [InlineData(6f, 12)]    // set above the cap elsewhere: shows the highest
+    [InlineData(0f, 6)]     // set above the cap elsewhere: shows the highest
     public void HeldToTheControlsRange(float level, int boost) =>
         Assert.Equal(boost, LoudnessBoostLook.For(new LoudnessReading(true, level), readOnly: false).BoostDb);
 }

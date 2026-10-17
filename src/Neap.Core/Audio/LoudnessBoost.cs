@@ -42,12 +42,12 @@ public static class LoudnessBoost
 
     /// <summary>The largest boost above stock the controls offer, and the step they take.</summary>
     /// <remarks>
-    /// +12 dB above the stock -12 reaches 0 dB, the loudest the controls offer;
-    /// the firmware itself allows a further 12 dB, left beyond the soft cap.
+    /// +6 dB above the stock -12 reaches -6 dB, the loudest the controls offer;
+    /// the firmware itself allows up to +12 dB, left beyond the cap.
     /// Raising the level while the equaliser or Superhuman Hearing is also
     /// boosting can clip.
     /// </remarks>
-    public const float MaxBoostDb = 12f;
+    public const float MaxBoostDb = 6f;
 
     /// <summary>The step the boost controls take, in decibels.</summary>
     public const float StepDb = 3f;

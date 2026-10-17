@@ -16,7 +16,7 @@ to GitHub, these become issues.
 - **The max loudness boost, what is left to check.** Confirmed on one Stealth
   Pro II through the dock (17 October): louder at +6 dB, kept across a power
   cycle, back to stock at +0 (`tools\ui\run.ps1 hardware -Parts WVZ`). Still
-  to check: distortion at +9 and +12 dB with the equaliser or Superhuman
+  to check: distortion at the +6 dB cap with the equaliser or Superhuman
   Hearing up; and the headset wired by USB-C and through the USB Transmitter.
   Other headsets are never sent the command. Needs the headset. GitHub issue 6.
 
