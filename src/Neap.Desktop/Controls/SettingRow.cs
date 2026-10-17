@@ -141,7 +141,7 @@ public sealed class SettingRow : SettingsCard
 
     private Control BuildButtons(SettingKey key, IReadOnlyDictionary<int, string> options)
     {
-        _buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        _buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S };
         string group = key.Name;
         foreach (var option in options)
         {

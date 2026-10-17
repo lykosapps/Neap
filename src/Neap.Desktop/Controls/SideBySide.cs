@@ -23,7 +23,7 @@ public sealed class SideBySide : Grid
 
     public SideBySide()
     {
-        ColumnSpacing = 12;
+        ColumnSpacing = Space.S;
         ColumnDefinitions = new ColumnDefinitions("*,*");
         RowDefinitions = new RowDefinitions("Auto,Auto");
         SizeChanged += (_, _) => Arrange();
@@ -42,7 +42,7 @@ public sealed class SideBySide : Grid
     private void Arrange()
     {
         bool beside = Bounds.Width >= BesideFrom;
-        RowSpacing = beside ? 0 : 4;
+        RowSpacing = beside ? 0 : Space.S;
         var shown = Children.Where(child => child.IsVisible).Take(2).ToList();
         for (int i = 0; i < shown.Count; i++)
         {

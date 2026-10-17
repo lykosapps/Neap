@@ -117,7 +117,7 @@ public sealed class LoudnessBoostRow : SettingsCard
         var mark = new PathIcon { Width = iconSize, Height = iconSize, Margin = new Avalonia.Thickness(0, Space.Hairline, 0, 0), VerticalAlignment = VerticalAlignment.Top };
         mark.Bind(PathIcon.DataProperty, mark.GetResourceObservable("IconWarning"));
         mark.Bind(ForegroundProperty, mark.GetResourceObservable("NeapTextSecondaryBrush"));
-        var words = new TextBlock { Text = Strings.Get("LoudnessBoost_Caution"), TextWrapping = TextWrapping.Wrap, MaxWidth = 260 };
+        var words = new TextBlock { Text = Strings.Get("LoudnessBoost_Caution"), TextWrapping = TextWrapping.Wrap, MaxWidth = 260, HorizontalAlignment = HorizontalAlignment.Left };
         words.Classes.Add("caption");
         words.Classes.Add("secondary");
         Grid.SetColumn(words, 1);

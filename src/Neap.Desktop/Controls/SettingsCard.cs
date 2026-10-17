@@ -98,6 +98,6 @@ public class SettingsCard : ContentControl
 
         // The gap between name and control belongs to the control, so a row with no icon has no gap before its name.
         // Likewise the gap above it when it sits under the name, so a row with nothing under it has no spare room.
-        _control.Margin = beside ? new Thickness(16, 0, 0, 0) : new Thickness(0, 8, 0, 0);
+        _control.Margin = beside ? new Thickness(Space.M, 0, 0, 0) : new Thickness(0, Space.S, 0, 0);
     }
 }

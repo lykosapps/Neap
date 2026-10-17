@@ -129,7 +129,7 @@ public sealed class HeadsetSection : StackPanel
                 Header = What,
                 Icon = (Avalonia.Media.Geometry)Application.Current!.FindResource("IconInfo")!,
                 IsVisible = false,
-                Margin = new Thickness(0, 12, 0, 0),
+                Margin = new Thickness(0, Space.M, 0, 0),
             };
             Children.Add(_card);
         }

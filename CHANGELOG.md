@@ -53,6 +53,9 @@ and date.
 - Dialogs and the update banner share the app's spacing, a dialog's main
   button uses the accent colour, and long dialog headings wrap instead of
   being cut off.
+- Every page uses the same even spacing. On Home the headset summary and the
+  quick settings sit on cards like the mix, the loudness boost on Audio takes
+  half the height, and the Profiles page puts New profile beside its title.
 
 ### Fixed
 
