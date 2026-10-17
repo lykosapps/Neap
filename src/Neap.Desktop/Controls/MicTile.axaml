@@ -5,7 +5,7 @@
     xmlns:loc="using:Neap.Desktop.Localization">
 
     <ToggleButton x:Name="Face" Classes="tile" IsEnabled="False">
-        <Grid RowDefinitions="*,Auto,Auto" RowSpacing="2">
+        <Grid RowDefinitions="*,Auto,Auto" RowSpacing="{StaticResource NeapSpaceHairline}">
             <PathIcon
                 x:Name="Icon"
                 HorizontalAlignment="Left"

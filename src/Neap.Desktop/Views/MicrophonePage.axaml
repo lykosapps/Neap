@@ -17,7 +17,7 @@
                 included: see HeadsetSection.WhenOff.
             -->
             <c:HeadsetSection loc:Uid.Value="Microphone_Section" WhenOff="True">
-                <c:RoutingNotice Margin="0,0,0,12" Sound="False" />
+                <c:RoutingNotice Sound="False" />
 
                 <!--
                     What they hear, first: the microphone's tile, as on Home, beside a
@@ -25,12 +25,12 @@
                     this page is open, since the system shows its microphone in use
                     light for as long as it does.
                 -->
-                <Grid ColumnDefinitions="240,*" ColumnSpacing="12">
+                <Grid Margin="{StaticResource NeapSectionGap}" ColumnDefinitions="240,*" ColumnSpacing="{StaticResource NeapSpaceS}">
                     <c:HeadsetSection Explain="False">
                         <c:MicTile />
                     </c:HeadsetSection>
                     <Border Grid.Column="1" Classes="card">
-                        <StackPanel Spacing="8">
+                        <StackPanel Spacing="{StaticResource NeapSpaceS}">
                             <TextBlock loc:Uid.Value="Microphone_LevelLabel" Classes="label" />
                             <c:MicMeter loc:Uid.Value="Microphone_Meter" Large="True" />
                             <TextBlock loc:Uid.Value="Microphone_LevelNote" Classes="caption secondary" />
@@ -60,7 +60,7 @@
                         while the gate is off.
                     -->
                     <TextBlock loc:Uid.Value="Microphone_NoiseHandlingHeading" Classes="sectionheader" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="{StaticResource NeapSpaceS}">
                         <c:SettingTile
                             loc:Uid.Value="Microphone_AiTile"
                             Icon="{StaticResource IconNoise}"

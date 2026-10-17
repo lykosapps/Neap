@@ -18,7 +18,7 @@ namespace Neap.Desktop.Controls;
 public sealed class SliderLine : Panel
 {
     /// <summary>Gets or sets the space between items.</summary>
-    public double Spacing { get; set; } = 12;
+    public double Spacing { get; set; } = Space.M;
 
     /// <summary>Gets or sets the slider's width when the row is measured without a limit.</summary>
     public double Preferred { get; set; } = 220;

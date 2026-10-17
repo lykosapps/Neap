@@ -5,18 +5,18 @@
     xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization">
 
-    <StackPanel Spacing="12">
+    <StackPanel Spacing="{StaticResource NeapSpaceM}">
 
         <!--
             The test tone: moved by hand or swept, heard through the
             equaliser, with a cut or boost added where it stands.
         -->
         <Border
-            Padding="12"
+            Padding="{StaticResource NeapPaddingCard}"
             BorderBrush="{DynamicResource NeapPanelStrokeBrush}"
             BorderThickness="1"
             CornerRadius="{StaticResource NeapRadiusInset}">
-            <StackPanel Spacing="8">
+            <StackPanel Spacing="{StaticResource NeapSpaceS}">
                 <!--
                     One row when there is room, with Cut here and Boost here
                     beside the tone's other controls; under them when there
@@ -25,9 +25,9 @@
                 <Grid
                     x:Name="ToneRow"
                     ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,100"
-                    ColumnSpacing="8"
+                    ColumnSpacing="{StaticResource NeapSpaceS}"
                     RowDefinitions="Auto,Auto"
-                    RowSpacing="8">
+                    RowSpacing="{StaticResource NeapSpaceS}">
                     <TextBlock
                         loc:Uid.Value="Tone_Label"
                         VerticalAlignment="Center"
@@ -36,7 +36,7 @@
                         x:Name="SweepButton"
                         Grid.Column="1"
                         MinWidth="96">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
                             <PathIcon x:Name="SweepIcon" Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" />
                             <TextBlock x:Name="SweepText" />
                         </StackPanel>
@@ -52,15 +52,15 @@
                         x:Name="Marks"
                         Grid.Column="3"
                         Orientation="Horizontal"
-                        Spacing="8">
+                        Spacing="{StaticResource NeapSpaceS}">
                         <Button x:Name="CutButton" loc:Uid.Value="Tone_Cut">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
                                 <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconArrowDown}" />
                                 <TextBlock loc:Uid.Value="Tone_CutLabel" />
                             </StackPanel>
                         </Button>
                         <Button x:Name="BoostButton" loc:Uid.Value="Tone_Boost">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
                                 <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconArrowUp}" />
                                 <TextBlock loc:Uid.Value="Tone_BoostLabel" />
                             </StackPanel>
@@ -86,7 +86,7 @@
                     pixel moves it a small step. An arrow key moves it about
                     1 %, Page Up and Page Down half an octave.
                 -->
-                <Grid ColumnDefinitions="*,80" ColumnSpacing="8">
+                <Grid ColumnDefinitions="*,80" ColumnSpacing="{StaticResource NeapSpaceS}">
                     <Slider
                         x:Name="ToneSlider"
                         loc:Uid.Value="Tone_Frequency"
@@ -110,8 +110,8 @@
         </Border>
 
         <!-- The key to the two curves: which is asked for and which is heard. -->
-        <StackPanel Orientation="Horizontal" Spacing="20">
-            <StackPanel Orientation="Horizontal" Spacing="8">
+        <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceL}">
+            <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
                 <Line
                     VerticalAlignment="Center"
                     EndPoint="22,0"
@@ -120,7 +120,7 @@
                     StrokeThickness="1.5" />
                 <TextBlock loc:Uid.Value="Parametric_Asked" Classes="caption secondary" />
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="8">
+            <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
                 <Line
                     VerticalAlignment="Center"
                     EndPoint="22,0"
@@ -136,7 +136,7 @@
         <StackPanel
             x:Name="Miss"
             Orientation="Horizontal"
-            Spacing="8"
+            Spacing="{StaticResource NeapSpaceS}"
             IsVisible="False">
             <PathIcon
                 Width="{StaticResource NeapIconRow}"
@@ -149,13 +149,13 @@
         </StackPanel>
 
         <!-- One button per adjustment, then adding and removing. -->
-        <StackPanel Orientation="Horizontal" Spacing="8">
+        <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
             <StackPanel
                 x:Name="Chips"
                 Orientation="Horizontal"
-                Spacing="8" />
+                Spacing="{StaticResource NeapSpaceS}" />
             <Button x:Name="AddButton" loc:Uid.Value="Parametric_Add">
-                <StackPanel Orientation="Horizontal" Spacing="8">
+                <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
                     <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconAdd}" />
                     <TextBlock loc:Uid.Value="Parametric_AddLabel" />
                 </StackPanel>
@@ -174,9 +174,9 @@
         <Grid
             x:Name="Fields"
             ColumnDefinitions="88,*,112"
-            ColumnSpacing="12"
+            ColumnSpacing="{StaticResource NeapSpaceM}"
             RowDefinitions="Auto,Auto,Auto"
-            RowSpacing="8">
+            RowSpacing="{StaticResource NeapSpaceS}">
 
             <TextBlock
                 loc:Uid.Value="Parametric_Frequency"

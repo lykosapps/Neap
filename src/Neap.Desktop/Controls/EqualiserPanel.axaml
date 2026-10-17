@@ -11,14 +11,14 @@
         open from Home's tile.
     -->
     <Border Classes="card">
-        <StackPanel Spacing="16">
+        <StackPanel Spacing="{StaticResource NeapSpaceL}">
 
             <!-- Which preset, and whether it has been changed since. -->
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource NeapSpaceM}">
                 <StackPanel
                     Grid.Column="0"
                     Orientation="Horizontal"
-                    Spacing="8">
+                    Spacing="{StaticResource NeapSpaceS}">
                     <!--
                         The name is the way to the other presets. It keeps
                         the title's size and loses the button's fill, so it
@@ -35,12 +35,12 @@
                                     The slots, factory and custom, and how many are
                                     left: that is part of the decision to save.
                                 -->
-                                <StackPanel MinWidth="280" Spacing="4">
+                                <StackPanel MinWidth="280" Spacing="{StaticResource NeapSpaceXS}">
                                     <TextBlock
                                         loc:Uid.Value="Equaliser_PresetsLabel"
-                                        Margin="12,0,0,8"
+                                        Margin="{StaticResource NeapIndent}"
                                         Classes="label" />
-                                    <StackPanel x:Name="Slots" Spacing="2" />
+                                    <StackPanel x:Name="Slots" Margin="{StaticResource NeapSectionGap}" Spacing="{StaticResource NeapSpaceHairline}" />
                                     <!--
                                         A new preset from flat, without choosing and
                                         changing one first. Unavailable with every slot
@@ -49,16 +49,15 @@
                                     <Button
                                         x:Name="NewButton"
                                         loc:Uid.Value="Equaliser_New"
-                                        Margin="0,4,0,0"
                                         Classes="chip">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
                                             <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconAdd}" />
                                             <TextBlock loc:Uid.Value="Equaliser_NewLabel" />
                                         </StackPanel>
                                     </Button>
                                     <TextBlock
                                         x:Name="FreeSlots"
-                                        Margin="12,8,12,0"
+                                        Margin="{StaticResource NeapIndent}"
                                         Classes="caption secondary" />
                                 </StackPanel>
                             </Flyout>
@@ -84,19 +83,19 @@
                     x:Name="Actions"
                     Grid.Column="1"
                     Orientation="Horizontal"
-                    Spacing="8">
+                    Spacing="{StaticResource NeapSpaceS}">
                     <Button
                         x:Name="OverwriteButton"
                         HorizontalContentAlignment="Center"
                         IsEnabled="False">
                         <Button.Flyout>
                             <Flyout>
-                                <StackPanel MaxWidth="280" Spacing="12">
+                                <StackPanel MaxWidth="280" Spacing="{StaticResource NeapSpaceM}">
                                     <TextBlock x:Name="OverwriteQuestion" />
                                     <StackPanel
                                         HorizontalAlignment="Right"
                                         Orientation="Horizontal"
-                                        Spacing="8">
+                                        Spacing="{StaticResource NeapSpaceS}">
                                         <Button x:Name="OverwriteYes" loc:Uid.Value="Equaliser_OverwriteYes" />
                                         <Button x:Name="OverwriteNo" loc:Uid.Value="Equaliser_OverwriteNo" />
                                     </StackPanel>
@@ -125,7 +124,7 @@
                 x:Name="Mode"
                 loc:Uid.Value="Equaliser_Mode"
                 Orientation="Horizontal"
-                Spacing="16"
+                Spacing="{StaticResource NeapSpaceL}"
                 IsVisible="False">
                 <RadioButton
                     x:Name="ModeBands"
@@ -141,12 +140,12 @@
                     -->
                     <FlyoutBase.AttachedFlyout>
                         <Flyout>
-                            <StackPanel MaxWidth="280" Spacing="12">
+                            <StackPanel MaxWidth="280" Spacing="{StaticResource NeapSpaceM}">
                                 <TextBlock x:Name="ParametricQuestion" />
                                 <StackPanel
                                     HorizontalAlignment="Right"
                                     Orientation="Horizontal"
-                                    Spacing="8">
+                                    Spacing="{StaticResource NeapSpaceS}">
                                     <Button x:Name="ParametricYes" loc:Uid.Value="Equaliser_ParametricYes" />
                                     <Button x:Name="ParametricNo" loc:Uid.Value="Equaliser_ParametricNo" />
                                 </StackPanel>
@@ -173,7 +172,7 @@
             -->
             <StackPanel x:Name="Curve" HorizontalAlignment="Stretch">
                 <c:EqualiserCurve x:Name="Response" Height="220" />
-                <Grid x:Name="Bands" Margin="0,8,0,0" RowSpacing="8" />
+                <Grid x:Name="Bands" Margin="{StaticResource NeapSectionGap}" RowSpacing="{StaticResource NeapSpaceS}" />
             </StackPanel>
 
             <!--
@@ -185,7 +184,7 @@
                 Margin="0,24"
                 HorizontalAlignment="Center"
                 Orientation="Horizontal"
-                Spacing="12">
+                Spacing="{StaticResource NeapSpaceM}">
                 <ProgressBar
                     x:Name="WaitingRing"
                     Width="48"
