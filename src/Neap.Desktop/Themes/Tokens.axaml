@@ -183,6 +183,17 @@
     <Thickness x:Key="ExpanderContentRightBorderThickness">0</Thickness>
     <Thickness x:Key="ExpanderContentUpBorderThickness">0</Thickness>
 
+    <!--
+        Space between things: a name and the line under it (Hairline), then
+        the scale every gap and margin is taken from. Cards sit S apart.
+    -->
+    <x:Double x:Key="NeapSpaceHairline">2</x:Double>
+    <x:Double x:Key="NeapSpaceXS">4</x:Double>
+    <x:Double x:Key="NeapSpaceS">8</x:Double>
+    <x:Double x:Key="NeapSpaceM">12</x:Double>
+    <x:Double x:Key="NeapSpaceL">16</x:Double>
+    <x:Double x:Key="NeapSpaceXL">24</x:Double>
+
     <!-- Shape: a card, a row set into one, and the space around and inside them. -->
     <CornerRadius x:Key="NeapRadiusCard">12</CornerRadius>
     <CornerRadius x:Key="NeapRadiusInset">8</CornerRadius>
@@ -196,13 +207,9 @@
     <x:Double x:Key="NeapRowHeight">40</x:Double>
     <x:Double x:Key="NeapNavItemHeight">36</x:Double>
     <Thickness x:Key="NeapPageMargin">24</Thickness>
-    <!-- Dialogs and notices: the space inside a dialog, between its parts, and in a banner. -->
+    <!-- Dialogs and notices: the space inside a dialog and in a banner. -->
     <Thickness x:Key="NeapPaddingDialog">20</Thickness>
     <Thickness x:Key="NeapPaddingNotice">16,8</Thickness>
-    <x:Double x:Key="NeapGapDialog">16</x:Double>
-    <x:Double x:Key="NeapGapStack">8</x:Double>
-    <x:Double x:Key="NeapGapNotice">12</x:Double>
-    <x:Double x:Key="NeapGapMenu">4</x:Double>
     <Thickness x:Key="NeapIndent">12,0,0,0</Thickness>
     <Thickness x:Key="NeapSectionGap">0,8,0,0</Thickness>
     <x:Double x:Key="NeapDialogButtonWidth">96</x:Double>
