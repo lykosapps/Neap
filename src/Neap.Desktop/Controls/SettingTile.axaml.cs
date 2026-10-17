@@ -39,17 +39,12 @@ public partial class SettingTile : UserControl
     public static readonly StyledProperty<Control?> InsideProperty =
         AvaloniaProperty.Register<SettingTile, Control?>(nameof(Inside));
 
-    /// <summary>The tile's own corner radius, so its bottom can be squared to meet the drawer.</summary>
-    private static readonly CornerRadius TileRadius = new(12);
-    private static readonly CornerRadius TileRadiusOverDrawer = new(12, 12, 0, 0);
-
     private readonly SettingLink _link;
 
     public SettingTile()
     {
         InitializeComponent();
         StateWord.Text = Strings.Get("Reading_None");
-        InsideHost.CornerRadius = new CornerRadius(0, 0, 12, 12);
         _link = new SettingLink(Face, () => Setting, Build, Paint);
         Face.Click += (_, _) => _link.Write(Face.IsChecked == true ? 1 : 0);
     }
@@ -111,6 +106,6 @@ public partial class SettingTile : UserControl
         StateWord.Text = QuickSettings.SettingWord(value);
         bool open = value == 1 && Inside is not null;
         InsideHost.IsVisible = open;
-        Face.CornerRadius = open ? TileRadiusOverDrawer : TileRadius;
+        Face.Classes.Set("open", open);
     }
 }

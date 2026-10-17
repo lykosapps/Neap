@@ -12,7 +12,6 @@
     <StackPanel VerticalAlignment="Top">
         <ToggleButton
             x:Name="Face"
-            MinHeight="96"
             Classes="tile"
             IsEnabled="False"
             ZIndex="1">
@@ -33,6 +32,6 @@
                     Classes="tilestate bodystrong" />
             </Grid>
         </ToggleButton>
-        <Border x:Name="InsideHost" Classes="drawer" IsVisible="False" />
+        <Border x:Name="InsideHost" Classes="drawer large" IsVisible="False" />
     </StackPanel>
 </UserControl>

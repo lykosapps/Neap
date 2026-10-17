@@ -93,17 +93,17 @@ internal static class HighContrast
         Brush("NeapPresetHoverBrush", p.Window);
         Brush("NeapPresetSelectedBrush", p.Window);
 
+        // Cards, setting rows and tiles share the window colour here, so an outline is all that sets their edge.
+        Brush("NeapCardStrokeBrush", p.Text);
+
         // A setting's tile: plain and outlined, and filled with the system's
         // highlight, text and all, while it is on.
         Brush("NeapTileBrush", p.Window);
         Brush("NeapTileHoverBrush", p.Window);
-        Brush("NeapTileStrokeBrush", p.Text);
-        Brush("NeapTileEdgeBrush", Colors.Transparent);
         Brush("NeapTileTextBrush", p.Text);
         Brush("NeapTileOnBrush", p.Highlight);
         Brush("NeapTileOnHoverBrush", p.Highlight);
         Brush("NeapTileOnStrokeBrush", p.Text);
-        Brush("NeapTileOnEdgeBrush", Colors.Transparent);
         Brush("NeapTileOnTextBrush", p.HighlightText);
         Brush("NeapTileDisabledBrush", p.Window);
         Brush("NeapTileDisabledStrokeBrush", p.Gray);
