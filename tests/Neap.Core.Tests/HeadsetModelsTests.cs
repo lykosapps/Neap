@@ -153,4 +153,36 @@ public class HeadsetModelsTests
         Assert.All(HeadsetModels.AtlasAir.OwnKeys.Values, key => Assert.True(Registry.ByKey[key].Writable));
         Assert.All(HeadsetModels.AtlasAir.ExtraCategories, group => Assert.True(Verbs.Readers.ContainsKey(group)));
     }
+
+    public static IEnumerable<object[]> ModelNames =>
+        HeadsetModels.All.Select(model => new object[] { model.Name });
+
+    /// <summary>
+    /// Every model is fully wired: the settings its functions read, its
+    /// relocated keys and its volume key are all in the registry, and its extra
+    /// groups can be asked. This holds a new headset to the same wiring as the
+    /// two here, so a gap shows as a failing test rather than a blank control.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(ModelNames))]
+    public void EveryModelIsFullyWired(string name)
+    {
+        var model = HeadsetModels.All.Single(m => m.Name == name);
+
+        foreach (var feature in model.Features)
+            foreach (string setting in HeadsetCheck.Needs[feature])
+                Assert.True(Registry.ByName.ContainsKey(setting),
+                    $"{name}: {feature} reads '{setting}', which the registry does not have");
+
+        foreach (int key in model.OwnKeys.Values)
+            Assert.True(Registry.ByKey.ContainsKey(key), $"{name}: relocated key 0x{key:x} is not in the registry");
+
+        Assert.True(Registry.ByKey.ContainsKey(model.VolumeKey),
+            $"{name}: volume key 0x{model.VolumeKey:x} is not in the registry");
+
+        foreach (string category in model.ExtraCategories)
+            Assert.True(Verbs.Readers.ContainsKey(category), $"{name}: extra group '{category}' has no read verb");
+
+        Assert.Subset(model.Features.ToHashSet(), model.Unread.ToHashSet());
+    }
 }
