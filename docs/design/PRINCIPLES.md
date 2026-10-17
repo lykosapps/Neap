@@ -199,7 +199,9 @@ its accent. Neap takes those qualities and keeps its own identity.
   The selected item is a rounded pill one fill step lighter. A count badge
   in the accent tint is allowed. Settings sits at the foot.
 - **Buttons.**
-  - Primary is an accent fill. It appears at most once per view.
+  - Primary is an accent fill. It appears at most once per view. In the
+    dark theme the fill is Neap's pale lavender with dark text. In the
+    light theme it is a deeper violet with white text.
   - Secondary is outlined.
   - Quiet is text only.
   - Buttons don't carry icons unless the button is icon only, and then it
