@@ -7,43 +7,54 @@ public class CompareHoldTests
     private static readonly int[] Curve = [10, -20, 0, 35, 0, 0, 5, -15, 0, 0];
 
     [Fact]
-    public void PressingAsksForFlatAndKeepsTheCurve()
+    public void PressingAsksForFlatAndKeepsThePresetAndTheCurve()
     {
         var hold = new CompareHold();
 
-        var flat = hold.Press(Curve);
+        Assert.True(hold.Press(Curve, 16));
 
-        Assert.Equal(new int[10], flat);
         Assert.True(hold.Held);
         Assert.True(hold.Owes);
     }
 
     [Fact]
-    public void ReleasingAsksForTheCurveBack()
+    public void ReleasingAsksForThePresetAndTheCurveBack()
     {
         var hold = new CompareHold();
-        hold.Press(Curve);
+        hold.Press(Curve, 16);
 
-        var back = hold.Release();
+        var back = hold.Release()!.Value;
 
-        Assert.Equal(Curve, back);
+        Assert.Equal(16, back.PresetId);
+        Assert.Equal(Curve, back.Bands);
         Assert.False(hold.Held);
         Assert.False(hold.Owes);
+    }
+
+    [Fact]
+    public void ACurveOfNoPresetIsOwedWithNoPreset()
+    {
+        var hold = new CompareHold();
+        hold.Press(Curve, null);
+
+        Assert.Null(hold.Release()!.Value.PresetId);
     }
 
     [Fact]
     public void PressingTwiceDoesNotTakeTheFlatBandsForTheCurve()
     {
         var hold = new CompareHold();
-        hold.Press(Curve);
+        hold.Press(Curve, 16);
 
-        Assert.Null(hold.Press(new int[10]));
+        Assert.False(hold.Press(new int[10], 2));
 
-        Assert.Equal(Curve, hold.Release());
+        var back = hold.Release()!.Value;
+        Assert.Equal(Curve, back.Bands);
+        Assert.Equal(16, back.PresetId);
     }
 
     [Fact]
-    public void ReleasingWithoutPressingAsksForNothing()
+    public void ReleasingWithoutPressingOwesNothing()
     {
         var hold = new CompareHold();
 
@@ -52,61 +63,63 @@ public class CompareHoldTests
     }
 
     [Fact]
-    public void ReleasingTwiceWritesTheCurveOnce()
+    public void ReleasingTwiceRestoresOnce()
     {
         var hold = new CompareHold();
-        hold.Press(Curve);
+        hold.Press(Curve, 16);
         hold.Release();
 
         Assert.Null(hold.Release());
     }
 
     [Fact]
-    public void AFailedRestoreOwesTheCurveUntilTheNextReleaseWritesIt()
+    public void AFailedRestoreOwesTheCurveUntilTheNextReleaseTriesAgain()
     {
         var hold = new CompareHold();
-        hold.Press(Curve);
-        hold.Release();
+        hold.Press(Curve, 16);
+        var owed = hold.Release()!.Value;
 
-        hold.RestoreFailed(Curve);
+        hold.RestoreFailed(owed);
 
         Assert.True(hold.Owes);
         Assert.False(hold.Held);
-        Assert.Equal(Curve, hold.Release());
+        Assert.Equal(owed, hold.Release()!.Value);
         Assert.False(hold.Owes);
     }
 
     [Fact]
-    public void PressingAfterAFailedRestoreStillOwesTheOriginalCurveNotTheFlatOne()
+    public void PressingAfterAFailedRestoreStillOwesTheOriginalNotTheFlatOne()
     {
         var hold = new CompareHold();
-        hold.Press(Curve);
-        hold.RestoreFailed(hold.Release()!);
+        hold.Press(Curve, 16);
+        hold.RestoreFailed(hold.Release()!.Value);
 
-        hold.Press(new int[10]);
+        hold.Press(new int[10], 2);
 
-        Assert.Equal(Curve, hold.Release());
+        var back = hold.Release()!.Value;
+        Assert.Equal(Curve, back.Bands);
+        Assert.Equal(16, back.PresetId);
     }
 
     [Fact]
     public void AFailedFlatWriteHoldsNothingButStillOwesTheCurve()
     {
         var hold = new CompareHold();
-        hold.Press(Curve);
+        hold.Press(Curve, 16);
 
         hold.PressFailed();
 
         Assert.False(hold.Held);
         Assert.True(hold.Owes);
-        Assert.Equal(Curve, hold.Release());
+        Assert.Equal(Curve, hold.Release()!.Value.Bands);
     }
 
     [Fact]
     public void ACurveThatIsAlreadyFlatStillRestoresToFlat()
     {
         var hold = new CompareHold();
-        hold.Press(new int[10]);
+        hold.Press(new int[10], 2);
 
-        Assert.Equal(new int[10], hold.Release());
+        Assert.Equal(new int[10], hold.Release()!.Value.Bands);
     }
 }
