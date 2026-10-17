@@ -197,17 +197,14 @@
     <!-- The height of the title row, which is the height of the title bar where the app draws its own. -->
     <x:Double x:Key="NeapTitleBarHeight">40</x:Double>
 
-    <!-- The dial and the curves. -->
     <!-- The dial: its size, the knob in it and the focus ring around it. The code draws the ring and pointer to the same proportions. -->
     <x:Double x:Key="NeapDialSize">200</x:Double>
     <x:Double x:Key="NeapDialKnobSize">156</x:Double>
     <x:Double x:Key="NeapDialFocusSize">196</x:Double>
     <x:Double x:Key="NeapDialSegmentWidth">8</x:Double>
     <x:Double x:Key="NeapDialPointerWidth">4</x:Double>
-    <!-- The curves' small shapes, and the icons beside them. -->
+    <!-- The curves' small shapes, and the icons in a row. -->
     <CornerRadius x:Key="NeapRadiusTag">4</CornerRadius>
     <CornerRadius x:Key="NeapRadiusPill">10</CornerRadius>
     <x:Double x:Key="NeapIconRow">16</x:Double>
-    <x:Double x:Key="NeapIconTile">20</x:Double>
-    <x:Double x:Key="NeapIconHeader">24</x:Double>
 </ResourceDictionary>
