@@ -13,8 +13,11 @@ For each setting control on each page it moves the control, then checks
 that exactly one setting was written, that it is the control's own, that
 the value is the one chosen and inside the registry's limits, and that the
 headset holds it. It then has the headset change that setting itself and
-checks the control follows. It also covers the options a switch opens
-while it is on, the equaliser bands and presets, starting and deleting a
+checks the control follows. Each control is found by its automation id, the
+setting's registry name: a switch, a slider, a drop-down, or a segmented
+control or list of choices, which is a group of radio buttons. It also covers
+the options a switch opens while it is on, the equaliser page's Game and
+Microphone tabs, bands and presets, starting and deleting a
 preset, Home's tiles and its way to the equaliser, the Windows-owned
 volume, mute and format controls (which must write nothing to the
 headset), the chat wheel driving the mix, the battery, the Charging Dock's
@@ -141,9 +144,26 @@ function FindAll($under, [string]$property, $value) {
     @($under.FindAll($Scopes::Descendants, $condition))
 }
 
+# The app's windows other than the main one that are on screen. A menu, a
+# drop-down's list and a flyout are each a window of their own, outside the
+# main window's tree.
+function Popups {
+    $own = New-Object System.Windows.Automation.PropertyCondition($A::ProcessIdProperty, $process.Id)
+    @($A::RootElement.FindAll($Scopes::Children, $own)) |
+        Where-Object { $_.Current.NativeWindowHandle -ne $script:handle -and -not $_.Current.IsOffscreen }
+}
+
+# What has this property in the main window, or else in a popup.
+function Everywhere([string]$property, $value) {
+    $hits = @(FindAll $script:window $property $value)
+    if ($hits.Count -gt 0) { return $hits }
+    foreach ($popup in Popups) { $hits += @(FindAll $popup $property $value) }
+    return $hits
+}
+
 # The first control of a type with this name; its label often shares the name.
 function Control([string]$name, $type) {
-    FindAll $script:window 'NameProperty' $name | Where-Object { $_.Current.ControlType -eq $type } |
+    Everywhere 'NameProperty' $name | Where-Object { $_.Current.ControlType -eq $type } |
         Select-Object -First 1
 }
 
@@ -212,8 +232,13 @@ function Kind($element) {
     return 'toggle'
 }
 
+# The items of a list, which are in the list's own tree or, for an opened
+# drop-down, in the window it opens.
 function Items($element) {
-    FindAll $element 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::ListItem)
+    $type = [System.Windows.Automation.ControlType]::ListItem
+    $own = @(FindAll $element 'ControlTypeProperty' $type)
+    if ($own.Count -gt 0) { return $own }
+    foreach ($popup in Popups) { FindAll $popup 'ControlTypeProperty' $type }
 }
 
 # $label may end in * for an option whose name goes on, such as an app
@@ -275,6 +300,15 @@ function Operate($element, $value) {
     }
 }
 
+# The registry names each option in English for the probe and the log, and
+# the screen says a few of them in other words.
+$script:spoken = @{ 'Mic monitoring volume' = 'Microphone monitoring volume' }
+
+function Spoken([string]$label) {
+    if ($script:spoken.ContainsKey($label)) { return $script:spoken[$label] }
+    return $label
+}
+
 # A value inside the setting's limits and different from the one shown.
 function Another($setting, $shown, [string]$kind) {
     switch ($kind) {
@@ -286,7 +320,7 @@ function Another($setting, $shown, [string]$kind) {
             return $pick
         }
         { $_ -in 'choice', 'segments' } {
-            $labels = @($setting.options.PSObject.Properties | ForEach-Object { $_.Value })
+            $labels = @($setting.options.PSObject.Properties | ForEach-Object { Spoken $_.Value })
             return @($labels | Where-Object { $_ -ne $shown })[0]
         }
         default { return 1 - $shown }
@@ -296,7 +330,7 @@ function Another($setting, $shown, [string]$kind) {
 # The value a label or a toggle state goes out as.
 function Wire($setting, $value, [string]$kind) {
     if ($kind -in 'choice', 'segments') {
-        return ($setting.options.PSObject.Properties | Where-Object { $_.Value -eq $value }).Name
+        return ($setting.options.PSObject.Properties | Where-Object { (Spoken $_.Value) -eq $value }).Name
     }
     return [string]$value
 }
@@ -366,12 +400,11 @@ function Exercise($element, $setting) {
 }
 
 # Opens every expander on the page, so the settings folded inside one can
-# be found. Lists are left alone: opening one is choosing from it.
+# be found. Drop-downs are left alone: opening one is choosing from it.
 function ExpandAll {
     $all = $script:window.FindAll($Scopes::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
     foreach ($element in $all) {
         if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::ComboBox) { continue }
-        if ($element.Current.AutomationId -eq 'PresetPicker') { continue }
         $expand = $null
         if ($element.TryGetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern, [ref]$expand) -and
             $expand.Current.ExpandCollapseState -eq 'Collapsed') { $expand.Expand() }
@@ -393,13 +426,20 @@ function Settings([string]$page) {
     Check ($found -gt 0) "$page shows setting controls"
 }
 
+# Each band is a text field named for its frequency, in decibels. What is
+# typed is taken when the field is left, so focus goes into the field and
+# then to the button that starts a new preset, which does nothing until pressed.
 function Band([string]$page, [string]$label, [string]$key) {
     Bank $page
-    $band = Control $label ([System.Windows.Automation.ControlType]::Spinner)
+    $band = Control $label ([System.Windows.Automation.ControlType]::Edit)
     if ($null -eq $band) { Fail "$page has an equaliser band $label"; return }
+    $away = Control 'Start a new preset' ([System.Windows.Automation.ControlType]::Button)
+    if ($null -eq $away) { Fail "the $page equaliser has a button to leave the band for"; return }
 
     Ask 'clear' | Out-Null
-    (Pattern $band ([System.Windows.Automation.RangeValuePattern])).SetValue(3)
+    $band.SetFocus()
+    (Pattern $band ([System.Windows.Automation.ValuePattern])).SetValue('3')
+    $away.SetFocus()
     Check (Until { @(Writes | Where-Object { $_.key -eq $key -and $_.value -eq '30' }).Count -gt 0 }) "$page $label band sends $key=30"
     Collect
 }
@@ -581,15 +621,15 @@ function Quick {
     Page 'Home'
     MicTile
 
-    # The equaliser tile opens a list of presets in a flyout, which sits
-    # outside the tile in the tree, so the preset is looked for in the window.
+    # The equaliser tile opens a list of presets in a flyout, which is a
+    # window of its own, so the preset is looked for in the popups too.
     $script:step = 'the preset list on Home'
     $tile = Find $script:window 'AutomationIdProperty' 'PresetPicker'
     if ($null -eq $tile) { Fail 'Home has an equaliser tile'; return }
     Ask 'clear' | Out-Null
     (Pattern $tile ([System.Windows.Automation.InvokePattern])).Invoke()
     $preset = {
-        FindAll $script:window 'NameProperty' 'Signature Sound' |
+        Everywhere 'NameProperty' 'Signature Sound' |
             Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem } | Select-Object -First 1
     }
     if (-not (Until { $null -ne (& $preset) })) { Fail 'the equaliser tile lists Signature Sound'; return }
@@ -681,7 +721,7 @@ function Profiles {
     Ask 'clear' | Out-Null
     (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
     $newButton = { Control 'New profile' ([System.Windows.Automation.ControlType]::Button) }
-    if (-not (Until { $null -ne (& $newButton) })) { Fail 'the profile bar offers to save the current settings as a new profile'; return }
+    if (-not (Until { $null -ne (& $newButton) -and (& $newButton).Current.IsEnabled })) { Fail 'the profile menu offers to save the current settings as a new profile'; return }
     Screenshot 'profile-flyout'
     (Pattern (& $newButton) ([System.Windows.Automation.InvokePattern])).Invoke()
 
@@ -694,6 +734,8 @@ function Profiles {
     (Pattern (& $field) ([System.Windows.Automation.ValuePattern])).SetValue('Gaming')
     $save = Control 'Save' ([System.Windows.Automation.ControlType]::Button)
     if ($null -eq $save) { Fail 'the name dialog has a Save button'; return }
+    # Save is on only once there is a name to save.
+    Until { $save.Current.IsEnabled } | Out-Null
     (Pattern $save ([System.Windows.Automation.InvokePattern])).Invoke()
     Check (Until { $null -ne (Control 'Gaming' ([System.Windows.Automation.ControlType]::TextBlock)) -or $null -ne (Find $script:window 'NameProperty' 'Gaming') }) 'saving names the profile Gaming'
     Start-Sleep -Milliseconds 300
@@ -708,7 +750,8 @@ function Profiles {
     Check (Until { $null -ne (Find $script:window 'NameProperty' 'Edited') }) 'changing a setting the profile holds marks it edited'
     Screenshot 'profile-edited'
 
-    # Save and Discard live in the profile menu, so it is opened to find them.
+    # Save and Discard live in the profile menu, and Discard is there only
+    # while something is edited, so the menu is opened to find it.
     (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
     Until { $null -ne (Control 'Discard' ([System.Windows.Automation.ControlType]::Button)) } | Out-Null
     $discard = Control 'Discard' ([System.Windows.Automation.ControlType]::Button)
@@ -784,7 +827,9 @@ function AutoSwitching {
     if (-not (Until { $null -ne (Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit)) })) { Fail 'saving Desk opens a name dialog'; return }
     Start-Sleep -Milliseconds 500
     (Pattern (Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit)) ([System.Windows.Automation.ValuePattern])).SetValue('Desk')
-    (Pattern (Control 'Save' ([System.Windows.Automation.ControlType]::Button)) ([System.Windows.Automation.InvokePattern])).Invoke()
+    $save = Control 'Save' ([System.Windows.Automation.ControlType]::Button)
+    Until { $save.Current.IsEnabled } | Out-Null
+    (Pattern $save ([System.Windows.Automation.InvokePattern])).Invoke()
     Check (Until { (& $on) -eq 'Desk' }) 'saving Desk puts it on'
 
     $default = Control 'Default profile' ([System.Windows.Automation.ControlType]::ComboBox)
@@ -830,7 +875,7 @@ function PowerCycle {
     $bar = Control 'Profile' ([System.Windows.Automation.ControlType]::Button)
     if ($null -ne $bar) {
         (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
-        Check (Until { $null -ne (Find $script:window 'NameProperty' 'Turn the headset on to switch profiles or save one.') }) 'with the headset off, the profile list says why it is unavailable'
+        Check (Until { @(Everywhere 'NameProperty' 'Turn the headset on to switch profiles or save one.').Count -gt 0 }) 'with the headset off, the profile list says why it is unavailable'
         $save = Control 'New profile' ([System.Windows.Automation.ControlType]::Button)
         Check ($null -ne $save -and -not $save.Current.IsEnabled) 'with the headset off, saving a new profile is not offered'
         Screenshot 'profile-off'

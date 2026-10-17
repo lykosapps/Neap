@@ -91,6 +91,7 @@ public sealed class SettingChoice : UserControl
     private void Build(SettingKey key)
     {
         AutomationProperties.SetAutomationId(_options, key.Name);
+        NeapControls.AsGroup(_options);
         foreach (var option in key.Options ?? new Dictionary<int, string>())
         {
             var button = NeapControls.ChoiceRow(OptionNames.For(key, option.Key), key.Name);

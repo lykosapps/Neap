@@ -117,6 +117,9 @@ and date.
 
 ### Fixed
 
+- A screen reader now announces noise cancellation, the Mode button, the lower
+  dial and Superhuman Hearing's sound as named groups of options, instead of
+  leaving the group's name out.
 - A headset with no name of its own now shows its own model name. An Atlas Air
   without a given name used to show as "Stealth Pro II"; a headset Neap doesn't
   recognise now shows simply as "Headset".

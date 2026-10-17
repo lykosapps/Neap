@@ -31,6 +31,7 @@ public sealed class NoiseModes : StackPanel
     {
         IsEnabled = false;
         Orientation = Orientation.Horizontal;
+        NeapControls.AsGroup(this);
         foreach (var mode in Modes)
         {
             var button = NeapControls.Segment(Strings.Get(QuickSettings.NoiseModeWord(mode)), "noise");
