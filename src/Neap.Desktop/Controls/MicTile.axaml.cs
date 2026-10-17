@@ -35,6 +35,9 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public partial class MicTile : UserControl
 {
+    public static readonly StyledProperty<bool> OnPageProperty =
+        AvaloniaProperty.Register<MicTile, bool>(nameof(OnPage));
+
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(1);
 
     private readonly SettingLink _link;
@@ -54,6 +57,24 @@ public partial class MicTile : UserControl
             await SoundVolume.SetMuted(State == MicState.Live, Flow.Input);
             await ReadSystem();
         };
+    }
+
+    /// <summary>
+    /// Gets or sets whether the tile sits straight on a page, as on Home, drawn
+    /// as a switch on the page's fill, rather than inside a card.
+    /// </summary>
+    public bool OnPage
+    {
+        get => GetValue(OnPageProperty);
+        set => SetValue(OnPageProperty, value);
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property != OnPageProperty) return;
+        Glyph.IsVisible = OnPage;
+        Face.Classes.Set("home", OnPage);
     }
 
     private MicState State => Microphone.Of(_link.Value, _mutedInSystem);

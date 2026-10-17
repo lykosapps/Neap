@@ -11,6 +11,13 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Data="{StaticResource IconMicrophone}" />
+            <Border
+                x:Name="Glyph"
+                Classes="switchglyph"
+                AutomationProperties.AccessibilityView="Raw"
+                IsVisible="False">
+                <Ellipse />
+            </Border>
             <TextBlock
                 loc:Uid.Value="Quick_Microphone"
                 Grid.Row="1"

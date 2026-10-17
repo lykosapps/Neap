@@ -25,9 +25,6 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public partial class QuickControls : UserControl
 {
-    /// <summary>The narrowest the block can be and still hold the mix and the settings side by side.</summary>
-    private const double SideBySide = 640;
-
     /// <summary>How often a battery reading that is still settling is looked at again.</summary>
     private static readonly TimeSpan Recheck = TimeSpan.FromSeconds(30);
 
@@ -56,7 +53,6 @@ public partial class QuickControls : UserControl
         _spare = AddReading(_spareMeter);
         _signal = AddReading(_signalMeter);
 
-        Block.SizeChanged += (_, _) => Arrange();
         Header.SizeChanged += (_, _) => ArrangeHeader();
     }
 
@@ -146,24 +142,6 @@ public partial class QuickControls : UserControl
         PaintNote(StateNote.For(status));
         Fold(MixCard, SectionFold.For(status, whenOff: true, headset.AccessDenied));
         Fold(SettingsCard, SectionFold.For(status, whenOff: false, headset.AccessDenied));
-        Arrange();
-    }
-
-    /// <summary>
-    /// Puts the mix and the settings side by side when both are shown and
-    /// there is room, and one above the other otherwise, so a part left on
-    /// its own takes the whole width.
-    /// </summary>
-    private void Arrange()
-    {
-        bool beside = Block.Bounds.Width >= SideBySide && Block.Children.All(c => c.IsVisible);
-        for (int i = 0; i < Block.Children.Count; i++)
-        {
-            var part = Block.Children[i];
-            Grid.SetColumn(part, beside ? i : 0);
-            Grid.SetRow(part, beside ? 0 : i);
-            Grid.SetColumnSpan(part, beside ? 1 : 2);
-        }
     }
 
     /// <summary>Shows a part of the block, or hides it while the note stands in for it.</summary>

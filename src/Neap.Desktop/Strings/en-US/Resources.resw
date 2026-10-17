@@ -949,7 +949,7 @@
     <value>Your headset keeps using these. Switch it off and on again to change them here.</value>
   </data>
   <data name="Mix_Playing" xml:space="preserve">
-    <value>{0}  ·  playing</value>
+    <value>{0} is playing</value>
   </data>
   <data name="Mix_NothingPlaying.Title" xml:space="preserve">
     <value>Nothing is playing to the headset yet</value>
@@ -1072,11 +1072,8 @@
   <data name="Quick_PresetParametric" xml:space="preserve">
     <value>{0}, parametric</value>
   </data>
-  <data name="Quick_OpenEqualiser.Text" xml:space="preserve">
-    <value>Open the equaliser</value>
-  </data>
-  <data name="Quick_OpenEqualiserButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Open the equaliser</value>
+  <data name="Quick_EqualiserSettings.Content" xml:space="preserve">
+    <value>Equaliser settings</value>
   </data>
   <data name="Home_Through" xml:space="preserve">
     <value>Connected through the {0}</value>
@@ -1097,7 +1094,7 @@
     <value>{0}%</value>
   </data>
   <data name="Home_BatterySettling" xml:space="preserve">
-    <value>Settling…</value>
+    <value>Reading…</value>
   </data>
   <data name="Battery_Charging" xml:space="preserve">
     <value>Charging</value>
@@ -1417,10 +1414,10 @@
     <value>{0} with a pretend headset</value>
   </data>
   <data name="Quick_NoiseTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Noise control</value>
+    <value>Noise cancellation</value>
   </data>
   <data name="Quick_NoiseControl.Text" xml:space="preserve">
-    <value>Noise control</value>
+    <value>Noise cancellation</value>
   </data>
   <data name="Quick_ShhTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Superhuman Hearing</value>
@@ -1444,7 +1441,7 @@
     <value>Blocks the room around you, or lets it in.</value>
   </data>
   <data name="Noise_Cancelling" xml:space="preserve">
-    <value>Noise cancellation</value>
+    <value>Cancelling</value>
   </data>
   <data name="Noise_Transparency" xml:space="preserve">
     <value>Transparency</value>

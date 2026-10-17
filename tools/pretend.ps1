@@ -476,7 +476,7 @@ function PresetTools {
 }
 
 # Superhuman Hearing's tile on Home, and the way from Home's equaliser tile
-# to the equaliser itself.
+# to the equaliser itself, from its Equaliser settings link.
 function HomeExtras {
     Page 'Home'
     $script:step = 'Superhuman Hearing on Home'
@@ -484,19 +484,17 @@ function HomeExtras {
     if ($null -eq $tile) { Fail 'Home has a Superhuman Hearing tile' }
     else { Exercise $tile ($script:registry | Where-Object { $_.name -eq 'superhuman_hearing' }) }
 
-    $script:step = 'Open the equaliser on Home'
-    $picker = Find $script:window 'AutomationIdProperty' 'PresetPicker'
-    (Pattern $picker ([System.Windows.Automation.InvokePattern])).Invoke()
-    $open = { Control 'Open the equaliser' ([System.Windows.Automation.ControlType]::Button) }
-    if (-not (Until { $null -ne (& $open) })) { Fail "Home's preset list ends with Open the equaliser"; return }
+    $script:step = 'Equaliser settings on Home'
+    $open = { Control 'Equaliser settings' ([System.Windows.Automation.ControlType]::Button) }
+    if ($null -eq (& $open)) { Fail 'the equaliser tile has an Equaliser settings link'; return }
     (Pattern (& $open) ([System.Windows.Automation.InvokePattern])).Invoke()
     $equaliser = {
         FindAll $script:window 'NameProperty' 'Equaliser' |
             Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem } | Select-Object -First 1
     }
-    Check (Until { (Pattern (& $equaliser) ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Open the equaliser goes to the Equaliser page'
+    Check (Until { (Pattern (& $equaliser) ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Equaliser settings goes to the Equaliser page'
     $game = { Control 'Game' ([System.Windows.Automation.ControlType]::RadioButton) }
-    Check (Until { $null -ne (& $game) -and (Pattern (& $game) ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Open the equaliser lands on the Game tab'
+    Check (Until { $null -ne (& $game) -and (Pattern (& $game) ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Equaliser settings lands on the Game tab'
     Collect
 }
 
@@ -639,12 +637,11 @@ function NoiseControl {
     Check (Until { $null -ne (Find $script:window 'AutomationIdProperty' 'anc_level') }) 'Blocking is shown with noise cancellation'
 
     Page 'Home'
-    $tile = Control 'Noise control' ([System.Windows.Automation.ControlType]::Button)
-    if ($null -eq $tile) { Fail 'Home has a noise control tile'; return }
-    $toggle = Pattern $tile ([System.Windows.Automation.TogglePattern])
-    NoiseStep { $toggle.Toggle() } '1' '0' 'the Home tile from noise cancellation'
-    NoiseStep { $toggle.Toggle() } '0' $level 'the Home tile from transparency'
-    NoiseStep { $toggle.Toggle() } '1' $level 'the Home tile from off'
+    $tile = Find $script:window 'AutomationIdProperty' 'home_noise_control'
+    if ($null -eq $tile) { Fail 'Home has a noise cancellation tile'; return }
+    NoiseStep { Operate $tile 'Transparency' } '1' '0' 'choosing Transparency on Home'
+    NoiseStep { Operate $tile 'Off' } '0' $level 'choosing Off on Home'
+    NoiseStep { Operate $tile 'Cancelling' } '1' $level 'choosing Cancelling on Home'
 
     Page 'Controls'
     $mode = Find $script:window 'AutomationIdProperty' 'mode_button_function'
