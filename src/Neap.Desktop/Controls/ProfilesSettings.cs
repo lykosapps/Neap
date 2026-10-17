@@ -90,7 +90,7 @@ public sealed class ProfilesSettings : UserControl
         var profiles = AppServices.Profiles.All;
         string? defaultId = AppServices.Profiles.DefaultId;
         string shown = string.Join("\n", profiles.Select(p => $"{p.Id}|{p.Name}|{string.Join(",", p.AssignedApps.Select(app => Described(p, app)))}"))
-            + $"\n{_confirmingDeleteId}\n{defaultId}";
+            + $"\n{_confirmingDeleteId}\n{defaultId}\n{AppServices.Profiles.ActiveId}";
         if (shown == _shown) return;
         _shown = shown;
 
@@ -126,8 +126,8 @@ public sealed class ProfilesSettings : UserControl
     };
 
     /// <summary>
-    /// A profile's row: its name and assigned apps, a way to choose apps, a
-    /// way to rename it, and a way to delete it.
+    /// A profile's row: its name and assigned apps, whether it is the one in
+    /// use, a way to choose apps, a way to rename it, and a way to delete it.
     /// </summary>
     private Control Row(Profile profile)
     {
@@ -155,13 +155,22 @@ public sealed class ProfilesSettings : UserControl
             Paint();
         };
 
+        var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { apps, rename, delete } };
+        if (profile.Id == AppServices.Profiles.ActiveId)
+            actions.Children.Insert(0, new Border
+            {
+                Classes = { "tag" },
+                VerticalAlignment = VerticalAlignment.Center,
+                Child = new TextBlock { Text = Strings.Get("Profile_InUse") },
+            });
+
         return new SettingsCard
         {
             Header = profile.Name,
             Description = profile.AssignedApps.Count > 0
                 ? Strings.List(profile.AssignedApps.Select(app => Described(profile, app)).ToList())
                 : Strings.Get("Profile_NoApps"),
-            Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { apps, rename, delete } },
+            Content = actions,
         };
     }
 

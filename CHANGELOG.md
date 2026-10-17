@@ -27,6 +27,7 @@ and date.
   Swarm II keeps them. In testing with an owner of one.
 - On a headset with no chat wheel, such as the Atlas Air, a profile saves the
   game and chat mix and puts it back when it's switched to.
+- The Profiles page marks the profile in use.
 - The game and chat mix on Home links to its keyboard shortcuts.
 - A recording lists each change Neap sends to the headset beside what the
   headset says, and says why when a change wasn't sent.

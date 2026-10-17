@@ -79,7 +79,7 @@ answers, so nothing works there yet.
 | Start with the PC | Listed | Neap's own | Has | Untried | Untried | — | Neap's own. |
 | Language | Listed | Yes | Not planned | — | — | — | English only, written so it can be translated. |
 | Macro manager | Listed | Yes, on the PC | Not planned | — | — | — | Out of scope. |
-| Profiles | Listed | Neap's own | Has | Seen | Blocked | — | Neap's own, by the app in use. Show which is active; see Problems. |
+| Profiles | Listed | Neap's own | Has | Seen | Blocked | — | Neap's own, by the app in use. Marks the one in use from 0.2.1.4. |
 
 ### Physical controls
 
@@ -109,7 +109,7 @@ From the quick start guide. Neap describes them; it doesn't set them.
 | Microphone shows on at start with the boom up, until it's lowered and raised | 0.2.1.2 | Probably fixed: the 0.2.1.3 recording reads the boom up from the start | Ask the tester. |
 | Sensitivity slider jumps to 100% when the tester speaks | 0.2.1.2 | Probably fixed: in the 0.2.1.3 recording the level follows the slider with no jump | Ask the tester. If it comes back, check whether Teams' automatic gain is raising the PC's microphone level. |
 | Game and chat mix isn't saved in profiles | 0.2.1.2 | Fixed for 0.2.1.4: on a headset with no chat wheel, profiles save and restore the mix (decision of 17 October) | Ask the tester. |
-| Profiles page doesn't say which profile is active | 0.2.1.2 | Request | Decide. |
+| Profiles page doesn't say which profile is active | 0.2.1.2 | Fixed for 0.2.1.4: the profile in use is marked "In use" | Ask the tester. |
 | Master volume's mute button is highlighted when muted | 0.2.1.2 | By design: the mute button is on while muted | Say so in the reply. |
 
 ## Next
