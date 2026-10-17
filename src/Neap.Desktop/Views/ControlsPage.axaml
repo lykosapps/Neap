@@ -19,7 +19,7 @@
                     list.
                 -->
                 <TextBlock x:Name="OnHeadsetHeading" loc:Uid.Value="Controls_OnHeadsetHeading" Classes="sectionheader" />
-                <Grid x:Name="Assignable" ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Grid x:Name="Assignable" ColumnDefinitions="*,*" ColumnSpacing="{StaticResource NeapSpaceM}">
                     <c:ModeButtonChoice loc:Uid.Value="Controls_ModeButton" />
                     <c:SettingChoice
                         loc:Uid.Value="Controls_LowerDial"
@@ -36,9 +36,9 @@
                     <Grid
                         x:Name="FixedGrid"
                         ColumnDefinitions="Auto,*"
-                        ColumnSpacing="24"
+                        ColumnSpacing="{StaticResource NeapSpaceXL}"
                         RowDefinitions="Auto,Auto,Auto,Auto"
-                        RowSpacing="12">
+                        RowSpacing="{StaticResource NeapSpaceM}">
                         <TextBlock x:Name="VolumeWheel" loc:Uid.Value="Controls_VolumeWheel" Classes="bodystrong" />
                         <TextBlock x:Name="VolumeWheelDoes"
                             loc:Uid.Value="Controls_VolumeWheelDoes"

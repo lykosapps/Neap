@@ -201,7 +201,7 @@ public partial class QuickControls : UserControl
             IsVisible = false,
             Children = { label, picture },
         };
-        panel.Bind(StackPanel.SpacingProperty, panel.GetResourceObservable("NeapSpaceXS"));
+        panel.Spacing = Space.XS;
         Readings.Children.Add(panel);
         return new Reading(panel, label);
     }

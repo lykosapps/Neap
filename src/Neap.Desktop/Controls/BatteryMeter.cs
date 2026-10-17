@@ -82,7 +82,7 @@ public sealed class BatteryMeter : UserControl
         AutomationProperties.SetName(_bolt, Strings.Get("Battery_Charging"));
 
         var row = new StackPanel { Orientation = Orientation.Horizontal, Children = { _picture, _bolt, Value } };
-        row.Bind(StackPanel.SpacingProperty, this.GetResourceObservable("NeapSpaceS"));
+        row.Spacing = Space.S;
         Content = row;
     }
 

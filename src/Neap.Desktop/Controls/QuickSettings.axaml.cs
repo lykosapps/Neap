@@ -170,12 +170,12 @@ public partial class QuickSettings : UserControl
     {
         bool parametric = PresetService.MadeParametrically(preset);
         var name = new StackPanel { Orientation = Orientation.Horizontal };
-        name.Bind(StackPanel.SpacingProperty, name.GetResourceObservable("NeapSpaceS"));
+        name.Spacing = Space.S;
         name.Children.Add(new TextBlock { Text = preset.Name, VerticalAlignment = VerticalAlignment.Center });
         if (parametric) name.Children.Add(ParametricMark());
 
         var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
-        row.Bind(Grid.ColumnSpacingProperty, row.GetResourceObservable("NeapSpaceL"));
+        row.ColumnSpacing = Space.L;
         row.Children.Add(name);
         var curve = Curve(preset.Bands, ListCurveWidth, ListCurveHeight);
         Grid.SetColumn(curve, 1);

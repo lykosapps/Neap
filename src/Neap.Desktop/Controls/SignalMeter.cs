@@ -30,7 +30,7 @@ public sealed class SignalMeter : UserControl
             Orientation = Orientation.Horizontal,
             VerticalAlignment = VerticalAlignment.Center,
         };
-        picture.Bind(StackPanel.SpacingProperty, this.GetResourceObservable("NeapSpaceHairline"));
+        picture.Spacing = Space.Hairline;
         for (int i = 0; i < Bars; i++)
         {
             _bars[i] = new Border
@@ -46,7 +46,7 @@ public sealed class SignalMeter : UserControl
 
         Value = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Classes = { textClass } };
         var row = new StackPanel { Orientation = Orientation.Horizontal, Children = { picture, Value } };
-        row.Bind(StackPanel.SpacingProperty, this.GetResourceObservable("NeapSpaceS"));
+        row.Spacing = Space.S;
         Content = row;
     }
 

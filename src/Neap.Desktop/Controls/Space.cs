@@ -3,17 +3,27 @@ using Avalonia.Controls;
 
 namespace Neap.Desktop.Controls;
 
-/// <summary>The spacing scale from Tokens.axaml, for layouts built in code.</summary>
-/// <remarks>Code reads the same steps AXAML does, so one edit to a token moves both.</remarks>
+/// <summary>The gaps of the spacing scale, for the layouts that are built in code.</summary>
+/// <remarks>
+/// The scale is defined once, in Tokens.axaml; reading it here keeps a gap built
+/// in code the same size as one written in a page.
+/// </remarks>
 internal static class Space
 {
-    public static double Hairline => Step("NeapSpaceHairline");
+    /// <summary>Gets the gap between a name and the line under it.</summary>
+    public static double Hairline => Get("NeapSpaceHairline");
 
-    public static double XS => Step("NeapSpaceXS");
+    /// <summary>Gets the gap between a name and its rows: the smallest step.</summary>
+    public static double XS => Get("NeapSpaceXS");
 
-    public static double S => Step("NeapSpaceS");
+    /// <summary>Gets the gap between the parts of a card, and between cards.</summary>
+    public static double S => Get("NeapSpaceS");
 
-    public static double M => Step("NeapSpaceM");
+    /// <summary>Gets the gap between a row's name and what sits beside it.</summary>
+    public static double M => Get("NeapSpaceM");
 
-    private static double Step(string key) => (double)Application.Current!.FindResource(key)!;
+    /// <summary>Gets the gap between columns of tiles or readings.</summary>
+    public static double L => Get("NeapSpaceL");
+
+    private static double Get(string key) => (double)Application.Current!.FindResource(key)!;
 }

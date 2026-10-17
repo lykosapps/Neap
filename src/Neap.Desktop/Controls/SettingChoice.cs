@@ -37,7 +37,7 @@ public sealed class SettingChoice : UserControl
     public static readonly StyledProperty<string> DescriptionProperty =
         AvaloniaProperty.Register<SettingChoice, string>(nameof(Description), "");
 
-    private readonly StackPanel _options = new() { Spacing = 4, IsEnabled = false };
+    private readonly StackPanel _options = new() { Spacing = Space.XS, IsEnabled = false };
     private readonly TextBlock _title = new() { Classes = { "cardtitle" } };
     private readonly TextBlock _description = new() { Classes = { "caption", "secondary" } };
     private readonly SettingLink _link;
@@ -48,7 +48,7 @@ public sealed class SettingChoice : UserControl
         Content = new Border
         {
             Classes = { "card" },
-            Child = new StackPanel { Spacing = 8, Children = { _title, _description, _options } },
+            Child = new StackPanel { Spacing = Space.S, Children = { _title, _description, _options } },
         };
         _link = new SettingLink(this, () => Setting, Build, Paint);
     }
