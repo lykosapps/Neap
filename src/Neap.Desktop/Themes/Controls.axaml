@@ -85,6 +85,78 @@
         </ControlTheme>
 
         <!--
+            One option of a list: a full-width inset row with the radio dot
+            inside it. The chosen row is tinted with the selected fill and its
+            text stays at full strength. The whole row is the target, and it
+            stays a radio button, so a screen reader says which of how many is
+            chosen.
+        -->
+        <ControlTheme x:Key="ChoiceRow" TargetType="RadioButton">
+            <Setter Property="Background" Value="{DynamicResource NeapInsetBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeapCardStrokeBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource NeapTextBrush}" />
+            <Setter Property="Padding" Value="{StaticResource NeapPaddingRow}" />
+            <Setter Property="MinHeight" Value="{StaticResource NeapRowHeight}" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border x:Name="Row"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource NeapRadiusInset}"
+                            MinHeight="{TemplateBinding MinHeight}"
+                            Padding="{TemplateBinding Padding}">
+                        <Panel>
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" VerticalAlignment="Center">
+                                <Panel Width="18" Height="18" VerticalAlignment="Center">
+                                    <Ellipse x:Name="Outline" StrokeThickness="2"
+                                             Stroke="{DynamicResource NeapTextSecondaryBrush}" />
+                                    <Ellipse x:Name="Dot" Width="8" Height="8" IsVisible="False"
+                                             Fill="{DynamicResource NeapAccentTextBrush}" />
+                                </Panel>
+                                <ContentPresenter x:Name="PART_ContentPresenter" Grid.Column="1"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                  Foreground="{TemplateBinding Foreground}"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="Center" />
+                            </Grid>
+                            <Border x:Name="Ring" Margin="-3" IsVisible="False" IsHitTestVisible="False"
+                                    BorderThickness="{StaticResource NeapFocusRingWidth}"
+                                    BorderBrush="{DynamicResource NeapTextBrush}"
+                                    CornerRadius="{StaticResource NeapRadiusInset}" />
+                        </Panel>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+
+            <Style Selector="^:pointerover /template/ Border#Row">
+                <Setter Property="Background" Value="{DynamicResource NeapQuietHoverBrush}" />
+            </Style>
+            <Style Selector="^:checked">
+                <Style Selector="^ /template/ Border#Row">
+                    <Setter Property="Background" Value="{DynamicResource NeapSelectedBrush}" />
+                </Style>
+                <Style Selector="^ /template/ Ellipse#Outline">
+                    <Setter Property="Stroke" Value="{DynamicResource NeapAccentTextBrush}" />
+                </Style>
+                <Style Selector="^ /template/ Ellipse#Dot">
+                    <Setter Property="IsVisible" Value="True" />
+                </Style>
+            </Style>
+            <Style Selector="^:disabled">
+                <Setter Property="Foreground" Value="{DynamicResource NeapTextDisabledBrush}" />
+            </Style>
+            <Style Selector="^:focus-visible /template/ Border#Ring">
+                <Setter Property="IsVisible" Value="True" />
+            </Style>
+        </ControlTheme>
+
+        <!--
             A slider with a 6px track filled in the accent up to a round
             thumb, and its value in a bubble over the thumb while it is held.
             Only the horizontal one is drawn here; a vertical slider keeps the
@@ -278,6 +350,9 @@
     <!-- On a Steam Deck sized window (the touch class on the window) each grows to a 40px target. -->
     <Style Selector="Window.touch Border.segmented">
         <Setter Property="Height" Value="{StaticResource NeapTargetTouch}" />
+    </Style>
+    <Style Selector="Window.touch RadioButton /template/ Border#Row">
+        <Setter Property="MinHeight" Value="{StaticResource NeapRowHeightTouch}" />
     </Style>
     <Style Selector="Window.touch Slider /template/ Border#SliderRoot">
         <Setter Property="MinHeight" Value="{StaticResource NeapTargetTouch}" />

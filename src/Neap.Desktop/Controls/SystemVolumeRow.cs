@@ -40,9 +40,6 @@ public sealed class SystemVolumeRow : SettingsCard
         AvaloniaProperty.Register<SystemVolumeRow, bool>(nameof(WithMute));
 
     private const int SliderWidth = 220;
-
-    /// <summary>The slider beside a mute: shorter by the mute's room, so the line is as wide as any other row's.</summary>
-    private const int MutedSliderWidth = 164;
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(1);
 
     private Slider? _slider;
@@ -144,7 +141,7 @@ public sealed class SystemVolumeRow : SettingsCard
         };
         var line = new SliderLine
         {
-            Preferred = WithMute ? MutedSliderWidth : SliderWidth,
+            Preferred = SliderWidth,
             Flexible = _slider,
             Children = { _slider, _readout },
         };
@@ -160,9 +157,15 @@ public sealed class SystemVolumeRow : SettingsCard
             {
                 if (!_painting) _ = SoundVolume.SetMuted(_mute.IsChecked == true, Flow);
             };
-            line.Children.Insert(0, _mute);
+            // Left of the slider's line, not inside it, so the track is as long
+            // as every other row's and ends at the same edge.
+            var withMute = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), ColumnSpacing = Space.S };
+            Grid.SetColumn(line, 1);
+            withMute.Children.Add(_mute);
+            withMute.Children.Add(line);
+            Content = withMute;
         }
-        Content = line;
+        else Content = line;
 
         // Named for screen readers on the control rather than the card around
         // it, since the control takes focus; otherwise every slider announces

@@ -28,6 +28,14 @@ internal static class NeapControls
         GroupName = group,
     };
 
+    /// <summary>One option of a list of choices: a full-width inset row with the radio dot inside it, in the radio group <paramref name="group"/>.</summary>
+    public static RadioButton ChoiceRow(object content, string group) => new()
+    {
+        Theme = Of("ChoiceRow"),
+        Content = content,
+        GroupName = group,
+    };
+
     /// <summary>A switch with its state in words beside it, at the right of its row.</summary>
     public static ToggleSwitch Switch() => new()
     {

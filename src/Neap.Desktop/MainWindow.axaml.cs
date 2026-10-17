@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
+using Avalonia.VisualTree;
 using Neap.Core;
 using Neap.Desktop.Controls;
 using Neap.Desktop.Localization;
@@ -207,7 +208,7 @@ public partial class MainWindow : Window
     private async Task SaveAndExit(string file)
     {
         await Task.Delay(Pretend.SettleTime);
-        if (Pretend.ScrolledBy is double by && (Body.Content as UserControl)?.Content is PageView { Scroller: { } scroller })
+        if (Pretend.ScrolledBy is double by && Body.Content is Visual page && page.GetVisualDescendants().OfType<PageView>().FirstOrDefault() is { Scroller: { } scroller })
         {
             if (double.IsInfinity(by)) scroller.ScrollToEnd();
             else scroller.Offset = new Vector(0, by);

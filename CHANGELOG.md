@@ -36,6 +36,9 @@ and date.
 
 ### Changed
 
+- On Controls, each job for the Mode button and the lower dial is a full-width row you can press anywhere, the chosen one tinted, and the two cards are the same height. The dial's first job is named Microphone monitoring volume.
+- Audio's sliders all end at the same edge, with Master volume's mute beside the slider's line instead of shortening it.
+- Start when you sign in says why when it can't be changed, as in a practice run.
 - Home is redesigned: the headset's readings across the top, Game and chat
   as one card with a Keyboard shortcuts link, and tiles that show how they
   work, such as a switch for the microphone, Off, Cancelling and

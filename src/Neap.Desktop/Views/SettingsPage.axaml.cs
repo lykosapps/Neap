@@ -40,6 +40,7 @@ public partial class SettingsPage : UserControl
 
         // The sign-in entry belongs to the real copy of the app.
         StartWhenSignedIn.IsEnabled = !Pretend.Active;
+        if (Pretend.Active) StartCard.Description = Strings.Get("Settings_StartPractice");
 
         StartWhenSignedIn.IsCheckedChanged += (_, _) =>
         {

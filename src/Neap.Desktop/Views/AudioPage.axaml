@@ -10,14 +10,20 @@
             One row pattern: a card (Classes="group") holds the rows of one
             topic. A row has no fill or edge and no rule above it; the space
             between rows sets them apart, and its control sits in a column of
-            one width so every slider and switch lines up. A row's options
+            one width so every slider and switch lines up. The rows keep 13px
+            more on the right than the card's own padding, the width of an
+            inset's padding and edge, so a slider in an inset ends where the
+            others do. A row's options
             (Classes="sub") sit in an inset panel under it.
         -->
+        <Style Selector="Border.card.group">
+            <Setter Property="Padding" Value="16,16,8,16" />
+        </Style>
         <Style Selector="Border.group c|SettingsCard">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="0" />
-            <Setter Property="Padding" Value="0,6" />
+            <Setter Property="Padding" Value="0,6,13,6" />
         </Style>
         <Style Selector="Border.group Border.options c|SettingsCard">
             <Setter Property="Padding" Value="0" />
