@@ -42,6 +42,15 @@ if ($Parts.Contains('A')) {
         }
         Check (Wait-Until { (Get-Texts) -contains '+18 dB' } 5) 'at the top the slider reads +18 dB'
         Check (Wait-Until { (Get-Texts) -contains 'Headset level: +6 dB' } 5) 'and the headset level reads +6 dB'
+
+        # A quick sweep up from the bottom, as a drag does, then a pause: the
+        # slider stays where it was left rather than bouncing back to a step it passed.
+        if ($rv) {
+            foreach ($step in 0, 3, 6, 9, 12, 15, 18) { $rv.SetValue($step); Start-Sleep -Milliseconds 40 }
+            Start-Sleep -Seconds 3
+            Check ($rv.Current.Value -eq 18) "after a quick sweep the slider stays at +18 dB (it is at +$($rv.Current.Value))"
+            Check ((Get-Texts) -contains 'Headset level: +6 dB') 'and the headset level settles at +6 dB'
+        }
         if ($rv) { $rv.SetValue(0) }
         Check (Wait-Until { (Get-Texts) -contains 'Headset level: -12 dB' } 5) 'back at +0 the headset level reads -12 dB again'
 

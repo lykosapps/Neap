@@ -466,27 +466,51 @@ public sealed class HeadsetService : IDisposable
     /// it with a read.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// The headset sends no reply to the set, so the level shows at once at the
     /// asked value and is then corrected to whatever the headset reports. Does
     /// nothing useful on a headset where <see cref="Loudness"/> is unavailable;
     /// the control is hidden there.
+    /// </para>
+    /// <para>
+    /// Each set and its read-back take most of a second through the dock, so a
+    /// slider dragged across several steps would queue a round trip per step,
+    /// and each late confirmation would pull the slider back to a step it had
+    /// passed. Only the latest level is ever waiting to be sent, and a read-back
+    /// is dropped when a newer level is already waiting.
+    /// </para>
     /// </remarks>
     public void SetLoudnessBoost(float boostDb)
     {
         float level = LoudnessBoost.LevelForBoost(boostDb);
         FileLoudness(new LoudnessReading(true, level));
+        _loudnessWanted = level;
+        if (Interlocked.Exchange(ref _loudnessQueued, 1) == 1) return;
+
         var job = Post(client =>
         {
-            client.SetLoudness(level);
-            if (client.ReadLoudness() is { } confirmed)
+            Interlocked.Exchange(ref _loudnessQueued, 0);
+            float latest = _loudnessWanted;
+            client.SetLoudness(latest);
+            if (client.ReadLoudness() is { } confirmed && Volatile.Read(ref _loudnessQueued) == 0)
                 FileLoudness(new LoudnessReading(true, confirmed));
             return true;
         });
+
+        // A job failed before it ran never clears its own mark, which would stop
+        // every later change; clear it here.
         job.ContinueWith(failed =>
         {
+            Interlocked.Exchange(ref _loudnessQueued, 0);
             if (failed.Exception?.GetBaseException() is { } ex) NoteFault("set loudness", ex);
         }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
     }
+
+    /// <summary>The latest loudness level asked for, waiting to be sent.</summary>
+    private volatile float _loudnessWanted;
+
+    /// <summary>1 while a loudness change is waiting to be sent.</summary>
+    private int _loudnessQueued;
 
     /// <summary>Reads the loudness level on connect and files it, hiding the feature when the headset does not answer.</summary>
     /// <remarks>Only a headset whose model has the boost is asked; any other is not sent the command at all.</remarks>

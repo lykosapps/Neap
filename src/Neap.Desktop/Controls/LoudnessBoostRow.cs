@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using Avalonia.Automation;
 using Avalonia.Controls;
@@ -35,6 +36,19 @@ public sealed class LoudnessBoostRow : SettingsCard
     private bool _painting;
     private bool _built;
 
+    /// <summary>When the person last moved the slider, as a timestamp.</summary>
+    private long _chosenAt;
+
+    /// <summary>How long after a change the headset's report of the level leaves the slider alone.</summary>
+    /// <remarks>
+    /// The headset confirms each level most of a second after it is set, and a
+    /// confirmation of one the slider has already passed would pull it back
+    /// under the person's finger.
+    /// </remarks>
+    private static readonly TimeSpan ChoiceHold = TimeSpan.FromMilliseconds(1500);
+
+    private bool JustChosen() => _chosenAt != 0 && Stopwatch.GetElapsedTime(_chosenAt) < ChoiceHold;
+
     protected override Type StyleKeyOverride => typeof(SettingsCard);
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -69,6 +83,7 @@ public sealed class LoudnessBoostRow : SettingsCard
         {
             if (_readout is not null) _readout.Text = Boost(args.NewValue);
             if (_painting) return;
+            _chosenAt = Stopwatch.GetTimestamp();
             AppServices.Headset.SetLoudnessBoost((float)args.NewValue);
         };
         _readout = new TextBlock
@@ -108,12 +123,13 @@ public sealed class LoudnessBoostRow : SettingsCard
         IsVisible = look.Shown;
         if (!look.Shown || _slider is null) return;
         _slider.IsEnabled = look.Enabled;
+        if (_level is not null) _level.Text = Level(look.LevelDb);
+        if (_slider.IsPointerOver || JustChosen()) return;
         _painting = true;
         try
         {
             _slider.Value = look.BoostDb;
             if (_readout is not null) _readout.Text = Boost(look.BoostDb);
-            if (_level is not null) _level.Text = Level(look.LevelDb);
         }
         finally { _painting = false; }
     }
