@@ -29,6 +29,9 @@ public class SettingsCard : ContentControl
     public static readonly StyledProperty<Geometry?> IconProperty =
         AvaloniaProperty.Register<SettingsCard, Geometry?>(nameof(Icon));
 
+    public static readonly StyledProperty<double> SideBySideWidthProperty =
+        AvaloniaProperty.Register<SettingsCard, double>(nameof(SideBySideWidth), 560);
+
     /// <summary>What the setting is called.</summary>
     public string? Header
     {
@@ -57,10 +60,18 @@ public class SettingsCard : ContentControl
         set => SetValue(IconProperty, value);
     }
 
-    protected override Type StyleKeyOverride => typeof(SettingsCard);
+    /// <summary>
+    /// The width below which the control moves under the name, so neither is
+    /// squeezed. A panel whose rows are short, like the mini panel, sets it
+    /// to zero in a style to keep a switch beside its name.
+    /// </summary>
+    public double SideBySideWidth
+    {
+        get => GetValue(SideBySideWidthProperty);
+        set => SetValue(SideBySideWidthProperty, value);
+    }
 
-    /// <summary>The width below which the control moves under the name, so neither is squeezed.</summary>
-    private const double Wide = 560;
+    protected override Type StyleKeyOverride => typeof(SettingsCard);
 
     private Grid? _layout;
     private Control? _control;
@@ -100,7 +111,7 @@ public class SettingsCard : ContentControl
     private void Place(double width)
     {
         if (_layout is null || _control is null || width <= 0) return;
-        bool beside = width >= Wide;
+        bool beside = width >= SideBySideWidth;
         Grid.SetRow(_control, beside ? 0 : 1);
         Grid.SetColumn(_control, beside ? 2 : 1);
         Grid.SetColumnSpan(_control, beside ? 1 : 2);

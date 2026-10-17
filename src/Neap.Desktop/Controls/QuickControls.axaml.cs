@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text.Json;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Neap.Core.Connection;
@@ -101,11 +99,7 @@ public partial class QuickControls : UserControl
         var headset = AppServices.Headset;
         var status = headset.Status;
 
-        // The name its owner gave the headset, else the connected model's own
-        // name, and only a generic word for a headset Neap does not know.
-        headset.Values.TryGetValue(HeadsetLabel.Key.ToString("x", CultureInfo.InvariantCulture), out var given);
-        HeadsetName.Text = HeadsetLabel.Given(given.ValueKind == JsonValueKind.Undefined ? null : given.ToString())
-            ?? headset.Model?.Name ?? Strings.Get("Headset_Model");
+        HeadsetName.Text = HeadsetTitle.Current();
 
         var look = StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status));
         Tones.Apply(StateDot, look.Tone);
