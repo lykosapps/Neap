@@ -211,6 +211,144 @@ public sealed class HidrawTransport : IHidTransport
     [DllImport("libc", EntryPoint = "read", SetLastError = true)]
     private static extern nint Read(int descriptor, [Out] byte[] buffer, nint count);
 
+    // -- restarting ----------------------------------------------------------
+
+    /// <summary>
+    /// Resets the USB device behind a hidraw node, as if it were unplugged and
+    /// plugged back in, while reading it all the way through.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Turtle Beach's transmitters of this family answer only if something has
+    /// been reading report 7 since they were plugged in, and give empty
+    /// reports for ever otherwise. Proven on the Stealth Pro II's Charging
+    /// Dock in SP2Tools: reading from the moment it is plugged in again puts
+    /// it right, and its replies then last through closing and reopening it.
+    /// On Linux a transmitter is often plugged in long before Neap starts.
+    /// </para>
+    /// <para>
+    /// The reset is USBDEVFS_RESET on the device's usbfs node. The hid and
+    /// audio drivers stay bound through it, so the hidraw node and the handle
+    /// on it stay too, and reading carries on across it on another thread.
+    /// Reads that fail while the device is resetting are expected and skipped.
+    /// </para>
+    /// </remarks>
+    /// <param name="device">The silent device, as listed.</param>
+    /// <param name="listen">How long to go on reading after the reset.</param>
+    /// <returns>How many reports with something in them were read.</returns>
+    /// <exception cref="AccessDeniedException">The system does not let this user reset the device.</exception>
+    /// <exception cref="TransportException">The device could not be found or reset.</exception>
+    public static int Restart(HidDeviceInfo device, TimeSpan listen)
+    {
+        string node = UsbNode(device.Path);
+        using var hid = new HidrawTransport(device);
+        SafeFileHandle usb;
+        try
+        {
+            usb = File.OpenHandle(node, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw new AccessDeniedException($"no permission to reset {node}; the udev rule has to cover it");
+        }
+        catch (IOException ex)
+        {
+            throw new TransportException($"could not open {node} ({ex.Message})");
+        }
+
+        int heard = 0;
+        using var done = new ManualResetEventSlim();
+        var reader = new Thread(() =>
+        {
+            while (!done.IsSet)
+            {
+                try
+                {
+                    if (hid.GetInput().AsSpan(1).ContainsAnyExcept((byte)0)) heard++;
+                }
+                catch (TransportException)
+                {
+                    // Resetting: the device is away for a moment.
+                }
+                done.Wait(4);
+            }
+        })
+        { IsBackground = true, Name = "transmitter restart" };
+        reader.Start();
+
+        try
+        {
+            using (usb)
+            {
+                bool added = false;
+                try
+                {
+                    usb.DangerousAddRef(ref added);
+                    if (IoctlNone((int)usb.DangerousGetHandle(), UsbReset, IntPtr.Zero) < 0)
+                        throw new TransportException(
+                            $"USBDEVFS_RESET on {node} failed ({new Win32Exception(Marshal.GetLastPInvokeError()).Message})");
+                }
+                finally
+                {
+                    if (added) usb.DangerousRelease();
+                }
+            }
+            Thread.Sleep(listen);
+        }
+        finally
+        {
+            done.Set();
+            reader.Join();
+        }
+        return heard;
+    }
+
+    /// <summary>USBDEVFS_RESET, _IO('U', 20).</summary>
+    private const nuint UsbReset = ('U' << 8) | 20;
+
+    /// <summary>The usbfs node of the USB device a hidraw node belongs to, such as /dev/bus/usb/005/003.</summary>
+    /// <remarks>
+    /// The hidraw node's device is the HID device, whose parent is the USB
+    /// interface, whose parent is the USB device with its bus and device
+    /// numbers.
+    /// </remarks>
+    /// <exception cref="TransportException">The USB device could not be found.</exception>
+    private static string UsbNode(string hidrawPath)
+    {
+        string hid = RealPath(System.IO.Path.Combine(Devices, System.IO.Path.GetFileName(hidrawPath), "device"));
+        string usb = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(hid) ?? "") ?? "";
+        try
+        {
+            int bus = int.Parse(Hidraw.ReadAll(System.IO.Path.Combine(usb, "busnum")).Trim(), CultureInfo.InvariantCulture);
+            int number = int.Parse(Hidraw.ReadAll(System.IO.Path.Combine(usb, "devnum")).Trim(), CultureInfo.InvariantCulture);
+            return $"/dev/bus/usb/{bus:000}/{number:000}";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or FormatException)
+        {
+            throw new TransportException($"could not find the USB device behind {hidrawPath} at {usb} ({ex.Message})");
+        }
+    }
+
+    /// <summary>A path with every link in it followed, as realpath(3) gives it.</summary>
+    /// <exception cref="TransportException">The path could not be followed.</exception>
+    private static string RealPath(string path)
+    {
+        IntPtr resolved = RealPathNative(System.Text.Encoding.UTF8.GetBytes(path + " "), IntPtr.Zero);
+        if (resolved == IntPtr.Zero)
+            throw new TransportException($"could not follow {path} ({new Win32Exception(Marshal.GetLastPInvokeError()).Message})");
+        try { return Marshal.PtrToStringUTF8(resolved) ?? ""; }
+        finally { Free(resolved); }
+    }
+
+    [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
+    private static extern int IoctlNone(int descriptor, nuint request, IntPtr argument);
+
+    [DllImport("libc", EntryPoint = "realpath", SetLastError = true)]
+    private static extern IntPtr RealPathNative(byte[] path, IntPtr resolved);
+
+    [DllImport("libc", EntryPoint = "free")]
+    private static extern void Free(IntPtr pointer);
+
     // -- enumeration ---------------------------------------------------------
 
     /// <summary>Every collection present from one vendor, on one usage page or, given null, on any.</summary>

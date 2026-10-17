@@ -10,8 +10,10 @@ namespace Neap.Core.Hid;
 /// <c>uaccess</c> gives the user who is signed in at the machine access for as
 /// long as they are, and takes it away when they are not, which is what a
 /// desktop wants: no group to join, and no access for someone who is not
-/// there. It is Turtle Beach's vendor id and the hidraw subsystem and nothing
-/// wider.
+/// there. It is Turtle Beach's vendor id, on its hidraw nodes and on its
+/// USB devices' own nodes, and nothing wider. The second lets Neap reset a
+/// transmitter that has stopped answering; see
+/// <see cref="HidrawTransport.Restart"/>.
 /// </para>
 /// <para>
 /// The same text is in <c>packaging/linux</c>, for a package to install; a
@@ -30,8 +32,10 @@ public static class UdevRule
     public static IReadOnlyList<string> Lines { get; } =
     [
         "# Lets the person signed in at this computer use Turtle Beach headsets' control channel,",
-        "# which Neap needs to read and change the headset's settings.",
+        "# which Neap needs to read and change the headset's settings, and reset a transmitter",
+        "# that has stopped answering.",
         "SUBSYSTEM==\"hidraw\", ATTRS{idVendor}==\"10f5\", TAG+=\"uaccess\"",
+        "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"10f5\", TAG+=\"uaccess\"",
     ];
 
     /// <summary>A line as one word to a shell, with any apostrophe in it closed around and put back.</summary>
@@ -41,7 +45,8 @@ public static class UdevRule
     public static string ManualCommand =>
         "printf '%s\\n' " + string.Join(' ', Lines.Select(Quoted))
         + $" | sudo tee {Folder}/{FileName} > /dev/null && sudo udevadm control --reload-rules"
-        + " && sudo udevadm trigger --subsystem-match=hidraw";
+        + " && sudo udevadm trigger --subsystem-match=hidraw"
+        + " && sudo udevadm trigger --subsystem-match=usb --attr-match=idVendor=10f5";
 
     /// <summary>The same, written to run as root.</summary>
     public static string RootCommand => RootCommandFor(Folder);
@@ -50,5 +55,6 @@ public static class UdevRule
     public static string RootCommandFor(string folder) =>
         "printf '%s\\n' " + string.Join(' ', Lines.Select(Quoted))
         + $" > {folder}/{FileName} && udevadm control --reload-rules"
-        + " && udevadm trigger --subsystem-match=hidraw";
+        + " && udevadm trigger --subsystem-match=hidraw"
+        + " && udevadm trigger --subsystem-match=usb --attr-match=idVendor=10f5";
 }

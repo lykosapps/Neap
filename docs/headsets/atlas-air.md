@@ -18,7 +18,7 @@ answers, so nothing works there yet.
 | System | Neap connects | How sure | Next |
 |---|---|---|---|
 | Windows | Yes, through the USB Transmitter | Confirmed | — |
-| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | Most likely the transmitter's start-up lock-up: it answers only if something read it from the moment it was plugged in, as SP2Tools proved on the Stealth Pro II's dock. Ask the tester to unplug and replug the transmitter with Neap open. |
+| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | Most likely the transmitter's start-up lock-up: it answers only if something read it from the moment it was plugged in, as SP2Tools proved on the Stealth Pro II's dock. 0.2.1.4 restarts a silent transmitter once and reads it as it comes back. |
 
 ## Features
 
@@ -116,9 +116,11 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 - [x] Linux: a test build that also listens for answers on the input side of
       the control channel, and logs what it hears there. In 0.2.1.4.
-- [ ] Ask the Linux tester to open Neap, then unplug the transmitter and plug
-      it back in, wait half a minute, and record. If that connects, make Neap
-      say so itself when a transmitter stays silent.
+- [x] Make Neap restart a silent transmitter itself on Linux, once per
+      plug-in, reading it as it comes back. In 0.2.1.4; not yet tried on any
+      Linux machine with a real transmitter.
+- [ ] Ask the Linux tester to try 0.2.1.4: allow access again when Neap asks,
+      then record.
 - [ ] Publish test build 0.2.1.4 and ask both testers to try it. Built:
   - [x] voice prompts on 0–15
   - [x] transmitter light at `0x430`

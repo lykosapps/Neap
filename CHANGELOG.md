@@ -59,6 +59,11 @@ and date.
 - On Linux, a headset that seems to say nothing is also listened for where
   Linux keeps what the headset sends unasked. If it still says nothing, the
   log says what arrived there.
+- On Linux, a transmitter that stays silent is restarted once, as if it had
+  been unplugged and plugged back in, with Neap listening as it comes back.
+  Some transmitters answer only if something has listened since they were
+  plugged in. Neap asks for permission once more where it was allowed
+  before this.
 - What the headset reports, under Device, can be selected and copied, and
   a Copy button puts all of it on the clipboard.
 - Settings and recordings show a test build's full version, such as

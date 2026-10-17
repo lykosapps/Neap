@@ -184,6 +184,15 @@ Neap's requests as SET_REPORT on the control pipe, as Windows does
 *(measured, on the tester's PC)*. Linux also queues what the interrupt input
 carries for a read, which Neap does not otherwise read.
 
+Neap's Windows log from the same tester shows the transmitter's first reply
+after being plugged in is an unasked `05 5c 03 00 80 2c 01` *(measured)*, one
+of the start-up messages SP2Tools records from the Stealth Pro II's Charging
+Dock. SP2Tools proved on that dock that it answers only if something has been
+reading report 7 since it was plugged in, and gives empty reports otherwise,
+which is what the Linux tester's transmitter gives. So Neap on Linux restarts
+a silent transmitter once per plug-in (USBDEVFS_RESET) while reading it
+throughout *(a test, not yet seen to work on an Atlas Air)*.
+
 ### Which headsets share the platform
 
 Swarm II's catalogue (`settings.json`, a zlib-compressed JSON list of 140

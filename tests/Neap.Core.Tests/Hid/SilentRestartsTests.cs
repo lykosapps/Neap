@@ -1,0 +1,46 @@
+using Neap.Core.Hid;
+
+namespace Neap.Core.Tests.Hid;
+
+public class SilentRestartsTests
+{
+    [Fact]
+    public void ASilentDeviceIsRestartedOnce()
+    {
+        var restarts = new SilentRestarts();
+
+        Assert.Equal(["/dev/hidraw0"], restarts.Due(["/dev/hidraw0"], ["/dev/hidraw0"]));
+        Assert.Empty(restarts.Due(["/dev/hidraw0"], ["/dev/hidraw0"]));
+    }
+
+    [Fact]
+    public void ADevicePluggedInAgainCanBeRestartedAgain()
+    {
+        var restarts = new SilentRestarts();
+        restarts.Due(["/dev/hidraw0"], ["/dev/hidraw0"]);
+
+        restarts.Due([], []);
+
+        Assert.Equal(["/dev/hidraw0"], restarts.Due(["/dev/hidraw0"], ["/dev/hidraw0"]));
+    }
+
+    [Fact]
+    public void ARestartThatCouldNotBeTriedIsDueAgain()
+    {
+        var restarts = new SilentRestarts();
+        restarts.Due(["/dev/hidraw0"], ["/dev/hidraw0"]);
+
+        restarts.Retry("/dev/hidraw0");
+
+        Assert.Equal(["/dev/hidraw0"], restarts.Due(["/dev/hidraw0"], ["/dev/hidraw0"]));
+    }
+
+    [Fact]
+    public void EachSilentDeviceIsRestartedOnItsOwnAccount()
+    {
+        var restarts = new SilentRestarts();
+        restarts.Due(["/dev/hidraw0"], ["/dev/hidraw0", "/dev/hidraw1"]);
+
+        Assert.Equal(["/dev/hidraw1"], restarts.Due(["/dev/hidraw0", "/dev/hidraw1"], ["/dev/hidraw0", "/dev/hidraw1"]));
+    }
+}
