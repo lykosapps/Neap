@@ -28,13 +28,14 @@ The pretend settings folder under %LOCALAPPDATA%\Neap, such as Pretend\mine.
 Further app flags, such as '--scrolled','end' or '--parametric'.
 #>
 param(
-    [string]$Exe = (Join-Path $PSScriptRoot '..\..\src\Neap.Desktop\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.Desktop.exe'),
+    [string]$Exe = '',
     [Parameter(Mandatory)][string]$Page,
     [ValidateSet('dark', 'light', 'contrast')][string]$Theme = 'dark',
     [Parameter(Mandatory)][string]$Out,
     [string]$Folder = '',
     [string[]]$More = @()
 )
+if (-not $Exe) { $Exe = Join-Path $PSScriptRoot '..\..\src\Neap.Desktop\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.Desktop.exe' }
 if ($Folder) { $env:NEAP_PRETEND_FOLDER = $Folder }
 $flags = switch ($Theme) { 'dark' { @('--dark') } 'light' { @('--light') } 'contrast' { @('--dark', '--highcontrast') } }
 Remove-Item $Out -ErrorAction SilentlyContinue
