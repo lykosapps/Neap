@@ -108,7 +108,7 @@ The orchestrator reviews every branch, merges it and runs the screen checks.
   equaliser on its new page.
 - **Tidy the release:** new README pictures, changelog lines and the
   decisions.
-- **Run the headset checks with the owner,** then the owner decides whether to
+- **Run the headset checks with the owner** (`HEADSET-CHECKS.md`), then the owner decides whether to
   merge into main.
 
 ### What could go wrong
