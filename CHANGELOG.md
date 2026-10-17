@@ -13,6 +13,7 @@ and date.
 
 ### Added
 
+- The Neap mark and name sit at the top of the menu, above the profile switcher. When the menu is icons only, just the mark shows.
 - A max loudness boost on the Audio page raises the Stealth Pro II's own level,
   so everything through the dock plays louder — for when the headset is too
   quiet even at full volume. It starts at +0 dB until you move it, is saved on

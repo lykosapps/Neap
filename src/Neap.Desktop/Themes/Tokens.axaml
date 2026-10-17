@@ -83,6 +83,11 @@
             <!-- The dial's knob: a flat disc, a step lighter than the panel it sits on, with a quiet edge. -->
             <SolidColorBrush x:Key="NeapKnobBrush" Color="#26262B" />
             <SolidColorBrush x:Key="NeapKnobEdgeBrush" Color="#44444A" />
+            <!-- The brand mark: its own dark square in both themes, the moon in silver and the wave in ultraviolet. -->
+            <SolidColorBrush x:Key="NeapMarkGroundBrush" Color="#08080A" />
+            <SolidColorBrush x:Key="NeapMarkEdgeBrush" Color="#26262B" />
+            <SolidColorBrush x:Key="NeapMarkMoonBrush" Color="#F2F2F4" />
+            <SolidColorBrush x:Key="NeapMarkWaveBrush" Color="#6D4AFF" />
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
@@ -148,6 +153,11 @@
 
             <SolidColorBrush x:Key="NeapKnobBrush" Color="#EDEDF1" />
             <SolidColorBrush x:Key="NeapKnobEdgeBrush" Color="#C2C2CA" />
+            <!-- The brand mark: its own dark square in both themes, the moon in silver and the wave in ultraviolet. -->
+            <SolidColorBrush x:Key="NeapMarkGroundBrush" Color="#08080A" />
+            <SolidColorBrush x:Key="NeapMarkEdgeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapMarkMoonBrush" Color="#F2F2F4" />
+            <SolidColorBrush x:Key="NeapMarkWaveBrush" Color="#6D4AFF" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 

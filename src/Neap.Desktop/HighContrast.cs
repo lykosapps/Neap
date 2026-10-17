@@ -113,6 +113,12 @@ internal static class HighContrast
 
         // The page and the rail share the window's colour; the chosen place
         // is marked by its bar, not by a fill.
+        // The mark keeps its shape: the window's colour for the square, edged and drawn in the text colour.
+        Brush("NeapMarkGroundBrush", p.Window);
+        Brush("NeapMarkEdgeBrush", p.Text);
+        Brush("NeapMarkMoonBrush", p.Text);
+        Brush("NeapMarkWaveBrush", p.Text);
+
         Brush("NeapBodyBrush", p.Window);
         Brush("NeapNavSelectedBrush", p.Window);
         Brush("NeapNavHoverBrush", p.Window);
