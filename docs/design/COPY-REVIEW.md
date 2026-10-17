@@ -1,9 +1,9 @@
 # Copy review: Home, Audio, Microphone and the equaliser
 
 The words on the pages this round rebuilds, checked against the
-[copy principles](COPY.md). The changes are proposed; phase 3 applies the
-ones the owner keeps. Where a screen check looks for the old words, it is
-updated in the same commit.
+[copy principles](COPY.md). The owner has chosen which changes to keep, and
+every change below is now decided. Phase 3 applies them. Where a screen
+check looks for the old words, it is updated in the same commit.
 
 ## The change that matters most
 
@@ -21,7 +21,7 @@ description says whose sound it changes.
 | Key | Now | Proposed | Why |
 | --- | --- | --- | --- |
 | `Quick_NoiseControl` | Noise control | Noise cancellation | One name everywhere |
-| `Quick_Preset` | Equaliser | Game equaliser | Two equalisers exist |
+| `Quick_Preset` | Equaliser | Kept as Equaliser. The tile gains a quick preset switch and a link to the Equaliser page | The owner's call: the tile is for switching presets fast |
 | `Mix_KeysLink` | Keyboard shortcuts | Keyboard shortcuts, as a link with an arrow | It reads as stray text today |
 | `Home_BatterySettling` | Settling… | Reading… | Plainer: it is reading a new battery |
 | `Mix_Playing` | {0}  ·  playing | {0} is playing | A whole phrase, no separator carrying meaning |
@@ -37,7 +37,7 @@ description says whose sound it changes.
 | `Noise_Blocking` | Blocking | Strength | The effect, not the mechanism |
 | `Noise_BlockingDescription` | How much of the room noise cancellation keeps out. | (removed) | The name now says it |
 | `Audio_Type`, `Audio_Intensity` | Type, Intensity | Sound, Strength | Out of context they say nothing |
-| `Shh_Legacy` | Legacy | Everything, described as "All quiet sounds, as on older headsets." | Only Swarm II users know "Legacy" |
+| `Shh_Legacy` | Legacy | Kept as Legacy | The owner's call |
 | `Audio_VoicePrompts.Description` | How loud the headset's spoken alerts are. | (removed) | Repeats the name |
 | `Audio_LoudnessBoost.Header` | Max loudness boost (Stealth Pro II only) | Loudness boost | The model goes in the state where it's unavailable |
 | `Spatial_Unrecognised` | Something else | Another format | Says what it is |
