@@ -872,8 +872,9 @@ public sealed class HeadsetService : IDisposable
             var device = present.First(d => d.Path == path);
             try
             {
-                int heard = HidrawTransport.Restart(device, RestartListen);
-                AppLog.Write($"headset: restarted the silent transmitter at {path}, and read {heard} reports with something in them as it came back");
+                var heard = HidrawTransport.Restart(device, RestartListen);
+                AppLog.Write($"headset: restarted the silent transmitter at {path}, and read {heard.Count} reports with something in them as it came back"
+                    + (heard.Count == 0 ? "" : $", the first {Math.Min(heard.Count, 5)}: {string.Join(" ", heard.Take(5))}"));
             }
             catch (AccessDeniedException ex)
             {

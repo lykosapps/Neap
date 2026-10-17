@@ -235,10 +235,10 @@ public sealed class HidrawTransport : IHidTransport
     /// </remarks>
     /// <param name="device">The silent device, as listed.</param>
     /// <param name="listen">How long to go on reading after the reset.</param>
-    /// <returns>How many reports with something in them were read.</returns>
+    /// <returns>The reports with something in them that were read, in hex, report id first and trailing zeros left off.</returns>
     /// <exception cref="AccessDeniedException">The system does not let this user reset the device.</exception>
     /// <exception cref="TransportException">The device could not be found or reset.</exception>
-    public static int Restart(HidDeviceInfo device, TimeSpan listen)
+    public static IReadOnlyList<string> Restart(HidDeviceInfo device, TimeSpan listen)
     {
         string node = UsbNode(device.Path);
         using var hid = new HidrawTransport(device);
@@ -256,7 +256,7 @@ public sealed class HidrawTransport : IHidTransport
             throw new TransportException($"could not open {node} ({ex.Message})");
         }
 
-        int heard = 0;
+        var heard = new List<string>();
         using var done = new ManualResetEventSlim();
         var reader = new Thread(() =>
         {
@@ -264,7 +264,9 @@ public sealed class HidrawTransport : IHidTransport
             {
                 try
                 {
-                    if (hid.GetInput().AsSpan(1).ContainsAnyExcept((byte)0)) heard++;
+                    var report = hid.GetInput();
+                    int end = report.AsSpan().LastIndexOfAnyExcept((byte)0) + 1;
+                    if (end > 1) heard.Add(Convert.ToHexString(report, 0, end));
                 }
                 catch (TransportException)
                 {

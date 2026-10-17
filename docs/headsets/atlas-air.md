@@ -138,6 +138,16 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-10-17 — The owner's Stealth Pro II Charging Dock lent to Linux (WSL,
+  kernel 6.18, through usbipd), plugged in with nothing reading it, on
+  `hid-generic` as the tester's transmitter is. Neap's own connect code
+  answered in 0.7 seconds. Neap's restart reset it cleanly, kept the same
+  hidraw node, read 16 reports as it came back, and Neap answered again in
+  0.4 seconds. So Neap's Linux path works with a real transmitter of this
+  family, and the restart works as built. The Atlas Air's silence did not
+  reproduce on the dock, so it is particular to the Atlas Air or the
+  tester's system.
+
 - 2026-10-17 — Tried to reproduce the lock-up on the owner's Stealth Pro II
   Charging Dock on Windows: replugged it with nothing reading it, headset on
   and its USB-C cable out, then started Neap two and a half hours later. It

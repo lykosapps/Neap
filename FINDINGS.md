@@ -193,6 +193,14 @@ which is what the Linux tester's transmitter gives. So Neap on Linux restarts
 a silent transmitter once per plug-in (USBDEVFS_RESET) while reading it
 throughout *(a test, not yet seen to work on an Atlas Air)*.
 
+Lent to Linux (WSL, kernel 6.18, usbipd) and read by Neap a minute after it
+was plugged in, the owner's Stealth Pro II Charging Dock (`229B`) answered in
+0.7 seconds. The restart reset it with the hidraw node kept, 16 reports were
+read as it came back, and it answered again in 0.4 seconds *(measured)*. On
+Windows the same dock, replugged and left unread for two and a half hours,
+answered Neap in three seconds *(measured)*. Neither reproduces the Atlas Air's
+silence.
+
 ### Which headsets share the platform
 
 Swarm II's catalogue (`settings.json`, a zlib-compressed JSON list of 140
