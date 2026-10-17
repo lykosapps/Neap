@@ -59,7 +59,12 @@ The orchestrator reviews every branch, merges it and runs the screen checks.
   its tray version.
 - **Decision records** for the equaliser page, the merged Audio page and the
   switcher's new place.
-- **Done when** the owner signs off the mockups and picks a mark.
+- **Done:** the owner left the mark and the mockups' structure to the
+  design call. The mark is the Refined redraw: a split half moon over one
+  ultraviolet wave, and a solid moon over a wave in the tray. The three
+  mockups are built as drawn, without a Master volume tile on Home. Every
+  change in `COPY-REVIEW.md` is applied in phase 3. "Edited" on a preset
+  uses the accent tint, not the caution yellow.
 
 #### 1. Foundations (three sessions in parallel)
 
