@@ -145,8 +145,9 @@ its accent. Neap takes those qualities and keeps its own identity.
 - **Body stays at 14.** MultiDrive uses 11–12px body text, which is too
   small for a settings app read at arm's length. Take its quietness, not
   its size.
-- **One typeface on both systems.** Embed it, so Windows and Linux render
-  the same text.
+- **Inter, on both systems.** It is embedded through Avalonia's own font
+  package, so Windows and Linux render the same text. The device details
+  keep their monospace font.
 - **Thin outline icons at fixed sizes: 16 in rows, 20 in tiles and the
   rail, 24 in headers.** They are geometry resources shown through
   `PathIcon`, and they are hidden from screen readers unless they are the

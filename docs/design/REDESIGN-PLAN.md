@@ -68,7 +68,8 @@ its own files, so no two sessions touch the same file.
   list. Either way, high contrast reads the same list.
 - **Add the spacing, radius and icon-size scales as resources.** Merge the
   type classes to one per role.
-- **Choose the typeface and embed it.**
+- **Embed Inter through Avalonia's own font package** and make it the
+  app's font.
 - **Done when** the app looks broadly the same as today, but every value
   comes from a token. Check with `run.ps1 all`, plus screenshots in all
   three themes.
@@ -144,8 +145,6 @@ its own files, so no two sessions touch the same file.
 
 ## Open questions for the owner
 
-1. **Typeface.** Embed Inter (Avalonia's own font package) for the same
-   look on Windows and Linux, or keep each system's font?
-2. **How far to follow MultiDrive's density.** Its cards are airy and its
+1. **How far to follow MultiDrive's density.** Its cards are airy and its
    text small. The principles keep body text at 14. Is that the right
    balance?
