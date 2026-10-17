@@ -670,22 +670,43 @@
     <value>Your system won't allow this one. Pick another.</value>
   </data>
   <data name="Preset_NotRead" xml:space="preserve">
-    <value>The presets haven't been read yet.</value>
+    <value>Couldn't read the presets. Try again.</value>
   </data>
   <data name="Preset_NeedsName" xml:space="preserve">
     <value>A preset needs a name.</value>
   </data>
   <data name="Preset_TooLong" xml:space="preserve">
-    <value>{0} characters is as long as a preset name can be.</value>
+    <value>Names can be {0} characters at most.</value>
   </data>
   <data name="Preset_Full" xml:space="preserve">
-    <value>All 5 slots are full. Delete one first.</value>
+    <value>All {0} slots are used. Delete one first.</value>
   </data>
   <data name="Preset_Missing" xml:space="preserve">
     <value>There's no custom preset called {0}.</value>
   </data>
   <data name="Preset_Unreadable" xml:space="preserve">
-    <value>Couldn't read the current equaliser.</value>
+    <value>Couldn't read the current equaliser. Try again.</value>
+  </data>
+  <data name="Preset_SignatureSound" xml:space="preserve">
+    <value>Signature Sound</value>
+  </data>
+  <data name="Preset_BassBoost" xml:space="preserve">
+    <value>Bass Boost</value>
+  </data>
+  <data name="Preset_BassTrebleBoost" xml:space="preserve">
+    <value>Bass &amp; Treble Boost</value>
+  </data>
+  <data name="Preset_VocalBoost" xml:space="preserve">
+    <value>Vocal Boost</value>
+  </data>
+  <data name="Preset_MicFull" xml:space="preserve">
+    <value>Full</value>
+  </data>
+  <data name="Preset_Clarity" xml:space="preserve">
+    <value>Clarity</value>
+  </data>
+  <data name="Preset_Smooth" xml:space="preserve">
+    <value>Smooth</value>
   </data>
   <data name="Profile_GiveName" xml:space="preserve">
     <value>A profile needs a name.</value>
@@ -816,11 +837,8 @@
   <data name="Audio_NoDevice" xml:space="preserve">
     <value>No audio device</value>
   </data>
-  <data name="Equaliser_BackTo" xml:space="preserve">
-    <value>Revert to {0} dB</value>
-  </data>
   <data name="Equaliser_Band" xml:space="preserve">
-    <value>{0}   {1} dB</value>
+    <value>{0} band, {1} dB</value>
   </data>
   <data name="Equaliser_DeleteNamed" xml:space="preserve">
     <value>Delete {0}</value>
@@ -832,22 +850,19 @@
     <value>Reading the presets from your headset…</value>
   </data>
   <data name="Equaliser_Unreadable" xml:space="preserve">
-    <value>Can't read the equaliser right now.</value>
+    <value>Couldn't read the equaliser. Try again.</value>
   </data>
   <data name="Equaliser_PresetsLabel.Text" xml:space="preserve">
     <value>Presets</value>
   </data>
-  <data name="Equaliser_PresetPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Equaliser preset</value>
+  <data name="Equaliser_GamePresets" xml:space="preserve">
+    <value>Game equaliser preset</value>
+  </data>
+  <data name="Equaliser_MicPresets" xml:space="preserve">
+    <value>Microphone equaliser preset</value>
   </data>
   <data name="Equaliser_FreeSlots" xml:space="preserve">
-    <value>{0} slots free.</value>
-  </data>
-  <data name="Equaliser_OneFreeSlot" xml:space="preserve">
-    <value>1 slot free.</value>
-  </data>
-  <data name="Equaliser_NoFreeSlots" xml:space="preserve">
-    <value>No slots free. Delete one of yours to save another.</value>
+    <value>{0} of {1} slots free</value>
   </data>
   <data name="Equaliser_KeepNamed" xml:space="preserve">
     <value>Keep {0}</value>
@@ -874,13 +889,7 @@
     <value>You already have a preset called {0}. Choose another name.</value>
   </data>
   <data name="Equaliser_SlotsFull" xml:space="preserve">
-    <value>All 5 slots are full. Delete one first, or save over the preset this came from.</value>
-  </data>
-  <data name="Equaliser_SlotsFree" xml:space="preserve">
-    <value>{0} of 5 slots free.</value>
-  </data>
-  <data name="Equaliser_NameAtLimit" xml:space="preserve">
-    <value>That's as long as a name can be.</value>
+    <value>All {0} slots are used. Delete one first, or save over the preset this came from.</value>
   </data>
   <data name="Equaliser_PutBack" xml:space="preserve">
     <value>Revert to {0} dB</value>
@@ -1521,6 +1530,9 @@
   <data name="Parametric_SentExpander.Header" xml:space="preserve">
     <value>Sent to the headset</value>
   </data>
+  <data name="Tone_Title.Header" xml:space="preserve">
+    <value>Test tone</value>
+  </data>
   <data name="Parametric_Hertz" xml:space="preserve">
     <value>{0} Hz</value>
   </data>
@@ -1531,7 +1543,7 @@
     <value>{0} dB</value>
   </data>
   <data name="Parametric_Octaves" xml:space="preserve">
-    <value>{0} oct</value>
+    <value>{0} octaves</value>
   </data>
   <data name="Parametric_Chip" xml:space="preserve">
     <value>{0} · {1}</value>
@@ -1541,9 +1553,6 @@
   </data>
   <data name="Parametric_RemoveNamed" xml:space="preserve">
     <value>Remove adjustment {0}</value>
-  </data>
-  <data name="Tone_Label.Text" xml:space="preserve">
-    <value>Test tone</value>
   </data>
   <data name="Tone_Sweep" xml:space="preserve">
     <value>Sweep</value>
@@ -1576,7 +1585,7 @@
     <value>Boost here</value>
   </data>
   <data name="Tone_HowTo.Text" xml:space="preserve">
-    <value>Slide through the range or press Sweep. Cut where the tone jumps out, boost where it drops away, then set the gain until it sounds even.</value>
+    <value>Slide through the tones. Cut where one jumps out, boost where one fades.</value>
   </data>
   <data name="Tone_CouldNotPlay" xml:space="preserve">
     <value>The test tone can't play: {0}</value>

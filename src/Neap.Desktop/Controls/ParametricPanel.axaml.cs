@@ -24,10 +24,11 @@ namespace Neap.Desktop.Controls;
 /// ten gains under them always agree.
 /// </para>
 /// <para>
-/// The test tone above the plot plays on the headset, so it is heard through
-/// the equaliser being set. It is moved by hand with its slider or swept, and
-/// held where it stands out, to be cut or boosted there. It plays only while
-/// the panel is on screen: leaving the page, hiding the window or going back
+/// The test tone, in a row below the fields that folds away, plays on the
+/// headset, so it is heard through the equaliser being set. It is moved by
+/// hand with its slider or swept, and held where it stands out, to be cut or
+/// boosted there. It plays only while the panel is on screen and the row is
+/// open: leaving the page, hiding the window, folding the row or going back
 /// to the bands stops it.
 /// </para>
 /// <para>
@@ -41,7 +42,7 @@ public partial class ParametricPanel : UserControl
     private const Bank Game = Bank.Game;
 
     /// <summary>The narrowest tone row that holds Cut here and Boost here beside the tone's other controls.</summary>
-    private const double MarksBeside = 640;
+    private const double MarksBeside = 540;
 
     private enum Tone { Off, Sweeping, Held }
 
@@ -67,7 +68,7 @@ public partial class ParametricPanel : UserControl
     {
         InitializeComponent();
 
-        Shape.Frequencies = PresetStore.Game.Frequencies;
+        Shape.Frequencies = Labels();
         Shape.AdjustmentChosen += index =>
         {
             _selected = index;
@@ -116,6 +117,10 @@ public partial class ParametricPanel : UserControl
         CutButton.Click += (_, _) => AddAtTone(boost: false);
         BoostButton.Click += (_, _) => AddAtTone(boost: true);
         ToneRow.SizeChanged += (_, _) => Arrange();
+        ToneExpander.PropertyChanged += (_, change) =>
+        {
+            if (change.Property == Expander.IsExpandedProperty && !ToneExpander.IsExpanded) StopTone();
+        };
 
         BuildSent();
     }
@@ -144,7 +149,7 @@ public partial class ParametricPanel : UserControl
     {
         bool beside = ToneRow.Bounds.Width >= MarksBeside;
         Grid.SetRow(Marks, beside ? 0 : 1);
-        Grid.SetColumn(Marks, beside ? 3 : 0);
+        Grid.SetColumn(Marks, beside ? 2 : 0);
         Grid.SetColumnSpan(Marks, beside ? 1 : ToneRow.ColumnDefinitions.Count);
     }
 
@@ -290,14 +295,14 @@ public partial class ParametricPanel : UserControl
 
     private void BuildSent()
     {
-        var spec = PresetStore.Game;
-        for (int i = 0; i < spec.Frequencies.Count; i++)
+        var labels = Labels();
+        for (int i = 0; i < labels.Count; i++)
         {
             Sent.ColumnDefinitions.Add(new ColumnDefinition(1, GridUnitType.Star));
             var value = new TextBlock { HorizontalAlignment = HorizontalAlignment.Center, Classes = { "numeralstrong" } };
             var hz = new TextBlock
             {
-                Text = spec.Frequencies[i],
+                Text = labels[i],
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Classes = { "caption", "secondary" },
             };
@@ -307,6 +312,8 @@ public partial class ParametricPanel : UserControl
             _sent.Add(value);
         }
     }
+
+    private static List<string> Labels() => PresetStore.Game.Hertz.Select(hertz => FrequencyText.Of(hertz)).ToList();
 
     private static List<Adjustment> Current() => AppServices.Presets.Adjustments(Game).ToList();
 
