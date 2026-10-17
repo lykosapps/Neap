@@ -35,6 +35,12 @@ and date.
 
 ### Changed
 
+- The profile switcher sits at the top of the left menu, and becomes one
+  profile icon when the menu shows icons only.
+- The equalisers have a page of their own, Equaliser, with a Game and a
+  Microphone tab. Home's equaliser tile opens it.
+- The microphone settings are on the Audio page, and Microphone has left the
+  menu.
 - A stronger look: an ultraviolet accent in both themes, and in the dark
   theme a deeper, single ground behind everything.
 - In a small window, such as the Steam Deck's, text, rows and the menu step
