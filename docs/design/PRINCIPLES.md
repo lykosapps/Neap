@@ -165,9 +165,11 @@ its accent. Neap takes those qualities and keeps its own identity.
   same tokens take one step up: body 14, rows 48, and every control a
   40px target for a finger. Nothing goes below 11 anywhere, and no target
   is smaller than 24px.
-- **Inter, on both systems.** It is embedded through Avalonia's own font
-  package, so Windows and Linux render the same text. The device details
-  keep their monospace font.
+- **Figtree for text, Outfit for the name, on both systems.** Both are
+  embedded in the app as resources, so Windows and Linux render the same
+  text. Outfit's round letters answer the mark's moon and wave and are
+  used for the name beside the mark alone. The device details keep their
+  monospace font.
 - **Thin outline icons at fixed sizes: 16 in rows, 20 in tiles and the
   rail, 24 in headers.** They are geometry resources shown through
   `PathIcon`, and they are hidden from screen readers unless they are the

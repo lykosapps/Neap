@@ -83,6 +83,7 @@
                         </Viewbox>
                         <TextBlock
                             x:Name="BrandName"
+                            FontFamily="fonts:Neap#Outfit"
                             FontSize="17"
                             FontWeight="SemiBold"
                             Foreground="{DynamicResource NeapTextBrush}"

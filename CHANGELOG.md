@@ -69,6 +69,9 @@ and date.
 
 ### Changed
 
+- The app's text is set in Figtree, and the name beside the mark in Outfit,
+  in place of Inter. Both are carried inside the app, so Windows and Linux
+  show the same letters. The text is a little rounder and a little wider.
 - The menu and the page each run the full height of the window, so the edge
   between them reaches the top, and the menu starts in the title bar's row.
   The headset's status and the update bar sit at the top of the page.
