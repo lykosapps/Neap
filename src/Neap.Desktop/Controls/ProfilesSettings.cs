@@ -67,6 +67,8 @@ public sealed class ProfilesSettings : UserControl
     {
         base.OnLoaded(e);
         AppServices.Profiles.Changed += Paint;
+        // An app starting or stopping moves the profile in use without a change to the profiles.
+        AppServices.AutoSwitch.Changed += Paint;
         Paint();
         await LoadNames();
         Paint();
@@ -76,6 +78,7 @@ public sealed class ProfilesSettings : UserControl
     {
         base.OnUnloaded(e);
         AppServices.Profiles.Changed -= Paint;
+        AppServices.AutoSwitch.Changed -= Paint;
     }
 
     private async Task LoadNames()
@@ -89,7 +92,7 @@ public sealed class ProfilesSettings : UserControl
         var profiles = AppServices.Profiles.All;
         string? defaultId = AppServices.Profiles.DefaultId;
         string shown = string.Join("\n", profiles.Select(p => $"{p.Id}|{p.Name}|{string.Join(",", p.AssignedApps.Select(app => Described(p, app)))}"))
-            + $"\n{_confirmingDeleteId}\n{defaultId}";
+            + $"\n{_confirmingDeleteId}\n{defaultId}\n{AppServices.Profiles.ActiveId}";
         if (shown == _shown) return;
         _shown = shown;
 
