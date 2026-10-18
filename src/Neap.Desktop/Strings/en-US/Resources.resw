@@ -457,7 +457,7 @@
     <value>Mini panel</value>
   </data>
   <data name="Settings_MiniPanel.Description" xml:space="preserve">
-    <value>A click on the icon by the clock opens a small panel of quick controls, not the window.</value>
+    <value>A click on the icon by the clock opens quick controls instead of the window.</value>
   </data>
   <data name="Settings_StartMinimised" xml:space="preserve">
     <value>Starts minimised, as this desktop has no notification area.</value>
