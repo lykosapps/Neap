@@ -290,6 +290,15 @@ public partial class EqualiserPanel : UserControl
         ClearHistory();
     }
 
+    /// <summary>Shows the bank as the preset service holds it, which a save or a delete has just read back.</summary>
+    /// <remarks>Reading the bank again would take as long as the save or delete did, for the same answer.</remarks>
+    private void ShowStored()
+    {
+        _state = AppServices.Presets.State(Bank);
+        BuildSlots();
+        ClearHistory();
+    }
+
     private void ShowWaiting(Wait wait)
     {
         bool waiting = wait != Wait.None;
@@ -547,10 +556,12 @@ public partial class EqualiserPanel : UserControl
         AutomationProperties.SetName(cancel, Strings.Format("Equaliser_KeepNamed", preset.Name));
         delete.Click += async (_, _) =>
         {
+            // Deleting reads the bank back, which takes seconds; one press is one delete.
+            delete.IsEnabled = cancel.IsEnabled = false;
             _confirmingDelete = null;
             string? trouble = await AppServices.Presets.Delete(Bank, preset.Name);
             if (trouble is not null) await Complain(Strings.Get("Equaliser_CouldNotDelete"), trouble);
-            await Reload();
+            ShowStored();
         };
         cancel.Click += (_, _) =>
         {
@@ -600,7 +611,7 @@ public partial class EqualiserPanel : UserControl
             await Complain(Strings.Get("Equaliser_CouldNotSave"), trouble);
             return;
         }
-        await Reload();
+        ShowStored();
     }
 
     /// <summary>
@@ -620,7 +631,7 @@ public partial class EqualiserPanel : UserControl
             await Complain(Strings.Get("Equaliser_CouldNotSave"), trouble);
             return;
         }
-        await Reload();
+        ShowStored();
     }
 
     /// <summary>

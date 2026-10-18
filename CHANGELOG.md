@@ -61,6 +61,10 @@ and date.
 
 ### Changed
 
+- On Profiles, a screen reader hears each profile's apps, and when they switch,
+  on the button that changes them.
+- Deleting or saving an equaliser preset updates the list in about half the
+  time, and the Delete and Cancel buttons are disabled while it runs.
 - In a narrow window, a switch that drops under its name now starts where the
   name does, instead of floating in the middle of the row.
 - Before any chat app is chosen, Home and the mini panel show the game and
