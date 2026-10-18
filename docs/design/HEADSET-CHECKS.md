@@ -75,3 +75,7 @@ Checks 1 to 17 passed on 18 October 2026. These cover what came after.
     choice survives a restart.
 22. **Profile in use:** switch profiles from the menu, and start an app that
     has a profile. The Profiles page moves its "In use" mark each time.
+23. **Window top:** the menu and its edge reach the top of the window, nothing
+    is written over the mark, and the window drags by the top of the menu and
+    by the strip beside the status. Narrow the window: the menu button sits
+    in that strip and opens the menu.
