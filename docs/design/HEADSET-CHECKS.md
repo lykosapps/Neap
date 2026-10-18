@@ -56,3 +56,22 @@ a headset it can no longer reach.
 
 17. **Flat look:** on your own screen, every control still reads as one with
     no outlines, and the keyboard focus ring shows on each one in turn.
+
+## Third round
+
+Checks 1 to 17 passed on 18 October 2026. These cover what came after.
+
+18. **Home cards:** the Microphone and Superhuman Hearing switches change the
+    headset, and the card tints while on. Flip the boom arm: the Microphone
+    card says so.
+19. **Superhuman Hearing sound:** faded while it is off. Turned on, Legacy,
+    Footsteps and Gunshots each change the sound.
+20. **Spatial sound on Home and in the mini panel:** Off, Windows Sonic and
+    Dolby Atmos each take effect in Windows, and a change made in Windows'
+    own settings shows here.
+21. **Mini panel switch in Settings:** switched off, a click on the tray icon
+    opens the window and the icon's menu has no Mini panel. Switched off while
+    the panel is open, the panel closes. Switched on, both come back. The
+    choice survives a restart.
+22. **Profile in use:** switch profiles from the menu, and start an app that
+    has a profile. The Profiles page moves its "In use" mark each time.
