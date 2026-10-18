@@ -11,154 +11,161 @@
     Background="{DynamicResource NeapGroundBrush}"
     Icon="avares://Neap.Desktop/Assets/app.ico">
 
+    <Window.Styles>
+        <!--
+            Beside the page, the menu has no fill of its own: the window's
+            ground shows through, and the top of the menu stays part of the
+            title bar, so the window can be dragged by it. Opened over the page
+            in a narrow window, it needs the ground to cover the page.
+        -->
+        <Style Selector="SplitView#Rail">
+            <Setter Property="PaneBackground" Value="{DynamicResource NeapGroundBrush}" />
+        </Style>
+        <Style Selector="SplitView#Rail[DisplayMode=CompactInline]">
+            <Setter Property="PaneBackground" Value="{x:Null}" />
+        </Style>
+    </Window.Styles>
+
     <!--
         Neap's own ground behind everything, in place of the system's grey.
+        The menu and the page each run the window's full height, so the edge
+        between them reaches the top. The title bar's row is the page
+        column's first row, with the status in it; the menu's mark sits in the
+        same row on the left.
     -->
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition MinHeight="{StaticResource NeapTitleBarHeight}" Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <SplitView
+        x:Name="Rail"
+        CompactPaneLength="52"
+        DisplayMode="CompactInline"
+        IsPaneOpen="True"
+        OpenPaneLength="220">
+        <SplitView.Pane>
+            <DockPanel Margin="8">
+                <!--
+                    The mark alone above the switcher, drawn in vectors so
+                    it is crisp at any scale. Decoration only: the window's
+                    title names the app, so it is hidden from screen
+                    readers. Its left edge is the menu's own, the same as
+                    the switcher's and the highlight's, and it fits the
+                    icons-only rail as it is.
+                -->
+                <Viewbox
+                    Width="32"
+                    Height="32"
+                    Margin="4,4,0,16"
+                    IsHitTestVisible="False"
+                    DockPanel.Dock="Top"
+                    HorizontalAlignment="Left"
+                    AutomationProperties.AccessibilityView="Raw">
+                    <Canvas Width="120" Height="120">
+                        <Rectangle
+                            Width="120"
+                            Height="120"
+                            Fill="{DynamicResource NeapMarkGroundBrush}"
+                            RadiusX="28"
+                            RadiusY="28"
+                            Stroke="{DynamicResource NeapMarkEdgeBrush}"
+                            StrokeThickness="3" />
+                        <Ellipse
+                            Canvas.Left="42"
+                            Canvas.Top="27.125"
+                            Width="36"
+                            Height="36"
+                            Stroke="{DynamicResource NeapMarkMoonBrush}"
+                            StrokeThickness="5.5" />
+                        <Path
+                            Data="M60,27.125 A18,18 0 0 1 60,63.125 Z"
+                            Fill="{DynamicResource NeapMarkMoonBrush}" />
+                        <Path
+                            Data="M24,86.125 C34,78.125 44,78.125 54,86.125 C64,94.125 74,94.125 84,86.125 C94,78.125 98,80.125 98,80.125"
+                            Stroke="{DynamicResource NeapMarkWaveBrush}"
+                            StrokeLineCap="Round"
+                            StrokeThickness="7" />
+                    </Canvas>
+                </Viewbox>
+                <!--
+                    The active profile, at the top of the menu: one move
+                    from every page. Folds to one icon with the menu.
+                -->
+                <c:ProfileBar
+                    x:Name="Profile"
+                    Margin="4,0,4,8"
+                    DockPanel.Dock="Top" />
+                <!-- Settings sits apart at the foot, as the Windows app has it. -->
+                <ListBox
+                    x:Name="Foot"
+                    Background="Transparent"
+                    DockPanel.Dock="Bottom">
+                    <c:NavItem
+                        loc:Uid.Value="Main_NavSettings"
+                        Icon="{StaticResource IconSettings}"
+                        Page="settings" />
+                </ListBox>
+                <ListBox x:Name="Places" Background="Transparent">
+                    <c:NavItem
+                        loc:Uid.Value="Main_NavHome"
+                        Icon="{StaticResource IconHome}"
+                        Page="home" />
+                    <c:NavItem
+                        loc:Uid.Value="Main_NavAudio"
+                        Icon="{StaticResource IconAudio}"
+                        Page="audio" />
+                    <c:NavItem
+                        loc:Uid.Value="Main_NavEqualiser"
+                        Icon="{StaticResource IconEqualiser}"
+                        Page="equaliser" />
+                    <c:NavItem
+                        loc:Uid.Value="Main_NavControls"
+                        Icon="{StaticResource IconControls}"
+                        Page="controls" />
+                    <c:NavItem
+                        loc:Uid.Value="Main_NavProfiles"
+                        Icon="{StaticResource IconProfile}"
+                        Page="profiles" />
+                    <c:NavItem
+                        loc:Uid.Value="Main_NavDevice"
+                        Icon="{StaticResource IconDevice}"
+                        Page="device" />
+                </ListBox>
+            </DockPanel>
+        </SplitView.Pane>
 
-        <!--
-            The title row carries the headset's connection state, the one
-            thing worth seeing from every tab; the readings are on Home.
-            Right-aligned.
-        -->
-        <c:HeadsetStatusStrip
-            x:Name="Status"
-            HorizontalAlignment="Right"
-            Margin="0,0,16,0"
-            VerticalAlignment="Center" />
-
-        <!--
-            A newer version of Neap, at the very top under the title bar,
-            above every page until it is installed or put away.
-        -->
-        <c:UpdateBar Grid.Row="1" />
-
-        <SplitView
-            x:Name="Rail"
-            Grid.Row="2"
-            CompactPaneLength="52"
-            DisplayMode="CompactInline"
-            IsPaneOpen="True"
-            OpenPaneLength="220"
-            PaneBackground="{DynamicResource NeapGroundBrush}">
-            <SplitView.Pane>
-                <DockPanel Margin="8">
-                    <!--
-                        The mark alone above the switcher, drawn in vectors so
-                        it is crisp at any scale. Decoration only: the window's
-                        title names the app, so it is hidden from screen
-                        readers. Its left edge is the menu's own, the same as
-                        the switcher's and the highlight's, and it fits the
-                        icons-only rail as it is.
-                    -->
-                    <Viewbox
-                        Width="32"
-                        Height="32"
-                        Margin="4,4,0,16"
-                        DockPanel.Dock="Top"
+        <Border x:Name="PageFrame" Classes="pagebody">
+            <Grid RowDefinitions="Auto,Auto,*">
+                <!--
+                    The title bar's row: the connection state, the one thing
+                    worth seeing from every tab, at the right; in a narrow
+                    window, the button the menu folds into, at the left.
+                -->
+                <Grid MinHeight="{StaticResource NeapTitleBarHeight}">
+                    <Button
+                        x:Name="NavToggle"
+                        Width="{StaticResource NeapTitleBarHeight}"
+                        Height="{StaticResource NeapTitleBarHeight}"
+                        Padding="0"
                         HorizontalAlignment="Left"
-                        AutomationProperties.AccessibilityView="Raw">
-                        <Canvas Width="120" Height="120">
-                            <Rectangle
-                                Width="120"
-                                Height="120"
-                                Fill="{DynamicResource NeapMarkGroundBrush}"
-                                RadiusX="28"
-                                RadiusY="28"
-                                Stroke="{DynamicResource NeapMarkEdgeBrush}"
-                                StrokeThickness="3" />
-                            <Ellipse
-                                Canvas.Left="42"
-                                Canvas.Top="27.125"
-                                Width="36"
-                                Height="36"
-                                Stroke="{DynamicResource NeapMarkMoonBrush}"
-                                StrokeThickness="5.5" />
-                            <Path
-                                Data="M60,27.125 A18,18 0 0 1 60,63.125 Z"
-                                Fill="{DynamicResource NeapMarkMoonBrush}" />
-                            <Path
-                                Data="M24,86.125 C34,78.125 44,78.125 54,86.125 C64,94.125 74,94.125 84,86.125 C94,78.125 98,80.125 98,80.125"
-                                Stroke="{DynamicResource NeapMarkWaveBrush}"
-                                StrokeLineCap="Round"
-                                StrokeThickness="7" />
-                        </Canvas>
-                    </Viewbox>
-                    <!--
-                        The active profile, at the top of the menu: one move
-                        from every page. Folds to one icon with the menu.
-                    -->
-                    <c:ProfileBar
-                        x:Name="Profile"
-                        Margin="4,0,4,8"
-                        DockPanel.Dock="Top" />
-                    <!-- Settings sits apart at the foot, as the Windows app has it. -->
-                    <ListBox
-                        x:Name="Foot"
+                        VerticalAlignment="Top"
                         Background="Transparent"
-                        DockPanel.Dock="Bottom">
-                        <c:NavItem
-                            loc:Uid.Value="Main_NavSettings"
-                            Icon="{StaticResource IconSettings}"
-                            Page="settings" />
-                    </ListBox>
-                    <ListBox x:Name="Places" Background="Transparent">
-                        <c:NavItem
-                            loc:Uid.Value="Main_NavHome"
-                            Icon="{StaticResource IconHome}"
-                            Page="home" />
-                        <c:NavItem
-                            loc:Uid.Value="Main_NavAudio"
-                            Icon="{StaticResource IconAudio}"
-                            Page="audio" />
-                        <c:NavItem
-                            loc:Uid.Value="Main_NavEqualiser"
-                            Icon="{StaticResource IconEqualiser}"
-                            Page="equaliser" />
-                        <c:NavItem
-                            loc:Uid.Value="Main_NavControls"
-                            Icon="{StaticResource IconControls}"
-                            Page="controls" />
-                        <c:NavItem
-                            loc:Uid.Value="Main_NavProfiles"
-                            Icon="{StaticResource IconProfile}"
-                            Page="profiles" />
-                        <c:NavItem
-                            loc:Uid.Value="Main_NavDevice"
-                            Icon="{StaticResource IconDevice}"
-                            Page="device" />
-                    </ListBox>
-                </DockPanel>
-            </SplitView.Pane>
-
-            <Grid>
-                <Border x:Name="PageFrame" Classes="pagebody">
-                    <TransitioningContentControl x:Name="Body" />
-                </Border>
+                        BorderThickness="0"
+                        IsVisible="False"
+                        loc:Uid.Value="Main_NavMenu">
+                        <PathIcon Width="20" Height="20" Data="{StaticResource IconMenu}" />
+                    </Button>
+                    <c:HeadsetStatusStrip
+                        x:Name="Status"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,16,0"
+                        VerticalAlignment="Center" />
+                </Grid>
 
                 <!--
-                    In a narrow window the menu folds into this button, over the
-                    page's top corner, and opens over the page.
+                    A newer version of Neap, above every page until it is
+                    installed or put away.
                 -->
-                <Button
-                    x:Name="NavToggle"
-                    Width="{StaticResource NeapTitleBarHeight}"
-                    Height="{StaticResource NeapTitleBarHeight}"
-                    Padding="0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    IsVisible="False"
-                    loc:Uid.Value="Main_NavMenu">
-                    <PathIcon Width="20" Height="20" Data="{StaticResource IconMenu}" />
-                </Button>
+                <c:UpdateBar Grid.Row="1" />
+
+                <TransitioningContentControl x:Name="Body" Grid.Row="2" />
             </Grid>
-        </SplitView>
-    </Grid>
+        </Border>
+    </SplitView>
 </Window>

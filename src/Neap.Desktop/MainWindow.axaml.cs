@@ -123,9 +123,6 @@ public partial class MainWindow : Window
         Rail.DisplayMode = folded ? SplitViewDisplayMode.Overlay : SplitViewDisplayMode.CompactInline;
         Rail.IsPaneOpen = !folded && width >= Roomy;
         NavToggle.IsVisible = folded;
-
-        // The page moves down clear of the button, rather than have it sit against the page's title.
-        PageFrame.Margin = folded ? new Thickness(0, TitleRowHeight, 0, 0) : new Thickness(0);
     }
 
     /// <summary>Gets whether the window is drawn at touch size, which the mini panel follows.</summary>

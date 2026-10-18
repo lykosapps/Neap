@@ -65,6 +65,9 @@ and date.
 
 ### Changed
 
+- The menu and the page each run the full height of the window, so the edge
+  between them reaches the top, and the menu starts in the title bar's row.
+  The headset's status and the update bar sit at the top of the page.
 - On Profiles, the profile in use now has a soft tint and says "In use" under
   its name, and a screen reader hears it on the button that changes its apps.
   It follows a switch from the menu, or by an app starting, as it happens.
