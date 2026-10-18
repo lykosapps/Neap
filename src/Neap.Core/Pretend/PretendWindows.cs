@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using Neap.Core.Audio;
 using Neap.Core.Mix;
@@ -239,6 +240,31 @@ public sealed class PretendWindows(PretendHeadset? headset = null)
     public int? Mix
     {
         get { lock (_gate) return _mix; }
+    }
+
+    /// <summary>A meter whose game side holds a steady level and whose chat side speaks in bursts, both as the mix would leave them.</summary>
+    /// <remarks>Nothing real is metered, so a picture or a script walk has levels to show.</remarks>
+    public ISideMeter OpenMeter() => new PretendMeter(this);
+
+    private sealed class PretendMeter(PretendWindows windows) : ISideMeter
+    {
+        /// <summary>One burst of chat and the quiet after it.</summary>
+        private static readonly TimeSpan Cycle = TimeSpan.FromSeconds(6), Speaking = TimeSpan.FromSeconds(4.5);
+
+        private readonly Stopwatch _clock = Stopwatch.StartNew();
+
+        public SideLevel Read()
+        {
+            int mix = windows.Mix ?? 50;
+            var now = _clock.Elapsed;
+            double wobble = Math.Sin(now.TotalSeconds * 2.1) * Math.Sin(now.TotalSeconds * 0.7);
+            float game = (float)(0.45 + 0.2 * wobble);
+            bool chatting = now.Ticks % Cycle.Ticks < Speaking.Ticks;
+            float chat = chatting ? (float)(0.5 + 0.25 * Math.Sin(now.TotalSeconds * 5.3) * Math.Sin(now.TotalSeconds * 1.9)) : 0;
+            return new SideLevel(game * MixLevels.GameScale(mix), chat * MixLevels.ChatScale(mix));
+        }
+
+        public void Dispose() { }
     }
 
     /// <summary>A mix that records what it would set, and sets nothing.</summary>

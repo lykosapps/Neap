@@ -1,0 +1,289 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Every value Neap's look is drawn from: colours per theme, and the
+        sizes every theme shares. Styles and controls name these and never a
+        number of their own. High contrast sets its own colours for the same
+        names, from the system's palette.
+
+        The ground, the panels and the buttons are neutral greys, so the only
+        colour on a page is what means something: the ultraviolet accent marks
+        what is on, in use or playing, and game and chat keep their own pair.
+        In dark, one ground sits behind the whole window and the rows set into
+        a card are a step lighter than it. Game is the ultraviolet wave and
+        chat the moon, silver on dark and ink on light,
+        so the two sides differ in lightness as well as in hue and neither
+        reads as a status colour. Text is at least 4.5:1 against the panel
+        it sits on.
+    -->
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="NeapGroundBrush" Color="#08080A" />
+            <SolidColorBrush x:Key="NeapBodyBrush" Color="#08080A" />
+            <SolidColorBrush x:Key="NeapPanelBrush" Color="#121214" />
+            <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#1A1A1E" />
+            <SolidColorBrush x:Key="NeapRuleBrush" Color="#1A1A1E" />
+            <SolidColorBrush x:Key="NeapNoticeBrush" Color="#1E1838" />
+            <SolidColorBrush x:Key="NeapNavSelectedBrush" Color="#1A1A1E" />
+            <SolidColorBrush x:Key="NeapNavHoverBrush" Color="#141417" />
+            <SolidColorBrush x:Key="NeapQuietBrush" Color="#1A1A1E" />
+            <!-- A panel set into a card, holding the options of the row above it. -->
+            <SolidColorBrush x:Key="NeapInsetBrush" Color="#1A1A1E" />
+            <SolidColorBrush x:Key="NeapQuietHoverBrush" Color="#222226" />
+            <SolidColorBrush x:Key="NeapSelectedBrush" Color="#2A2250" />
+
+            <SolidColorBrush x:Key="NeapTextBrush" Color="#F2F2F4" />
+            <SolidColorBrush x:Key="NeapTextSecondaryBrush" Color="#C5FFFFFF" />
+            <SolidColorBrush x:Key="NeapTextTertiaryBrush" Color="#87FFFFFF" />
+            <SolidColorBrush x:Key="NeapTextDisabledBrush" Color="#5DFFFFFF" />
+            <SolidColorBrush x:Key="NeapAccentTextBrush" Color="#9C88FF" />
+
+            <SolidColorBrush x:Key="NeapGameBrush" Color="#7B61FF" />
+            <SolidColorBrush x:Key="NeapGameTextBrush" Color="#9C88FF" />
+            <SolidColorBrush x:Key="NeapChatBrush" Color="#E6E8EC" />
+            <SolidColorBrush x:Key="NeapChatTextBrush" Color="#E6E8EC" />
+            <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#1FFFFFFF" />
+            <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#12FFFFFF" />
+
+            <SolidColorBrush x:Key="NeapToneGoodBrush" Color="#6CCB5F" />
+            <SolidColorBrush x:Key="NeapToneCautionBrush" Color="#FCE100" />
+            <SolidColorBrush x:Key="NeapToneNeutralBrush" Color="#8B8B8B" />
+            <SolidColorBrush x:Key="NeapToneCriticalBrush" Color="#FF99A4" />
+
+            <SolidColorBrush x:Key="NeapButtonBrush" Color="#1F1F23" />
+            <SolidColorBrush x:Key="NeapButtonHoverBrush" Color="#27272C" />
+            <SolidColorBrush x:Key="NeapButtonPressedBrush" Color="#19191C" />
+            <SolidColorBrush x:Key="NeapButtonDisabledBrush" Color="#151517" />
+            <SolidColorBrush x:Key="NeapButtonStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapButtonDisabledStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapFlyoutBrush" Color="#1E1E22" />
+            <SolidColorBrush x:Key="NeapAccentFillBrush" Color="#6D4AFF" />
+            <SolidColorBrush x:Key="NeapAccentFillHoverBrush" Color="#7253FF" />
+            <SolidColorBrush x:Key="NeapAccentFillPressedBrush" Color="#5C3BE6" />
+            <SolidColorBrush x:Key="NeapOnAccentBrush" Color="#FFFFFF" />
+            <!-- The edge of a switch, box or ring that is off: 3:1 against the panel it sits on. -->
+            <SolidColorBrush x:Key="NeapControlStrokeBrush" Color="#8B8B90" />
+            <!-- A segmented control's track and a switch that is off: a soft fill, with no edge outside high contrast. -->
+            <SolidColorBrush x:Key="NeapTrackBrush" Color="#26262B" />
+            <SolidColorBrush x:Key="NeapTrackHoverBrush" Color="#303036" />
+            <SolidColorBrush x:Key="NeapControlEdgeBrush" Color="Transparent" />
+
+            <SolidColorBrush x:Key="NeapTileBrush" Color="#1A1A1E" />
+            <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#232327" />
+            <SolidColorBrush x:Key="NeapTileTextBrush" Color="#F2F2F4" />
+            <SolidColorBrush x:Key="NeapTileOnBrush" Color="#2A2250" />
+            <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#322A5E" />
+            <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#F2F2F4" />
+            <!-- The switch drawn on a tile that is on: the accent track and a white knob, on the tile's soft tint. -->
+            <SolidColorBrush x:Key="NeapTileOnGlyphBrush" Color="#6D4AFF" />
+            <SolidColorBrush x:Key="NeapTileOnKnobBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#141416" />
+            <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#B0B0B6" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#1C1830" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#B8B0E0" />
+            <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#337B61FF" />
+            <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0FFFFFFF" />
+            <SolidColorBrush x:Key="NeapCurveGapBrush" Color="#26E6E8EC" />
+            <SolidColorBrush x:Key="NeapCardStrokeBrush" Color="Transparent" />
+
+            <!-- The dial's knob: a flat disc, a step lighter than the panel it sits on, with a quiet edge. -->
+            <SolidColorBrush x:Key="NeapKnobBrush" Color="#26262B" />
+            <SolidColorBrush x:Key="NeapKnobEdgeBrush" Color="#44444A" />
+            <!-- The brand mark: its own dark square in both themes, the moon in silver and the wave in ultraviolet. -->
+            <SolidColorBrush x:Key="NeapMarkGroundBrush" Color="#08080A" />
+            <SolidColorBrush x:Key="NeapMarkEdgeBrush" Color="#26262B" />
+            <SolidColorBrush x:Key="NeapMarkMoonBrush" Color="#F2F2F4" />
+            <SolidColorBrush x:Key="NeapMarkWaveBrush" Color="#6D4AFF" />
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="NeapGroundBrush" Color="#F1F1F3" />
+            <SolidColorBrush x:Key="NeapBodyBrush" Color="#F8F8F9" />
+            <SolidColorBrush x:Key="NeapPanelBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="NeapPanelStrokeBrush" Color="#EAEAED" />
+            <SolidColorBrush x:Key="NeapRuleBrush" Color="#ECECEF" />
+            <SolidColorBrush x:Key="NeapNoticeBrush" Color="#E8E1FF" />
+            <SolidColorBrush x:Key="NeapNavSelectedBrush" Color="#E2E2E6" />
+            <SolidColorBrush x:Key="NeapNavHoverBrush" Color="#EAEAED" />
+            <SolidColorBrush x:Key="NeapQuietBrush" Color="#B3FFFFFF" />
+            <SolidColorBrush x:Key="NeapInsetBrush" Color="#EFEFF2" />
+            <SolidColorBrush x:Key="NeapQuietHoverBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="NeapSelectedBrush" Color="#E4DCFF" />
+
+            <SolidColorBrush x:Key="NeapTextBrush" Color="#E4000000" />
+            <SolidColorBrush x:Key="NeapTextSecondaryBrush" Color="#9E000000" />
+            <SolidColorBrush x:Key="NeapTextTertiaryBrush" Color="#99000000" />
+            <SolidColorBrush x:Key="NeapTextDisabledBrush" Color="#5C000000" />
+            <SolidColorBrush x:Key="NeapAccentTextBrush" Color="#5A38D6" />
+
+            <SolidColorBrush x:Key="NeapGameBrush" Color="#6D4AFF" />
+            <SolidColorBrush x:Key="NeapGameTextBrush" Color="#5A38D6" />
+            <SolidColorBrush x:Key="NeapChatBrush" Color="#15171C" />
+            <SolidColorBrush x:Key="NeapChatTextBrush" Color="#15171C" />
+            <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#17000000" />
+            <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#0F000000" />
+
+            <SolidColorBrush x:Key="NeapToneGoodBrush" Color="#0F7B0F" />
+            <SolidColorBrush x:Key="NeapToneCautionBrush" Color="#9D5D00" />
+            <SolidColorBrush x:Key="NeapToneNeutralBrush" Color="#8A8A8A" />
+            <SolidColorBrush x:Key="NeapToneCriticalBrush" Color="#C42B1C" />
+
+            <SolidColorBrush x:Key="NeapButtonBrush" Color="#EBEBEF" />
+            <SolidColorBrush x:Key="NeapButtonHoverBrush" Color="#E3E3E8" />
+            <SolidColorBrush x:Key="NeapButtonPressedBrush" Color="#DADAE0" />
+            <SolidColorBrush x:Key="NeapButtonDisabledBrush" Color="#F4F4F6" />
+            <SolidColorBrush x:Key="NeapButtonStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapButtonDisabledStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapFlyoutBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="NeapAccentFillBrush" Color="#6D4AFF" />
+            <SolidColorBrush x:Key="NeapAccentFillHoverBrush" Color="#6340F2" />
+            <SolidColorBrush x:Key="NeapAccentFillPressedBrush" Color="#5436D6" />
+            <SolidColorBrush x:Key="NeapOnAccentBrush" Color="#FFFFFF" />
+            <!-- The edge of a switch, box or ring that is off: 3:1 against the panel it sits on. -->
+            <SolidColorBrush x:Key="NeapControlStrokeBrush" Color="#767680" />
+            <SolidColorBrush x:Key="NeapTrackBrush" Color="#E3E3E8" />
+            <SolidColorBrush x:Key="NeapTrackHoverBrush" Color="#D9D9DF" />
+            <SolidColorBrush x:Key="NeapControlEdgeBrush" Color="Transparent" />
+
+            <SolidColorBrush x:Key="NeapTileBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#F8F8F9" />
+            <SolidColorBrush x:Key="NeapTileTextBrush" Color="#1A1A1A" />
+            <SolidColorBrush x:Key="NeapTileOnBrush" Color="#E4DCFF" />
+            <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#DCD2FF" />
+            <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#1C1240" />
+            <!-- The switch drawn on a tile that is on: the accent track and a white knob, on the tile's soft tint. -->
+            <SolidColorBrush x:Key="NeapTileOnGlyphBrush" Color="#6D4AFF" />
+            <SolidColorBrush x:Key="NeapTileOnKnobBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#E8E8EB" />
+            <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#48474C" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#EEE9FF" />
+            <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#4A3F80" />
+            <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D4AFF" />
+            <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0A000000" />
+            <SolidColorBrush x:Key="NeapCurveGapBrush" Color="#2615171C" />
+            <SolidColorBrush x:Key="NeapCardStrokeBrush" Color="Transparent" />
+
+            <SolidColorBrush x:Key="NeapKnobBrush" Color="#EDEDF1" />
+            <SolidColorBrush x:Key="NeapKnobEdgeBrush" Color="#C2C2CA" />
+            <!-- The brand mark: its own dark square in both themes, the moon in silver and the wave in ultraviolet. -->
+            <SolidColorBrush x:Key="NeapMarkGroundBrush" Color="#08080A" />
+            <SolidColorBrush x:Key="NeapMarkEdgeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapMarkMoonBrush" Color="#F2F2F4" />
+            <SolidColorBrush x:Key="NeapMarkWaveBrush" Color="#6D4AFF" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+    <!-- The accent the toolkit's own controls draw from, the same in both themes. -->
+    <Color x:Key="SystemAccentColor">#7B61FF</Color>
+    <Color x:Key="SystemAccentColorLight1">#9C88FF</Color>
+    <Color x:Key="SystemAccentColorLight2">#B8A9FF</Color>
+    <Color x:Key="SystemAccentColorLight3">#D6CCFF</Color>
+    <Color x:Key="SystemAccentColorDark1">#6D4AFF</Color>
+    <Color x:Key="SystemAccentColorDark2">#5436D6</Color>
+    <Color x:Key="SystemAccentColorDark3">#3F27A8</Color>
+
+    <!-- Type: one size per role. -->
+    <x:Double x:Key="NeapFontCaption">12</x:Double>
+    <x:Double x:Key="NeapFontLabel">11</x:Double>
+    <x:Double x:Key="NeapFontBody">13</x:Double>
+    <!-- Touch size: a window of 1280 by 820 or less (see Density) steps these up. -->
+    <x:Double x:Key="NeapFontBodyTouch">14</x:Double>
+    <x:Double x:Key="NeapFontBodyLarge">15</x:Double>
+    <x:Double x:Key="NeapFontCardTitle">15</x:Double>
+    <x:Double x:Key="NeapFontSection">18</x:Double>
+    <x:Double x:Key="NeapFontGlance">18</x:Double>
+    <x:Double x:Key="NeapFontPageTitle">24</x:Double>
+    <x:Double x:Key="NeapFontReading">24</x:Double>
+    <!-- The toolkit's own controls (buttons, switches, lists) write at the body size too. -->
+    <StaticResource x:Key="ControlContentThemeFontSize" ResourceKey="NeapFontBody" />
+
+    <!-- A button, field or list item: one corner for every toolkit control, and the height and least size a button keeps. -->
+    <CornerRadius x:Key="NeapRadiusControl">6</CornerRadius>
+    <StaticResource x:Key="ControlCornerRadius" ResourceKey="NeapRadiusControl" />
+    <x:Double x:Key="NeapControlHeight">32</x:Double>
+    <x:Double x:Key="NeapTargetMin">24</x:Double>
+    <x:Double x:Key="NeapTargetTouch">40</x:Double>
+    <!-- The card an expander sits in is its panel, so the expander draws no edge of its own; one drawn there lost its right side to the card's rounded clip in high contrast. -->
+    <Thickness x:Key="ExpanderHeaderBorderThickness">0</Thickness>
+    <Thickness x:Key="ExpanderContentDownBorderThickness">0</Thickness>
+    <Thickness x:Key="ExpanderContentLeftBorderThickness">0</Thickness>
+    <Thickness x:Key="ExpanderContentRightBorderThickness">0</Thickness>
+    <Thickness x:Key="ExpanderContentUpBorderThickness">0</Thickness>
+
+    <!--
+        Space between things: a name and the line under it (Hairline), then
+        the scale every gap and margin is taken from. Cards sit S apart.
+    -->
+    <x:Double x:Key="NeapSpaceHairline">2</x:Double>
+    <x:Double x:Key="NeapSpaceXS">4</x:Double>
+    <x:Double x:Key="NeapSpaceS">8</x:Double>
+    <x:Double x:Key="NeapSpaceM">12</x:Double>
+    <x:Double x:Key="NeapSpaceL">16</x:Double>
+    <x:Double x:Key="NeapSpaceXL">24</x:Double>
+
+    <!-- Shape: a card, a row set into one, and the space around and inside them. -->
+    <CornerRadius x:Key="NeapRadiusCard">12</CornerRadius>
+    <CornerRadius x:Key="NeapRadiusInset">8</CornerRadius>
+    <CornerRadius x:Key="NeapRadiusDrawer">0,0,8,8</CornerRadius>
+    <CornerRadius x:Key="NeapRadiusDrawerCard">0,0,12,12</CornerRadius>
+    <CornerRadius x:Key="NeapRadiusCardTop">12,12,0,0</CornerRadius>
+    <CornerRadius x:Key="NeapRadiusInsetTop">8,8,0,0</CornerRadius>
+    <x:Double x:Key="NeapTileMinHeight">96</x:Double>
+    <Thickness x:Key="NeapPaddingCard">16</Thickness>
+    <Thickness x:Key="NeapPaddingRow">12,8</Thickness>
+    <x:Double x:Key="NeapRowHeight">40</x:Double>
+    <x:Double x:Key="NeapNavItemHeight">36</x:Double>
+    <x:Double x:Key="NeapRowHeightTouch">48</x:Double>
+    <x:Double x:Key="NeapNavItemHeightTouch">44</x:Double>
+    <Thickness x:Key="NeapPageMargin">24</Thickness>
+    <!-- Dialogs and notices: the space inside a dialog and in a banner. -->
+    <Thickness x:Key="NeapPaddingDialog">20</Thickness>
+    <Thickness x:Key="NeapPaddingNotice">16,8</Thickness>
+    <Thickness x:Key="NeapIndent">12,0,0,0</Thickness>
+    <Thickness x:Key="NeapSectionGap">0,8,0,0</Thickness>
+    <!-- The space between stacked cards, and above the link under the last one. -->
+    <Thickness x:Key="NeapCardGap">0,12,0,0</Thickness>
+    <x:Double x:Key="NeapDialogButtonWidth">96</x:Double>
+    <x:Double x:Key="NeapDialogScrollHeight">420</x:Double>
+    <x:Double x:Key="NeapNoticeEdge">3</x:Double>
+    <x:Double x:Key="NeapStatusDot">8</x:Double>
+    <x:Double x:Key="NeapMenuWidth">220</x:Double>
+    <!-- The height of the title row, which is the height of the title bar where the app draws its own. -->
+    <x:Double x:Key="NeapTitleBarHeight">40</x:Double>
+
+    <!-- The dial: its size, the knob in it and the focus ring around it. The code draws the ring and pointer to the same proportions. -->
+    <x:Double x:Key="NeapDialSize">200</x:Double>
+    <x:Double x:Key="NeapDialKnobSize">156</x:Double>
+    <x:Double x:Key="NeapDialFocusSize">196</x:Double>
+    <x:Double x:Key="NeapDialSegmentWidth">8</x:Double>
+    <x:Double x:Key="NeapDialPointerWidth">4</x:Double>
+    <x:Double x:Key="NeapDialLevelWidth">3</x:Double>
+    <!-- The curves' small shapes, and the icons in a row. -->
+    <CornerRadius x:Key="NeapRadiusTag">4</CornerRadius>
+    <CornerRadius x:Key="NeapRadiusPill">10</CornerRadius>
+    <x:Double x:Key="NeapIconRow">16</x:Double>
+    <x:Double x:Key="NeapIconTile">20</x:Double>
+    <x:Double x:Key="NeapTileHeadHeight">24</x:Double>
+
+    <!-- Neap's own controls. -->
+    <x:Double x:Key="NeapSegmentHeight">32</x:Double>
+    <CornerRadius x:Key="NeapRadiusSegment">20</CornerRadius>
+    <Thickness x:Key="NeapPaddingSegment">12,0</Thickness>
+    <x:Double x:Key="NeapSliderHeight">24</x:Double>
+    <x:Double x:Key="NeapSliderTrack">6</x:Double>
+    <x:Double x:Key="NeapSliderThumb">18</x:Double>
+    <x:Double x:Key="NeapSliderThumbTouch">28</x:Double>
+    <x:Double x:Key="NeapSwitchWidth">40</x:Double>
+    <x:Double x:Key="NeapSwitchHeight">22</x:Double>
+    <x:Double x:Key="NeapSwitchKnob">14</x:Double>
+    <x:Double x:Key="NeapSwitchTouchWidth">52</x:Double>
+    <x:Double x:Key="NeapSwitchTouchHeight">30</x:Double>
+    <x:Double x:Key="NeapSwitchTouchKnob">22</x:Double>
+    <Thickness x:Key="NeapFocusRingWidth">2</Thickness>
+</ResourceDictionary>

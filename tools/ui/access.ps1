@@ -17,7 +17,7 @@ text enlarged in Windows. Those need a person, and are listed in the report.
 .PARAMETER Parts
 Which pages to run, as a comma-separated list. All of them by default.
 #>
-param([string]$Parts = 'home,audio,microphone,controls,profiles,device,settings')
+param([string]$Parts = 'home,audio,equaliser,controls,profiles,device,settings')
 
 . "$PSScriptRoot\Ui.ps1"
 Add-Type -AssemblyName System.Windows.Forms
@@ -182,7 +182,10 @@ function Test-Page([string]$Page, [string]$Theme) {
         [NeapUi]::MoveWindow($script:Handle, $rect.Left, $rect.Top, 640, 900, $true) | Out-Null
         Wait-Stable { (Get-Stops | ForEach-Object { '{0}' -f $_.Current.BoundingRectangle }) -join ';' } | Out-Null
         $narrow = Get-NeapRect
-        $cut = @(Get-Stops | Where-Object { $_.Current.BoundingRectangle.Right -gt $narrow.Right + 1 -or $_.Current.BoundingRectangle.Left -lt $narrow.Left - 1 })
+        # Only what lies across the window's height: a box far below it is placed
+        # by whichever monitor holds that point, at that monitor's scale.
+        $across = @(Get-Stops | Where-Object { $_.Current.BoundingRectangle.Top -lt $narrow.Bottom -and $_.Current.BoundingRectangle.Bottom -gt $narrow.Top })
+        $cut = @($across | Where-Object { $_.Current.BoundingRectangle.Right -gt $narrow.Right + 1 -or $_.Current.BoundingRectangle.Left -lt $narrow.Left - 1 })
         Check ($cut.Count -eq 0) 'in a narrow window nothing is cut off at the side'
         foreach ($stop in $cut) { Note "cut off: $(Get-Label $stop)" }
         Save-Shot "access-$Page-$Theme-narrow" -Top 300 | ForEach-Object { $_.Dispose() }

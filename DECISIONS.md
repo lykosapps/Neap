@@ -1,5 +1,101 @@
 # Decisions
 
+## 2026-10-17 — A mini panel on the tray icon's left click
+
+- **Options:** leave a click on the icon opening the window; a menu of
+  actions on the icon; a small panel by the notification area with the
+  mid-game settings, with or without moving the window to the icon's menu.
+- **Chosen:** a left click opens the mini panel: the game and chat dial, the
+  microphone switch, noise cancellation (Off, Cancelling, Transparency) and
+  the equaliser preset, under the headset's name, state and battery, with a
+  button to open the window. It closes on Escape or when focus leaves it,
+  like the system's volume flyout. The window moves to "Open Neap" on the
+  icon's menu, which also lists "Mini panel". Where the desktop shows no
+  icons there is no panel.
+- **Why:** someone mid-game wants to change the mix or mute without the
+  window taking the screen and their focus from the game. Those four are
+  what Home's tiles already put first, so the panel is those controls made
+  small, with the same logic behind them. A click that opened the window
+  made the icon a slow way to reach them.
+- **Revisit if:** people miss opening the window with one click, or ask for
+  Superhuman Hearing or the profile switcher in the panel.
+
+## 2026-10-17 — The equaliser gets a page, and Audio takes in Microphone
+
+- **Options:** keep both equalisers at the foot of Audio and Microphone;
+  fold them to one row there; give them a page of their own, with or
+  without merging Audio and Microphone.
+- **Chosen:** an Equaliser page with Game and Microphone tabs, and one Audio
+  page in two sections, What you hear and Your microphone. The left menu
+  becomes Home, Audio, Equaliser, Controls, Profiles and Device, with
+  Settings at the foot.
+- **Why:** each equaliser was bigger than everything else on its page put
+  together, and sat below the fold, so the everyday settings above it were
+  scrolled past to reach it and it was scrolled to every time. Tuning sound
+  is its own, occasional job. Without their equalisers, Audio and
+  Microphone are a handful of rows each, and read naturally as one page.
+  The menu keeps its size.
+- **Revisit if:** people coming from Swarm II can't find the microphone
+  settings, or the merged page grows past two screens.
+
+## 2026-10-17 — The profile switcher moves to the top of the left menu
+
+- **Options:** keep the row under the title bar; put it in the title bar on
+  Windows and somewhere else on Linux; the top or the foot of the left menu
+  on both.
+- **Chosen:** the top of the left menu, on Windows and Linux alike.
+- **Why:** the row cost a full line on every page to show one name. Linux
+  can't put it in the title bar, which the desktop draws, and the owner
+  wanted one place on both systems. At the top it is the first thing seen
+  and one move away mid-game.
+- **Revisit if:** a narrow window makes the switcher hard to find as an
+  icon.
+
+## 2026-10-17 — Ultraviolet on a darker neutral, roomier on small screens
+
+- **Chosen:** an ultraviolet accent, `#6D4AFF` with white text, replacing
+  the pale lavender button; a ground of `#08080A`; spacing one step roomier
+  in a window the size of the Steam Deck's; Neap's own segmented controls,
+  sliders and switches; the mark redrawn on the same idea.
+- **Why:** the owner wanted a stronger, more modern and more custom look.
+  The Deck is a touch screen, where 40px rows are tight for a finger.
+- **Revisit if:** the ultraviolet reads as another brand's, or the Deck's
+  larger size makes desktop-sized windows look sparse.
+
+## 2026-10-17 — Copy principles
+
+- **Chosen:** `docs/design/COPY.md`: name things by what they do for you,
+  one name per thing, short enough to read at a glance, help text that
+  earns its place, a way out of every state, warm and not cute, and words
+  that translate.
+- **Why:** the only rule was "plain and restrained". With Audio and
+  Microphone merged, five noise names would sit on one page, and the
+  equaliser had three scopes under one name.
+
+## 2026-10-17 — A calmer, compact look, drawn from shared tokens
+
+- **Options:** keep the violet-tinted look and its gradients; adopt a
+  ready-made Avalonia theme (FluentAvalonia, Semi, SukiUI); restyle on
+  Avalonia's own Fluent theme with Neap's own tokens, after MultiDrive.
+- **Chosen:** Neap's own tokens on the Fluent theme, following
+  `docs/design/PRINCIPLES.md`. Neutral grey grounds, so the violet accent and
+  the game and chat pair are the only colour. Flat panels with depth from
+  steps of fill, not gradients, shadows or outlines. Compact sizes: 13px body
+  text, 40px rows. Inter, carried by the app. The dark theme's primary button
+  stays pale lavender with dark text.
+- **How it is built:** every colour and size is a token in
+  `Themes/Tokens.axaml`; the toolkit's own keys point at them from one list in
+  `FluentKeys.cs` for light, dark and high contrast; Neap's templated
+  controls have control themes; pages share one `PageView` frame.
+- **Why:** each theme repeated the toolkit's keys by hand and high contrast a
+  third time, so they drifted, and sizes were typed in dozens of places. The
+  gradients dated the look and made contrast hard to measure. MultiDrive
+  showed the qualities wanted, calm, flat and roomy with one accent, and is
+  taken as a reference for those, not copied: its colours, layouts and parts
+  are not used.
+- **Revisit if:** a 13px body proves too small for people to read at arm's
+  length, or the neutral ground makes Neap hard to tell from other apps.
+
 ## 2026-10-16 — The firmware rules are lifted
 
 - **Options:** keep firmware off limits; lift the rules so Neap can build on

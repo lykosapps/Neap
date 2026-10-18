@@ -117,7 +117,7 @@ public sealed class HeadsetSection : StackPanel
     private void Gather()
     {
         if (_body is not null) return;
-        _body = new StackPanel();
+        _body = new StackPanel { Spacing = Spacing };
         var content = Children.ToList();
         Children.Clear();
         foreach (var child in content) _body.Children.Add(child);
@@ -129,7 +129,7 @@ public sealed class HeadsetSection : StackPanel
                 Header = What,
                 Icon = (Avalonia.Media.Geometry)Application.Current!.FindResource("IconInfo")!,
                 IsVisible = false,
-                Margin = new Thickness(0, 12, 0, 0),
+                Margin = new Thickness(0, Space.M, 0, 0),
             };
             Children.Add(_card);
         }

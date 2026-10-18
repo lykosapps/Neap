@@ -2,16 +2,17 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Avalonia.Threading;
 using Neap.Core.Audio;
 using Neap.Core.Connection;
-using Neap.Desktop.Localization;
 
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// The system's spatial sound for the headset, as Home's tile or a settings row:
-/// off, Windows Sonic, or Dolby Atmos where this PC has it installed.
+/// The system's spatial sound for the headset, as Home's card or a settings row:
+/// off, Windows Sonic, or Dolby Atmos where this PC has it installed, as a
+/// segmented control either way.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -44,7 +45,7 @@ namespace Neap.Desktop.Controls;
 /// </para>
 /// <para>
 /// Dolby Access has its own equaliser, which Neap cannot see or change, so
-/// while Dolby Atmos is on the flyout says to turn it off there, rather
+/// while Dolby Atmos is on a line says to turn it off there, rather
 /// than let it silently double up with the headset's own equaliser.
 /// </para>
 /// </remarks>
@@ -53,15 +54,14 @@ public partial class SpatialTile : UserControl
     public static readonly StyledProperty<bool> AsRowProperty =
         AvaloniaProperty.Register<SpatialTile, bool>(nameof(AsRow));
 
+    public static readonly StyledProperty<bool> StackedProperty =
+        AvaloniaProperty.Register<SpatialTile, bool>(nameof(Stacked));
+
     private const string DolbyAccess = "ms-windows-store://pdp/?productid=9N0866FS04W8";
 
-    private readonly ListBox _formats = new() { MinWidth = 200 };
-    private readonly TextBlock _driverNote = new() { Classes = { "caption", "secondary" }, IsVisible = false };
-    private readonly TextBlock _equalizerNote = new() { Classes = { "caption", "secondary" }, IsVisible = false };
-    private readonly Flyout _flyout;
-
-    /// <summary>Whether a format other than Off is on, which is what the tile shows.</summary>
-    private bool _lit;
+    private readonly StackPanel _segments = new() { IsEnabled = false };
+    private readonly Border _pill;
+    private readonly StackPanel _cardSegments = new() { Orientation = Orientation.Horizontal };
     private bool _painting;
     private string? _knownEndpointId;
     private SpatialFormat? _known;
@@ -74,58 +74,46 @@ public partial class SpatialTile : UserControl
 
         // Where the system has no spatial sound for the headset, there is nothing to show.
         IsVisible = Platform.Current.Spatial.Supported;
-        Word.Text = Strings.Get("Reading_None");
-        RowButton.Content = Word.Text;
-        Uid.SetValue(_formats, "Quick_SpatialList");
-
-        // Dolby Atmos needs its driver before the system offers it at all, and
-        // Dolby Access has its own equaliser, which can double up with the
-        // headset's; each says so below the list while it applies.
-        _flyout = new Flyout
-        {
-            Placement = PlacementMode.BottomEdgeAlignedRight,
-            Content = new StackPanel
-            {
-                MaxWidth = 240,
-                Spacing = 8,
-                Children = { _formats, _driverNote, _equalizerNote },
-            },
-        };
-
-        // The tile only opens the list; whether it is lit is Paint's alone,
-        // from what is on, so a click here never needs to move it.
-        // A click toggles the tile, but opening the list chooses nothing: it
-        // stays as the system has it until a format is picked.
-        Face.Click += (_, _) =>
-        {
-            Face.IsChecked = _lit;
-            _flyout.ShowAt(Face);
-        };
-
-        _flyout.Opened += (_, _) => (_formats.ContainerFromIndex(Math.Max(0, _formats.SelectedIndex)) as Control)?.Focus();
-        _formats.SelectionChanged += async (_, _) =>
-        {
-            if (_painting || _formats.SelectedItem is not ListBoxItem { Tag: SpatialFormat wanted }) return;
-            _flyout.Hide();
-            await Choose(wanted);
-        };
+        string name = Strings.Get("Spatial_Row.Header");
+        AutomationProperties.SetName(_segments, name);
+        AutomationProperties.SetName(_cardSegments, name);
+        NeapControls.AsGroup(_cardSegments);
+        _pill = NeapControls.Pill(_segments);
+        Row.Content = _pill;
+        Choice.Child = _cardSegments;
     }
 
-    /// <summary>Gets or sets whether it shows as a settings row, with the list on its button, rather than as Home's tile.</summary>
-    /// <remarks>One control either way, so a page's row and Home's tile can never say different things.</remarks>
+    /// <summary>Gets or sets whether it shows as a settings row rather than as Home's card.</summary>
+    /// <remarks>One control either way, so a page's row and Home's card can never say different things.</remarks>
     public bool AsRow
     {
         get => GetValue(AsRowProperty);
         set => SetValue(AsRowProperty, value);
     }
 
+    /// <summary>Gets or sets whether a row puts its segments under its title, as the mini panel's other rows do, instead of beside it.</summary>
+    /// <remarks>The same segments move; nothing is built twice.</remarks>
+    public bool Stacked
+    {
+        get => GetValue(StackedProperty);
+        set => SetValue(StackedProperty, value);
+    }
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property != AsRowProperty) return;
-        Face.IsVisible = !AsRow;
-        Row.IsVisible = AsRow;
-        RowButton.Flyout = AsRow ? _flyout : null;
+        if (change.Property == AsRowProperty)
+        {
+            Card.IsVisible = !AsRow;
+            Row.IsVisible = AsRow;
+        }
+        else if (change.Property == StackedProperty)
+        {
+            Row.Content = Stacked ? null : _pill;
+            Row.Below = Stacked ? _pill : null;
+            _pill.HorizontalAlignment = Stacked ? HorizontalAlignment.Left : HorizontalAlignment.Right;
+            _pill.Margin = Stacked ? (Thickness)Application.Current!.FindResource("NeapSectionGap")! : default;
+        }
     }
 
     protected override async void OnLoaded(RoutedEventArgs e)
@@ -185,46 +173,57 @@ public partial class SpatialTile : UserControl
         _painting = true;
         try
         {
-            var shown = _formats.Items.OfType<ListBoxItem>().Select(item => (SpatialFormat)item.Tag!).ToList();
-            if (!shown.SequenceEqual(panel.Offered))
-            {
-                _formats.Items.Clear();
-                foreach (var format in panel.Offered)
-                    _formats.Items.Add(new ListBoxItem { Content = Label(format), Tag = format, Classes = { "preset" } });
-            }
-            _formats.SelectedItem = _formats.Items.OfType<ListBoxItem>()
-                .FirstOrDefault(item => panel.Active is { } active && (SpatialFormat)item.Tag! == active);
-            Face.IsEnabled = RowButton.IsEnabled = panel.Offered.Count > 1;
-
-            // Lit whenever anything but Off is chosen, the same as every
-            // other tile that can be on.
-            _lit = panel.Active is { } chosen && chosen != SpatialFormat.Off;
-            Face.IsChecked = _lit;
-            Word.Text = panel.Active is { } active ? Label(active)
-                : panel.Unrecognised ? Strings.Get("Spatial_Unrecognised")
-                : Strings.Get("Reading_None");
-            RowButton.Content = Word.Text;
-            AutomationProperties.SetItemStatus(Face, Word.Text);
-            AutomationProperties.SetItemStatus(RowButton, Word.Text);
+            Fill(_segments, "spatial_sound", panel);
+            Fill(_cardSegments, "spatial_card", panel);
+            Choice.IsEnabled = _segments.IsEnabled = panel.Offered.Count > 1;
 
             // The system never offers Dolby Atmos without the headset's Dolby
             // Atmos driver, which Swarm II installs; say so rather than
-            // leave it looking simply absent.
+            // leave it looking simply absent. Dolby Access has its own
+            // equaliser, separate from the headset's; say so while Dolby
+            // Atmos is on, since it is easy to end up with both applying an
+            // equaliser at once. A format with no segment is said too.
             bool needsDriver = panel.Offered.Count > 0 && !panel.Offered.Contains(SpatialFormat.DolbyAtmos);
-            _driverNote.Text = needsDriver ? Strings.Get("Spatial_DolbyNeedsDriver") : "";
-            _driverNote.IsVisible = needsDriver;
-
-            // Dolby Access has its own equaliser, separate from the
-            // headset's; say so while Dolby Atmos is on, since it is easy
-            // to end up with both applying an equaliser at once.
             bool dolbyOn = panel.Active == SpatialFormat.DolbyAtmos;
-            _equalizerNote.Text = dolbyOn ? Strings.Get("Spatial_DolbyEqualizerNote") : "";
-            _equalizerNote.IsVisible = dolbyOn;
+            string? note = panel.Active is null && panel.Unrecognised ? Strings.Get("Spatial_Unrecognised")
+                : dolbyOn ? Strings.Get("Spatial_DolbyEqualizerNote")
+                : needsDriver ? Strings.Get("Spatial_DolbyNeedsDriver")
+                : null;
+
+            // Stacked rows are narrow, so only the short note shows; the driver and equaliser notes stay on Home and Audio.
+            Row.Description = Stacked && !(panel.Active is null && panel.Unrecognised) ? null : note;
+            Note.Text = note;
+            Note.IsVisible = note is not null;
         }
         finally { _painting = false; }
     }
 
-    /// <summary>The person choosing a format from the flyout, as opposed to it being carried to a new endpoint.</summary>
+    /// <summary>Shows the formats the system offers as the segments of <paramref name="segments"/>, with the active one chosen.</summary>
+    private void Fill(StackPanel segments, string group, SpatialPanel panel)
+    {
+        var shown = segments.Children.OfType<RadioButton>().Select(segment => (SpatialFormat)segment.Tag!).ToList();
+        if (!shown.SequenceEqual(panel.Offered))
+        {
+            segments.Children.Clear();
+            foreach (var format in panel.Offered) segments.Children.Add(Segment(format, group));
+        }
+        foreach (var segment in segments.Children.OfType<RadioButton>())
+            segment.IsChecked = panel.Active is { } current && (SpatialFormat)segment.Tag! == current;
+    }
+
+    /// <summary>A segment for a format the system offers.</summary>
+    private RadioButton Segment(SpatialFormat format, string group)
+    {
+        var segment = NeapControls.Segment(Label(format), group);
+        segment.Tag = format;
+        segment.IsCheckedChanged += async (_, _) =>
+        {
+            if (!_painting && segment.IsChecked == true) await Choose(format);
+        };
+        return segment;
+    }
+
+    /// <summary>The person choosing a format, as opposed to it being carried to a new endpoint.</summary>
     private async Task Choose(SpatialFormat wanted)
     {
         await ApplyAndHandle(wanted);

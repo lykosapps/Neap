@@ -4,60 +4,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!--
-        The dial's look: a raised knob with a ridged rim, inside a ring of
+        The dial's look: a flat knob with a quiet edge, inside a ring of
         segments that light in each side's colour. Every colour is a theme
         resource or a style class, so a change of theme while the page is open
-        repaints it without code; the code only places the shapes. The knob is
-        an object on the desk, so it stays dark metal in the dark theme and
-        turns brushed silver in the light one.
+        repaints it without code; the code only places the shapes. The sizes
+        are tokens, and the code draws the ring and pointer to the same
+        proportions.
     -->
-    <Styles.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="NeapKnobWellBrush" Color="#0E0E11" />
-                    <LinearGradientBrush x:Key="NeapKnobBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#4A4854" />
-                        <GradientStop Offset="0.5" Color="#2C2B33" />
-                        <GradientStop Offset="1" Color="#1E1D23" />
-                    </LinearGradientBrush>
-                    <LinearGradientBrush x:Key="NeapKnobRimBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#55FFFFFF" />
-                        <GradientStop Offset="1" Color="#08FFFFFF" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapKnobRidgeBrush" Color="#70000000" />
-                    <SolidColorBrush x:Key="NeapKnobCapStrokeBrush" Color="#1CFFFFFF" />
-                    <RadialGradientBrush x:Key="NeapKnobShadowBrush">
-                        <GradientStop Offset="0.7" Color="#99000000" />
-                        <GradientStop Offset="1" Color="#00000000" />
-                    </RadialGradientBrush>
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="NeapKnobWellBrush" Color="#C9C9D0" />
-                    <LinearGradientBrush x:Key="NeapKnobBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#FBFBFD" />
-                        <GradientStop Offset="0.5" Color="#E6E6EB" />
-                        <GradientStop Offset="1" Color="#D2D2D9" />
-                    </LinearGradientBrush>
-                    <LinearGradientBrush x:Key="NeapKnobRimBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#FFFFFFFF" />
-                        <GradientStop Offset="1" Color="#40FFFFFF" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapKnobRidgeBrush" Color="#33000000" />
-                    <SolidColorBrush x:Key="NeapKnobCapStrokeBrush" Color="#26000000" />
-                    <RadialGradientBrush x:Key="NeapKnobShadowBrush">
-                        <GradientStop Offset="0.7" Color="#44000000" />
-                        <GradientStop Offset="1" Color="#00000000" />
-                    </RadialGradientBrush>
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
-        </ResourceDictionary>
-    </Styles.Resources>
 
     <!-- One segment of the ring, unlit and lit. -->
     <Style Selector="c|GameChatDial Path.segment">
         <Setter Property="Stroke" Value="{DynamicResource NeapDialTrackBrush}" />
-        <Setter Property="StrokeThickness" Value="9" />
+        <Setter Property="StrokeThickness" Value="{StaticResource NeapDialSegmentWidth}" />
     </Style>
     <Style Selector="c|GameChatDial Path.segment.game">
         <Setter Property="Stroke" Value="{DynamicResource NeapGameBrush}" />
@@ -66,10 +24,31 @@
         <Setter Property="Stroke" Value="{DynamicResource NeapChatBrush}" />
     </Style>
 
+    <!--
+        The dial with no chat apps chosen: drawn, so the card shows what it is
+        for, and faded well below its working contrast, so it plainly cannot
+        be turned yet.
+    -->
+    <Style Selector="Grid.mixdial:disabled">
+        <Setter Property="Opacity" Value="0.35" />
+    </Style>
+
+    <!-- The live levels: thin arcs in each side's colour, just inside the segments. -->
+    <Style Selector="c|GameChatDial Path.level">
+        <Setter Property="StrokeThickness" Value="{StaticResource NeapDialLevelWidth}" />
+        <Setter Property="StrokeLineCap" Value="Round" />
+    </Style>
+    <Style Selector="c|GameChatDial Path#GameLevel">
+        <Setter Property="Stroke" Value="{DynamicResource NeapGameBrush}" />
+    </Style>
+    <Style Selector="c|GameChatDial Path#ChatLevel">
+        <Setter Property="Stroke" Value="{DynamicResource NeapChatBrush}" />
+    </Style>
+
     <!-- The knob's pointer, in the colour of the side the mix leans to. -->
     <Style Selector="c|GameChatDial Path#Pointer">
         <Setter Property="Stroke" Value="{DynamicResource NeapGameTextBrush}" />
-        <Setter Property="StrokeThickness" Value="4" />
+        <Setter Property="StrokeThickness" Value="{StaticResource NeapDialPointerWidth}" />
         <Setter Property="StrokeLineCap" Value="Round" />
     </Style>
     <Style Selector="c|GameChatDial Path#Pointer.chat">
@@ -77,23 +56,28 @@
     </Style>
 
     <Style Selector="c|GameChatDial">
-        <Setter Property="Width" Value="240" />
-        <Setter Property="Height" Value="240" />
+        <Setter Property="Width" Value="{StaticResource NeapDialSize}" />
+        <Setter Property="Height" Value="{StaticResource NeapDialSize}" />
+        <!-- The ring below is the focus mark; the toolkit's square one drawn as well would box the dial in. -->
+        <Setter Property="FocusAdorner" Value="{x:Null}" />
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid Background="Transparent">
                     <!-- Where a keyboard user can see the keys are. -->
-                    <Ellipse x:Name="FocusRing" Width="236" Height="236" IsVisible="False"
-                             Stroke="{DynamicResource SystemAccentColorLight2}" StrokeThickness="2" />
+                    <Ellipse x:Name="FocusRing"
+                             Width="{StaticResource NeapDialFocusSize}" Height="{StaticResource NeapDialFocusSize}"
+                             IsVisible="False"
+                             Stroke="{DynamicResource NeapAccentTextBrush}" StrokeThickness="2" />
                     <!-- The segments, placed by the code. -->
                     <Canvas x:Name="Ring" />
-                    <Ellipse Width="194" Height="194" Fill="{DynamicResource NeapKnobWellBrush}" />
-                    <Ellipse Width="200" Height="200" Margin="0,12,0,0" Fill="{DynamicResource NeapKnobShadowBrush}" />
-                    <Ellipse Width="188" Height="188" Fill="{DynamicResource NeapKnobBrush}" />
-                    <Path x:Name="Ridges" Stroke="{DynamicResource NeapKnobRidgeBrush}" StrokeThickness="1.6" />
-                    <Ellipse Width="188" Height="188" Stroke="{DynamicResource NeapKnobRimBrush}" StrokeThickness="1" />
-                    <Ellipse Width="156" Height="156" Fill="{DynamicResource NeapKnobBrush}"
-                             Stroke="{DynamicResource NeapKnobCapStrokeBrush}" StrokeThickness="1" />
+                    <!-- Decoration for the eye; the dial's own name and value are its state. -->
+                    <Canvas AutomationProperties.AccessibilityView="Raw" IsHitTestVisible="False">
+                        <Path x:Name="GameLevel" Classes="level" IsVisible="False" />
+                        <Path x:Name="ChatLevel" Classes="level" IsVisible="False" />
+                    </Canvas>
+                    <Ellipse Width="{StaticResource NeapDialKnobSize}" Height="{StaticResource NeapDialKnobSize}"
+                             Fill="{DynamicResource NeapKnobBrush}"
+                             Stroke="{DynamicResource NeapKnobEdgeBrush}" StrokeThickness="1" />
                     <Path x:Name="Pointer" />
                 </Grid>
             </ControlTemplate>

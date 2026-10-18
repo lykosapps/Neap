@@ -3,6 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
+using Avalonia.VisualTree;
+using Neap.Core;
 using Neap.Desktop.Controls;
 using Neap.Desktop.Localization;
 using Neap.Desktop.Views;
@@ -22,13 +24,19 @@ public partial class MainWindow : Window
     /// <summary>The width below which the rail folds into a button that opens it over the page; the Windows app's own threshold.</summary>
     private const double Narrow = 641;
 
-    /// <summary>The title row's height, which is the height of the title bar where the app draws its own.</summary>
-    private const double TitleRowHeight = 40;
-
     /// <summary>The width Windows gives its three caption buttons, which the status keeps clear of where the app draws its own title bar.</summary>
+    /// <remarks>
+    /// Avalonia does not report it: <see cref="Window.WindowDecorationMargin"/>
+    /// is the thickness of the frame and title bar, and the buttons are drawn
+    /// by Windows over the extended client area. It is the width at 100% scale
+    /// in device-independent units, so it holds at other scales.
+    /// </remarks>
     private const double CaptionButtons = 138;
 
     private readonly Dictionary<string, Control> _pages = new();
+
+    /// <summary>Gets the title row's height, which is the height of the title bar where the app draws its own.</summary>
+    private double TitleRowHeight => (double)this.FindResource("NeapTitleBarHeight")!;
 
     public MainWindow()
     {
@@ -39,13 +47,30 @@ public partial class MainWindow : Window
         string title = Pretend.Active ? Strings.Format("Window_PretendTitle", AppInfo.Name) : AppInfo.Name;
         Title = title;
 
+        // A script driving a practice run while somebody works opens it
+        // without taking the keyboard from them.
+        if (Pretend.Behind) ShowActivated = false;
+
         Activated += (_, _) => WindowPresence.Set(true);
         Deactivated += (_, _) => WindowPresence.Set(false);
 
         Places.SelectionChanged += (_, _) => OnChosen(Places, Foot);
         Foot.SelectionChanged += (_, _) => OnChosen(Foot, Places);
-        SizeChanged += (_, e) => FitRail(e.NewSize.Width);
+        SizeChanged += (_, e) =>
+        {
+            FitRail(e.NewSize.Width);
+            FitDensity(e.NewSize);
+        };
         NavToggle.Click += (_, _) => Rail.IsPaneOpen = !Rail.IsPaneOpen;
+
+        // The profile switcher is one icon and the brand only its mark while the rail is icons only; both are in full whenever the rail is open, over the page too.
+        Rail.PropertyChanged += (_, e) =>
+        {
+            if (e.Property != SplitView.IsPaneOpenProperty) return;
+            Profile.Compact = !Rail.IsPaneOpen;
+            BrandName.IsVisible = Rail.IsPaneOpen;
+        };
+        BrandName.Text = AppInfo.Name;
         Body.PageTransition = new EntranceTransition();
         DrawOwnTitleBar();
 
@@ -100,10 +125,14 @@ public partial class MainWindow : Window
         Rail.DisplayMode = folded ? SplitViewDisplayMode.Overlay : SplitViewDisplayMode.CompactInline;
         Rail.IsPaneOpen = !folded && width >= Roomy;
         NavToggle.IsVisible = folded;
-
-        // The page moves down clear of the button, rather than have it sit against the page's title.
-        PageFrame.Margin = folded ? new Thickness(0, TitleRowHeight, 0, 0) : new Thickness(0);
     }
+
+    /// <summary>Gets whether the window is drawn at touch size, which the mini panel follows.</summary>
+    public bool IsTouch => Classes.Contains("touch");
+
+    /// <summary>Marks the window <c>touch</c> while it is small enough for the roomier size, which the styles take their larger sizes from.</summary>
+    private void FitDensity(Size size) =>
+        Classes.Set("touch", Density.For(size.Width, size.Height) == DensityMode.Touch);
 
     /// <summary>
     /// Where the app draws its own title bar, as on Windows, with the system's
@@ -143,7 +172,7 @@ public partial class MainWindow : Window
             {
                 "home" => new HomePage(),
                 "audio" => new AudioPage(),
-                "mic" => new MicrophonePage(),
+                "equaliser" => new EqualiserPage(),
                 "controls" => new ControlsPage(),
                 "profiles" => new ProfilesPage(),
                 "device" => new DevicePage(),
@@ -179,7 +208,7 @@ public partial class MainWindow : Window
     private async Task SaveAndExit(string file)
     {
         await Task.Delay(Pretend.SettleTime);
-        if (Pretend.ScrolledBy is double by && (Body.Content as UserControl)?.Content is ScrollViewer scroller)
+        if (Pretend.ScrolledBy is double by && Body.Content is Visual page && page.GetVisualDescendants().OfType<PageView>().FirstOrDefault() is { Scroller: { } scroller })
         {
             if (double.IsInfinity(by)) scroller.ScrollToEnd();
             else scroller.Offset = new Vector(0, by);

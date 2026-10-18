@@ -57,8 +57,7 @@
         <Setter Property="StrokeThickness" Value="1.5" />
     </Style>
     <Style Selector="Path.curvegap">
-        <Setter Property="Fill" Value="{DynamicResource NeapToneCautionBrush}" />
-        <Setter Property="Opacity" Value="0.3" />
+        <Setter Property="Fill" Value="{DynamicResource NeapCurveGapBrush}" />
     </Style>
 
     <!-- A parametric adjustment's numbered point: filled when it is the one the fields show. -->
@@ -73,7 +72,7 @@
     </Style>
     <Style Selector="TextBlock.handlenumber">
         <Setter Property="Foreground" Value="{DynamicResource NeapGameTextBrush}" />
-        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontSize" Value="{StaticResource NeapFontLabel}" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="TextWrapping" Value="NoWrap" />
@@ -92,12 +91,12 @@
     </Style>
     <Style Selector="Border.curvetonetag">
         <Setter Property="Background" Value="{DynamicResource NeapTextBrush}" />
-        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusTag}" />
         <Setter Property="Padding" Value="6,1,6,2" />
     </Style>
     <Style Selector="TextBlock.curvetonetext">
         <Setter Property="Foreground" Value="{DynamicResource NeapGroundBrush}" />
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="FontFeatures" Value="tnum" />
         <Setter Property="TextWrapping" Value="NoWrap" />
@@ -111,7 +110,7 @@
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="Padding" Value="12,8" />
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
     </Style>
@@ -122,30 +121,57 @@
         <Setter Property="Background" Value="{DynamicResource NeapPresetSelectedBrush}" />
     </Style>
     <Style Selector="Button.remove">
+        <Setter Property="Opacity" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextSecondaryBrush}" />
         <Setter Property="Padding" Value="8" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 
-    <!-- Says a curve has been moved from its preset. -->
-    <Style Selector="Border.edited">
-        <Setter Property="Padding" Value="8,2" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapToneCautionBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="10" />
+    <!-- Only on the row that is pointed at, focused or chosen; the keyboard reaches it with Tab all the same. -->
+    <Style Selector="Grid.slot:pointerover Grid.face, Grid.slot:focus-within Grid.face, Grid.slot.chosen Grid.face">
+        <Setter Property="Margin" Value="0,0,32,0" />
     </Style>
-    <Style Selector="Border.edited > TextBlock">
-        <Setter Property="FontSize" Value="12" />
+    <Style Selector="Grid.slot:pointerover > Button.remove, Grid.slot:focus-within > Button.remove, Grid.slot.chosen > Button.remove">
+        <Setter Property="Opacity" Value="1" />
     </Style>
 
-    <!-- The preset's name over the panel: the title's size without the button's fill. -->
-    <Style Selector="DropDownButton.titlebutton">
-        <Setter Property="Margin" Value="-10,0,0,0" />
-        <Setter Property="Padding" Value="10,2,8,4" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="Transparent" />
+    <!--
+        Says a curve has been moved from its preset: a pill in the accent's
+        tint, since an edit is not a warning. It sits on the chosen row, which
+        is tinted too, so it reads as one step stronger.
+    -->
+    <Style Selector="Border.edited">
+        <Setter Property="Padding" Value="8,1" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Background" Value="{DynamicResource NeapPresetSelectedBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusPill}" />
+    </Style>
+    <Style Selector="Border.edited > TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
+    </Style>
+
+    <!-- The bar at the left of the chosen preset: there at no width cost on every row, seen only on that one. -->
+    <Style Selector="Border.marker">
+        <Setter Property="Width" Value="3" />
+        <Setter Property="Height" Value="16" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Background" Value="{DynamicResource NeapAccentFillBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusTag}" />
+        <Setter Property="Opacity" Value="0" />
+    </Style>
+    <Style Selector="Button.chip.chosen Border.marker">
+        <Setter Property="Opacity" Value="1" />
+    </Style>
+
+    <!-- A row in the list for the curve being edited when it is no preset: the chosen row, but not a button. -->
+    <Style Selector="Border.draft">
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+        <Setter Property="Background" Value="{DynamicResource NeapPresetSelectedBrush}" />
     </Style>
 
     <!-- The band view's point on each band. -->
@@ -153,5 +179,55 @@
         <Setter Property="Fill" Value="{DynamicResource NeapGameBrush}" />
         <Setter Property="Stroke" Value="{DynamicResource NeapGroundBrush}" />
         <Setter Property="StrokeThickness" Value="2" />
+    </Style>
+
+    <!--
+        A point that can be moved says so: it grows while it is pointed at,
+        dragged or chosen with the keyboard, over a soft halo. The halo takes
+        a ring in the text colour while the keyboard has the point, which is
+        the focus mark. Both plots share them.
+    -->
+    <Style Selector="Ellipse.bandhandle.active, Ellipse.curvehandle.active">
+        <Setter Property="RenderTransform" Value="scale(1.35)" />
+    </Style>
+    <Style Selector="Ellipse.bandhalo">
+        <Setter Property="Fill" Value="{DynamicResource NeapGameBrush}" />
+        <Setter Property="Opacity" Value="0.25" />
+    </Style>
+    <Style Selector="Ellipse.bandhalo.focus">
+        <Setter Property="Stroke" Value="{DynamicResource NeapTextBrush}" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Opacity" Value="0.6" />
+    </Style>
+
+    <!-- Held fingers cover a point, so on a touch screen it is bigger, as every other target is. -->
+    <Style Selector="Window.touch Ellipse.bandhandle">
+        <Setter Property="RenderTransform" Value="scale(1.5)" />
+    </Style>
+    <Style Selector="Window.touch Ellipse.bandhandle.active">
+        <Setter Property="RenderTransform" Value="scale(1.9)" />
+    </Style>
+    <Style Selector="Window.touch Ellipse.curvehandle">
+        <Setter Property="RenderTransform" Value="scale(1.3)" />
+    </Style>
+    <Style Selector="Window.touch Ellipse.curvehandle.active">
+        <Setter Property="RenderTransform" Value="scale(1.6)" />
+    </Style>
+    <Style Selector="Window.touch Ellipse.bandhalo">
+        <Setter Property="RenderTransform" Value="scale(1.5)" />
+    </Style>
+
+    <!-- Said over a plot while Compare is held and the headset plays flat. -->
+    <Style Selector="Border.comparecaption">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="0,16,0,0" />
+        <Setter Property="Padding" Value="12,4" />
+        <Setter Property="Background" Value="{DynamicResource NeapTextBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusPill}" />
+    </Style>
+    <Style Selector="Border.comparecaption > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource NeapGroundBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 </Styles>

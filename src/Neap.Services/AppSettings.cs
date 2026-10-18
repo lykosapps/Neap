@@ -83,6 +83,14 @@ public sealed class AppSettings
     /// </remarks>
     [JsonPropertyName("keep_ring_purple")] public bool KeepRingPurple { get; set; } = true;
 
+    /// <summary>Whether a click on the tray icon opens the mini panel rather than the window.</summary>
+    /// <remarks>
+    /// On by default: the panel is the quick way to the settings changed
+    /// mid-game. The switch is there for anyone who would rather the icon
+    /// open the window.
+    /// </remarks>
+    [JsonPropertyName("mini_panel")] public bool MiniPanel { get; set; } = true;
+
     /// <summary>Whether Neap asks GitHub once a day for a newer version.</summary>
     /// <remarks>
     /// On by default: an app that never says it is out of date leaves people

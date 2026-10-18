@@ -23,6 +23,4 @@ public sealed class NavItem : ListBoxItem
 
     /// <summary>Which page the item opens.</summary>
     public string Page { get; set; } = "";
-
-    protected override Type StyleKeyOverride => typeof(NavItem);
 }

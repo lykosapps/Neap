@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -23,10 +22,6 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public partial class MixKeysPanel : UserControl
 {
-    /// <summary>The card's own corner radius, so its bottom can be squared to meet the drawer.</summary>
-    private static readonly CornerRadius CardRadius = new(8);
-    private static readonly CornerRadius CardRadiusOverDrawer = new(8, 8, 0, 0);
-
     private MixKey? _capturing;
     private bool _painting;
 
@@ -154,7 +149,7 @@ public partial class MixKeysPanel : UserControl
         KeysOn.IsChecked = AppServices.Hotkeys.Enabled;
         _painting = false;
         KeyRows.IsVisible = KeysOn.IsChecked == true;
-        KeysCard.CornerRadius = KeysOn.IsChecked == true ? CardRadiusOverDrawer : CardRadius;
+        KeysCard.Classes.Set("open", KeysOn.IsChecked == true);
     }
 
     private static void Show(Button button, SettingsCard row, MixKey which)

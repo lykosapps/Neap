@@ -1,0 +1,234 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Styling;
+
+namespace Neap.Desktop;
+
+/// <summary>
+/// Points the toolkit's own controls (buttons, lists, sliders, switches) at
+/// Neap's colours, once for every theme.
+/// </summary>
+/// <remarks>
+/// The controls look their colours up by the toolkit's names. Writing those
+/// names into each theme by hand meant one list for dark, one for light and
+/// one for high contrast, which drift apart; one list here serves all of
+/// them, so a theme cannot miss a name the others have.
+/// </remarks>
+internal static class FluentKeys
+{
+    /// <summary>Each toolkit name, and the Neap colour it takes.</summary>
+    private static readonly (string Fluent, string Neap)[] Map =
+    [
+        ("ButtonBackground", "NeapButtonBrush"),
+        ("ButtonBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("ButtonBackgroundPressed", "NeapButtonPressedBrush"),
+        ("ButtonBackgroundDisabled", "NeapButtonDisabledBrush"),
+        ("ButtonBorderBrush", "NeapButtonStrokeBrush"),
+        ("ButtonBorderBrushPointerOver", "NeapButtonStrokeBrush"),
+        ("ButtonBorderBrushPressed", "NeapButtonStrokeBrush"),
+        ("ButtonBorderBrushDisabled", "NeapButtonDisabledStrokeBrush"),
+        ("ComboBoxBackground", "NeapButtonBrush"),
+        ("ComboBoxBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("ComboBoxBackgroundPressed", "NeapButtonPressedBrush"),
+        ("ComboBoxBackgroundDisabled", "NeapButtonDisabledBrush"),
+        ("ComboBoxBorderBrush", "NeapButtonStrokeBrush"),
+        ("ComboBoxBorderBrushPointerOver", "NeapButtonStrokeBrush"),
+        ("ComboBoxBorderBrushPressed", "NeapButtonStrokeBrush"),
+        ("ComboBoxDropDownBackground", "NeapFlyoutBrush"),
+        ("ComboBoxDropDownBorderBrush", "NeapCardStrokeBrush"),
+        ("ComboBoxItemBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("ComboBoxItemBackgroundPressed", "NeapButtonPressedBrush"),
+        ("ComboBoxItemBackgroundSelected", "NeapSelectedBrush"),
+        ("ComboBoxItemBackgroundSelectedPointerOver", "NeapSelectedBrush"),
+        ("ComboBoxItemBackgroundSelectedPressed", "NeapSelectedBrush"),
+        ("ListBoxItemBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("ListBoxItemBackgroundPressed", "NeapButtonPressedBrush"),
+        ("ListBoxItemBackgroundSelected", "NeapSelectedBrush"),
+        ("ListBoxItemBackgroundSelectedPointerOver", "NeapSelectedBrush"),
+        ("ListBoxItemBackgroundSelectedPressed", "NeapSelectedBrush"),
+        ("FlyoutPresenterBackground", "NeapFlyoutBrush"),
+        ("MenuFlyoutPresenterBackground", "NeapFlyoutBrush"),
+        ("AccentButtonBackground", "NeapAccentFillBrush"),
+        ("AccentButtonBackgroundPointerOver", "NeapAccentFillHoverBrush"),
+        ("AccentButtonBackgroundPressed", "NeapAccentFillPressedBrush"),
+        ("AccentButtonForeground", "NeapOnAccentBrush"),
+        ("AccentButtonForegroundPointerOver", "NeapOnAccentBrush"),
+        ("AccentButtonForegroundPressed", "NeapOnAccentBrush"),
+        ("AccentFillColorDefaultBrush", "NeapAccentFillBrush"),
+        ("AccentFillColorSecondaryBrush", "NeapAccentFillHoverBrush"),
+        ("AccentFillColorTertiaryBrush", "NeapAccentFillPressedBrush"),
+        ("SliderTrackValueFill", "NeapAccentFillBrush"),
+        ("SliderTrackValueFillPointerOver", "NeapAccentFillHoverBrush"),
+        ("SliderTrackValueFillPressed", "NeapAccentFillPressedBrush"),
+        ("SliderThumbBackground", "NeapAccentFillBrush"),
+        ("SliderThumbBackgroundPointerOver", "NeapAccentFillHoverBrush"),
+        ("SliderThumbBackgroundPressed", "NeapAccentFillPressedBrush"),
+        ("RadioButtonOuterEllipseCheckedFill", "NeapAccentFillBrush"),
+        ("RadioButtonOuterEllipseCheckedFillPointerOver", "NeapAccentFillHoverBrush"),
+        ("RadioButtonOuterEllipseCheckedFillPressed", "NeapAccentFillPressedBrush"),
+        ("RadioButtonOuterEllipseCheckedStroke", "NeapAccentFillBrush"),
+        ("RadioButtonOuterEllipseCheckedStrokePointerOver", "NeapAccentFillHoverBrush"),
+        ("RadioButtonOuterEllipseCheckedStrokePressed", "NeapAccentFillPressedBrush"),
+        ("RadioButtonCheckGlyphFill", "NeapOnAccentBrush"),
+        ("RadioButtonCheckGlyphFillPointerOver", "NeapOnAccentBrush"),
+        ("RadioButtonCheckGlyphFillPressed", "NeapOnAccentBrush"),
+        ("CheckBoxCheckBackgroundFillChecked", "NeapAccentFillBrush"),
+        ("CheckBoxCheckBackgroundFillCheckedPointerOver", "NeapAccentFillHoverBrush"),
+        ("CheckBoxCheckBackgroundFillCheckedPressed", "NeapAccentFillPressedBrush"),
+        ("CheckBoxCheckBackgroundStrokeChecked", "NeapAccentFillBrush"),
+        ("CheckBoxCheckBackgroundStrokeCheckedPointerOver", "NeapAccentFillHoverBrush"),
+        ("CheckBoxCheckBackgroundStrokeCheckedPressed", "NeapAccentFillPressedBrush"),
+        ("CheckBoxCheckGlyphForegroundChecked", "NeapOnAccentBrush"),
+        ("ToggleSwitchFillOn", "NeapAccentFillBrush"),
+        ("ToggleSwitchFillOnPointerOver", "NeapAccentFillHoverBrush"),
+        ("ToggleSwitchFillOnPressed", "NeapAccentFillPressedBrush"),
+        ("ToggleSwitchKnobFillOn", "NeapOnAccentBrush"),
+        ("ToggleSwitchKnobFillOnPointerOver", "NeapOnAccentBrush"),
+        ("ToggleSwitchKnobFillOnPressed", "NeapOnAccentBrush"),
+        ("ExpanderHeaderBackground", "NeapQuietBrush"),
+        ("ExpanderHeaderBackgroundPointerOver", "NeapQuietHoverBrush"),
+        ("ExpanderHeaderBorderBrush", "NeapCardStrokeBrush"),
+        ("ExpanderContentBorderBrush", "NeapCardStrokeBrush"),
+        ("ButtonForeground", "NeapTextBrush"),
+        ("ButtonForegroundPointerOver", "NeapTextBrush"),
+        ("ButtonForegroundPressed", "NeapTextBrush"),
+        ("ButtonForegroundDisabled", "NeapTextDisabledBrush"),
+        ("AccentButtonBackgroundDisabled", "NeapButtonDisabledBrush"),
+        ("AccentButtonForegroundDisabled", "NeapTextDisabledBrush"),
+        ("ComboBoxBorderBrushDisabled", "NeapButtonDisabledStrokeBrush"),
+        ("ComboBoxBackgroundUnfocused", "NeapButtonBrush"),
+        ("ComboBoxBackgroundBorderBrushUnfocused", "NeapButtonStrokeBrush"),
+        ("ComboBoxBackgroundBorderBrushFocused", "NeapAccentFillBrush"),
+        ("ComboBoxForeground", "NeapTextBrush"),
+        ("ComboBoxForegroundFocused", "NeapTextBrush"),
+        ("ComboBoxForegroundFocusedPressed", "NeapTextBrush"),
+        ("ComboBoxForegroundDisabled", "NeapTextDisabledBrush"),
+        ("ComboBoxDropDownGlyphForeground", "NeapTextSecondaryBrush"),
+        ("ComboBoxDropDownGlyphForegroundFocused", "NeapTextSecondaryBrush"),
+        ("ComboBoxDropDownGlyphForegroundFocusedPressed", "NeapTextSecondaryBrush"),
+        ("ComboBoxDropDownGlyphForegroundDisabled", "NeapTextDisabledBrush"),
+        ("ComboBoxItemForeground", "NeapTextBrush"),
+        ("ComboBoxItemForegroundPointerOver", "NeapTextBrush"),
+        ("ComboBoxItemForegroundPressed", "NeapTextBrush"),
+        ("ComboBoxItemForegroundSelected", "NeapTextBrush"),
+        ("ComboBoxItemForegroundSelectedPointerOver", "NeapTextBrush"),
+        ("ComboBoxItemForegroundSelectedPressed", "NeapTextBrush"),
+        ("ComboBoxItemForegroundDisabled", "NeapTextDisabledBrush"),
+        ("ToggleButtonBackground", "NeapButtonBrush"),
+        ("ToggleButtonBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("ToggleButtonBackgroundPressed", "NeapButtonPressedBrush"),
+        ("ToggleButtonBackgroundDisabled", "NeapButtonDisabledBrush"),
+        ("ToggleButtonBorderBrush", "NeapButtonStrokeBrush"),
+        ("ToggleButtonBorderBrushPointerOver", "NeapButtonStrokeBrush"),
+        ("ToggleButtonBorderBrushPressed", "NeapButtonStrokeBrush"),
+        ("ToggleButtonBorderBrushDisabled", "NeapButtonDisabledStrokeBrush"),
+        ("ToggleButtonForeground", "NeapTextBrush"),
+        ("ToggleButtonForegroundPointerOver", "NeapTextBrush"),
+        ("ToggleButtonForegroundPressed", "NeapTextBrush"),
+        ("ToggleButtonForegroundDisabled", "NeapTextDisabledBrush"),
+        ("ToggleButtonBackgroundChecked", "NeapAccentFillBrush"),
+        ("ToggleButtonBackgroundCheckedPointerOver", "NeapAccentFillHoverBrush"),
+        ("ToggleButtonBackgroundCheckedPressed", "NeapAccentFillPressedBrush"),
+        ("ToggleButtonBorderBrushChecked", "NeapAccentFillBrush"),
+        ("ToggleButtonBorderBrushCheckedPointerOver", "NeapAccentFillHoverBrush"),
+        ("ToggleButtonBorderBrushCheckedPressed", "NeapAccentFillPressedBrush"),
+        ("ToggleButtonForegroundChecked", "NeapOnAccentBrush"),
+        ("ToggleButtonForegroundCheckedPointerOver", "NeapOnAccentBrush"),
+        ("ToggleButtonForegroundCheckedPressed", "NeapOnAccentBrush"),
+        ("ToggleButtonBackgroundCheckedDisabled", "NeapTileOnDisabledBrush"),
+        ("ToggleButtonBorderBrushCheckedDisabled", "NeapTileOnDisabledBrush"),
+        ("ToggleButtonForegroundCheckedDisabled", "NeapTileOnDisabledTextBrush"),
+        ("SliderTrackFill", "NeapDialTrackBrush"),
+        ("SliderTrackFillPointerOver", "NeapDialTrackBrush"),
+        ("SliderTrackFillPressed", "NeapDialTrackBrush"),
+        ("SliderTrackFillDisabled", "NeapDialTrackBrush"),
+        ("SliderTrackValueFillDisabled", "NeapTextDisabledBrush"),
+        ("SliderThumbBackgroundDisabled", "NeapTextDisabledBrush"),
+        ("ToggleSwitchStrokeOff", "NeapControlStrokeBrush"),
+        ("ToggleSwitchStrokeOffPointerOver", "NeapControlStrokeBrush"),
+        ("ToggleSwitchStrokeOffPressed", "NeapControlStrokeBrush"),
+        ("ToggleSwitchKnobFillOff", "NeapControlStrokeBrush"),
+        ("ToggleSwitchKnobFillOffPointerOver", "NeapControlStrokeBrush"),
+        ("ToggleSwitchKnobFillOffPressed", "NeapControlStrokeBrush"),
+        ("ToggleSwitchFillOffPointerOver", "NeapQuietHoverBrush"),
+        ("ToggleSwitchFillOffPressed", "NeapButtonPressedBrush"),
+        ("ToggleSwitchStrokeOn", "NeapAccentFillBrush"),
+        ("ToggleSwitchStrokeOnPointerOver", "NeapAccentFillHoverBrush"),
+        ("ToggleSwitchStrokeOnPressed", "NeapAccentFillPressedBrush"),
+        ("ToggleSwitchStrokeOffDisabled", "NeapTextDisabledBrush"),
+        ("ToggleSwitchKnobFillOffDisabled", "NeapTextDisabledBrush"),
+        ("ToggleSwitchFillOnDisabled", "NeapTextDisabledBrush"),
+        ("ToggleSwitchStrokeOnDisabled", "NeapTextDisabledBrush"),
+        ("ToggleSwitchKnobFillOnDisabled", "NeapPanelBrush"),
+        ("ToggleSwitchContentForeground", "NeapTextBrush"),
+        ("CheckBoxCheckBackgroundStrokeUnchecked", "NeapControlStrokeBrush"),
+        ("CheckBoxCheckBackgroundStrokeUncheckedPointerOver", "NeapControlStrokeBrush"),
+        ("CheckBoxCheckBackgroundStrokeUncheckedPressed", "NeapControlStrokeBrush"),
+        ("CheckBoxCheckBackgroundFillUnchecked", "NeapQuietBrush"),
+        ("CheckBoxCheckBackgroundFillUncheckedPointerOver", "NeapQuietHoverBrush"),
+        ("CheckBoxCheckBackgroundFillUncheckedPressed", "NeapButtonPressedBrush"),
+        ("CheckBoxCheckBackgroundStrokeUncheckedDisabled", "NeapTextDisabledBrush"),
+        ("CheckBoxCheckBackgroundFillCheckedDisabled", "NeapTextDisabledBrush"),
+        ("CheckBoxCheckBackgroundStrokeCheckedDisabled", "NeapTextDisabledBrush"),
+        ("CheckBoxCheckGlyphForegroundCheckedDisabled", "NeapPanelBrush"),
+        ("CheckBoxForegroundUnchecked", "NeapTextBrush"),
+        ("CheckBoxForegroundChecked", "NeapTextBrush"),
+        ("RadioButtonOuterEllipseStroke", "NeapControlStrokeBrush"),
+        ("RadioButtonOuterEllipseStrokePointerOver", "NeapControlStrokeBrush"),
+        ("RadioButtonOuterEllipseStrokePressed", "NeapControlStrokeBrush"),
+        ("RadioButtonOuterEllipseFill", "NeapQuietBrush"),
+        ("RadioButtonOuterEllipseFillPointerOver", "NeapQuietHoverBrush"),
+        ("RadioButtonOuterEllipseFillPressed", "NeapButtonPressedBrush"),
+        ("RadioButtonOuterEllipseStrokeDisabled", "NeapTextDisabledBrush"),
+        ("RadioButtonOuterEllipseCheckedFillDisabled", "NeapTextDisabledBrush"),
+        ("RadioButtonOuterEllipseCheckedStrokeDisabled", "NeapTextDisabledBrush"),
+        ("RadioButtonCheckGlyphFillDisabled", "NeapPanelBrush"),
+        ("RadioButtonForeground", "NeapTextBrush"),
+        ("ExpanderHeaderBackgroundPressed", "NeapQuietHoverBrush"),
+        ("ExpanderHeaderForeground", "NeapTextBrush"),
+        ("ExpanderChevronForeground", "NeapTextSecondaryBrush"),
+        ("ExpanderChevronForegroundPointerOver", "NeapTextSecondaryBrush"),
+        ("ExpanderChevronForegroundPressed", "NeapTextSecondaryBrush"),
+        ("MenuFlyoutPresenterBorderBrush", "NeapCardStrokeBrush"),
+        ("MenuFlyoutItemBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("MenuFlyoutItemBackgroundPressed", "NeapButtonPressedBrush"),
+        ("MenuFlyoutItemForeground", "NeapTextBrush"),
+        ("MenuFlyoutItemForegroundPointerOver", "NeapTextBrush"),
+        ("MenuFlyoutItemForegroundPressed", "NeapTextBrush"),
+        ("MenuFlyoutItemForegroundDisabled", "NeapTextDisabledBrush"),
+        ("TextControlBackground", "NeapButtonBrush"),
+        ("TextControlBackgroundPointerOver", "NeapButtonHoverBrush"),
+        ("TextControlBackgroundFocused", "NeapButtonBrush"),
+        ("TextControlBackgroundDisabled", "NeapButtonDisabledBrush"),
+        ("TextControlBorderBrush", "NeapButtonStrokeBrush"),
+        ("TextControlBorderBrushPointerOver", "NeapButtonStrokeBrush"),
+        ("TextControlBorderBrushFocused", "NeapAccentTextBrush"),
+        ("TextControlBorderBrushDisabled", "NeapButtonDisabledStrokeBrush"),
+    ];
+
+    /// <summary>Toolkit names that show nothing behind them in every theme.</summary>
+    private static readonly string[] Clear = [
+        "ComboBoxItemBackground", "ListBoxItemBackground", "ExpanderContentBackground",
+        "AccentButtonBorderBrush", "AccentButtonBorderBrushPointerOver", "AccentButtonBorderBrushPressed", "AccentButtonBorderBrushDisabled",
+    ];
+
+    /// <summary>Adds the toolkit's names to each of the app's themes, after high contrast is installed.</summary>
+    public static void Install(Application app)
+    {
+        foreach (var variant in new[] { ThemeVariant.Light, ThemeVariant.Dark, HighContrast.OverLight, HighContrast.OverDark })
+        {
+            if (!app.Resources.ThemeDictionaries.TryGetValue(variant, out var provider) || provider is not ResourceDictionary dictionary)
+            {
+                dictionary = [];
+                app.Resources.ThemeDictionaries[variant] = dictionary;
+            }
+            foreach (var (fluent, neap) in Map)
+            {
+                if (app.TryGetResource(neap, variant, out object? brush)) dictionary[fluent] = brush;
+                else AppLog.Write($"theme: no {neap} in {variant}, so {fluent} keeps the toolkit's colour");
+            }
+            foreach (string name in Clear) dictionary[name] = Brushes.Transparent;
+        }
+    }
+}

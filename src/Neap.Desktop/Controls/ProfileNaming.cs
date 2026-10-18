@@ -26,7 +26,7 @@ internal static class ProfileNaming
         var dialog = new NeapDialog
         {
             Heading = title,
-            Body = new StackPanel { Spacing = 8, Children = { field, note } },
+            Body = new StackPanel { Classes = { "dialogflow" }, Children = { field, note } },
             PrimaryButtonText = Strings.Get("Dialog_Save"),
             CloseButtonText = Strings.Get("Dialog_Cancel"),
         };

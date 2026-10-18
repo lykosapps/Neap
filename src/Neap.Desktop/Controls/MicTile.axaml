@@ -2,20 +2,39 @@
     x:Class="Neap.Desktop.Controls.MicTile"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization">
 
-    <ToggleButton x:Name="Face" Classes="tile" IsEnabled="False">
-        <Grid RowDefinitions="*,Auto,Auto" RowSpacing="2">
-            <PathIcon
-                x:Name="Icon"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Data="{StaticResource IconMicrophone}" />
-            <TextBlock
-                loc:Uid.Value="Quick_Microphone"
-                Grid.Row="1"
-                Classes="tiletitle" />
-            <TextBlock x:Name="Word" Grid.Row="2" Classes="tilestate" />
-        </Grid>
-    </ToggleButton>
+    <Grid>
+        <!--
+            Home's tile: a card with the switch in its head, tinted while the
+            microphone is live. The state word under the title says the
+            reason when the switch is out, such as the boom arm being up.
+        -->
+        <Border
+            x:Name="Card"
+            MinHeight="{StaticResource NeapTileMinHeight}"
+            Classes="card">
+            <StackPanel Classes="tilebody">
+                <Grid Classes="tilehead">
+                    <PathIcon
+                        x:Name="Icon"
+                        Classes="tileicon"
+                        AutomationProperties.AccessibilityView="Raw"
+                        Data="{StaticResource IconMicrophone}" />
+                    <ToggleSwitch
+                        x:Name="Face"
+                        Classes="tileswitch"
+                        Theme="{DynamicResource NeapSwitch}"
+                        IsEnabled="False" />
+                </Grid>
+                <TextBlock
+                    loc:Uid.Value="Quick_Microphone"
+                    Classes="tiletitle" />
+                <TextBlock x:Name="Word" Classes="tilestate" />
+            </StackPanel>
+        </Border>
+
+        <c:SettingsCard x:Name="Row" Icon="{StaticResource IconMicrophone}" IsVisible="False" />
+    </Grid>
 </UserControl>

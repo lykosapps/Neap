@@ -24,10 +24,11 @@ namespace Neap.Desktop.Controls;
 /// ten gains under them always agree.
 /// </para>
 /// <para>
-/// The test tone above the plot plays on the headset, so it is heard through
-/// the equaliser being set. It is moved by hand with its slider or swept, and
-/// held where it stands out, to be cut or boosted there. It plays only while
-/// the panel is on screen: leaving the page, hiding the window or going back
+/// The test tone, in a row below the fields that folds away, plays on the
+/// headset, so it is heard through the equaliser being set. It is moved by
+/// hand with its slider or swept, and held where it stands out, to be cut or
+/// boosted there. It plays only while the panel is on screen and the row is
+/// open: leaving the page, hiding the window, folding the row or going back
 /// to the bands stops it.
 /// </para>
 /// <para>
@@ -41,7 +42,7 @@ public partial class ParametricPanel : UserControl
     private const Bank Game = Bank.Game;
 
     /// <summary>The narrowest tone row that holds Cut here and Boost here beside the tone's other controls.</summary>
-    private const double MarksBeside = 640;
+    private const double MarksBeside = 540;
 
     private enum Tone { Off, Sweeping, Held }
 
@@ -60,20 +61,47 @@ public partial class ParametricPanel : UserControl
     private double _frequency = Adjustment.LowestFrequency;
     private double _sweptFrom;
 
-    /// <summary>Raised after the adjustments change, so the equaliser can repaint around them.</summary>
-    public event Action? Changed;
+    /// <summary>
+    /// Raised after the adjustments change, so the equaliser can repaint around
+    /// them, with the name of the burst of edits the change belongs to, or
+    /// null when it stands alone.
+    /// </summary>
+    public event Action<string?>? Changed;
+
+    /// <summary>Raised when a point on the plot starts and stops being dragged, so the changes between are one edit.</summary>
+    public event Action? DragStarted, DragEnded;
+
+    /// <summary>Dims the plot and says the headset is playing flat, while Compare is held.</summary>
+    public bool Flat
+    {
+        set
+        {
+            Shape.Opacity = value ? 0.35 : 1;
+            FlatCaption.IsVisible = value;
+        }
+    }
+
+    /// <summary>The height of the curve, set by the page to fit the window.</summary>
+    public double CurveHeight
+    {
+        get => Shape.Height;
+        set => Shape.Height = value;
+    }
 
     public ParametricPanel()
     {
         InitializeComponent();
 
-        Shape.Frequencies = PresetStore.Game.Frequencies;
+        Shape.Frequencies = Labels();
         Shape.AdjustmentChosen += index =>
         {
             _selected = index;
             Paint();
         };
-        Shape.AdjustmentChanged += Replace;
+        Shape.AdjustmentChanged += (index, adjustment) => Replace(index, adjustment);
+        Shape.AdjustmentNudged += (index, adjustment) => Replace(index, adjustment, "nudge");
+        Shape.DragStarted += () => DragStarted?.Invoke();
+        Shape.DragEnded += () => DragEnded?.Invoke();
 
         AddButton.Click += (_, _) =>
         {
@@ -92,12 +120,12 @@ public partial class ParametricPanel : UserControl
         };
 
         FrequencySlider.ValueChanged += (_, args) =>
-            Edit(a => a with { Frequency = ParametricEq.FrequencyAt(args.NewValue, FrequencySlider.Maximum) });
+            Edit(a => a with { Frequency = ParametricEq.FrequencyAt(args.NewValue, FrequencySlider.Maximum) }, "frequency");
         FrequencyField.Changed += hertz => Edit(a => a with { Frequency = hertz });
         GainSlider.ValueChanged += (_, args) =>
-            Edit(a => a with { Gain = (int)Math.Round(args.NewValue * 10) });
+            Edit(a => a with { Gain = (int)Math.Round(args.NewValue * 10) }, "gain");
         WidthSlider.ValueChanged += (_, args) =>
-            Edit(a => a with { Width = (int)Math.Round(args.NewValue * 10) });
+            Edit(a => a with { Width = (int)Math.Round(args.NewValue * 10) }, "width");
 
         _sweep.Tick += (_, _) => SweepOn();
         SweepButton.Click += async (_, _) => await SweepOrHold();
@@ -116,6 +144,10 @@ public partial class ParametricPanel : UserControl
         CutButton.Click += (_, _) => AddAtTone(boost: false);
         BoostButton.Click += (_, _) => AddAtTone(boost: true);
         ToneRow.SizeChanged += (_, _) => Arrange();
+        ToneExpander.PropertyChanged += (_, change) =>
+        {
+            if (change.Property == Expander.IsExpandedProperty && !ToneExpander.IsExpanded) StopTone();
+        };
 
         BuildSent();
     }
@@ -144,7 +176,7 @@ public partial class ParametricPanel : UserControl
     {
         bool beside = ToneRow.Bounds.Width >= MarksBeside;
         Grid.SetRow(Marks, beside ? 0 : 1);
-        Grid.SetColumn(Marks, beside ? 3 : 0);
+        Grid.SetColumn(Marks, beside ? 2 : 0);
         Grid.SetColumnSpan(Marks, beside ? 1 : ToneRow.ColumnDefinitions.Count);
     }
 
@@ -290,49 +322,51 @@ public partial class ParametricPanel : UserControl
 
     private void BuildSent()
     {
-        var spec = PresetStore.Game;
-        for (int i = 0; i < spec.Frequencies.Count; i++)
+        var labels = Labels();
+        for (int i = 0; i < labels.Count; i++)
         {
             Sent.ColumnDefinitions.Add(new ColumnDefinition(1, GridUnitType.Star));
             var value = new TextBlock { HorizontalAlignment = HorizontalAlignment.Center, Classes = { "numeralstrong" } };
             var hz = new TextBlock
             {
-                Text = spec.Frequencies[i],
+                Text = labels[i],
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Classes = { "caption", "secondary" },
             };
-            var column = new StackPanel { Spacing = 2, Children = { value, hz } };
+            var column = new StackPanel { Spacing = Space.Hairline, Children = { value, hz } };
             Grid.SetColumn(column, i);
             Sent.Children.Add(column);
             _sent.Add(value);
         }
     }
 
+    private static List<string> Labels() => PresetStore.Game.Hertz.Select(hertz => FrequencyText.Of(hertz)).ToList();
+
     private static List<Adjustment> Current() => AppServices.Presets.Adjustments(Game).ToList();
 
-    private void Replace(int index, Adjustment adjustment)
+    private void Replace(int index, Adjustment adjustment, string? burst = null)
     {
         var adjustments = Current();
         if (index >= adjustments.Count) return;
         adjustments[index] = adjustment;
         _selected = index;
-        Commit(adjustments);
+        Commit(adjustments, burst);
     }
 
-    private void Edit(Func<Adjustment, Adjustment> change)
+    private void Edit(Func<Adjustment, Adjustment> change, string? burst = null)
     {
         if (_painting) return;
         var adjustments = Current();
         if (_selected >= adjustments.Count) return;
         var changed = change(adjustments[_selected]).Held();
         if (changed == adjustments[_selected]) return;
-        Replace(_selected, changed);
+        Replace(_selected, changed, burst);
     }
 
-    private void Commit(List<Adjustment> adjustments)
+    private void Commit(List<Adjustment> adjustments, string? burst = null)
     {
         AppServices.Presets.SetAdjustments(Game, adjustments);
-        Changed?.Invoke();
+        Changed?.Invoke(burst);
     }
 
     /// <summary>Shows the adjustments and the gains they fit to, as the preset service has them.</summary>

@@ -1,23 +1,26 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using Neap.Core.Connection;
 using Neap.Core.Profiles;
 
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// The active profile, on every page: its name, an "Edited" mark while the
-/// headset no longer matches it, the way to switch, save or discard, and the
-/// profile an app asked for while that switch waits.
+/// The active profile, at the top of the left menu so it is there on every
+/// page: its name, an "Edited" mark while the headset no longer matches it,
+/// the way to switch, save or discard, and the profile an app asked for while
+/// that switch waits.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Sits in its own row under the title bar rather than inside it: the title
-/// bar has room for a dot and a word, and a profile needs more than that. See
-/// DECISIONS.md.
+/// It takes the menu's width. While the menu shows icons only, it is one
+/// profile icon (<see cref="Compact"/>) that opens the same menu, with the
+/// profile's name as its name and tooltip.
 /// </para>
 /// <para>
 /// Naming and deleting a profile are Settings' job, not this bar's; the one
@@ -38,8 +41,6 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public sealed class ProfileBar : UserControl
 {
-    private const double Gap = 8;
-
     private readonly TextBlock _name = new()
     {
         Classes = { "caption" },
@@ -49,6 +50,8 @@ public sealed class ProfileBar : UserControl
 
     private readonly Border _editedPill;
     private readonly DropDownButton _face;
+    private readonly Button _icon;
+    private readonly Ellipse _editedDot;
     private readonly Button _saveButton;
     private readonly Button _discardButton;
     private readonly Grid _editRow;
@@ -70,10 +73,7 @@ public sealed class ProfileBar : UserControl
 
     private readonly TextBlock _waiting = new()
     {
-        MaxWidth = 240,
-        VerticalAlignment = VerticalAlignment.Center,
-        TextTrimming = Avalonia.Media.TextTrimming.CharacterEllipsis,
-        TextWrapping = Avalonia.Media.TextWrapping.NoWrap,
+        TextWrapping = Avalonia.Media.TextWrapping.Wrap,
         Classes = { "caption", "secondary" },
         IsVisible = false,
     };
@@ -81,6 +81,7 @@ public sealed class ProfileBar : UserControl
     private readonly Flyout _flyout;
     private bool _building;
     private bool _busy;
+    private bool _compact;
 
     public ProfileBar()
     {
@@ -110,7 +111,7 @@ public sealed class ProfileBar : UserControl
 
         // Save and Discard share the row evenly, rather than sitting at
         // their own width with empty space beside them.
-        _editRow = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*"), ColumnSpacing = 8, IsVisible = false };
+        _editRow = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*"), Classes = { "profileface" }, IsVisible = false };
         Grid.SetColumn(_discardButton, 1);
         _editRow.Children.Add(_saveButton);
         _editRow.Children.Add(_discardButton);
@@ -121,9 +122,8 @@ public sealed class ProfileBar : UserControl
         // always here, at a stable spot the list below can't push down.
         var actionsSection = new Border
         {
-            Padding = new Thickness(0, 0, 0, 8),
-            Classes = { "underlined" },
-            Child = new StackPanel { Spacing = 8, Children = { _editRow, _new } },
+            Classes = { "underlined", "profileactions" },
+            Child = new StackPanel { Classes = { "dialogflow" }, Children = { _editRow, _new } },
         };
 
         _flyout = new Flyout
@@ -131,8 +131,7 @@ public sealed class ProfileBar : UserControl
             Placement = PlacementMode.BottomEdgeAlignedLeft,
             Content = new StackPanel
             {
-                MinWidth = 220,
-                Spacing = 4,
+                Classes = { "profilemenu" },
                 Children = { _notice, actionsSection, _list },
             },
         };
@@ -157,7 +156,7 @@ public sealed class ProfileBar : UserControl
         };
 
         // A grid, so the name shortens within whatever width Fit gives it.
-        var faceContent = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"), ColumnSpacing = 8 };
+        var faceContent = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"), Classes = { "profileface" } };
         Grid.SetColumn(_editedPill, 1);
         Grid.SetColumn(_working, 2);
         faceContent.Children.Add(_name);
@@ -167,8 +166,44 @@ public sealed class ProfileBar : UserControl
         // A DropDownButton, not a plain Button: its built-in chevron is the
         // only hint, in the empty "No profile" state, that this is a menu
         // and not a status label.
-        _face = new DropDownButton { Flyout = _flyout, Content = faceContent, HorizontalAlignment = HorizontalAlignment.Left };
+        _face = new DropDownButton
+        {
+            Flyout = _flyout,
+            Content = faceContent,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+        };
         AutomationProperties.SetName(_face, Strings.Get("Profile_Bar"));
+
+        // The icon shows the Edited mark as a dot on its corner.
+        _editedDot = new Ellipse
+        {
+            Classes = { "statusdot" },
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(0, 4, 4, 0),
+            IsHitTestVisible = false,
+            IsVisible = false,
+        };
+        _editedDot[!Shape.FillProperty] = new DynamicResourceExtension("NeapGameTextBrush");
+        double target = (double)Application.Current!.FindResource("NeapNavItemHeight")!;
+        _icon = new Button
+        {
+            Flyout = _flyout,
+            Content = new Grid
+            {
+                Children =
+                {
+                    new PathIcon { Data = (Avalonia.Media.Geometry)Application.Current!.FindResource("IconProfile")!, Width = 20, Height = 20 },
+                    _editedDot,
+                },
+            },
+            Height = target,
+            Padding = new Thickness(0),
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+            IsVisible = false,
+        };
 
         _saveButton.Click += (_, _) =>
         {
@@ -177,7 +212,7 @@ public sealed class ProfileBar : UserControl
             Paint();
             // The menu is already closing; keep focus on the face rather
             // than let it fall back to whatever is next in tab order.
-            _face.Focus();
+            Face.Focus();
         };
 
         _discardButton.Click += async (_, _) =>
@@ -192,21 +227,31 @@ public sealed class ProfileBar : UserControl
             {
                 _busy = false;
                 Paint();
-                _face.Focus();
+                Face.Focus();
             }
         };
 
-        // What is waiting sits beside the name it belongs to; the name
-        // shortens only when the window has no more room (Fit).
+        // What is waiting sits under the name it belongs to.
         AutomationProperties.SetAutomationId(_waiting, "profile_waiting");
         Content = new StackPanel
         {
-            Orientation = Orientation.Horizontal,
-            Spacing = Gap,
-            Children = { _face, _waiting },
+            Spacing = Space.XS,
+            Children = { _face, _icon, _waiting },
         };
-        SizeChanged += (_, _) => Fit();
     }
+
+    /// <summary>Gets or sets whether the bar is one icon, for a menu that shows icons only, rather than the profile's name in full.</summary>
+    public bool Compact
+    {
+        get => _compact;
+        set
+        {
+            _compact = value;
+            Paint();
+        }
+    }
+
+    private Button Face => _compact ? _icon : _face;
 
     protected override async void OnLoaded(RoutedEventArgs e)
     {
@@ -239,11 +284,13 @@ public sealed class ProfileBar : UserControl
         _name.Text = active?.Name ?? Strings.Get("Profile_None");
         _editedPill.IsVisible = edited;
         _editRow.IsVisible = edited && active is not null;
-        AutomationProperties.SetItemStatus(_face, edited ? $"{_name.Text}, {Strings.Get("Profile_Edited")}" : _name.Text);
-
-        // The whole name, where the bar has shortened it. Only when it
-        // changes: setting a tip on the button its list hangs from closes the list.
-        if (ToolTip.GetTip(_face) as string != _name.Text) ToolTip.SetTip(_face, _name.Text);
+        _face.IsVisible = !_compact;
+        _icon.IsVisible = _compact;
+        _editedDot.IsVisible = edited;
+        string status = edited ? $"{_name.Text}, {Strings.Get("Profile_Edited")}" : _name.Text;
+        AutomationProperties.SetItemStatus(_face, status);
+        AutomationProperties.SetItemStatus(_icon, status);
+        AutomationProperties.SetName(_icon, _name.Text);
 
         var ready = AppServices.Profiles.Ready;
         _working.IsVisible = _busy || ready == ProfileReadiness.Reading;
@@ -258,20 +305,13 @@ public sealed class ProfileBar : UserControl
 
         var waiting = AppServices.AutoSwitch.Waiting;
         _waiting.Text = waiting is null ? "" : Strings.Format("Profile_Waiting", waiting.Name);
-        _waiting.IsVisible = waiting is not null;
-        Fit();
-    }
+        _waiting.IsVisible = waiting is not null && !_compact;
 
-    /// <summary>Gives the name whatever width the waiting line leaves.</summary>
-    private void Fit()
-    {
-        double others = 0;
-        if (_waiting.IsVisible)
-        {
-            _waiting.Measure(Size.Infinity);
-            others = _waiting.DesiredSize.Width + Gap;
-        }
-        if (Bounds.Width > 0) _face.MaxWidth = Math.Max(96, Bounds.Width - others);
+        // The whole name, where the bar has shortened it, and in the icon what is waiting too. Only when it
+        // changes: setting a tip on the button its list hangs from closes the list.
+        string tip = _compact && waiting is not null ? $"{_name.Text}. {_waiting.Text}" : _name.Text!;
+        foreach (var button in new Button[] { _face, _icon })
+            if (ToolTip.GetTip(button) as string != tip) ToolTip.SetTip(button, tip);
     }
 
     private void BuildList()
@@ -291,8 +331,7 @@ public sealed class ProfileBar : UserControl
                     string tag = Strings.Get("Profile_DefaultTag");
                     item.Content = new StackPanel
                     {
-                        Orientation = Orientation.Horizontal,
-                        Spacing = 8,
+                        Classes = { "gaprow" },
                         Children =
                         {
                             new TextBlock { Text = profile.Name, VerticalAlignment = VerticalAlignment.Center },

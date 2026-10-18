@@ -5,57 +5,108 @@
     xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization">
 
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="32">
-            <StackPanel Classes="pagecolumn">
+    <UserControl.Styles>
+        <!--
+            One row pattern: a card (Classes="group") holds the rows of one
+            topic. A row has no fill or edge and no rule above it; the space
+            between rows sets them apart, and its control sits in a column of
+            one width so every slider and switch lines up. The rows keep 13px
+            more on the right than the card's own padding, the width of an
+            inset's padding and edge, so a slider in an inset ends where the
+            others do. A row's options
+            (Classes="sub") sit in an inset panel under it.
+        -->
+        <Style Selector="Border.card.group">
+            <Setter Property="Padding" Value="16,16,8,16" />
+        </Style>
+        <Style Selector="Border.group c|SettingsCard">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Padding" Value="0,6,13,6" />
+        </Style>
+        <Style Selector="Border.group Border.options c|SettingsCard">
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style Selector="Border.group c|SettingsCard /template/ ContentPresenter#Control">
+            <Setter Property="MinWidth" Value="230" />
+        </Style>
 
-                <TextBlock loc:Uid.Value="Audio_Title" Classes="pagetitle" />
+        <!-- A link to another page, as quiet as a card: the name on the left, where it goes on the right. -->
+        <Style Selector="Button.rowlink">
+            <Setter Property="Background" Value="{DynamicResource NeapPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeapCardStrokeBrush}" />
+            <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusCard}" />
+            <Setter Property="Padding" Value="{StaticResource NeapPaddingCard}" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+    </UserControl.Styles>
 
-                <c:HeadsetNotice />
+    <c:PageView>
+        <StackPanel>
+
+            <TextBlock loc:Uid.Value="Audio_Title" Classes="pagetitle" />
+
+            <c:HeadsetNotice />
+
+            <!--
+                With the headset off, the whole section is one card: the
+                system's volume goes on working without it, but on nothing
+                the person can hear. See HeadsetSection.WhenOff.
+            -->
+            <c:HeadsetSection loc:Uid.Value="Audio_Section" WhenOff="True">
+                <TextBlock loc:Uid.Value="Audio_AroundYouHeading" Classes="sectionheader" />
 
                 <!--
-                    With the headset off, the whole page is one card: the
-                    system's volume goes on working without it, but on nothing
-                    the person can hear. See HeadsetSection.WhenOff.
+                    One card per topic, so each group stands apart. Noise
+                    cancellation with its three modes, and Superhuman Hearing:
+                    how strong each is, and what it does, are in an inset under
+                    it while it is on. A card is shown only while its row is.
                 -->
-                <c:HeadsetSection loc:Uid.Value="Audio_Section" WhenOff="True">
-                    <!--
-                        Noise control with its three modes, and Superhuman Hearing as
-                        Home's tile, side by side, with how strong each is under it
-                        while it is on.
-                    -->
-                    <c:HeadsetSection loc:Uid.Value="Audio_HeadsetSection">
-                        <TextBlock loc:Uid.Value="Audio_AroundYouHeading" Classes="sectionheader" />
-                        <c:SideBySide>
-                            <c:NoiseControlPanel />
-                            <c:SettingTile
-                                loc:Uid.Value="Audio_ShhTile"
+                <c:HeadsetSection loc:Uid.Value="Audio_HeadsetSection" Spacing="12">
+                    <Border Classes="card group" IsVisible="{Binding #Noise.IsVisible}">
+                        <c:NoiseControlPanel x:Name="Noise" />
+                    </Border>
+                    <Border Classes="card group" IsVisible="{Binding #Shh.IsVisible}">
+                        <StackPanel Spacing="4">
+                            <c:SettingRow
+                                x:Name="Shh"
+                                loc:Uid.Value="Audio_Shh"
                                 Icon="{StaticResource IconHearing}"
-                                Setting="superhuman_hearing">
-                                <c:SettingTile.Inside>
-                                    <StackPanel>
+                                Setting="superhuman_hearing" />
+                            <Border Classes="options" IsVisible="{Binding #ShhType.IsVisible}">
+                                <StackPanel Spacing="4">
                                     <c:SettingRow
+                                        x:Name="ShhType"
                                         loc:Uid.Value="Audio_Type"
+                                        Classes="sub"
                                         AsButtons="True"
+                                        Needs="superhuman_hearing"
                                         Setting="shh_preset" />
                                     <c:SettingRow
                                         loc:Uid.Value="Audio_Intensity"
+                                        Classes="sub"
+                                        Needs="superhuman_hearing"
                                         Setting="shh_level" />
-                                    </StackPanel>
-                                </c:SettingTile.Inside>
-                            </c:SettingTile>
-                        </c:SideBySide>
-                    </c:HeadsetSection>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </c:HeadsetSection>
 
-                    <!--
-                        The system's own volume, with its mute beside it on one line,
-                        and the headset's spoken alerts beside it, so every level is
-                        in one place and neither row is a wide card with a short
-                        slider.
-                    -->
-                    <TextBlock loc:Uid.Value="Audio_VolumeHeading" Classes="sectionheader" />
-                    <c:RoutingNotice Margin="0,0,0,8" Microphone="False" />
-                    <c:SideBySide>
+                <c:RoutingNotice Microphone="False" />
+
+                <!--
+                    The levels: the system's own volume with its mute beside it, the
+                    headset's spoken alerts, and a headset-side level that makes
+                    everything louder, for the "too quiet at maximum" complaint,
+                    which says so on a headset that does not have it. See
+                    LoudnessBoostRow. Spatial sound is Windows only.
+                -->
+                <Border Classes="card group" Margin="{StaticResource NeapCardGap}">
+                    <StackPanel Spacing="8">
+                        <TextBlock loc:Uid.Value="Audio_VolumeHeading" Classes="cardtitle" Margin="0,0,0,4" />
                         <c:SystemVolumeRow
                             loc:Uid.Value="Audio_MasterVolume"
                             Icon="{StaticResource IconVolume}"
@@ -66,33 +117,86 @@
                                 Icon="{StaticResource IconPrompt}"
                                 Setting="voice_prompt_volume" />
                         </c:HeadsetSection>
-                    </c:SideBySide>
+                        <c:LoudnessBoostRow
+                            loc:Uid.Value="Audio_LoudnessBoost"
+                            Icon="{StaticResource IconVolume}" />
+                    </StackPanel>
+                </Border>
 
-                    <!--
-                        A headset-side level that makes everything louder, for the
-                        "too quiet at maximum" complaint. It hides itself on a
-                        headset that does not answer for it; see LoudnessBoostRow.
-                    -->
-                    <c:LoudnessBoostRow
-                        loc:Uid.Value="Audio_LoudnessBoost"
-                        Margin="0,8,0,0"
-                        Icon="{StaticResource IconVolume}" />
-                    <c:SpatialTile Margin="0,16,0,0" AsRow="True" />
+                <Border Classes="card group" Margin="{StaticResource NeapCardGap}" IsVisible="{Binding #Spatial.IsVisible}">
+                    <c:SpatialTile x:Name="Spatial" AsRow="True" />
+                </Border>
 
-                    <!--
-                        Folds without a card of its own: the card that stands in
-                        for noise control above already names the equaliser.
-                    -->
-                    <c:HeadsetSection Explain="False">
-                        <TextBlock
-                            x:Name="EqualiserHeading"
-                            loc:Uid.Value="Audio_EqualiserHeading"
-                            Classes="sectionheader" />
-                        <c:EqualiserPanel Bank="Game" />
-                    </c:HeadsetSection>
+                <c:HeadsetSection Explain="False">
+                    <c:EqualiserLink Bank="Game" Margin="{StaticResource NeapCardGap}" />
+                </c:HeadsetSection>
+            </c:HeadsetSection>
+
+            <!--
+                With the headset off, the whole section is one card, the
+                level included: see HeadsetSection.WhenOff.
+            -->
+            <c:HeadsetSection loc:Uid.Value="Microphone_Section" WhenOff="True">
+                <TextBlock loc:Uid.Value="Microphone_VoiceHeading" Classes="sectionheader" />
+                <c:RoutingNotice Sound="False" />
+
+                <!--
+                    The microphone's switch with its live meter under its name. The
+                    meter listens only while this page is open, since the system
+                    shows its microphone in use light for as long as it does.
+                -->
+                <Border Classes="card group">
+                    <StackPanel Spacing="8">
+                        <c:HeadsetSection Explain="False">
+                            <c:MicTile AsRow="True">
+                                <c:MicTile.Below>
+                                    <c:MicMeter loc:Uid.Value="Microphone_Meter" />
+                                </c:MicTile.Below>
+                            </c:MicTile>
+                        </c:HeadsetSection>
+                        <c:SystemVolumeRow
+                            loc:Uid.Value="Microphone_Sensitivity"
+                            Capture="True"
+                            Icon="{StaticResource IconMicrophone}" />
+                        <c:HeadsetSection Explain="False">
+                            <c:SettingRow
+                                loc:Uid.Value="Microphone_MicMonitoring"
+                                Icon="{StaticResource IconHearing}"
+                                Setting="mic_monitoring" />
+                        </c:HeadsetSection>
+                    </StackPanel>
+                </Border>
+
+                <!-- The gate's threshold is in an inset under it while the gate is on: it means nothing otherwise. -->
+                <c:HeadsetSection loc:Uid.Value="Microphone_HeadsetSection">
+                    <Border Classes="card group" Margin="{StaticResource NeapCardGap}">
+                        <StackPanel Spacing="8">
+                            <TextBlock loc:Uid.Value="Microphone_NoiseHandlingHeading" Classes="cardtitle" Margin="0,0,0,4" />
+                            <c:SettingRow
+                                loc:Uid.Value="Microphone_Ai"
+                                Icon="{StaticResource IconNoise}"
+                                Setting="ai_noise_reduction" />
+                            <c:SettingRow
+                                loc:Uid.Value="Microphone_Gate"
+                                Icon="{StaticResource IconGate}"
+                                Setting="noise_gate" />
+                            <Border Classes="options" IsVisible="{Binding #GateThreshold.IsVisible}">
+                                <c:SettingRow
+                                    x:Name="GateThreshold"
+                                    loc:Uid.Value="Microphone_Threshold"
+                                    Classes="sub"
+                                    Needs="noise_gate"
+                                    Setting="noise_gate_threshold" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
                 </c:HeadsetSection>
 
-            </StackPanel>
-        </Grid>
-    </ScrollViewer>
+                <c:HeadsetSection Explain="False">
+                    <c:EqualiserLink Bank="Mic" Margin="{StaticResource NeapCardGap}" />
+                </c:HeadsetSection>
+            </c:HeadsetSection>
+
+        </StackPanel>
+    </c:PageView>
 </UserControl>

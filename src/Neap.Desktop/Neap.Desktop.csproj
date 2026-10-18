@@ -54,7 +54,10 @@
     <!-- The words: one file, one copy of every sentence, for both systems. -->
     <EmbeddedResource Include="Strings\en-US\Resources.resw" LogicalName="Resources.resw" />
     <AvaloniaResource Include="Assets\logo.png" />
+    <AvaloniaResource Include="Assets\Fonts\*.ttf" />
     <AvaloniaResource Include="Assets\app.ico" />
+    <AvaloniaResource Include="Assets\tray-dark.ico" />
+    <AvaloniaResource Include="Assets\tray-light.ico" />
   </ItemGroup>
 
 </Project>

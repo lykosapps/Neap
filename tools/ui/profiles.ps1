@@ -45,7 +45,7 @@ foreach ($theme in 'dark', 'light') {
 
         if ($Parts.Contains('A') -and $theme -eq 'dark') {
             Section 'the rail'
-            $rail = 'Home', 'Audio', 'Microphone', 'Controls', 'Profiles', 'Device', 'Settings'
+            $rail = 'Home', 'Audio', 'Equaliser', 'Controls', 'Profiles', 'Device', 'Settings'
             $items = foreach ($name in $rail) {
                 Find-All $name | Where-Object { $_.GetSupportedPatterns() -contains [System.Windows.Automation.SelectionItemPattern]::Pattern } | Select-Object -First 1
             }
@@ -61,7 +61,7 @@ foreach ($theme in 'dark', 'light') {
             $texts = @(Get-Texts)
             Check ($texts -contains 'Profiles') 'the page is titled Profiles'
             Check (@($texts -match 'No profiles yet').Count -gt 0) 'it says what to do when none are saved'
-            Check (@($texts -match 'Switch profiles from the bar at the top of the window').Count -gt 0) 'it says where profiles are switched'
+            Check (@($texts -match 'Switch profiles from the top of the menu').Count -gt 0) 'it says where profiles are switched'
             Check ($texts -notcontains 'Default profile') 'there is no default to choose with none saved'
             $new = Find-NewButton
             Check ($null -ne $new) 'a New profile button is on the page'

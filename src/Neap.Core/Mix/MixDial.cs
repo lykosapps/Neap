@@ -36,13 +36,19 @@ public static class MixDial
     public const double ChatEnd = Sweep / 2;
 
     /// <summary>Where the pointer sits for a mix.</summary>
-    public static double AngleOf(int mix) => GameEnd + Sweep * Math.Clamp(mix, 0, 100) / 100.0;
+    public static double AngleOf(double mix) => GameEnd + Sweep * Math.Clamp(mix, 0, 100) / 100.0;
 
     /// <summary>The game arc, from the game end, as long as the game side is loud.</summary>
     public static DialArc GameArc(int mix) => new(GameEnd, GameEnd + Sweep / 2 * MixLevels.GameScale(mix));
 
     /// <summary>The chat arc, back from the chat end, as long as the chat side is loud.</summary>
     public static DialArc ChatArc(int mix) => new(ChatEnd - Sweep / 2 * MixLevels.ChatScale(mix), ChatEnd);
+
+    /// <summary>The game side's live level, from the game end, as long as that share of the game half.</summary>
+    public static DialArc GameLevelArc(float share) => new(GameEnd, GameEnd + Sweep / 2 * Math.Clamp(share, 0, 1));
+
+    /// <summary>The chat side's live level, back from the chat end, as long as that share of the chat half.</summary>
+    public static DialArc ChatLevelArc(float share) => new(ChatEnd - Sweep / 2 * Math.Clamp(share, 0, 1), ChatEnd);
 
     /// <summary>The mix for a point pressed or dragged on the dial.</summary>
     /// <remarks>

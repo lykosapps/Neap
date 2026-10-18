@@ -1,0 +1,67 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Dialogs, the update banner, the profile bar and the status strip: spacing and sizes from the tokens. -->
+
+    <Style Selector="StackPanel.dialog">
+        <Setter Property="Margin" Value="{StaticResource NeapPaddingDialog}" />
+        <Setter Property="Spacing" Value="{StaticResource NeapSpaceL}" />
+    </Style>
+    <Style Selector="StackPanel.dialogbuttons">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Spacing" Value="{StaticResource NeapSpaceS}" />
+    </Style>
+    <Style Selector="Button.dialogbutton">
+        <Setter Property="MinWidth" Value="{StaticResource NeapDialogButtonWidth}" />
+    </Style>
+    <Style Selector="StackPanel.dialogflow">
+        <Setter Property="Spacing" Value="{StaticResource NeapSpaceS}" />
+    </Style>
+    <Style Selector="TextBlock.dialogsection">
+        <Setter Property="Margin" Value="{StaticResource NeapSectionGap}" />
+    </Style>
+    <Style Selector="Control.dialogindent">
+        <Setter Property="Margin" Value="{StaticResource NeapIndent}" />
+    </Style>
+    <Style Selector="Grid.dialogindent">
+        <Setter Property="ColumnSpacing" Value="{StaticResource NeapSpaceS}" />
+    </Style>
+    <Style Selector="ScrollViewer.dialogscroll">
+        <Setter Property="MaxHeight" Value="{StaticResource NeapDialogScrollHeight}" />
+    </Style>
+    <Style Selector="HyperlinkButton.notelink">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+    </Style>
+
+    <Style Selector="StackPanel.gaprow">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Spacing" Value="{StaticResource NeapSpaceS}" />
+    </Style>
+    <Style Selector="StackPanel.updatestatus">
+        <Setter Property="Spacing" Value="6" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Grid.updaterow">
+        <Setter Property="ColumnSpacing" Value="{StaticResource NeapSpaceM}" />
+    </Style>
+
+    <Style Selector="Grid.profileface">
+        <Setter Property="ColumnSpacing" Value="{StaticResource NeapSpaceS}" />
+    </Style>
+    <Style Selector="Border.profileactions">
+        <Setter Property="Padding" Value="0,0,0,8" />
+    </Style>
+    <Style Selector="StackPanel.profilemenu">
+        <Setter Property="MinWidth" Value="{StaticResource NeapMenuWidth}" />
+        <Setter Property="Spacing" Value="{StaticResource NeapSpaceXS}" />
+    </Style>
+
+    <Style Selector="Ellipse.statusdot">
+        <Setter Property="Width" Value="{StaticResource NeapStatusDot}" />
+        <Setter Property="Height" Value="{StaticResource NeapStatusDot}" />
+    </Style>
+</Styles>

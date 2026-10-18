@@ -33,8 +33,11 @@ namespace Neap.Desktop.Controls;
 /// </para>
 /// <para>
 /// Dragging a point moves its adjustment's frequency and gain; the mouse
-/// wheel over it changes its width. The fields under the plot do all of this
-/// from the keyboard, so the plot is hidden from screen readers.
+/// wheel over it changes its width. A point under the pointer shows a halo
+/// and a move cursor; while it is dragged, or moved with the keyboard, it
+/// grows and a bubble beside it reads its frequency and gain. The plot is one
+/// tab stop: Left and Right move the chosen point's frequency, Up and Down
+/// its gain. The fields under the plot do all of this too.
 /// </para>
 /// </remarks>
 public sealed class ParametricCurve : UserControl
@@ -46,6 +49,7 @@ public sealed class ParametricCurve : UserControl
     private const double LabelRoom = 20;
     private const double HandleRadius = 9;
     private const double GrabRadius = 16;
+    private const double BubbleGap = 20;
     private const int Samples = 160;
 
     private readonly Canvas _canvas = new() { Background = Brushes.Transparent, ClipToBounds = true };
@@ -53,9 +57,12 @@ public sealed class ParametricCurve : UserControl
     private readonly Path _heard = new() { Classes = { "curveheard" } };
     private readonly Path _asked = new() { Classes = { "curveasked" }, StrokeDashArray = [4, 3] };
     private readonly List<(Line Line, int Tenths)> _grid = new();
+    private readonly List<TextBlock> _scale = new();
     private readonly List<Line> _ticks = new();
     private readonly List<TextBlock> _labels = new();
-    private readonly List<(Ellipse Grab, Ellipse Dot, TextBlock Number)> _handles = new();
+    private readonly List<(Ellipse Grab, Ellipse Dot, TextBlock Number, Ellipse Halo)> _handles = new();
+    private readonly TextBlock _bubbleText = new() { Classes = { "curvetonetext" } };
+    private readonly Border _bubble = new() { Classes = { "curvetonetag" }, IsHitTestVisible = false, IsVisible = false };
     private readonly Line _toneLine = new() { Classes = { "curvetoneline" }, IsHitTestVisible = false };
     private readonly Ellipse _toneDot = new() { Classes = { "curvetonedot" }, Width = 8, Height = 8, IsHitTestVisible = false };
     private readonly TextBlock _toneText = new() { Classes = { "curvetonetext" } };
@@ -65,6 +72,8 @@ public sealed class ParametricCurve : UserControl
     private int[] _bands = [];
     private int _selected;
     private int _dragging = -1;
+    private int _hover = -1;
+    private bool _keyboard;
     private Point _pressedAt;
     private Adjustment _pressed;
     private double? _tone;
@@ -78,19 +87,29 @@ public sealed class ParametricCurve : UserControl
     /// <summary>Raised when a point is pressed, choosing its adjustment for the fields.</summary>
     public event Action<int>? AdjustmentChosen;
 
+    /// <summary>Raised when a drag begins and when it ends, so the edit made between them can be one step.</summary>
+    public event Action? DragStarted, DragEnded;
+
+    /// <summary>Raised when an arrow key moves the chosen point, with its index and new value.</summary>
+    public event Action<int, Adjustment>? AdjustmentNudged;
+
     public ParametricCurve()
     {
-        AutomationProperties.SetAccessibilityView(this, AccessibilityView.Raw);
+        Focusable = true;
+        IsTabStop = true;
+        AutomationProperties.SetName(this, Strings.Get("Parametric_CurveName"));
+        AutomationProperties.SetHelpText(this, Strings.Get("Parametric_CurveHelp"));
         Content = _canvas;
         _toneTag.Child = _toneText;
+        _bubble.Child = _bubbleText;
         _canvas.SizeChanged += (_, _) => Plot();
         _canvas.PointerMoved += OnPointerMoved;
         _canvas.PointerReleased += (_, args) =>
         {
             args.Pointer.Capture(null);
-            _dragging = -1;
+            FinishDrag();
         };
-        _canvas.PointerCaptureLost += (_, _) => _dragging = -1;
+        _canvas.PointerCaptureLost += (_, _) => FinishDrag();
     }
 
     /// <summary>Marks where the test tone is, or clears the mark when it is not playing.</summary>
@@ -121,6 +140,12 @@ public sealed class ParametricCurve : UserControl
                 var line = new Line { Classes = { tenths == 0 ? "curvecentre" : "curvegrid" } };
                 _grid.Add((line, tenths));
                 _canvas.Children.Add(line);
+
+                // The scale, quiet, on the left edge; the fields carry the values for a screen reader.
+                var mark = new TextBlock { Text = Db.Axis(tenths), Classes = { "caption", "tertiary" }, IsHitTestVisible = false };
+                AutomationProperties.SetAccessibilityView(mark, AccessibilityView.Raw);
+                _scale.Add(mark);
+                _canvas.Children.Add(mark);
             }
 
             for (int i = 0; i < ParametricEq.Centres.Count; i++)
@@ -144,14 +169,16 @@ public sealed class ParametricCurve : UserControl
             _canvas.Children.Add(_toneLine);
             _canvas.Children.Add(_toneDot);
             _canvas.Children.Add(_toneTag);
+            _canvas.Children.Add(_bubble);
         }
 
         while (_handles.Count > _adjustments.Count)
         {
-            var (grab, dot, number) = _handles[^1];
+            var (grab, dot, number, halo) = _handles[^1];
             _canvas.Children.Remove(grab);
             _canvas.Children.Remove(dot);
             _canvas.Children.Remove(number);
+            _canvas.Children.Remove(halo);
             _handles.RemoveAt(_handles.Count - 1);
         }
         while (_handles.Count < _adjustments.Count)
@@ -171,18 +198,33 @@ public sealed class ParametricCurve : UserControl
                 Classes = { "handlenumber" },
                 IsHitTestVisible = false,
             };
+            var halo = new Ellipse
+            {
+                Width = GrabRadius * 2,
+                Height = GrabRadius * 2,
+                Classes = { "bandhalo" },
+                IsHitTestVisible = false,
+                IsVisible = false,
+            };
             var grab = new Ellipse
             {
                 Width = GrabRadius * 2,
                 Height = GrabRadius * 2,
                 Fill = Brushes.Transparent,
+                Cursor = new Cursor(StandardCursorType.SizeAll),
             };
             grab.PointerPressed += (_, args) => BeginDrag(index, args);
             grab.PointerWheelChanged += (_, args) => Widen(index, args);
-            _handles.Add((grab, dot, number));
+            grab.PointerEntered += (_, _) => Hover(index);
+            grab.PointerExited += (_, _) => Hover(-1);
+            _handles.Add((grab, dot, number, halo));
+            _canvas.Children.Add(halo);
             _canvas.Children.Add(dot);
             _canvas.Children.Add(number);
             _canvas.Children.Add(grab);
+            // Over the points made after it, so it is never hidden by one.
+            _canvas.Children.Remove(_bubble);
+            _canvas.Children.Add(_bubble);
         }
 
         for (int i = 0; i < _handles.Count; i++)
@@ -206,11 +248,17 @@ public sealed class ParametricCurve : UserControl
         double width = _canvas.Bounds.Width, height = _canvas.Bounds.Height;
         if (width <= 0 || height <= 0 || _bands.Length == 0) return;
 
-        foreach (var (line, tenths) in _grid)
+        for (int i = 0; i < _grid.Count; i++)
         {
+            var (line, tenths) = _grid[i];
             double y = Y(tenths / 10.0);
             line.StartPoint = new Point(0, y);
             line.EndPoint = new Point(width, y);
+
+            // Above its line, except the top one, which would leave the plot.
+            _scale[i].Measure(Size.Infinity);
+            Canvas.SetLeft(_scale[i], 2);
+            Canvas.SetTop(_scale[i], tenths == Range ? y + 1 : y - _scale[i].DesiredSize.Height);
         }
 
         for (int i = 0; i < _ticks.Count; i++)
@@ -244,7 +292,9 @@ public sealed class ParametricCurve : UserControl
             var adjustment = _adjustments[i];
             double x = X(adjustment.Frequency);
             double y = Y(adjustment.Gain / 10.0);
-            var (grab, dot, number) = _handles[i];
+            var (grab, dot, number, halo) = _handles[i];
+            Canvas.SetLeft(halo, x - GrabRadius);
+            Canvas.SetTop(halo, y - GrabRadius);
             Canvas.SetLeft(dot, x - HandleRadius);
             Canvas.SetTop(dot, y - HandleRadius);
             number.Measure(Size.Infinity);
@@ -254,6 +304,88 @@ public sealed class ParametricCurve : UserControl
             Canvas.SetTop(grab, y - GrabRadius);
         }
         PlaceTone();
+        Highlight();
+    }
+
+    // -- showing which point can be moved ------------------------------------
+
+    private void Hover(int index)
+    {
+        // The pointer is captured while dragging, and leaving the point then is not leaving it.
+        if (_dragging >= 0) return;
+        _hover = index;
+        Highlight();
+    }
+
+    /// <summary>
+    /// Gives the point being pointed at, dragged or moved by the keyboard its
+    /// halo and its size, and a bubble with its frequency and gain while it
+    /// is being moved.
+    /// </summary>
+    private void Highlight()
+    {
+        int moving = _dragging >= 0 ? _dragging : _keyboard && IsKeyboardFocusWithin ? _selected : -1;
+        int lit = moving >= 0 ? moving : _hover;
+        for (int i = 0; i < _handles.Count; i++)
+        {
+            _handles[i].Dot.Classes.Set("active", i == lit);
+            _handles[i].Halo.IsVisible = i == lit;
+            _handles[i].Halo.Classes.Set("focus", i == moving && _dragging < 0);
+        }
+
+        bool bubble = moving >= 0 && moving < _adjustments.Count && _canvas.Bounds.Width > 0;
+        _bubble.IsVisible = bubble;
+        if (!bubble) return;
+
+        var held = _adjustments[moving];
+        _bubbleText.Text = Strings.Format("Parametric_Bubble", FrequencyText.Of(held.Frequency), Db.Text(held.Gain));
+        _bubble.Measure(Size.Infinity);
+        double x = X(held.Frequency), y = Y(held.Gain / 10.0);
+        double size = _bubble.DesiredSize.Width;
+        // Beside the point, on the side with room.
+        double left = x + BubbleGap + size <= _canvas.Bounds.Width ? x + BubbleGap : x - BubbleGap - size;
+        Canvas.SetLeft(_bubble, Math.Max(0, left));
+        Canvas.SetTop(_bubble, Math.Clamp(y - _bubble.DesiredSize.Height / 2, 0, Math.Max(0, _canvas.Bounds.Height - _bubble.DesiredSize.Height)));
+    }
+
+    // -- the keyboard ------------------------------------------------------
+
+    protected override void OnGotFocus(FocusChangedEventArgs e)
+    {
+        base.OnGotFocus(e);
+        if (e.Source != this) return;
+        _keyboard = e.NavigationMethod is NavigationMethod.Tab or NavigationMethod.Directional;
+        Highlight();
+    }
+
+    protected override void OnLostFocus(FocusChangedEventArgs e)
+    {
+        base.OnLostFocus(e);
+        _keyboard = false;
+        Highlight();
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (e.Source != this || _selected >= _adjustments.Count) return;
+
+        bool coarse = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        var (across, up) = e.Key switch
+        {
+            Key.Left => (-1, 0),
+            Key.Right => (1, 0),
+            Key.Up => (0, 1),
+            Key.Down => (0, -1),
+            _ => (0, 0),
+        };
+        if (across == 0 && up == 0) return;
+
+        e.Handled = true;
+        _keyboard = true;
+        var moved = ParametricEq.Nudged(_adjustments[_selected], across, up, coarse);
+        if (moved != _adjustments[_selected]) AdjustmentNudged?.Invoke(_selected, moved);
+        Highlight();
     }
 
     /// <summary>Puts the test tone's line where it is, on the curve heard, with its frequency above.</summary>
@@ -281,11 +413,23 @@ public sealed class ParametricCurve : UserControl
     private void BeginDrag(int index, PointerPressedEventArgs args)
     {
         _dragging = index;
+        _keyboard = false;
         _pressedAt = args.GetPosition(_canvas);
         _pressed = _adjustments[index];
+        Focus(NavigationMethod.Pointer);
         args.Pointer.Capture(_canvas);
         args.Handled = true;
+        DragStarted?.Invoke();
         AdjustmentChosen?.Invoke(index);
+        Highlight();
+    }
+
+    private void FinishDrag()
+    {
+        if (_dragging < 0) return;
+        _dragging = -1;
+        Highlight();
+        DragEnded?.Invoke();
     }
 
     private void OnPointerMoved(object? sender, PointerEventArgs args)

@@ -38,6 +38,6 @@
 
         <c:Notice
             x:Name="Notice"
-            Margin="0,4,0,0" />
+            Margin="{StaticResource NeapSectionGap}" />
     </StackPanel>
 </UserControl>

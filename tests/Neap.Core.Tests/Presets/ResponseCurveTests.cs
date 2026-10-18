@@ -68,4 +68,11 @@ public class ResponseCurveTests
             Assert.True(a * a + b * b <= 9 + 1e-9);
         }
     }
+
+    [Fact]
+    public void AnArrowKeyMovesOneStepOfTheHeadsetAndShiftMovesFour()
+    {
+        Assert.Equal(PresetStore.BandStep, ResponseCurve.KeyStep(coarse: false));
+        Assert.Equal(4 * PresetStore.BandStep, ResponseCurve.KeyStep(coarse: true));
+    }
 }

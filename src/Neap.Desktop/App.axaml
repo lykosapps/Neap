@@ -5,6 +5,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Neap.Desktop/Themes/Tokens.axaml" />
                 <ResourceInclude Source="avares://Neap.Desktop/Themes/Icons.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -14,6 +15,8 @@
         <StyleInclude Source="avares://Neap.Desktop/Themes/Neap.axaml" />
         <StyleInclude Source="avares://Neap.Desktop/Themes/Dial.axaml" />
         <StyleInclude Source="avares://Neap.Desktop/Themes/Tiles.axaml" />
+        <StyleInclude Source="avares://Neap.Desktop/Themes/Controls.axaml" />
         <StyleInclude Source="avares://Neap.Desktop/Themes/Curves.axaml" />
+        <StyleInclude Source="avares://Neap.Desktop/Themes/Dialogs.axaml" />
     </Application.Styles>
 </Application>

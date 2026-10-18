@@ -7,7 +7,7 @@ namespace Neap.Desktop.Controls;
 
 /// <summary>
 /// A headset setting with a few named options, such as what the lower dial
-/// does, laid out as a panel with every option in view as a radio button.
+/// does, laid out as a panel with every option in view as a full-width row holding a radio button.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -37,7 +37,7 @@ public sealed class SettingChoice : UserControl
     public static readonly StyledProperty<string> DescriptionProperty =
         AvaloniaProperty.Register<SettingChoice, string>(nameof(Description), "");
 
-    private readonly StackPanel _options = new() { Spacing = 4, IsEnabled = false };
+    private readonly StackPanel _options = new() { Spacing = Space.S, IsEnabled = false };
     private readonly TextBlock _title = new() { Classes = { "cardtitle" } };
     private readonly TextBlock _description = new() { Classes = { "caption", "secondary" } };
     private readonly SettingLink _link;
@@ -48,7 +48,7 @@ public sealed class SettingChoice : UserControl
         Content = new Border
         {
             Classes = { "card" },
-            Child = new StackPanel { Spacing = 8, Children = { _title, _description, _options } },
+            Child = new StackPanel { Spacing = Space.S, Children = { _title, _description, _options } },
         };
         _link = new SettingLink(this, () => Setting, Build, Paint);
     }
@@ -91,14 +91,11 @@ public sealed class SettingChoice : UserControl
     private void Build(SettingKey key)
     {
         AutomationProperties.SetAutomationId(_options, key.Name);
+        NeapControls.AsGroup(_options);
         foreach (var option in key.Options ?? new Dictionary<int, string>())
         {
-            var button = new RadioButton
-            {
-                Content = OptionNames.For(key, option.Key),
-                Tag = option.Key,
-                GroupName = key.Name,
-            };
+            var button = NeapControls.ChoiceRow(OptionNames.For(key, option.Key), key.Name);
+            button.Tag = option.Key;
             button.IsCheckedChanged += (_, _) =>
             {
                 if (!_painting && button.IsChecked == true) _link.Write(option.Key);

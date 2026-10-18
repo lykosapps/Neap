@@ -27,11 +27,11 @@
   <data name="Main_NavAudio.AccessKey" xml:space="preserve">
     <value>A</value>
   </data>
-  <data name="Main_NavMicrophone.Content" xml:space="preserve">
-    <value>Microphone</value>
+  <data name="Main_NavEqualiser.Content" xml:space="preserve">
+    <value>Equaliser</value>
   </data>
-  <data name="Main_NavMicrophone.AccessKey" xml:space="preserve">
-    <value>M</value>
+  <data name="Main_NavEqualiser.AccessKey" xml:space="preserve">
+    <value>E</value>
   </data>
   <data name="Main_NavControls.Content" xml:space="preserve">
     <value>Controls</value>
@@ -58,10 +58,46 @@
     <value>S</value>
   </data>
   <data name="Main_TrayOpen" xml:space="preserve">
-    <value>Open</value>
+    <value>Open Neap</value>
+  </data>
+  <data name="Main_TrayMini" xml:space="preserve">
+    <value>Mini panel</value>
+  </data>
+  <data name="Mini_Open.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Open Neap</value>
+  </data>
+  <data name="Mini_Open.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Open Neap</value>
+  </data>
+  <data name="Mini_Section.What" xml:space="preserve">
+    <value>Microphone, noise cancellation and equaliser</value>
+  </data>
+  <data name="Mini_Noise.Header" xml:space="preserve">
+    <value>Noise cancellation</value>
+  </data>
+  <data name="Mini_Equaliser.Header" xml:space="preserve">
+    <value>Equaliser</value>
+  </data>
+  <data name="Mini_ChooseApps.Content" xml:space="preserve">
+    <value>Choose in Neap</value>
   </data>
   <data name="Main_TrayQuit" xml:space="preserve">
     <value>Quit</value>
+  </data>
+  <data name="EqualiserPage_Title.Text" xml:space="preserve">
+    <value>Equaliser</value>
+  </data>
+  <data name="EqualiserPage_Section.What" xml:space="preserve">
+    <value>The equaliser</value>
+  </data>
+  <data name="EqualiserPage_Bank.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Equaliser to edit</value>
+  </data>
+  <data name="EqualiserPage_Game.Content" xml:space="preserve">
+    <value>Game</value>
+  </data>
+  <data name="EqualiserPage_Mic.Content" xml:space="preserve">
+    <value>Microphone</value>
   </data>
   <data name="Equaliser_Edited.Text" xml:space="preserve">
     <value>Edited</value>
@@ -166,13 +202,7 @@
     <value>Audio</value>
   </data>
   <data name="Audio_Section.What" xml:space="preserve">
-    <value>Volume, noise cancellation and the equaliser</value>
-  </data>
-  <data name="Audio_VolumeHeading.Text" xml:space="preserve">
-    <value>Volume</value>
-  </data>
-  <data name="Audio_VoicePrompts.Description" xml:space="preserve">
-    <value>How loud the headset's spoken alerts are.</value>
+    <value>Noise cancellation, volume and spatial sound</value>
   </data>
   <data name="Audio_VoicePrompts.Header" xml:space="preserve">
     <value>Voice prompts</value>
@@ -180,41 +210,32 @@
   <data name="Audio_MasterVolume.Header" xml:space="preserve">
     <value>Master volume</value>
   </data>
-  <data name="Audio_MasterVolume.Description" xml:space="preserve">
-    <value>The volume wheel on the headset moves this too.</value>
-  </data>
   <data name="Audio_LoudnessBoost.Header" xml:space="preserve">
-    <value>Max loudness boost (Stealth Pro II only)</value>
-  </data>
-  <data name="Audio_LoudnessBoost.Description" xml:space="preserve">
-    <value>Makes game sound through the dock louder.</value>
+    <value>Loudness boost</value>
   </data>
   <data name="Audio_HeadsetSection.What" xml:space="preserve">
-    <value>Noise cancellation, Superhuman Hearing and the equaliser</value>
+    <value>Noise cancellation and Superhuman Hearing</value>
   </data>
   <data name="Audio_AroundYouHeading.Text" xml:space="preserve">
-    <value>Around you</value>
+    <value>What you hear</value>
   </data>
-  <data name="Audio_ShhTile.Title" xml:space="preserve">
+  <data name="Audio_VolumeHeading.Text" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="Audio_Shh.Header" xml:space="preserve">
     <value>Superhuman Hearing</value>
   </data>
-  <data name="Audio_ShhTile.Description" xml:space="preserve">
+  <data name="Audio_Shh.Description" xml:space="preserve">
     <value>Makes footsteps and quiet sounds easier to hear.</value>
   </data>
   <data name="Audio_Type.Header" xml:space="preserve">
-    <value>Type</value>
+    <value>Sound</value>
   </data>
   <data name="Audio_Intensity.Header" xml:space="preserve">
-    <value>Intensity</value>
+    <value>Strength</value>
   </data>
   <data name="Spatial_Row.Header" xml:space="preserve">
     <value>Spatial sound</value>
-  </data>
-  <data name="Spatial_RowButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Spatial sound</value>
-  </data>
-  <data name="Audio_EqualiserHeading.Text" xml:space="preserve">
-    <value>Equaliser</value>
   </data>
   <data name="Controls_Title.Text" xml:space="preserve">
     <value>Controls</value>
@@ -381,20 +402,11 @@
   <data name="Transmitters_Note.Text" xml:space="preserve">
     <value>Your headset uses one at a time. Press CrossPlay on the headset to switch between them.</value>
   </data>
-  <data name="Microphone_Title.Text" xml:space="preserve">
-    <value>Microphone</value>
-  </data>
   <data name="Microphone_Section.What" xml:space="preserve">
-    <value>Mute, level, monitoring, noise reduction, the noise gate and the equaliser</value>
+    <value>Microphone, level, monitoring, noise reduction and the noise gate</value>
   </data>
   <data name="Microphone_VoiceHeading.Text" xml:space="preserve">
-    <value>Your voice</value>
-  </data>
-  <data name="Microphone_LevelLabel.Text" xml:space="preserve">
-    <value>What they hear</value>
-  </data>
-  <data name="Microphone_LevelNote.Text" xml:space="preserve">
-    <value>Speak to see it move.</value>
+    <value>Your microphone</value>
   </data>
   <data name="Microphone_Meter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Microphone level</value>
@@ -402,8 +414,8 @@
   <data name="Microphone_MeterUnavailable" xml:space="preserve">
     <value>The level can't be shown. Check that apps may use the microphone in your system's privacy settings.</value>
   </data>
-  <data name="Microphone_Sensitivity.Description" xml:space="preserve">
-    <value>How loud you come through.</value>
+  <data name="Microphone_NoiseHandlingHeading.Text" xml:space="preserve">
+    <value>Background noise</value>
   </data>
   <data name="Microphone_Sensitivity.Header" xml:space="preserve">
     <value>Sensitivity</value>
@@ -412,34 +424,28 @@
     <value>Hear your own voice in the headset.</value>
   </data>
   <data name="Microphone_MicMonitoring.Header" xml:space="preserve">
-    <value>Mic monitoring</value>
+    <value>Microphone monitoring</value>
   </data>
   <data name="Microphone_HeadsetSection.What" xml:space="preserve">
-    <value>Mute, monitoring, noise reduction, the noise gate and the equaliser</value>
+    <value>Microphone, monitoring, noise reduction and the noise gate</value>
   </data>
-  <data name="Microphone_NoiseHandlingHeading.Text" xml:space="preserve">
-    <value>Background noise</value>
+  <data name="Microphone_Ai.Description" xml:space="preserve">
+    <value>Removes background noise from what others hear.</value>
   </data>
-  <data name="Microphone_AiTile.Description" xml:space="preserve">
-    <value>Removes background noise from your voice.</value>
+  <data name="Microphone_Ai.Header" xml:space="preserve">
+    <value>Noise reduction</value>
   </data>
-  <data name="Microphone_AiTile.Title" xml:space="preserve">
-    <value>AI noise reduction</value>
-  </data>
-  <data name="Microphone_GateTile.Description" xml:space="preserve">
+  <data name="Microphone_Gate.Description" xml:space="preserve">
     <value>Stays silent until you speak.</value>
   </data>
-  <data name="Microphone_GateTile.Title" xml:space="preserve">
+  <data name="Microphone_Gate.Header" xml:space="preserve">
     <value>Noise gate</value>
   </data>
   <data name="Microphone_Threshold.Description" xml:space="preserve">
-    <value>How loud you have to be before the gate opens.</value>
+    <value>How loud you have to be to be heard.</value>
   </data>
   <data name="Microphone_Threshold.Header" xml:space="preserve">
     <value>Threshold</value>
-  </data>
-  <data name="Microphone_EqualiserHeading.Text" xml:space="preserve">
-    <value>Equaliser</value>
   </data>
   <data name="Settings_Title.Text" xml:space="preserve">
     <value>Settings</value>
@@ -447,8 +453,17 @@
   <data name="Settings_StartWithWindows.Description" xml:space="preserve">
     <value>Starts in the notification area.</value>
   </data>
+  <data name="Settings_MiniPanel.Header" xml:space="preserve">
+    <value>Mini panel</value>
+  </data>
+  <data name="Settings_MiniPanel.Description" xml:space="preserve">
+    <value>A click on the icon by the clock opens quick controls instead of the window.</value>
+  </data>
   <data name="Settings_StartMinimised" xml:space="preserve">
     <value>Starts minimised, as this desktop has no notification area.</value>
+  </data>
+  <data name="Settings_StartPractice" xml:space="preserve">
+    <value>Practice runs can't change this.</value>
   </data>
   <data name="Settings_StartWithWindows.Header" xml:space="preserve">
     <value>Start when you sign in</value>
@@ -664,22 +679,43 @@
     <value>Your system won't allow this one. Pick another.</value>
   </data>
   <data name="Preset_NotRead" xml:space="preserve">
-    <value>The presets haven't been read yet.</value>
+    <value>Couldn't read the presets. Try again.</value>
   </data>
   <data name="Preset_NeedsName" xml:space="preserve">
     <value>A preset needs a name.</value>
   </data>
   <data name="Preset_TooLong" xml:space="preserve">
-    <value>{0} characters is as long as a preset name can be.</value>
+    <value>Names can be {0} characters at most.</value>
   </data>
   <data name="Preset_Full" xml:space="preserve">
-    <value>All 5 slots are full. Delete one first.</value>
+    <value>All {0} slots are used. Delete one first.</value>
   </data>
   <data name="Preset_Missing" xml:space="preserve">
     <value>There's no custom preset called {0}.</value>
   </data>
   <data name="Preset_Unreadable" xml:space="preserve">
-    <value>Couldn't read the current equaliser.</value>
+    <value>Couldn't read the current equaliser. Try again.</value>
+  </data>
+  <data name="Preset_SignatureSound" xml:space="preserve">
+    <value>Signature Sound</value>
+  </data>
+  <data name="Preset_BassBoost" xml:space="preserve">
+    <value>Bass Boost</value>
+  </data>
+  <data name="Preset_BassTrebleBoost" xml:space="preserve">
+    <value>Bass &amp; Treble Boost</value>
+  </data>
+  <data name="Preset_VocalBoost" xml:space="preserve">
+    <value>Vocal Boost</value>
+  </data>
+  <data name="Preset_MicFull" xml:space="preserve">
+    <value>Full</value>
+  </data>
+  <data name="Preset_Clarity" xml:space="preserve">
+    <value>Clarity</value>
+  </data>
+  <data name="Preset_Smooth" xml:space="preserve">
+    <value>Smooth</value>
   </data>
   <data name="Profile_GiveName" xml:space="preserve">
     <value>A profile needs a name.</value>
@@ -730,7 +766,7 @@
     <value>Profiles</value>
   </data>
   <data name="Profiles_Note.Text" xml:space="preserve">
-    <value>Switch profiles from the bar at the top of the window. A profile with apps comes on when one of them starts, or starts using the microphone, and the default comes back when they stop.</value>
+    <value>Switch profiles from the top of the menu. A profile with apps comes on when one of them starts, or starts using the microphone, and the default comes back when they stop.</value>
   </data>
   <data name="Profiles_Empty" xml:space="preserve">
     <value>No profiles yet. Set the headset up the way you want, then choose New profile.</value>
@@ -786,6 +822,9 @@
   <data name="Profile_Waiting" xml:space="preserve">
     <value>Waiting to switch to {0}</value>
   </data>
+  <data name="Profile_InUse" xml:space="preserve">
+    <value>In use</value>
+  </data>
   <data name="Profile_NoApps" xml:space="preserve">
     <value>Not assigned to any app</value>
   </data>
@@ -810,11 +849,8 @@
   <data name="Audio_NoDevice" xml:space="preserve">
     <value>No audio device</value>
   </data>
-  <data name="Equaliser_BackTo" xml:space="preserve">
-    <value>Revert to {0} dB</value>
-  </data>
   <data name="Equaliser_Band" xml:space="preserve">
-    <value>{0}   {1} dB</value>
+    <value>{0} band, {1} dB</value>
   </data>
   <data name="Equaliser_DeleteNamed" xml:space="preserve">
     <value>Delete {0}</value>
@@ -826,22 +862,19 @@
     <value>Reading the presets from your headset…</value>
   </data>
   <data name="Equaliser_Unreadable" xml:space="preserve">
-    <value>Can't read the equaliser right now.</value>
+    <value>Couldn't read the equaliser. Try again.</value>
   </data>
   <data name="Equaliser_PresetsLabel.Text" xml:space="preserve">
     <value>Presets</value>
   </data>
-  <data name="Equaliser_PresetPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Equaliser preset</value>
+  <data name="Equaliser_GamePresets" xml:space="preserve">
+    <value>Game equaliser preset</value>
+  </data>
+  <data name="Equaliser_MicPresets" xml:space="preserve">
+    <value>Microphone equaliser preset</value>
   </data>
   <data name="Equaliser_FreeSlots" xml:space="preserve">
-    <value>{0} slots free.</value>
-  </data>
-  <data name="Equaliser_OneFreeSlot" xml:space="preserve">
-    <value>1 slot free.</value>
-  </data>
-  <data name="Equaliser_NoFreeSlots" xml:space="preserve">
-    <value>No slots free. Delete one of yours to save another.</value>
+    <value>{0} of {1} slots free</value>
   </data>
   <data name="Equaliser_KeepNamed" xml:space="preserve">
     <value>Keep {0}</value>
@@ -868,13 +901,7 @@
     <value>You already have a preset called {0}. Choose another name.</value>
   </data>
   <data name="Equaliser_SlotsFull" xml:space="preserve">
-    <value>All 5 slots are full. Delete one first, or save over the preset this came from.</value>
-  </data>
-  <data name="Equaliser_SlotsFree" xml:space="preserve">
-    <value>{0} of 5 slots free.</value>
-  </data>
-  <data name="Equaliser_NameAtLimit" xml:space="preserve">
-    <value>That's as long as a name can be.</value>
+    <value>All {0} slots are used. Delete one first, or save over the preset this came from.</value>
   </data>
   <data name="Equaliser_PutBack" xml:space="preserve">
     <value>Revert to {0} dB</value>
@@ -943,7 +970,7 @@
     <value>Your headset keeps using these. Switch it off and on again to change them here.</value>
   </data>
   <data name="Mix_Playing" xml:space="preserve">
-    <value>{0}  ·  playing</value>
+    <value>{0} is playing</value>
   </data>
   <data name="Mix_NothingPlaying.Title" xml:space="preserve">
     <value>Nothing is playing to the headset yet</value>
@@ -1025,7 +1052,19 @@
     <value>Headset level: {0} dB</value>
   </data>
   <data name="LoudnessBoost_Caution" xml:space="preserve">
-    <value>Turn it up slowly to protect your hearing, and back off if it distorts.</value>
+    <value>Turn it up slowly to protect your hearing.</value>
+  </data>
+  <data name="LoudnessBoost_Unsupported" xml:space="preserve">
+    <value>Stealth Pro II only</value>
+  </data>
+  <data name="Equaliser_Open" xml:space="preserve">
+    <value>Open →</value>
+  </data>
+  <data name="Equaliser_LinkNamed" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Equaliser_LinkSpoken" xml:space="preserve">
+    <value>Open {0}</value>
   </data>
   <data name="Volume_Mute" xml:space="preserve">
     <value>Mute</value>
@@ -1066,11 +1105,8 @@
   <data name="Quick_PresetParametric" xml:space="preserve">
     <value>{0}, parametric</value>
   </data>
-  <data name="Quick_OpenEqualiser.Text" xml:space="preserve">
-    <value>Open the equaliser</value>
-  </data>
-  <data name="Quick_OpenEqualiserButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Open the equaliser</value>
+  <data name="Quick_EqualiserSettings.Content" xml:space="preserve">
+    <value>Equaliser settings</value>
   </data>
   <data name="Home_Through" xml:space="preserve">
     <value>Connected through the {0}</value>
@@ -1091,7 +1127,7 @@
     <value>{0}%</value>
   </data>
   <data name="Home_BatterySettling" xml:space="preserve">
-    <value>Settling…</value>
+    <value>Reading…</value>
   </data>
   <data name="Battery_Charging" xml:space="preserve">
     <value>Charging</value>
@@ -1360,7 +1396,7 @@
     <value>Voice prompts</value>
   </data>
   <data name="Feature_NoiseControl" xml:space="preserve">
-    <value>Noise control</value>
+    <value>Noise cancellation</value>
   </data>
   <data name="Feature_SuperhumanHearing" xml:space="preserve">
     <value>Superhuman Hearing</value>
@@ -1372,10 +1408,10 @@
     <value>Microphone</value>
   </data>
   <data name="Feature_MicMonitoring" xml:space="preserve">
-    <value>Mic monitoring</value>
+    <value>Microphone monitoring</value>
   </data>
   <data name="Feature_AiNoiseReduction" xml:space="preserve">
-    <value>AI noise reduction</value>
+    <value>Noise reduction</value>
   </data>
   <data name="Feature_NoiseGate" xml:space="preserve">
     <value>Noise gate</value>
@@ -1411,10 +1447,10 @@
     <value>{0} with a pretend headset</value>
   </data>
   <data name="Quick_NoiseTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Noise control</value>
+    <value>Noise cancellation</value>
   </data>
   <data name="Quick_NoiseControl.Text" xml:space="preserve">
-    <value>Noise control</value>
+    <value>Noise cancellation</value>
   </data>
   <data name="Quick_ShhTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Superhuman Hearing</value>
@@ -1422,23 +1458,20 @@
   <data name="Quick_Shh.Text" xml:space="preserve">
     <value>Superhuman Hearing</value>
   </data>
-  <data name="Quick_SpatialTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Spatial sound</value>
+  <data name="Quick_ShhSounds.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Superhuman Hearing sound</value>
   </data>
   <data name="Quick_Spatial.Text" xml:space="preserve">
     <value>Spatial sound</value>
   </data>
-  <data name="Quick_SpatialList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Spatial sound formats</value>
-  </data>
   <data name="Noise_Title" xml:space="preserve">
-    <value>Noise control</value>
+    <value>Noise cancellation</value>
   </data>
   <data name="Noise_Description" xml:space="preserve">
-    <value>Blocks the room around you, or lets it in.</value>
+    <value>Blocks the room in your headset, or lets it in.</value>
   </data>
   <data name="Noise_Cancelling" xml:space="preserve">
-    <value>Noise cancellation</value>
+    <value>Cancelling</value>
   </data>
   <data name="Noise_Transparency" xml:space="preserve">
     <value>Transparency</value>
@@ -1447,13 +1480,10 @@
     <value>Off</value>
   </data>
   <data name="Noise_Blocking" xml:space="preserve">
-    <value>Blocking</value>
-  </data>
-  <data name="Noise_BlockingDescription" xml:space="preserve">
-    <value>How much of the room noise cancellation keeps out.</value>
+    <value>Strength</value>
   </data>
   <data name="Mode_NoiseCycle" xml:space="preserve">
-    <value>Noise cancellation, transparency and off</value>
+    <value>Noise cancellation: cancelling, transparency and off</value>
   </data>
   <data name="Mode_NoiseCycleNeedsApp" xml:space="preserve">
     <value>Works while Neap is running. Otherwise the button turns noise cancellation on and off.</value>
@@ -1469,6 +1499,9 @@
   </data>
   <data name="Parametric_Asked.Text" xml:space="preserve">
     <value>Your curve</value>
+  </data>
+  <data name="Parametric_Gap.Text" xml:space="preserve">
+    <value>Out of reach</value>
   </data>
   <data name="Parametric_Heard.Text" xml:space="preserve">
     <value>What you'll hear</value>
@@ -1515,6 +1548,9 @@
   <data name="Parametric_SentExpander.Header" xml:space="preserve">
     <value>Sent to the headset</value>
   </data>
+  <data name="Tone_Title.Header" xml:space="preserve">
+    <value>Test tone</value>
+  </data>
   <data name="Parametric_Hertz" xml:space="preserve">
     <value>{0} Hz</value>
   </data>
@@ -1525,7 +1561,7 @@
     <value>{0} dB</value>
   </data>
   <data name="Parametric_Octaves" xml:space="preserve">
-    <value>{0} oct</value>
+    <value>{0} octaves</value>
   </data>
   <data name="Parametric_Chip" xml:space="preserve">
     <value>{0} · {1}</value>
@@ -1535,9 +1571,6 @@
   </data>
   <data name="Parametric_RemoveNamed" xml:space="preserve">
     <value>Remove adjustment {0}</value>
-  </data>
-  <data name="Tone_Label.Text" xml:space="preserve">
-    <value>Test tone</value>
   </data>
   <data name="Tone_Sweep" xml:space="preserve">
     <value>Sweep</value>
@@ -1570,7 +1603,7 @@
     <value>Boost here</value>
   </data>
   <data name="Tone_HowTo.Text" xml:space="preserve">
-    <value>Slide through the range or press Sweep. Cut where the tone jumps out, boost where it drops away, then set the gain until it sounds even.</value>
+    <value>Slide through the tones. Cut where one jumps out, boost where one fades.</value>
   </data>
   <data name="Tone_CouldNotPlay" xml:space="preserve">
     <value>The test tone can't play: {0}</value>
@@ -1619,7 +1652,7 @@
     <value>30 minutes</value>
   </data>
   <data name="Dial_MicMonitoring" xml:space="preserve">
-    <value>Mic monitoring volume</value>
+    <value>Microphone monitoring volume</value>
     <comment>What the headset's lower dial does.</comment>
   </data>
   <data name="Dial_Mix" xml:space="preserve">
@@ -1658,7 +1691,7 @@
     <value>Off</value>
   </data>
   <data name="Spatial_Unrecognised" xml:space="preserve">
-    <value>Something else</value>
+    <value>Another format</value>
     <comment>A spatial sound format is on, set outside Neap, that Neap does not know by name.</comment>
   </data>
   <data name="Spatial_WindowsSonic" xml:space="preserve">
@@ -1683,7 +1716,7 @@
     <value>Couldn't change spatial sound</value>
   </data>
   <data name="Spatial_Refused" xml:space="preserve">
-    <value>Your system wouldn't switch the headset to {0}.</value>
+    <value>Your system didn't switch to {0}. Try again, or choose it in your system's sound settings.</value>
   </data>
   <data name="Spatial_NoHeadset" xml:space="preserve">
     <value>Connect the headset to choose its spatial sound.</value>
@@ -1702,5 +1735,47 @@
   </data>
   <data name="State_MixWithDial" xml:space="preserve">
     <value>You can still move the mix with the dial.</value>
+  </data>
+  <data name="Equaliser_Compare.Content" xml:space="preserve">
+    <value>Compare</value>
+  </data>
+  <data name="Equaliser_Compare.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Hold to hear it flat</value>
+  </data>
+  <data name="Equaliser_Flat.Text" xml:space="preserve">
+    <value>Hearing it flat</value>
+  </data>
+  <data name="Equaliser_CompareFlatFailed" xml:space="preserve">
+    <value>Couldn't play it flat. Let go of Compare to put your curve back.</value>
+  </data>
+  <data name="Equaliser_CompareRestoreFailed" xml:space="preserve">
+    <value>Couldn't put your curve back on the headset. Hold Compare and let go to try again.</value>
+  </data>
+  <data name="Equaliser_Undo.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Equaliser_Undo.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Equaliser_Redo.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="Equaliser_Redo.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="Equaliser_CurveName" xml:space="preserve">
+    <value>Equaliser curve</value>
+  </data>
+  <data name="Equaliser_CurveHelp" xml:space="preserve">
+    <value>Left and Right choose a band. Up and Down change it.</value>
+  </data>
+  <data name="Parametric_CurveName" xml:space="preserve">
+    <value>Adjustments curve</value>
+  </data>
+  <data name="Parametric_CurveHelp" xml:space="preserve">
+    <value>Up and Down change the gain. Left and Right change the frequency.</value>
+  </data>
+  <data name="Parametric_Bubble" xml:space="preserve">
+    <value>{0}, {1} dB</value>
   </data>
 </root>

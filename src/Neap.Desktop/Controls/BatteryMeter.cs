@@ -81,7 +81,9 @@ public sealed class BatteryMeter : UserControl
         _bolt.Bind(TemplatedControl.ForegroundProperty, this.GetResourceObservable("NeapToneGoodBrush"));
         AutomationProperties.SetName(_bolt, Strings.Get("Battery_Charging"));
 
-        Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { _picture, _bolt, Value } };
+        var row = new StackPanel { Orientation = Orientation.Horizontal, Children = { _picture, _bolt, Value } };
+        row.Spacing = Space.S;
+        Content = row;
     }
 
     /// <summary>The percentage, or what stands in for it, beside the bar.</summary>

@@ -16,6 +16,13 @@ public static class Db
         return $"{sign}{Math.Abs(tenths / 10.0).ToString("0.0", CultureInfo.InvariantCulture)}";
     }
 
+    /// <summary>The value as a scale mark, without a trailing zero: "+9", "+4.5", "0", "−6".</summary>
+    public static string Axis(int tenths)
+    {
+        string sign = tenths > 0 ? "+" : tenths < 0 ? "−" : "";
+        return $"{sign}{Math.Abs(tenths / 10.0).ToString("0.#", CultureInfo.InvariantCulture)}";
+    }
+
     /// <summary>Reads a value a person typed, as decibels, or null if it is not one.</summary>
     /// <remarks>
     /// Lenient: "3", "3.5", "-3", "−3", "+3 dB" and "3,5" are all accepted, and

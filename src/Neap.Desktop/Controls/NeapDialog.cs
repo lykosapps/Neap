@@ -1,8 +1,6 @@
-using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Layout;
 
 namespace Neap.Desktop.Controls;
 
@@ -34,9 +32,9 @@ public enum DialogAnswer
 public sealed class NeapDialog : Window
 {
     // Shown only once it has words: a dialog with just a close button has no empty one beside it.
-    private readonly Button _primary = new() { IsDefault = true, MinWidth = 96, IsVisible = false };
-    private readonly Button _secondary = new() { MinWidth = 96, IsVisible = false };
-    private readonly Button _close = new() { IsCancel = true, MinWidth = 96 };
+    private readonly Button _primary = new() { IsDefault = true, Classes = { "dialogbutton", "accent" }, IsVisible = false };
+    private readonly Button _secondary = new() { Classes = { "dialogbutton" }, IsVisible = false };
+    private readonly Button _close = new() { IsCancel = true, Classes = { "dialogbutton" } };
     private readonly ContentControl _body = new();
     private readonly TextBlock _heading = new() { Classes = { "title" } };
 
@@ -49,19 +47,8 @@ public sealed class NeapDialog : Window
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         Classes.Add("neapground");
 
-        var buttons = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Spacing = 8,
-            Children = { _primary, _secondary, _close },
-        };
-        Content = new StackPanel
-        {
-            Margin = new Thickness(24),
-            Spacing = 16,
-            Children = { _heading, _body, buttons },
-        };
+        var buttons = new StackPanel { Classes = { "dialogbuttons" }, Children = { _primary, _secondary, _close } };
+        Content = new StackPanel { Classes = { "dialog" }, Children = { _heading, _body, buttons } };
 
         // Fixed names for the screen checks, which find the buttons by them.
         AutomationProperties.SetAutomationId(_primary, "PrimaryButton");

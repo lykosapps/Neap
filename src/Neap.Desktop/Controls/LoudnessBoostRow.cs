@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
+using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -23,7 +24,9 @@ namespace Neap.Desktop.Controls;
 /// <para>
 /// The slider is the boost above the headset's stock level, in decibels; zero
 /// is the level the headset ships with. What it shows for a given reading, and
-/// whether it is shown at all, is <see cref="LoudnessBoostLook"/>.
+/// whether it is shown at all, is <see cref="LoudnessBoostLook"/>. A headset
+/// without the feature gets the row with the model that has it in place of
+/// the slider.
 /// </para>
 /// </remarks>
 public sealed class LoudnessBoostRow : SettingsCard
@@ -32,7 +35,9 @@ public sealed class LoudnessBoostRow : SettingsCard
 
     private Slider? _slider;
     private TextBlock? _readout;
-    private TextBlock? _level;
+    private SliderLine? _line;
+    private TextBlock? _unsupported;
+    private Grid? _caution;
     private bool _painting;
     private bool _built;
 
@@ -71,14 +76,10 @@ public sealed class LoudnessBoostRow : SettingsCard
         if (_built) return;
         _built = true;
 
-        _slider = new Slider
-        {
-            Minimum = 0,
-            Maximum = LoudnessBoostLook.MaxBoostDb,
-            TickFrequency = LoudnessBoostLook.StepDb,
-            IsSnapToTickEnabled = true,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
+        _slider = NeapControls.Slider();
+        _slider.Maximum = LoudnessBoostLook.MaxBoostDb;
+        _slider.TickFrequency = LoudnessBoostLook.StepDb;
+        _slider.IsSnapToTickEnabled = true;
         _slider.ValueChanged += (_, args) =>
         {
             if (_readout is not null) _readout.Text = Boost(args.NewValue);
@@ -88,38 +89,42 @@ public sealed class LoudnessBoostRow : SettingsCard
         };
         _readout = new TextBlock
         {
+            Classes = { "secondary" },
             MinWidth = 52,
             TextAlignment = TextAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center,
             FontFeatures = FontFeatureCollection.Parse("tnum"),
         };
-        _level = new TextBlock { Margin = new Avalonia.Thickness(0, 6, 0, 0), FontFeatures = FontFeatureCollection.Parse("tnum") };
-        Content = new StackPanel
+        _unsupported = new TextBlock
         {
-            Children =
-            {
-                new SliderLine { Preferred = SliderWidth, Flexible = _slider, Children = { _slider, _readout } },
-                _level,
-                Caution(),
-            },
+            Text = Strings.Get("LoudnessBoost_Unsupported"),
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Center,
+            Classes = { "tertiary" },
+            IsVisible = false,
         };
+        _line = new SliderLine { Preferred = SliderWidth, Flexible = _slider, Children = { _slider, _readout } };
+        _caution = Caution();
+        Content = new Grid { Children = { _line, _unsupported } };
+        Below = _caution;
 
         // Named on the slider rather than the card, since the slider takes focus.
         AutomationProperties.SetName(_slider, Header ?? Strings.Get("Audio_LoudnessBoost.Header"));
     }
 
-    /// <summary>A quiet line under the level with a warning mark: go up slowly, and back off if it distorts.</summary>
+    /// <summary>A quiet line under the name with a warning mark: go up slowly.</summary>
     /// <remarks>In the row rather than a box of its own, and in the description's colour, so it is read without shouting.</remarks>
     private static Grid Caution()
     {
-        var mark = new PathIcon { Width = 14, Height = 14, Margin = new Avalonia.Thickness(0, 2, 6, 0), VerticalAlignment = VerticalAlignment.Top };
+        var iconSize = (double)Application.Current!.FindResource("NeapIconRow")!;
+        var mark = new PathIcon { Width = iconSize, Height = iconSize, VerticalAlignment = VerticalAlignment.Center };
         mark.Bind(PathIcon.DataProperty, mark.GetResourceObservable("IconWarning"));
         mark.Bind(ForegroundProperty, mark.GetResourceObservable("NeapTextSecondaryBrush"));
-        var words = new TextBlock { Text = Strings.Get("LoudnessBoost_Caution"), TextWrapping = TextWrapping.Wrap, MaxWidth = 260 };
+        var words = new TextBlock { Text = Strings.Get("LoudnessBoost_Caution"), TextWrapping = TextWrapping.Wrap, HorizontalAlignment = HorizontalAlignment.Left };
         words.Classes.Add("caption");
         words.Classes.Add("secondary");
         Grid.SetColumn(words, 1);
-        return new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), Margin = new Avalonia.Thickness(0, 6, 0, 0), Children = { mark, words } };
+        return new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), ColumnSpacing = Space.S, Children = { mark, words } };
     }
 
     /// <summary>The boost the slider is at, such as "+0 dB" or "+12 dB".</summary>
@@ -134,11 +139,18 @@ public sealed class LoudnessBoostRow : SettingsCard
 
     private void Refresh()
     {
-        var look = LoudnessBoostLook.For(AppServices.Headset.Loudness, AppServices.Headset.ReadOnly);
+        var look = LoudnessBoostLook.For(AppServices.Headset.Loudness, AppServices.Headset.ReadOnly, AppServices.Headset.Model);
         IsVisible = look.Shown;
         if (!look.Shown || _slider is null) return;
+        _line!.IsVisible = !look.Unsupported;
+        _unsupported!.IsVisible = look.Unsupported;
+        Below = look.Unsupported ? null : _caution;
         _slider.IsEnabled = look.Enabled;
-        if (_level is not null) _level.Text = Level(look.LevelDb);
+
+        // The headset's own level, which the slider cannot always show: one set elsewhere can be past its ends.
+        string level = Level(look.LevelDb);
+        ToolTip.SetTip(_slider, level);
+        AutomationProperties.SetHelpText(_slider, level);
         if (_slider.IsPointerOver || JustChosen()) return;
         _painting = true;
         try

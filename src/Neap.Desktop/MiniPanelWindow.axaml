@@ -1,0 +1,180 @@
+<Window
+    x:Class="Neap.Desktop.MiniPanelWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization"
+    Width="360"
+    CanResize="False"
+    ShowInTaskbar="False"
+    SizeToContent="Height"
+    Topmost="True"
+    TransparencyLevelHint="Transparent"
+    WindowDecorations="None"
+    Background="Transparent">
+
+    <Window.Styles>
+        <!-- Rows here are short, so a switch or a button stays beside its name rather than dropping under it. -->
+        <Style Selector="c|SettingsCard">
+            <Setter Property="SideBySideWidth" Value="0" />
+        </Style>
+
+        <!-- Windows Sonic and Dolby Atmos under their title need the room the 360 wide panel has, so every pill here gives its segments a little less padding. -->
+        <Style Selector="Border.segmented RadioButton">
+            <Setter Property="Padding" Value="8,0" />
+        </Style>
+    </Window.Styles>
+
+    <!--
+        The things changed mid-game: the mix, the microphone, noise
+        cancellation, spatial sound and the equaliser preset. A card, as Home's are, drawn
+        in a window of its own so it can sit by the notification area and
+        go away when it loses focus.
+    -->
+    <Border Classes="card">
+        <StackPanel Spacing="{StaticResource NeapSpaceM}">
+
+            <!-- The headset, how it is connected, its battery, and the way to the window. -->
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="{StaticResource NeapSpaceM}">
+                <StackPanel VerticalAlignment="Center" Spacing="{StaticResource NeapSpaceHairline}">
+                    <TextBlock
+                        x:Name="HeadsetName"
+                        Classes="cardtitle"
+                        AutomationProperties.HeadingLevel="1"
+                        TextTrimming="CharacterEllipsis" />
+                    <c:HeadsetStatusStrip HorizontalAlignment="Left" />
+                </StackPanel>
+                <ContentControl
+                    x:Name="BatteryHolder"
+                    Grid.Column="1"
+                    VerticalAlignment="Center" />
+                <Button
+                    x:Name="OpenNeap"
+                    Grid.Column="2"
+                    Width="32"
+                    Height="32"
+                    Padding="0"
+                    VerticalAlignment="Center"
+                    Classes="quiet"
+                    loc:Uid.Value="Mini_Open">
+                    <PathIcon
+                        Width="{StaticResource NeapIconTile}"
+                        Height="{StaticResource NeapIconTile}"
+                        Data="{StaticResource IconLaunch}" />
+                </Button>
+            </Grid>
+
+            <!-- Nothing plugged in is said first, in words, as on every page. -->
+            <c:HeadsetNotice />
+
+            <!--
+                The mix goes on working with only the headset's settings out of
+                reach, so it folds only when the headset is away. Without chat
+                apps chosen there is nothing to mix, so the dial is disabled and
+                the line below it says how to get one.
+            -->
+            <c:HeadsetSection Explain="False" WhenOff="True">
+                <Grid
+                    x:Name="DialArea"
+                    Margin="0,0,0,14"
+                    HorizontalAlignment="Center"
+                    Classes="mixdial">
+                    <Viewbox Width="160" Height="160">
+                        <c:GameChatDial x:Name="Dial" loc:Uid.Value="Mix_Dial" />
+                    </Viewbox>
+                    <StackPanel
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        IsHitTestVisible="False"
+                        Spacing="{StaticResource NeapSpaceHairline}">
+                        <TextBlock
+                            x:Name="LeanText"
+                            HorizontalAlignment="Center"
+                            Classes="label" />
+                        <StackPanel
+                            HorizontalAlignment="Center"
+                            Orientation="Horizontal"
+                            Spacing="{StaticResource NeapSpaceS}">
+                            <TextBlock
+                                x:Name="GameLevel"
+                                MinWidth="30"
+                                Classes="reading"
+                                FontSize="{StaticResource NeapFontGlance}"
+                                Foreground="{DynamicResource NeapGameTextBrush}"
+                                TextAlignment="Right" />
+                            <TextBlock
+                                x:Name="ChatLevel"
+                                MinWidth="30"
+                                Classes="reading"
+                                FontSize="{StaticResource NeapFontGlance}"
+                                Foreground="{DynamicResource NeapChatTextBrush}"
+                                TextAlignment="Left" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Under each end of the ring: which side is which. -->
+                    <TextBlock
+                        loc:Uid.Value="Mix_Game"
+                        Margin="22,0,0,-14"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom"
+                        Classes="label"
+                        Foreground="{DynamicResource NeapGameTextBrush}" />
+                    <TextBlock
+                        loc:Uid.Value="Mix_Chat"
+                        Margin="0,0,22,-14"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Classes="label"
+                        Foreground="{DynamicResource NeapChatTextBrush}" />
+                </Grid>
+                <StackPanel
+                    x:Name="SetupArea"
+                    Margin="{StaticResource NeapCardGap}"
+                    Spacing="{StaticResource NeapSpaceXS}"
+                    IsVisible="False">
+                    <TextBlock loc:Uid.Value="Mix_Setup" Classes="secondary" />
+                    <Button
+                        x:Name="ChooseApps"
+                        loc:Uid.Value="Mini_ChooseApps"
+                        Classes="link" />
+                </StackPanel>
+            </c:HeadsetSection>
+
+            <!--
+                One list. Spatial sound is the system's setting, not the
+                headset's, so as on Home and Audio it stays when the headset is
+                away; the headset's settings fold around it.
+            -->
+            <StackPanel Spacing="{StaticResource NeapSpaceS}">
+                <c:HeadsetSection loc:Uid.Value="Mini_Section" Spacing="{StaticResource NeapSpaceS}">
+                    <c:MicTile AsRow="True" />
+
+                    <c:SettingsCard
+                        x:Name="NoiseRow"
+                        loc:Uid.Value="Mini_Noise"
+                        Icon="{StaticResource IconNoise}">
+                        <c:SettingsCard.Below>
+                            <Border Margin="{StaticResource NeapSectionGap}" Classes="segmented">
+                                <c:NoiseModes
+                                    loc:Uid.Value="Quick_NoiseTile"
+                                    AutomationProperties.AutomationId="mini_noise_control" />
+                            </Border>
+                        </c:SettingsCard.Below>
+                    </c:SettingsCard>
+                </c:HeadsetSection>
+
+                <c:SpatialTile AsRow="True" Stacked="True" />
+
+                <c:HeadsetSection Explain="False">
+                    <c:SettingsCard loc:Uid.Value="Mini_Equaliser" Icon="{StaticResource IconEqualiser}">
+                        <c:PresetChoice
+                            x:Name="Preset"
+                            MaxWidth="190"
+                            loc:Uid.Value="Quick_PresetPicker" />
+                    </c:SettingsCard>
+                </c:HeadsetSection>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

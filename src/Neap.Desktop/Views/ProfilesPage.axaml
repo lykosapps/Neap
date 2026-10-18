@@ -5,33 +5,38 @@
     xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization">
 
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="32">
-            <StackPanel Classes="pagecolumn">
+    <c:PageView>
+        <StackPanel Spacing="{StaticResource NeapSpaceL}">
 
-                <TextBlock loc:Uid.Value="Profiles_Title" Classes="pagetitle" />
-                <TextBlock loc:Uid.Value="Profiles_Note" Classes="sectionnote" />
+            <!--
+                Saving the headset's settings as a profile is the same
+                action as New profile in the header's menu, which stays
+                where it is for the quick case. The notice says why the
+                button is off while the headset is not answering.
+            -->
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock
+                    loc:Uid.Value="Profiles_Title"
+                    Margin="0"
+                    VerticalAlignment="Center"
+                    Classes="pagetitle" />
+                <Button
+                    x:Name="New"
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Classes="accent" />
+            </Grid>
 
-                <!--
-                    Saving the headset's settings as a profile is the same
-                    action as New profile in the header's menu, which stays
-                    where it is for the quick case. The notice says why the
-                    button is off while the headset is not answering.
-                -->
-                <StackPanel
-                    Margin="0,4,0,12"
-                    Orientation="Horizontal"
-                    Spacing="12">
-                    <Button x:Name="New" Classes="accent" />
-                    <TextBlock
-                        x:Name="Notice"
-                        VerticalAlignment="Center"
-                        Classes="caption secondary" />
-                </StackPanel>
-
-                <c:ProfilesSettings />
-
+            <StackPanel Spacing="{StaticResource NeapSpaceS}">
+                <TextBlock
+                    loc:Uid.Value="Profiles_Note"
+                    Margin="0"
+                    Classes="sectionnote" />
+                <TextBlock x:Name="Notice" Classes="caption secondary" />
             </StackPanel>
-        </Grid>
-    </ScrollViewer>
+
+            <c:ProfilesSettings />
+
+        </StackPanel>
+    </c:PageView>
 </UserControl>

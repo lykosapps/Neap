@@ -13,6 +13,40 @@ and date.
 
 ### Added
 
+- The mini panel has spatial sound, between noise cancellation and the
+  equaliser: Off, Windows Sonic or Dolby Atmos, whichever the system offers. It
+  is left out where the system has none, and it stays when the headset is away,
+  as it does on Home.
+- A switch on the Settings page turns the mini panel on or off. It is on by
+  default; when it is off, a click on the icon by the clock opens the window,
+  and "Mini panel" is left off the icon's menu.
+- The game and chat dial shows live levels: a thin arc inside the ring for each
+  side, growing from its own end as that side plays, so you can see chat
+  speaking and the game's sound as you set the mix. It reads each app's own
+  level, so it follows the mix. Windows only; it stops when the window is behind
+  or animation is off. When the headset's chat wheel moves the dial, the dial
+  now glides to its place.
+- A click on Neap's icon by the clock opens a mini panel for mid-game: the
+  game and chat mix, mute for the microphone, noise cancellation and the
+  equaliser preset, with the headset's name, state and battery above them. It
+  closes on Escape or when you click elsewhere. The window is now "Open Neap"
+  on the icon's menu, and on the panel.
+- The equaliser is easier to try things on. Points show they can be dragged:
+  a resize cursor, a halo and a larger point under the pointer, and a bubble
+  with the value while one is moved. The curve takes the keyboard, with Left
+  and Right to choose a band and Up and Down to move it, and Shift for a
+  bigger step. Compare plays the headset flat for as long as you hold it and
+  puts your curve back when you let go. Undo and Redo, or Ctrl+Z and Ctrl+Y,
+  step back through the edits made to the curve since the page was opened.
+- The Neap mark and name sit at the top of the menu, above the profile
+  switcher, at the menu's left edge; the window's title is no longer written
+  over them. When the menu is icons only, just the mark shows.
+- Every tile on Home has the same layout: icon and switch on top,
+  then the name, then its state, so names line up across a row. On Game and
+  chat, Keyboard shortcuts moves up beside the title.
+- The equaliser curve grows with the window and shows a dB scale, preset
+  names stay on one line, and the part of your curve the headset can't reach
+  is shaded grey and named in the legend.
 - A max loudness boost on the Audio page raises the Stealth Pro II's own level,
   so everything through the dock plays louder — for when the headset is too
   quiet even at full volume. It starts at +0 dB until you move it, is saved on
@@ -33,8 +67,95 @@ and date.
 - What's new is always in Settings, beside Neap's version. With no update
   waiting, it shows what's new in the version you have, without going online.
 
+### Changed
+
+- The app's text is set in Figtree, and the name beside the mark in Outfit,
+  in place of Inter. Both are carried inside the app, so Windows and Linux
+  show the same letters. The text is a little rounder and a little wider.
+- The menu and the page each run the full height of the window, so the edge
+  between them reaches the top, and the menu starts in the title bar's row.
+  The headset's status and the update bar sit at the top of the page.
+- On Profiles, the profile in use now has a soft tint and says "In use" under
+  its name, and a screen reader hears it on the button that changes its apps.
+  It follows a switch from the menu, or by an app starting, as it happens.
+- Every card on Home works the same way. On or off is a switch at the top
+  right, and the card is tinted while it is on; a choice among a few is a row
+  of segments under the name. Spatial sound now shows Off, Windows Sonic and
+  Dolby Atmos in view instead of opening a list, and Superhuman Hearing gets
+  a switch with its sound (Legacy, Footsteps or Gunshots) under the name,
+  faded until it is on. The microphone is a card with a switch too, instead of
+  a tile you press anywhere.
+- On Profiles, a screen reader hears each profile's apps, and when they switch,
+  on the button that changes them.
+- Deleting or saving an equaliser preset updates the list in about half the
+  time, and the Delete and Cancel buttons are disabled while it runs.
+- In a narrow window, a switch that drops under its name now starts where the
+  name does, instead of floating in the middle of the row.
+- Before any chat app is chosen, Home and the mini panel show the game and
+  chat dial faded and disabled, with the question about chat apps below it,
+  rather than leaving the dial out, so it is clear what the card is for.
+- Buttons, drop-downs, fields, tabs, switches and tiles lose their outlines for
+  a flat, softer look: each is a gentle step of fill from what it sits on, and
+  icons and dividing lines are quieter. The keyboard focus ring is unchanged,
+  and high contrast keeps every outline. A tile that is on, such as the
+  microphone on Home, is a soft violet tint rather than solid violet, and the
+  panels set into a card, such as the chat app list, are a lighter grey in the
+  light theme.
+- On the Equaliser page, Discard shows only once the curve has been edited, and a saved preset's delete button shows only on the row you point at, focus or have chosen.
+- On Controls, each job for the Mode button and the lower dial is a full-width row you can press anywhere, the chosen one tinted, and the two cards are the same height. The dial's first job is named Microphone monitoring volume.
+- Audio's sliders all end at the same edge, with Master volume's mute beside the slider's line instead of shortening it.
+- Start when you sign in says why when it can't be changed, as in a practice run.
+- Home is redesigned: the headset's readings across the top, Game and chat
+  as one card with a Keyboard shortcuts link, and tiles that show how they
+  work, such as a switch for the microphone, Off, Cancelling and
+  Transparency for noise cancellation, and a preset choice on the equaliser.
+- Audio holds what you hear and your microphone in two sections, with noise
+  cancellation, Superhuman Hearing and spatial sound as choices you can see
+  at once, and a link from each section to its equaliser.
+- The Equaliser page lists your presets beside a larger curve, with Game and
+  Microphone as tabs and the test tone folded away until it is wanted.
+- Clearer words: Noise cancellation, Strength, Noise reduction, Loudness
+  boost and Microphone monitoring, and every failure says what to do next.
+- The profile switcher sits at the top of the left menu, and becomes one
+  profile icon when the menu shows icons only.
+- The equalisers have a page of their own, Equaliser, with a Game and a
+  Microphone tab. Home's equaliser tile opens it.
+- The microphone settings are on the Audio page, and Microphone has left the
+  menu.
+- A stronger look: an ultraviolet accent in both themes, and in the dark
+  theme a deeper, single ground behind everything.
+- In a small window, such as the Steam Deck's, text, rows and the menu step
+  up a size so they are easier to read and touch.
+- The app icon is redrawn as a split half moon over one wave, and the icon by
+  the clock is its own simpler drawing that follows a light or dark taskbar
+  on Windows.
+- A calmer, more compact look: neutral grey backgrounds in place of the
+  violet-tinted ones, flat panels without gradients or outlines, smaller
+  text and tighter rows, so more of each page fits on screen. Neap's violet
+  now marks only what is on, chosen or playing.
+- Text uses the Inter typeface, carried by the app, so it looks the same on
+  Windows and Linux.
+- The menu on the left has a softer chosen-place highlight, and shows a ring around
+  the place the keyboard is on. Pages sit slightly closer to the edges.
+- Cards, rows and tiles are flat, and tiles are shorter. In high contrast,
+  cards, rows and tiles have an outline so their edges stay visible.
+- Buttons, switches, boxes and sliders are more compact, switches and boxes
+  are easier to see when off, and the mute button follows the theme,
+  including high contrast.
+- The game and chat dial is flatter and a little smaller, and its keyboard
+  focus ring is easier to see in the light theme.
+- Dialogs and the update banner share the app's spacing, a dialog's main
+  button uses the accent colour, and long dialog headings wrap instead of
+  being cut off.
+- Every page uses the same even spacing. On Home the headset summary and the
+  quick settings sit on cards like the mix, the loudness boost on Audio takes
+  half the height, and the Profiles page puts New profile beside its title.
+
 ### Fixed
 
+- A screen reader now announces noise cancellation, the Mode button, the lower
+  dial and Superhuman Hearing's sound as named groups of options, instead of
+  leaving the group's name out.
 - A headset with no name of its own now shows its own model name. An Atlas Air
   without a given name used to show as "Stealth Pro II"; a headset Neap doesn't
   recognise now shows simply as "Headset".

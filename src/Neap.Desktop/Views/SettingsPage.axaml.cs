@@ -18,6 +18,7 @@ public partial class SettingsPage : UserControl
 
     private readonly DispatcherTimer _ticking = new() { Interval = TimeSpan.FromSeconds(1) };
     private bool _painting;
+    private double _stackedGap;
     private bool _beside;
 
     public SettingsPage()
@@ -32,13 +33,17 @@ public partial class SettingsPage : UserControl
         StartCard.IsVisible = Startup.Supported;
         if (!TrayAvailability.Exists) StartCard.Description = Strings.Get("Settings_StartMinimised");
 
+        MiniCard.IsVisible = TrayAvailability.Exists;
+
         _painting = true;
+        MiniPanelSwitch.IsChecked = AppSettings.Current.MiniPanel;
         StartWhenSignedIn.IsChecked = Startup.Enabled;
         CheckForUpdates.IsChecked = AppServices.Updates.Automatic;
         _painting = false;
 
         // The sign-in entry belongs to the real copy of the app.
         StartWhenSignedIn.IsEnabled = !Pretend.Active;
+        if (Pretend.Active) StartCard.Description = Strings.Get("Settings_StartPractice");
 
         StartWhenSignedIn.IsCheckedChanged += (_, _) =>
         {
@@ -48,6 +53,15 @@ public partial class SettingsPage : UserControl
             _painting = true;
             StartWhenSignedIn.IsChecked = Startup.Enabled;
             _painting = false;
+        };
+
+        MiniPanelSwitch.IsCheckedChanged += (_, _) =>
+        {
+            if (_painting) return;
+            bool on = MiniPanelSwitch.IsChecked == true;
+            AppSettings.Update(s => s.MiniPanel = on);
+            AppLog.Write(on ? "mini panel: on, a click on the icon opens it" : "mini panel: off, a click on the icon opens the window");
+            (TopLevel.GetTopLevel(this) as MainWindow)?.MiniPanelSettingChanged();
         };
 
         CheckForUpdates.IsCheckedChanged += (_, _) =>
@@ -96,6 +110,7 @@ public partial class SettingsPage : UserControl
             AppVersion.IsVisible = true;
         }
 
+        _stackedGap = NeapCard.RowSpacing;
         NeapCard.SizeChanged += (_, e) => OnCardSizeChanged(e.NewSize.Width);
     }
 
@@ -129,7 +144,7 @@ public partial class SettingsPage : UserControl
         Grid.SetRow(UpdateActions, beside ? 0 : 1);
         Grid.SetColumn(UpdateActions, beside ? 1 : 0);
         UpdateActions.VerticalAlignment = beside ? VerticalAlignment.Center : VerticalAlignment.Top;
-        NeapCard.RowSpacing = beside ? 0 : 16;
+        NeapCard.RowSpacing = beside ? 0 : _stackedGap;
     }
 
     /// <summary>

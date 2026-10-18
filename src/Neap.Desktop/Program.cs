@@ -1,4 +1,6 @@
 using Avalonia;
+using Avalonia.Media;
+using Avalonia.Media.Fonts;
 
 namespace Neap.Desktop;
 
@@ -26,6 +28,15 @@ internal static class Program
         }
 
         AppDomain.CurrentDomain.UnhandledException += (_, e) => AppLog.Write($"crashed: {e.ExceptionObject}");
-        return AppBuilder.Configure<App>().UsePlatformDetect().StartWithClassicDesktopLifetime(args);
+        // Figtree, carried by the app and the default for every window and
+        // pop-up, so text looks the same on Windows and Linux. Outfit is the
+        // name's own face; see Brand.
+        return AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .ConfigureFonts(fonts => fonts.AddFontCollection(new EmbeddedFontCollection(
+                new Uri("fonts:Neap", UriKind.Absolute),
+                new Uri("avares://Neap.Desktop/Assets/Fonts", UriKind.Absolute))))
+            .With(new FontManagerOptions { DefaultFamilyName = "fonts:Neap#Figtree" })
+            .StartWithClassicDesktopLifetime(args);
     }
 }

@@ -45,6 +45,9 @@ internal interface IPlaybackSession : ISessionVolume
 
     /// <summary>Whether it is making sound now, rather than only holding the output open.</summary>
     bool Playing { get; }
+
+    /// <summary>The loudest moment of its sound just now, from 0 to 1, after its own volume; 0 where the system has no meter to ask.</summary>
+    float Peak => 0;
 }
 
 /// <summary>The per-application volumes of the operating system this is running on.</summary>

@@ -4,161 +4,122 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!--
-        The tiles on Home: big buttons that press in, after Windows' Quick
-        Settings. A setting that is on fills its tile with the accent; the
-        equaliser is not on or off, so its tile never fills and opens a list
-        instead.
-
-        A tile that can't be changed, such as the microphone while the boom
-        arm mutes it, is drawn in its own quieter colours rather than faded:
-        its state still has to be read, so its text keeps 4.5:1.
+        The cards on Home. Each is a Border.card with one anatomy: a head row
+        with the icon at the left and, where the card is on or off, its switch
+        at the right, then the title, then the card's own control. A card
+        that is on takes the soft tint and its text colour; the switch keeps
+        its own look on it. Nothing on the card is a click target but its
+        controls.
     -->
-    <Styles.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Dark">
-                    <LinearGradientBrush x:Key="NeapTileBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#342C48" />
-                        <GradientStop Offset="1" Color="#2A233B" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#3A3150" />
-                    <SolidColorBrush x:Key="NeapTileStrokeBrush" Color="#45395F" />
-                    <SolidColorBrush x:Key="NeapTileEdgeBrush" Color="#66000000" />
-                    <SolidColorBrush x:Key="NeapTileTextBrush" Color="#FFFFFF" />
-                    <LinearGradientBrush x:Key="NeapTileOnBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#AB9CFF" />
-                        <GradientStop Offset="1" Color="#9181F6" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#B4A7FF" />
-                    <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#C3B8FF" />
-                    <SolidColorBrush x:Key="NeapTileOnEdgeBrush" Color="#4A3AA8" />
-                    <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#15112A" />
-                    <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#269D8CFF" />
-                    <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0FFFFFFF" />
-                    <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#272137" />
-                    <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
-                    <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#B3AEC2" />
-                    <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#433A6E" />
-                    <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#D9D3FF" />
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Light">
-                    <LinearGradientBrush x:Key="NeapTileBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#FFFFFF" />
-                        <GradientStop Offset="1" Color="#F0EDF7" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapTileHoverBrush" Color="#FAF9FD" />
-                    <SolidColorBrush x:Key="NeapTileStrokeBrush" Color="#DDD8E8" />
-                    <SolidColorBrush x:Key="NeapTileEdgeBrush" Color="#26000000" />
-                    <SolidColorBrush x:Key="NeapTileTextBrush" Color="#1A1A1A" />
-                    <LinearGradientBrush x:Key="NeapTileOnBrush" StartPoint="50%,0%" EndPoint="50%,100%">
-                        <GradientStop Offset="0" Color="#614ECF" />
-                        <GradientStop Offset="1" Color="#5845BD" />
-                    </LinearGradientBrush>
-                    <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#5C49C4" />
-                    <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="#4C3BB0" />
-                    <SolidColorBrush x:Key="NeapTileOnEdgeBrush" Color="#40309A" />
-                    <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="NeapPresetSelectedBrush" Color="#1F6D5AD9" />
-                    <SolidColorBrush x:Key="NeapPresetHoverBrush" Color="#0A000000" />
-                    <SolidColorBrush x:Key="NeapTileDisabledBrush" Color="#E6E3EE" />
-                    <SolidColorBrush x:Key="NeapTileDisabledStrokeBrush" Color="Transparent" />
-                    <SolidColorBrush x:Key="NeapTileDisabledTextBrush" Color="#48474C" />
-                    <SolidColorBrush x:Key="NeapTileOnDisabledBrush" Color="#C9C1F0" />
-                    <SolidColorBrush x:Key="NeapTileOnDisabledTextBrush" Color="#2E2466" />
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
-        </ResourceDictionary>
-    </Styles.Resources>
+    <Style Selector="Border.card.on">
+        <Setter Property="Background" Value="{DynamicResource NeapTileOnBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapTileOnStrokeBrush}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource NeapTileOnTextBrush}" />
+    </Style>
 
     <!--
-        A setting's tile, and the equaliser's, which is the same shape and
-        never fills. The edge under it is its depth; pressed, the tile drops
-        onto it, so it feels pushed rather than only recoloured.
+        Something that cannot be used yet is shown faded, not hidden: a
+        segmented control in a card, such as the sound of Superhuman Hearing
+        while it is off.
     -->
-    <Style Selector=":is(ToggleButton).tile, Button.tile">
-        <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="VerticalAlignment" Value="Stretch" />
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="VerticalContentAlignment" Value="Stretch" />
-        <Setter Property="Padding" Value="16" />
-        <Setter Property="MinHeight" Value="120" />
-        <Setter Property="CornerRadius" Value="16" />
+    <Style Selector="Border.card Border.segmented:disabled">
+        <Setter Property="Opacity" Value="0.35" />
+    </Style>
+
+    <!--
+        The switch in a card's head, at its right and with no word beside it:
+        the tint and the switch itself say the state, and the card's own
+        line says anything more.
+    -->
+    <Style Selector="ToggleSwitch.tileswitch">
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="OnContent" Value="{x:Null}" />
+        <Setter Property="OffContent" Value="{x:Null}" />
+    </Style>
+    <Style Selector="ToggleSwitch.tileswitch /template/ StackPanel#SwitchRow">
+        <Setter Property="Spacing" Value="0" />
+    </Style>
+
+    <!--
+        A link to another page: the accent, with an arrow after it. A button
+        underneath, so the keyboard and screen readers reach it as one.
+    -->
+    <Style Selector="Button.link">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
         <Setter Property="Template">
             <ControlTemplate>
-                <Panel>
-                    <Border x:Name="Edge" Margin="0,3,0,0"
-                            Background="{DynamicResource NeapTileEdgeBrush}"
-                            CornerRadius="{TemplateBinding CornerRadius}" />
-                    <Border x:Name="Face" Margin="0,0,0,3"
-                            Padding="{TemplateBinding Padding}"
-                            Background="{DynamicResource NeapTileBrush}"
-                            BorderBrush="{DynamicResource NeapTileStrokeBrush}"
-                            BorderThickness="1"
-                            CornerRadius="{TemplateBinding CornerRadius}">
-                        <ContentPresenter x:Name="TileContent"
+                <Border x:Name="LinkFace"
+                        MinHeight="{StaticResource NeapTargetMin}"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        BorderThickness="{StaticResource NeapFocusRingWidth}"
+                        CornerRadius="{StaticResource NeapRadiusTag}">
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceXS}" VerticalAlignment="Center">
+                        <ContentPresenter x:Name="PART_ContentPresenter"
                                           Content="{TemplateBinding Content}"
                                           ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          TextElement.Foreground="{DynamicResource NeapTileTextBrush}" />
-                    </Border>
-                </Panel>
+                                          Foreground="{TemplateBinding Foreground}"
+                                          VerticalAlignment="Center" />
+                        <PathIcon Width="{StaticResource NeapIconRow}"
+                                  Height="{StaticResource NeapIconRow}"
+                                  AutomationProperties.AccessibilityView="Raw"
+                                  Data="{StaticResource IconArrowUp}"
+                                  Foreground="{TemplateBinding Foreground}"
+                                  RenderTransform="rotate(90deg)" />
+                    </StackPanel>
+                </Border>
             </ControlTemplate>
         </Setter>
     </Style>
-    <Style Selector=":is(ToggleButton).tile:pointerover /template/ Border#Face">
-        <Setter Property="Background" Value="{DynamicResource NeapTileHoverBrush}" />
+    <Style Selector="Button.link:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="TextElement.FontWeight" Value="SemiBold" />
     </Style>
-    <Style Selector="Button.tile:pointerover /template/ Border#Face">
-        <Setter Property="Background" Value="{DynamicResource NeapTileHoverBrush}" />
+    <Style Selector="Button.link:focus-visible /template/ Border#LinkFace">
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapTextBrush}" />
     </Style>
-    <Style Selector=":is(ToggleButton).tile:pressed /template/ Border#Face, Button.tile:pressed /template/ Border#Face">
-        <Setter Property="RenderTransform" Value="translateY(2px)" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:checked /template/ Border#Face">
-        <Setter Property="Background" Value="{DynamicResource NeapTileOnBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapTileOnStrokeBrush}" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:checked:pointerover /template/ Border#Face">
-        <Setter Property="Background" Value="{DynamicResource NeapTileOnHoverBrush}" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:checked /template/ Border#Edge">
-        <Setter Property="Background" Value="{DynamicResource NeapTileOnEdgeBrush}" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:checked /template/ ContentPresenter#TileContent">
-        <Setter Property="TextElement.Foreground" Value="{DynamicResource NeapTileOnTextBrush}" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:disabled /template/ Border#Face">
-        <Setter Property="Background" Value="{DynamicResource NeapTileDisabledBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapTileDisabledStrokeBrush}" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:disabled /template/ Border#Edge">
-        <Setter Property="Opacity" Value="0.55" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:disabled /template/ ContentPresenter#TileContent">
-        <Setter Property="TextElement.Foreground" Value="{DynamicResource NeapTileDisabledTextBrush}" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:checked:disabled /template/ Border#Face">
-        <Setter Property="Background" Value="{DynamicResource NeapTileOnDisabledBrush}" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:checked:disabled /template/ ContentPresenter#TileContent">
-        <Setter Property="TextElement.Foreground" Value="{DynamicResource NeapTileOnDisabledTextBrush}" />
-    </Style>
-    <Style Selector="Button.tile:disabled /template/ Border#Face">
-        <Setter Property="Opacity" Value="0.55" />
-    </Style>
-    <!-- A keyboard user can see which tile has the keys. -->
-    <Style Selector=":is(ToggleButton).tile:focus-visible /template/ Border#Face, Button.tile:focus-visible /template/ Border#Face">
-        <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColorLight2}" />
-        <Setter Property="BorderThickness" Value="2" />
+    <Style Selector="Window.touch Button.link /template/ Border#LinkFace">
+        <Setter Property="MinHeight" Value="{StaticResource NeapTargetTouch}" />
     </Style>
 
-    <!-- A tile's name and its state, under its icon. -->
+    <!--
+        A row set into a card: a chooser or a field, one fill step above the
+        card. The quiet fill is as white as the card in light, so it takes the
+        navigation's selected fill, which is the inset's grey in both.
+    -->
+    <Style Selector="Border.inset">
+        <Setter Property="Background" Value="{DynamicResource NeapInsetBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+    </Style>
+    <Style Selector="Border.inset:pointerover">
+        <Setter Property="Background" Value="{DynamicResource NeapNavHoverBrush}" />
+    </Style>
+
+    <!--
+        The anatomy of every card on Home: the head row is one fixed height,
+        so titles line up across a row of cards.
+    -->
+    <Style Selector="StackPanel.tilebody">
+        <Setter Property="Spacing" Value="{StaticResource NeapSpaceHairline}" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <Style Selector="Grid.tilehead">
+        <Setter Property="Height" Value="{StaticResource NeapTileHeadHeight}" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+    <Style Selector="PathIcon.tileicon">
+        <Setter Property="Width" Value="{StaticResource NeapIconTile}" />
+        <Setter Property="Height" Value="{StaticResource NeapIconTile}" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <!-- A card's name and its state, under its icon. -->
     <Style Selector="TextBlock.tiletitle">
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
     <Style Selector="TextBlock.tilestate">
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
         <Setter Property="Opacity" Value="0.85" />
     </Style>
 
@@ -177,26 +138,29 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="BorderBrush" Value="{DynamicResource NeapAccentTextBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
     </Style>
     <Style Selector="Border.tag > TextBlock">
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
         <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
     </Style>
 
     <!--
         What a switch or a card reveals: the same width as what it hangs
-        from, its top drawn flush against that card's own bottom edge so the
-        two read as one card split by a rule, not two stacked ones. A row
-        inside it is the drawer's own, so it draws no card of its own.
+        from and flush against its bottom, so the two read as one card split
+        by a rule, not two stacked ones. A row inside it is the drawer's own,
+        so it draws no card of its own.
     -->
     <Style Selector="Border.drawer">
-        <Setter Property="Margin" Value="0,-1,0,0" />
-        <Setter Property="Padding" Value="16,14,16,10" />
+        <Setter Property="Padding" Value="{StaticResource NeapPaddingCard}" />
         <Setter Property="Background" Value="{DynamicResource NeapPanelBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapPanelStrokeBrush}" />
-        <Setter Property="BorderThickness" Value="1,0,1,1" />
-        <Setter Property="CornerRadius" Value="0,0,8,8" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapRuleBrush}" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusDrawer}" />
+    </Style>
+    <!-- Under a card or a tile rather than a row: the larger corners. -->
+    <Style Selector="Border.drawer.large">
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusDrawerCard}" />
     </Style>
     <Style Selector="Border.drawer c|SettingsCard">
         <Setter Property="Background" Value="Transparent" />
@@ -208,7 +172,7 @@
     <!-- A preset in Home's list: a flat row, the chosen one tinted and marked at its left edge. -->
     <Style Selector="ListBoxItem.preset">
         <Setter Property="Padding" Value="12,8" />
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
     </Style>
     <Style Selector="ListBoxItem.preset:pointerover /template/ ContentPresenter#TileContent">
         <Setter Property="Background" Value="{DynamicResource NeapPresetHoverBrush}" />

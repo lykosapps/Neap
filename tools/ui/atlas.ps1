@@ -69,9 +69,9 @@ try {
     }
     Save-Shot 'atlas-audio' -Top 700 | ForEach-Object { $_.Dispose() }
 
-    Section 'mic monitoring'
-    Open-Page 'Microphone'
-    Check (@(Find-All 'Mic monitoring').Count -eq 0) 'mic monitoring is not offered'
+    Section 'microphone monitoring'
+    Open-Page 'Audio'
+    Check (@(Find-All 'Microphone monitoring').Count -eq 0) 'microphone monitoring is not offered'
     Save-Shot 'atlas-mic' -Top 700 | ForEach-Object { $_.Dispose() }
 
     Section 'Bluetooth'

@@ -56,8 +56,7 @@ public sealed class UpdateBar : UserControl
 
         _actions = new StackPanel
         {
-            Orientation = Orientation.Horizontal,
-            Spacing = 8,
+            Classes = { "gaprow" },
             VerticalAlignment = VerticalAlignment.Center,
             Children = { _notes, _act, _notNow, _more },
         };
@@ -73,7 +72,7 @@ public sealed class UpdateBar : UserControl
         };
         AutomationProperties.SetAccessibilityView(icon, AccessibilityView.Raw);
 
-        var status = new StackPanel { Spacing = 6, VerticalAlignment = VerticalAlignment.Center, Children = { _message, _progress } };
+        var status = new StackPanel { Classes = { "updatestatus" }, Children = { _message, _progress } };
         Grid.SetColumn(status, 1);
 
         // A flat wash of the accent hue, with an accent edge down its left, so
@@ -87,16 +86,15 @@ public sealed class UpdateBar : UserControl
             {
                 new Border
                 {
-                    Padding = new Thickness(16, 8),
                     Classes = { "update" },
                     Child = new Grid
                     {
                         ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"),
-                        ColumnSpacing = 12,
+                        Classes = { "updaterow" },
                         Children = { icon, status, _actions },
                     },
                 },
-                new Border { Width = 4, HorizontalAlignment = HorizontalAlignment.Left, Classes = { "updateedge" } },
+                new Border { Classes = { "updateedge" } },
             },
         };
 

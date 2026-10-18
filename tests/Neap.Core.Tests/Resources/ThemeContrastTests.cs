@@ -12,7 +12,7 @@ namespace Neap.Core.Tests.Resources;
 /// <para>
 /// A colour that fails is easy to miss on the theme it was not chosen in,
 /// and nothing on screen says so. These tests read the theme dictionaries
-/// from the app's styles and work the ratios out, so a change of colour that
+/// from the app's tokens and work the ratios out, so a change of colour that
 /// breaks a pairing fails the build.
 /// </para>
 /// <para>
@@ -26,8 +26,7 @@ public sealed class ThemeContrastTests
     private static readonly XNamespace Xaml = "https://github.com/avaloniaui";
     private static readonly XNamespace X = "http://schemas.microsoft.com/winfx/2006/xaml";
 
-    private static readonly string[] Files =
-        ["Themes/Neap.axaml", "Themes/Tiles.axaml"];
+    private const string Tokens = "Themes/Tokens.axaml";
 
     private static readonly Dictionary<string, Dictionary<string, Rgba[]>> Themes = LoadThemes();
 
@@ -49,6 +48,22 @@ public sealed class ThemeContrastTests
         ("NeapTileOnTextBrush", "NeapTileOnHoverBrush", true, 4.5),
         ("NeapTileDisabledTextBrush", "NeapTileDisabledBrush", true, 4.5),
         ("NeapTileOnDisabledTextBrush", "NeapTileOnDisabledBrush", true, 4.5),
+        ("NeapAccentTextBrush", "NeapPanelBrush", false, 4.5),
+        ("NeapAccentTextBrush", Page, false, 4.5),
+        ("NeapOnAccentBrush", "NeapAccentFillBrush", false, 4.5),
+        ("NeapOnAccentBrush", "NeapAccentFillHoverBrush", false, 4.5),
+        ("NeapOnAccentBrush", "NeapAccentFillPressedBrush", false, 4.5),
+        ("NeapTextBrush", "NeapButtonBrush", false, 4.5),
+        ("NeapTextBrush", "NeapButtonHoverBrush", false, 4.5),
+        ("NeapTextBrush", "NeapButtonPressedBrush", false, 4.5),
+        ("NeapTextBrush", "NeapTrackBrush", false, 4.5),
+        ("NeapTextBrush", "NeapTrackHoverBrush", false, 4.5),
+        ("NeapTextSecondaryBrush", "NeapButtonBrush", false, 4.5),
+        ("NeapTextSecondaryBrush", "NeapTrackBrush", false, 4.5),
+        ("NeapTextSecondaryBrush", "NeapPanelBrush", false, 4.5),
+        ("NeapOnAccentBrush", "NeapAccentFillBrush", false, 4.5),
+        ("NeapTextBrush", "NeapNavSelectedBrush", false, 4.5),
+        ("NeapTextBrush", "NeapSelectedBrush", false, 4.5),
         ("NeapGameBrush", "NeapPanelBrush", false, 3),
         ("NeapChatBrush", "NeapPanelBrush", false, 3),
     ];
@@ -98,31 +113,28 @@ public sealed class ThemeContrastTests
             ["Dark"] = new(StringComparer.Ordinal),
             ["Light"] = new(StringComparer.Ordinal),
         };
-        foreach (string file in Files)
+        var dictionaries = XDocument.Load(Path.Combine(AppSource.Folder, Tokens))
+            .Descendants(Xaml + "ResourceDictionary.ThemeDictionaries")
+            .Elements(Xaml + "ResourceDictionary");
+        foreach (var dictionary in dictionaries)
         {
-            var dictionaries = XDocument.Load(Path.Combine(AppSource.Folder, file))
-                .Descendants(Xaml + "ResourceDictionary.ThemeDictionaries")
-                .Elements(Xaml + "ResourceDictionary");
-            foreach (var dictionary in dictionaries)
+            string? theme = (string?)dictionary.Attribute(X + "Key") switch
             {
-                string? theme = (string?)dictionary.Attribute(X + "Key") switch
-                {
-                    "Default" or "Dark" => "Dark",
-                    "Light" => "Light",
-                    _ => null,
-                };
-                if (theme is null) continue;
-                foreach (var brush in dictionary.Elements())
-                {
-                    var stops = brush.Name.LocalName == "SolidColorBrush"
-                        ? new[] { brush }
-                        : brush.Descendants(Xaml + "GradientStop").ToArray();
-                    var parsed = stops.Select(s => (string?)s.Attribute("Color"))
-                        .Where(c => c is not null && c.StartsWith('#'))
-                        .Select(c => Rgba.Parse(c!))
-                        .ToArray();
-                    if (parsed.Length > 0) themes[theme][(string)brush.Attribute(X + "Key")!] = parsed;
-                }
+                "Default" or "Dark" => "Dark",
+                "Light" => "Light",
+                _ => null,
+            };
+            if (theme is null) continue;
+            foreach (var brush in dictionary.Elements())
+            {
+                var stops = brush.Name.LocalName == "SolidColorBrush"
+                    ? new[] { brush }
+                    : brush.Descendants(Xaml + "GradientStop").ToArray();
+                var parsed = stops.Select(s => (string?)s.Attribute("Color"))
+                    .Where(c => c is not null && c.StartsWith('#'))
+                    .Select(c => Rgba.Parse(c!))
+                    .ToArray();
+                if (parsed.Length > 0) themes[theme][(string)brush.Attribute(X + "Key")!] = parsed;
             }
         }
         return themes;

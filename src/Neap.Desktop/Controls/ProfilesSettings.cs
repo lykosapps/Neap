@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
@@ -23,7 +22,7 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public sealed class ProfilesSettings : UserControl
 {
-    private readonly StackPanel _rows = new() { Spacing = 8 };
+    private readonly StackPanel _rows = new() { Classes = { "dialogflow" } };
 
     private readonly TextBlock _empty = new()
     {
@@ -61,13 +60,15 @@ public sealed class ProfilesSettings : UserControl
             Dispatcher.UIThread.Post(() => AppServices.Profiles.SetDefault(id));
         };
 
-        Content = new StackPanel { Spacing = 8, Children = { _defaultCard, _rows, _empty } };
+        Content = new StackPanel { Classes = { "dialogflow" }, Children = { _defaultCard, _rows, _empty } };
     }
 
     protected override async void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
         AppServices.Profiles.Changed += Paint;
+        // An app starting or stopping moves the profile in use without a change to the profiles.
+        AppServices.AutoSwitch.Changed += Paint;
         Paint();
         await LoadNames();
         Paint();
@@ -77,6 +78,7 @@ public sealed class ProfilesSettings : UserControl
     {
         base.OnUnloaded(e);
         AppServices.Profiles.Changed -= Paint;
+        AppServices.AutoSwitch.Changed -= Paint;
     }
 
     private async Task LoadNames()
@@ -90,7 +92,7 @@ public sealed class ProfilesSettings : UserControl
         var profiles = AppServices.Profiles.All;
         string? defaultId = AppServices.Profiles.DefaultId;
         string shown = string.Join("\n", profiles.Select(p => $"{p.Id}|{p.Name}|{string.Join(",", p.AssignedApps.Select(app => Described(p, app)))}"))
-            + $"\n{_confirmingDeleteId}\n{defaultId}";
+            + $"\n{_confirmingDeleteId}\n{defaultId}\n{AppServices.Profiles.ActiveId}";
         if (shown == _shown) return;
         _shown = shown;
 
@@ -118,15 +120,15 @@ public sealed class ProfilesSettings : UserControl
         finally { _painting = false; }
     }
 
-    private static PathIcon Icon(string key) => new()
+    private static PathIcon Icon(string key)
     {
-        Width = 12,
-        Height = 12,
-        Data = (Geometry)Application.Current!.FindResource(key)!,
-    };
+        var resources = Application.Current!;
+        double size = (double)resources.FindResource("NeapIconRow")!;
+        return new PathIcon { Width = size, Height = size, Data = (Geometry)resources.FindResource(key)! };
+    }
 
     /// <summary>
-    /// A profile's row: its name and assigned apps, a way to choose apps, a
+    /// A profile's row: its name and assigned apps, tinted and marked "In use" while it is the active profile, a way to choose apps, a
     /// way to rename it, and a way to delete it.
     /// </summary>
     private Control Row(Profile profile)
@@ -138,6 +140,13 @@ public sealed class ProfilesSettings : UserControl
         // knows, so it gets the one exception to no help text: a tooltip.
         ToolTip.SetTip(apps, appsName);
         apps.Click += async (_, _) => await OpenAppPicker(profile);
+
+        // The row's line of apps is drawn, not reached from the keyboard, so the
+        // button that changes them says them to a screen reader too.
+        string assigned = profile.AssignedApps.Count > 0
+            ? Strings.List(profile.AssignedApps.Select(app => Described(profile, app)).ToList())
+            : Strings.Get("Profile_NoApps");
+        AutomationProperties.SetHelpText(apps, assigned);
 
         var rename = new Button { Content = Icon("IconEdit"), Classes = { "iconbutton" } };
         AutomationProperties.SetName(rename, Strings.Format("Profile_RenameNamed", profile.Name));
@@ -155,14 +164,20 @@ public sealed class ProfilesSettings : UserControl
             Paint();
         };
 
-        return new SettingsCard
+        var card = new SettingsCard
         {
             Header = profile.Name,
-            Description = profile.AssignedApps.Count > 0
-                ? Strings.List(profile.AssignedApps.Select(app => Described(profile, app)).ToList())
-                : Strings.Get("Profile_NoApps"),
-            Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { apps, rename, delete } },
+            Description = assigned,
+            Content = new StackPanel { Classes = { "gaprow" }, Children = { apps, rename, delete } },
         };
+        if (profile.Id == AppServices.Profiles.ActiveId)
+        {
+            string inUse = Strings.Get("Profile_InUse");
+            card.Below = new TextBlock { Text = inUse, Classes = { "caption", "inuse" } };
+            card.Bind(BackgroundProperty, card.GetResourceObservable("NeapPresetSelectedBrush"));
+            AutomationProperties.SetItemStatus(apps, inUse);
+        }
+        return card;
     }
 
     /// <summary>
@@ -184,7 +199,7 @@ public sealed class ProfilesSettings : UserControl
         var saved = AppServices.Profiles.All.FirstOrDefault(p => p.Id == profile.Id) ?? profile;
         var candidates = await AppServices.Mix.Candidates("a profile's apps picker");
 
-        var list = new StackPanel { Spacing = 8 };
+        var list = new StackPanel { Classes = { "dialogflow" } };
         var boxes = new Dictionary<string, CheckBox>(StringComparer.OrdinalIgnoreCase);
 
         void Add(string process, string display, bool isChecked)
@@ -249,8 +264,8 @@ public sealed class ProfilesSettings : UserControl
             Heading = Strings.Format("Profile_AppsTitle", profile.Name),
             Body = new ScrollViewer
             {
-                MaxHeight = 360,
-                Content = new StackPanel { MinWidth = 360, Spacing = 12, Children = { list, hint, browse } },
+                Classes = { "dialogscroll" },
+                Content = new StackPanel { Classes = { "dialogflow" }, MinWidth = 360, Children = { list, hint, browse } },
             },
             CloseButtonText = Strings.Get("Dialog_OK"),
         }.ShowAsync(this);
@@ -311,7 +326,7 @@ public sealed class ProfilesSettings : UserControl
         return new SettingsCard
         {
             Header = profile.Name,
-            Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { delete, cancel } },
+            Content = new StackPanel { Classes = { "gaprow" }, Children = { delete, cancel } },
         };
     }
 }

@@ -56,6 +56,10 @@ public static class ResponseCurve
         return Math.Clamp(moved, minimum, maximum);
     }
 
+    /// <summary>How far an arrow key moves a focused band or gain, in tenths: one step of the headset, or a coarser one with Shift held.</summary>
+    /// <remarks>The headset takes no finer step than <see cref="PresetStore.BandStep"/>, so Shift goes the other way.</remarks>
+    public static int KeyStep(bool coarse) => coarse ? 4 * PresetStore.BandStep : PresetStore.BandStep;
+
     /// <summary>The tangent at each point, for a cubic through them that never overshoots.</summary>
     public static double[] Slopes(IReadOnlyList<(double X, double Y)> points)
     {
