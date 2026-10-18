@@ -61,6 +61,9 @@ and date.
 
 ### Changed
 
+- On Profiles, the profile in use now has a soft tint and says "In use" under
+  its name, and a screen reader hears it on the button that changes its apps.
+  It follows a switch from the menu, or by an app starting, as it happens.
 - On Profiles, a screen reader hears each profile's apps, and when they switch,
   on the button that changes them.
 - Deleting or saving an equaliser preset updates the list in about half the

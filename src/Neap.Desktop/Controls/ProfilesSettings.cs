@@ -125,7 +125,7 @@ public sealed class ProfilesSettings : UserControl
     }
 
     /// <summary>
-    /// A profile's row: its name and assigned apps, a way to choose apps, a
+    /// A profile's row: its name and assigned apps, tinted and marked "In use" while it is the active profile, a way to choose apps, a
     /// way to rename it, and a way to delete it.
     /// </summary>
     private Control Row(Profile profile)
@@ -161,12 +161,20 @@ public sealed class ProfilesSettings : UserControl
             Paint();
         };
 
-        return new SettingsCard
+        var card = new SettingsCard
         {
             Header = profile.Name,
             Description = assigned,
             Content = new StackPanel { Classes = { "gaprow" }, Children = { apps, rename, delete } },
         };
+        if (profile.Id == AppServices.Profiles.ActiveId)
+        {
+            string inUse = Strings.Get("Profile_InUse");
+            card.Below = new TextBlock { Text = inUse, Classes = { "caption", "inuse" } };
+            card.Bind(BackgroundProperty, card.GetResourceObservable("NeapPresetSelectedBrush"));
+            AutomationProperties.SetItemStatus(apps, inUse);
+        }
+        return card;
     }
 
     /// <summary>

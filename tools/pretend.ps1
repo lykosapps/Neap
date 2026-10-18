@@ -852,6 +852,9 @@ function AutoSwitching {
     Check ((& $on) -eq 'Desk') 'Desk, chosen by hand while Pretend Chat ran, stays on when it closes'
     Ask 'start PretendChat' | Out-Null
     Check (Until { (& $on) -eq 'Gaming' } 8) 'Pretend Chat starting puts its profile, Gaming, on'
+    # The row of the profile in use says so on its apps button, and the mark moves with the switch.
+    $inUse = { param($name) $b = Control "Apps for $name" ([System.Windows.Automation.ControlType]::Button); $null -ne $b -and $b.Current.ItemStatus -eq 'In use' }
+    Check (Until { (& $inUse 'Gaming') -and -not (& $inUse 'Desk') } 8) 'the Gaming row says In use, and the Desk row does not'
     Ask 'stop PretendChat' | Out-Null
     Check (Until { (& $on) -eq 'Desk' } 8) 'Pretend Chat closing puts the default, Desk, back on'
     Ask 'start PretendChat' | Out-Null
