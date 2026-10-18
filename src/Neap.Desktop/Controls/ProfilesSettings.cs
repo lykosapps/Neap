@@ -138,6 +138,13 @@ public sealed class ProfilesSettings : UserControl
         ToolTip.SetTip(apps, appsName);
         apps.Click += async (_, _) => await OpenAppPicker(profile);
 
+        // The row's line of apps is drawn, not reached from the keyboard, so the
+        // button that changes them says them to a screen reader too.
+        string assigned = profile.AssignedApps.Count > 0
+            ? Strings.List(profile.AssignedApps.Select(app => Described(profile, app)).ToList())
+            : Strings.Get("Profile_NoApps");
+        AutomationProperties.SetHelpText(apps, assigned);
+
         var rename = new Button { Content = Icon("IconEdit"), Classes = { "iconbutton" } };
         AutomationProperties.SetName(rename, Strings.Format("Profile_RenameNamed", profile.Name));
         rename.Click += async (_, _) =>
@@ -157,9 +164,7 @@ public sealed class ProfilesSettings : UserControl
         return new SettingsCard
         {
             Header = profile.Name,
-            Description = profile.AssignedApps.Count > 0
-                ? Strings.List(profile.AssignedApps.Select(app => Described(profile, app)).ToList())
-                : Strings.Get("Profile_NoApps"),
+            Description = assigned,
             Content = new StackPanel { Classes = { "gaprow" }, Children = { apps, rename, delete } },
         };
     }
