@@ -125,6 +125,16 @@
         <Setter Property="Foreground" Value="{DynamicResource NeapTextBrush}" />
     </Style>
 
+    <!--
+        Where Neap draws its own title bar, the toolkit writes the window's
+        title in a layer above the page, at the top left, where the menu now
+        starts. The title stays set, so the taskbar, Alt+Tab and screen
+        readers still name the window; only the drawn text goes.
+    -->
+    <Style Selector="WindowDrawnDecorations /template/ Panel#PART_TitleTextPanel > TextBlock">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+
     <!-- The type ramp: one class per role, compact so more of a page fits on screen. -->
     <!-- A selectable text block is a text block too, but a style for one does not reach the other. -->
     <Style Selector="TextBlock, SelectableTextBlock">
