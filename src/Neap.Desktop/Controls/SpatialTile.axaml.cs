@@ -54,9 +54,13 @@ public partial class SpatialTile : UserControl
     public static readonly StyledProperty<bool> AsRowProperty =
         AvaloniaProperty.Register<SpatialTile, bool>(nameof(AsRow));
 
+    public static readonly StyledProperty<bool> StackedProperty =
+        AvaloniaProperty.Register<SpatialTile, bool>(nameof(Stacked));
+
     private const string DolbyAccess = "ms-windows-store://pdp/?productid=9N0866FS04W8";
 
     private readonly StackPanel _segments = new() { IsEnabled = false };
+    private readonly Border _pill;
     private readonly StackPanel _cardSegments = new() { Orientation = Orientation.Horizontal };
     private bool _painting;
     private string? _knownEndpointId;
@@ -74,7 +78,8 @@ public partial class SpatialTile : UserControl
         AutomationProperties.SetName(_segments, name);
         AutomationProperties.SetName(_cardSegments, name);
         NeapControls.AsGroup(_cardSegments);
-        Row.Content = NeapControls.Pill(_segments);
+        _pill = NeapControls.Pill(_segments);
+        Row.Content = _pill;
         Choice.Child = _cardSegments;
     }
 
@@ -86,12 +91,29 @@ public partial class SpatialTile : UserControl
         set => SetValue(AsRowProperty, value);
     }
 
+    /// <summary>Gets or sets whether a row puts its segments under its title, as the mini panel's other rows do, instead of beside it.</summary>
+    /// <remarks>The same segments move; nothing is built twice.</remarks>
+    public bool Stacked
+    {
+        get => GetValue(StackedProperty);
+        set => SetValue(StackedProperty, value);
+    }
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property != AsRowProperty) return;
-        Card.IsVisible = !AsRow;
-        Row.IsVisible = AsRow;
+        if (change.Property == AsRowProperty)
+        {
+            Card.IsVisible = !AsRow;
+            Row.IsVisible = AsRow;
+        }
+        else if (change.Property == StackedProperty)
+        {
+            Row.Content = Stacked ? null : _pill;
+            Row.Below = Stacked ? _pill : null;
+            _pill.HorizontalAlignment = Stacked ? HorizontalAlignment.Left : HorizontalAlignment.Right;
+            _pill.Margin = Stacked ? (Thickness)Application.Current!.FindResource("NeapSectionGap")! : default;
+        }
     }
 
     protected override async void OnLoaded(RoutedEventArgs e)
@@ -167,7 +189,9 @@ public partial class SpatialTile : UserControl
                 : dolbyOn ? Strings.Get("Spatial_DolbyEqualizerNote")
                 : needsDriver ? Strings.Get("Spatial_DolbyNeedsDriver")
                 : null;
-            Row.Description = note;
+
+            // Stacked rows are narrow, so only the short note shows; the driver and equaliser notes stay on Home and Audio.
+            Row.Description = Stacked && !(panel.Active is null && panel.Unrecognised) ? null : note;
             Note.Text = note;
             Note.IsVisible = note is not null;
         }

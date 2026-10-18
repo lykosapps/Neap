@@ -18,11 +18,16 @@
         <Style Selector="c|SettingsCard">
             <Setter Property="SideBySideWidth" Value="0" />
         </Style>
+
+        <!-- Windows Sonic and Dolby Atmos under their title need the room the 360 wide panel has, so every pill here gives its segments a little less padding. -->
+        <Style Selector="Border.segmented RadioButton">
+            <Setter Property="Padding" Value="8,0" />
+        </Style>
     </Window.Styles>
 
     <!--
-        The four things changed mid-game: the mix, the microphone, noise
-        cancellation and the equaliser preset. A card, as Home's are, drawn
+        The things changed mid-game: the mix, the microphone, noise
+        cancellation, spatial sound and the equaliser preset. A card, as Home's are, drawn
         in a window of its own so it can sit by the notification area and
         go away when it loses focus.
     -->
@@ -136,29 +141,40 @@
                 </StackPanel>
             </c:HeadsetSection>
 
-            <c:HeadsetSection loc:Uid.Value="Mini_Section" Spacing="{StaticResource NeapSpaceS}">
-                <c:MicTile AsRow="True" />
+            <!--
+                One list. Spatial sound is the system's setting, not the
+                headset's, so as on Home and Audio it stays when the headset is
+                away; the headset's settings fold around it.
+            -->
+            <StackPanel Spacing="{StaticResource NeapSpaceS}">
+                <c:HeadsetSection loc:Uid.Value="Mini_Section" Spacing="{StaticResource NeapSpaceS}">
+                    <c:MicTile AsRow="True" />
 
-                <c:SettingsCard
-                    x:Name="NoiseRow"
-                    loc:Uid.Value="Mini_Noise"
-                    Icon="{StaticResource IconNoise}">
-                    <c:SettingsCard.Below>
-                        <Border Margin="{StaticResource NeapSectionGap}" Classes="segmented">
-                            <c:NoiseModes
-                                loc:Uid.Value="Quick_NoiseTile"
-                                AutomationProperties.AutomationId="mini_noise_control" />
-                        </Border>
-                    </c:SettingsCard.Below>
-                </c:SettingsCard>
+                    <c:SettingsCard
+                        x:Name="NoiseRow"
+                        loc:Uid.Value="Mini_Noise"
+                        Icon="{StaticResource IconNoise}">
+                        <c:SettingsCard.Below>
+                            <Border Margin="{StaticResource NeapSectionGap}" Classes="segmented">
+                                <c:NoiseModes
+                                    loc:Uid.Value="Quick_NoiseTile"
+                                    AutomationProperties.AutomationId="mini_noise_control" />
+                            </Border>
+                        </c:SettingsCard.Below>
+                    </c:SettingsCard>
+                </c:HeadsetSection>
 
-                <c:SettingsCard loc:Uid.Value="Mini_Equaliser" Icon="{StaticResource IconEqualiser}">
-                    <c:PresetChoice
-                        x:Name="Preset"
-                        MaxWidth="190"
-                        loc:Uid.Value="Quick_PresetPicker" />
-                </c:SettingsCard>
-            </c:HeadsetSection>
+                <c:SpatialTile AsRow="True" Stacked="True" />
+
+                <c:HeadsetSection Explain="False">
+                    <c:SettingsCard loc:Uid.Value="Mini_Equaliser" Icon="{StaticResource IconEqualiser}">
+                        <c:PresetChoice
+                            x:Name="Preset"
+                            MaxWidth="190"
+                            loc:Uid.Value="Quick_PresetPicker" />
+                    </c:SettingsCard>
+                </c:HeadsetSection>
+            </StackPanel>
         </StackPanel>
     </Border>
 </Window>
