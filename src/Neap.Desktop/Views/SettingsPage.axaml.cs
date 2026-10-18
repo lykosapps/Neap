@@ -33,7 +33,10 @@ public partial class SettingsPage : UserControl
         StartCard.IsVisible = Startup.Supported;
         if (!TrayAvailability.Exists) StartCard.Description = Strings.Get("Settings_StartMinimised");
 
+        MiniCard.IsVisible = TrayAvailability.Exists;
+
         _painting = true;
+        MiniPanelSwitch.IsChecked = AppSettings.Current.MiniPanel;
         StartWhenSignedIn.IsChecked = Startup.Enabled;
         CheckForUpdates.IsChecked = AppServices.Updates.Automatic;
         _painting = false;
@@ -50,6 +53,15 @@ public partial class SettingsPage : UserControl
             _painting = true;
             StartWhenSignedIn.IsChecked = Startup.Enabled;
             _painting = false;
+        };
+
+        MiniPanelSwitch.IsCheckedChanged += (_, _) =>
+        {
+            if (_painting) return;
+            bool on = MiniPanelSwitch.IsChecked == true;
+            AppSettings.Update(s => s.MiniPanel = on);
+            AppLog.Write(on ? "mini panel: on, a click on the icon opens it" : "mini panel: off, a click on the icon opens the window");
+            (TopLevel.GetTopLevel(this) as MainWindow)?.MiniPanelSettingChanged();
         };
 
         CheckForUpdates.IsCheckedChanged += (_, _) =>

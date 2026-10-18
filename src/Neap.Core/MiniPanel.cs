@@ -1,6 +1,16 @@
 namespace Neap.Core;
 
-/// <summary>Decides where the mini panel opens and whether a click on the tray icon opens it.</summary>
+/// <summary>What a click on the tray icon does.</summary>
+public enum TrayClick
+{
+    /// <summary>Brings the window forward.</summary>
+    OpenWindow,
+
+    /// <summary>Opens the mini panel, or closes it when it is open.</summary>
+    ToggleMiniPanel,
+}
+
+/// <summary>Decides where the mini panel opens, what a click on the tray icon does, and whether it opens the panel.</summary>
 /// <remarks>
 /// <para>
 /// The panel opens beside the notification area, as the system's own volume
@@ -37,6 +47,10 @@ public static class MiniPanel
         int y = top ? work.Y + margin : work.Y + work.Height - h - margin;
         return new(x, y, w, h);
     }
+
+    /// <summary>What a click on the icon does.</summary>
+    /// <param name="panelOn">Whether the person has the mini panel switched on.</param>
+    public static TrayClick Click(bool panelOn) => panelOn ? TrayClick.ToggleMiniPanel : TrayClick.OpenWindow;
 
     /// <summary>Whether a click on the icon opens the panel, rather than closing it or finishing the close that began it.</summary>
     /// <param name="isOpen">Whether the panel is open now.</param>

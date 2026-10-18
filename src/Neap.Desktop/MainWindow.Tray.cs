@@ -29,6 +29,7 @@ public partial class MainWindow : IDisposable
     private TrayIcon? _tray;
     private bool _quitting;
     private MiniPanelWindow? _mini;
+    private NativeMenuItem? _miniItem;
     private long _miniClosedAt;
 
     /// <summary>Gives memory back every minute while the window is hidden, on Windows.</summary>
@@ -58,6 +59,8 @@ public partial class MainWindow : IDisposable
         open.Click += (_, _) => Reveal();
         var mini = new NativeMenuItem(Strings.Get("Main_TrayMini"));
         mini.Click += (_, _) => ToggleMini();
+        mini.IsVisible = AppSettings.Current.MiniPanel;
+        _miniItem = mini;
         var quit = new NativeMenuItem(Strings.Get("Main_TrayQuit"));
         quit.Click += (_, _) => Quit();
         _tray = new TrayIcon
@@ -66,7 +69,11 @@ public partial class MainWindow : IDisposable
             Menu = new NativeMenu { open, mini, new NativeMenuItemSeparator(), quit },
         };
         if (Application.Current?.PlatformSettings is { } settings) settings.ColorValuesChanged += RepaintTrayPicture;
-        _tray.Clicked += (_, _) => ToggleMini();
+        _tray.Clicked += (_, _) =>
+        {
+            if (MiniPanel.Click(AppSettings.Current.MiniPanel) == TrayClick.ToggleMiniPanel) ToggleMini();
+            else Reveal();
+        };
         if (Application.Current is { } app) TrayIcon.SetIcons(app, new TrayIcons { _tray });
 
         AppServices.Updates.Found += release => Dispatcher.UIThread.Post(() => TellAboutUpdate(release));
@@ -75,6 +82,14 @@ public partial class MainWindow : IDisposable
         AppServices.Headset.Changed += () => Dispatcher.UIThread.Post(PaintTray);
         AppServices.AudioRoute.Changed += () => Dispatcher.UIThread.Post(PaintTray);
         PaintTray();
+    }
+
+    /// <summary>Takes the mini panel off the icon's menu and closes it when it is switched off, and puts it back when it is switched on.</summary>
+    public void MiniPanelSettingChanged()
+    {
+        bool on = AppSettings.Current.MiniPanel;
+        if (_miniItem is not null) _miniItem.IsVisible = on;
+        if (!on) _mini?.Close();
     }
 
     /// <summary>Opens the mini panel, or closes it when it is open.</summary>
