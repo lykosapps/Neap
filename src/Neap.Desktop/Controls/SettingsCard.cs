@@ -101,10 +101,12 @@ public class SettingsCard : ContentControl
             AutomationProperties.SetHelpText(control, Description);
     }
 
-    protected override Size ArrangeOverride(Size finalSize)
+    // Placed while measuring, so the control is measured where it is drawn; placed
+    // during arrange, it would keep the size measured for the other place.
+    protected override Size MeasureOverride(Size availableSize)
     {
-        Place(finalSize.Width);
-        return base.ArrangeOverride(finalSize);
+        if (double.IsFinite(availableSize.Width)) Place(availableSize.Width);
+        return base.MeasureOverride(availableSize);
     }
 
     /// <summary>Puts the control beside the name when there is room, and under it when there is not.</summary>
@@ -116,6 +118,11 @@ public class SettingsCard : ContentControl
         Grid.SetColumn(_control, beside ? 2 : 1);
         Grid.SetColumnSpan(_control, beside ? 1 : 2);
         _control.HorizontalAlignment = beside ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+
+        // A page may give the control a width so controls line up in a column beside their names.
+        // Under the name there is no column, and the control starts where the name does.
+        if (beside) _control.ClearValue(MinWidthProperty);
+        else _control.MinWidth = 0;
 
         // The gap between name and control belongs to the control, so a row with no icon has no gap before its name.
         // Likewise the gap above it when it sits under the name, so a row with nothing under it has no spare room.

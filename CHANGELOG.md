@@ -61,6 +61,8 @@ and date.
 
 ### Changed
 
+- In a narrow window, a switch that drops under its name now starts where the
+  name does, instead of floating in the middle of the row.
 - Before any chat app is chosen, Home and the mini panel show the game and
   chat dial faded and disabled, with the question about chat apps below it,
   rather than leaving the dial out, so it is clear what the card is for.
