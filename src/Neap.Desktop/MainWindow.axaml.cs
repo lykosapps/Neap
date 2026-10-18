@@ -63,14 +63,12 @@ public partial class MainWindow : Window
         };
         NavToggle.Click += (_, _) => Rail.IsPaneOpen = !Rail.IsPaneOpen;
 
-        // The profile switcher is one icon and the brand shows only its mark while the rail is icons only; both are in full whenever the rail is open, over the page too.
+        // The profile switcher is one icon while the rail is icons only, and in full whenever the rail is open, over the page too.
         Rail.PropertyChanged += (_, e) =>
         {
             if (e.Property != SplitView.IsPaneOpenProperty) return;
             Profile.Compact = !Rail.IsPaneOpen;
-            BrandName.IsVisible = Rail.IsPaneOpen;
         };
-        BrandName.Text = AppInfo.Name;
         Body.PageTransition = new EntranceTransition();
         DrawOwnTitleBar();
 
