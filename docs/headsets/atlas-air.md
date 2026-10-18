@@ -138,6 +138,14 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-10-18 — The owner's dock on Linux again, with 0.2.1.4's read pace:
+  Neap answered in 0.6 seconds. The restart read 16 reports as the dock came
+  back, the first holding the same start-up messages SP2Tools recorded from
+  a real unplug (`05 5d 03 00 10 31 ..`, `05 5c 03 00 80 2c 01`,
+  `05 5c 03 00 80 2c 03`, `05 5d 0e 00 b1 2c ..`), then Neap's own replies.
+  So the restart puts a transmitter through its real start-up, and the log
+  shows what it said.
+
 - 2026-10-17 — Before the headset first answers, Neap runs no Atlas Air
   code on Linux: the request is the same bytes as for the Stealth Pro II,
   and the same as on Windows, where the Atlas Air answers. The one

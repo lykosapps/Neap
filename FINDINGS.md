@@ -201,6 +201,12 @@ Windows the same dock, replugged and left unread for two and a half hours,
 answered Neap in three seconds *(measured)*. Neither reproduces the Atlas Air's
 silence.
 
+With reads paced at Windows' rate, the dock on Linux answered in 0.6 seconds.
+After Neap's restart, the first report read held the start-up messages
+`05 5d 03 00 10 31 ..`, `05 5c 03 00 80 2c 01`, `05 5c 03 00 80 2c 03` and
+`05 5d 0e 00 b1 2c ..`, the ones SP2Tools recorded after a real unplug
+*(measured)*: a USB reset puts the transmitter through its full start-up.
+
 ### Which headsets share the platform
 
 Swarm II's catalogue (`settings.json`, a zlib-compressed JSON list of 140
