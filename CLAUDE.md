@@ -115,3 +115,6 @@ dotnet test --project tests/Neap.Core.Tests -c Release
 dotnet format Neap.sln --verify-no-changes
 dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained
 ```
+
+## Working notes
+Claude working notes for this project are kept privately by the owner, outside this repository (`claude-profile`, `projects/neap/knowledge/INDEX.md`). Read them first when available; never add them here.
