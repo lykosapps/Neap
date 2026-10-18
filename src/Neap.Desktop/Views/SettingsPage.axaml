@@ -84,6 +84,13 @@
                     Icon="{StaticResource IconPower}">
                     <ToggleSwitch x:Name="StartWhenSignedIn" />
                 </c:SettingsCard>
+                <!-- The panel is opened by the icon, so it is left out where there is no icon. -->
+                <c:SettingsCard
+                    x:Name="MiniCard"
+                    loc:Uid.Value="Settings_MiniPanel"
+                    Icon="{StaticResource IconControls}">
+                    <ToggleSwitch x:Name="MiniPanelSwitch" />
+                </c:SettingsCard>
             </StackPanel>
 
             <TextBlock loc:Uid.Value="Settings_DiagnosticsHeading" Classes="sectionheader" />

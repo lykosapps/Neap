@@ -13,6 +13,9 @@ and date.
 
 ### Added
 
+- A switch on the Settings page turns the mini panel on or off. It is on by
+  default; when it is off, a click on the icon by the clock opens the window,
+  and "Mini panel" is left off the icon's menu.
 - The game and chat dial shows live levels: a thin arc inside the ring for each
   side, growing from its own end as that side plays, so you can see chat
   speaking and the game's sound as you set the mix. It reads each app's own

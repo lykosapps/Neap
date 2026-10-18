@@ -50,6 +50,14 @@ public class MiniPanelTests
         Assert.False(MiniPanel.Opens(true, TimeSpan.FromSeconds(5)));
 
     [Fact]
+    public void AClickOnTheIconTogglesThePanelWhileItIsOn() =>
+        Assert.Equal(TrayClick.ToggleMiniPanel, MiniPanel.Click(true));
+
+    [Fact]
+    public void AClickOnTheIconOpensTheWindowWhileThePanelIsOff() =>
+        Assert.Equal(TrayClick.OpenWindow, MiniPanel.Click(false));
+
+    [Fact]
     public void AClickRightAfterTheCloseIsThatCloseAndOpensNothing() =>
         Assert.False(MiniPanel.Opens(false, TimeSpan.FromMilliseconds(80)));
 }
