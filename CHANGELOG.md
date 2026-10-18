@@ -37,7 +37,7 @@ and date.
 - The Neap mark sits at the top of the menu, above the profile switcher, at
   the menu's left edge. The name is in the title bar, so it is not repeated
   beside the mark.
-- Every tile on Home has the same layout: icon and switch or arrow on top,
+- Every tile on Home has the same layout: icon and switch on top,
   then the name, then its state, so names line up across a row. On Game and
   chat, Keyboard shortcuts moves up beside the title.
 - The equaliser curve grows with the window and shows a dB scale, preset
@@ -68,6 +68,13 @@ and date.
 - On Profiles, the profile in use now has a soft tint and says "In use" under
   its name, and a screen reader hears it on the button that changes its apps.
   It follows a switch from the menu, or by an app starting, as it happens.
+- Every card on Home works the same way. On or off is a switch at the top
+  right, and the card is tinted while it is on; a choice among a few is a row
+  of segments under the name. Spatial sound now shows Off, Windows Sonic and
+  Dolby Atmos in view instead of opening a list, and Superhuman Hearing gets
+  a switch with its sound (Legacy, Footsteps or Gunshots) under the name,
+  faded until it is on. The microphone is a card with a switch too, instead of
+  a tile you press anywhere.
 - On Profiles, a screen reader hears each profile's apps, and when they switch,
   on the button that changes them.
 - Deleting or saving an equaliser preset updates the list in about half the

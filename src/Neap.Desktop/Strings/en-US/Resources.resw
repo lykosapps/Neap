@@ -1458,14 +1458,11 @@
   <data name="Quick_Shh.Text" xml:space="preserve">
     <value>Superhuman Hearing</value>
   </data>
-  <data name="Quick_SpatialTile.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Spatial sound</value>
+  <data name="Quick_ShhSounds.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Superhuman Hearing sound</value>
   </data>
   <data name="Quick_Spatial.Text" xml:space="preserve">
     <value>Spatial sound</value>
-  </data>
-  <data name="Quick_SpatialList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Spatial sound formats</value>
   </data>
   <data name="Noise_Title" xml:space="preserve">
     <value>Noise cancellation</value>

@@ -262,7 +262,7 @@
                 <ControlTemplate>
                     <Border x:Name="SwitchRoot" Background="{TemplateBinding Background}"
                             MinHeight="{StaticResource NeapTargetMin}">
-                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <StackPanel x:Name="SwitchRow" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Panel VerticalAlignment="Center">
                                 <Border x:Name="SwitchTrack"
                                         Width="{StaticResource NeapSwitchWidth}"

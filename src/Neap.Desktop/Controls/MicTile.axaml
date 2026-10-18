@@ -6,28 +6,35 @@
     xmlns:loc="using:Neap.Desktop.Localization">
 
     <Grid>
-    <ToggleButton x:Name="Face" Classes="tile" IsEnabled="False">
-        <StackPanel Classes="tilebody">
-            <Grid Classes="tilehead">
-                <PathIcon
-                    x:Name="Icon"
-                    Classes="tileicon"
-                    Data="{StaticResource IconMicrophone}" />
-                <Border
-                    x:Name="Glyph"
-                    Classes="switchglyph"
-                    AutomationProperties.AccessibilityView="Raw"
-                    IsVisible="False">
-                    <Ellipse />
-                </Border>
-            </Grid>
-            <TextBlock
-                loc:Uid.Value="Quick_Microphone"
-                Classes="tiletitle" />
-            <TextBlock x:Name="Word" Classes="tilestate" />
-        </StackPanel>
-    </ToggleButton>
+        <!--
+            Home's tile: a card with the switch in its head, tinted while the
+            microphone is live. The state word under the title says the
+            reason when the switch is out, such as the boom arm being up.
+        -->
+        <Border
+            x:Name="Card"
+            MinHeight="{StaticResource NeapTileMinHeight}"
+            Classes="card">
+            <StackPanel Classes="tilebody">
+                <Grid Classes="tilehead">
+                    <PathIcon
+                        x:Name="Icon"
+                        Classes="tileicon"
+                        AutomationProperties.AccessibilityView="Raw"
+                        Data="{StaticResource IconMicrophone}" />
+                    <ToggleSwitch
+                        x:Name="Face"
+                        Classes="tileswitch"
+                        Theme="{DynamicResource NeapSwitch}"
+                        IsEnabled="False" />
+                </Grid>
+                <TextBlock
+                    loc:Uid.Value="Quick_Microphone"
+                    Classes="tiletitle" />
+                <TextBlock x:Name="Word" Classes="tilestate" />
+            </StackPanel>
+        </Border>
 
-    <c:SettingsCard x:Name="Row" Icon="{StaticResource IconMicrophone}" IsVisible="False" />
+        <c:SettingsCard x:Name="Row" Icon="{StaticResource IconMicrophone}" IsVisible="False" />
     </Grid>
 </UserControl>

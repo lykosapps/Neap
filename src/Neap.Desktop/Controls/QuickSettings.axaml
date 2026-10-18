@@ -6,12 +6,20 @@
     xmlns:loc="using:Neap.Desktop.Localization">
 
     <!--
-        The settings reached for mid-game or mid-call, as tiles straight on the
-        page. Each shows how it works: a switch for the two that are on or off,
-        the three modes for noise cancellation, the preset and the way to the
-        equaliser for the equaliser, and a chevron for the one that opens a
-        choice. Arrange sets them out on a grid six columns wide, three to a
-        row when there is room and fewer as it narrows.
+        The settings reached for mid-game or mid-call, as cards on the page.
+        Every card follows one pattern, so nothing has to be learned twice:
+        its icon at the top left and its title, then its controls. There is
+        no click target on the card itself.
+
+        On or off is a switch at the top right of the head, and the card is
+        tinted while it is on. A choice among a few is a segmented control
+        under the title. A longer list is a drop-down. Where more settings
+        live on another page, an accent link at the foot goes there. What
+        cannot be used yet is faded and disabled, not hidden: the sound
+        choice of Superhuman Hearing while it is off.
+
+        Arrange sets them out on a grid six columns wide, three to a row when
+        there is room and fewer as it narrows.
     -->
     <Grid
         x:Name="Tiles"
@@ -19,7 +27,7 @@
         ColumnSpacing="{StaticResource NeapSpaceS}"
         RowSpacing="{StaticResource NeapSpaceS}">
 
-        <c:MicTile OnPage="True" />
+        <c:MicTile />
 
         <!--
             Noise cancellation is a choice of three, so the tile offers the
@@ -52,10 +60,10 @@
         </Border>
 
         <!--
-            The equaliser is not on or off, so its tile never fills. It names
-            the preset it is on, says when that preset comes from adjustments,
-            and opens the presets to pick one directly. Tuning is a sit-down
-            job, so the way to the equaliser is a link under it.
+            The equaliser is not on or off, so its card is never tinted. It names
+            the preset it is on and says when that preset comes from
+            adjustments, in a drop-down to pick one directly. Tuning is a
+            sit-down job, so the way to the equaliser is a link under it.
         -->
         <Border
             x:Name="EqualiserTile"
@@ -84,32 +92,43 @@
         </Border>
 
         <!--
-            The one Audio setting made for the middle of a game: footsteps
-            and quiet sounds. Its type and strength stay on Audio.
+            The one Audio setting made for the middle of a game: footsteps and
+            quiet sounds. Its sound is chosen under the title while it is on,
+            and shown faded while it is off. Its strength stays on Audio.
         -->
-        <ToggleButton
+        <Border
             x:Name="ShhTile"
-            loc:Uid.Value="Quick_ShhTile"
-            Classes="tile home"
-            IsEnabled="False">
+            MinHeight="{StaticResource NeapTileMinHeight}"
+            Classes="card">
             <StackPanel Classes="tilebody">
                 <Grid Classes="tilehead">
                     <PathIcon
                         Classes="tileicon"
                         AutomationProperties.AccessibilityView="Raw"
                         Data="{StaticResource IconHearing}" />
-                    <Border
-                        Classes="switchglyph"
-                        AutomationProperties.AccessibilityView="Raw">
-                        <Ellipse />
-                    </Border>
+                    <ToggleSwitch
+                        x:Name="ShhSwitch"
+                        loc:Uid.Value="Quick_ShhTile"
+                        Classes="tileswitch"
+                        Theme="{DynamicResource NeapSwitch}"
+                        IsEnabled="False" />
                 </Grid>
                 <TextBlock
                     loc:Uid.Value="Quick_Shh"
                     Classes="tiletitle" />
-                <TextBlock x:Name="ShhWord" Classes="tilestate" />
+                <Border
+                    x:Name="ShhSounds"
+                    Margin="{StaticResource NeapSectionGap}"
+                    Classes="segmented"
+                    IsEnabled="False">
+                    <StackPanel
+                        x:Name="ShhModes"
+                        loc:Uid.Value="Quick_ShhSounds"
+                        AutomationProperties.AutomationId="home_shh_preset"
+                        Orientation="Horizontal" />
+                </Border>
             </StackPanel>
-        </ToggleButton>
+        </Border>
 
         <!-- Spatial sound, on the systems that have it. -->
         <c:SpatialTile />

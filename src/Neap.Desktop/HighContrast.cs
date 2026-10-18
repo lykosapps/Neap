@@ -98,15 +98,16 @@ internal static class HighContrast
         // Cards, setting rows and tiles share the window colour here, so an outline is all that sets their edge.
         Brush("NeapCardStrokeBrush", p.Text);
 
-        // A setting's tile: plain and outlined, and filled with the system's
-        // highlight, text and all, while it is on.
+        // A setting's card: plain and outlined, on or off. A card that is on
+        // is not filled, since its switch is drawn in the highlight and would
+        // vanish into the same fill; the switch says it is on.
         Brush("NeapTileBrush", p.Window);
         Brush("NeapTileHoverBrush", p.Window);
         Brush("NeapTileTextBrush", p.Text);
-        Brush("NeapTileOnBrush", p.Highlight);
-        Brush("NeapTileOnHoverBrush", p.Highlight);
+        Brush("NeapTileOnBrush", p.Window);
+        Brush("NeapTileOnHoverBrush", p.Window);
         Brush("NeapTileOnStrokeBrush", p.Text);
-        Brush("NeapTileOnTextBrush", p.HighlightText);
+        Brush("NeapTileOnTextBrush", p.Text);
         Brush("NeapTileOnGlyphBrush", p.HighlightText);
         Brush("NeapTileOnKnobBrush", p.Highlight);
         Brush("NeapTileDisabledBrush", p.Window);

@@ -142,7 +142,7 @@ public sealed class SettingRow : SettingsCard
     private Control BuildChoice(SettingKey key)
     {
         var options = key.Options ?? new Dictionary<int, string>();
-        if (AsButtons) return BuildButtons(key, options);
+        if (AsButtons) return BuildButtons(key);
 
         _choice = new ComboBox { MinWidth = 160 };
         foreach (var option in options)
@@ -154,20 +154,13 @@ public sealed class SettingRow : SettingsCard
         return _choice;
     }
 
-    private Control BuildButtons(SettingKey key, IReadOnlyDictionary<int, string> options)
+    private Control BuildButtons(SettingKey key)
     {
         _buttons = new StackPanel();
-        string group = key.Name;
-        foreach (var option in options)
+        NeapControls.FillSegments(_buttons, key, value =>
         {
-            var button = NeapControls.Segment(OptionNames.For(key, option.Key), group);
-            button.Tag = option.Key;
-            button.IsCheckedChanged += (_, _) =>
-            {
-                if (!_paintingButtons && button.IsChecked == true) _link.Write((int)button.Tag!);
-            };
-            _buttons.Children.Add(button);
-        }
+            if (!_paintingButtons) _link.Write(value);
+        });
         return NeapControls.Pill(_buttons);
     }
 
@@ -269,8 +262,7 @@ public sealed class SettingRow : SettingsCard
             _paintingButtons = true;
             try
             {
-                foreach (var button in _buttons.Children.OfType<RadioButton>())
-                    button.IsChecked = button.Tag is int tag && tag == value;
+                NeapControls.Tick(_buttons, value);
             }
             finally { _paintingButtons = false; }
         }

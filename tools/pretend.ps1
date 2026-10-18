@@ -595,7 +595,7 @@ function Wheel {
     Screenshot 'home-mix'
 }
 
-# The microphone tile on Home, which mutes the microphone in Windows and
+# The microphone card on Home, whose switch mutes the microphone in Windows and
 # writes nothing to the headset, and is disabled while the boom arm is up.
 function MicTile {
     $script:step = 'the microphone tile on Home'
@@ -615,7 +615,7 @@ function MicTile {
 
     Ask 'report mic_muted 1' | Out-Null
     Check (Until { -not $tile.Current.IsEnabled -and $toggle.Current.ToggleState -eq 'Off' }) 'with the arm up, the microphone tile is out and disabled'
-    Check ($null -ne (Find $tile 'NameProperty' 'Muted by the boom arm')) 'the microphone tile says the boom arm muted it'
+    Check ($null -ne (Find $script:window 'NameProperty' 'Muted by the boom arm')) 'the microphone card says the boom arm muted it'
     Ask 'report mic_muted 0' | Out-Null
     Check (Until { $tile.Current.IsEnabled -and $toggle.Current.ToggleState -eq 'On' }) 'with the arm down again, the microphone tile is live'
     Check (@(Writes).Count -eq 0) 'following the arm, the microphone tile sends nothing'
