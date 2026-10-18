@@ -252,8 +252,10 @@ public sealed class HeadsetClient : IDisposable
                 foreach (var pair in evt.Values) values[pair.Key] = pair.Value;
                 if (evt.Kind == "OR") return values;
             }
-            var rest = ReadInterval - sinceRead.Elapsed;
-            if (rest > TimeSpan.Zero) Thread.Sleep(rest);
+            // Rounded up: a sleep is whole milliseconds, and rounding down
+            // asks faster than the interval allows.
+            double rest = Math.Ceiling((ReadInterval - sinceRead.Elapsed).TotalMilliseconds);
+            if (rest > 0) Thread.Sleep((int)rest);
         }
         if (values.Count == 0 && _heard is not null) Unanswered = Convert.ToHexString(_heard);
         return values;
