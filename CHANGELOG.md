@@ -13,6 +13,10 @@ and date.
 
 ### Added
 
+- The mini panel has spatial sound, between noise cancellation and the
+  equaliser: Off, Windows Sonic or Dolby Atmos, whichever the system offers. It
+  is left out where the system has none, and it stays when the headset is away,
+  as it does on Home.
 - A switch on the Settings page turns the mini panel on or off. It is on by
   default; when it is off, a click on the icon by the clock opens the window,
   and "Mini panel" is left off the icon's menu.

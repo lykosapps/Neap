@@ -17,12 +17,12 @@ using Neap.Desktop.Controls;
 namespace Neap.Desktop;
 
 /// <summary>
-/// The mini panel: the four things changed mid-game, in a small window by the
+/// The mini panel: the five things changed mid-game, in a small window by the
 /// notification area that goes away when it loses focus.
 /// </summary>
 /// <remarks>
 /// <para>
-/// The mix, the microphone, noise cancellation and the equaliser preset are
+/// The mix, the microphone, noise cancellation, spatial sound and the equaliser preset are
 /// the controls Home has, with the same logic behind them; this only lays
 /// them out small. <see cref="MiniPanel"/> decides where it sits.
 /// </para>
