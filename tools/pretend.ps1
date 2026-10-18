@@ -139,9 +139,13 @@ function Find($under, [string]$property, $value, [string]$scope = 'Descendants')
     $under.FindFirst($Scopes::$scope, $condition)
 }
 
+# A search made while a page is being replaced can meet elements already gone,
+# which UI Automation reports as a failure; that is "not there yet", and the
+# callers look again.
 function FindAll($under, [string]$property, $value) {
     $condition = New-Object System.Windows.Automation.PropertyCondition($A::$property, $value)
-    @($under.FindAll($Scopes::Descendants, $condition))
+    try { @($under.FindAll($Scopes::Descendants, $condition)) }
+    catch [System.Runtime.InteropServices.COMException] { @() }
 }
 
 # The app's windows other than the main one that are on screen. A menu, a
@@ -500,7 +504,8 @@ function PresetTools {
     Check (@(Writes | Where-Object { $_.key -eq '0x1610' }).Count -eq 0) 'asking deletes nothing'
     (Pattern (& $delete) ([System.Windows.Automation.InvokePattern])).Invoke()
     Check (Until { @(Writes | Where-Object { $_.key -eq '0x1610' }).Count -gt 0 }) 'confirming deletes Night Raid on the headset'
-    Check (Until { $null -eq (Control 'Night Raid' ([System.Windows.Automation.ControlType]::Button)) }) 'Night Raid leaves the list'
+    # Deleting reads the bank back, a second for each empty slot.
+    Check (Until { $null -eq (Control 'Night Raid' ([System.Windows.Automation.ControlType]::Button)) } 10) 'Night Raid leaves the list'
     Collect
 }
 
@@ -523,7 +528,7 @@ function HomeExtras {
     }
     Check (Until { (Pattern (& $equaliser) ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Equaliser settings goes to the Equaliser page'
     $game = { Control 'Game' ([System.Windows.Automation.ControlType]::RadioButton) }
-    Check (Until { $null -ne (& $game) -and (Pattern (& $game) ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Equaliser settings lands on the Game tab'
+    Check (Until { $tab = & $game; $null -ne $tab -and (Pattern $tab ([System.Windows.Automation.SelectionItemPattern])).Current.IsSelected }) 'Equaliser settings lands on the Game tab'
     Collect
 }
 
@@ -694,12 +699,16 @@ function Battery {
 function Spare {
     Page 'Device'
     $shown = { (Find $script:window 'AutomationIdProperty' 'SpareBattery').Current.Name }
-    Check (Until { (& $shown) -eq '64%' }) 'the Charging Dock shows its spare battery'
+    # A spare short of full is charging, and its figure runs high meanwhile,
+    # so the word stands in for the number until it is full.
+    Check (Until { (& $shown) -eq 'Charging' }) 'the Charging Dock shows its spare battery charging'
     Screenshot 'device-spare'
     Ask 'spare empty' | Out-Null
     Check (Until { (& $shown) -eq 'Empty' }) 'the spare taken out shows at once as an empty slot'
     Ask 'spare 30' | Out-Null
-    Check (Until { (& $shown) -eq '30%' }) 'a spare put back shows its charge'
+    Check (Until { (& $shown) -eq 'Charging' }) 'a spare put back shows it charging'
+    Ask 'spare 100' | Out-Null
+    Check (Until { (& $shown) -eq '100%' }) 'a full spare shows its charge'
 }
 
 # The profile bar (no profile, an active one, edited), and the Profiles
@@ -858,7 +867,9 @@ function AutoSwitching {
     Choose (& $when) "While it's using the microphone"
     Screenshot 'profile-apps-microphone'
     (Pattern (Control 'OK' ([System.Windows.Automation.ControlType]::Button)) ([System.Windows.Automation.InvokePattern])).Invoke()
-    Check (Until { $null -ne (Find $script:window 'NameProperty' 'Pretend Chat (while using the microphone)') }) 'the Gaming row says Pretend Chat switches on the microphone'
+    # The row's line of apps is drawn; its apps button says it to a screen reader.
+    $appsButton = { Control 'Apps for Gaming' ([System.Windows.Automation.ControlType]::Button) }
+    Check (Until { $b = & $appsButton; $null -ne $b -and $b.Current.HelpText -eq 'Pretend Chat (while using the microphone)' }) 'the Gaming row says Pretend Chat switches on the microphone'
     Check (Until { (& $on) -eq 'Desk' } 8) 'Pretend Chat open but off the microphone puts the default, Desk, back on'
     Ask 'record PretendChat' | Out-Null
     Check (Until { (& $on) -eq 'Gaming' } 8) 'Pretend Chat using the microphone puts Gaming on'
