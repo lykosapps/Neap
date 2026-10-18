@@ -127,6 +127,19 @@ The orchestrator reviews every branch, merges it and runs the screen checks.
 
 ## Log
 
+### 2026-10-18: second round checked on the headset
+
+- **Built:** the mini panel, live levels on the mix dial, Compare and undo
+  on the equaliser, the flat look, and the dial shown disabled until chat
+  apps are chosen.
+- **Checked:** the screen checks, the pretend-headset walk (173 steps) and
+  the accessibility walk, whose only failures are the two it had before the
+  redesign. All 17 headset checks in `HEADSET-CHECKS.md` passed with the
+  owner.
+- **Found by the checks and fixed:** a switch floating mid-row in a narrow
+  window, a slow preset list after a delete, and a profile's apps out of a
+  screen reader's reach.
+
 ### 2026-10-17: first round finished
 
 - **The look moved onto shared tokens:** neutral grounds, flat panels,
