@@ -31,8 +31,9 @@ and date.
   bigger step. Compare plays the headset flat for as long as you hold it and
   puts your curve back when you let go. Undo and Redo, or Ctrl+Z and Ctrl+Y,
   step back through the edits made to the curve since the page was opened.
-- The Neap mark and name sit at the top of the menu, above the profile
-  switcher. When the menu is icons only, just the mark shows.
+- The Neap mark sits at the top of the menu, above the profile switcher, at
+  the menu's left edge. The name is in the title bar, so it is not repeated
+  beside the mark.
 - Every tile on Home has the same layout: icon and switch or arrow on top,
   then the name, then its state, so names line up across a row. On Game and
   chat, Keyboard shortcuts moves up beside the title.

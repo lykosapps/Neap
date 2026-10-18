@@ -216,7 +216,9 @@ its accent. Neap takes those qualities and keeps its own identity.
 - **Setting row.** An icon, a name, an optional one-line description and
   the control on the right. It is 40px high, and the whole row is
   the click target where that makes sense.
-- **Left menu.** The profile switcher sits at its top, the same on Windows
+- **Left menu.** The Neap mark, without the name, sits at the top at the
+  menu's left edge, above the profile switcher; the title bar carries the
+  name. The profile switcher sits below it, the same on Windows
   and Linux, showing the active profile. Below it: Home, Audio, Equaliser,
   Controls, Profiles and Device, each an icon and a name. The selected item
   is a rounded pill one fill step lighter, with its accent bar. Settings
