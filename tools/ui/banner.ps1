@@ -25,8 +25,11 @@ $buttons = "What's new", 'Update and restart', 'Not now', 'More options'
 $sizes = @(
     @('desktop', 1920, 1000, 'wide'),
     @('laptop', 1536, 820, 'wide'),
-    @('edge', 920, 700, 'wide'),
-    @('mid', 900, 700, 'compact'),
+    # The banner spans the page column, beside the menu's icons at these
+    # widths, so it turns compact when the window is about 65 pixels wider
+    # than the banner's own threshold.
+    @('edge', 990, 700, 'wide'),
+    @('mid', 960, 700, 'compact'),
     @('narrow', 625, 700, 'compact')
 )
 
