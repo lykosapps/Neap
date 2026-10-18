@@ -11,14 +11,14 @@ answers, so nothing works there yet.
   updated 20 March 2026.
 - **Testers:** one on Windows, one on Linux (CachyOS), on
   [issue 1](https://github.com/lykosapps/Neap/issues/1).
-- **Latest test build:** 0.2.1.3. 0.2.1.4 is built, not yet published.
+- **Latest test build:** 0.2.1.3. 0.2.1.5 is built, not yet published.
 
 ## Connection
 
 | System | Neap connects | How sure | Next |
 |---|---|---|---|
 | Windows | Yes, through the USB Transmitter | Confirmed | — |
-| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | Cause unknown. The start-up lock-up SP2Tools saw on the Stealth Pro II's dock didn't reproduce for Neap on that dock. 0.2.1.4 restarts a silent transmitter once and logs what it hears, as a test. |
+| Linux | No. The transmitter opens; every request gets an empty reply. | Fails | Cause unknown. The start-up lock-up SP2Tools saw on the Stealth Pro II's dock didn't reproduce for Neap on that dock. 0.2.1.5 restarts a silent transmitter once and logs what it hears, as a test. |
 
 ## Features
 
@@ -31,7 +31,7 @@ answers, so nothing works there yet.
 | Superhuman Hearing, on/off | Listed | Yes | Has, test | Confirmed | Blocked | `0x800` | The tester heard it work from Neap's writes here, which settles it over the reading of Swarm II's code. |
 | Superhuman Hearing, type (Legacy, Footsteps, Gunshots) | Listed | Yes | Has, test | Confirmed | Blocked | `0x810` | — |
 | Superhuman Hearing, level | Listed | Yes | Has, test | Confirmed | Blocked | `0x820` | — |
-| Game and chat mix | Listed | Yes | Has | Confirmed | Blocked | Done on the PC | Saved in profiles from 0.2.1.4; see Problems. |
+| Game and chat mix | Listed | Yes | Has | Confirmed | Blocked | Done on the PC | Saved in profiles from 0.2.1.5; see Problems. |
 | Chat Boost | Listed | Unknown; probably only on the PC | Missing | Untried | Blocked | Unknown; probably done on the PC | Decide whether Neap should do it. |
 | Waves 3D (Games, Music, Movies) | Listed | Only with Neap's own sound processing | Missing | Read | Blocked | Done on the PC by Turtle Beach's Waves software | Not planned unless Neap does its own sound processing. |
 | High Bandwidth Audio | Listed | Yes, through the PC's sound format | Has | Seen | Missing | The PC's sound format: the transmitter offers 48 and 96 kHz | Neap's format choice on Device, Windows only; recordings read the format. Ask the tester to try 96 kHz. |
@@ -43,7 +43,7 @@ answers, so nothing works there yet.
 | Microphone mute | Listed | Yes | Has | Seen | Blocked | `0x600` | Shows on at start with the boom up; see Problems. |
 | Sensitivity | Listed | Yes | Has | Fails | Blocked | Done on the PC; on the Stealth Pro II `0x610` mirrors the PC's microphone level. Swarm II writes `0x610` here, 0–100 (Read). | Jumps to 100% when the tester speaks; see Problems. |
 | Monitoring, on/off | Listed | Unknown: Swarm II's switch writes nothing | Hidden | Untried | Blocked | Swarm II's switch writes nothing (Read) | Probably no on/off; the level alone. |
-| Monitoring, level | Listed | Yes, at `0x630` (Read) | Has, test | Untried | Blocked | `0x630`, 0–100 (Read) | In 0.2.1.4; ask the tester to listen. |
+| Monitoring, level | Listed | Yes, at `0x630` (Read) | Has, test | Untried | Blocked | `0x630`, 0–100 (Read) | In 0.2.1.5; ask the tester to listen. |
 | Noise gate, on/off | Listed | Yes | Has, test | Confirmed | Blocked | `0x700` | — |
 | Noise gate, level | Listed | Yes | Has, test | Confirmed | Blocked | `0x710` | Heard clear at 0%, cut at 50%, almost muted at 100%. |
 | High Bandwidth Microphone | Listed | Yes, through the PC's sound format | Has | Seen | Missing | The PC's sound format: the transmitter offers 16 and 48 kHz | As High Bandwidth Audio. |
@@ -67,8 +67,8 @@ answers, so nothing works there yet.
 | Drivers status, platform | Listed | — | Not planned | — | — | — | Swarm II's own drivers; nothing for Neap to show. |
 | Auto shut-off (never, 5, 10, 20, 30 min) | Listed | Yes | Has | Seen | Blocked | `0x280` | Ask the tester to check one. |
 | Battery pop-up warnings | Listed | Yes, on the PC | Missing | — | — | Done on the PC | Decide whether Neap should warn. |
-| Transmitter light brightness | Listed | Yes, at `0x430` (Read) | Has, test | Untried | Blocked | `0x430` in group `TX`, 0–100 (Read) | In 0.2.1.4: written and read there. Ask the tester. |
-| Voice and tone prompt level | Listed | Yes | Has, test | Untried | Blocked | `0xC00`, 0–15 (Read) | 0–15 in 0.2.1.4; ask whether every step changes it. |
+| Transmitter light brightness | Listed | Yes, at `0x430` (Read) | Has, test | Untried | Blocked | `0x430` in group `TX`, 0–100 (Read) | In 0.2.1.5: written and read there. Ask the tester. |
+| Voice and tone prompt level | Listed | Yes | Has, test | Untried | Blocked | `0xC00`, 0–15 (Read) | 0–15 in 0.2.1.5; ask whether every step changes it. |
 | Firmware updates | Listed | Yes, but Neap never writes firmware | Not planned | — | — | — | Neap never writes firmware. |
 
 ### Swarm II's own settings
@@ -79,7 +79,7 @@ answers, so nothing works there yet.
 | Start with the PC | Listed | Neap's own | Has | Untried | Untried | — | Neap's own. |
 | Language | Listed | Yes | Not planned | — | — | — | English only, written so it can be translated. |
 | Macro manager | Listed | Yes, on the PC | Not planned | — | — | — | Out of scope. |
-| Profiles | Listed | Neap's own | Has | Seen | Blocked | — | Neap's own, by the app in use. Marks the one in use from 0.2.1.4. |
+| Profiles | Listed | Neap's own | Has | Seen | Blocked | — | Neap's own, by the app in use. Marks the one in use from 0.2.1.5. |
 
 ### Physical controls
 
@@ -96,9 +96,9 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| AI noise reduction | Not listed | No: the headset doesn't have it | Hidden | Fails | — | Neap writes `0x630`, which is mic monitoring here | Not offered from 0.2.1.4. |
+| AI noise reduction | Not listed | No: the headset doesn't have it | Hidden | Fails | — | Neap writes `0x630`, which is mic monitoring here | Not offered from 0.2.1.5. |
 | Dial and button functions | Not listed; the mobile article lists them, the quick start guide doesn't | No: Swarm II writes none | Hidden | — | — | `0xA00`–`0xB20`, never written by Swarm II (Read) | Already hidden on the Atlas Air. |
-| Headset name | — | Yes | Has | Untried | — | `0x220` holds "My Headset" | "Atlas Air" from 0.2.1.4, and "Headset" with nothing connected. |
+| Headset name | — | Yes | Has | Untried | — | `0x220` holds "My Headset" | "Atlas Air" from 0.2.1.5, and "Headset" with nothing connected. |
 
 ## Problems
 
@@ -108,20 +108,20 @@ From the quick start guide. Neap describes them; it doesn't set them.
 | Master volume shakes on big dial turns | 0.2.1.2 | Much better in 0.2.1.3; rare | Leave unless it gets worse. |
 | Microphone shows on at start with the boom up, until it's lowered and raised | 0.2.1.2 | Probably fixed: the 0.2.1.3 recording reads the boom up from the start | Ask the tester. |
 | Sensitivity slider jumps to 100% when the tester speaks | 0.2.1.2 | Probably fixed: in the 0.2.1.3 recording the level follows the slider with no jump | Ask the tester. If it comes back, check whether Teams' automatic gain is raising the PC's microphone level. |
-| Game and chat mix isn't saved in profiles | 0.2.1.2 | Fixed for 0.2.1.4: on a headset with no chat wheel, profiles save and restore the mix (decision of 17 October) | Ask the tester. |
-| Profiles page doesn't say which profile is active | 0.2.1.2 | Fixed for 0.2.1.4: the profile in use is marked "In use" | Ask the tester. |
+| Game and chat mix isn't saved in profiles | 0.2.1.2 | Fixed for 0.2.1.5: on a headset with no chat wheel, profiles save and restore the mix (decision of 17 October) | Ask the tester. |
+| Profiles page doesn't say which profile is active | 0.2.1.2 | Fixed for 0.2.1.5: the profile in use is marked "In use" | Ask the tester. |
 | Master volume's mute button is highlighted when muted | 0.2.1.2 | By design: the mute button is on while muted | Say so in the reply. |
 
 ## Next
 
 - [x] Linux: a test build that also listens for answers on the input side of
-      the control channel, and logs what it hears there. In 0.2.1.4.
+      the control channel, and logs what it hears there. In 0.2.1.5.
 - [x] Make Neap restart a silent transmitter itself on Linux, once per
-      plug-in, reading it as it comes back. In 0.2.1.4; not yet tried on any
+      plug-in, reading it as it comes back. In 0.2.1.5; not yet tried on any
       Linux machine with a real transmitter.
-- [ ] Ask the Linux tester to try 0.2.1.4: allow access again when Neap asks,
+- [ ] Ask the Linux tester to try 0.2.1.5: allow access again when Neap asks,
       then record.
-- [ ] Publish test build 0.2.1.4 and ask both testers to try it. Built:
+- [ ] Publish test build 0.2.1.5 and ask both testers to try it. Built:
   - [x] voice prompts on 0–15
   - [x] transmitter light at `0x430`
   - [x] mic monitoring level at `0x630`
@@ -138,7 +138,11 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
-- 2026-10-18 — The owner's dock on Linux again, with 0.2.1.4's read pace:
+- 2026-10-18 — Tag `v0.2.1.4` failed its release build (the read-pace test
+  on Linux caught reads about every 14 ms) and made no release. Fixed, all
+  tests run on Linux first, and released as 0.2.1.5.
+
+- 2026-10-18 — The owner's dock on Linux again, with 0.2.1.5's read pace:
   Neap answered in 0.6 seconds. The restart read 16 reports as the dock came
   back, the first holding the same start-up messages SP2Tools recorded from
   a real unplug (`05 5d 03 00 10 31 ..`, `05 5c 03 00 80 2c 01`,
@@ -151,7 +155,7 @@ Newest first.
   and the same as on Windows, where the Atlas Air answers. The one
   difference in Neap's own behaviour is pace: on Linux each read takes
   about 1 ms, so Neap asked about every 4 ms (750 reads in three seconds),
-  where Windows asks about every 15 ms (190). 0.2.1.4 asks at Windows' pace
+  where Windows asks about every 15 ms (190). 0.2.1.5 asks at Windows' pace
   everywhere, as a test of whether the Atlas Air's transmitter can't keep
   up.
 
@@ -196,7 +200,7 @@ Newest first.
   `070700055C0300802C01`; Linux never has. On Linux, Neap stayed Quiet for
   ten minutes and more, so a headset in use should have linked in that time
   unless something else is wrong.
-- 2026-10-17 — 0.2.1.4 built from the plugin's findings: the changes in Next,
+- 2026-10-17 — 0.2.1.5 built from the plugin's findings: the changes in Next,
   checked by the tests against the pretend Atlas Air. The screen check and the headset are still to come.
 - 2026-10-17 — Turtle Beach's Swarm II article for the Atlas Air read: the
   feature list above. It has no AI noise reduction, no dial or button
