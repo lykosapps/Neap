@@ -9,7 +9,7 @@ namespace Neap.Desktop.Controls;
 
 /// <summary>
 /// The microphone, noise cancellation, the equaliser preset, Superhuman
-/// Hearing and spatial sound, as tiles: the settings reached for mid-game or
+/// Hearing and spatial sound, as cards: the settings reached for mid-game or
 /// mid-call.
 /// </summary>
 /// <remarks>
@@ -17,11 +17,11 @@ namespace Neap.Desktop.Controls;
 /// The microphone is the same <see cref="MicTile"/> as on the Audio page.
 /// </para>
 /// <para>
-/// A tile is disabled, with a dash for its state, until the headset reports
-/// its setting, because an unlit tile would read as off.
+/// A card's switch or segments are disabled until the headset reports the
+/// setting, because an untinted card with its switch off would read as off.
 /// </para>
 /// <para>
-/// Each tile follows the headset's own buttons: flipping the boom arm, or a
+/// Each card follows the headset's own buttons: flipping the boom arm, or a
 /// press of the mode button, shows here as it happens.
 /// </para>
 /// </remarks>
@@ -38,12 +38,14 @@ public partial class QuickSettings : UserControl
 
     private const string ShhSetting = "superhuman_hearing";
 
+    private const string ShhSoundSetting = "shh_preset";
+
     private readonly SettingLink _shh;
+    private readonly SettingLink _shhSound;
 
     public QuickSettings()
     {
         InitializeComponent();
-        ShhWord.Text = Strings.Get("Reading_None");
 
         Tiles.SizeChanged += (_, _) => Arrange();
         foreach (var tile in Tiles.Children)
@@ -53,8 +55,12 @@ public partial class QuickSettings : UserControl
             };
 
         _shh = new SettingLink(ShhTile, () => ShhSetting,
-            key => AutomationProperties.SetAutomationId(ShhTile, key.Name), PaintShh);
-        ShhTile.Click += (_, _) => _shh.Write(ShhTile.IsChecked == true ? 1 : 0);
+            key => AutomationProperties.SetAutomationId(ShhSwitch, key.Name), PaintShh);
+        ShhSwitch.Click += (_, _) => _shh.Write(ShhSwitch.IsChecked == true ? 1 : 0);
+
+        NeapControls.AsGroup(ShhModes);
+        _shhSound = new SettingLink(ShhSounds, () => ShhSoundSetting,
+            key => NeapControls.FillSegments(ShhModes, key, _shhSound!.Write), PaintShhSound);
 
         EqualiserLink.Click += (_, _) =>
         {
@@ -119,19 +125,18 @@ public partial class QuickSettings : UserControl
     private void PaintShh()
     {
         int? value = _shh.Value;
-        ShhTile.IsEnabled = (value is not null || _shh.Unread) && _shh.CanWrite;
-        ShhTile.IsChecked = value == 1;
-        ShhWord.Text = SettingWord(value);
-        AutomationProperties.SetItemStatus(ShhTile, ShhWord.Text);
+        ShhSwitch.IsEnabled = (value is not null || _shh.Unread) && _shh.CanWrite;
+        ShhSwitch.IsChecked = value == 1;
+        ShhTile.Classes.Set("on", value == 1);
     }
 
-    /// <summary>What an on-or-off setting's tile says for its value: on, off, or a dash before the headset reports it.</summary>
-    internal static string SettingWord(int? value) => value switch
+    /// <summary>Shows the chosen sound, faded and disabled while Superhuman Hearing is off, since it means nothing then.</summary>
+    private void PaintShhSound()
     {
-        null => Strings.Get("Reading_None"),
-        1 => Strings.Get("Switch_On"),
-        _ => Strings.Get("Switch_Off"),
-    };
+        int? value = _shhSound.Value;
+        ShhSounds.IsEnabled = _shh.Value == 1 && (value is not null || _shhSound.Unread) && _shhSound.CanWrite;
+        NeapControls.Tick(ShhModes, value);
+    }
 
     /// <summary>The resource naming a noise control mode.</summary>
     internal static string NoiseModeWord(NoiseMode mode) => mode switch

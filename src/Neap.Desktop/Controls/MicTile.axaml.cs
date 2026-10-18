@@ -9,35 +9,32 @@ using Neap.Core.Settings;
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// The headset's microphone as a tile, lit while it is live, on Home, or as
-/// a settings row with a switch on the Audio page.
+/// The headset's microphone as a card with a switch on Home, tinted while it is
+/// live, or as a settings row with a switch on the Audio page.
 /// </summary>
 /// <remarks>
 /// <para>
 /// A switch labelled "Muted" answers "is my microphone on?" backwards: a live
-/// microphone shows as a switch in the off position. So the tile is the
-/// microphone. Muted, its icon is crossed out and its word changed, so the
-/// state reads without the fill.
+/// microphone shows as a switch in the off position. So the switch is the
+/// microphone: on is live. Muted, its icon is crossed out and its word
+/// changed, so the state reads without the tint.
 /// </para>
 /// <para>
-/// A click mutes or unmutes the microphone in the system, since the headset
+/// The switch mutes or unmutes the microphone in the system, since the headset
 /// ignores a mute written to it; see <see cref="Microphone"/>. The system says
-/// nothing when its mute changes, so the tile reads it every second while it
+/// nothing when its mute changes, so the card reads it every second while it
 /// is on screen, which also follows a mute set anywhere else.
 /// </para>
 /// <para>
-/// It follows the boom arm: flipping it up mutes the headset, and the tile
-/// goes out, says so, and is disabled until the arm comes down, because
+/// It follows the boom arm: flipping it up mutes the headset, and the card
+/// loses its tint, says so, and is disabled until the arm comes down, because
 /// nothing on the PC can unmute it. It is disabled, with a dash for its
 /// state, until both the headset and the system have been read, because an
-/// unlit tile would read as muted.
+/// untinted card would read as muted.
 /// </para>
 /// </remarks>
 public partial class MicTile : UserControl
 {
-    public static readonly StyledProperty<bool> OnPageProperty =
-            AvaloniaProperty.Register<MicTile, bool>(nameof(OnPage));
-
     public static readonly StyledProperty<bool> AsRowProperty =
         AvaloniaProperty.Register<MicTile, bool>(nameof(AsRow));
 
@@ -66,8 +63,8 @@ public partial class MicTile : UserControl
         _switch.Click += async (_, _) => await Toggle();
     }
 
-    /// <summary>Gets or sets whether it shows as a settings row, with a switch, rather than as Home's tile.</summary>
-    /// <remarks>One control either way, so the page's row and Home's tile can never say different things.</remarks>
+    /// <summary>Gets or sets whether it shows as a settings row, with a switch, rather than as Home's card.</summary>
+    /// <remarks>One control either way, so the page's row and Home's card can never say different things.</remarks>
     public bool AsRow
     {
         get => GetValue(AsRowProperty);
@@ -86,15 +83,10 @@ public partial class MicTile : UserControl
         base.OnPropertyChanged(change);
         if (change.Property == AsRowProperty)
         {
-            Face.IsVisible = !AsRow;
+            Card.IsVisible = !AsRow;
             Row.IsVisible = AsRow;
         }
         else if (change.Property == BelowProperty) Row.Below = Below;
-        else if (change.Property == OnPageProperty)
-        {
-            Glyph.IsVisible = OnPage;
-            Face.Classes.Set("home", OnPage);
-        }
     }
 
     private async Task Toggle()
@@ -102,16 +94,6 @@ public partial class MicTile : UserControl
         if (!Microphone.CanChange(State)) return;
         await SoundVolume.SetMuted(State == MicState.Live, Flow.Input);
         await ReadSystem();
-    }
-
-    /// <summary>
-    /// Gets or sets whether the tile sits straight on a page, as on Home, drawn
-    /// as a switch on the page's fill, rather than inside a card.
-    /// </summary>
-    public bool OnPage
-    {
-        get => GetValue(OnPageProperty);
-        set => SetValue(OnPageProperty, value);
     }
 
     private MicState State => Microphone.Of(_link.Value, _mutedInSystem);
@@ -176,7 +158,7 @@ public partial class MicTile : UserControl
             MicState.ArmUp => Strings.Get("Mic_ArmUp"),
             _ => Strings.Get("Reading_None"),
         };
-        AutomationProperties.SetItemStatus(Face, Word.Text);
+        Card.Classes.Set("on", state == MicState.Live);
         var icon = (Geometry)Application.Current!.FindResource(
             state is MicState.Muted or MicState.ArmUp ? "IconMicrophoneOff" : "IconMicrophone")!;
         Icon.Data = icon;

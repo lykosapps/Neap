@@ -6,35 +6,39 @@
     xmlns:loc="using:Neap.Desktop.Localization">
 
     <!--
-        The system's spatial sound for the headset, as a tile: lit while it is
-        anything but off, the same as every other tile that can be on. The
-        format shows as its word, and the flyout lists what the system offers,
-        opened from the tile like the equaliser's, or from a row's button
-        beside the other levels.
+        The system's spatial sound for the headset, as a card on Home or a row
+        on Audio. The card is a choice among the formats the system offers, so
+        it is a segmented control under the title, the same as noise
+        cancellation. A line under it says what to know about the format, such
+        as Dolby Atmos needing its driver.
     -->
     <Grid>
-        <ToggleButton
-            x:Name="Face"
-            loc:Uid.Value="Quick_SpatialTile"
-            Classes="tile home"
-            IsEnabled="False">
+        <Border
+            x:Name="Card"
+            MinHeight="{StaticResource NeapTileMinHeight}"
+            Classes="card">
             <StackPanel Classes="tilebody">
                 <Grid Classes="tilehead">
                     <PathIcon
                         Classes="tileicon"
                         AutomationProperties.AccessibilityView="Raw"
                         Data="{StaticResource IconSpatial}" />
-                    <PathIcon
-                        Classes="tilechevron"
-                        AutomationProperties.AccessibilityView="Raw"
-                        Data="{StaticResource IconChevronDown}" />
                 </Grid>
                 <TextBlock
                     loc:Uid.Value="Quick_Spatial"
                     Classes="tiletitle" />
-                <TextBlock x:Name="Word" Classes="tilestate" />
+                <Border
+                    x:Name="Choice"
+                    Margin="{StaticResource NeapSectionGap}"
+                    Classes="segmented"
+                    IsEnabled="False" />
+                <TextBlock
+                    x:Name="Note"
+                    Margin="{StaticResource NeapSectionGap}"
+                    Classes="caption secondary"
+                    IsVisible="False" />
             </StackPanel>
-        </ToggleButton>
+        </Border>
 
         <c:SettingsCard
             x:Name="Row"

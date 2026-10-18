@@ -226,6 +226,15 @@ its accent. Neap takes those qualities and keeps its own identity.
   pill with the chosen segment filled in the accent. It is built on radio
   buttons, so a screen reader still says which of how many is chosen. Use it
   in place of a radio list wherever the options fit on one line.
+- **Home tiles.** Every tile on Home is a card with one pattern, so nothing is
+  learned twice: the icon at top left, the title, then its controls, and no
+  click target on the card itself. On or off is Neap's switch at the top
+  right, and the card takes the soft on tint while it is on. A choice among a
+  few is a segmented control under the title. A longer list is a drop-down.
+  Where more settings live on another page, an accent link sits at the foot.
+  A control that cannot be used yet is faded and disabled, not hidden, such as
+  the sound of Superhuman Hearing while it is off. High contrast keeps the
+  outline and leaves the on card unfilled, since the switch says it is on.
 - **Slider.** Neap's own: a thicker track filled in the accent up to the
   thumb, and the value shown on the thumb while it is dragged. The value
   also stays as text beside the slider.

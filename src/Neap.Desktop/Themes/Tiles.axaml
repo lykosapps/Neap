@@ -4,93 +4,41 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!--
-        The tiles on Home: flat buttons, one fill step above the page. A
-        setting that is on fills its tile with the accent; the equaliser is
-        not on or off, so its tile never fills and opens a list instead.
-        Pressed, a tile dims a little, since it has no edge to drop onto.
-
-        A tile that can not be changed, such as the microphone while the boom
-        arm mutes it, is drawn in its own quieter colours rather than faded:
-        its state still has to be read, so its text keeps 4.5:1.
+        The cards on Home. Each is a Border.card with one anatomy: a head row
+        with the icon at the left and, where the card is on or off, its switch
+        at the right, then the title, then the card's own control. A card
+        that is on takes the soft tint and its text colour; the switch keeps
+        its own look on it. Nothing on the card is a click target but its
+        controls.
     -->
-    <Style Selector=":is(ToggleButton).tile, Button.tile">
-        <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="VerticalAlignment" Value="Stretch" />
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="VerticalContentAlignment" Value="Stretch" />
-        <Setter Property="Padding" Value="{StaticResource NeapPaddingCard}" />
-        <Setter Property="MinHeight" Value="{StaticResource NeapTileMinHeight}" />
-        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusCard}" />
-        <Setter Property="Template">
-            <ControlTemplate>
-                <Border x:Name="Face"
-                        Padding="{TemplateBinding Padding}"
-                        Background="{DynamicResource NeapTileBrush}"
-                        BorderBrush="{DynamicResource NeapCardStrokeBrush}"
-                        BorderThickness="1"
-                        CornerRadius="{TemplateBinding CornerRadius}">
-                    <ContentPresenter x:Name="TileContent"
-                                      Content="{TemplateBinding Content}"
-                                      ContentTemplate="{TemplateBinding ContentTemplate}"
-                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                      TextElement.Foreground="{DynamicResource NeapTileTextBrush}" />
-                </Border>
-            </ControlTemplate>
-        </Setter>
-
-        <!-- A drawer is open under the tile: its bottom corners are squared to meet it. -->
-        <Style Selector="^.open">
-            <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusCardTop}" />
-        </Style>
-        <Style Selector="^:pointerover /template/ Border#Face">
-            <Setter Property="Background" Value="{DynamicResource NeapTileHoverBrush}" />
-        </Style>
-        <Style Selector="^:pressed /template/ Border#Face">
-            <Setter Property="Opacity" Value="0.85" />
-        </Style>
-    </Style>
-    <!--
-        A tile placed straight on the page, as on Home: the card's fill, not
-        the inset one, since nothing sits behind it to set it against.
-    -->
-    <Style Selector=":is(ToggleButton).tile.home /template/ Border#Face, Button.tile.home /template/ Border#Face">
-        <Setter Property="Background" Value="{DynamicResource NeapPanelBrush}" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile.home:pointerover /template/ Border#Face, Button.tile.home:pointerover /template/ Border#Face">
-        <Setter Property="Background" Value="{DynamicResource NeapTileHoverBrush}" />
+    <Style Selector="Border.card.on">
+        <Setter Property="Background" Value="{DynamicResource NeapTileOnBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapTileOnStrokeBrush}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource NeapTileOnTextBrush}" />
     </Style>
 
     <!--
-        A switch drawn on a tile that is one: a picture of the setting's
-        state, not a control, so the tile stays the one thing that can be
-        pressed. On the accent fill it inverts, white with an accent knob.
+        Something that cannot be used yet is shown faded, not hidden: a
+        segmented control in a card, such as the sound of Superhuman Hearing
+        while it is off.
     -->
-    <Style Selector="Border.switchglyph">
-        <Setter Property="Width" Value="{StaticResource NeapSwitchWidth}" />
-        <Setter Property="Height" Value="{StaticResource NeapSwitchHeight}" />
-        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusSegment}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapControlEdgeBrush}" />
-        <Setter Property="Background" Value="{DynamicResource NeapTrackBrush}" />
+    <Style Selector="Border.card Border.segmented:disabled">
+        <Setter Property="Opacity" Value="0.35" />
+    </Style>
+
+    <!--
+        The switch in a card's head, at its right and with no word beside it:
+        the tint and the switch itself say the state, and the card's own
+        line says anything more.
+    -->
+    <Style Selector="ToggleSwitch.tileswitch">
         <Setter Property="HorizontalAlignment" Value="Right" />
-        <Setter Property="VerticalAlignment" Value="Top" />
-        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="OnContent" Value="{x:Null}" />
+        <Setter Property="OffContent" Value="{x:Null}" />
     </Style>
-    <Style Selector="Border.switchglyph > Ellipse">
-        <Setter Property="Width" Value="{StaticResource NeapSwitchKnob}" />
-        <Setter Property="Height" Value="{StaticResource NeapSwitchKnob}" />
-        <Setter Property="Margin" Value="4,0" />
-        <Setter Property="HorizontalAlignment" Value="Left" />
-        <Setter Property="Fill" Value="{DynamicResource NeapControlStrokeBrush}" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:checked Border.switchglyph">
-        <Setter Property="Background" Value="{DynamicResource NeapTileOnGlyphBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource NeapTileOnGlyphBrush}" />
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:checked Border.switchglyph > Ellipse">
-        <Setter Property="Fill" Value="{DynamicResource NeapTileOnKnobBrush}" />
-        <Setter Property="HorizontalAlignment" Value="Right" />
+    <Style Selector="ToggleSwitch.tileswitch /template/ StackPanel#SwitchRow">
+        <Setter Property="Spacing" Value="0" />
     </Style>
 
     <!--
@@ -148,49 +96,9 @@
         <Setter Property="Background" Value="{DynamicResource NeapNavHoverBrush}" />
     </Style>
 
-    <Style Selector=":is(ToggleButton).tile:checked">
-        <Style Selector="^ /template/ Border#Face">
-            <Setter Property="Background" Value="{DynamicResource NeapTileOnBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource NeapTileOnStrokeBrush}" />
-        </Style>
-        <Style Selector="^:pointerover /template/ Border#Face">
-            <Setter Property="Background" Value="{DynamicResource NeapTileOnHoverBrush}" />
-        </Style>
-        <Style Selector="^ /template/ ContentPresenter#TileContent">
-            <Setter Property="TextElement.Foreground" Value="{DynamicResource NeapTileOnTextBrush}" />
-        </Style>
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:disabled">
-        <Style Selector="^ /template/ Border#Face">
-            <Setter Property="Background" Value="{DynamicResource NeapTileDisabledBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource NeapTileDisabledStrokeBrush}" />
-        </Style>
-        <Style Selector="^ /template/ ContentPresenter#TileContent">
-            <Setter Property="TextElement.Foreground" Value="{DynamicResource NeapTileDisabledTextBrush}" />
-        </Style>
-    </Style>
-    <Style Selector=":is(ToggleButton).tile:checked:disabled">
-        <Style Selector="^ /template/ Border#Face">
-            <Setter Property="Background" Value="{DynamicResource NeapTileOnDisabledBrush}" />
-        </Style>
-        <Style Selector="^ /template/ ContentPresenter#TileContent">
-            <Setter Property="TextElement.Foreground" Value="{DynamicResource NeapTileOnDisabledTextBrush}" />
-        </Style>
-    </Style>
-    <Style Selector="Button.tile:disabled /template/ Border#Face">
-        <Setter Property="Opacity" Value="0.55" />
-    </Style>
-    <!-- A keyboard user can see which tile has the keys. -->
-    <Style Selector=":is(ToggleButton).tile:focus-visible /template/ Border#Face, Button.tile:focus-visible /template/ Border#Face">
-        <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColorLight2}" />
-        <Setter Property="BorderThickness" Value="2" />
-    </Style>
-
     <!--
-        One anatomy for every tile on Home: a head row with the icon at the
-        left and the tile's affordance at the right, then the title, then the
-        state, then the tile's own control. The head row is one fixed height,
-        so titles line up across a row of tiles.
+        The anatomy of every card on Home: the head row is one fixed height,
+        so titles line up across a row of cards.
     -->
     <Style Selector="StackPanel.tilebody">
         <Setter Property="Spacing" Value="{StaticResource NeapSpaceHairline}" />
@@ -206,17 +114,7 @@
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
-    <Style Selector="PathIcon.tilechevron">
-        <Setter Property="Width" Value="{StaticResource NeapIconRow}" />
-        <Setter Property="Height" Value="{StaticResource NeapIconRow}" />
-        <Setter Property="HorizontalAlignment" Value="Right" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
-    <Style Selector="Grid.tilehead > Border.switchglyph">
-        <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
-
-    <!-- A tile's name and its state, under its icon. -->
+    <!-- A card's name and its state, under its icon. -->
     <Style Selector="TextBlock.tiletitle">
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
