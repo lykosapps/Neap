@@ -51,8 +51,8 @@ public partial class MainWindow : Window
         // without taking the keyboard from them.
         if (Pretend.Behind) ShowActivated = false;
 
-        Activated += (_, _) => WindowPresence.Set(true);
-        Deactivated += (_, _) => WindowPresence.Set(false);
+        Activated += (_, _) => WindowPresence.Set(this, true);
+        Deactivated += (_, _) => WindowPresence.Set(this, false);
 
         Places.SelectionChanged += (_, _) => OnChosen(Places, Foot);
         Foot.SelectionChanged += (_, _) => OnChosen(Foot, Places);

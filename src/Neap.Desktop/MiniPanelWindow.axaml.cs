@@ -62,10 +62,11 @@ public partial class MiniPanelWindow : Window
         OpenNeap.Click += (_, _) => OpenWindow(null);
         ChooseApps.Click += (_, _) => OpenWindow("home");
         Preset.Flyout!.Closed += (_, _) => CloseIfAway();
-        Activated += (_, _) => WindowPresence.Set(true);
+        Activated += (_, _) => WindowPresence.Set(this, true);
+        Closed += (_, _) => WindowPresence.Set(this, false);
         Deactivated += (_, _) =>
         {
-            WindowPresence.Set(false);
+            WindowPresence.Set(this, false);
             Dispatcher.UIThread.Post(CloseIfAway);
         };
         KeyDown += (_, e) =>

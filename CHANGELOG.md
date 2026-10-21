@@ -157,6 +157,9 @@ and date.
 
 ### Fixed
 
+- The microphone meter on the Audio page moves again after opening Neap from
+  the mini panel. Neap took itself to be behind other windows, so the meter
+  stayed still until you switched away and back.
 - With the boom microphone off, muting with the headset's button now mutes
   the microphone on the PC too, and the microphone card says "Muted on the
   headset". Neap's own microphone switch mutes the headset itself, with its
