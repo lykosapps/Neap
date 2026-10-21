@@ -5,6 +5,7 @@ using System.Text.Json;
 using Neap.Core;
 using Neap.Core.Audio;
 using Neap.Core.Connection;
+using Neap.Core.Diagnostics;
 using Neap.Core.Hid;
 using Neap.Core.Protocol;
 using Neap.Core.Settings;
@@ -603,6 +604,8 @@ public sealed class HeadsetService : IDisposable
                     }
 
                     Merge(everything, authoritative: true);
+                    foreach (string group in HeadsetCheck.Silent(everything.Keys, Categories()))
+                        AppLog.Write($"headset: no answer for its {group} settings, which have no reading until it reports them");
                     primed = true;
                     unanswered = 0;
                     beats = 0;
@@ -869,8 +872,8 @@ public sealed class HeadsetService : IDisposable
             ? _lightingBlock + (key - 0x400)
             : HeadsetModels.KeyOnHeadset(Model, key);
 
-    /// <summary>The groups of settings to ask the connected headset for: every headset's, and any of its own.</summary>
-    private IEnumerable<string> Categories() => Verbs.SettingCategories.Concat(Model?.ExtraCategories ?? []);
+    /// <summary>The groups of settings to ask the connected headset for; see <see cref="HeadsetModels.CategoriesOf"/>.</summary>
+    private IEnumerable<string> Categories() => HeadsetModels.CategoriesOf(Model);
 
     private IReadOnlyDictionary<string, JsonElement> AtStandardKeys(IReadOnlyDictionary<string, JsonElement> reported) =>
         HeadsetModels.AtStandardKeys(Model, reported);

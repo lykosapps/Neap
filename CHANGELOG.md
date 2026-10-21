@@ -167,6 +167,8 @@ and date.
   off, the microphone comes back on when the arm is seen down, even after
   Neap was closed or the headset was off in between. A mute you set
   yourself in Neap stays.
+- When the headset gives no answer for a group of its settings, such as
+  the Atlas Air's transmitter light, the app log and recordings say so.
 - A screen reader now announces noise cancellation, the Mode button, the lower
   dial and Superhuman Hearing's sound as named groups of options, instead of
   leaving the group's name out.

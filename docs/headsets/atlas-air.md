@@ -111,6 +111,11 @@ From the quick start guide. Neap describes them; it doesn't set them.
 | Game and chat mix isn't saved in profiles | 0.2.1.2 | Fixed for 0.2.1.5: on a headset with no chat wheel, profiles save and restore the mix (decision of 17 October) | Ask the tester. |
 | Profiles page doesn't say which profile is active | 0.2.1.2 | Fixed for 0.2.1.5: the profile in use is marked "In use" | Ask the tester. |
 | Master volume's mute button is highlighted when muted | 0.2.1.2 | By design: the mute button is on while muted | Say so in the reply. |
+| Mic monitoring does nothing | 0.2.1.5 | Fixed for 0.2.1.6: every level above 1 was refused, checked as the Stealth Pro II's switch at `0x630` | Ask the tester to listen. |
+| Voice prompts slider shakes, and shows 0–100 until moved | 0.2.1.5 | Fixed for 0.2.1.6: sliders move in whole steps; the headset held 100, written by 0.2.1.3, now shown at the slider's end | Ask the tester. |
+| Microphone shows Muted after the headset is switched on with the arm down | 0.2.1.5 | Fixed for 0.2.1.6: a mute the headset set is undone on the first reading with the arm down, across restarts of Neap | Ask the tester. |
+| Transmitter light has no reading at start | 0.2.1.5 | Open: `STX` gets no answer; writes to `0x430` work | 0.2.1.6 names the silent group in the log and recordings. |
+| Linux: the restart switches the headset off | 0.2.1.5 | Open: the restart is once per plug-in only while Neap runs, so likely on every start of Neap | Ask the tester whether a second start of Neap restarts it again. |
 
 ## Next
 
@@ -138,6 +143,16 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-10-18 — Windows tester, 0.2.1.5. Voice prompts and the transmitter
+  light change the sound and the light. The light has no reading at start.
+  The voice prompts slider shakes. Mic monitoring does nothing: the
+  recording shows 99 writes to `0x630` refused as a switch. The mic shows
+  Muted after switching on with the arm down; the log shows Neap started
+  with the headset off, so it had no earlier reading.
+- 2026-10-18 — Linux tester, 0.2.1.5. After allowing the restart, the
+  transmitter answered and the headset connected. The restart switched the
+  headset off. The battery showed Settling once it was back on, as it does
+  on Windows for the first minutes after switching on.
 - 2026-10-18 — Tag `v0.2.1.4` failed its release build (the read-pace test
   on Linux caught reads about every 14 ms) and made no release. Fixed, all
   tests run on Linux first, and released as 0.2.1.5.

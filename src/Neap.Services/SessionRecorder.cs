@@ -185,7 +185,7 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
         // headset Neap doesn't know, a group it keeps elsewhere would otherwise
         // read as functions it doesn't have.
         if (values.Count > 0)
-            foreach (string group in HeadsetCheck.Silent(values.Keys))
+            foreach (string group in HeadsetCheck.Silent(values.Keys, HeadsetModels.CategoriesOf(headset.Model)))
             {
                 try
                 {

@@ -48,6 +48,18 @@ public class HeadsetCheckTests
     }
 
     [Fact]
+    public void AGroupOfAHeadsetsOwnWithNothingReportedIsAskedAgain()
+    {
+        // Measured on an Atlas Air: its Superhuman Hearing and voice prompts
+        // answered, and its transmitter group, with the light at 0x430, did not.
+        var silent = HeadsetCheck.Silent(Keys("240", "800", "c00"), HeadsetModels.CategoriesOf(HeadsetModels.AtlasAir));
+
+        Assert.Contains("TX", silent);
+        Assert.DoesNotContain("SHH", silent);
+        Assert.DoesNotContain("Prm", silent);
+    }
+
+    [Fact]
     public void AFunctionLeftOutOfAGroupThatAnsweredIsMissing()
     {
         var findings = HeadsetCheck.Of(Keys("700", "710"), Keys());

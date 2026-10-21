@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using Neap.Core.Diagnostics;
+using Neap.Core.Protocol;
 using Neap.Core.Settings;
 using static Neap.Core.Transmitters;
 
@@ -202,6 +203,10 @@ public static class HeadsetModels
     /// <summary>Whether what goes with CrossPlay is shown: the dock, its ring and switching transmitters; see <see cref="HeadsetModel.CrossPlay"/>.</summary>
     public static bool ShowsCrossPlay(HeadsetModel? model) => model is null || model.CrossPlay;
 
+    /// <summary>The groups of settings to ask a headset for: every headset's, and any of its own.</summary>
+    public static IEnumerable<string> CategoriesOf(HeadsetModel? model) =>
+        Verbs.SettingCategories.Concat(model?.ExtraCategories ?? []);
+
     /// <summary>The key of a headset's copy of the system's output level: the Stealth Pro II's while it is not known.</summary>
     public static int VolumeKeyOf(HeadsetModel? model) => (model ?? StealthProII).VolumeKey;
 
@@ -218,11 +223,6 @@ public static class HeadsetModels
     public static SettingKey OnHeadset(HeadsetModel? model, SettingKey key) =>
         Registry.ByKey.TryGetValue(KeyOnHeadset(model, key.Key), out var own) && own.Kind == key.Kind ? own : key;
 
-    /// <summary>The name shown above a headset's status: the one its owner gave it where the headset shows that, else its model's.</summary>
-    /// <returns>Null while no known headset is connected and it has no name.</returns>
-    public static string? Label(HeadsetModel? model, string? given) =>
-        model is { ShowsGivenName: false } ? model.Name : HeadsetLabel.Given(given) ?? model?.Name;
-
     /// <summary>The key whose range a write of a setting to a headset is checked against: that of <see cref="OnHeadset"/>.</summary>
     /// <remarks>
     /// The Atlas Air's mic monitoring level is sent to the key of the Stealth
@@ -230,6 +230,11 @@ public static class HeadsetModels
     /// </remarks>
     public static int CheckedAs(HeadsetModel? model, int key) =>
         Registry.ByKey.TryGetValue(key, out var setting) ? OnHeadset(model, setting).Key : key;
+
+    /// <summary>The name shown above a headset's status: the one its owner gave it where the headset shows that, else its model's.</summary>
+    /// <returns>Null while no known headset is connected and it has no name.</returns>
+    public static string? Label(HeadsetModel? model, string? given) =>
+        model is { ShowsGivenName: false } ? model.Name : HeadsetLabel.Given(given) ?? model?.Name;
 
     /// <summary>What a headset reported, with each setting it keeps elsewhere moved to the Stealth Pro II's key, where the app looks for it.</summary>
     /// <remarks>

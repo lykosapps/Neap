@@ -119,11 +119,12 @@ public static class HeadsetCheck
 
     /// <summary>The groups of settings the headset gave no answer for, to be asked again.</summary>
     /// <param name="reported">The keys the headset reported, as lowercase hex.</param>
+    /// <param name="categories">The groups the headset was asked for: every headset's, unless given.</param>
     /// <remarks>Only groups the registry has settings in are named: a group Neap reads nothing from is not missed.</remarks>
-    public static IReadOnlyList<string> Silent(IEnumerable<string> reported)
+    public static IReadOnlyList<string> Silent(IEnumerable<string> reported, IEnumerable<string>? categories = null)
     {
         var groups = reported.Select(hex => Group(Convert.ToInt32(hex, 16))).ToHashSet();
-        return Verbs.SettingCategories
+        return (categories ?? Verbs.SettingCategories)
             .Where(category => Registry.All.Any(k => k.Category == category)
                 && !Registry.All.Any(k => k.Category == category && groups.Contains(Group(k.Key))))
             .ToList();
