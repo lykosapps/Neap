@@ -15,8 +15,8 @@ and date.
 
 - The mini panel has spatial sound, between noise cancellation and the
   equaliser: Off, Windows Sonic or Dolby Atmos, whichever the system offers. It
-  is left out where the system has none, and it stays when the headset is away,
-  as it does on Home.
+  is left out where the system has none, and folds away with the headset's
+  settings when the headset is away.
 - A switch on the Settings page turns the mini panel on or off. It is on by
   default; when it is off, a click on the icon by the clock opens the window,
   and "Mini panel" is left off the icon's menu.
@@ -157,6 +157,16 @@ and date.
 
 ### Fixed
 
+- Button text sits in the middle of its button; it sat a little high.
+- A click anywhere along a slider moves it there. Before, only dragging the
+  handle moved it.
+- Links keep their size when pointed at, and show a soft fill instead of
+  turning bold, which pushed the text around them.
+- The line that shows the equaliser reading its presets, and a profile being
+  saved, moves again. It stays still when animation is off in Windows.
+- The mini panel is its usual size on a large screen. It grew whenever the
+  main window was small; it now grows only on a small screen, such as the
+  Steam Deck's.
 - The microphone meter on the Audio page moves as soon as the page opens.
   It could stay still until you switched away and back or opened the page
   again: Neap could take itself to be behind other windows after the mini

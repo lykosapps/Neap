@@ -44,9 +44,14 @@
     <!--
         A link to another page: the accent, with an arrow after it. A button
         underneath, so the keyboard and screen readers reach it as one.
+        Pointed at, it takes the quiet button's fill and keeps its weight, so
+        the text never changes size. The fill reaches past the text by its
+        padding, and the margin takes that back, so the text lines up with
+        what is around it.
     -->
     <Style Selector="Button.link">
         <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Margin" Value="-8,0" />
         <Setter Property="Foreground" Value="{DynamicResource NeapAccentTextBrush}" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -55,7 +60,8 @@
                         Background="Transparent"
                         BorderBrush="Transparent"
                         BorderThickness="{StaticResource NeapFocusRingWidth}"
-                        CornerRadius="{StaticResource NeapRadiusTag}">
+                        CornerRadius="{StaticResource NeapRadiusTag}"
+                        Padding="6,0">
                     <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceXS}" VerticalAlignment="Center">
                         <ContentPresenter x:Name="PART_ContentPresenter"
                                           Content="{TemplateBinding Content}"
@@ -73,8 +79,11 @@
             </ControlTemplate>
         </Setter>
     </Style>
-    <Style Selector="Button.link:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="TextElement.FontWeight" Value="SemiBold" />
+    <Style Selector="Button.link:pointerover /template/ Border#LinkFace">
+        <Setter Property="Background" Value="{DynamicResource NeapButtonHoverBrush}" />
+    </Style>
+    <Style Selector="Button.link:pressed /template/ Border#LinkFace">
+        <Setter Property="Background" Value="{DynamicResource NeapButtonPressedBrush}" />
     </Style>
     <Style Selector="Button.link:focus-visible /template/ Border#LinkFace">
         <Setter Property="BorderBrush" Value="{DynamicResource NeapTextBrush}" />

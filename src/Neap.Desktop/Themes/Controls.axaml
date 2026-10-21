@@ -8,11 +8,40 @@
         a soft fill one step above its panel, with no outline. Classes="quiet" is
         text alone, with its fill only while pointed at or pressed.
         All are as high as a field and never smaller than a pointer target;
-        the toolkit's focus mark is left as it is.
+        the toolkit's focus mark is left as it is. Figtree's line sits its
+        letters high in the box, so the padding is heavier above than below,
+        which centres the letters rather than the line.
     -->
     <Style Selector="Button">
         <Setter Property="MinHeight" Value="{StaticResource NeapControlHeight}" />
         <Setter Property="MinWidth" Value="{StaticResource NeapTargetMin}" />
+        <Setter Property="Padding" Value="12,8,12,3" />
+    </Style>
+
+    <!--
+        A thin busy line: a short stretch of the accent on the slider's track.
+        Motion.axaml sweeps it along while animation is on; with it off the
+        line stands still, as everything else does. The toolkit's own
+        indeterminate bar works out its sweep before it has a size, so it
+        sweeps nowhere.
+    -->
+    <Style Selector="ProgressBar.busy">
+        <Setter Property="Width" Value="48" />
+        <Setter Property="Height" Value="4" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="IsIndeterminate" Value="True" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{DynamicResource NeapDialTrackBrush}" CornerRadius="2" ClipToBounds="True">
+                    <Border x:Name="PART_Indicator"
+                            Width="16"
+                            HorizontalAlignment="Left"
+                            Background="{DynamicResource NeapAccentFillBrush}"
+                            CornerRadius="2" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
     </Style>
 
     <Style Selector="Button.quiet">
@@ -182,7 +211,7 @@
                                        Value="{TemplateBinding Value, Mode=TwoWay}"
                                        IsDirectionReversed="{TemplateBinding IsDirectionReversed}">
                                     <Track.DecreaseButton>
-                                        <RepeatButton Focusable="False" HorizontalAlignment="Stretch">
+                                        <RepeatButton x:Name="PART_DecreaseButton" Focusable="False" HorizontalAlignment="Stretch">
                                             <RepeatButton.Template>
                                                 <ControlTemplate>
                                                     <Border x:Name="Fill" CornerRadius="3"
@@ -193,7 +222,7 @@
                                         </RepeatButton>
                                     </Track.DecreaseButton>
                                     <Track.IncreaseButton>
-                                        <RepeatButton Focusable="False">
+                                        <RepeatButton x:Name="PART_IncreaseButton" Focusable="False">
                                             <RepeatButton.Template>
                                                 <ControlTemplate>
                                                     <Border Background="Transparent" />

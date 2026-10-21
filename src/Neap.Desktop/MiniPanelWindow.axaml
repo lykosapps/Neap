@@ -143,8 +143,8 @@
 
             <!--
                 One list. Spatial sound is the system's setting, not the
-                headset's, so as on Home and Audio it stays when the headset is
-                away; the headset's settings fold around it.
+                headset's, but the panel is for the headset in use, so it folds
+                away with the headset's settings rather than standing alone.
             -->
             <StackPanel Spacing="{StaticResource NeapSpaceS}">
                 <c:HeadsetSection loc:Uid.Value="Mini_Section" Spacing="{StaticResource NeapSpaceS}">
@@ -162,9 +162,9 @@
                             </Border>
                         </c:SettingsCard.Below>
                     </c:SettingsCard>
-                </c:HeadsetSection>
 
-                <c:SpatialTile AsRow="True" Stacked="True" />
+                    <c:SpatialTile AsRow="True" Stacked="True" />
+                </c:HeadsetSection>
 
                 <c:HeadsetSection Explain="False">
                     <c:SettingsCard loc:Uid.Value="Mini_Equaliser" Icon="{StaticResource IconEqualiser}">

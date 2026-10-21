@@ -127,9 +127,6 @@ public partial class MainWindow : Window
         NavToggle.IsVisible = folded;
     }
 
-    /// <summary>Gets whether the window is drawn at touch size, which the mini panel follows.</summary>
-    public bool IsTouch => Classes.Contains("touch");
-
     /// <summary>Marks the window <c>touch</c> while it is small enough for the roomier size, which the styles take their larger sizes from.</summary>
     private void FitDensity(Size size) =>
         Classes.Set("touch", Density.For(size.Width, size.Height) == DensityMode.Touch);

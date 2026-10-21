@@ -56,7 +56,7 @@ public sealed class ProfileBar : UserControl
     private readonly Button _discardButton;
     private readonly Grid _editRow;
     private readonly ListBox _list = new();
-    private readonly ProgressBar _working = new() { Width = 40, MinWidth = 0, MinHeight = 0, Height = 4, IsIndeterminate = true, IsVisible = false, VerticalAlignment = VerticalAlignment.Center };
+    private readonly ProgressBar _working = new() { Classes = { "busy" }, IsVisible = false, VerticalAlignment = VerticalAlignment.Center };
 
     private readonly TextBlock _notice = new()
     {

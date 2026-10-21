@@ -51,7 +51,7 @@ public partial class MiniPanelWindow : Window
     {
         InitializeComponent();
         Title = Strings.Get("Main_TrayMini");
-        Classes.Set("touch", Pretend.Touch);
+        Classes.Set("touch", Pretend.Touch || OnSmallScreen());
         BatteryHolder.Content = _battery;
         if (Pretend.Behind) ShowActivated = false;
 
@@ -78,19 +78,22 @@ public partial class MiniPanelWindow : Window
         SizeChanged += (_, _) => Place();
     }
 
-    /// <summary>
-    /// Gets the window it opens when asked, which also decides whether it is
-    /// drawn at touch size; null for a pretend run showing it alone.
-    /// </summary>
+    /// <summary>Gets the window it opens when asked; null for a pretend run showing it alone.</summary>
     public MainWindow? Main
     {
         get => _main;
-        init
-        {
-            _main = value;
-            if (value is not null) Classes.Set("touch", value.IsTouch);
-        }
+        init => _main = value;
     }
+
+    /// <summary>Whether the screen it opens on is small enough for the roomier touch size.</summary>
+    /// <remarks>
+    /// The screen, not the main window: the panel is the same size whatever
+    /// the window's, so a window made small on a large screen is no reason
+    /// for a large panel. On a Steam Deck the screen itself is small.
+    /// </remarks>
+    private bool OnSmallScreen() =>
+        Screens.Primary is { } screen
+        && Density.For(screen.WorkingArea.Width / screen.Scaling, screen.WorkingArea.Height / screen.Scaling) == DensityMode.Touch;
 
     /// <summary>Gets when it closed, as a <see cref="Stopwatch"/> timestamp, so the icon's next click can tell whether that click was the one that did it.</summary>
     public long ClosedAt { get; private set; }
