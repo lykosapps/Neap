@@ -83,6 +83,14 @@ public sealed class AppSettings
     /// </remarks>
     [JsonPropertyName("keep_ring_purple")] public bool KeepRingPurple { get; set; } = true;
 
+    /// <summary>Whether the system's microphone mute was last set by following the headset, rather than by the person.</summary>
+    /// <remarks>
+    /// Kept across restarts: a mute the headset set while Neap was running
+    /// is still the headset's when Neap next starts, and is undone once the
+    /// arm is seen down; see <see cref="Core.Settings.Microphone.SystemMuteFor"/>.
+    /// </remarks>
+    [JsonPropertyName("mic_muted_by_headset")] public bool MicMutedByHeadset { get; set; }
+
     /// <summary>Whether a click on the tray icon opens the mini panel rather than the window.</summary>
     /// <remarks>
     /// On by default: the panel is the quick way to the settings changed

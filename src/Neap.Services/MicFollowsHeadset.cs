@@ -38,9 +38,17 @@ public sealed class MicFollowsHeadset : IDisposable
         var before = _last;
         _last = now;
 
-        if (Microphone.SystemMuteFor(before, now) is not { } mute) return;
+        if (Microphone.SystemMuteFor(before, now, AppSettings.Current.MicMutedByHeadset) is not { } mute) return;
         AppLog.Write($"microphone: the headset's own mute is {(mute ? "on" : "off")}, so the system's is set to match");
         await SoundVolume.SetMuted(mute, Flow.Input);
+        AppSettings.Update(settings => settings.MicMutedByHeadset = mute);
+    }
+
+    /// <summary>Mutes or unmutes the system's microphone for the person, which a lowered arm then leaves alone.</summary>
+    public static async Task SetByPerson(bool muted)
+    {
+        await SoundVolume.SetMuted(muted, Flow.Input);
+        AppSettings.Update(settings => settings.MicMutedByHeadset = false);
     }
 
     public void Dispose() => _headset.Changed -= OnChanged;

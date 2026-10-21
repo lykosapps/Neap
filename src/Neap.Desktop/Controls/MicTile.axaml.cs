@@ -92,7 +92,7 @@ public partial class MicTile : UserControl
     private async Task Toggle()
     {
         if (!Microphone.CanChange(State)) return;
-        await SoundVolume.SetMuted(State == MicState.Live, Flow.Input);
+        await MicFollowsHeadset.SetByPerson(State == MicState.Live);
         await ReadSystem();
     }
 

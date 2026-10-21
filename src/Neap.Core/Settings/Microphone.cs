@@ -53,16 +53,18 @@ public static class Microphone
     /// <para>
     /// Only a move acts. A mute the person set from the app while the arm is
     /// down stays until the arm moves; so does one set while it is up. On the
-    /// first reading a raised arm mutes, but a lowered one leaves the system
-    /// alone: nothing has been muted by the headset yet.
+    /// first reading a raised arm mutes, and a lowered one undoes only a mute
+    /// the headset set: one from before Neap started, or before the headset
+    /// was switched off, which the Atlas Air reports as muting as it goes.
     /// </para>
     /// </remarks>
     /// <param name="before">The reading before, or null if there was none.</param>
     /// <param name="now">The reading now, or null if it is not one.</param>
-    public static bool? SystemMuteFor(int? before, int? now)
+    /// <param name="mutedByHeadset">Whether the system's mute was last set by following the headset.</param>
+    public static bool? SystemMuteFor(int? before, int? now, bool mutedByHeadset = false)
     {
         if (now is not (0 or 1) || before == now) return null;
-        if (before is null) return now == 1 ? true : null;
+        if (before is null) return now == 1 ? true : mutedByHeadset ? false : null;
         return now == 1;
     }
 

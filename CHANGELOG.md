@@ -163,6 +163,10 @@ and date.
 - Sliders move in whole steps, so the Atlas Air's voice prompts, from 0 to
   15, no longer shake as they are dragged, and never show a number past
   the slider's end.
+- If the headset muted the PC's microphone, by its arm or by being switched
+  off, the microphone comes back on when the arm is seen down, even after
+  Neap was closed or the headset was off in between. A mute you set
+  yourself in Neap stays.
 - A screen reader now announces noise cancellation, the Mode button, the lower
   dial and Superhuman Hearing's sound as named groups of options, instead of
   leaving the group's name out.

@@ -43,6 +43,14 @@ public class MicrophoneTests
     public void TheSystemFollowsTheHeadsetMutingItself(int? before, int? now, bool? mute) =>
         Assert.Equal(mute, Microphone.SystemMuteFor(before, now));
 
+    [Theory]
+    [InlineData(null, 0, false)] // the arm down on the first reading undoes the headset's mute
+    [InlineData(null, 1, true)]
+    [InlineData(1, 0, false)]
+    [InlineData(0, 0, null)]
+    public void AMuteTheHeadsetSetIsUndoneOnceItsArmIsSeenDown(int? before, int? now, bool? mute) =>
+        Assert.Equal(mute, Microphone.SystemMuteFor(before, now, mutedByHeadset: true));
+
     [Fact]
     public void TheArmIsAReadingNotASetting()
     {
