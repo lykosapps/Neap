@@ -170,6 +170,10 @@ public static class Registry
               note: "1 while the boom arm is flipped up, which mutes the mic. Writing "
                   + "it is accepted and does not mute: the mic went on picking up "
                   + "speech. Measured"),
+            T(0x650, "builtin_mic_muted", "Mic", writable: false,
+              note: "1 while the mute button has muted the built-in microphones, used "
+                  + "while the boom microphone is off. The arm's 0x600 reads 0 "
+                  + "throughout. Measured"),
             R(0x610, "mic_volume", "Mic", 0, 100,
               note: "a MIRROR of the Windows capture level for this microphone, not a "
                   + "control — the same arrangement as master volume. Set the Windows "
@@ -213,11 +217,8 @@ public static class Registry
             R(0xC10, "atlas_prm_unknown_c10", "Prm", writable: false,
               note: "UNCONFIRMED. The second value in Swarm's voice prompt group"),
             R(0x640, "mic_unknown_640", "Mic", writable: false,
-              note: "UNCONFIRMED. Candidates: boom-mic-present flag, or an AI noise "
-                  + "reduction mode sitting after the enable at 0x630"),
-            R(0x650, "mic_unknown_650", "Mic", writable: false,
-              note: "UNCONFIRMED. Candidates: high-bandwidth mic toggle, or a sidetone "
-                  + "mute flag"),
+              note: "UNCONFIRMED. Likely which microphone is in use: read 1 with the "
+                  + "boom microphone on and 2 with it off, in separate recordings"),
             R(0xA00, "enc_unknown_a00", "Enc", writable: false,
               note: "UNCONFIRMED, weak. Possibly a changed-from-default flag"),
             R(0xA10, "enc_unknown_a10", "Enc", writable: false,

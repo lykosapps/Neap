@@ -26,9 +26,10 @@ namespace Neap.Desktop.Controls;
 /// is on screen, which also follows a mute set anywhere else.
 /// </para>
 /// <para>
-/// It follows the boom arm: flipping it up mutes the headset, and the card
-/// loses its tint, says so, and is disabled until the arm comes down, because
-/// nothing on the PC can unmute it. It is disabled, with a dash for its
+/// It follows the headset's own mute: flipping the boom arm up, or with the
+/// boom microphone off pressing the mute button, mutes the headset, and the
+/// card loses its tint, says so, and is disabled until the headset unmutes,
+/// because nothing on the PC can unmute it. It is disabled, with a dash for its
 /// state, until both the headset and the system have been read, because an
 /// untinted card would read as muted.
 /// </para>
@@ -96,7 +97,10 @@ public partial class MicTile : UserControl
         await ReadSystem();
     }
 
-    private MicState State => Microphone.Of(_link.Value, _mutedInSystem);
+    private MicState State => Microphone.Of(_link.Value, BuiltIn, _mutedInSystem);
+
+    private static int? BuiltIn =>
+        AppServices.Headset.TryGetNumberByKey(Registry.ByName[Microphone.BuiltInSetting].Key, out int value) ? value : null;
 
     protected override async void OnLoaded(RoutedEventArgs e)
     {
@@ -156,11 +160,12 @@ public partial class MicTile : UserControl
             MicState.Live => Strings.Get("Mic_Live"),
             MicState.Muted => Strings.Get("Mic_Muted"),
             MicState.ArmUp => Strings.Get("Mic_ArmUp"),
+            MicState.MutedOnHeadset => Strings.Get("Mic_MutedOnHeadset"),
             _ => Strings.Get("Reading_None"),
         };
         Card.Classes.Set("on", state == MicState.Live);
         var icon = (Geometry)Application.Current!.FindResource(
-            state is MicState.Muted or MicState.ArmUp ? "IconMicrophoneOff" : "IconMicrophone")!;
+            state is MicState.Muted or MicState.ArmUp or MicState.MutedOnHeadset ? "IconMicrophoneOff" : "IconMicrophone")!;
         Icon.Data = icon;
         Row.Icon = icon;
         _switch.IsEnabled = Face.IsEnabled;

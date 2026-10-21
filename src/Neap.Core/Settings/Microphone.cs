@@ -1,11 +1,11 @@
 namespace Neap.Core.Settings;
 
 /// <summary>Whether the headset's microphone is picking you up, and what is stopping it if not.</summary>
-public enum MicState { Unknown, Live, Muted, ArmUp }
+public enum MicState { Unknown, Live, Muted, ArmUp, MutedOnHeadset }
 
 /// <summary>
-/// The microphone as a person thinks of it: live, muted, or muted by the
-/// boom arm.
+/// The microphone as a person thinks of it: live, muted, or muted on the
+/// headset by the boom arm or the mute button.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -17,9 +17,15 @@ public enum MicState { Unknown, Live, Muted, ArmUp }
 /// the headset's value, so the two never get confused.
 /// </para>
 /// <para>
-/// While the arm is up nothing on the PC can make the microphone live, so
-/// that is a state of its own, and the mute cannot be changed from the app
-/// until the arm comes down.
+/// With the boom microphone taken off, the headset picks you up with its
+/// built-in microphones, and its mute button mutes those instead. Their mute
+/// is <c>builtin_mic_muted</c>, 1 while muted, and the arm reads 0 throughout.
+/// </para>
+/// <para>
+/// While the headset has muted itself nothing on the PC can make the
+/// microphone live, so that is a state of its own, and the mute cannot be
+/// changed from the app until the arm comes down or the button is pressed
+/// again.
 /// </para>
 /// </remarks>
 public static class Microphone
@@ -27,18 +33,35 @@ public static class Microphone
     /// <summary>The registry name of the headset's reading of the boom arm.</summary>
     public const string ArmSetting = "mic_muted";
 
+    /// <summary>The registry name of the headset's reading of its built-in microphones' mute.</summary>
+    public const string BuiltInSetting = "builtin_mic_muted";
+
     /// <param name="arm">The reported <c>mic_muted</c>, or null if the headset has not reported it.</param>
+    /// <param name="builtIn">The reported <c>builtin_mic_muted</c>, or null if the headset has not reported it.</param>
     /// <param name="mutedInWindows">Whether Windows has the headset's microphone muted, or null if that cannot be read.</param>
     /// <remarks>
-    /// Anything but 0 or 1 from the headset is not a reading of the arm, so
-    /// it is unknown rather than muted.
+    /// Anything but 0 or 1 from the headset is not a reading, so it is unknown
+    /// rather than muted. A headset without built-in microphones never
+    /// reports theirs, so a missing one leaves the arm to decide.
     /// </remarks>
-    public static MicState Of(int? arm, bool? mutedInWindows) => (arm, mutedInWindows) switch
+    public static MicState Of(int? arm, int? builtIn, bool? mutedInWindows) => (arm, builtIn, mutedInWindows) switch
     {
-        (1, _) => MicState.ArmUp,
-        (0, false) => MicState.Live,
-        (0, true) => MicState.Muted,
+        (1, _, _) => MicState.ArmUp,
+        (0, 1, _) => MicState.MutedOnHeadset,
+        (0, 0 or null, false) => MicState.Live,
+        (0, 0 or null, true) => MicState.Muted,
         _ => MicState.Unknown,
+    };
+
+    /// <summary>The headset's own mute, 1 while the arm or the button has muted it, or null if it is not known.</summary>
+    /// <param name="arm">The reported <c>mic_muted</c>, or null if the headset has not reported it.</param>
+    /// <param name="builtIn">The reported <c>builtin_mic_muted</c>, or null if the headset has not reported it.</param>
+    public static int? HeadsetMute(int? arm, int? builtIn) => (arm, builtIn) switch
+    {
+        (1, _) => 1,
+        (0, 1) => 1,
+        (0, 0 or null) => 0,
+        _ => null,
     };
 
     /// <summary>What the system's mute should become because the headset's own mute moved, or null to leave it as it is.</summary>
@@ -51,15 +74,16 @@ public static class Microphone
     /// headset and the system never disagree about whether you can be heard.
     /// </para>
     /// <para>
-    /// Only a move acts. A mute the person set from the app while the arm is
-    /// down stays until the arm moves; so does one set while it is up. On the
-    /// first reading a raised arm mutes, and a lowered one undoes only a mute
-    /// the headset set: one from before Neap started, or before the headset
-    /// was switched off, which the Atlas Air reports as muting as it goes.
+    /// Only a move acts. A mute the person set from the app while the
+    /// headset is unmuted stays until the headset's mute moves; so does one
+    /// set while it is muted. On the first reading the headset muted mutes,
+    /// and unmuted undoes only a mute the headset set: one from before Neap
+    /// started, or before the headset was switched off, which the Atlas Air
+    /// reports as muting as it goes.
     /// </para>
     /// </remarks>
-    /// <param name="before">The reading before, or null if there was none.</param>
-    /// <param name="now">The reading now, or null if it is not one.</param>
+    /// <param name="before">The <see cref="HeadsetMute"/> before, or null if there was none.</param>
+    /// <param name="now">The <see cref="HeadsetMute"/> now, or null if it is not one.</param>
     /// <param name="mutedByHeadset">Whether the system's mute was last set by following the headset.</param>
     public static bool? SystemMuteFor(int? before, int? now, bool mutedByHeadset = false)
     {

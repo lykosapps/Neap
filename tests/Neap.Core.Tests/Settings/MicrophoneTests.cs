@@ -10,23 +10,55 @@ public class MicrophoneTests
     [InlineData(1, false, MicState.ArmUp)]
     [InlineData(1, true, MicState.ArmUp)]
     public void TheArmOutranksTheMuteInWindows(int arm, bool mutedInWindows, MicState state) =>
-        Assert.Equal(state, Microphone.Of(arm, mutedInWindows));
+        Assert.Equal(state, Microphone.Of(arm, 0, mutedInWindows));
 
     [Theory]
-    [InlineData(null, false)]
-    [InlineData(2, false)]
-    [InlineData(0, null)]
-    public void AReadingMissingOrNotUnderstoodIsUnknown(int? arm, bool? mutedInWindows) =>
-        Assert.Equal(MicState.Unknown, Microphone.Of(arm, mutedInWindows));
+    [InlineData(false)]
+    [InlineData(true)]
+    [InlineData(null)]
+    public void TheBuiltInMicrophonesMutedOnTheHeadsetOutrankTheMuteInWindows(bool? mutedInWindows) =>
+        Assert.Equal(MicState.MutedOnHeadset, Microphone.Of(0, 1, mutedInWindows));
+
+    [Fact]
+    public void TheArmUpOutranksTheBuiltInMicrophonesMuted() =>
+        Assert.Equal(MicState.ArmUp, Microphone.Of(1, 1, false));
+
+    [Theory]
+    [InlineData(false, MicState.Live)]
+    [InlineData(true, MicState.Muted)]
+    public void AHeadsetWithoutBuiltInMicrophonesFollowsTheArmAlone(bool mutedInWindows, MicState state) =>
+        Assert.Equal(state, Microphone.Of(0, null, mutedInWindows));
+
+    [Theory]
+    [InlineData(null, 0, false)]
+    [InlineData(2, 0, false)]
+    [InlineData(0, 0, null)]
+    [InlineData(0, 2, false)]
+    public void AReadingMissingOrNotUnderstoodIsUnknown(int? arm, int? builtIn, bool? mutedInWindows) =>
+        Assert.Equal(MicState.Unknown, Microphone.Of(arm, builtIn, mutedInWindows));
 
     [Fact]
     public void WithTheArmUpTheArmStillSaysSoWhenWindowsCannotBeRead() =>
-        Assert.Equal(MicState.ArmUp, Microphone.Of(1, null));
+        Assert.Equal(MicState.ArmUp, Microphone.Of(1, 0, null));
+
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(1, 0, 1)]
+    [InlineData(0, 1, 1)]
+    [InlineData(1, 1, 1)]
+    [InlineData(0, null, 0)]
+    [InlineData(1, null, 1)]
+    [InlineData(null, 0, null)]
+    [InlineData(2, 0, null)]
+    [InlineData(0, 2, null)]
+    public void TheHeadsetIsMutedByTheArmOrByItsBuiltInMicrophones(int? arm, int? builtIn, int? muted) =>
+        Assert.Equal(muted, Microphone.HeadsetMute(arm, builtIn));
 
     [Theory]
     [InlineData(MicState.Live, true)]
     [InlineData(MicState.Muted, true)]
     [InlineData(MicState.ArmUp, false)]
+    [InlineData(MicState.MutedOnHeadset, false)]
     [InlineData(MicState.Unknown, false)]
     public void OnlyTheArmDownLetsTheAppChangeTheMute(MicState state, bool can) =>
         Assert.Equal(can, Microphone.CanChange(state));
@@ -56,5 +88,13 @@ public class MicrophoneTests
     {
         Assert.True(Registry.ByName.TryGetValue(Microphone.ArmSetting, out var arm));
         Assert.False(arm.Writable);
+    }
+
+    [Fact]
+    public void TheBuiltInMicrophonesMuteIsAReadingNotASetting()
+    {
+        Assert.True(Registry.ByName.TryGetValue(Microphone.BuiltInSetting, out var builtIn));
+        Assert.Equal(0x650, builtIn.Key);
+        Assert.False(builtIn.Writable);
     }
 }
