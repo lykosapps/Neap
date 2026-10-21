@@ -391,7 +391,7 @@ public sealed class HeadsetService : IDisposable
                 int since = (int)((Stopwatch.GetTimestamp() - previous) * 1000 / Stopwatch.Frequency);
                 if (since < WriteGapMs) Thread.Sleep(WriteGapMs - since);
             }
-            client.Set(OnTheWire(key), latest);
+            client.Set(OnTheWire(key), latest, HeadsetModels.CheckedAs(Model, key));
             _lastWrite[key] = Stopwatch.GetTimestamp();
             return true;
         });

@@ -157,6 +157,9 @@ and date.
 
 ### Fixed
 
+- On the Atlas Air, moving mic monitoring above 1% changes it. Every
+  higher level was refused, because its place is where the Stealth Pro II
+  keeps an on and off switch.
 - A screen reader now announces noise cancellation, the Mode button, the lower
   dial and Superhuman Hearing's sound as named groups of options, instead of
   leaving the group's name out.

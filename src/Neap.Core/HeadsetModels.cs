@@ -223,6 +223,14 @@ public static class HeadsetModels
     public static string? Label(HeadsetModel? model, string? given) =>
         model is { ShowsGivenName: false } ? model.Name : HeadsetLabel.Given(given) ?? model?.Name;
 
+    /// <summary>The key whose range a write of a setting to a headset is checked against: that of <see cref="OnHeadset"/>.</summary>
+    /// <remarks>
+    /// The Atlas Air's mic monitoring level is sent to the key of the Stealth
+    /// Pro II's AI noise reduction switch, and is checked as a level.
+    /// </remarks>
+    public static int CheckedAs(HeadsetModel? model, int key) =>
+        Registry.ByKey.TryGetValue(key, out var setting) ? OnHeadset(model, setting).Key : key;
+
     /// <summary>What a headset reported, with each setting it keeps elsewhere moved to the Stealth Pro II's key, where the app looks for it.</summary>
     /// <remarks>
     /// The key a headset has no use for of its own, which it may still answer

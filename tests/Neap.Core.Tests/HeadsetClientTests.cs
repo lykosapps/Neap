@@ -166,6 +166,29 @@ public class HeadsetClientTests
     }
 
     [Fact]
+    public void AWriteCheckedAsAnotherSettingIsSentWithinThatSettingsRange()
+    {
+        var headset = new PretendHeadset(atlas: true);
+        using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
+
+        client.Set(0x630, 65, checkedAs: 0x620);
+
+        Assert.Equal(new PretendWrite(0x630, "65"), Assert.Single(headset.Writes));
+    }
+
+    [Theory]
+    [InlineData(0x400, 1, 0x620)]   // a slot's base address, whatever it is checked as
+    [InlineData(0x630, 101, 0x620)] // past the range it is checked against
+    public void AWriteCheckedAsAnotherSettingIsStillRefusedWhereNotConfirmed(int key, int value, int checkedAs)
+    {
+        var headset = new PretendHeadset();
+        using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
+
+        Assert.Throws<ArgumentException>(() => client.Set(key, value, checkedAs));
+        Assert.Empty(headset.Sent);
+    }
+
+    [Fact]
     public void EachWriteIsToldWithWhetherItWasSent()
     {
         using var client = new HeadsetClient(allowWrites: true, transport: new PretendHeadset().Open());

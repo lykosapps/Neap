@@ -339,7 +339,10 @@ public sealed class HeadsetClient : IDisposable
     /// <exception cref="ArgumentException">
     /// The key is not confirmed as writable, or the value is not valid for it.
     /// </exception>
-    public void Set(int key, object value)
+    /// <param name="key">The key to set.</param>
+    /// <param name="value">The value to set it to.</param>
+    /// <param name="checkedAs">The key whose range the value is checked against, where it is not <paramref name="key"/>'s own; see <see cref="Registry.WireValue"/>.</param>
+    public void Set(int key, object value, int? checkedAs = null)
     {
         string wire;
         try
@@ -347,7 +350,7 @@ public sealed class HeadsetClient : IDisposable
             if (!AllowWrites)
                 throw new WritesDisabledException(
                     $"refusing to set 0x{key:x}: this client is read-only");
-            wire = Registry.WireValue(key, value);
+            wire = Registry.WireValue(key, value, checkedAs);
             _transport.SendOutput(Frames.SetKey(key, wire, NextCounter()));
             _lastSet = Stopwatch.GetTimestamp();
         }

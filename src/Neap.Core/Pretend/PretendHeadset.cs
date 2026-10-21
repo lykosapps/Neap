@@ -527,7 +527,9 @@ public sealed class PretendHeadset : IDeviceSource
             string wire;
             try
             {
-                wire = Registry.WireValue(key, value);
+                // The Atlas Air keeps its mic monitoring level where the
+                // Stealth Pro II keeps its AI noise reduction switch.
+                wire = Registry.WireValue(key, value, _atlas && key == 0x630 ? 0x620 : null);
             }
             catch (ArgumentException ex)
             {

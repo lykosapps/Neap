@@ -158,6 +158,20 @@ public class HeadsetModelsTests
         Assert.All(HeadsetModels.AtlasAir.ExtraCategories, group => Assert.True(Verbs.Readers.ContainsKey(group)));
     }
 
+    [Theory]
+    [InlineData(0x620, 0x620)] // mic monitoring, kept at a switch's key, is checked as a level
+    [InlineData(0x2D0, 0xC00)] // voice prompts, against its own 0 to 15
+    [InlineData(0x401, 0x430)] // the transmitter light
+    public void TheAtlasAirsWritesAreCheckedAgainstTheRangeItsControlsOffer(int key, int checkedAs) =>
+        Assert.Equal(checkedAs, HeadsetModels.CheckedAs(HeadsetModels.AtlasAir, key));
+
+    [Fact]
+    public void TheStealthProIIsWritesAreCheckedAgainstTheirOwnKeys()
+    {
+        Assert.Equal(0x630, HeadsetModels.CheckedAs(HeadsetModels.StealthProII, 0x630));
+        Assert.Equal(0x620, HeadsetModels.CheckedAs(null, 0x620));
+    }
+
     [Fact]
     public void OnlyTheStealthProIIHasTheLoudnessBoost() =>
         Assert.Equal(["Stealth Pro II"], HeadsetModels.All.Where(m => m.HasLoudnessBoost).Select(m => m.Name));

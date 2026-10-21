@@ -83,15 +83,25 @@ public static class Registry
     /// listed. A slot's base address is never written: writing it moves the
     /// headset onto a transmitter nobody chose.
     /// </remarks>
+    /// <param name="key">The key the value is sent to.</param>
+    /// <param name="value">The value to send.</param>
+    /// <param name="checkedAs">The key whose range the value is checked against, where the headset keeps another setting at <paramref name="key"/>; see <see cref="HeadsetModels.CheckedAs"/>. Both keys must be confirmed.</param>
     /// <exception cref="ArgumentException">The write is not a confirmed one.</exception>
-    public static string WireValue(int key, object value)
+    public static string WireValue(int key, object value, int? checkedAs = null)
     {
-        if (ByKey.TryGetValue(key, out var known) && known.Writable) return known.Validate(value);
+        var sentTo = Confirmed(key);
+        return (checkedAs is { } rules && rules != key ? Confirmed(rules) : sentTo).Validate(value);
+    }
+
+    /// <exception cref="ArgumentException">The key is not confirmed as safe to write.</exception>
+    private static SettingKey Confirmed(int key)
+    {
+        if (ByKey.TryGetValue(key, out var known) && known.Writable) return known;
 
         int inSlot = (key - TransmitterBlock) % TransmitterStride;
         if (key is >= TransmitterBlock and < TransmitterBlock + 4 * TransmitterStride
             && inSlot is 1 or 2)
-            return ByKey[TransmitterBlock + inSlot].Validate(value);
+            return ByKey[TransmitterBlock + inSlot];
 
         throw new ArgumentException($"0x{key:x} is not a setting confirmed as safe to write");
     }
