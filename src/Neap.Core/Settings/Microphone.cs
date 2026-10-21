@@ -3,6 +3,9 @@ namespace Neap.Core.Settings;
 /// <summary>Whether the headset's microphone is picking you up, and what is stopping it if not.</summary>
 public enum MicState { Unknown, Live, Muted, ArmUp, MutedOnHeadset }
 
+/// <summary>What a press of the app's microphone switch changes.</summary>
+public enum MicChange { None, MuteSystem, UnmuteSystem, MuteHeadset, UnmuteHeadset }
+
 /// <summary>
 /// The microphone as a person thinks of it: live, muted, or muted on the
 /// headset by the boom arm or the mute button.
@@ -20,12 +23,13 @@ public enum MicState { Unknown, Live, Muted, ArmUp, MutedOnHeadset }
 /// With the boom microphone taken off, the headset picks you up with its
 /// built-in microphones, and its mute button mutes those instead. Their mute
 /// is <c>builtin_mic_muted</c>, 1 while muted, and the arm reads 0 throughout.
+/// Unlike the arm, it takes a write: the headset mutes, with its tone, as if
+/// the button were pressed. Measured.
 /// </para>
 /// <para>
-/// While the headset has muted itself nothing on the PC can make the
-/// microphone live, so that is a state of its own, and the mute cannot be
-/// changed from the app until the arm comes down or the button is pressed
-/// again.
+/// While the arm is up nothing on the PC can make the microphone live, so
+/// that is a state of its own, and the mute cannot be changed from the app
+/// until the arm comes down.
 /// </para>
 /// </remarks>
 public static class Microphone
@@ -92,6 +96,25 @@ public static class Microphone
         return now == 1;
     }
 
+    /// <summary>What a press of the app's switch changes in this state.</summary>
+    /// <param name="state">The microphone now.</param>
+    /// <param name="headsetMutes">Whether the headset reports its built-in microphones' mute and Neap may write it.</param>
+    /// <remarks>
+    /// Where the headset can mute itself the switch does that, so a press is
+    /// the same as the headset's own button: the headset plays its tone, and
+    /// the system follows it as it follows the button. A mute set in the
+    /// system alone, from before or from another app, is undone there.
+    /// </remarks>
+    public static MicChange ChangeFor(MicState state, bool headsetMutes) => state switch
+    {
+        MicState.Live => headsetMutes ? MicChange.MuteHeadset : MicChange.MuteSystem,
+        MicState.Muted => MicChange.UnmuteSystem,
+        MicState.MutedOnHeadset when headsetMutes => MicChange.UnmuteHeadset,
+        _ => MicChange.None,
+    };
+
     /// <summary>Whether the app can mute or unmute the microphone in this state.</summary>
-    public static bool CanChange(MicState state) => state is MicState.Live or MicState.Muted;
+    /// <param name="state">The microphone now.</param>
+    /// <param name="headsetMutes">Whether the headset reports its built-in microphones' mute and Neap may write it.</param>
+    public static bool CanChange(MicState state, bool headsetMutes) => ChangeFor(state, headsetMutes) != MicChange.None;
 }

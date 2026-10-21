@@ -170,10 +170,11 @@ public static class Registry
               note: "1 while the boom arm is flipped up, which mutes the mic. Writing "
                   + "it is accepted and does not mute: the mic went on picking up "
                   + "speech. Measured"),
-            T(0x650, "builtin_mic_muted", "Mic", writable: false,
+            T(0x650, "builtin_mic_muted", "Mic",
               note: "1 while the mute button has muted the built-in microphones, used "
                   + "while the boom microphone is off. The arm's 0x600 reads 0 "
-                  + "throughout. Measured"),
+                  + "throughout. Writing it mutes and unmutes, with the headset's "
+                  + "tone, as the button does. Measured"),
             R(0x610, "mic_volume", "Mic", 0, 100,
               note: "a MIRROR of the Windows capture level for this microphone, not a "
                   + "control — the same arrangement as master volume. Set the Windows "

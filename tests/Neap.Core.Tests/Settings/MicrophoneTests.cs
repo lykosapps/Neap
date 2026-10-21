@@ -55,13 +55,26 @@ public class MicrophoneTests
         Assert.Equal(muted, Microphone.HeadsetMute(arm, builtIn));
 
     [Theory]
+    [InlineData(MicState.Live, false, MicChange.MuteSystem)]
+    [InlineData(MicState.Live, true, MicChange.MuteHeadset)]
+    [InlineData(MicState.Muted, false, MicChange.UnmuteSystem)]
+    [InlineData(MicState.Muted, true, MicChange.UnmuteSystem)]
+    [InlineData(MicState.MutedOnHeadset, true, MicChange.UnmuteHeadset)]
+    [InlineData(MicState.MutedOnHeadset, false, MicChange.None)]
+    [InlineData(MicState.ArmUp, true, MicChange.None)]
+    [InlineData(MicState.ArmUp, false, MicChange.None)]
+    [InlineData(MicState.Unknown, true, MicChange.None)]
+    public void TheAppMutesOnTheHeadsetWhereItCanAndInTheSystemOtherwise(MicState state, bool headsetMutes, MicChange change) =>
+        Assert.Equal(change, Microphone.ChangeFor(state, headsetMutes));
+
+    [Theory]
     [InlineData(MicState.Live, true)]
     [InlineData(MicState.Muted, true)]
-    [InlineData(MicState.ArmUp, false)]
     [InlineData(MicState.MutedOnHeadset, false)]
+    [InlineData(MicState.ArmUp, false)]
     [InlineData(MicState.Unknown, false)]
-    public void OnlyTheArmDownLetsTheAppChangeTheMute(MicState state, bool can) =>
-        Assert.Equal(can, Microphone.CanChange(state));
+    public void WithoutTheHeadsetsMuteOnlyTheArmDownLetsTheAppChangeTheMute(MicState state, bool can) =>
+        Assert.Equal(can, Microphone.CanChange(state, headsetMutes: false));
 
     [Theory]
     [InlineData(0, 1, true)]
@@ -91,10 +104,10 @@ public class MicrophoneTests
     }
 
     [Fact]
-    public void TheBuiltInMicrophonesMuteIsAReadingNotASetting()
+    public void TheBuiltInMicrophonesMuteIsASetting()
     {
         Assert.True(Registry.ByName.TryGetValue(Microphone.BuiltInSetting, out var builtIn));
         Assert.Equal(0x650, builtIn.Key);
-        Assert.False(builtIn.Writable);
+        Assert.True(builtIn.Writable);
     }
 }

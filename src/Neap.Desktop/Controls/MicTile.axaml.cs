@@ -20,16 +20,17 @@ namespace Neap.Desktop.Controls;
 /// changed, so the state reads without the tint.
 /// </para>
 /// <para>
-/// The switch mutes or unmutes the microphone in the system, since the headset
-/// ignores a mute written to it; see <see cref="Microphone"/>. The system says
+/// With the boom microphone off the switch mutes the headset, as its button
+/// does; otherwise it mutes the microphone in the system, since the headset
+/// ignores a mute written to the arm. See <see cref="Microphone.ChangeFor"/>. The system says
 /// nothing when its mute changes, so the card reads it every second while it
 /// is on screen, which also follows a mute set anywhere else.
 /// </para>
 /// <para>
 /// It follows the headset's own mute: flipping the boom arm up, or with the
 /// boom microphone off pressing the mute button, mutes the headset, and the
-/// card loses its tint, says so, and is disabled until the headset unmutes,
-/// because nothing on the PC can unmute it. It is disabled, with a dash for its
+/// card loses its tint and says so. Raised, the arm disables it until it
+/// comes down, because nothing on the PC can unmute it. It is disabled, with a dash for its
 /// state, until both the headset and the system have been read, because an
 /// untinted card would read as muted.
 /// </para>
@@ -92,15 +93,26 @@ public partial class MicTile : UserControl
 
     private async Task Toggle()
     {
-        if (!Microphone.CanChange(State)) return;
-        await MicFollowsHeadset.SetByPerson(State == MicState.Live);
+        switch (Microphone.ChangeFor(State, HeadsetMutes))
+        {
+            case MicChange.MuteHeadset: AppServices.Headset.SetKey(BuiltInKey.Key, 1); break;
+            case MicChange.UnmuteHeadset: AppServices.Headset.SetKey(BuiltInKey.Key, 0); break;
+            case MicChange.MuteSystem: await MicFollowsHeadset.SetByPerson(true); break;
+            case MicChange.UnmuteSystem: await MicFollowsHeadset.SetByPerson(false); break;
+            default: return;
+        }
         await ReadSystem();
     }
+
+    private static SettingKey BuiltInKey => Registry.ByName[Microphone.BuiltInSetting];
 
     private MicState State => Microphone.Of(_link.Value, BuiltIn, _mutedInSystem);
 
     private static int? BuiltIn =>
-        AppServices.Headset.TryGetNumberByKey(Registry.ByName[Microphone.BuiltInSetting].Key, out int value) ? value : null;
+        AppServices.Headset.TryGetNumberByKey(BuiltInKey.Key, out int value) ? value : null;
+
+    /// <summary>Whether the headset reports its built-in microphones' mute and Neap may change it.</summary>
+    private static bool HeadsetMutes => BuiltIn is not null && !AppServices.Headset.ReadOnly;
 
     protected override async void OnLoaded(RoutedEventArgs e)
     {
@@ -153,7 +165,7 @@ public partial class MicTile : UserControl
     private void Paint()
     {
         var state = State;
-        Face.IsEnabled = Microphone.CanChange(state);
+        Face.IsEnabled = Microphone.CanChange(state, HeadsetMutes);
         Face.IsChecked = state == MicState.Live;
         Word.Text = state switch
         {

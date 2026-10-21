@@ -159,7 +159,9 @@ and date.
 
 - With the boom microphone off, muting with the headset's button now mutes
   the microphone on the PC too, and the microphone card says "Muted on the
-  headset". Before, Neap followed only the boom arm, so the PC stayed live.
+  headset". Neap's own microphone switch mutes the headset itself, with its
+  tone, the same as the button. Before, Neap followed only the boom arm, so
+  the PC stayed live, and its switch muted only Windows.
 - On the Atlas Air, moving mic monitoring above 1% changes it. Every
   higher level was refused, because its place is where the Stealth Pro II
   keeps an on and off switch.
