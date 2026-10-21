@@ -11,7 +11,7 @@ answers, so nothing works there yet.
   updated 20 March 2026.
 - **Testers:** one on Windows, one on Linux (CachyOS), on
   [issue 1](https://github.com/lykosapps/Neap/issues/1).
-- **Latest test build:** 0.2.1.3. 0.2.1.5 is built, not yet published.
+- **Latest test build:** 0.2.1.5. 0.2.1.6 is built, not yet published.
 
 ## Connection
 
