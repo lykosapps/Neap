@@ -1,8 +1,9 @@
 # Help support another headset
 
 Neap is built for the Stealth Pro II. If you have a different Turtle Beach
-headset, you can help it work with Neap by recording what your headset does
-while you press its buttons. It takes about ten minutes, and you don't need
+headset that works with Swarm II, you can help it work with Neap by recording
+what your headset does while you press its buttons. Neap talks to a headset
+the way Swarm II does, so it can only support headsets that work with Swarm II. It takes about ten minutes, and you don't need
 to install anything except Neap.
 
 Recording only listens. It doesn't change anything on your headset.

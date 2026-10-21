@@ -73,6 +73,9 @@ and date.
 
 ### Changed
 
+- "Help support another headset" says it's for Turtle Beach headsets that
+  work with Swarm II, as the GitHub form and the guide now do: Neap talks to a
+  headset the way Swarm II does, so it can't support others.
 - The app's text is set in Figtree, and the name beside the mark in Outfit,
   in place of Inter. Both are carried inside the app, so Windows and Linux
   show the same letters. The text is a little rounder and a little wider.

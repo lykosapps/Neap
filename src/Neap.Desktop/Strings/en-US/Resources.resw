@@ -1309,7 +1309,7 @@
     <comment>{0} is the system's reason, such as a full disk.</comment>
   </data>
   <data name="Settings_MapHeadset.Description" xml:space="preserve">
-    <value>Neap has only been tested with the Stealth Pro II.</value>
+    <value>For Turtle Beach headsets that work with Swarm II. Neap has only been tested with the Stealth Pro II.</value>
   </data>
   <data name="Settings_MapHeadset.Header" xml:space="preserve">
     <value>Help support another headset</value>
