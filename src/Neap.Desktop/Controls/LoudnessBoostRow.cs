@@ -36,7 +36,6 @@ public sealed class LoudnessBoostRow : SettingsCard
     private Slider? _slider;
     private TextBlock? _readout;
     private SliderLine? _line;
-    private TextBlock? _unsupported;
     private Grid? _caution;
     private bool _painting;
     private bool _built;
@@ -95,17 +94,9 @@ public sealed class LoudnessBoostRow : SettingsCard
             VerticalAlignment = VerticalAlignment.Center,
             FontFeatures = FontFeatureCollection.Parse("tnum"),
         };
-        _unsupported = new TextBlock
-        {
-            Text = Strings.Get("LoudnessBoost_Unsupported"),
-            HorizontalAlignment = HorizontalAlignment.Right,
-            VerticalAlignment = VerticalAlignment.Center,
-            Classes = { "tertiary" },
-            IsVisible = false,
-        };
         _line = new SliderLine { Preferred = SliderWidth, Flexible = _slider, Children = { _slider, _readout } };
         _caution = Caution();
-        Content = new Grid { Children = { _line, _unsupported } };
+        Content = _line;
         Below = _caution;
 
         // Named on the slider rather than the card, since the slider takes focus.
@@ -139,12 +130,9 @@ public sealed class LoudnessBoostRow : SettingsCard
 
     private void Refresh()
     {
-        var look = LoudnessBoostLook.For(AppServices.Headset.Loudness, AppServices.Headset.ReadOnly, AppServices.Headset.Model);
+        var look = LoudnessBoostLook.For(AppServices.Headset.Loudness, AppServices.Headset.ReadOnly);
         IsVisible = look.Shown;
         if (!look.Shown || _slider is null) return;
-        _line!.IsVisible = !look.Unsupported;
-        _unsupported!.IsVisible = look.Unsupported;
-        Below = look.Unsupported ? null : _caution;
         _slider.IsEnabled = look.Enabled;
 
         // The headset's own level, which the slider cannot always show: one set elsewhere can be past its ends.

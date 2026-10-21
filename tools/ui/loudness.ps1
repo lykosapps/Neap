@@ -3,7 +3,7 @@
 Checks the loudness boost control on the Audio page in pretend mode: that
 it shows for the Stealth Pro II with its boost on the slider and the headset's
 level apart from it, in the slider's help text, and that on the Atlas Air it
-says it is for the Stealth Pro II only, with no slider.
+is not there at all.
 
 .DESCRIPTION
 Run through run.ps1. Launches the published app in pretend mode on the Audio
@@ -62,15 +62,15 @@ if ($Parts.Contains('A')) {
 }
 
 if ($Parts.Contains('B')) {
-    Section 'the Atlas Air: the boost says it is for the Stealth Pro II only'
+    Section 'the Atlas Air: no boost'
     Start-NeapPretend -Page audio -Flags @('--atlas')
     try {
         # The master volume row names its slider, which FindFirst reaches
         # without the whole-tree read that can throw just after the window opens.
         Wait-Until { $null -ne (Find-Named 'Master volume') } 15 | Out-Null
         Check ($null -ne (Find-Named 'Master volume')) 'the Audio page is up for the Atlas Air'
-        Check (Wait-Until { (Get-Texts) -contains 'Stealth Pro II only' } 5) "the '$row' row says it is for the Stealth Pro II only"
-        Check ($null -eq (Find-SliderNamed $row)) 'with no slider'
+        Check (-not ((Get-Texts) -contains $row)) "there is no '$row' row"
+        Check ($null -eq (Find-SliderNamed $row)) 'no slider'
         Check ($null -eq (Find-Named $caution)) 'and no hearing caution'
         Save-Shot 'loudness-atlas' -Whole | ForEach-Object { $_.Dispose() }
     }

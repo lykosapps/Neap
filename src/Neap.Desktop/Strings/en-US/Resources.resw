@@ -1054,9 +1054,6 @@
   <data name="LoudnessBoost_Caution" xml:space="preserve">
     <value>Turn it up slowly to protect your hearing.</value>
   </data>
-  <data name="LoudnessBoost_Unsupported" xml:space="preserve">
-    <value>Stealth Pro II only</value>
-  </data>
   <data name="Equaliser_Open" xml:space="preserve">
     <value>Open →</value>
   </data>
