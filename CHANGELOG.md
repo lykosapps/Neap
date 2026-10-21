@@ -169,6 +169,11 @@ and date.
   yourself in Neap stays.
 - When the headset gives no answer for a group of its settings, such as
   the Atlas Air's transmitter light, the app log and recordings say so.
+- A recording says "no answer" for a transmitter slot the headset didn't
+  answer for, rather than calling it empty, and names each change Neap sends
+  by the setting it changes: the Atlas Air's mic monitoring shows as mic
+  monitoring, not as the noise reduction switch kept at the same place on
+  the Stealth Pro II.
 - A screen reader now announces noise cancellation, the Mode button, the lower
   dial and Superhuman Hearing's sound as named groups of options, instead of
   leaving the group's name out.

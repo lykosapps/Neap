@@ -90,6 +90,28 @@ public class RecordingTests
     }
 
     [Fact]
+    public void AWriteToAKeyTheHeadsetKeepsASettingAtIsNamedByThatSetting()
+    {
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values()));
+        recording.Wrote(Start.AddSeconds(1), new WriteAttempt(0x630, "65", null, Setting: 0x620));
+
+        Assert.Matches(@"^14:32:01\.0  write    0x630\s+mic_monitoring\s+65$", Section(Written(recording), "During")[0]);
+    }
+
+    [Fact]
+    public void ASlotThatGaveNoAnswerIsNotCalledEmpty()
+    {
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values()));
+
+        string text = Written(recording);
+
+        Assert.Contains("  1  no answer", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("  1  empty", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ALevelIsNotedOnlyWhenItChanges()
     {
         var recording = new Recording("Neap", "10");

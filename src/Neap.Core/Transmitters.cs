@@ -16,10 +16,11 @@ namespace Neap.Core;
 /// <param name="Info">The slot's "info" array, kept whole for whatever in it is not yet identified.</param>
 /// <param name="Control">The slot's "control" array, likewise.</param>
 /// <param name="Spare">A Charging Dock's spare battery; null for any other transmitter.</param>
+/// <param name="Answered">Whether the headset answered for the slot; an empty slot on the Stealth Pro II gives no answer, so an unanswered one is not known to be empty.</param>
 public sealed record Transmitter(
     int Slot, bool Paired, bool Active, string Kind, string ProductId,
     string VendorId, string Firmware, string Address,
-    IReadOnlyList<string> Info, IReadOnlyList<string> Control, SpareReading? Spare = null);
+    IReadOnlyList<string> Info, IReadOnlyList<string> Control, SpareReading? Spare = null, bool Answered = true);
 
 /// <summary>
 /// The headset pairs with up to four transmitters and keeps a slot for each.
@@ -116,7 +117,8 @@ public static class Transmitters
             // array is still unidentified.
             Info: info,
             Control: control,
-            Spare: paired && PieceOf(product) == Piece.Dock ? SpareBattery.Parse(At(info, InfoSpare)) : null);
+            Spare: paired && PieceOf(product) == Piece.Dock ? SpareBattery.Parse(At(info, InfoSpare)) : null,
+            Answered: block.ValueKind != JsonValueKind.Undefined);
     }
 
     /// <summary>The slot a pushed transmitter record describes, or null when the event carries none.</summary>

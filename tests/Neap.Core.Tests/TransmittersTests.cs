@@ -37,7 +37,12 @@ public class TransmittersTests
         Assert.False(empty.Active);
         Assert.Equal("", empty.Kind);
         Assert.Equal("", empty.Address);
+        Assert.True(empty.Answered);
     }
+
+    [Fact]
+    public void ASlotWithNoAnswerIsNotKnownToBeEmpty() =>
+        Assert.False(Transmitters.Describe(3, default).Answered);
 
     [Fact]
     public void AnUnknownProductSaysSo()

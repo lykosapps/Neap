@@ -119,7 +119,8 @@ public sealed class Recording(string app, string system)
     /// <summary>Notes a change Neap asked the headset for, and why it was not sent if it was not.</summary>
     public void Wrote(DateTime at, WriteAttempt write)
     {
-        string line = Value(write.Key.ToString("x", CultureInfo.InvariantCulture), write.Value);
+        string line = Value(write.Key.ToString("x", CultureInfo.InvariantCulture), write.Value,
+            write.Setting?.ToString("x", CultureInfo.InvariantCulture));
         lock (_gate) Add(at, write.Refused is null ? $"write    {line}" : $"write    {line}  not sent: {write.Refused}");
     }
 
@@ -284,7 +285,7 @@ public sealed class Recording(string app, string system)
                     ? $"  {slot.Slot}  {slot.Kind} ({slot.ProductId}), firmware {slot.Firmware}, "
                       + $"address {slot.Address}{(slot.Active ? ", in use" : "")}"
                       + $"  info [{string.Join(", ", slot.Info)}]  control [{string.Join(", ", slot.Control)}]"
-                    : $"  {slot.Slot}  empty");
+                    : slot.Answered ? $"  {slot.Slot}  empty" : $"  {slot.Slot}  no answer");
         }
 
         var values = snapshot.Values.OrderBy(p => Order(p.Key)).ThenBy(p => p.Key, StringComparer.Ordinal).ToList();
@@ -330,7 +331,11 @@ public sealed class Recording(string app, string system)
 
     private static string Value(string key, JsonElement value) => Value(key, DeviceEvent.Render(value));
 
-    private static string Value(string key, string value) => $"0x{key,-5} {NameOf(key) ?? Unnamed,-26} {value}";
+    /// <param name="key">The key, as lowercase hex.</param>
+    /// <param name="value">The value, as written.</param>
+    /// <param name="named">The key to name it by, where that is another; see <see cref="WriteAttempt.Setting"/>.</param>
+    private static string Value(string key, string value, string? named = null) =>
+        $"0x{key,-5} {NameOf(named ?? key) ?? Unnamed,-26} {value}";
 
     private static string? NameOf(string key) =>
         int.TryParse(key, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int number)

@@ -17,7 +17,8 @@ public class WritesDisabledException : Exception
 /// <param name="Key">The setting's key.</param>
 /// <param name="Value">The value as sent, or as asked for when it was not.</param>
 /// <param name="Refused">Why it was not sent, or null when it was.</param>
-public sealed record WriteAttempt(int Key, string Value, string? Refused);
+/// <param name="Setting">The setting it was checked as, where the headset keeps that setting at <paramref name="Key"/>; see <see cref="HeadsetModels.CheckedAs"/>.</param>
+public sealed record WriteAttempt(int Key, string Value, string? Refused, int? Setting = null);
 
 /// <summary>
 /// Reads and writes headset settings. Reads are always allowed; a write needs
@@ -356,10 +357,10 @@ public sealed class HeadsetClient : IDisposable
         }
         catch (Exception ex)
         {
-            Wrote?.Invoke(new WriteAttempt(key, Convert.ToString(value, CultureInfo.InvariantCulture) ?? "", ex.Message));
+            Wrote?.Invoke(new WriteAttempt(key, Convert.ToString(value, CultureInfo.InvariantCulture) ?? "", ex.Message, checkedAs));
             throw;
         }
-        Wrote?.Invoke(new WriteAttempt(key, wire, null));
+        Wrote?.Invoke(new WriteAttempt(key, wire, null, checkedAs));
     }
 
     // -- the loudness level (a RACE command, not a set_kvp key) -------------
