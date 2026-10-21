@@ -160,6 +160,9 @@ and date.
 - On the Atlas Air, moving mic monitoring above 1% changes it. Every
   higher level was refused, because its place is where the Stealth Pro II
   keeps an on and off switch.
+- Sliders move in whole steps, so the Atlas Air's voice prompts, from 0 to
+  15, no longer shake as they are dragged, and never show a number past
+  the slider's end.
 - A screen reader now announces noise cancellation, the Mode button, the lower
   dial and Superhuman Hearing's sound as named groups of options, instead of
   leaving the group's name out.

@@ -170,9 +170,11 @@ public sealed class SettingRow : SettingsCard
         _slider = NeapControls.Slider();
         _slider.Minimum = double.IsNaN(Minimum) ? key.Minimum ?? 0 : Math.Max(Minimum, key.Minimum ?? 0);
         _slider.Maximum = key.Maximum ?? 100;
-        // No tooltip on the thumb: the number is in the row already, and
-        // the tooltip covers the row above while dragging.
-        _slider.IsSnapToTickEnabled = false;
+        // Whole steps, as the headset keeps them: on a short range such as
+        // voice prompts' 0 to 15, a thumb left between steps is pulled back
+        // to the step each time the value is painted, and shakes as it moves.
+        _slider.IsSnapToTickEnabled = true;
+        _slider.TickFrequency = 1;
         _slider.ValueChanged += (_, args) =>
         {
             ShowValue((int)args.NewValue);
@@ -260,7 +262,9 @@ public sealed class SettingRow : SettingsCard
             // of its own.
             _slider.Maximum = HeadsetModels.OnHeadset(AppServices.Headset.Model, key).Maximum ?? 100;
             _slider.Value = value;
-            ShowValue(value);
+            // The slider holds a value past its end at the end, and says so:
+            // a headset can keep a value outside the range Neap writes.
+            ShowValue((int)_slider.Value);
         }
         if (_choice is not null)
             foreach (var item in _choice.Items.OfType<ComboBoxItem>())
