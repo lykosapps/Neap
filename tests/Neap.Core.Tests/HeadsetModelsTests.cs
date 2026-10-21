@@ -43,6 +43,7 @@ public class HeadsetModelsTests
         Assert.DoesNotContain(Feature.NoiseControl, HeadsetModels.AtlasAir.Features);
         Assert.DoesNotContain(Feature.ModeButton, HeadsetModels.AtlasAir.Features);
         Assert.DoesNotContain(Feature.LowerDial, HeadsetModels.AtlasAir.Features);
+        Assert.DoesNotContain(Feature.AiNoiseReduction, HeadsetModels.AtlasAir.Features);
         Assert.False(HeadsetModels.AtlasAir.CrossPlay);
     }
 
@@ -77,7 +78,8 @@ public class HeadsetModelsTests
     [InlineData("dial_function", false)]
     [InlineData("wake_on_motion", false)]
     [InlineData("eq_band_1", true)]
-    [InlineData("mic_monitoring", false)]
+    [InlineData("mic_monitoring", true)]
+    [InlineData("ai_noise_reduction", false)]
     [InlineData("firmware_version", true)]
     public void AnAtlasAirShowsOnlyTheSettingsOfItsFunctions(string setting, bool shown) =>
         Assert.Equal(shown, HeadsetModels.Shows(HeadsetModels.AtlasAir, setting));
@@ -115,6 +117,8 @@ public class HeadsetModelsTests
     {
         Assert.Equal(0x820, HeadsetModels.KeyOnHeadset(HeadsetModels.AtlasAir, 0x740));
         Assert.Equal(0xC00, HeadsetModels.KeyOnHeadset(HeadsetModels.AtlasAir, 0x2D0));
+        Assert.Equal(0x630, HeadsetModels.KeyOnHeadset(HeadsetModels.AtlasAir, 0x620));
+        Assert.Equal(0x430, HeadsetModels.KeyOnHeadset(HeadsetModels.AtlasAir, 0x401));
         Assert.Equal(0x740, HeadsetModels.KeyOnHeadset(HeadsetModels.StealthProII, 0x740));
         Assert.Equal(0x740, HeadsetModels.KeyOnHeadset(null, 0x740));
     }
@@ -189,4 +193,38 @@ public class HeadsetModelsTests
 
         Assert.Subset(model.Features.ToHashSet(), model.Unread.ToHashSet());
     }
+
+    [Fact]
+    public void ASettingsRangeIsTheOneWhereTheHeadsetKeepsIt()
+    {
+        var prompts = Registry.ByName["voice_prompt_volume"];
+        Assert.Equal(15, HeadsetModels.OnHeadset(HeadsetModels.AtlasAir, prompts).Maximum);
+        Assert.Equal(100, HeadsetModels.OnHeadset(HeadsetModels.StealthProII, prompts).Maximum);
+        Assert.Same(prompts, HeadsetModels.OnHeadset(null, prompts));
+    }
+
+    [Fact]
+    public void TheAtlasAirsMicMonitoringIsStillALevelInPercent()
+    {
+        var monitoring = Registry.ByName["mic_monitoring"];
+
+        Assert.True(HeadsetModels.OnHeadset(HeadsetModels.AtlasAir, monitoring).IsPercent);
+    }
+
+    [Theory]
+    [InlineData("My Headset", "Atlas Air")]
+    [InlineData(null, "Atlas Air")]
+    public void TheAtlasAirIsAlwaysCalledByItsModel(string? given, string shown) =>
+        Assert.Equal(shown, HeadsetModels.Label(HeadsetModels.AtlasAir, given));
+
+    [Theory]
+    [InlineData("Desk", "Desk")]
+    [InlineData("  ", "Stealth Pro II")]
+    [InlineData(null, "Stealth Pro II")]
+    public void TheStealthProIIIsCalledByItsGivenNameOrElseItsModel(string? given, string shown) =>
+        Assert.Equal(shown, HeadsetModels.Label(HeadsetModels.StealthProII, given));
+
+    [Fact]
+    public void AnUnknownHeadsetWithNoNameHasNoLabel() =>
+        Assert.Null(HeadsetModels.Label(null, null));
 }

@@ -154,7 +154,8 @@ public sealed class PretendHeadset : IDeviceSource
         _values[0x800] = "0";
         _values[0x810] = "1";
         _values[0x820] = "50";
-        _values[0xC00] = "60";
+        _values[0xC00] = "12";
+        _values[0x430] = "50";
         _values[0x620] = _values[0x600];
         _values[0x630] = "20";
         for (int slot = 0; slot < _info.Length; slot++)
@@ -488,8 +489,10 @@ public sealed class PretendHeadset : IDeviceSource
     /// Whether a key is read as a value of its own, rather than inside a
     /// transmitter or preset slot's reply.
     /// </summary>
+    /// <remarks>The Atlas Air's transmitter group sits among the slots' keys and is read as plain values.</remarks>
     private static bool IsPlainValue(int key) =>
-        key is not (>= SlotBlock and < SlotBlock + Transmitters.Slots * SlotStride)
+        (key is not (>= SlotBlock and < SlotBlock + Transmitters.Slots * SlotStride)
+         || Registry.ByKey.TryGetValue(key, out var setting) && setting.Category == "TX")
         && !(key >= 0x1700 && key < 0x1900);
 
     // -- writes -------------------------------------------------------------
@@ -556,7 +559,7 @@ public sealed class PretendHeadset : IDeviceSource
         }
 
         int inSlot = key - SlotBlock;
-        if (inSlot is >= 0 and < Transmitters.Slots * SlotStride)
+        if (!IsPlainValue(key) && inSlot is >= 0 and < Transmitters.Slots * SlotStride)
         {
             // Only +1 and +2 get this far: WireValue refuses the rest.
             _control[inSlot / SlotStride][inSlot % SlotStride] = value;

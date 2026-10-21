@@ -2,8 +2,9 @@
 .SYNOPSIS
 Checks the published app against the pretend Atlas Air, for what its tester
 reported on issue 1: the master volume stays where it is put, Bluetooth says
-whether it is in use, profiles become ready, mic monitoring is not offered,
-and what the headset reports can be copied.
+whether it is in use, profiles become ready, mic monitoring is offered and
+AI noise reduction is not, Home calls it by its model, and what the headset
+reports can be copied.
 
 .DESCRIPTION
 Run through run.ps1. The app is launched once, in the dark theme, with the
@@ -45,6 +46,9 @@ try {
     Wait-Until { (Get-Texts) -contains 'Home' } 15 | Out-Null
     Set-NeapSize 1536 900 'Home'
 
+    Section 'the name'
+    Check (Wait-Until { (Get-Texts) -contains 'Atlas Air' } 5) 'Home calls it Atlas Air, not the name it holds'
+
     Section 'the master volume'
     Open-Page 'Audio'
     $slider = Find-Typed 'Master volume' ([System.Windows.Automation.ControlType]::Slider)
@@ -69,9 +73,10 @@ try {
     }
     Save-Shot 'atlas-audio' -Top 700 | ForEach-Object { $_.Dispose() }
 
-    Section 'microphone monitoring'
+    Section 'microphone'
     Open-Page 'Audio'
-    Check (@(Find-All 'Microphone monitoring').Count -eq 0) 'microphone monitoring is not offered'
+    Check (@(Find-All 'Microphone monitoring').Count -gt 0) 'microphone monitoring is offered'
+    Check (@(Find-All 'Noise reduction').Count -eq 0) 'noise reduction is not offered'
     Save-Shot 'atlas-mic' -Top 700 | ForEach-Object { $_.Dispose() }
 
     Section 'Bluetooth'

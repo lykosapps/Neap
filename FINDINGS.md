@@ -154,6 +154,59 @@ to the first question, with nothing at all coming back. Only one collection
 is asked, so a wrong choice between the two plugged in is ruled out *(measured,
 on the tester's PC)*.
 
+Swarm II's plugin for the Atlas Air (`ATLAS_AIR.dll` 1.0.0.24, from the same
+owner's PC), read without running it, settles more *(research)*:
+
+- **AI noise reduction:** the Microphone page's switch calls a function that
+  returns at once, and so does the Monitoring switch. Neither writes
+  anything. Turtle Beach's article for the headset has no AI noise
+  reduction. `0x630` is the mic monitoring level, 0 to 100, which is why it
+  read 20 and went to 0 when Neap's AI noise reduction switch turned it
+  "off".
+- **Voice prompts:** `0xC00` in `Prm`, on a slider from 0 to 15. The tester
+  heard no change above about 20.
+- **Transmitter light:** `0x430` in a group `TX`, 0 to 100, not the Stealth Pro
+  II's `0x401`. On the Stealth Pro II `0x430` is inside the second
+  transmitter slot's block, so only the Atlas Air's own key is written there.
+- **Name:** always the words "Atlas Air"; `0x220` is never read.
+- **Dial and buttons:** `0xA00` to `0xB20` are only in its list of defaults,
+  never written.
+- **Superhuman Hearing:** the reading had the switch going to Swarm II's
+  Waves audio software on the PC rather than `0x800`. The tester heard
+  Superhuman Hearing work from Neap's writes to `0x800` to `0x820` *(measured,
+  by ear, on the tester's headset)*, so the headset does it and that reading
+  is set aside.
+- `0x830` and `0xC10` are never used.
+
+The Linux tester's USB listing shows the transmitter's control interface
+(interface 3) with an interrupt input and no interrupt output, so Linux sends
+Neap's requests as SET_REPORT on the control pipe, as Windows does
+*(measured, on the tester's PC)*. Linux also queues what the interrupt input
+carries for a read, which Neap does not otherwise read.
+
+Neap's Windows log from the same tester shows the transmitter's first reply
+after being plugged in is an unasked `05 5c 03 00 80 2c 01` *(measured)*, one
+of the start-up messages SP2Tools records from the Stealth Pro II's Charging
+Dock. SP2Tools proved on that dock that it answers only if something has been
+reading report 7 since it was plugged in, and gives empty reports otherwise,
+which is what the Linux tester's transmitter gives. So Neap on Linux restarts
+a silent transmitter once per plug-in (USBDEVFS_RESET) while reading it
+throughout *(a test, not yet seen to work on an Atlas Air)*.
+
+Lent to Linux (WSL, kernel 6.18, usbipd) and read by Neap a minute after it
+was plugged in, the owner's Stealth Pro II Charging Dock (`229B`) answered in
+0.7 seconds. The restart reset it with the hidraw node kept, 16 reports were
+read as it came back, and it answered again in 0.4 seconds *(measured)*. On
+Windows the same dock, replugged and left unread for two and a half hours,
+answered Neap in three seconds *(measured)*. Neither reproduces the Atlas Air's
+silence.
+
+With reads paced at Windows' rate, the dock on Linux answered in 0.6 seconds.
+After Neap's restart, the first report read held the start-up messages
+`05 5d 03 00 10 31 ..`, `05 5c 03 00 80 2c 01`, `05 5c 03 00 80 2c 03` and
+`05 5d 0e 00 b1 2c ..`, the ones SP2Tools recorded after a real unplug
+*(measured)*: a USB reset puts the transmitter through its full start-up.
+
 ### Which headsets share the platform
 
 Swarm II's catalogue (`settings.json`, a zlib-compressed JSON list of 140

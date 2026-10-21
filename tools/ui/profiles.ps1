@@ -81,6 +81,7 @@ foreach ($theme in 'dark', 'light') {
                 Press (Find-Named 'Save')
                 Check (Wait-Until { (Get-Texts) -contains 'Game night' } 6) 'the new profile is in the list'
                 Check (Wait-Until { @(Get-Texts | Where-Object { $_ -match 'No profiles yet' }).Count -eq 0 } 3) 'the empty message goes'
+                Check (Wait-Until { (Get-Texts) -contains 'In use' } 3) 'the new profile, now in use, says so in the list'
             }
         }
 

@@ -1,0 +1,33 @@
+namespace Neap.Core.Hid;
+
+/// <summary>Which silent devices to restart: each once while it stays plugged in.</summary>
+/// <remarks>
+/// <para>
+/// A transmitter that opens and gives only empty reports is either locked up,
+/// because nothing read it from the moment it was plugged in, or simply has
+/// no headset to speak for, because the headset is off. The two look the same
+/// from the PC, so one restart is tried and no more: a locked-up transmitter
+/// is put right by it, and an idle one loses nothing but a moment of a
+/// connection it was not using.
+/// </para>
+/// <para>
+/// A device that goes away and comes back is a new plug-in, and can be
+/// restarted again.
+/// </para>
+/// </remarks>
+public sealed class SilentRestarts
+{
+    private readonly HashSet<string> _restarted = new(StringComparer.Ordinal);
+
+    /// <summary>The silent devices to restart now, each recorded as restarted.</summary>
+    /// <param name="silent">The paths of the devices that opened and gave only empty reports.</param>
+    /// <param name="present">The paths of every device plugged in now.</param>
+    public IReadOnlyList<string> Due(IEnumerable<string> silent, IEnumerable<string> present)
+    {
+        _restarted.IntersectWith(present);
+        return silent.Where(_restarted.Add).ToList();
+    }
+
+    /// <summary>Makes a device due again, after a restart that could not be tried at all, such as one the system refused.</summary>
+    public void Retry(string path) => _restarted.Remove(path);
+}

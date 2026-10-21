@@ -17,8 +17,8 @@ the models, not this file.
 | Superhuman Hearing | Yes | Offered |
 | Game equaliser | Yes | Yes |
 | Microphone | Yes | Yes |
-| Mic monitoring | Yes | — |
-| AI noise reduction | Yes | Yes |
+| Mic monitoring | Yes | Yes |
+| AI noise reduction | Yes | — |
 | Noise gate | Yes | Offered |
 | Microphone equaliser | Yes | Yes |
 | Mode button | Yes | — |

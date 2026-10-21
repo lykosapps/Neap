@@ -104,10 +104,14 @@ function Check([bool]$ok, [string]$what) {
 function Note([string]$what) { Write-Host "  note  $what" }
 function Section([string]$what) { Write-Host "== $what" }
 
+# A search that runs while the app is rebuilding a page can fail inside UI
+# Automation; that is asked again rather than ending the check, and only the
+# last try, after the time is up, lets a failure through.
 function Wait-Until([scriptblock]$Condition, [double]$Seconds = 6) {
     $clock = [Diagnostics.Stopwatch]::StartNew()
     do {
-        if (& $Condition) { return $true }
+        try { if (& $Condition) { return $true } }
+        catch [System.Management.Automation.MethodInvocationException] { }
         Start-Sleep -Milliseconds 60
     } while ($clock.Elapsed.TotalSeconds -lt $Seconds)
     [bool](& $Condition)

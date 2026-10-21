@@ -73,6 +73,7 @@ public static class Verbs
             ["3DT"] = "S3DT",
             ["SHH"] = "SSHH",     // the Atlas Air's Superhuman Hearing, 0x8xx
             ["Prm"] = "SPrm",     // the Atlas Air's voice prompts, 0xcxx
+            ["TX"] = "STX",       // the Atlas Air's transmitter, 0x4xx; not yet answered
         };
         foreach (var category in PresetSlotCategories) map[category] = "S" + category;
         foreach (var category in TransmitterCategories) map[category] = "S" + category;

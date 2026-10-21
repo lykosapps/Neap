@@ -31,9 +31,9 @@ public class ProfileEditsTests
     public void ASavedPresetThatIsNowUnnamedIsAnEdit() =>
         Assert.True(ProfileEdits.IsEdited(With("Bass Boost", "Clarity"), With(null, "Clarity")));
 
-    /// <summary>An Atlas Air has no noise cancellation, dial or Mode button, and reads them as nothing.</summary>
+    /// <summary>An Atlas Air has no noise cancellation, AI noise reduction, dial or Mode button, and reads them as nothing.</summary>
     private static ProfileSettings OnAnAtlasAir(int autoShutoff = 0) => new(
-        NoiseMode.Off, 0, false, 0, 0, false, 0, false, 0,
+        NoiseMode.Off, 0, false, 0, 0, false, 0, false, 50,
         "Bass Boost", "Clarity", SpatialFormat.Off, autoShutoff, new ModeChoice(0, false), 0);
 
     [Fact]
@@ -57,6 +57,39 @@ public class ProfileEditsTests
         Assert.Equal(OnAnAtlasAir(), ProfileEdits.Keeping(OnAnAtlasAir(), With("Bass Boost", "Clarity"), HeadsetModels.StealthProII));
 
     [Fact]
+    public void OnAHeadsetWithNoChatWheelTheMixIsHeld()
+    {
+        Assert.True(ProfileGate.HoldsMix(HeadsetModels.AtlasAir));
+        Assert.False(ProfileGate.HoldsMix(HeadsetModels.StealthProII));
+        Assert.False(ProfileGate.HoldsMix(null));
+    }
+
+    [Fact]
+    public void AMovedMixIsAnEditOnAnAtlasAir()
+    {
+        var saved = OnAnAtlasAir() with { Mix = 50 };
+
+        var live = ProfileEdits.Keeping(OnAnAtlasAir() with { Mix = 70 }, saved, HeadsetModels.AtlasAir);
+
+        Assert.True(ProfileEdits.IsEdited(saved, live));
+    }
+
+    [Fact]
+    public void OnAStealthProIITheProfilesMixIsKeptAndTheWheelsIsNotAnEdit()
+    {
+        var saved = With("Bass Boost", "Clarity") with { Mix = 50 };
+
+        var live = ProfileEdits.Keeping(With("Bass Boost", "Clarity") with { Mix = 80 }, saved, HeadsetModels.StealthProII);
+
+        Assert.Equal(50, live.Mix);
+        Assert.False(ProfileEdits.IsEdited(saved, live));
+    }
+
+    [Fact]
+    public void AMixTheProfileNeverSavedIsNotAnEdit() =>
+        Assert.False(ProfileEdits.IsEdited(OnAnAtlasAir(), OnAnAtlasAir() with { Mix = 30 }));
+
+    [Fact]
     public void WithNoProfileTheLiveSettingsStand() =>
         Assert.Equal(OnAnAtlasAir(), ProfileEdits.Keeping(OnAnAtlasAir(), null, HeadsetModels.AtlasAir));
 
@@ -73,13 +106,13 @@ public class ProfileEditsTests
     /// <summary>A profile that waited on a setting the headset lacks or Neap cannot read would never be ready.</summary>
     [Theory]
     [InlineData("auto_shutoff", true)]
-    [InlineData("ai_noise_reduction", true)]
+    [InlineData("ai_noise_reduction", false)]
     [InlineData("anc", false)]
     [InlineData("mode_button_function", false)]
     [InlineData("dial_function", false)]
     [InlineData("superhuman_hearing", false)]
     [InlineData("noise_gate", false)]
-    [InlineData("mic_monitoring", false)]
+    [InlineData("mic_monitoring", true)]
     public void AnAtlasAirsProfileHoldsOnlyWhatItCanRead(string setting, bool held) =>
         Assert.Equal(held, ProfileGate.Holds(HeadsetModels.AtlasAir, setting));
 

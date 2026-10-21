@@ -735,6 +735,9 @@
   <data name="Profile_Edited" xml:space="preserve">
     <value>Edited</value>
   </data>
+  <data name="Profile_InUse" xml:space="preserve">
+    <value>In use</value>
+  </data>
   <data name="Profile_Save" xml:space="preserve">
     <value>Save</value>
   </data>
@@ -821,9 +824,6 @@
   </data>
   <data name="Profile_Waiting" xml:space="preserve">
     <value>Waiting to switch to {0}</value>
-  </data>
-  <data name="Profile_InUse" xml:space="preserve">
-    <value>In use</value>
   </data>
   <data name="Profile_NoApps" xml:space="preserve">
     <value>Not assigned to any app</value>

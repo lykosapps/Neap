@@ -20,6 +20,12 @@ namespace Neap.Core.Hid;
 /// or read would use the interrupt pipe instead.
 /// </para>
 /// <para>
+/// While the node is open, Linux also polls the interface's interrupt pipe
+/// and queues what arrives there for a read. A device that answers there
+/// rather than to GET_REPORT would look silent, so an empty GET_REPORT is
+/// followed by a look at that queue; see <see cref="GetInput"/>.
+/// </para>
+/// <para>
 /// Describing needs nothing but sysfs, which anyone can read. Opening needs
 /// read and write on the device node, which Linux gives only to root unless
 /// a udev rule says otherwise, so a refusal says so rather than looking like
@@ -32,6 +38,9 @@ public sealed class HidrawTransport : IHidTransport
     private const string Devices = "/sys/class/hidraw";
 
     private readonly SafeFileHandle _handle;
+    private bool _answersOnRequest;
+    private int _queued;
+    private readonly SortedSet<byte> _queuedIds = [];
 
     public string Path { get; }
     public ushort VendorId { get; }
@@ -66,8 +75,14 @@ public sealed class HidrawTransport : IHidTransport
         }
     }
 
+    /// <remarks>
+    /// Says what the interrupt pipe carried while the device gave GET_REPORT
+    /// nothing, as that is the one sign of where a silent device's answers go.
+    /// </remarks>
     public string Describe() =>
-        $"0x{VendorId:x4}:0x{ProductId:x4} usage page 0x{UsagePage:x4} on {Path}";
+        $"0x{VendorId:x4}:0x{ProductId:x4} usage page 0x{UsagePage:x4} on {Path}"
+        + (_queued == 0 ? "" : $", whose interrupt pipe carried {_queued} reports, report ids "
+            + string.Join(", ", _queuedIds.Select(id => $"0x{id:x2}")));
 
     /// <summary>Writes one output report, which must already start with its report id.</summary>
     /// <remarks>An oversized frame is refused rather than trimmed, for the reason on <see cref="HidTransport.SendOutput"/>.</remarks>
@@ -84,12 +99,27 @@ public sealed class HidrawTransport : IHidTransport
     }
 
     /// <summary>Reads one report from the headset, report id included.</summary>
+    /// <remarks>
+    /// <para>
+    /// An empty GET_REPORT, nothing after the report id, is followed by a look
+    /// at what the interrupt pipe has queued, and a queued report with the
+    /// same id is returned in its place. Reports with other ids, such as the
+    /// volume keys', are dropped, as nothing else reads this node.
+    /// </para>
+    /// <para>
+    /// Once GET_REPORT has answered, the queue is left alone, so a device that
+    /// answers there, as the Stealth Pro II does, cannot have a reply read
+    /// twice.
+    /// </para>
+    /// </remarks>
     /// <exception cref="TransportException">The read failed.</exception>
     public byte[] GetInput(byte reportId = HidControl.InReportId)
     {
         var buffer = new byte[InputLength];
         buffer[0] = reportId;
         Control(GetInputNumber, buffer, "HIDIOCGINPUT");
+        if (buffer.AsSpan(1).ContainsAnyExcept((byte)0)) _answersOnRequest = true;
+        else if (!_answersOnRequest && Queued(reportId) is { } queued) return queued;
         return buffer;
     }
 
@@ -127,6 +157,199 @@ public sealed class HidrawTransport : IHidTransport
 
     [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
     private static extern int Ioctl(int descriptor, nuint request, [In, Out] byte[] buffer);
+
+    // -- the interrupt pipe's queue ------------------------------------------
+
+    /// <summary>The first report with <paramref name="reportId"/> waiting on the interrupt pipe, or null when none is.</summary>
+    /// <remarks>Never waits: poll with no timeout says whether a read would block.</remarks>
+    /// <exception cref="TransportException">The poll or read failed.</exception>
+    private byte[]? Queued(byte reportId)
+    {
+        bool added = false;
+        try
+        {
+            _handle.DangerousAddRef(ref added);
+            int descriptor = (int)_handle.DangerousGetHandle();
+            var buffer = new byte[InputLength];
+            while (true)
+            {
+                var poll = new PollDescriptor { Descriptor = descriptor, Events = PollIn };
+                int ready = Poll(ref poll, 1, 0);
+                if (ready < 0)
+                    throw new TransportException($"poll failed ({new Win32Exception(Marshal.GetLastPInvokeError()).Message})");
+                if (ready == 0 || (poll.Returned & PollIn) == 0) return null;
+
+                Array.Clear(buffer);
+                nint read = Read(descriptor, buffer, buffer.Length);
+                if (read < 0)
+                    throw new TransportException($"read failed ({new Win32Exception(Marshal.GetLastPInvokeError()).Message})");
+                if (read == 0) return null;
+                _queued++;
+                _queuedIds.Add(buffer[0]);
+                if (buffer[0] == reportId) return buffer;
+            }
+        }
+        finally
+        {
+            if (added) _handle.DangerousRelease();
+        }
+    }
+
+    private const short PollIn = 0x1;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct PollDescriptor
+    {
+        public int Descriptor;
+        public short Events;
+        public short Returned;
+    }
+
+    [DllImport("libc", EntryPoint = "poll", SetLastError = true)]
+    private static extern int Poll(ref PollDescriptor descriptor, nuint count, int timeout);
+
+    [DllImport("libc", EntryPoint = "read", SetLastError = true)]
+    private static extern nint Read(int descriptor, [Out] byte[] buffer, nint count);
+
+    // -- restarting ----------------------------------------------------------
+
+    /// <summary>
+    /// Resets the USB device behind a hidraw node, as if it were unplugged and
+    /// plugged back in, while reading it all the way through.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Turtle Beach's transmitters of this family answer only if something has
+    /// been reading report 7 since they were plugged in, and give empty
+    /// reports for ever otherwise. Proven on the Stealth Pro II's Charging
+    /// Dock in SP2Tools: reading from the moment it is plugged in again puts
+    /// it right, and its replies then last through closing and reopening it.
+    /// On Linux a transmitter is often plugged in long before Neap starts.
+    /// </para>
+    /// <para>
+    /// The reset is USBDEVFS_RESET on the device's usbfs node. The hid and
+    /// audio drivers stay bound through it, so the hidraw node and the handle
+    /// on it stay too, and reading carries on across it on another thread.
+    /// Reads that fail while the device is resetting are expected and skipped.
+    /// </para>
+    /// </remarks>
+    /// <param name="device">The silent device, as listed.</param>
+    /// <param name="listen">How long to go on reading after the reset.</param>
+    /// <returns>The reports with something in them that were read, in hex, report id first and trailing zeros left off.</returns>
+    /// <exception cref="AccessDeniedException">The system does not let this user reset the device.</exception>
+    /// <exception cref="TransportException">The device could not be found or reset.</exception>
+    public static IReadOnlyList<string> Restart(HidDeviceInfo device, TimeSpan listen)
+    {
+        string node = UsbNode(device.Path);
+        using var hid = new HidrawTransport(device);
+        SafeFileHandle usb;
+        try
+        {
+            usb = File.OpenHandle(node, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw new AccessDeniedException($"no permission to reset {node}; the udev rule has to cover it");
+        }
+        catch (IOException ex)
+        {
+            throw new TransportException($"could not open {node} ({ex.Message})");
+        }
+
+        var heard = new List<string>();
+        using var done = new ManualResetEventSlim();
+        var reader = new Thread(() =>
+        {
+            while (!done.IsSet)
+            {
+                try
+                {
+                    var report = hid.GetInput();
+                    int end = report.AsSpan().LastIndexOfAnyExcept((byte)0) + 1;
+                    if (end > 1) heard.Add(Convert.ToHexString(report, 0, end));
+                }
+                catch (TransportException)
+                {
+                    // Resetting: the device is away for a moment.
+                }
+                done.Wait(4);
+            }
+        })
+        { IsBackground = true, Name = "transmitter restart" };
+        reader.Start();
+
+        try
+        {
+            using (usb)
+            {
+                bool added = false;
+                try
+                {
+                    usb.DangerousAddRef(ref added);
+                    if (IoctlNone((int)usb.DangerousGetHandle(), UsbReset, IntPtr.Zero) < 0)
+                        throw new TransportException(
+                            $"USBDEVFS_RESET on {node} failed ({new Win32Exception(Marshal.GetLastPInvokeError()).Message})");
+                }
+                finally
+                {
+                    if (added) usb.DangerousRelease();
+                }
+            }
+            Thread.Sleep(listen);
+        }
+        finally
+        {
+            done.Set();
+            reader.Join();
+        }
+        return heard;
+    }
+
+    /// <summary>USBDEVFS_RESET, _IO('U', 20).</summary>
+    private const nuint UsbReset = ('U' << 8) | 20;
+
+    /// <summary>The usbfs node of the USB device a hidraw node belongs to, such as /dev/bus/usb/005/003.</summary>
+    /// <remarks>
+    /// The hidraw node's device is the HID device, whose parent is the USB
+    /// interface, whose parent is the USB device with its bus and device
+    /// numbers.
+    /// </remarks>
+    /// <exception cref="TransportException">The USB device could not be found.</exception>
+    private static string UsbNode(string hidrawPath)
+    {
+        string hid = RealPath(System.IO.Path.Combine(Devices, System.IO.Path.GetFileName(hidrawPath), "device"));
+        string usb = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(hid) ?? "") ?? "";
+        try
+        {
+            int bus = int.Parse(Hidraw.ReadAll(System.IO.Path.Combine(usb, "busnum")).Trim(), CultureInfo.InvariantCulture);
+            int number = int.Parse(Hidraw.ReadAll(System.IO.Path.Combine(usb, "devnum")).Trim(), CultureInfo.InvariantCulture);
+            return $"/dev/bus/usb/{bus:000}/{number:000}";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or FormatException)
+        {
+            throw new TransportException($"could not find the USB device behind {hidrawPath} at {usb} ({ex.Message})");
+        }
+    }
+
+    /// <summary>A path with every link in it followed, as realpath(3) gives it.</summary>
+    /// <exception cref="TransportException">The path could not be followed.</exception>
+    private static string RealPath(string path)
+    {
+        IntPtr resolved = RealPathNative(System.Text.Encoding.UTF8.GetBytes(path + " "), IntPtr.Zero);
+        if (resolved == IntPtr.Zero)
+            throw new TransportException($"could not follow {path} ({new Win32Exception(Marshal.GetLastPInvokeError()).Message})");
+        try { return Marshal.PtrToStringUTF8(resolved) ?? ""; }
+        finally { Free(resolved); }
+    }
+
+    [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
+    private static extern int IoctlNone(int descriptor, nuint request, IntPtr argument);
+
+    [DllImport("libc", EntryPoint = "realpath", SetLastError = true)]
+    private static extern IntPtr RealPathNative(byte[] path, IntPtr resolved);
+
+    [DllImport("libc", EntryPoint = "free")]
+    private static extern void Free(IntPtr pointer);
 
     // -- enumeration ---------------------------------------------------------
 

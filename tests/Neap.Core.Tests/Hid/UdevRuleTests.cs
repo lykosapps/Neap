@@ -17,11 +17,16 @@ public class UdevRuleTests
     [Fact]
     public void TheRuleNamesTurtleBeachsVendorIdAndNothingWider()
     {
-        string rule = UdevRule.Lines.Single(line => !line.StartsWith('#'));
+        var rules = UdevRule.Lines.Where(line => !line.StartsWith('#')).ToList();
 
-        Assert.Contains($"ATTRS{{idVendor}}==\"{HidControl.VendorId:x4}\"", rule, StringComparison.Ordinal);
-        Assert.Contains("SUBSYSTEM==\"hidraw\"", rule, StringComparison.Ordinal);
-        Assert.Contains("TAG+=\"uaccess\"", rule, StringComparison.Ordinal);
+        Assert.Equal(2, rules.Count);
+        Assert.All(rules, rule =>
+        {
+            Assert.Contains($"{{idVendor}}==\"{HidControl.VendorId:x4}\"", rule, StringComparison.Ordinal);
+            Assert.Contains("TAG+=\"uaccess\"", rule, StringComparison.Ordinal);
+        });
+        Assert.Contains("SUBSYSTEM==\"hidraw\"", rules[0], StringComparison.Ordinal);
+        Assert.Contains("SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\"", rules[1], StringComparison.Ordinal);
     }
 
     [Fact]
@@ -30,6 +35,7 @@ public class UdevRuleTests
         Assert.Contains($"{UdevRule.Folder}/{UdevRule.FileName}", UdevRule.RootCommand, StringComparison.Ordinal);
         Assert.Contains("udevadm control --reload-rules", UdevRule.RootCommand, StringComparison.Ordinal);
         Assert.Contains("udevadm trigger --subsystem-match=hidraw", UdevRule.RootCommand, StringComparison.Ordinal);
+        Assert.Contains("udevadm trigger --subsystem-match=usb --attr-match=idVendor=10f5", UdevRule.RootCommand, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -58,6 +58,19 @@ public class HeadsetClientTests
     }
 
     [Fact]
+    public void ASilentDeviceIsAskedNoFasterThanWindowsAsks()
+    {
+        var told = new List<Exception>();
+
+        HeadsetClient.Behind(_ => false, out _, devices: new PretendHeadset { On = false },
+            failed: (_, ex) => told.Add(ex), window: TimeSpan.FromMilliseconds(300));
+
+        int reads = int.Parse(System.Text.RegularExpressions.Regex.Match(Assert.Single(told).Message, @"(\d+) reads").Groups[1].Value,
+            System.Globalization.CultureInfo.InvariantCulture);
+        Assert.InRange(reads, 1, 300 / HeadsetClient.ReadInterval.Milliseconds + 1);
+    }
+
+    [Fact]
     public void ADeviceThatOpensAndSaysNothingIsToldWithWhatWasTried()
     {
         var told = new List<Exception>();

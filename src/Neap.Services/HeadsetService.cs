@@ -859,9 +859,15 @@ public sealed class HeadsetService : IDisposable
     /// mean "the LEDs of the transmitter you are using" for reads and writes
     /// alike.
     /// </para>
+    /// <para>
+    /// A headset that keeps its light elsewhere, as the Atlas Air does, has
+    /// it in <see cref="HeadsetModel.OwnKeys"/>, which comes first.
+    /// </para>
     /// </remarks>
     private int OnTheWire(int key) =>
-        key is 0x401 or 0x402 ? _lightingBlock + (key - 0x400) : HeadsetModels.KeyOnHeadset(Model, key);
+        key is 0x401 or 0x402 && Model?.OwnKeys.ContainsKey(key) != true
+            ? _lightingBlock + (key - 0x400)
+            : HeadsetModels.KeyOnHeadset(Model, key);
 
     /// <summary>The groups of settings to ask the connected headset for: every headset's, and any of its own.</summary>
     private IEnumerable<string> Categories() => Verbs.SettingCategories.Concat(Model?.ExtraCategories ?? []);
@@ -916,17 +922,21 @@ public sealed class HeadsetService : IDisposable
     private HeadsetClient? Open(out int present)
     {
         bool denied = false;
+        var silent = new List<string>();
         // Settings are changed only on a headset where changing them has been
         // confirmed; any other is read and nothing more.
         var client = HeadsetClient.Behind(product => HeadsetModels.Of(product) is { Writable: true },
             out present, _askLast, _devices, (device, ex) =>
         {
             denied |= ex is AccessDeniedException;
+            if (ex is TimeoutException) silent.Add(device);
             if (ex is InvalidDataException or TimeoutException && !_toldQuiet.Add(ex.GetType())) return;
             NoteFault($"asking {device}", ex);
         }, _askedBefore ? null : FirstAsk);
         _askedBefore = true;
         _askLast = null;
+        if (client is null && OperatingSystem.IsLinux() && _devices is SystemDevices)
+            denied |= RestartSilent(silent);
         if (client is not null)
         {
             _toldQuiet.Clear();
@@ -943,6 +953,46 @@ public sealed class HeadsetService : IDisposable
         SetAccessDenied(client is null && denied);
         return client;
     }
+
+    /// <summary>Restarts each silent transmitter that is due a restart, reading it as it comes back; see <see cref="SilentRestarts"/>.</summary>
+    /// <remarks>
+    /// The next ask, a few seconds later, finds out whether it worked: a
+    /// restarted transmitter's replies last through closing and reopening it.
+    /// </remarks>
+    /// <returns>Whether the system refused to let this user restart one.</returns>
+    [System.Runtime.Versioning.SupportedOSPlatform("linux")]
+    private bool RestartSilent(IReadOnlyList<string> silent)
+    {
+        var present = _devices.Candidates();
+        bool denied = false;
+        foreach (string path in _restarts.Due(silent, present.Select(device => device.Path)))
+        {
+            var device = present.First(d => d.Path == path);
+            try
+            {
+                var heard = HidrawTransport.Restart(device, RestartListen);
+                AppLog.Write($"headset: restarted the silent transmitter at {path}, and read {heard.Count} reports with something in them as it came back"
+                    + (heard.Count == 0 ? "" : $", the first {Math.Min(heard.Count, 5)}: {string.Join(" ", heard.Take(5))}"));
+            }
+            catch (AccessDeniedException ex)
+            {
+                // Tried again once the person allows it.
+                denied = true;
+                _restarts.Retry(path);
+                NoteFault($"restarting {path}", ex);
+            }
+            catch (TransportException ex)
+            {
+                NoteFault($"restarting {path}", ex);
+            }
+        }
+        return denied;
+    }
+
+    /// <summary>How long a restarted transmitter is read after it comes back: the start-up messages come within the first second or two.</summary>
+    private static readonly TimeSpan RestartListen = TimeSpan.FromSeconds(2);
+
+    private readonly SilentRestarts _restarts = new();
 
     /// <summary>The ways a device has failed to answer that the log already says, since the headset last answered: no answer at all, or something other than the reply asked for.</summary>
     /// <remarks>Asked every few seconds while the headset reads as off, one line of each is enough.</remarks>

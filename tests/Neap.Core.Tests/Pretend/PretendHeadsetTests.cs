@@ -236,6 +236,18 @@ public class PretendHeadsetTests
     }
 
     [Fact]
+    public void AnAtlasAirKeepsItsTransmittersLightInAGroupOfItsOwn()
+    {
+        var headset = new PretendHeadset(atlas: true);
+        using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
+
+        client.Set(0x430, 30);
+
+        Assert.Equal("30", headset.Value(0x430));
+        Assert.Equal("30", client.ReadCategory("TX", TimeSpan.FromSeconds(1))["430"].GetString());
+    }
+
+    [Fact]
     public void AnAtlasAirDoesNotAnswerForTheGameAndChatMix() =>
         Assert.Empty(Exchange(new PretendHeadset(atlas: true).Open(), Frames.Build("S3DT")));
 
