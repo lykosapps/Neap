@@ -33,6 +33,11 @@ preparing code for experienced reviewers.
 - **Every write goes through the registry.** `Settings/Registry.cs` is the
   list of confirmed settings; the client refuses anything else. Never write a
   transmitter slot's base address.
+- **A control the headset reports is a control Neap offers.** When a change
+  starts reading a new key so a button or switch on the headset shows in
+  Neap, test the write for Neap's own control on the headset in the same
+  change and ship them together. It becomes writable only once that test
+  passes.
 - **Text lives in the resource file.** All interface text is in
   `Strings/en-US/Resources.resw`, through `loc:Uid.Value` in AXAML and `Strings`
   in code. Whole sentences, never fragments joined in code. The tests check that
