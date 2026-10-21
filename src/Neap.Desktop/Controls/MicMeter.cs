@@ -96,6 +96,7 @@ public sealed class MicMeter : UserControl
             return;
         }
         int attempt = ++_opening;
+        AppLog.Write("microphone meter: opening the microphone");
         try
         {
             var listener = await Task.Run(MicrophoneListening.Open);
