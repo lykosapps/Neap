@@ -38,6 +38,10 @@ preparing code for experienced reviewers.
   Neap, test the write for Neap's own control on the headset in the same
   change and ship them together. It becomes writable only once that test
   passes.
+- **On screen means in a window.** Work that finishes after a wait (opening
+  a microphone or a tone, reading the headset) checks `InWindow()` before it
+  uses the result, never `IsLoaded`, which can read false for a moment as a
+  page opens while the control is showing.
 - **Text lives in the resource file.** All interface text is in
   `Strings/en-US/Resources.resw`, through `loc:Uid.Value` in AXAML and `Strings`
   in code. Whole sentences, never fragments joined in code. The tests check that

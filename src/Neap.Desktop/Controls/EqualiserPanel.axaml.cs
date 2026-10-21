@@ -227,7 +227,7 @@ public partial class EqualiserPanel : UserControl
 
         // A headset that turns up late still gets its presets read, once,
         // unless the page was left while they were being read.
-        if (_state is null && IsLoaded)
+        if (_state is null && this.InWindow())
             AppServices.Headset.StatusChanged += OnStatusChanged;
     }
 

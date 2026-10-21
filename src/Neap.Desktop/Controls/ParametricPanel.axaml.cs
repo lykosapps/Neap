@@ -249,7 +249,7 @@ public partial class ParametricPanel : UserControl
             // A pretend run leaves the real headset's sound alone.
             var player = await Task.Run(() => Pretend.Windows?.OpenTone(frequency) ?? ToneOutput.Open(frequency));
             // Stopped, or left, while it was opening.
-            if (stops != _stops || !IsLoaded || !IsVisible)
+            if (stops != _stops || !this.InWindow() || !IsVisible)
             {
                 player.Dispose();
                 return;

@@ -157,9 +157,12 @@ and date.
 
 ### Fixed
 
-- The microphone meter on the Audio page moves again after opening Neap from
-  the mini panel. Neap took itself to be behind other windows, so the meter
-  stayed still until you switched away and back.
+- The microphone meter on the Audio page moves as soon as the page opens.
+  It could stay still until you switched away and back or opened the page
+  again: Neap could take itself to be behind other windows after the mini
+  panel, and the meter could let the microphone go as the page opened. The
+  game and chat dial's live levels and the equaliser's test tone start the
+  same way, and are kept from the second of these too.
 - With the boom microphone off, muting with the headset's button now mutes
   the microphone on the PC too, and the microphone card says "Muted on the
   headset". Neap's own microphone switch mutes the headset itself, with its

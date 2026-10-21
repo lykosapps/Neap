@@ -82,7 +82,7 @@ public sealed class MicMeter : UserControl
     private async void OnPresence()
     {
         if (!WindowPresence.InFront) Close();
-        else if (OnScreen) await Open();
+        else if (this.InWindow()) await Open();
     }
 
     private async Task Open()
@@ -101,7 +101,7 @@ public sealed class MicMeter : UserControl
         {
             var listener = await Task.Run(MicrophoneListening.Open);
             // Closed, or moved off screen, while the microphone was opening.
-            if (attempt != _opening || !OnScreen)
+            if (attempt != _opening || !this.InWindow())
             {
                 AppLog.Write("microphone meter: let the microphone go, as the meter was closed while it opened");
                 _ = Task.Run(listener.Dispose);
@@ -118,15 +118,6 @@ public sealed class MicMeter : UserControl
             Fail(e.Message);
         }
     }
-
-    /// <summary>Gets whether the meter is in a window.</summary>
-    /// <remarks>
-    /// Not <see cref="Control.IsLoaded"/>: as the Audio page first opens, the
-    /// meter can read as not loaded for a moment while it is in the window
-    /// and showing, with no Unloaded to follow. A meter that took that to
-    /// mean it had gone threw the microphone away and stayed still.
-    /// </remarks>
-    private bool OnScreen => TopLevel.GetTopLevel(this) is not null;
 
     private void Close()
     {
