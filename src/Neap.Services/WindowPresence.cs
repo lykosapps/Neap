@@ -21,6 +21,8 @@ public static class WindowPresence
     /// <summary>Records one of Neap's windows coming forward or going behind.</summary>
     public static void Set(object window, bool active)
     {
-        if (Windows.Set(window, active)) Changed?.Invoke();
+        if (!Windows.Set(window, active)) return;
+        AppLog.Write($"window: Neap is {(InFront ? "in front" : "behind")}, as the {window.GetType().Name} {(active ? "came forward" : "went behind")}");
+        Changed?.Invoke();
     }
 }

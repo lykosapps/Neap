@@ -106,6 +106,7 @@ public sealed class MicMeter : UserControl
                 return;
             }
             _listener = listener;
+            AppLog.Write("microphone meter: listening");
             listener.Stopped += fault => Platform.Post(() => Fail(fault.Message));
             Show(null);
             _timer = Platform.Current.Ui.Every(Reading, Read);
@@ -124,6 +125,7 @@ public sealed class MicMeter : UserControl
         Paint(0);
         if (_listener is not { } listener) return;
         _listener = null;
+        AppLog.Write("microphone meter: stopped listening");
         _ = Task.Run(listener.Dispose);
     }
 
