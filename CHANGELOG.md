@@ -167,6 +167,9 @@ and date.
   turning bold, which pushed the text around them.
 - The line that shows the equaliser reading its presets, and a profile being
   saved, moves again. It stays still when animation is off in Windows.
+- With the headset away, the mini panel shows only its header, which says
+  the headset is not connected, without a note under it. Its button for
+  opening Neap is smaller.
 - The mini panel is its usual size on a large screen. It grew whenever the
   main window was small; it now grows only on a small screen, such as the
   Steam Deck's.

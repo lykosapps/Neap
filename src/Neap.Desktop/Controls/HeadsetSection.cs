@@ -144,6 +144,10 @@ public sealed class HeadsetSection : StackPanel
         Gather();
 
         _body!.IsVisible = fold == Fold.Open;
+
+        // With nothing to show, the section leaves the layout altogether, so
+        // the panel around it does not keep a gap for it.
+        IsVisible = _body.IsVisible || _card is not null;
         if (_card is null) return;
 
         // Worded for which it is: "switch it off and on" means nothing to a

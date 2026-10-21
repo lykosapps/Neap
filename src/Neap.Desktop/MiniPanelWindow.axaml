@@ -51,22 +51,25 @@
                 <Button
                     x:Name="OpenNeap"
                     Grid.Column="2"
-                    Width="32"
-                    Height="32"
+                    Width="28"
+                    Height="28"
+                    MinHeight="0"
                     Padding="0"
                     VerticalAlignment="Center"
                     Classes="quiet"
                     loc:Uid.Value="Mini_Open">
                     <PathIcon
-                        Width="{StaticResource NeapIconTile}"
-                        Height="{StaticResource NeapIconTile}"
+                        Width="{StaticResource NeapIconRow}"
+                        Height="{StaticResource NeapIconRow}"
                         Data="{StaticResource IconLaunch}" />
                 </Button>
             </Grid>
 
-            <!-- Nothing plugged in is said first, in words, as on every page. -->
-            <c:HeadsetNotice />
-
+            <!--
+                With the headset away the header's status says so, and the
+                sections fold without explaining: the panel is for changing
+                things mid-game, and the window has the detail.
+            -->
             <!--
                 The mix goes on working with only the headset's settings out of
                 reach, so it folds only when the headset is away. Without chat
@@ -146,35 +149,31 @@
                 headset's, but the panel is for the headset in use, so it folds
                 away with the headset's settings rather than standing alone.
             -->
-            <StackPanel Spacing="{StaticResource NeapSpaceS}">
-                <c:HeadsetSection loc:Uid.Value="Mini_Section" Spacing="{StaticResource NeapSpaceS}">
-                    <c:MicTile AsRow="True" />
+            <c:HeadsetSection Explain="False" Spacing="{StaticResource NeapSpaceS}">
+                <c:MicTile AsRow="True" />
 
-                    <c:SettingsCard
-                        x:Name="NoiseRow"
-                        loc:Uid.Value="Mini_Noise"
-                        Icon="{StaticResource IconNoise}">
-                        <c:SettingsCard.Below>
-                            <Border Margin="{StaticResource NeapSectionGap}" Classes="segmented">
-                                <c:NoiseModes
-                                    loc:Uid.Value="Quick_NoiseTile"
-                                    AutomationProperties.AutomationId="mini_noise_control" />
-                            </Border>
-                        </c:SettingsCard.Below>
-                    </c:SettingsCard>
+                <c:SettingsCard
+                    x:Name="NoiseRow"
+                    loc:Uid.Value="Mini_Noise"
+                    Icon="{StaticResource IconNoise}">
+                    <c:SettingsCard.Below>
+                        <Border Margin="{StaticResource NeapSectionGap}" Classes="segmented">
+                            <c:NoiseModes
+                                loc:Uid.Value="Quick_NoiseTile"
+                                AutomationProperties.AutomationId="mini_noise_control" />
+                        </Border>
+                    </c:SettingsCard.Below>
+                </c:SettingsCard>
 
-                    <c:SpatialTile AsRow="True" Stacked="True" />
-                </c:HeadsetSection>
+                <c:SpatialTile AsRow="True" Stacked="True" />
 
-                <c:HeadsetSection Explain="False">
-                    <c:SettingsCard loc:Uid.Value="Mini_Equaliser" Icon="{StaticResource IconEqualiser}">
-                        <c:PresetChoice
-                            x:Name="Preset"
-                            MaxWidth="190"
-                            loc:Uid.Value="Quick_PresetPicker" />
-                    </c:SettingsCard>
-                </c:HeadsetSection>
-            </StackPanel>
+                <c:SettingsCard loc:Uid.Value="Mini_Equaliser" Icon="{StaticResource IconEqualiser}">
+                    <c:PresetChoice
+                        x:Name="Preset"
+                        MaxWidth="190"
+                        loc:Uid.Value="Quick_PresetPicker" />
+                </c:SettingsCard>
+            </c:HeadsetSection>
         </StackPanel>
     </Border>
 </Window>

@@ -69,9 +69,6 @@
   <data name="Mini_Open.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Open Neap</value>
   </data>
-  <data name="Mini_Section.What" xml:space="preserve">
-    <value>Microphone, noise cancellation and equaliser</value>
-  </data>
   <data name="Mini_Noise.Header" xml:space="preserve">
     <value>Noise cancellation</value>
   </data>
