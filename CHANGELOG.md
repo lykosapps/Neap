@@ -72,6 +72,9 @@ and date.
 
 ### Changed
 
+- Sliders are the system toolkit's own, in Neap's colours: a white thumb in
+  the dark theme and a purple one in light. They no longer show their value
+  in a bubble while dragged; the value beside each slider shows it.
 - The mini panel is smaller and quicker: a slim game and chat slider in
   place of the dial, and tiles for the microphone, noise cancellation and
   spatial sound. A press turns a tile off, or back on the way it was last

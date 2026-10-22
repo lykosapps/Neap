@@ -83,8 +83,8 @@ internal static class NeapControls
         HorizontalAlignment = HorizontalAlignment.Right,
     };
 
-    /// <summary>A slider with Neap's thicker track.</summary>
-    public static Slider Slider() => new() { Theme = Of("NeapSlider"), VerticalAlignment = VerticalAlignment.Center };
+    /// <summary>A slider centred in its row.</summary>
+    public static Slider Slider() => new() { VerticalAlignment = VerticalAlignment.Center };
 
     private static ControlTheme Of(string key) => (ControlTheme)Application.Current!.FindResource(key)!;
 }

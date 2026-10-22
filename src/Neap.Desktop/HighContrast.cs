@@ -119,6 +119,9 @@ internal static class HighContrast
         // A quick tile has no switch to say it is on, so it is outlined, and
         // filled in the highlight while on, as a chosen segment is.
         Brush("NeapQuickStrokeBrush", p.Text);
+
+        // A slider's thumb in the text colour, so it stands out from the highlight fill beside it.
+        Brush("NeapSliderThumbBrush", p.Text);
         Brush("NeapQuickOnBrush", p.Highlight);
         Brush("NeapQuickOnTextBrush", p.HighlightText);
 

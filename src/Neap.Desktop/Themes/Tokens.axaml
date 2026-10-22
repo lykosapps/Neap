@@ -45,6 +45,8 @@
             <SolidColorBrush x:Key="NeapChatBrush" Color="#E6E8EC" />
             <SolidColorBrush x:Key="NeapChatTextBrush" Color="#E6E8EC" />
             <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#1FFFFFFF" />
+            <!-- A slider's thumb: white on the dark ground. -->
+            <SolidColorBrush x:Key="NeapSliderThumbBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#12FFFFFF" />
 
             <SolidColorBrush x:Key="NeapToneGoodBrush" Color="#6CCB5F" />
@@ -129,6 +131,8 @@
             <SolidColorBrush x:Key="NeapChatBrush" Color="#15171C" />
             <SolidColorBrush x:Key="NeapChatTextBrush" Color="#15171C" />
             <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#17000000" />
+            <!-- A slider's thumb: the accent, since a white one would vanish on the light cards. -->
+            <SolidColorBrush x:Key="NeapSliderThumbBrush" Color="#6D4AFF" />
             <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#0F000000" />
 
             <SolidColorBrush x:Key="NeapToneGoodBrush" Color="#0F7B0F" />
@@ -283,9 +287,12 @@
     <x:Double x:Key="NeapSegmentHeight">32</x:Double>
     <CornerRadius x:Key="NeapRadiusSegment">20</CornerRadius>
     <Thickness x:Key="NeapPaddingSegment">12,0</Thickness>
-    <x:Double x:Key="NeapSliderHeight">24</x:Double>
-    <x:Double x:Key="NeapSliderTrack">6</x:Double>
-    <x:Double x:Key="NeapSliderThumb">18</x:Double>
+    <!-- The toolkit's slider at Neap's sizes: a 6px track and a round 18px thumb, 28px on a touch screen. -->
+    <x:Double x:Key="SliderHorizontalHeight">24</x:Double>
+    <x:Double x:Key="SliderTrackThemeHeight">6</x:Double>
+    <x:Double x:Key="SliderHorizontalThumbWidth">18</x:Double>
+    <x:Double x:Key="SliderHorizontalThumbHeight">18</x:Double>
+    <CornerRadius x:Key="SliderThumbCornerRadius">9</CornerRadius>
     <x:Double x:Key="NeapSliderThumbTouch">28</x:Double>
     <x:Double x:Key="NeapSwitchWidth">40</x:Double>
     <x:Double x:Key="NeapSwitchHeight">22</x:Double>
