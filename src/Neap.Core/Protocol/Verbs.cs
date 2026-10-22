@@ -73,7 +73,8 @@ public static class Verbs
             ["3DT"] = "S3DT",
             ["SHH"] = "SSHH",     // the Atlas Air's Superhuman Hearing, 0x8xx
             ["Prm"] = "SPrm",     // the Atlas Air's voice prompts, 0xcxx
-            ["TX"] = "STX",       // the Atlas Air's transmitter, 0x4xx; not yet answered
+            ["TX"] = "STX",       // the Atlas Air's transmitter, 0x4xx; never answered, see TransmitterLight
+            ["NG"] = "SNG",       // the Atlas Air's noise gate, 0x7xx, as Swarm II's settings file groups it; not yet seen to answer
         };
         foreach (var category in PresetSlotCategories) map[category] = "S" + category;
         foreach (var category in TransmitterCategories) map[category] = "S" + category;

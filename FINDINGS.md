@@ -207,6 +207,69 @@ After Neap's restart, the first report read held the start-up messages
 `05 5d 0e 00 b1 2c ..`, the ones SP2Tools recorded after a real unplug
 *(measured)*: a USB reset puts the transmitter through its full start-up.
 
+SP2Tools then read the Atlas Air's decoded firmware for Neap's questions
+(F114 to F122, 22 October), with no Atlas Air on its bench, so all of what
+follows is *(research, read from the firmware)* until a tester confirms it.
+Its questions and answers are in SP2Tools' `knowledge/iceman-neap-asks.md`.
+
+- **Linux silence:** the transmitter answers a read only while its USB state
+  is "configured". A bus event that is not followed by the host setting it up
+  again can leave every reply empty until a reset; a USB suspend is the most
+  likely such event, not yet proven (F115). Nothing in the transmitter powers
+  the headset off, so the switch-off after a reset is probably the headset's
+  own reaction (F118).
+- **Link question:** RACE `0x9931` is answered by the transmitter itself, 1
+  while the headset is linked and 0 while not, so an answer proves the
+  channel works whatever the headset is doing (F115).
+- **Transmitter light:** the transmitter has no settings of its own to read,
+  so a read of the light gets nothing; RACE `0x0006` operation 3 gives the
+  level it shows, 0 to 100 (F116).
+- **Which device answered:** the transmitter keeps no copy of the headset's
+  settings, so it never answers for a headset it cannot reach (F117), unlike
+  the Stealth Pro II's.
+- **Mic monitoring:** `0x630` is its level, from -29.7 dB at 1 to 0 dB at 100,
+  with 0 off and 20 as shipped; `0x620` is its own on/off. The headset mutes
+  monitoring with the microphone, which is why `0x620` followed `0x600` above
+  (F120).
+- **Mute and the boom:** a write to `0x600` is refused while a switch on the
+  headset reads low, and that switch sets the mute at power-on. It is
+  probably the boom's; no key reports the boom, and which position reads low
+  is not known (F120).
+- **Noise gate:** `0x700` and `0x710`. The Atlas Air reports them when they
+  change, but not in the read Neap makes at start, where Neap asks for them
+  under the Stealth Pro II's group `SAF`. Swarm II's settings file puts them
+  in a group `NG` of their own, as it does Superhuman Hearing in `SHH` and
+  voice prompts in `Prm`, both of which answer Neap under those names
+  *(measured, in testers' recordings; the group from Swarm II's file, not from
+  the firmware)*.
+- **Sensitivity:** `0x610` is a gain in the headset, which the transmitter
+  sets from the PC's microphone level (F120).
+- **Voice prompts:** `0xC00` has 16 steps, -58.5 dB to -15.5 dB; above 15 is
+  15, and 50 as shipped is the top step, which is why the tester heard no
+  change above about 20 (F120). `0xC10` is the tones' level, held only until a
+  restart.
+- **Volume:** `0x260` is the wheel, in steps of 6; `0x2A0` is the PC's level
+  coming back from it, so the two move apart for a moment on a fast turn
+  (F120).
+- **Loudness boost:** the same RACE `0x000A` command, parameter and stock
+  level (-12 dB) as the Stealth Pro II (F114).
+- **Game and chat mix:** the `0x500` to `0x540` group is Swarm II's own flags,
+  and the headset mixes game and chat only for an Xbox (F121). Chat Boost,
+  `0x270`, is a flag with no sound stage behind it (F121).
+- **Superhuman Hearing:** `0x800` to `0x820` drive the headset's own sound
+  processing; `0x830` is the same switch while on Bluetooth. A change to an
+  equaliser turns it off without a word, and it is off after every power
+  cycle (F122).
+- **Auto shut-off:** `0x280`, 0 never, 1 to 4 for 5, 10, 20 and 30 minutes, 4
+  as shipped (F122).
+- **Equalisers:** encoded as the Stealth Pro II's, ten bands from 32 Hz to
+  16 kHz in tenths of a dB, up to 9 dB either way; the bands are not kept
+  through a power cycle (F122).
+- **Dial and buttons:** the firmware has settings for its wheel's and
+  buttons' jobs on a PlayStation, an Xbox and a PC (`0xA00` to `0xB20`), and
+  the headset reports them *(measured, in a tester's recording)*. What each
+  value does is not yet known.
+
 ### Which headsets share the platform
 
 Swarm II's catalogue (`settings.json`, a zlib-compressed JSON list of 140

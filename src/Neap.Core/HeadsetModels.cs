@@ -183,7 +183,10 @@ public static class HeadsetModels
             Feature.AutoShutOff, Feature.SuperhumanHearing, Feature.NoiseGate,
             Feature.VoicePrompts, Feature.Lights,
         },
-        new HashSet<Feature> { Feature.SuperhumanHearing, Feature.NoiseGate, Feature.VoicePrompts, Feature.Lights },
+        // Reported by the headset, seen in testers' recordings: Superhuman
+        // Hearing and voice prompts. Not reported: the noise gate, and the
+        // light, which 0.2.1.7 reads from the transmitter, not yet seen to work.
+        new HashSet<Feature> { Feature.NoiseGate, Feature.Lights },
         [FixedControl.VolumeWheel, FixedControl.FlipToMute, FixedControl.QuickSwitch, FixedControl.BluetoothCallButton])
     {
         VolumeKey = 0x260,
@@ -197,7 +200,7 @@ public static class HeadsetModels
             [0x620] = 0x630,
             [0x401] = 0x430,
         },
-        ExtraCategories = ["SHH", "Prm", "TX"],
+        ExtraCategories = ["SHH", "Prm", "TX", "NG"],
         ShowsGivenName = false,
         QuietsMonitoringWhileMuted = true,
         HearingOffAfterEqualiser = "SHH",

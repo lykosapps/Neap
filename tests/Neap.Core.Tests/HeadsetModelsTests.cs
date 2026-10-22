@@ -50,8 +50,9 @@ public class HeadsetModelsTests
     [Fact]
     public void WhatItHasButNeapCannotReadIsOfferedUnread()
     {
-        Assert.True(HeadsetModels.Unread(HeadsetModels.AtlasAir, "superhuman_hearing"));
         Assert.True(HeadsetModels.Unread(HeadsetModels.AtlasAir, "noise_gate_threshold"));
+        Assert.False(HeadsetModels.Unread(HeadsetModels.AtlasAir, "superhuman_hearing"));
+        Assert.False(HeadsetModels.Unread(HeadsetModels.AtlasAir, "voice_prompt_volume"));
         Assert.False(HeadsetModels.Unread(HeadsetModels.AtlasAir, "eq_band_1"));
         Assert.False(HeadsetModels.Unread(HeadsetModels.StealthProII, "superhuman_hearing"));
         Assert.False(HeadsetModels.Unread(null, "superhuman_hearing"));

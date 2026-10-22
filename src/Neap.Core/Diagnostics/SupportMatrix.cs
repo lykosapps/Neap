@@ -26,7 +26,8 @@ public static class SupportMatrix
         sb.AppendLine();
         sb.AppendLine("- **Yes** — Neap reads it and offers it.");
         sb.AppendLine("- **Offered** — the headset has it, but Neap cannot yet read it, so it is shown to be tried.");
-        sb.AppendLine("- **—** — not on this headset.");
+        sb.AppendLine("- **—** — not offered on this headset: either it does not have it, or what it does is");
+        sb.AppendLine("  not yet known. Each headset's file in `docs/headsets` says which.");
         sb.AppendLine();
 
         sb.Append("| Function |");

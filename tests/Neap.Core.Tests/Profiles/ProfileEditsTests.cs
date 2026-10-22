@@ -110,7 +110,8 @@ public class ProfileEditsTests
     [InlineData("anc", false)]
     [InlineData("mode_button_function", false)]
     [InlineData("dial_function", false)]
-    [InlineData("superhuman_hearing", false)]
+    [InlineData("superhuman_hearing", true)]
+    [InlineData("voice_prompt_volume", true)]
     [InlineData("noise_gate", false)]
     [InlineData("mic_monitoring", true)]
     public void AnAtlasAirsProfileHoldsOnlyWhatItCanRead(string setting, bool held) =>

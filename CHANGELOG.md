@@ -186,6 +186,9 @@ and date.
   connects.
 - On the Atlas Air, Superhuman Hearing shows as off when a change to the
   equaliser turns it off.
+- On the Atlas Air, profiles keep Superhuman Hearing and the voice prompt
+  level. Neap had taken them for settings it could not read, though the
+  headset reports both.
 - Choosing which apps carry chat now opens in a dropdown over the page,
   instead of an in-card list that grew and shrank. The card keeps one height,
   so the game and chat dial and the settings below it no longer jump as you
