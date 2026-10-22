@@ -19,13 +19,14 @@ a headset it can no longer reach.
 4. **Equaliser quick switch:** choose a preset from Home's drop-down. The
    sound changes, and Equaliser settings opens the Game tab on that preset.
 
-## Mix dial
+## Game and chat
 
-5. **Live levels:** with a game and a chat app playing, each side's arc moves
-   with its sound. Check in dark, light and high contrast.
+5. **Live levels:** with a game and a chat app playing, each side's meter
+   beside the dial moves with its sound. Check in dark, light and high
+   contrast.
 6. **Chat wheel:** turn the headset's wheel. The dial glides to its place.
-7. **Levels pause:** put Neap behind another window. The arcs stop, and start
-   again when it comes back.
+7. **Levels pause:** put Neap behind another window. The meters stop, and
+   start again when it comes back.
 
 ## Equaliser page
 
@@ -79,3 +80,31 @@ Checks 1 to 17 passed on 18 October 2026. These cover what came after.
     is written over the mark, and the window drags by the top of the menu and
     by the strip beside the status. Narrow the window: the menu button sits
     in that strip and opens the menu.
+
+## Fourth round, for 0.3.0
+
+What came after the third round. Checks 5 and 7 are worded for the meters,
+which replaced the arcs inside the ring, and need doing again.
+
+24. **Chat comes from:** open the dropdown, tick a chat app, untick it, and
+    press Refresh with a new app playing. The card and the cards below it
+    never move, and the dial turns on once an app is ticked.
+25. **Game and chat levels:** move the dial. Each side's number beside it
+    follows the mix, and the meters keep moving with the sound.
+26. **Sliders:** drag each slider on Audio, click on its track, and use the
+    arrow keys. The headset follows, the value beside it changes, and no
+    bubble appears.
+27. **Microphone, boom in:** flip the boom arm, then mute from Neap's switch.
+    The card says "Muted by the boom arm" for the arm and "Muted on this PC"
+    for the switch, with no tone from the headset for the switch.
+28. **Microphone, boom out:** take the boom microphone out while connected,
+    then mute with the headset's button and with Neap's switch. Both mute the
+    headset with its tone, the card says "Muted on the headset", and putting
+    the boom back in leaves nothing muted that you didn't mute.
+29. **Mini panel tiles:** a press turns a tile off, and a second press puts
+    it back the way it was last on; the arrow in a tile's corner lists its
+    choices; the slim game and chat slider moves the mix.
+30. **Linux, a transmitter kept awake:** on a Linux PC with the Stealth Pro
+    II, allow Neap's access rule when it asks. Leave the headset idle for ten
+    minutes, then change a setting: the headset answers without Neap
+    restarting the transmitter.
