@@ -213,6 +213,7 @@ public partial class MainWindow : Window
     {
         base.OnLoaded(e);
         FitRail(Bounds.Width);
+        if (Pretend.Active) Pretend.MovesFocus(move => PretendFocus.Move(this, move));
         if (Pretend.Snapshot is { } file) _ = SaveAndExit(file);
 
         // A launch at sign-in lives in the notification area rather than open

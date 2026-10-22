@@ -228,9 +228,23 @@ if ($Parts.Contains('F')) {
         Check ($null -ne (Find-Named 'Download')) 'it offers the download'
         Check ($null -ne (Find-Id 'CloseButton')) 'it offers Close'
         Check (-not (Test-Present (Find-Named $message))) 'the banner is not left showing behind it'
-        $bitmap = Save-Shot 'did-not-open' -Top 500
-        try { Test-Contrast $bitmap (Find-Text $title) 'the dialog title' }
-        finally { $bitmap.Dispose() }
+        # The dialog is a window of its own, so its title is measured in a
+        # picture of that window, not of the main one behind it. UI Automation
+        # lists a window that belongs to another inside it.
+        $titleText = New-Object System.Windows.Automation.AndCondition((New-Condition NameProperty $title), (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Text)))
+        $dialog = @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Window)))) |
+            Where-Object { [IntPtr]$_.Current.NativeWindowHandle -ne $script:Handle -and $null -ne $_.FindFirst($Scope::Descendants, $titleText) } | Select-Object -First 1
+        Check ($null -ne $dialog) 'the message is a dialog of its own'
+        if ($dialog) {
+            $main = $script:Handle
+            $script:Handle = [IntPtr]$dialog.Current.NativeWindowHandle
+            try {
+                $bitmap = Save-Shot 'did-not-open' -Top 500 -Whole
+                try { Test-Contrast $bitmap ($dialog.FindFirst($Scope::Descendants, $titleText)) 'the dialog title' }
+                finally { $bitmap.Dispose() }
+            }
+            finally { $script:Handle = $main }
+        }
 
         Press (Find-Id 'CloseButton')
         Check ($script:Proc.WaitForExit(8000)) 'Close ends the old version'

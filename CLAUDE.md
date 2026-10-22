@@ -82,8 +82,13 @@ preparing code for experienced reviewers.
   the desktop, which can be black with the screen on. A new check is a script
   beside it that uses `Ui.ps1`. `run.ps1 access` walks every page in both
   themes for names, target sizes, Tab order, a visible focus mark and text
-  contrast; it takes about six minutes and the keyboard focus, so it is not
-  part of `all` and needs the machine to itself. `run.ps1 atlas` checks the
+  contrast in about a minute and a half. It moves focus by asking the
+  practice run over its pipe to do what Tab does, so the window stays behind
+  and the keyboard is left alone, and it can run while the owner works; that
+  a real Tab press reaches the app is check 12 of "Before a release" in
+  `CONTRIBUTING.md`. Colour contrast is also a test
+  (`ThemeContrastTests`), so a colour change is caught by every build.
+  `run.ps1 atlas` checks the
   pretend Atlas Air. `looks.ps1` has the app draw every page in dark,
   light and high contrast for a person to look over; it opens the app behind
   other windows without taking the keyboard, needs no screen, and can run

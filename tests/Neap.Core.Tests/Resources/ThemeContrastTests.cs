@@ -61,11 +61,36 @@ public sealed class ThemeContrastTests
         ("NeapTextSecondaryBrush", "NeapButtonBrush", false, 4.5),
         ("NeapTextSecondaryBrush", "NeapTrackBrush", false, 4.5),
         ("NeapTextSecondaryBrush", "NeapPanelBrush", false, 4.5),
-        ("NeapOnAccentBrush", "NeapAccentFillBrush", false, 4.5),
         ("NeapTextBrush", "NeapNavSelectedBrush", false, 4.5),
         ("NeapTextBrush", "NeapSelectedBrush", false, 4.5),
         ("NeapGameBrush", "NeapPanelBrush", false, 3),
         ("NeapChatBrush", "NeapPanelBrush", false, 3),
+
+        // Text on each ground a page, card, row, menu or notice is drawn on.
+        ("NeapTextBrush", "NeapPanelBrush", false, 4.5),
+        ("NeapTextBrush", Page, false, 4.5),
+        ("NeapTextBrush", "NeapGroundBrush", false, 4.5),
+        ("NeapTextBrush", "NeapInsetBrush", false, 4.5),
+        ("NeapTextBrush", "NeapFlyoutBrush", false, 4.5),
+        ("NeapTextBrush", "NeapNoticeBrush", false, 4.5),
+        ("NeapTextSecondaryBrush", Page, false, 4.5),
+        ("NeapTextSecondaryBrush", "NeapGroundBrush", false, 4.5),
+        ("NeapTextSecondaryBrush", "NeapInsetBrush", false, 4.5),
+        ("NeapTextSecondaryBrush", "NeapFlyoutBrush", false, 4.5),
+        ("NeapTextSecondaryBrush", "NeapNoticeBrush", false, 4.5),
+        ("NeapTextSecondaryBrush", "NeapNavSelectedBrush", false, 4.5),
+        ("NeapTextTertiaryBrush", "NeapPanelBrush", false, 4.5),
+        ("NeapTextTertiaryBrush", Page, false, 4.5),
+        ("NeapAccentTextBrush", "NeapInsetBrush", false, 4.5),
+        ("NeapAccentTextBrush", "NeapFlyoutBrush", false, 4.5),
+        ("NeapAccentTextBrush", "NeapNoticeBrush", false, 4.5),
+        ("NeapQuickOnTextBrush", "NeapQuickOnBrush", false, 4.5),
+
+        // The battery's figure, low or critical, and the caution line in the parametric equaliser.
+        ("NeapToneCautionBrush", "NeapPanelBrush", false, 4.5),
+        ("NeapToneCriticalBrush", "NeapPanelBrush", false, 4.5),
+        // The charging bolt, a picture.
+        ("NeapToneGoodBrush", "NeapPanelBrush", false, 3),
     ];
 
     private static readonly string[] ThemeNames = ["Dark", "Light"];

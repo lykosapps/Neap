@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Neap.Core;
 using Neap.Core.Presets;
 using Neap.Core.Pretend;
@@ -246,6 +247,12 @@ public static class Pretend
         _control = new PretendControl(Headset, Windows, line => AppLog.Write(line));
         _control.Start();
         AppLog.Write($"pretend headset: answering on the pipe {PretendControl.DefaultPipe}");
+    }
+
+    /// <summary>Lets a test script move the keyboard focus in the window; see <see cref="PretendControl.MoveFocus"/>.</summary>
+    public static void MovesFocus(Func<FocusMove, JsonNode?> move)
+    {
+        if (_control is not null) _control.MoveFocus = move;
     }
 
     public static void Stop() => _control?.Dispose();

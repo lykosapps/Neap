@@ -24,14 +24,6 @@ function Ask([string]$Line) {
     $reply.result
 }
 
-# Opens a page from the rail and waits for its heading.
-function Open-Page([string]$Name) {
-    $item = Find-All $Name | Where-Object { $_.GetSupportedPatterns() -contains [System.Windows.Automation.SelectionItemPattern]::Pattern } | Select-Object -First 1
-    $item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select()
-    Wait-Until { (Get-Texts) -contains $Name } 5 | Out-Null
-    Start-Sleep -Milliseconds 800
-}
-
 function Find-Typed([string]$Name, $Type) {
     Find-All $Name | Where-Object { $_.Current.ControlType -eq $Type } | Select-Object -First 1
 }

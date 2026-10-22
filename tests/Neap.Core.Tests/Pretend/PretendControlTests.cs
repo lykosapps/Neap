@@ -30,6 +30,30 @@ public class PretendControlTests
     }
 
     [Fact]
+    public void FocusMovesThroughWhatTheAppGives()
+    {
+        var (_, control) = Make();
+        var asked = new List<FocusMove>();
+        control.MoveFocus = move => { asked.Add(move); return new System.Text.Json.Nodes.JsonObject { ["name"] = "Audio" }; };
+
+        Assert.Equal("Audio", Reply(control, "focus next").GetProperty("result").GetProperty("name").GetString());
+        Reply(control, "focus previous");
+        Reply(control, "focus first");
+
+        Assert.Equal([FocusMove.Next, FocusMove.Previous, FocusMove.First], asked);
+    }
+
+    [Fact]
+    public void FocusWithNoWindowOrNoDirectionIsRefused()
+    {
+        var (_, control) = Make();
+        Assert.False(Reply(control, "focus next").GetProperty("ok").GetBoolean());
+
+        control.MoveFocus = _ => null;
+        Assert.False(Reply(control, "focus sideways").GetProperty("ok").GetBoolean());
+    }
+
+    [Fact]
     public void AReportedChangeReachesTheHeadsetByNameOrNumber()
     {
         var (headset, control) = Make();

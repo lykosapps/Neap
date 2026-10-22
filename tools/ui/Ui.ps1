@@ -118,12 +118,15 @@ function Wait-Until([scriptblock]$Condition, [double]$Seconds = 6) {
 }
 
 # True once a reading has come out the same three times running, so a layout
-# that is still settling after a resize is not measured halfway.
+# that is still settling after a resize is not measured halfway. A reading
+# that fails inside UI Automation while the page is rebuilt counts as one
+# that has not settled.
 function Wait-Stable([scriptblock]$Read, [double]$Seconds = 3) {
     $last = $null; $same = 0
     $clock = [Diagnostics.Stopwatch]::StartNew()
     while ($clock.Elapsed.TotalSeconds -lt $Seconds) {
-        $now = & $Read
+        try { $now = & $Read }
+        catch [System.Management.Automation.MethodInvocationException] { $now = [guid]::NewGuid() }
         if ($now -eq $last) { $same++ } else { $same = 0; $last = $now }
         if ($same -ge 3) { return $true }
         Start-Sleep -Milliseconds 80
@@ -174,6 +177,14 @@ function Press($Element) {
     # A menu item that only takes the keyboard: focus it and press Enter.
     $Element.SetFocus()
     (New-Object -ComObject WScript.Shell).SendKeys('{ENTER}')
+}
+# Opens a page from the rail by its name, and waits until it has drawn: its
+# heading is there and what is on it has stopped moving.
+function Open-Page([string]$Name) {
+    $item = Find-All $Name | Where-Object { $_.GetSupportedPatterns() -contains [System.Windows.Automation.SelectionItemPattern]::Pattern } | Select-Object -First 1
+    $item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select()
+    Wait-Until { (Get-Texts) -contains $Name } 5 | Out-Null
+    Wait-Stable { (Get-Texts) -join ';' } | Out-Null
 }
 function Open-Menu($Element) {
     try { $Element.GetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern).Expand() } catch { Press $Element }

@@ -36,11 +36,16 @@ namespace Neap.Core.Pretend;
 ///   recording               every program recording from a microphone
 ///   record NAME | unrecord NAME  a program starts or stops recording
 ///   registry                every confirmed setting, its limits and its options' labels
+///   focus first|next|previous  put the keyboard focus on the window's first control, or move it
+///                           as Tab or Shift+Tab would, and say what took it
 /// </code>
 /// <para>
 /// The pipe is open to the current user only.
 /// </para>
 /// </remarks>
+/// <summary>Where a test script asks the keyboard focus to go: the window's first control, or on or back as Tab and Shift+Tab take it.</summary>
+public enum FocusMove { First, Next, Previous }
+
 public sealed class PretendControl : IDisposable
 {
     public const string DefaultPipe = "Neap.Pretend";
@@ -64,6 +69,15 @@ public sealed class PretendControl : IDisposable
         _log = log;
         _pipe = pipe;
     }
+
+    /// <summary>Gets or sets what moves the keyboard focus in the app's window (first, next or previous) and describes what took it, or null when nothing did.</summary>
+    /// <remarks>
+    /// Set by the app once its window is open. A script that presses Tab
+    /// needs the window in front and the keyboard, so it cannot run while
+    /// somebody uses the machine; this moves focus the way the key does,
+    /// with the window left where it is.
+    /// </remarks>
+    public Func<FocusMove, JsonNode?>? MoveFocus { get; set; }
 
     /// <summary>Starts answering on the pipe, one script at a time.</summary>
     public void Start() => _serving ??= Task.Run(Serve);
@@ -154,6 +168,7 @@ public sealed class PretendControl : IDisposable
                 ("record", >= 2) => Done(() => _windows.Record(Rest(line))),
                 ("unrecord", >= 2) => Done(() => _windows.StopRecording(Rest(line))),
                 ("registry", 1) => new JsonArray(Registry.All.Select(Describe).ToArray()),
+                ("focus", 2) => (MoveFocus ?? throw new ArgumentException("there is no window to move focus in"))(MoveOf(words[1])),
                 _ => throw new ArgumentException($"not a command: '{line}'"),
             };
             return new JsonObject { ["ok"] = true, ["result"] = result }.ToJsonString();
@@ -204,6 +219,14 @@ public sealed class PretendControl : IDisposable
         "game" => Bank.Game,
         "mic" => Bank.Mic,
         _ => throw new ArgumentException($"a bank is game or mic, not '{text}'"),
+    };
+
+    private static FocusMove MoveOf(string text) => text switch
+    {
+        "first" => FocusMove.First,
+        "next" => FocusMove.Next,
+        "previous" => FocusMove.Previous,
+        _ => throw new ArgumentException($"focus goes first, next or previous, not '{text}'"),
     };
 
     private static Flow FlowOf(string text) => text switch
