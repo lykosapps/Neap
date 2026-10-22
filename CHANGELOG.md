@@ -72,6 +72,10 @@ and date.
 
 ### Changed
 
+- A microphone muted in Windows while the headset itself is live, as Neap's
+  switch does with the boom microphone in, says "Muted on this PC", so
+  nobody waits for the headset's tone or red ring. A tile in the mini panel
+  wraps a long state to a second line instead of cutting it off.
 - Sliders are the system toolkit's own, in Neap's colours: a white thumb in
   the dark theme and a purple one in light. They no longer show their value
   in a bubble while dragged; the value beside each slider shows it.

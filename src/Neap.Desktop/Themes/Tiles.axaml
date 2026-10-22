@@ -23,7 +23,8 @@
         name and state at the foot, and the list's arrow in the top corner.
     -->
     <Style Selector="ToggleButton.quicktile">
-        <Setter Property="Height" Value="64" />
+        <Setter Property="MinHeight" Value="64" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="Padding" Value="10,8" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -71,8 +72,11 @@
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
+    <!-- A state such as "Muted by the boom arm" runs to a second line rather than being cut off; the tiles in a row grow together. -->
     <Style Selector="TextBlock.quickvalue">
         <Setter Property="FontSize" Value="{StaticResource NeapFontLabel}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="MaxLines" Value="2" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
     <Style Selector="Button.quickmore">

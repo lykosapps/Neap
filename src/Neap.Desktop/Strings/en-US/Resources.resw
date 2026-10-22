@@ -1087,7 +1087,7 @@
     <value>On</value>
   </data>
   <data name="Mic_Muted" xml:space="preserve">
-    <value>Muted</value>
+    <value>Muted on this PC</value>
   </data>
   <data name="Mic_ArmUp" xml:space="preserve">
     <value>Muted by the boom arm</value>
