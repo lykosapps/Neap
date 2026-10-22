@@ -967,12 +967,18 @@ finding above proves nothing either way.
 - **Hiding the Windows volume overlay** from the headset's wheel, at any
   reasonable cost.
 - **Switching Bluetooth from software.** No writable key found.
-- **Muting the boom microphone on the headset.** With the boom in, the
-  arm is its only mute. Writing the arm's `0x600` changes nothing, a write
-  to the built-in microphones' `0x650` is undone, and Swarm II's Mute Mic
-  one-press command, AppkeyCode `0x3D`, sent twice in SP2Tools' proven
-  appkey frame, did nothing: no tone, no red ring, passthrough still on
-  *(measured, 2026-10-22)*. So with the boom in, Neap mutes in Windows.
+- **Muting the boom microphone on the headset, with its tone and red ring.**
+  With the boom in, the arm is its only mute. Writing the arm's `0x600`
+  changes nothing, a write to the built-in microphones' `0x650` is undone,
+  and Swarm II's Mute Mic one-press command, AppkeyCode `0x3D`, sent twice
+  in SP2Tools' proven appkey frame, did nothing: no tone, no red ring,
+  passthrough still on *(measured, 2026-10-22)*. The headset's mute is
+  gated on the boom-detect line, GPIO 5, which reads low with the boom in
+  *(research, firmware code)*. The two gain writes its mute makes, −96 dB
+  on `0x02020200` (NVKey `0x5052`) and `0x03020400`, could be sent through
+  RACE `0x000A`, without the tone or the ring, but each is saved to the
+  headset's settings. Not tried, by the owner's choice: a mic mute is not
+  worth a stored write. So with the boom in, Neap mutes in Windows.
 
 Studying Swarm II's copies is fine; sending anything down the update path is
 not.
