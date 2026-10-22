@@ -1,13 +1,23 @@
 name: Support my headset
-description: Help Neap work with another Turtle Beach headset.
+description: Help Neap work with another Turtle Beach headset that works with Swarm II.
 labels: [enhancement]
 body:
   - type: markdown
     attributes:
       value: >-
-        Thanks for helping. If you haven't made a recording yet, the
+        Thanks for helping. Neap works only with headsets that work with
+        Turtle Beach's Swarm II app, because it talks to the headset the way
+        Swarm II does. If yours doesn't work with Swarm II, Neap can't
+        support it. If you haven't made a recording yet, the
         [guide](https://github.com/lykosapps/Neap/blob/main/docs/MAPPING.md)
         shows how. It takes about ten minutes.
+  - type: checkboxes
+    id: swarm
+    attributes:
+      label: Swarm II
+      options:
+        - label: My headset works with Swarm II.
+          required: true
   - type: input
     id: headset
     attributes:

@@ -181,7 +181,7 @@ public partial class MixPanel : UserControl
     /// </summary>
     private void WatchLevels()
     {
-        bool wanted = IsLoaded && DialArea.IsEnabled && WindowPresence.InFront && AppServices.Mix.Running && Motion.Enabled;
+        bool wanted = this.InWindow() && DialArea.IsEnabled && WindowPresence.InFront && AppServices.Mix.Running && Motion.Enabled;
         if (!wanted) { StopLevels(); return; }
         if (_levelTimer is not null) return;
         _levels ??= AppServices.Mix.OpenLevels();

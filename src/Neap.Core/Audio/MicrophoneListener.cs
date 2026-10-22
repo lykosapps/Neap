@@ -34,6 +34,9 @@ namespace Neap.Core.Audio;
 [SupportedOSPlatform("windows")]
 public sealed class MicrophoneListener : IMicrophoneListener
 {
+    /// <summary>How long recording is given to start before the microphone is taken to be unavailable.</summary>
+    private static readonly TimeSpan StartLimit = TimeSpan.FromSeconds(5);
+
     private readonly object _gate = new();
     private readonly MMDeviceEnumerator _devices;
     private readonly MMDevice _device;
@@ -96,7 +99,8 @@ public sealed class MicrophoneListener : IMicrophoneListener
         {
             listener = new MicrophoneListener(devices, device);
             listener._capture.StartRecording();
-            SpinWait.SpinUntil(() => listener._capture.CaptureState != CaptureState.Starting);
+            if (!SpinWait.SpinUntil(() => listener._capture.CaptureState != CaptureState.Starting, StartLimit))
+                throw new InvalidOperationException($"recording had not started after {StartLimit.TotalSeconds:0} seconds");
             if (listener._capture.CaptureState != CaptureState.Capturing)
                 throw new InvalidOperationException(listener._fault?.Message ?? "recording stopped as it started");
             return listener;

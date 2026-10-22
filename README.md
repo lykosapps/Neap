@@ -16,7 +16,7 @@ welcome.
 > **Own another Turtle Beach headset? Help bring Neap to it.** The Stealth
 > 600 Gen 3, 700 Gen 3, 500 and Atlas Air share the Stealth Pro II's
 > platform. A ten-minute recording made in Neap is where support for them,
-> and for others, starts. Nothing else to install, and no technical
+> and for other headsets that work with Swarm II, starts. Nothing else to install, and no technical
 > knowledge needed. **[Here's how](docs/MAPPING.md).**
 
 Not affiliated with or endorsed by Turtle Beach. Turtle Beach, Stealth Pro II
@@ -198,7 +198,8 @@ been tried. There is no installer yet, and it was written with AI assistance.
 Found a problem? In **Settings → Problems and other headsets**, record while it happens,
 then choose **Report on GitHub**. You can also
 [open an issue](https://github.com/lykosapps/Neap/issues) directly. Have
-another Turtle Beach headset? [Help support it](docs/MAPPING.md).
+another Turtle Beach headset that works with Swarm II?
+[Help support it](docs/MAPPING.md).
 For a security problem, see [SECURITY.md](SECURITY.md).
 
 ## For developers

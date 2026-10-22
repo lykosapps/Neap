@@ -104,8 +104,7 @@
                 LargeChange="50"
                 Maximum="1000"
                 Minimum="0"
-                SmallChange="10"
-                Theme="{StaticResource NeapSlider}" />
+                SmallChange="10" />
             <c:FrequencyBox
                 x:Name="FrequencyField"
                 loc:Uid.Value="Parametric_FrequencyField"
@@ -127,8 +126,7 @@
                 Maximum="9"
                 Minimum="-9"
                 SmallChange="0.5"
-                TickFrequency="0.5"
-                Theme="{StaticResource NeapSlider}" />
+                TickFrequency="0.5" />
             <TextBlock
                 x:Name="GainText"
                 Grid.Row="1"
@@ -151,8 +149,7 @@
                     Maximum="3"
                     Minimum="1"
                     SmallChange="0.1"
-                    TickFrequency="0.1"
-                    Theme="{StaticResource NeapSlider}" />
+                    TickFrequency="0.1" />
                 <!-- The narrow end is the headset limit, and says so. -->
                 <Grid>
                     <TextBlock loc:Uid.Value="Parametric_Narrowest" Classes="caption secondary" />
@@ -240,8 +237,7 @@
                         Grid.Column="5"
                         VerticalAlignment="Center"
                         Maximum="100"
-                        Minimum="0"
-                        Theme="{StaticResource NeapSlider}" />
+                        Minimum="0" />
                 </Grid>
                 <!--
                     The tone frequency across the whole width, so a pixel
@@ -256,8 +252,7 @@
                         LargeChange="100"
                         Maximum="2000"
                         Minimum="0"
-                        SmallChange="3"
-                        Theme="{StaticResource NeapSlider}" />
+                        SmallChange="3" />
                     <TextBlock
                         x:Name="ToneText"
                         Grid.Column="1"

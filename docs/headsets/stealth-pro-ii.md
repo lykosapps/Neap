@@ -57,7 +57,7 @@ system tried with a real headset.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Mute | Listed | Yes | Has | Confirmed | Confirmed | Done on the PC; `0x600` reads the boom arm, and a write to it is ignored | — |
+| Mute | Listed | Yes | Has | Confirmed | Confirmed | Done on the PC; `0x600` reads the boom arm, and a write to it is ignored; `0x650` reads the built-in microphones' mute | With the boom in, nothing found mutes it on the headset, `0x3D` included; see FINDINGS. |
 | Sensitivity | Listed | Yes | Has | Confirmed | Confirmed | Done on the PC; `0x610` mirrors the PC's microphone level | — |
 | Monitoring, on/off and level | Listed | Yes | Has | Confirmed | Confirmed | `0x620` | — |
 | Noise gate, on/off | Listed | Yes | Has | Confirmed | Confirmed | `0x700` | — |
@@ -113,6 +113,7 @@ system tried with a real headset.
 |---|---|---|---|---|---|---|---|
 | Volume wheel | Quick start guide | — | Has | Confirmed | Confirmed | `0x260` | — |
 | Flip-to-mute microphone | Quick start guide | — | Has | Confirmed | Confirmed | `0x600` | — |
+| Mute button, with the boom microphone off | Quick start guide | — | Has | Confirmed | Untried | `0x650` | The button is followed, and a write to `0x650` mutes and unmutes with the headset's tone. `0x640` says which microphone is in use and is reported the moment the boom is unplugged or plugged in. Neap follows the arm with the boom in and the button with it out. With the boom in the button does nothing, and the headset undoes a write to `0x650`, so Neap's switch mutes in Windows then and on the headset with the boom out. Confirm the switch with the boom on and off. |
 | CrossPlay button (switch transmitters) | Quick start guide | — | Has | Confirmed | Confirmed | `0x400`–`0x460` | Moving between PCs needs the headset switched off and on; see Problems. |
 | Bluetooth button | Quick start guide | — | Has | Confirmed | Confirmed | `0x290`, `0x320` | — |
 

@@ -260,12 +260,8 @@
                 Spacing="{StaticResource NeapSpaceM}">
                 <ProgressBar
                     x:Name="WaitingRing"
-                    Width="48"
-                    Height="4"
-                    MinHeight="0"
-                    MinWidth="0"
-                    VerticalAlignment="Center"
-                    IsIndeterminate="True" />
+                    Classes="busy"
+                    VerticalAlignment="Center" />
                 <TextBlock x:Name="WaitingText" Classes="secondary" VerticalAlignment="Center" />
             </StackPanel>
         </Border>

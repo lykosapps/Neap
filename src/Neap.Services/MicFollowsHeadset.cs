@@ -5,7 +5,7 @@ namespace Neap.Services;
 
 /// <summary>
 /// Mutes and unmutes the system's microphone when the headset mutes itself,
-/// with the boom arm or its mute button.
+/// with the boom arm or, with the boom microphone off, its mute button.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -23,7 +23,6 @@ namespace Neap.Services;
 public sealed class MicFollowsHeadset : IDisposable
 {
     private readonly HeadsetService _headset;
-    private readonly SettingKey _arm = Registry.ByName[Microphone.ArmSetting];
     private int? _last;
 
     public MicFollowsHeadset(HeadsetService headset)
@@ -34,12 +33,12 @@ public sealed class MicFollowsHeadset : IDisposable
 
     private async void OnChanged()
     {
-        if (!_headset.TryGetNumberByKey(_arm.Key, out int now)) return;
+        if (_headset.Microphone.Mute is not { } now) return;
         var before = _last;
         _last = now;
 
         if (Microphone.SystemMuteFor(before, now, AppSettings.Current.MicMutedByHeadset) is not { } mute) return;
-        AppLog.Write($"microphone: the headset's own mute is {(mute ? "on" : "off")}, so the system's is set to match");
+        AppLog.Write($"microphone: the headset's own mute is {(mute ? "on" : "off")}, so the system's is set to match ({_headset.Microphone})");
         await SoundVolume.SetMuted(mute, Flow.Input);
         AppSettings.Update(settings => settings.MicMutedByHeadset = mute);
     }

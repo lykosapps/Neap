@@ -82,7 +82,7 @@ public sealed class MicMeter : UserControl
     private async void OnPresence()
     {
         if (!WindowPresence.InFront) Close();
-        else if (IsLoaded) await Open();
+        else if (this.InWindow()) await Open();
     }
 
     private async Task Open()
@@ -96,16 +96,19 @@ public sealed class MicMeter : UserControl
             return;
         }
         int attempt = ++_opening;
+        AppLog.Write("microphone meter: opening the microphone");
         try
         {
             var listener = await Task.Run(MicrophoneListening.Open);
-            // Moved off screen while the microphone was opening.
-            if (attempt != _opening || !IsLoaded)
+            // Closed, or moved off screen, while the microphone was opening.
+            if (attempt != _opening || !this.InWindow())
             {
+                AppLog.Write("microphone meter: let the microphone go, as the meter was closed while it opened");
                 _ = Task.Run(listener.Dispose);
                 return;
             }
             _listener = listener;
+            AppLog.Write("microphone meter: listening");
             listener.Stopped += fault => Platform.Post(() => Fail(fault.Message));
             Show(null);
             _timer = Platform.Current.Ui.Every(Reading, Read);
@@ -124,6 +127,7 @@ public sealed class MicMeter : UserControl
         Paint(0);
         if (_listener is not { } listener) return;
         _listener = null;
+        AppLog.Write("microphone meter: stopped listening");
         _ = Task.Run(listener.Dispose);
     }
 

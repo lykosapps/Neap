@@ -13,10 +13,9 @@ and date.
 
 ### Added
 
-- The mini panel has spatial sound, between noise cancellation and the
-  equaliser: Off, Windows Sonic or Dolby Atmos, whichever the system offers. It
-  is left out where the system has none, and it stays when the headset is away,
-  as it does on Home.
+- The mini panel has spatial sound: Off, Windows Sonic or Dolby Atmos,
+  whichever the system offers. It is left out where the system has none, and
+  folds away with the headset's settings when the headset is away.
 - A switch on the Settings page turns the mini panel on or off. It is on by
   default; when it is off, a click on the icon by the clock opens the window,
   and "Mini panel" is left off the icon's menu.
@@ -73,6 +72,20 @@ and date.
 
 ### Changed
 
+- A microphone muted in Windows while the headset itself is live, as Neap's
+  switch does with the boom microphone in, says "Muted on this PC", so
+  nobody waits for the headset's tone or red ring. A tile in the mini panel
+  wraps a long state to a second line instead of cutting it off.
+- Sliders are the system toolkit's own, in Neap's colours: a white thumb in
+  the dark theme and a purple one in light. They no longer show their value
+  in a bubble while dragged; the value beside each slider shows it.
+- The mini panel is smaller and quicker: a slim game and chat slider in
+  place of the dial, and tiles for the microphone, noise cancellation and
+  spatial sound. A press turns a tile off, or back on the way it was last
+  on, and the arrow in its corner lists its choices.
+- "Help support another headset" says it's for Turtle Beach headsets that
+  work with Swarm II, as the GitHub form and the guide now do: Neap talks to a
+  headset the way Swarm II does, so it can't support others.
 - The app's text is set in Figtree, and the name beside the mark in Outfit,
   in place of Inter. Both are carried inside the app, so Windows and Linux
   show the same letters. The text is a little rounder and a little wider.
@@ -161,6 +174,37 @@ and date.
   instead of an in-card list that grew and shrank. The card keeps one height,
   so the game and chat dial and the settings below it no longer jump as you
   open or close it.
+- The microphone follows the headset through every way it mutes: the boom
+  arm while the boom microphone is in, the mute button while it is out, and
+  the boom being plugged in or taken out while connected. Neap's own switch
+  mutes on the headset with the boom out, and in Windows with it in. Before,
+  the switch did nothing with the boom in, and a mute left on the built-in
+  microphones showed as muted after the boom went back in.
+- Button text sits in the middle of its button; it sat a little high.
+- A click anywhere along a slider moves it there. Before, only dragging the
+  handle moved it.
+- Links keep their size when pointed at, and show a soft fill instead of
+  turning bold, which pushed the text around them.
+- The line that shows the equaliser reading its presets, and a profile being
+  saved, moves again. It stays still when animation is off in Windows.
+- With the headset away, the mini panel shows only its header, which says
+  the headset is not connected, without a note under it. Its button for
+  opening Neap is smaller.
+- The window and the mini panel keep their usual sizes on a large screen.
+  Switches, sliders and the mini panel grew to the touch size whenever the
+  window was made small; they now grow only on a small screen, such as the
+  Steam Deck's, and a slider's handle stays round at every size.
+- The microphone meter on the Audio page moves as soon as the page opens.
+  It could stay still until you switched away and back or opened the page
+  again: Neap could take itself to be behind other windows after the mini
+  panel, and the meter could let the microphone go as the page opened. The
+  game and chat dial's live levels and the equaliser's test tone start the
+  same way, and are kept from the second of these too.
+- With the boom microphone off, muting with the headset's button now mutes
+  the microphone on the PC too, and the microphone card says "Muted on the
+  headset". Neap's own microphone switch mutes the headset itself, with its
+  tone, the same as the button. Before, Neap followed only the boom arm, so
+  the PC stayed live, and its switch muted only Windows.
 - On the Atlas Air, moving mic monitoring above 1% changes it. Every
   higher level was refused, because its place is where the Stealth Pro II
   keeps an on and off switch.

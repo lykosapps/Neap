@@ -69,13 +69,24 @@
   <data name="Mini_Open.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Open Neap</value>
   </data>
-  <data name="Mini_Section.What" xml:space="preserve">
-    <value>Microphone, noise cancellation and equaliser</value>
-  </data>
-  <data name="Mini_Noise.Header" xml:space="preserve">
+  <data name="Mini_Noise" xml:space="preserve">
     <value>Noise cancellation</value>
   </data>
-  <data name="Mini_Equaliser.Header" xml:space="preserve">
+  <data name="Mini_NoiseTile" xml:space="preserve">
+    <value>Noise</value>
+    <comment>The noise cancellation tile's name in the mini panel, a third of its width.</comment>
+  </data>
+  <data name="Mini_NoiseChoices" xml:space="preserve">
+    <value>Noise cancellation choices</value>
+  </data>
+  <data name="Mini_SpatialTile" xml:space="preserve">
+    <value>Spatial</value>
+    <comment>The spatial sound tile's name in the mini panel, a third of its width.</comment>
+  </data>
+  <data name="Mini_SpatialChoices" xml:space="preserve">
+    <value>Spatial sound choices</value>
+  </data>
+  <data name="Mini_Equaliser.Text" xml:space="preserve">
     <value>Equaliser</value>
   </data>
   <data name="Mini_ChooseApps.Content" xml:space="preserve">
@@ -1076,10 +1087,13 @@
     <value>On</value>
   </data>
   <data name="Mic_Muted" xml:space="preserve">
-    <value>Muted</value>
+    <value>Muted on this PC</value>
   </data>
   <data name="Mic_ArmUp" xml:space="preserve">
     <value>Muted by the boom arm</value>
+  </data>
+  <data name="Mic_MutedOnHeadset" xml:space="preserve">
+    <value>Muted on the headset</value>
   </data>
   <data name="Mic_Name" xml:space="preserve">
     <value>Microphone</value>
@@ -1306,7 +1320,7 @@
     <comment>{0} is the system's reason, such as a full disk.</comment>
   </data>
   <data name="Settings_MapHeadset.Description" xml:space="preserve">
-    <value>Neap has only been tested with the Stealth Pro II.</value>
+    <value>For Turtle Beach headsets that work with Swarm II. Neap has only been tested with the Stealth Pro II.</value>
   </data>
   <data name="Settings_MapHeadset.Header" xml:space="preserve">
     <value>Help support another headset</value>

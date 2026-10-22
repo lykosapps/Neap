@@ -5,6 +5,7 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -12,6 +13,7 @@ using Neap.Core;
 using Neap.Core.Connection;
 using Neap.Core.Diagnostics;
 using Neap.Core.Mix;
+using Neap.Core.Settings;
 using Neap.Desktop.Controls;
 
 namespace Neap.Desktop;
@@ -51,7 +53,7 @@ public partial class MiniPanelWindow : Window
     {
         InitializeComponent();
         Title = Strings.Get("Main_TrayMini");
-        Classes.Set("touch", Pretend.Touch);
+        Classes.Set("touch", Pretend.Touch || OnSmallScreen());
         BatteryHolder.Content = _battery;
         if (Pretend.Behind) ShowActivated = false;
 
@@ -62,10 +64,11 @@ public partial class MiniPanelWindow : Window
         OpenNeap.Click += (_, _) => OpenWindow(null);
         ChooseApps.Click += (_, _) => OpenWindow("home");
         Preset.Flyout!.Closed += (_, _) => CloseIfAway();
-        Activated += (_, _) => WindowPresence.Set(true);
+        Activated += (_, _) => WindowPresence.Set(this, true);
+        Closed += (_, _) => WindowPresence.Set(this, false);
         Deactivated += (_, _) =>
         {
-            WindowPresence.Set(false);
+            WindowPresence.Set(this, false);
             Dispatcher.UIThread.Post(CloseIfAway);
         };
         KeyDown += (_, e) =>
@@ -75,21 +78,28 @@ public partial class MiniPanelWindow : Window
             Close();
         };
         SizeChanged += (_, _) => Place();
+
+        NoiseTile.Icon = (Geometry)Application.Current!.FindResource("IconNoise")!;
+        NoiseTile.Describe(Strings.Get("Mini_NoiseTile"), Strings.Get("Mini_Noise"), Strings.Get("Mini_NoiseChoices"));
+        NoiseTile.Pressed += () =>
+        {
+            var noise = AppServices.Noise;
+            if (noise.CanChoose && noise.Mode is { } mode) noise.Choose(QuickToggle.Press(mode, NoiseMode.Off, noise.LastOn));
+        };
     }
 
-    /// <summary>
-    /// Gets the window it opens when asked, which also decides whether it is
-    /// drawn at touch size; null for a pretend run showing it alone.
-    /// </summary>
+    /// <summary>Gets the window it opens when asked; null for a pretend run showing it alone.</summary>
     public MainWindow? Main
     {
         get => _main;
-        init
-        {
-            _main = value;
-            if (value is not null) Classes.Set("touch", value.IsTouch);
-        }
+        init => _main = value;
     }
+
+    /// <summary>Whether the screen it opens on is small enough for the roomier touch size.</summary>
+    /// <remarks>The screen, as the main window does; see <see cref="Density"/>.</remarks>
+    private bool OnSmallScreen() =>
+        Screens.Primary is { } screen
+        && Density.For(screen.WorkingArea.Width / screen.Scaling, screen.WorkingArea.Height / screen.Scaling) == DensityMode.Touch;
 
     /// <summary>Gets when it closed, as a <see cref="Stopwatch"/> timestamp, so the icon's next click can tell whether that click was the one that did it.</summary>
     public long ClosedAt { get; private set; }
@@ -100,7 +110,9 @@ public partial class MiniPanelWindow : Window
         AppServices.Headset.Changed += Paint;
         AppServices.Headset.StatusChanged += OnStatus;
         AppServices.Mix.Changed += Paint;
+        AppServices.Noise.Changed += PaintNoise;
         Paint();
+        PaintNoise();
         Place();
 
         // Focus begins on the dial, on the way to choose chat apps while the dial waits for
@@ -121,6 +133,7 @@ public partial class MiniPanelWindow : Window
         AppServices.Headset.Changed -= Paint;
         AppServices.Headset.StatusChanged -= OnStatus;
         AppServices.Mix.Changed -= Paint;
+        AppServices.Noise.Changed -= PaintNoise;
         StopRechecking();
         ClosedAt = Stopwatch.GetTimestamp();
     }
@@ -174,7 +187,7 @@ public partial class MiniPanelWindow : Window
         else StopRechecking();
         BatteryHolder.IsVisible = headset.Battery is not null && headset.Status.Link == Link.Connected;
 
-        NoiseRow.IsVisible = HeadsetModels.Shows(headset.Model, Feature.NoiseControl);
+        NoiseTile.IsVisible = HeadsetModels.Shows(headset.Model, Feature.NoiseControl);
 
         bool chosen = AppServices.Mix.ChatApps.Count > 0;
         SetupArea.IsVisible = !chosen;
@@ -199,6 +212,19 @@ public partial class MiniPanelWindow : Window
             AutomationProperties.SetHelpText(Dial, Strings.Format("Mix_Levels", LeanText.Text, game, chat));
         }
         finally { _painting = false; }
+    }
+
+    /// <summary>Shows noise control on its tile: on in either of its two ways, and both ways and off in its list.</summary>
+    private void PaintNoise()
+    {
+        var noise = AppServices.Noise;
+        var mode = noise.Mode;
+        NoiseTile.Show(mode is NoiseMode.Cancelling or NoiseMode.Transparency,
+            Strings.Get(mode is { } known ? QuickSettings.NoiseModeWord(known) : "Reading_None"), noise.CanChoose);
+        NoiseTile.Offer(
+            Enum.GetValues<NoiseMode>().Select(choice =>
+                (Strings.Get(QuickSettings.NoiseModeWord(choice)), choice == mode, (Action)(() => noise.Choose(choice)))),
+            noise.CanChoose);
     }
 
     private void StopRechecking()

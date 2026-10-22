@@ -51,15 +51,15 @@ public partial class MainWindow : Window
         // without taking the keyboard from them.
         if (Pretend.Behind) ShowActivated = false;
 
-        Activated += (_, _) => WindowPresence.Set(true);
-        Deactivated += (_, _) => WindowPresence.Set(false);
+        Activated += (_, _) => WindowPresence.Set(this, true);
+        Deactivated += (_, _) => WindowPresence.Set(this, false);
 
         Places.SelectionChanged += (_, _) => OnChosen(Places, Foot);
         Foot.SelectionChanged += (_, _) => OnChosen(Foot, Places);
         SizeChanged += (_, e) =>
         {
             FitRail(e.NewSize.Width);
-            FitDensity(e.NewSize);
+            FitDensity();
         };
         NavToggle.Click += (_, _) => Rail.IsPaneOpen = !Rail.IsPaneOpen;
 
@@ -127,12 +127,15 @@ public partial class MainWindow : Window
         NavToggle.IsVisible = folded;
     }
 
-    /// <summary>Gets whether the window is drawn at touch size, which the mini panel follows.</summary>
-    public bool IsTouch => Classes.Contains("touch");
-
-    /// <summary>Marks the window <c>touch</c> while it is small enough for the roomier size, which the styles take their larger sizes from.</summary>
-    private void FitDensity(Size size) =>
-        Classes.Set("touch", Density.For(size.Width, size.Height) == DensityMode.Touch);
+    /// <summary>Marks the window <c>touch</c> while its screen is small enough for the roomier size, which the styles take their larger sizes from.</summary>
+    /// <remarks>Looked at again as the window changes size, which it does as it moves to a screen at another scaling.</remarks>
+    private void FitDensity()
+    {
+        var screen = Screens.ScreenFromWindow(this) ?? Screens.Primary;
+        bool small = screen is not null
+            && Density.For(screen.WorkingArea.Width / screen.Scaling, screen.WorkingArea.Height / screen.Scaling) == DensityMode.Touch;
+        Classes.Set("touch", Pretend.Touch || small);
+    }
 
     /// <summary>
     /// Where the app draws its own title bar, as on Windows, with the system's

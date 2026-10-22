@@ -8,11 +8,51 @@
         a soft fill one step above its panel, with no outline. Classes="quiet" is
         text alone, with its fill only while pointed at or pressed.
         All are as high as a field and never smaller than a pointer target;
-        the toolkit's focus mark is left as it is.
+        the toolkit's focus mark is left as it is. Figtree's line sits its
+        letters high in the box, so the padding is heavier above than below,
+        which centres the letters rather than the line.
     -->
     <Style Selector="Button">
         <Setter Property="MinHeight" Value="{StaticResource NeapControlHeight}" />
         <Setter Property="MinWidth" Value="{StaticResource NeapTargetMin}" />
+        <Setter Property="Padding" Value="12,8,12,3" />
+    </Style>
+
+    <!--
+        Sliders are the toolkit's own, in Neap's colours and sizes through the
+        toolkit's names (FluentKeys and Tokens.axaml), so a click anywhere
+        along the track, dragging and the keyboard all work as the toolkit
+        makes them. A balance slider, such as the mini panel's game and chat
+        mix, has no side that is more, so neither side of the thumb is filled.
+    -->
+    <Style Selector="Slider.balance /template/ RepeatButton#PART_DecreaseButton">
+        <Setter Property="Background" Value="{DynamicResource NeapDialTrackBrush}" />
+    </Style>
+
+    <!--
+        A thin busy line: a short stretch of the accent on the slider's track.
+        Motion.axaml sweeps it along while animation is on; with it off the
+        line stands still, as everything else does. The toolkit's own
+        indeterminate bar works out its sweep before it has a size, so it
+        sweeps nowhere.
+    -->
+    <Style Selector="ProgressBar.busy">
+        <Setter Property="Width" Value="48" />
+        <Setter Property="Height" Value="4" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="IsIndeterminate" Value="True" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{DynamicResource NeapDialTrackBrush}" CornerRadius="2" ClipToBounds="True">
+                    <Border x:Name="PART_Indicator"
+                            Width="16"
+                            HorizontalAlignment="Left"
+                            Background="{DynamicResource NeapAccentFillBrush}"
+                            CornerRadius="2" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
     </Style>
 
     <Style Selector="Button.quiet">
@@ -160,96 +200,6 @@
         </ControlTheme>
 
         <!--
-            A slider with a 6px track filled in the accent up to a round
-            thumb, and its value in a bubble over the thumb while it is held.
-            Only the horizontal one is drawn here; a vertical slider keeps the
-            toolkit's.
-        -->
-        <ControlTheme x:Key="NeapSlider" TargetType="Slider" BasedOn="{StaticResource {x:Type Slider}}">
-            <Style Selector="^:horizontal">
-                <Setter Property="Template">
-                    <ControlTemplate>
-                        <Border x:Name="SliderRoot" Background="Transparent"
-                                MinHeight="{StaticResource NeapSliderHeight}">
-                            <Grid VerticalAlignment="Center">
-                                <Border x:Name="TrackBackground"
-                                        Height="{StaticResource NeapSliderTrack}"
-                                        CornerRadius="3"
-                                        Background="{DynamicResource NeapDialTrackBrush}" />
-                                <Track x:Name="PART_Track" Orientation="Horizontal"
-                                       Minimum="{TemplateBinding Minimum}"
-                                       Maximum="{TemplateBinding Maximum}"
-                                       Value="{TemplateBinding Value, Mode=TwoWay}"
-                                       IsDirectionReversed="{TemplateBinding IsDirectionReversed}">
-                                    <Track.DecreaseButton>
-                                        <RepeatButton Focusable="False" HorizontalAlignment="Stretch">
-                                            <RepeatButton.Template>
-                                                <ControlTemplate>
-                                                    <Border x:Name="Fill" CornerRadius="3"
-                                                            Height="{StaticResource NeapSliderTrack}"
-                                                            Background="{DynamicResource NeapAccentFillBrush}" />
-                                                </ControlTemplate>
-                                            </RepeatButton.Template>
-                                        </RepeatButton>
-                                    </Track.DecreaseButton>
-                                    <Track.IncreaseButton>
-                                        <RepeatButton Focusable="False">
-                                            <RepeatButton.Template>
-                                                <ControlTemplate>
-                                                    <Border Background="Transparent" />
-                                                </ControlTemplate>
-                                            </RepeatButton.Template>
-                                        </RepeatButton>
-                                    </Track.IncreaseButton>
-                                    <Thumb x:Name="NeapThumb"
-                                           Width="{StaticResource NeapSliderThumb}"
-                                           Height="{StaticResource NeapSliderThumb}">
-                                        <Thumb.Template>
-                                            <ControlTemplate>
-                                                <Panel>
-                                                    <Ellipse x:Name="Face" Fill="White"
-                                                             Stroke="{DynamicResource NeapAccentFillBrush}"
-                                                             StrokeThickness="2" />
-                                                    <Ellipse x:Name="Ring" Margin="-4" IsVisible="False" IsHitTestVisible="False"
-                                                             Stroke="{DynamicResource NeapTextBrush}"
-                                                             StrokeThickness="2" />
-                                                    <Border x:Name="Bubble" IsVisible="False" IsHitTestVisible="False"
-                                                            HorizontalAlignment="Center" VerticalAlignment="Top"
-                                                            MinWidth="{StaticResource NeapControlHeight}"
-                                                            Padding="8,2" CornerRadius="{StaticResource NeapRadiusControl}"
-                                                            Background="{DynamicResource NeapAccentFillBrush}">
-                                                        <Border.RenderTransform>
-                                                            <TranslateTransform Y="-32" />
-                                                        </Border.RenderTransform>
-                                                        <TextBlock HorizontalAlignment="Center"
-                                                                   Foreground="{DynamicResource NeapOnAccentBrush}"
-                                                                   Text="{Binding Value, RelativeSource={RelativeSource AncestorType=Slider}, StringFormat={}{0:0}}" />
-                                                    </Border>
-                                                </Panel>
-                                            </ControlTemplate>
-                                        </Thumb.Template>
-                                    </Thumb>
-                                </Track>
-                            </Grid>
-                        </Border>
-                    </ControlTemplate>
-                </Setter>
-                <Style Selector="^:pressed /template/ Border#Bubble">
-                    <Setter Property="IsVisible" Value="True" />
-                </Style>
-                <Style Selector="^:focus-visible /template/ Ellipse#Ring">
-                    <Setter Property="IsVisible" Value="True" />
-                </Style>
-                <Style Selector="^:disabled /template/ Border#Fill">
-                    <Setter Property="Background" Value="{DynamicResource NeapTextDisabledBrush}" />
-                </Style>
-                <Style Selector="^:disabled /template/ Ellipse#Face">
-                    <Setter Property="Stroke" Value="{DynamicResource NeapTextDisabledBrush}" />
-                </Style>
-            </Style>
-        </ControlTheme>
-
-        <!--
             A switch: a pill track, the accent when on and a soft fill when off,
             with its On or Off word beside it.
         -->
@@ -357,12 +307,8 @@
     <Style Selector="Window.touch RadioButton /template/ Border#Row">
         <Setter Property="MinHeight" Value="{StaticResource NeapRowHeightTouch}" />
     </Style>
-    <Style Selector="Window.touch Slider /template/ Border#SliderRoot">
+    <Style Selector="Window.touch Slider">
         <Setter Property="MinHeight" Value="{StaticResource NeapTargetTouch}" />
-    </Style>
-    <Style Selector="Window.touch Slider /template/ Thumb#NeapThumb">
-        <Setter Property="Width" Value="{StaticResource NeapSliderThumbTouch}" />
-        <Setter Property="Height" Value="{StaticResource NeapSliderThumbTouch}" />
     </Style>
     <Style Selector="Window.touch ToggleSwitch /template/ Border#SwitchRoot">
         <Setter Property="MinHeight" Value="{StaticResource NeapTargetTouch}" />

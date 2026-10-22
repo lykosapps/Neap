@@ -260,6 +260,12 @@ public sealed class HeadsetService : IDisposable
         return _values.TryGetValue(Hex(key), out var element) && TryRead(element, out value);
     }
 
+    /// <summary>What the headset has reported of its microphones; see <see cref="HeadsetMic"/>.</summary>
+    public HeadsetMic Microphone => new(Number(Core.Settings.Microphone.ArmSetting),
+        Number(Core.Settings.Microphone.BuiltInSetting), Number(Core.Settings.Microphone.InUseSetting));
+
+    private int? Number(string setting) => TryGetNumber(setting, out int value) ? value : null;
+
     /// <summary>The battery reading worth showing, or null when there is none; see <see cref="Core.Connection.Battery"/>.</summary>
     public BatteryReading? Battery => Core.Connection.Battery.Of(_status,
         TryGetNumberByKey(Core.Connection.Battery.Key, out int charge) ? charge : null,
