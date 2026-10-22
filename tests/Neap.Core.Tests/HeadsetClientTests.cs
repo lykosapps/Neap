@@ -252,6 +252,18 @@ public class HeadsetClientTests
     }
 
     [Fact]
+    public void AReadOfEveryCategoryNamesTheOnesThatGaveNoAnswer()
+    {
+        using var client = new HeadsetClient(transport: new PretendHeadset().Open());
+        var unanswered = new List<(string Category, string? Heard)>();
+
+        var values = client.ReadAll(Window, ["GSI", "NG"], unanswered);
+
+        Assert.Contains("240", values.Keys);
+        Assert.Equal([("NG", (string?)null)], unanswered);
+    }
+
+    [Fact]
     public void AReportHandedBackAgainWhileARequestWaitsIsTakenOnce()
     {
         using var client = new HeadsetClient(transport: new Repeating("{\"UP\":\"BT\",\"KVP\":{\"310\":\"-56\"}}"));

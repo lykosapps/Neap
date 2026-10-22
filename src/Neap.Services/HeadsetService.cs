@@ -5,7 +5,6 @@ using System.Text.Json;
 using Neap.Core;
 using Neap.Core.Audio;
 using Neap.Core.Connection;
-using Neap.Core.Diagnostics;
 using Neap.Core.Hid;
 using Neap.Core.Protocol;
 using Neap.Core.Settings;
@@ -653,7 +652,8 @@ public sealed class HeadsetService : IDisposable
                     // Clear anything left on the wire before the first read,
                     // or a stale reply answers the first question asked.
                     client.Drain();
-                    var everything = client.ReadAll(categories: Categories());
+                    var silent = new List<(string Category, string? Heard)>();
+                    var everything = client.ReadAll(categories: Categories(), unanswered: silent);
 
                     // Opening the transmitter proves only that the
                     // transmitter is there. If nothing came back, the headset
@@ -671,8 +671,13 @@ public sealed class HeadsetService : IDisposable
                     }
 
                     Merge(everything, authoritative: true);
-                    foreach (string group in HeadsetCheck.Silent(everything.Keys, Categories()))
-                        AppLog.Write($"headset: no answer for its {group} settings, which have no reading until it reports them");
+                    // Each group asked and not answered, judged from the reply
+                    // itself: judged from the keys reported, a group sharing a
+                    // key range with another that answered, as the Atlas Air's
+                    // noise gate shares 0x7xx, reads as answered.
+                    foreach (var (group, heard) in silent)
+                        AppLog.Write($"headset: no answer for its {group} settings, which have no reading until it reports them"
+                            + (heard is null ? "" : $"; it sent {heard} instead"));
                     primed = true;
                     unanswered = 0;
                     beats = 0;

@@ -290,14 +290,25 @@ public sealed class HeadsetClient : IDisposable
     /// answers nothing, so it costs the full window.
     /// </para>
     /// </remarks>
+    /// <param name="wait">How long each category is given to answer.</param>
+    /// <param name="categories">The categories to read: every headset's, unless given.</param>
+    /// <param name="unanswered">
+    /// Given, each category that gave no answer is added to it, with what
+    /// arrived instead in hex, or null when nothing did; see <see cref="Unanswered"/>.
+    /// </param>
     public Dictionary<string, JsonElement> ReadAll(
-        TimeSpan? wait = null, IEnumerable<string>? categories = null)
+        TimeSpan? wait = null, IEnumerable<string>? categories = null,
+        ICollection<(string Category, string? Heard)>? unanswered = null)
     {
         var window = wait ?? TimeSpan.FromMilliseconds(1200);
         var values = new Dictionary<string, JsonElement>();
         foreach (var category in categories ?? Verbs.SettingCategories)
-            foreach (var pair in ReadCategory(category, window))
+        {
+            var answer = ReadCategory(category, window);
+            if (answer.Count == 0) unanswered?.Add((category, Unanswered));
+            foreach (var pair in answer)
                 values[pair.Key] = pair.Value;
+        }
         return values;
     }
 
