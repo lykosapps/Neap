@@ -102,10 +102,13 @@ preparing code for experienced reviewers.
   headset. Run a check of a minute or more in the background.
   `tools/pretend.ps1` takes about three minutes and comes to the front, as
   UI Automation's select, toggle, set value and expand all bring the window
-  forward, so it runs while nobody is at the PC. It is known to trip on
-  timing in a different place most runs, where it looks for a control once
-  rather than waiting for it; read each failure before calling it a bug, and
-  rerun.
+  forward. `tools/pretend-quiet.ps1` runs it on a desktop of its own, so it
+  interrupts nobody and can run while the owner works; it stops at once if a
+  practice window ever shows on the owner's desktop. Its Windows steps still
+  change the PC's volume, mute and audio format for a moment. It is known to
+  trip on timing in a different place some runs, where it looks for a control
+  once rather than waiting for it; read each failure before calling it a bug,
+  and rerun.
 - **Sample, do not snapshot.** One reading after the fact shows where a value
   settled, not whether it moved.
 - **Read the app's folder from outside Claude.** The desktop app runs
