@@ -77,7 +77,7 @@ system tried with a real headset.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (chosen on Controls): the headset steps through off, transparency and noise cancellation itself, and Neap only follows; untried in Neap on the headset. |
+| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (chosen on Controls): the headset steps through off, transparency and noise cancellation itself, and Neap only follows; on the owner's headset Neap shows Transparency while the headset is in noise cancellation; see Evidence. |
 | Lower wheel: monitoring, game and chat mix, bass, treble, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xA20` | — |
 
 ### Additional settings
@@ -142,6 +142,14 @@ system tried with a real headset.
 
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
+
+- 2026-10-22 — Owner's headset, edited firmware, Neap recording of one full
+  Mode button cycle: four presses gave three reports, all `0x750`. The step
+  from transparency to noise cancellation, which changes only `0x760`, sent
+  nothing, and Neap went on showing Transparency although it asks the `SAF`
+  group about every 0.7 seconds. So the edit changes the level the headset
+  uses but not the `0x760` it reports, pushed or asked. A fix in Neap cannot
+  help; the edit has to update and announce `0x760` as the stock path does.
 
 - 2026-10-22 — SP2Tools F090, proven on the owner's headset: edited firmware
   makes the Mode button step off, transparency, noise cancellation, with a
