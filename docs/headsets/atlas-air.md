@@ -40,7 +40,7 @@ answers, so nothing works there yet.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Microphone mute | Listed | Yes | Has | Seen | Blocked | `0x600` | Shows on at start with the boom up; see Problems. |
+| Microphone mute | Listed | Yes | Has | Seen | Blocked | `0x600`; no `0x640` or `0x650` in the recordings, so the arm alone decides | Ask the tester, in the next test build: with the arm down, Neap's switch should say "Muted on this PC"; with the arm up, "Muted by the boom arm", and the switch can't be pressed. |
 | Sensitivity | Listed | Yes | Has | Fails | Blocked | Done on the PC; on the Stealth Pro II `0x610` mirrors the PC's microphone level. Swarm II writes `0x610` here, 0–100 (Read). | Jumps to 100% when the tester speaks; see Problems. |
 | Monitoring, on/off | Listed | Unknown: Swarm II's switch writes nothing | Hidden | Untried | Blocked | Swarm II's switch writes nothing (Read) | Probably no on/off; the level alone. |
 | Monitoring, level | Listed | Yes, at `0x630` (Read) | Has, test | Untried | Blocked | `0x630`, 0–100 (Read) | In 0.2.1.5; ask the tester to listen. |
