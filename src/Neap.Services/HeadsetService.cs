@@ -975,6 +975,7 @@ public sealed class HeadsetService : IDisposable
         if (client is not null)
         {
             _toldQuiet.Clear();
+            _channelStopped = false;
             client.Wrote += attempt => Wrote?.Invoke(attempt);
             Model = HeadsetModels.Of(client.ProductId);
             _readOnly = !client.AllowWrites;
@@ -1007,13 +1008,14 @@ public sealed class HeadsetService : IDisposable
     private bool RestartSilent(IReadOnlyList<string> silent)
     {
         var present = _devices.Candidates();
-        bool denied = silent.Count > 0 && RuleOutOfDate();
+        bool denied = false;
         foreach (string path in _restarts.Due(silent, present.Select(device => device.Path)))
         {
             var device = present.First(d => d.Path == path);
             try
             {
                 bool? linked = HidrawTransport.AskLinked(device, LinkWait);
+                _channelStopped |= SilentRestarts.ChannelStopped(linked);
                 if (!SilentRestarts.Needed(linked))
                 {
                     _restarts.Retry(path);
@@ -1041,7 +1043,9 @@ public sealed class HeadsetService : IDisposable
                 NoteFault($"restarting {path}", ex);
             }
         }
-        return denied;
+        // Asked every time, not only when a restart is due, so the offer stays
+        // on screen until the person takes it or the headset answers.
+        return denied || (_channelStopped && RuleOutOfDate());
     }
 
     /// <summary>How long a restarted transmitter is read after it comes back: the start-up messages come within the first second or two.</summary>
@@ -1055,12 +1059,16 @@ public sealed class HeadsetService : IDisposable
 
     private bool _toldRuleOutOfDate;
 
+    /// <summary>Whether a silent transmitter has given no answer to the link question since the headset last answered; see <see cref="SilentRestarts.ChannelStopped"/>.</summary>
+    private bool _channelStopped;
+
     /// <summary>Whether the access rule installed is an older one than this version's.</summary>
     /// <remarks>
     /// An older rule still gives access, so nothing else would notice it; but
     /// it lets the system put a transmitter to sleep, which can leave it
-    /// answering nothing until it is reset. So while a transmitter is silent,
-    /// the person is offered the new rule the same way as a first one.
+    /// answering nothing until it is reset. So once a transmitter has stopped
+    /// answering, the person is offered the new rule the same way as a first
+    /// one; a headset that is only switched off is no reason to ask.
     /// </remarks>
     private bool RuleOutOfDate()
     {

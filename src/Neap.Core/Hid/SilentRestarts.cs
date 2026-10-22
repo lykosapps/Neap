@@ -41,4 +41,15 @@ public sealed class SilentRestarts
     /// nothing else, has a channel that has stopped, and is restarted.
     /// </remarks>
     public static bool Needed(bool? linked) => linked != false;
+
+    /// <summary>Whether a silent transmitter's answer to <see cref="LinkInquiry"/> shows its control channel has stopped.</summary>
+    /// <param name="linked">Its answer, or null when it gave none.</param>
+    /// <remarks>
+    /// The transmitter answers the question itself, so no answer at all is a
+    /// channel that has stopped, which keeping it awake (see
+    /// <see cref="UdevRule"/>) can prevent. One that answers either way has a
+    /// working channel, and an older rule is no reason to ask the person for
+    /// their password.
+    /// </remarks>
+    public static bool ChannelStopped(bool? linked) => linked is null;
 }

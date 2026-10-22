@@ -50,4 +50,11 @@ public class SilentRestartsTests
     [InlineData(false, false)]
     public void OnlyATransmitterThatSaysNoHeadsetIsLinkedIsLeftAlone(bool? linked, bool restart) =>
         Assert.Equal(restart, SilentRestarts.Needed(linked));
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData(true, false)]
+    [InlineData(false, false)]
+    public void OnlyNoAnswerAtAllIsAStoppedChannel(bool? linked, bool stopped) =>
+        Assert.Equal(stopped, SilentRestarts.ChannelStopped(linked));
 }

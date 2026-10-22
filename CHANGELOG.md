@@ -175,8 +175,9 @@ and date.
 
 - On Linux, Neap's access rule keeps Turtle Beach transmitters from being put
   to sleep to save power, which could leave one answering nothing until it
-  was restarted. If an older rule is installed, Neap offers the new one once,
-  with the same password prompt.
+  was restarted. If an older rule is installed and a transmitter stops
+  answering, Neap offers the new one with the same password prompt; a headset
+  that is only switched off is no reason to ask.
 - On Linux, a transmitter that answers but has no headset linked to it is no
   longer restarted. The restart switched the headset off as it came back.
 - On the Atlas Air, muting the microphone from Neap also turns mic monitoring
