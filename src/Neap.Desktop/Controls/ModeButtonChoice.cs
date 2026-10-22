@@ -148,7 +148,8 @@ public sealed class ModeButtonChoice : UserControl
         _options.IsEnabled = shown is not null && _link.CanWrite;
         if (_noiseButton is not null)
             _noiseButton.Content = headsetCycles ? Strings.Get("Mode_NoiseCycleFirmware") : _noiseLabel;
-        _firmware.IsVisible = HeadsetModels.Shows(AppServices.Headset.Model, Feature.NoiseControl);
+        _firmware.IsVisible = Core.Firmware.FirmwareEdit.Released
+            && HeadsetModels.Shows(AppServices.Headset.Model, Feature.NoiseControl);
         _painting = true;
         try
         {

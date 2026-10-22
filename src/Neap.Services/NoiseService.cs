@@ -28,7 +28,13 @@ public sealed class NoiseService : IDisposable
     {
         _headset = headset;
         var saved = AppSettings.Current;
-        _noise = new NoiseControl(saved.NoiseBlocking) { Cycling = saved.ModeCyclesNoise, HeadsetCycles = saved.HeadsetCyclesNoise };
+        // A firmware choice saved while firmware edits were shown is not acted on
+        // where it cannot be seen or changed.
+        _noise = new NoiseControl(saved.NoiseBlocking)
+        {
+            Cycling = saved.ModeCyclesNoise,
+            HeadsetCycles = Core.Firmware.FirmwareEdit.Released && saved.HeadsetCyclesNoise,
+        };
         _headset.Changed += OnChanged;
     }
 

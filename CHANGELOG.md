@@ -13,12 +13,6 @@ and date.
 
 ### Added
 
-- On the Controls page, the Mode button's card asks whether the headset's
-  firmware is stock or edited. Edited firmware steps the Mode button through
-  off, transparency and noise cancellation by itself, so Neap shows the modes
-  in that order everywhere and leaves the button to the headset. Stock is
-  the default and works as before.
-
 - The mini panel has spatial sound: Off, Windows Sonic or Dolby Atmos,
   whichever the system offers. It is left out where the system has none, and
   folds away with the headset's settings when the headset is away.

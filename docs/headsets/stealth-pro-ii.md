@@ -77,7 +77,7 @@ system tried with a real headset.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (chosen on Controls): the headset steps through off, transparency and noise cancellation itself, and Neap only follows; on the owner's headset Neap shows Transparency while the headset is in noise cancellation; see Evidence. |
+| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (chosen on Controls, hidden until firmware edits are released): the headset steps through off, transparency and noise cancellation itself, and Neap only follows; on the owner's headset Neap shows Transparency while the headset is in noise cancellation; see Evidence. |
 | Lower wheel: monitoring, game and chat mix, bass, treble, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xA20` | — |
 
 ### Additional settings

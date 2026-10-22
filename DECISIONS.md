@@ -6,7 +6,9 @@
   next release; keep it out of the release altogether until Neap can write
   a real headset.
 - **Chosen:** keep it out. `FirmwareEdit.Released` is off, so the page and
-  its switch are nowhere in the app, whatever the settings file says. Only
+  its switch are nowhere in the app, whatever the settings file says, and
+  nor is the Stock or Edited firmware choice for the Mode button, which
+  works as on stock firmware until the release. Only
   a pretend run asked to open the page shows it, against the pretend
   headset.
 - **Why:** the owner's call: release the improvements made so far first,
