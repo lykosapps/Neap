@@ -22,7 +22,7 @@
         A balance slider, such as the mini panel's game and chat mix: no side
         is more, so neither side of the thumb is filled.
     -->
-    <Style Selector="Slider.balance /template/ Border#Fill">
+    <Style Selector="Slider.balance /template/ RepeatButton#PART_DecreaseButton">
         <Setter Property="Background" Value="Transparent" />
     </Style>
 
@@ -199,12 +199,15 @@
         <!--
             A slider with a 6px track filled in the accent up to a round
             thumb, and its value in a bubble over the thumb while it is held.
+            The track's two halves are the slider's named parts and fill the
+            track's full height, so a click anywhere along it moves the thumb
+            there; the toolkit listens to those parts and no others.
             Only the horizontal one is drawn here; a vertical slider keeps the
             toolkit's.
         -->
         <ControlTheme x:Key="NeapSlider" TargetType="Slider" BasedOn="{StaticResource {x:Type Slider}}">
-            <!-- Set by a style rather than in the template, so a balance slider's style can clear it. -->
-            <Style Selector="^ /template/ Border#Fill">
+            <!-- The fill is the track's left half's own colour, set by a style rather than in the template, so a balance slider's style can clear it. -->
+            <Style Selector="^ /template/ RepeatButton#PART_DecreaseButton">
                 <Setter Property="Background" Value="{DynamicResource NeapAccentFillBrush}" />
             </Style>
             <Style Selector="^:horizontal">
@@ -223,17 +226,22 @@
                                        Value="{TemplateBinding Value, Mode=TwoWay}"
                                        IsDirectionReversed="{TemplateBinding IsDirectionReversed}">
                                     <Track.DecreaseButton>
-                                        <RepeatButton x:Name="PART_DecreaseButton" Focusable="False" HorizontalAlignment="Stretch">
+                                        <RepeatButton x:Name="PART_DecreaseButton" Focusable="False"
+                                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                             <RepeatButton.Template>
                                                 <ControlTemplate>
-                                                    <Border x:Name="Fill" CornerRadius="3"
-                                                            Height="{StaticResource NeapSliderTrack}" />
+                                                    <Panel Background="Transparent">
+                                                        <Border x:Name="Fill" CornerRadius="3" VerticalAlignment="Center"
+                                                                Height="{StaticResource NeapSliderTrack}"
+                                                                Background="{TemplateBinding Background}" />
+                                                    </Panel>
                                                 </ControlTemplate>
                                             </RepeatButton.Template>
                                         </RepeatButton>
                                     </Track.DecreaseButton>
                                     <Track.IncreaseButton>
-                                        <RepeatButton x:Name="PART_IncreaseButton" Focusable="False">
+                                        <RepeatButton x:Name="PART_IncreaseButton" Focusable="False"
+                                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                             <RepeatButton.Template>
                                                 <ControlTemplate>
                                                     <Border Background="Transparent" />
@@ -280,7 +288,7 @@
                 <Style Selector="^:focus-visible /template/ Ellipse#Ring">
                     <Setter Property="IsVisible" Value="True" />
                 </Style>
-                <Style Selector="^:disabled /template/ Border#Fill">
+                <Style Selector="^:disabled /template/ RepeatButton#PART_DecreaseButton">
                     <Setter Property="Background" Value="{DynamicResource NeapTextDisabledBrush}" />
                 </Style>
                 <Style Selector="^:disabled /template/ Ellipse#Face">
