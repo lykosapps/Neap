@@ -421,7 +421,7 @@ either way.
 | `0x510` | game and chat mix, 0–100. The chat wheel reports its position here. Writing it is ignored: set to 80 and then 50, it read back unchanged each time, and the wheel carried on from where it was *(measured)* |
 | `0x600` | microphone muted by the boom arm, 0/1: 1 while it is flipped up. Writing 1 with the arm down is accepted and does not mute; the microphone went on picking up speech. A Windows mute of the microphone does not change it *(both measured)* |
 | `0x610` | a **mirror** of the Windows recording level, not a control |
-| `0x640` | which microphone is in use: read 1 with the boom microphone on and 2 with it off, in separate recordings; not seen changing live *(measured)* |
+| `0x640` | which microphone is in use: 1 for the boom microphone, 2 for the built-in ones. Reported at once when the boom is unplugged or plugged in while connected. With the boom in, the mute button does nothing and reports nothing, and the built-in microphones' mute at `0x650` keeps whatever it was, so only the arm counts; with it out, the arm reads 0 and only `0x650` counts *(measured)* |
 | `0x650` | the built-in microphones' mute, 0/1, used while the boom microphone is off: the headset's mute button sets it to 1 and back, and `0x600` reads 0 throughout. Writing it mutes and unmutes, with the headset's tone, as the button does, but only while the built-in microphones are in use: with the boom on, a write of 1 was reported and then undone about two seconds later. The firmware keeps this mute across restarts, unlike the arm's *(measured; keeping it from the firmware, research)* |
 | `0x620` | microphone monitoring (sidetone), 0–100 |
 | `0x630` | AI noise reduction, 0/1 |

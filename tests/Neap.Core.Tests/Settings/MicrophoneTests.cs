@@ -4,55 +4,74 @@ namespace Neap.Core.Tests.Settings;
 
 public class MicrophoneTests
 {
+    private const int Boom = 1, BuiltIn = 2;
+
     [Theory]
     [InlineData(0, false, MicState.Live)]
     [InlineData(0, true, MicState.Muted)]
     [InlineData(1, false, MicState.ArmUp)]
     [InlineData(1, true, MicState.ArmUp)]
-    public void TheArmOutranksTheMuteInWindows(int arm, bool mutedInWindows, MicState state) =>
-        Assert.Equal(state, Microphone.Of(arm, 0, mutedInWindows));
+    public void WithTheBoomTheArmOutranksTheMuteInWindows(int arm, bool mutedInWindows, MicState state) =>
+        Assert.Equal(state, Microphone.Of(new HeadsetMic(arm, 0, Boom), mutedInWindows));
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
     [InlineData(null)]
-    public void TheBuiltInMicrophonesMutedOnTheHeadsetOutrankTheMuteInWindows(bool? mutedInWindows) =>
-        Assert.Equal(MicState.MutedOnHeadset, Microphone.Of(0, 1, mutedInWindows));
-
-    [Fact]
-    public void TheArmUpOutranksTheBuiltInMicrophonesMuted() =>
-        Assert.Equal(MicState.ArmUp, Microphone.Of(1, 1, false));
+    public void WithTheBuiltInMicrophonesTheirMuteOutranksTheMuteInWindows(bool? mutedInWindows) =>
+        Assert.Equal(MicState.MutedOnHeadset, Microphone.Of(new HeadsetMic(0, 1, BuiltIn), mutedInWindows));
 
     [Theory]
     [InlineData(false, MicState.Live)]
     [InlineData(true, MicState.Muted)]
-    public void AHeadsetWithoutBuiltInMicrophonesFollowsTheArmAlone(bool mutedInWindows, MicState state) =>
-        Assert.Equal(state, Microphone.Of(0, null, mutedInWindows));
+    public void WithTheBoomBackInTheBuiltInMicrophonesMuteLeftOnIsNotItsMute(bool mutedInWindows, MicState state) =>
+        Assert.Equal(state, Microphone.Of(new HeadsetMic(0, 1, Boom), mutedInWindows));
 
     [Theory]
-    [InlineData(null, 0, false)]
-    [InlineData(2, 0, false)]
-    [InlineData(0, 0, null)]
-    [InlineData(0, 2, false)]
-    public void AReadingMissingOrNotUnderstoodIsUnknown(int? arm, int? builtIn, bool? mutedInWindows) =>
-        Assert.Equal(MicState.Unknown, Microphone.Of(arm, builtIn, mutedInWindows));
+    [InlineData(false, MicState.Live)]
+    [InlineData(true, MicState.Muted)]
+    public void AHeadsetThatSaysNothingOfItsMicrophonesFollowsTheArmAlone(bool mutedInWindows, MicState state) =>
+        Assert.Equal(state, Microphone.Of(new HeadsetMic(0, null, null), mutedInWindows));
+
+    [Theory]
+    [InlineData(null, 0, Boom, false)]
+    [InlineData(2, 0, Boom, false)]
+    [InlineData(0, 0, Boom, null)]
+    [InlineData(0, 2, BuiltIn, false)]
+    [InlineData(0, null, BuiltIn, false)]
+    public void AReadingMissingOrNotUnderstoodIsUnknown(int? arm, int? builtIn, int? inUse, bool? mutedInWindows) =>
+        Assert.Equal(MicState.Unknown, Microphone.Of(new HeadsetMic(arm, builtIn, inUse), mutedInWindows));
 
     [Fact]
     public void WithTheArmUpTheArmStillSaysSoWhenWindowsCannotBeRead() =>
-        Assert.Equal(MicState.ArmUp, Microphone.Of(1, 0, null));
+        Assert.Equal(MicState.ArmUp, Microphone.Of(new HeadsetMic(1, 0, Boom), null));
 
     [Theory]
-    [InlineData(0, 0, 0)]
-    [InlineData(1, 0, 1)]
-    [InlineData(0, 1, 1)]
-    [InlineData(1, 1, 1)]
-    [InlineData(0, null, 0)]
-    [InlineData(1, null, 1)]
-    [InlineData(null, 0, null)]
-    [InlineData(2, 0, null)]
-    [InlineData(0, 2, null)]
-    public void TheHeadsetIsMutedByTheArmOrByItsBuiltInMicrophones(int? arm, int? builtIn, int? muted) =>
-        Assert.Equal(muted, Microphone.HeadsetMute(arm, builtIn));
+    [InlineData(0, 0, Boom, 0)]
+    [InlineData(1, 0, Boom, 1)]
+    [InlineData(0, 1, Boom, 0)]
+    [InlineData(1, 1, Boom, 1)]
+    [InlineData(0, null, null, 0)]
+    [InlineData(1, null, null, 1)]
+    [InlineData(0, 0, BuiltIn, 0)]
+    [InlineData(0, 1, BuiltIn, 1)]
+    [InlineData(null, 1, BuiltIn, 1)]
+    [InlineData(null, 0, Boom, null)]
+    [InlineData(2, 0, Boom, null)]
+    [InlineData(0, 2, BuiltIn, null)]
+    [InlineData(0, null, BuiltIn, null)]
+    public void TheHeadsetsOwnMuteIsTheOneOfTheMicrophoneInUse(int? arm, int? builtIn, int? inUse, int? muted) =>
+        Assert.Equal(muted, new HeadsetMic(arm, builtIn, inUse).Mute);
+
+    [Theory]
+    [InlineData(BuiltIn, 0, true)]
+    [InlineData(BuiltIn, 1, true)]
+    [InlineData(Boom, 0, false)]
+    [InlineData(null, 0, false)]
+    [InlineData(BuiltIn, null, false)]
+    [InlineData(3, 0, false)]
+    public void TheAppMutesOnTheHeadsetOnlyWhileItsBuiltInMicrophonesAreInUse(int? inUse, int? builtIn, bool mutes) =>
+        Assert.Equal(mutes, new HeadsetMic(0, builtIn, inUse).MutesOnHeadset);
 
     [Theory]
     [InlineData(MicState.Live, false, MicChange.MuteSystem)]
@@ -103,15 +122,27 @@ public class MicrophoneTests
         Assert.False(arm.Writable);
     }
 
-    [Theory]
-    [InlineData(2, 0, true)]
-    [InlineData(2, 1, true)]
-    [InlineData(1, 0, false)]
-    [InlineData(null, 0, false)]
-    [InlineData(2, null, false)]
-    [InlineData(3, 0, false)]
-    public void TheHeadsetMutesItselfOnlyWhileItsBuiltInMicrophonesAreInUse(int? inUse, int? builtIn, bool mutes) =>
-        Assert.Equal(mutes, Microphone.HeadsetMutes(inUse, builtIn));
+    [Fact]
+    public void TheSystemFollowsEveryMuteOfARecordingThroughTheBoomComingOutAndBackIn()
+    {
+        // The owner's recording of 22 October, in order: the arm up and down,
+        // the boom out, the button three times, the boom back in, and the arm
+        // knocked up as it went in, then down.
+        HeadsetMic[] seen =
+        [
+            new(0, 0, Boom), new(1, 0, Boom), new(0, 0, Boom),
+            new(0, 0, BuiltIn), new(0, 1, BuiltIn), new(0, 0, BuiltIn), new(0, 1, BuiltIn),
+            new(0, 1, Boom), new(1, 1, Boom), new(0, 1, Boom),
+        ];
+        bool?[] system = [null, true, false, null, true, false, true, false, true, false];
+
+        int? before = null;
+        for (int i = 0; i < seen.Length; i++)
+        {
+            Assert.Equal(system[i], Microphone.SystemMuteFor(before, seen[i].Mute));
+            before = seen[i].Mute;
+        }
+    }
 
     [Fact]
     public void WhichMicrophoneIsInUseIsAReadingNotASetting()

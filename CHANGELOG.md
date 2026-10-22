@@ -166,9 +166,12 @@ and date.
 
 ### Fixed
 
-- With the boom microphone on, Neap's microphone switch mutes again. It was
-  muting the headset's built-in microphones, which the headset undoes while
-  the boom is in use; it now mutes on the headset only with the boom off.
+- The microphone follows the headset through every way it mutes: the boom
+  arm while the boom microphone is in, the mute button while it is out, and
+  the boom being plugged in or taken out while connected. Neap's own switch
+  mutes on the headset with the boom out, and in Windows with it in. Before,
+  the switch did nothing with the boom in, and a mute left on the built-in
+  microphones showed as muted after the boom went back in.
 - Button text sits in the middle of its button; it sat a little high.
 - A click anywhere along a slider moves it there. Before, only dragging the
   handle moved it.

@@ -23,8 +23,6 @@ namespace Neap.Services;
 public sealed class MicFollowsHeadset : IDisposable
 {
     private readonly HeadsetService _headset;
-    private readonly SettingKey _arm = Registry.ByName[Microphone.ArmSetting];
-    private readonly SettingKey _builtIn = Registry.ByName[Microphone.BuiltInSetting];
     private int? _last;
 
     public MicFollowsHeadset(HeadsetService headset)
@@ -35,7 +33,7 @@ public sealed class MicFollowsHeadset : IDisposable
 
     private async void OnChanged()
     {
-        if (Microphone.HeadsetMute(Read(_arm), Read(_builtIn)) is not { } now) return;
+        if (_headset.Microphone.Mute is not { } now) return;
         var before = _last;
         _last = now;
 
@@ -44,8 +42,6 @@ public sealed class MicFollowsHeadset : IDisposable
         await SoundVolume.SetMuted(mute, Flow.Input);
         AppSettings.Update(settings => settings.MicMutedByHeadset = mute);
     }
-
-    private int? Read(SettingKey key) => _headset.TryGetNumberByKey(key.Key, out int value) ? value : null;
 
     /// <summary>Mutes or unmutes the system's microphone for the person, which a lowered arm then leaves alone.</summary>
     public static async Task SetByPerson(bool muted)

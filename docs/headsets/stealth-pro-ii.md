@@ -113,7 +113,7 @@ system tried with a real headset.
 |---|---|---|---|---|---|---|---|
 | Volume wheel | Quick start guide | — | Has | Confirmed | Confirmed | `0x260` | — |
 | Flip-to-mute microphone | Quick start guide | — | Has | Confirmed | Confirmed | `0x600` | — |
-| Mute button, with the boom microphone off | Quick start guide | — | Has | Confirmed | Untried | `0x650` | The button is followed, and a write to `0x650` mutes and unmutes with the headset's tone. With the boom on, the headset undoes a write to it, so Neap's switch mutes on the headset only while `0x640`, which microphone is in use, reads 2 for the built-in ones, and mutes in Windows otherwise. Confirm the switch with the boom on and off. |
+| Mute button, with the boom microphone off | Quick start guide | — | Has | Confirmed | Untried | `0x650` | The button is followed, and a write to `0x650` mutes and unmutes with the headset's tone. `0x640` says which microphone is in use and is reported the moment the boom is unplugged or plugged in. Neap follows the arm with the boom in and the button with it out. With the boom in the button does nothing, and the headset undoes a write to `0x650`, so Neap's switch mutes in Windows then and on the headset with the boom out. Confirm the switch with the boom on and off. |
 | CrossPlay button (switch transmitters) | Quick start guide | — | Has | Confirmed | Confirmed | `0x400`–`0x460` | Moving between PCs needs the headset switched off and on; see Problems. |
 | Bluetooth button | Quick start guide | — | Has | Confirmed | Confirmed | `0x290`, `0x320` | — |
 
