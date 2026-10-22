@@ -56,6 +56,10 @@ public sealed record HeadsetModel(
     /// <summary>The groups of settings it has besides those every headset is asked for.</summary>
     public IReadOnlyList<string> ExtraCategories { get; init; } = [];
 
+    /// <summary>The groups every headset is asked for that it does not have.</summary>
+    /// <remarks>A group it does not have is never answered, so asking for one only delays the read at start.</remarks>
+    public IReadOnlyList<string> MissingCategories { get; init; } = [];
+
     /// <summary>Whether it has the loudness boost; see <see cref="Audio.LoudnessBoost"/>.</summary>
     /// <remarks>
     /// The boost writes a level the headset keeps, so a headset is sent it,
@@ -188,8 +192,9 @@ public static class HeadsetModels
             Feature.VoicePrompts, Feature.Lights,
         },
         // Reported by the headset, seen in testers' recordings: Superhuman
-        // Hearing and voice prompts. Not reported: the noise gate, and the
-        // light, which 0.2.1.7 reads from the transmitter, not yet seen to work.
+        // Hearing and voice prompts. Not yet seen in a read: the noise gate,
+        // which the firmware serves as group NG (SP2Tools F125), and the light,
+        // which 0.2.1.7 reads from the transmitter.
         new HashSet<Feature> { Feature.NoiseGate, Feature.Lights },
         [FixedControl.VolumeWheel, FixedControl.FlipToMute, FixedControl.QuickSwitch, FixedControl.BluetoothCallButton])
     {
@@ -205,6 +210,9 @@ public static class HeadsetModels
             [0x401] = 0x430,
         },
         ExtraCategories = ["SHH", "Prm", "TX", "NG"],
+        // Not among the 25 groups its firmware serves (SP2Tools F125): the
+        // noise gate is in NG, and the game and chat mix in GSI.
+        MissingCategories = ["SAF", "3DT"],
         ShowsGivenName = false,
         QuietsMonitoringWhileMuted = true,
         HearingOffAfterEqualiser = "SHH",
@@ -230,9 +238,9 @@ public static class HeadsetModels
     /// <summary>Whether what goes with CrossPlay is shown: the dock, its ring and switching transmitters; see <see cref="HeadsetModel.CrossPlay"/>.</summary>
     public static bool ShowsCrossPlay(HeadsetModel? model) => model is null || model.CrossPlay;
 
-    /// <summary>The groups of settings to ask a headset for: every headset's, and any of its own.</summary>
+    /// <summary>The groups of settings to ask a headset for: every headset's it has, and any of its own.</summary>
     public static IEnumerable<string> CategoriesOf(HeadsetModel? model) =>
-        Verbs.SettingCategories.Concat(model?.ExtraCategories ?? []);
+        Verbs.SettingCategories.Except(model?.MissingCategories ?? []).Concat(model?.ExtraCategories ?? []);
 
     /// <summary>The key of a headset's copy of the system's output level: the Stealth Pro II's while it is not known.</summary>
     public static int VolumeKeyOf(HeadsetModel? model) => (model ?? StealthProII).VolumeKey;

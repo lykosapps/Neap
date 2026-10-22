@@ -15,6 +15,9 @@ and date.
 
 - On the Atlas Air, the loudness boost, as on the Stealth Pro II. It is new
   on this headset and still being checked.
+- On the Atlas Air, the noise gate is read when Neap starts, where the
+  headset keeps it, so its switch and level show how they are set. Neap no
+  longer asks this headset for two groups of settings it does not have.
 
 - The mini panel has spatial sound: Off, Windows Sonic or Dolby Atmos,
   whichever the system offers. It is left out where the system has none, and

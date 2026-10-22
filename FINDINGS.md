@@ -235,14 +235,17 @@ Its questions and answers are in SP2Tools' `knowledge/iceman-neap-asks.md`.
   headset reads low, and that switch sets the mute at power-on. It is
   probably the boom's; no key reports the boom, and which position reads low
   is not known (F120).
-- **Noise gate:** `0x700` and `0x710`, which the headset serves as a group
-  `NG` of their own: the firmware's read request names 25 groups, among them
-  `Mic` for `0x600` to `0x630`, `NG` for `0x700` to `0x710` and `SHH`, `Prm`
-  and `Swm`, with no `SAF` (SP2Tools batch C2, the notes behind F121). That
-  is why the Atlas Air reports the noise gate when it changes but not in the
-  read Neap makes at start, which asked the Stealth Pro II's `SAF`
-  *(measured, in testers' recordings)*. Swarm II's settings file groups it as
-  `NG` too.
+- **Noise gate:** `0x700` (on or off) and `0x710` (its level, 0 to 100),
+  which the headset serves as a group `NG` of their own, read like `Mic` and
+  answered at start with the saved values. The firmware serves 25 groups:
+  `Dbg Inf GSI BT TX Swm Mic NG SHH Enc Btn Prm AQG AQM CEC CG1`–`CG5`
+  `CM1`–`CM5`, with no `SAF` or `3DT`, so a read of either goes unanswered
+  (SP2Tools F125). That is why the Atlas Air reports the noise gate when it
+  changes but not in the read Neap made at start, which asked the Stealth
+  Pro II's `SAF` *(measured, in testers' recordings)*. Writes work whatever
+  the group, as they name only the key. The Bluetooth equaliser (`0x1400`
+  to `0x14C0`, `0x1640`, `0x1650`, `0x1900` to `0x1980`) is in no group, so
+  it can be written but not read back.
 - **Sensitivity:** `0x610` is a gain in the headset, which the transmitter
   sets from the PC's microphone level (F120).
 - **Voice prompts:** `0xC00` has 16 steps, -58.5 dB to -15.5 dB; above 15 is
@@ -266,10 +269,16 @@ Its questions and answers are in SP2Tools' `knowledge/iceman-neap-asks.md`.
 - **Equalisers:** encoded as the Stealth Pro II's, ten bands from 32 Hz to
   16 kHz in tenths of a dB, up to 9 dB either way; the bands are not kept
   through a power cycle (F122).
-- **Dial and buttons:** the firmware has settings for its wheel's and
-  buttons' jobs on a PlayStation, an Xbox and a PC (`0xA00` to `0xB20`), and
-  the headset reports them *(measured, in a tester's recording)*. What each
-  value does is not yet known.
+- **Dial and buttons:** the headset reports `0xA00` to `0xB20` *(measured,
+  in a tester's recording)*, one of each for a PlayStation, an Xbox and a PC.
+  The dial jobs (`0xA00` to `0xA30`) belong to a second wheel the Atlas Air
+  does not have: its one wheel is the volume, which cannot be given another
+  job, so a write is kept but does nothing, and `0xA30` is refused. The
+  button jobs (`0xB00` to `0xB20`, PC's is `0xB20`) set what one short press
+  of a button does: 0 the next game equaliser preset, 1 the noise gate on or
+  off, 2 chat boost on or off. Which button that is, and whether it is a
+  button at all rather than a power input, is not known without a test on
+  the headset (SP2Tools F126, read from the firmware).
 
 ### Which headsets share the platform
 

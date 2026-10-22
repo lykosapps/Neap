@@ -195,6 +195,21 @@ public class HeadsetModelsTests
         Assert.Equal(equaliser, HeadsetModel.IsEqualiserKey(key));
 
     [Fact]
+    public void TheAtlasAirIsNotAskedForGroupsItsFirmwareDoesNotServe()
+    {
+        var atlas = HeadsetModels.CategoriesOf(HeadsetModels.AtlasAir).ToList();
+        Assert.DoesNotContain("SAF", atlas);
+        Assert.DoesNotContain("3DT", atlas);
+        Assert.Contains("NG", atlas);
+        Assert.Contains("Mic", atlas);
+
+        var stealth = HeadsetModels.CategoriesOf(HeadsetModels.StealthProII).ToList();
+        Assert.Contains("SAF", stealth);
+        Assert.Contains("3DT", stealth);
+        Assert.Equal(Verbs.SettingCategories, HeadsetModels.CategoriesOf(null));
+    }
+
+    [Fact]
     public void OnlyTheAtlasAirsMonitoringIsReadBack()
     {
         Assert.True(HeadsetModels.AtlasAir.ReadsMonitoringBack);

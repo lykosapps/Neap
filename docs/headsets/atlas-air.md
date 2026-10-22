@@ -51,7 +51,7 @@ is in 0.2.1.7 for the testers to confirm.
 | Sensitivity | Listed | Yes | Has | Confirmed | Blocked | Done on the PC; the transmitter copies the PC's level into `0x610` (F120, Read) | The tester says it works (0.2.1.5). |
 | Monitoring, on/off | Listed | Yes, at `0x620` (F120, Read) | Hidden | Untried | Blocked | `0x620`, 1 off, 0 on | The level at 0 is off, so no switch is offered. |
 | Monitoring, level | Listed | Yes | Has, test | Seen | Blocked | `0x630`, 0–100: −30 dB to 0 dB, 0 off, 20 as shipped (F120, Read) | The tester hears it only when speaking loudly, at a level not known. Ask him to try 100%, and whether Swarm II at its most is louder; see Problems. |
-| Noise gate, on/off | Listed | Yes | Has | Confirmed | Blocked | `0x700` | Reported when it changes, but not in the read at start, which asked the Stealth Pro II's group `SAF`. The firmware serves it as group `NG` (SP2Tools batch C2, Read), which 0.2.1.7 asks; the recording shows whether it answers. |
+| Noise gate, on/off | Listed | Yes | Has | Confirmed | Blocked | `0x700` | Reported when it changes, but not in the read at start, which asked the Stealth Pro II's group `SAF`, which this headset does not have. The firmware serves it as group `NG` and answers a read of it with the saved values (SP2Tools F125, Read). 0.2.1.7 asks `NG` and no longer asks `SAF`; the recording shows whether it answers. |
 | Noise gate, level | Listed | Yes | Has | Confirmed | Blocked | `0x710` | Heard clear at 0%, cut at 50%, almost muted at 100%. As the on/off for reading it. |
 | High Bandwidth Microphone | Listed | Yes, through the PC's sound format | Has | Seen | Missing | The PC's sound format: the transmitter offers 16 and 48 kHz | As High Bandwidth Audio. |
 
@@ -104,7 +104,8 @@ From the quick start guide. Neap describes them; it doesn't set them.
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
 | AI noise reduction | Not listed | No: the headset doesn't have it | Hidden | Fails | — | `0x630` is mic monitoring here | Not offered. |
-| Dial and button functions | Not listed on PC; the mobile article lists them, the quick start guide has no Mode button or second wheel | Not known | Hidden | — | — | `0xA00`–`0xB20`: the headset reports them (Seen); the firmware has their jobs for PlayStation, Xbox and PC (F122, Read); Swarm II for PC never writes them (Read) | Not known what each value does or which control it is. Ask SP2Tools. |
+| Dial functions | Not listed on PC; the quick start guide has no second wheel | No: its one wheel is the volume, which cannot be given another job | Hidden | — | — | `0xA00`–`0xA30`: reported (Seen), but for a second wheel it does not have; a write is kept and does nothing, `0xA30` is refused (SP2Tools F126, Read) | Not offered. |
+| Button function | Not listed on PC; the mobile article lists it | Possibly: one button's short press, as the next game preset, the noise gate or chat boost | Hidden | — | — | `0xB00`–`0xB20`, one for each of PlayStation, Xbox and PC (`0xB20`); 0, 1 or 2 (SP2Tools F126, Read). Which button it is, and whether it is a button at all, needs a test on the headset | Would be a choice of three on the Controls page, writing `0xB20`. Needs the headset test first, and a tester to try the write. |
 | Headset name | — | Yes | Has | Confirmed | — | `0x220` holds "My Headset" | "Atlas Air", and "Headset" with nothing connected. |
 
 ## Problems
@@ -120,7 +121,7 @@ From the quick start guide. Neap describes them; it doesn't set them.
 | Transmitter light has no reading at start | 0.2.1.5 | Fixed for 0.2.1.7: read from the transmitter itself (F116) | Ask the tester. |
 | Superhuman Hearing shows on after the equaliser has turned it off | 0.2.1.6 | Fixed for 0.2.1.7 (F122) | Ask the tester to change a preset with it on. |
 | Master volume's mute button is highlighted when muted | 0.2.1.2 | By design: the mute button is on while muted | — |
-| Noise gate shows no reading at start | 0.2.1.2 | Fixed for 0.2.1.7, not yet seen: the firmware serves it as group `NG`, which Neap now asks (SP2Tools batch C2) | Check the recording. |
+| Noise gate shows no reading at start | 0.2.1.2 | Fixed for 0.2.1.7, not yet seen: the firmware serves it as group `NG`, which Neap now asks instead of `SAF` (SP2Tools F125) | Check the recording. |
 | Neap marked Superhuman Hearing and voice prompts as unread, so profiles left them out | — | Fixed for 0.2.1.7: the headset reports both, seen in the recordings since 0.2.1.3 | — |
 
 ## Next
@@ -135,8 +136,8 @@ From the quick start guide. Neap describes them; it doesn't set them.
 - [ ] Ask the Windows tester to check the equalisers, a custom preset and
       auto shut-off.
 - [ ] Decide on battery warnings and the High Bandwidth switches.
-- [ ] Ask SP2Tools what the dial and button jobs (`0xA00`–`0xB20`) do, and
-      which controls they belong to.
+- [ ] Find which button `0xB00`–`0xB20` sets, with a read-only test on the
+      headset (SP2Tools F126), before offering the button's job.
 - [ ] Add what Swarm II's Atlas Air plugin showed to SP2Tools.
 - [ ] Before 0.3.0: hide on the Atlas Air whatever the testers have not
       confirmed.

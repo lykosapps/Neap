@@ -74,7 +74,7 @@ public static class Verbs
             ["SHH"] = "SSHH",     // the Atlas Air's Superhuman Hearing, 0x8xx
             ["Prm"] = "SPrm",     // the Atlas Air's voice prompts, 0xcxx
             ["TX"] = "STX",       // the Atlas Air's transmitter, 0x4xx; never answered, see TransmitterLight
-            ["NG"] = "SNG",       // the Atlas Air's noise gate, 0x7xx: a group of its firmware (SP2Tools batch C2), not yet seen to answer
+            ["NG"] = "SNG",       // the Atlas Air's noise gate, 0x7xx: a group its firmware serves (SP2Tools F125), not yet seen to answer
         };
         foreach (var category in PresetSlotCategories) map[category] = "S" + category;
         foreach (var category in TransmitterCategories) map[category] = "S" + category;
