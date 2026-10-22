@@ -28,6 +28,11 @@ public readonly record struct MixSnap(int Value, bool Cue);
 /// the turn carries the mix straight off centre. Turning on past it moves the
 /// mix on.
 /// </para>
+/// <para>
+/// A move to either end is never held. The wheel's count stops at its end and
+/// reports nothing more, so a mix held at centre when the count arrives would
+/// stay there with the wheel unable to turn it further toward that end.
+/// </para>
 /// </remarks>
 /// <param name="clock">The time now, from a clock that only moves forward.</param>
 public sealed class MixDetent(Func<TimeSpan> clock)
@@ -51,7 +56,7 @@ public sealed class MixDetent(Func<TimeSpan> clock)
     public MixSnap Apply(int want, int? previous, bool wheel)
     {
         TimeSpan now = clock();
-        if (wheel && _held && now - _caughtAt < Stick) return new(50, Cue: false);
+        if (wheel && _held && now - _caughtAt < Stick && want is not (0 or 100)) return new(50, Cue: false);
 
         bool crossed = previous is int was
             && (was - 50) * (want - 50) < 0

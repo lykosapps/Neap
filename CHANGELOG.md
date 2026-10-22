@@ -185,6 +185,10 @@ and date.
 
 ### Fixed
 
+- The chat wheel no longer gets stuck at the middle. Turned quickly through
+  the middle to its game or chat end, the mix stopped at the middle and the
+  wheel then had no room left to turn it further; the mix now goes to that
+  end with the wheel.
 - The Atlas Air no longer drops to "Not connected" every minute or so while
   it is in use. Neap was asking it for its buttons and switches several times
   a second, and the headset then missed Neap's regular check. They are now

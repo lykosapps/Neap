@@ -72,6 +72,20 @@ public class MixDetentTests
         Assert.Equal(new MixSnap(50, Cue: false), detent.Apply(80, previous: 50, wheel: true));
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(100)]
+    public void TheWheelReachingAnEndIsNotHeldByTheStick(int end)
+    {
+        // Turned fast through centre to the wheel's end: the count stops there
+        // and sends nothing more, so a mix held back would never reach it.
+        var detent = Detent();
+        detent.Apply(30, previous: 60, wheel: true);
+        _now += TimeSpan.FromMilliseconds(200);
+
+        Assert.Equal(new MixSnap(end, Cue: false), detent.Apply(end, previous: 50, wheel: true));
+    }
+
     [Fact]
     public void TurningOnPastTheStickMovesTheMixOn()
     {
