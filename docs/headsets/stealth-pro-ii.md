@@ -130,6 +130,12 @@ system tried with a real headset.
 
 ## Next
 
+- [ ] Firmware edit, in SP2Tools: report `0x760` on each level change of the
+      noise cycle, and set a mark Neap can read that says which edits are
+      installed.
+- [ ] Neap, once SP2Tools has chosen the mark: read it, show each screen for
+      the edits found, and keep the Stock or Edited choice on Controls only as a
+      fallback.
 - [ ] Check whether Swarm II's desktop app has wake on motion, and correct
       the README if it does.
 - [ ] Find where the per-transmitter voice prompt (none, 1–4) is kept.
