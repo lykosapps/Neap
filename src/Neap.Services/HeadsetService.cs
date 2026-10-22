@@ -404,6 +404,8 @@ public sealed class HeadsetService : IDisposable
             client.Set(OnTheWire(key), latest, HeadsetModels.CheckedAs(Model, key));
             _lastWrite[key] = Stopwatch.GetTimestamp();
             if (Model?.HearingOffAfterEqualiser is { } hearing && HeadsetModel.IsEqualiserKey(key)) _readNext = hearing;
+            // The last of a drag only, so a slider being moved is not held up.
+            if (key == MonitoringKey && !_pending.ContainsKey(key)) ReadMonitoringBack(client, $"after setting it to {latest}", latest);
             return true;
         });
 
@@ -542,6 +544,26 @@ public sealed class HeadsetService : IDisposable
         }, authoritative: true);
     }
 
+    private static readonly int MonitoringKey = Registry.ByName["mic_monitoring"].Key;
+
+    /// <summary>Says in the log the gain the headset stores for mic monitoring, on a headset where a level can be accepted and change nothing; see <see cref="HeadsetModel.ReadsMonitoringBack"/>.</summary>
+    /// <param name="client">The open client, on the headset thread.</param>
+    /// <param name="when">When it is read, for the log.</param>
+    /// <param name="level">The level just set, whose own gain the reading is set beside, or null.</param>
+    private void ReadMonitoringBack(HeadsetClient client, string when, int? level)
+    {
+        if (Model is not { ReadsMonitoringBack: true }) return;
+        float? stored;
+        try { stored = client.ReadSidetone(TimeSpan.FromMilliseconds(500)); }
+        catch (Exception) { stored = null; }
+        string expected = level is int set
+            ? string.Create(CultureInfo.InvariantCulture, $"; {set} is {Sidetone.GainFor(set):0.0} dB")
+            : "";
+        AppLog.Write(stored is float db
+            ? string.Create(CultureInfo.InvariantCulture, $"mic monitoring: {when}, the headset stores {db:0.0} dB{expected}")
+            : $"mic monitoring: {when}, the headset gave no reading of the gain it stores{expected}");
+    }
+
     /// <summary>Reads the loudness level on connect and files it, hiding the feature when the headset does not answer.</summary>
     /// <remarks>Only a headset whose model has the boost is asked; any other is not sent the command at all.</remarks>
     private void ProbeLoudness(HeadsetClient client)
@@ -641,6 +663,7 @@ public sealed class HeadsetService : IDisposable
                     nextBeat = Stopwatch.GetTimestamp() + BeatTicks;
                     ProbeLoudness(client);
                     ProbeLight(client);
+                    ReadMonitoringBack(client, "at connect", null);
                     var held = Carrying(client);
                     carrying = held?.Name ?? adapter;
                     product = held?.Product ?? client.ProductId.ToString("X4", CultureInfo.InvariantCulture);

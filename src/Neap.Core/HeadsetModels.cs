@@ -78,6 +78,10 @@ public sealed record HeadsetModel(
     /// <summary>The key on the headset its transmitter's light level is kept at, where only the transmitter gives a reading, or null; see <see cref="Hid.TransmitterLight"/>.</summary>
     public int? LightReadFromTransmitter { get; init; }
 
+    /// <summary>Whether the gain it stores for mic monitoring is read back into the log at connect and after each change; see <see cref="Audio.Sidetone"/>.</summary>
+    /// <remarks>On the Atlas Air a monitoring level can be accepted and still change nothing (SP2Tools F120), which only the stored gain shows.</remarks>
+    public bool ReadsMonitoringBack { get; init; }
+
     /// <summary>Whether a key is one of the equalisers', game, microphone or Bluetooth: presets, bands and saving.</summary>
     public static bool IsEqualiserKey(int key) => key is >= 0x1200 and < 0x1500;
 }
@@ -206,6 +210,7 @@ public static class HeadsetModels
         HearingOffAfterEqualiser = "SHH",
         HasLoudnessBoost = true,
         LightReadFromTransmitter = 0x430,
+        ReadsMonitoringBack = true,
     };
 
     public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];

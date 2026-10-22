@@ -235,13 +235,14 @@ Its questions and answers are in SP2Tools' `knowledge/iceman-neap-asks.md`.
   headset reads low, and that switch sets the mute at power-on. It is
   probably the boom's; no key reports the boom, and which position reads low
   is not known (F120).
-- **Noise gate:** `0x700` and `0x710`. The Atlas Air reports them when they
-  change, but not in the read Neap makes at start, where Neap asks for them
-  under the Stealth Pro II's group `SAF`. Swarm II's settings file puts them
-  in a group `NG` of their own, as it does Superhuman Hearing in `SHH` and
-  voice prompts in `Prm`, both of which answer Neap under those names
-  *(measured, in testers' recordings; the group from Swarm II's file, not from
-  the firmware)*.
+- **Noise gate:** `0x700` and `0x710`, which the headset serves as a group
+  `NG` of their own: the firmware's read request names 25 groups, among them
+  `Mic` for `0x600` to `0x630`, `NG` for `0x700` to `0x710` and `SHH`, `Prm`
+  and `Swm`, with no `SAF` (SP2Tools batch C2, the notes behind F121). That
+  is why the Atlas Air reports the noise gate when it changes but not in the
+  read Neap makes at start, which asked the Stealth Pro II's `SAF`
+  *(measured, in testers' recordings)*. Swarm II's settings file groups it as
+  `NG` too.
 - **Sensitivity:** `0x610` is a gain in the headset, which the transmitter
   sets from the PC's microphone level (F120).
 - **Voice prompts:** `0xC00` has 16 steps, -58.5 dB to -15.5 dB; above 15 is

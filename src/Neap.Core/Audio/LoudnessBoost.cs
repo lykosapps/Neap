@@ -1,6 +1,3 @@
-using System.Buffers.Binary;
-using Neap.Core.Protocol;
-
 namespace Neap.Core.Audio;
 
 /// <summary>
@@ -16,17 +13,15 @@ namespace Neap.Core.Audio;
 /// power cycles.
 /// </para>
 /// <para>
-/// This is the one command Neap sends that is not a <c>set_kvp</c> write: it is
-/// a RACE command (id 0x000A) carrying a binary payload, and its reply arrives
-/// on the input report rather than as a settings notification. The single
-/// parameter it addresses is fixed here, so no other command can be sent — the
-/// guarantee the settings registry gives <c>set_kvp</c> writes.
+/// It is not a <c>set_kvp</c> write but RACE command 0x000A, whose reply
+/// arrives on the input report rather than as a settings notification; see
+/// <see cref="DspParameter"/>. This is the one parameter Neap ever sets with it.
 /// </para>
 /// </remarks>
 public static class LoudnessBoost
 {
     /// <summary>The RACE command id that reads and sets the level.</summary>
-    public const ushort CommandId = 0x000A;
+    public const ushort CommandId = DspParameter.CommandId;
 
     /// <summary>The parameter the command addresses: NVKey 0x5008, the playback input level.</summary>
     internal const uint InputLevelParam = 0x00040000;
@@ -52,29 +47,19 @@ public static class LoudnessBoost
     /// <summary>The step the boost controls take, in decibels.</summary>
     public const float StepDb = 3f;
 
-    private const ushort OpSet = 0;
-    private const ushort OpRead = 1;
-
     /// <summary>A frame that reads the current level.</summary>
-    public static byte[] ReadFrame(bool relayThroughBase) =>
-        Frames.Command(CommandId, Payload(OpRead, 0f), relayThroughBase);
+    public static byte[] ReadFrame(bool relayThroughBase) => DspParameter.ReadFrame(InputLevelParam, relayThroughBase);
 
     /// <summary>A frame that sets the level, held to the firmware's range.</summary>
     public static byte[] SetFrame(float db, bool relayThroughBase) =>
-        Frames.Command(CommandId, Payload(OpSet, ClampLevel(db)), relayThroughBase);
+        DspParameter.SetFrame(InputLevelParam, ClampLevel(db), relayThroughBase);
 
     /// <summary>
     /// The level in a reply to <see cref="ReadFrame"/>, or null when the report
     /// is not a valid reply for this command and parameter.
     /// </summary>
-    public static float? LevelInReply(ReadOnlySpan<byte> report)
-    {
-        var payload = Frames.CommandReply(report, CommandId);
-        if (payload.Length != 8) return null;
-        if (BinaryPrimitives.ReadUInt32BigEndian(payload) != InputLevelParam) return null;
-        float db = BinaryPrimitives.ReadSingleBigEndian(payload[4..]);
-        return float.IsFinite(db) && db >= MinDb && db <= MaxDb ? db : null;
-    }
+    public static float? LevelInReply(ReadOnlySpan<byte> report) =>
+        DspParameter.LevelInReply(report, InputLevelParam) is float db && db >= MinDb && db <= MaxDb ? db : null;
 
     /// <summary>A level held to the firmware's range.</summary>
     public static float ClampLevel(float db) => Math.Clamp(db, MinDb, MaxDb);
@@ -84,15 +69,6 @@ public static class LoudnessBoost
 
     /// <summary>How far a level sits above stock, in decibels.</summary>
     public static float BoostOf(float db) => db - StockDb;
-
-    private static byte[] Payload(ushort op, float db)
-    {
-        var payload = new byte[10];
-        BinaryPrimitives.WriteUInt16BigEndian(payload, op);
-        BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(2), InputLevelParam);
-        BinaryPrimitives.WriteSingleBigEndian(payload.AsSpan(6), db);
-        return payload;
-    }
 }
 
 /// <summary>The headset's loudness level as the app holds it between reads.</summary>

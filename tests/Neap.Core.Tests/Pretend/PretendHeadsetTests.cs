@@ -228,6 +228,13 @@ public class PretendHeadsetTests
     }
 
     [Fact]
+    public void AnAtlasAirGivesTheGainItStoresForMonitoring()
+    {
+        using var client = HeadsetClient.Behind(allowWrites: _ => false, out _, devices: new PretendHeadset(atlas: true));
+        Assert.Equal(Core.Audio.Sidetone.GainFor(20), client!.ReadSidetone(TimeSpan.FromSeconds(1)));
+    }
+
+    [Fact]
     public void AnAtlasAirGivesItsLoudnessLevel()
     {
         using var client = HeadsetClient.Behind(allowWrites: _ => false, out _, devices: new PretendHeadset(atlas: true));

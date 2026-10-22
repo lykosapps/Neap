@@ -396,6 +396,10 @@ public sealed class HeadsetClient : IDisposable
         _lastSet = Stopwatch.GetTimestamp();
     }
 
+    /// <summary>Reads the gain the headset stores for mic monitoring, or null when it gives none; see <see cref="Sidetone"/>.</summary>
+    public float? ReadSidetone(TimeSpan wait) =>
+        Exchange(Sidetone.ReadFrame(RelayThroughBase), report => Sidetone.GainInReply(report), wait);
+
     /// <summary>Reads the transmitter's light level as the transmitter gives it, or null when it gives none; see <see cref="TransmitterLight"/>.</summary>
     public int? ReadTransmitterLight(TimeSpan wait) =>
         Exchange(TransmitterLight.ReadFrame, report => TransmitterLight.LevelInReply(report), wait);

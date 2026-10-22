@@ -51,7 +51,7 @@ is in 0.2.1.7 for the testers to confirm.
 | Sensitivity | Listed | Yes | Has | Confirmed | Blocked | Done on the PC; the transmitter copies the PC's level into `0x610` (F120, Read) | The tester says it works (0.2.1.5). |
 | Monitoring, on/off | Listed | Yes, at `0x620` (F120, Read) | Hidden | Untried | Blocked | `0x620`, 1 off, 0 on | The level at 0 is off, so no switch is offered. |
 | Monitoring, level | Listed | Yes | Has, test | Seen | Blocked | `0x630`, 0–100: −30 dB to 0 dB, 0 off, 20 as shipped (F120, Read) | The tester hears it only when speaking loudly, at a level not known. Ask him to try 100%, and whether Swarm II at its most is louder; see Problems. |
-| Noise gate, on/off | Listed | Yes | Has | Confirmed | Blocked | `0x700` | Reported when it changes, but not in the read at start, asked under the Stealth Pro II's group `SAF`. 0.2.1.7 also asks group `NG`, where Swarm II's settings file puts it; the recording shows whether it answers. |
+| Noise gate, on/off | Listed | Yes | Has | Confirmed | Blocked | `0x700` | Reported when it changes, but not in the read at start, which asked the Stealth Pro II's group `SAF`. The firmware serves it as group `NG` (SP2Tools batch C2, Read), which 0.2.1.7 asks; the recording shows whether it answers. |
 | Noise gate, level | Listed | Yes | Has | Confirmed | Blocked | `0x710` | Heard clear at 0%, cut at 50%, almost muted at 100%. As the on/off for reading it. |
 | High Bandwidth Microphone | Listed | Yes, through the PC's sound format | Has | Seen | Missing | The PC's sound format: the transmitter offers 16 and 48 kHz | As High Bandwidth Audio. |
 
@@ -114,20 +114,22 @@ From the quick start guide. Neap describes them; it doesn't set them.
 | Linux: the transmitter stops answering | 0.2.1.2 | Open; 0.2.1.7 keeps it awake (F115) | Ask the Linux tester. |
 | Linux: Neap's restart switches the headset off | 0.2.1.5 | It happened on every start of Neap. 0.2.1.7 restarts only a transmitter that gives no answer at all, not one that says no headset is linked. Not the transmitter's doing (F118); probably the headset reacting to the link going. | Ask the Linux tester whether it still happens. |
 | Linux: the restart's log said the transmitter answered when it hadn't | 0.2.1.5 | Fixed for 0.2.1.7: a report with a length of 0 is empty, whatever is left in it | — |
-| Mic monitoring too quiet | 0.2.1.6 | Open: the level the tester used is not known | Ask him to try 100%. If that is too quiet, the firmware tops out at 0 dB. The stage allows up to +12 dB through the loudness boost's command, which is not proven and would be a change of its own. |
+| Mic monitoring too quiet: heard only when speaking very loudly | 0.2.1.6 | Open. Three causes, most likely first: the noise gate left on, which lets only loud speech through and which Neap could not show; the level not taking, as the headset may have nowhere to keep it (F120); or the level low, or 0 dB at 100% too quiet. 0.2.1.7 shows the noise gate and logs the gain the headset stores at connect and after each change. | Ask him to turn the noise gate off, set monitoring to 100%, speak normally and record. A gain above 0 dB would be a change of its own, not proven. |
 | Mic monitoring goes on while muted | 0.2.1.6 | Fixed for 0.2.1.7: Neap mutes in the system, which the headset never hears of, so it now turns monitoring down too, as the headset's own mute does (F120) | Ask the tester. |
 | Master volume shakes on big dial turns | 0.2.1.2 | Rare; explained by F120 | Left. |
 | Transmitter light has no reading at start | 0.2.1.5 | Fixed for 0.2.1.7: read from the transmitter itself (F116) | Ask the tester. |
 | Superhuman Hearing shows on after the equaliser has turned it off | 0.2.1.6 | Fixed for 0.2.1.7 (F122) | Ask the tester to change a preset with it on. |
 | Master volume's mute button is highlighted when muted | 0.2.1.2 | By design: the mute button is on while muted | — |
-| Noise gate shows no reading at start | 0.2.1.2 | Open: not in the read at start, under `SAF` | 0.2.1.7 asks group `NG` as well. |
+| Noise gate shows no reading at start | 0.2.1.2 | Fixed for 0.2.1.7, not yet seen: the firmware serves it as group `NG`, which Neap now asks (SP2Tools batch C2) | Check the recording. |
 | Neap marked Superhuman Hearing and voice prompts as unread, so profiles left them out | — | Fixed for 0.2.1.7: the headset reports both, seen in the recordings since 0.2.1.3 | — |
 
 ## Next
 
 - [ ] Publish test build 0.2.1.7 and ask both testers for one recording each.
-- [ ] Windows tester: monitoring at 100% against Swarm II at its most; the
-      loudness boost; the light at start; which boom position mutes.
+- [ ] Windows tester: with the noise gate off, monitoring at 100% while
+      speaking normally, recorded; the loudness boost; the light at start; which
+      boom position mutes; and the checks never answered (equalisers, a custom
+      preset, auto shut-off, the volume's mute, profiles with different mixes).
 - [ ] Linux tester: allow access again when Neap asks, then record a start
       of Neap with the headset on.
 - [ ] Ask the Windows tester to check the equalisers, a custom preset and

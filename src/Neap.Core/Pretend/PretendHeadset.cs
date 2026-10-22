@@ -412,25 +412,30 @@ public sealed class PretendHeadset : IDeviceSource
         && frame[3] == Frames.RaceStart && frame[4] == Frames.RaceCommand
         && (frame[7] | (frame[8] << 8)) == LoudnessBoost.CommandId;
 
-    /// <summary>Answers or applies the loudness command: a read is replied to and a set is stored, as SP2Tools found on both headsets (F114).</summary>
+    /// <summary>Answers or applies RACE command 0x000A: the loudness level is read and set, as SP2Tools found on both headsets (F114), and the Atlas Air's monitoring gain is read (F120).</summary>
     private void Loudness(byte[] frame)
     {
         if (frame.Length < 19) return;              // the id, then op(2), parameter(4) and value(4)
         ushort op = BinaryPrimitives.ReadUInt16BigEndian(frame.AsSpan(9, 2));
         uint param = BinaryPrimitives.ReadUInt32BigEndian(frame.AsSpan(11, 4));
         float value = BinaryPrimitives.ReadSingleBigEndian(frame.AsSpan(15, 4));
-        if (param != LoudnessBoost.InputLevelParam || !_on) return;
+        if (!_on) return;
+
+        // The Atlas Air's stored monitoring gain is only ever read, as its firmware has it (F120).
+        if (param == Sidetone.GainParam && _atlas && op != SetOp)
+            ReplyLevel(param, Sidetone.GainFor(int.Parse(_values[0x630], CultureInfo.InvariantCulture)));
+        if (param != LoudnessBoost.InputLevelParam) return;
 
         if (op == SetOp) _loudnessDb = LoudnessBoost.ClampLevel(value);
-        else ReplyLoudness();
+        else ReplyLevel(param, _loudnessDb);
     }
 
-    /// <summary>Queues the reply to a loudness read: the parameter, then the current level.</summary>
-    private void ReplyLoudness()
+    /// <summary>Queues the reply to a read of the command: the parameter, then its level.</summary>
+    private void ReplyLevel(uint param, float db)
     {
         var payload = new byte[8];
-        BinaryPrimitives.WriteUInt32BigEndian(payload, LoudnessBoost.InputLevelParam);
-        BinaryPrimitives.WriteSingleBigEndian(payload.AsSpan(4), _loudnessDb);
+        BinaryPrimitives.WriteUInt32BigEndian(payload, param);
+        BinaryPrimitives.WriteSingleBigEndian(payload.AsSpan(4), db);
 
         int inner = 2 + payload.Length;
         var message = new byte[4 + inner];

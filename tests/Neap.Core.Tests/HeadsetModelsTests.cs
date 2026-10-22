@@ -195,6 +195,13 @@ public class HeadsetModelsTests
         Assert.Equal(equaliser, HeadsetModel.IsEqualiserKey(key));
 
     [Fact]
+    public void OnlyTheAtlasAirsMonitoringIsReadBack()
+    {
+        Assert.True(HeadsetModels.AtlasAir.ReadsMonitoringBack);
+        Assert.False(HeadsetModels.StealthProII.ReadsMonitoringBack);
+    }
+
+    [Fact]
     public void OnlyTheAtlasAirsLightIsReadFromItsTransmitter()
     {
         Assert.Equal(0x430, HeadsetModels.AtlasAir.LightReadFromTransmitter);
