@@ -100,6 +100,12 @@ preparing code for experienced reviewers.
   shares (startup, navigation, themes, `Ui.ps1` and `run.ps1`) needs `all`.
   A release needs `all`, `access`, `tools/pretend.ps1` and the checks on the
   headset. Run a check of a minute or more in the background.
+  `tools/pretend.ps1` takes about three minutes and comes to the front, as
+  UI Automation's select, toggle, set value and expand all bring the window
+  forward, so it runs while nobody is at the PC. It is known to trip on
+  timing in a different place most runs, where it looks for a control once
+  rather than waiting for it; read each failure before calling it a bug, and
+  rerun.
 - **Sample, do not snapshot.** One reading after the fact shows where a value
   settled, not whether it moved.
 - **Read the app's folder from outside Claude.** The desktop app runs
