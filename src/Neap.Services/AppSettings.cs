@@ -102,6 +102,10 @@ public sealed class AppSettings
     /// </remarks>
     [JsonPropertyName("mic_muted_by_headset")] public bool MicMutedByHeadset { get; set; }
 
+    /// <summary>The mic monitoring level before the person last muted from the app, to put back on unmuting, or null if none is kept.</summary>
+    /// <remarks>Kept across restarts, so a mute left on when Neap closed is still undone; see <see cref="Core.Settings.MonitoringWhileMuted"/>.</remarks>
+    [JsonPropertyName("monitoring_before_mute")] public int? MonitoringBeforeMute { get; set; }
+
     /// <summary>Whether a click on the tray icon opens the mini panel rather than the window.</summary>
     /// <remarks>
     /// On by default: the panel is the quick way to the settings changed

@@ -342,6 +342,8 @@ public sealed class PretendHeadset : IDeviceSource
             _sent.Add(frame);
             if (IsLoudnessCommand(frame))
                 Loudness(frame);
+            else if (_atlas && IsLightRead(frame))
+                ReplyLight();
             else if (Unwrap(frame, out string? verb, out string? argument) is string wrong)
                 Refuse(frame, wrong);
             else if (argument is null)
@@ -410,18 +412,14 @@ public sealed class PretendHeadset : IDeviceSource
         && frame[3] == Frames.RaceStart && frame[4] == Frames.RaceCommand
         && (frame[7] | (frame[8] << 8)) == LoudnessBoost.CommandId;
 
-    /// <summary>
-    /// Answers or applies the loudness command. The Stealth Pro II replies to a
-    /// read and stores a set; the Atlas Air gives no answer, so the feature
-    /// hides on it.
-    /// </summary>
+    /// <summary>Answers or applies the loudness command: a read is replied to and a set is stored, as SP2Tools found on both headsets (F114).</summary>
     private void Loudness(byte[] frame)
     {
         if (frame.Length < 19) return;              // the id, then op(2), parameter(4) and value(4)
         ushort op = BinaryPrimitives.ReadUInt16BigEndian(frame.AsSpan(9, 2));
         uint param = BinaryPrimitives.ReadUInt32BigEndian(frame.AsSpan(11, 4));
         float value = BinaryPrimitives.ReadSingleBigEndian(frame.AsSpan(15, 4));
-        if (param != LoudnessBoost.InputLevelParam || !_on || _atlas) return;
+        if (param != LoudnessBoost.InputLevelParam || !_on) return;
 
         if (op == SetOp) _loudnessDb = LoudnessBoost.ClampLevel(value);
         else ReplyLoudness();
@@ -443,6 +441,20 @@ public sealed class PretendHeadset : IDeviceSource
         message[4] = (byte)(LoudnessBoost.CommandId & 0xFF);
         message[5] = (byte)(LoudnessBoost.CommandId >> 8);
         payload.CopyTo(message, 6);
+        Fragment(message);
+    }
+
+    // -- the transmitter's light (a RACE command the transmitter answers) -----
+
+    /// <summary>Whether a frame is the read of the transmitter's light level; see <see cref="TransmitterLight"/>.</summary>
+    private static bool IsLightRead(byte[] frame) => frame.AsSpan().StartsWith(TransmitterLight.ReadFrame);
+
+    /// <summary>Queues the transmitter's answer to a light read: the level it shows, as a little-endian number.</summary>
+    /// <remarks>The transmitter answers itself, so it does whether or not the headset is on.</remarks>
+    private void ReplyLight()
+    {
+        int level = int.Parse(_values[0x430], CultureInfo.InvariantCulture);
+        var message = new byte[] { Frames.RaceStart, Frames.RaceReply, 6, 0, 0x06, 0x00, (byte)level, 0, 0, 0 };
         Fragment(message);
     }
 

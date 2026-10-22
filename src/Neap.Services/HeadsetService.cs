@@ -82,6 +82,9 @@ public sealed class HeadsetService : IDisposable
 
     private static readonly string[] Watched = ["SAF", "Mic"];
 
+    /// <summary>A group to read at the next watch, ahead of <see cref="Watched"/>: one a write changed without the headset saying so; see <see cref="HeadsetModel.HearingOffAfterEqualiser"/>.</summary>
+    private string? _readNext;
+
     /// <summary>Closest together two requests to the headset are sent; it drops one sent straight after another.</summary>
     private static readonly TimeSpan AskGap = TimeSpan.FromMilliseconds(300);
 
@@ -400,6 +403,7 @@ public sealed class HeadsetService : IDisposable
             }
             client.Set(OnTheWire(key), latest, HeadsetModels.CheckedAs(Model, key));
             _lastWrite[key] = Stopwatch.GetTimestamp();
+            if (Model?.HearingOffAfterEqualiser is { } hearing && HeadsetModel.IsEqualiserKey(key)) _readNext = hearing;
             return true;
         });
 
@@ -519,6 +523,25 @@ public sealed class HeadsetService : IDisposable
     /// <summary>1 while a loudness change is waiting to be sent.</summary>
     private int _loudnessQueued;
 
+    /// <summary>Reads the transmitter's light level on connect, on a headset that never answers for it; see <see cref="HeadsetModel.LightReadFromTransmitter"/>.</summary>
+    /// <remarks>Filed as the headset's own key for the light, so it shows where a reported level would, and is said in the log when it gives none.</remarks>
+    private void ProbeLight(HeadsetClient client)
+    {
+        if (Model?.LightReadFromTransmitter is not { } key) return;
+        int? level;
+        try { level = client.ReadTransmitterLight(TimeSpan.FromMilliseconds(500)); }
+        catch (Exception) { level = null; }
+        if (level is null)
+        {
+            AppLog.Write("headset: the transmitter gave no light level when asked");
+            return;
+        }
+        Merge(new Dictionary<string, JsonElement>
+        {
+            [Hex(key)] = JsonSerializer.SerializeToElement(level.Value.ToString(CultureInfo.InvariantCulture)),
+        }, authoritative: true);
+    }
+
     /// <summary>Reads the loudness level on connect and files it, hiding the feature when the headset does not answer.</summary>
     /// <remarks>Only a headset whose model has the boost is asked; any other is not sent the command at all.</remarks>
     private void ProbeLoudness(HeadsetClient client)
@@ -617,6 +640,7 @@ public sealed class HeadsetService : IDisposable
                     beats = 0;
                     nextBeat = Stopwatch.GetTimestamp() + BeatTicks;
                     ProbeLoudness(client);
+                    ProbeLight(client);
                     var held = Carrying(client);
                     carrying = held?.Name ?? adapter;
                     product = held?.Product ?? client.ProductId.ToString("X4", CultureInfo.InvariantCulture);
@@ -733,7 +757,9 @@ public sealed class HeadsetService : IDisposable
                 if (primed && client is not null && asking >= nextWatch
                     && asking - lastAsk >= AskGap.TotalSeconds * Stopwatch.Frequency)
                 {
-                    var seen = client.ReadCategory(Watched[watches++ % Watched.Length], BeatWindow);
+                    // A group a write has changed without the headset saying so goes first.
+                    string group = Interlocked.Exchange(ref _readNext, null) ?? Watched[watches++ % Watched.Length];
+                    var seen = client.ReadCategory(group, BeatWindow);
                     lastAsk = Stopwatch.GetTimestamp();
                     nextWatch = lastAsk + (long)(WatchEvery.TotalSeconds * Stopwatch.Frequency);
                     if (seen.Count > 0) Merge(seen, authoritative: false);

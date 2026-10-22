@@ -58,13 +58,28 @@ public sealed record HeadsetModel(
 
     /// <summary>Whether it has the loudness boost; see <see cref="Audio.LoudnessBoost"/>.</summary>
     /// <remarks>
-    /// The boost writes a level the headset keeps, by a command confirmed only on
-    /// the Stealth Pro II, so no other headset is sent it, even to ask.
+    /// The boost writes a level the headset keeps, so a headset is sent it,
+    /// even to ask, only where the command is known: confirmed on the Stealth
+    /// Pro II, and read from the Atlas Air's firmware (SP2Tools F114: the same
+    /// command, parameter and stock level), for its testers to confirm by ear.
     /// </remarks>
     public bool HasLoudnessBoost { get; init; }
 
     /// <summary>Whether the name its owner gave it is shown above its status, rather than <see cref="Name"/>.</summary>
     public bool ShowsGivenName { get; init; } = true;
+
+    /// <summary>Whether its mic monitoring is turned down while the app has the microphone muted; see <see cref="Settings.MonitoringWhileMuted"/>.</summary>
+    public bool QuietsMonitoringWhileMuted { get; init; }
+
+    /// <summary>The group its Superhuman Hearing is in, where a change to the equaliser turns Superhuman Hearing off without saying so, or null.</summary>
+    /// <remarks>The Atlas Air does this (SP2Tools F122), so the group is read again after every equaliser write.</remarks>
+    public string? HearingOffAfterEqualiser { get; init; }
+
+    /// <summary>The key on the headset its transmitter's light level is kept at, where only the transmitter gives a reading, or null; see <see cref="Hid.TransmitterLight"/>.</summary>
+    public int? LightReadFromTransmitter { get; init; }
+
+    /// <summary>Whether a key is one of the equalisers', game, microphone or Bluetooth: presets, bands and saving.</summary>
+    public static bool IsEqualiserKey(int key) => key is >= 0x1200 and < 0x1500;
 }
 
 /// <summary>The headsets Neap knows.</summary>
@@ -184,6 +199,10 @@ public static class HeadsetModels
         },
         ExtraCategories = ["SHH", "Prm", "TX"],
         ShowsGivenName = false,
+        QuietsMonitoringWhileMuted = true,
+        HearingOffAfterEqualiser = "SHH",
+        HasLoudnessBoost = true,
+        LightReadFromTransmitter = 0x430,
     };
 
     public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];

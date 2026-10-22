@@ -396,6 +396,10 @@ public sealed class HeadsetClient : IDisposable
         _lastSet = Stopwatch.GetTimestamp();
     }
 
+    /// <summary>Reads the transmitter's light level as the transmitter gives it, or null when it gives none; see <see cref="TransmitterLight"/>.</summary>
+    public int? ReadTransmitterLight(TimeSpan wait) =>
+        Exchange(TransmitterLight.ReadFrame, report => TransmitterLight.LevelInReply(report), wait);
+
     /// <summary>
     /// Sends one request and watches the input report for a reply the matcher
     /// accepts, keeping any notification that arrives meanwhile.

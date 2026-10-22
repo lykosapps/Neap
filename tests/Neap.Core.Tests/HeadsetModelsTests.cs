@@ -173,8 +173,32 @@ public class HeadsetModelsTests
     }
 
     [Fact]
-    public void OnlyTheStealthProIIHasTheLoudnessBoost() =>
-        Assert.Equal(["Stealth Pro II"], HeadsetModels.All.Where(m => m.HasLoudnessBoost).Select(m => m.Name));
+    public void BothHeadsetsHaveTheLoudnessBoost() =>
+        Assert.Equal(["Stealth Pro II", "Atlas Air"], HeadsetModels.All.Where(m => m.HasLoudnessBoost).Select(m => m.Name));
+
+    [Fact]
+    public void OnlyTheAtlasAirTurnsHearingOffWithTheEqualiser()
+    {
+        Assert.Equal("SHH", HeadsetModels.AtlasAir.HearingOffAfterEqualiser);
+        Assert.Null(HeadsetModels.StealthProII.HearingOffAfterEqualiser);
+    }
+
+    [Theory]
+    [InlineData(0x1210, true)]
+    [InlineData(0x12B0, true)]
+    [InlineData(0x13C0, true)]
+    [InlineData(0x14C0, true)]
+    [InlineData(0x800, false)]
+    [InlineData(0x1600, false)]
+    public void TheEqualisersKeysAreTheirPresetsBandsAndSaving(int key, bool equaliser) =>
+        Assert.Equal(equaliser, HeadsetModel.IsEqualiserKey(key));
+
+    [Fact]
+    public void OnlyTheAtlasAirsLightIsReadFromItsTransmitter()
+    {
+        Assert.Equal(0x430, HeadsetModels.AtlasAir.LightReadFromTransmitter);
+        Assert.Null(HeadsetModels.StealthProII.LightReadFromTransmitter);
+    }
 
     public static IEnumerable<object[]> ModelNames =>
         HeadsetModels.All.Select(model => new object[] { model.Name });

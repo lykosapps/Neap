@@ -44,10 +44,31 @@ public sealed class MicFollowsHeadset : IDisposable
     }
 
     /// <summary>Mutes or unmutes the system's microphone for the person, which a lowered arm then leaves alone.</summary>
+    /// <remarks>
+    /// On a headset whose monitoring would otherwise go on through the mute,
+    /// monitoring is turned down with it and put back after; see
+    /// <see cref="MonitoringWhileMuted"/>.
+    /// </remarks>
     public static async Task SetByPerson(bool muted)
     {
         await SoundVolume.SetMuted(muted, Flow.Input);
         AppSettings.Update(settings => settings.MicMutedByHeadset = false);
+        QuietMonitoring(AppServices.Headset, muted);
+    }
+
+    private static void QuietMonitoring(HeadsetService headset, bool muted)
+    {
+        if (headset.Model is not { QuietsMonitoringWhileMuted: true }) return;
+        int key = Registry.ByName["mic_monitoring"].Key;
+        int? now = headset.TryGetNumberByKey(key, out int level) ? level : null;
+        int? before = AppSettings.Current.MonitoringBeforeMute;
+        if (MonitoringWhileMuted.LevelFor(muted, now, before) is { } set)
+        {
+            AppLog.Write($"microphone: mic monitoring {(muted ? $"down from {now} while muted" : $"back to {set}")}, as the headset's own mute does");
+            headset.SetKey(key, set, hold: false);
+        }
+        if (muted) AppSettings.Update(settings => settings.MonitoringBeforeMute = MonitoringWhileMuted.KeptFor(now) ?? settings.MonitoringBeforeMute);
+        else AppSettings.Update(settings => settings.MonitoringBeforeMute = null);
     }
 
     public void Dispose() => _headset.Changed -= OnChanged;

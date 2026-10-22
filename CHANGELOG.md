@@ -13,6 +13,9 @@ and date.
 
 ### Added
 
+- On the Atlas Air, the loudness boost, as on the Stealth Pro II. It is new
+  on this headset and still being checked.
+
 - The mini panel has spatial sound: Off, Windows Sonic or Dolby Atmos,
   whichever the system offers. It is left out where the system has none, and
   folds away with the headset's settings when the headset is away.
@@ -176,6 +179,13 @@ and date.
   with the same password prompt.
 - On Linux, a transmitter that answers but has no headset linked to it is no
   longer restarted. The restart switched the headset off as it came back.
+- On the Atlas Air, muting the microphone from Neap also turns mic monitoring
+  down, as the headset's own mute does, and puts it back when you unmute.
+  Before, you went on hearing yourself while muted.
+- On the Atlas Air, the transmitter light shows its level as soon as Neap
+  connects.
+- On the Atlas Air, Superhuman Hearing shows as off when a change to the
+  equaliser turns it off.
 - Choosing which apps carry chat now opens in a dropdown over the page,
   instead of an in-card list that grew and shrank. The card keeps one height,
   so the game and chat dial and the settings below it no longer jump as you
