@@ -268,13 +268,14 @@ public class HeadsetClientTests
     {
         using var client = new HeadsetClient(transport: new Repeating("{\"UP\":\"BT\",\"KVP\":{\"310\":\"-56\"}}"));
 
-        Assert.Null(client.ReadInputs(TimeSpan.FromMilliseconds(200)));
+        Assert.Null(client.ReadInputs(TimeSpan.FromMilliseconds(500)));
 
         var kept = Assert.Single(client.ReadOnce());
         Assert.Equal("-56", kept.Values["310"].GetString());
     }
 
-    /// <summary>A transmitter that answers the reads after a request with the same notification, twenty times, as an Atlas Air's did while a request waited.</summary>
+    /// <summary>A transmitter that answers the reads after a request with the same notification, five times, as an Atlas Air's did while a request waited.</summary>
+    /// <remarks>Few enough to be read within the wait however coarse the machine's sleeps: about 15 ms each on some Windows machines.</remarks>
     private sealed class Repeating(string json) : Core.Hid.IHidTransport
     {
         private readonly byte[] _report = Report(Encoding.ASCII.GetBytes(json));
@@ -284,7 +285,7 @@ public class HeadsetClientTests
 
         public string Describe() => "repeating";
 
-        public void SendOutput(ReadOnlySpan<byte> report) => _left = 20;
+        public void SendOutput(ReadOnlySpan<byte> report) => _left = 5;
 
         public byte[] GetInput(byte reportId = Core.Hid.HidControl.InReportId) =>
             _left-- > 0 ? (byte[])_report.Clone() : new byte[_report.Length];
