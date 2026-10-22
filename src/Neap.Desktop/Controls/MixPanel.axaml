@@ -6,67 +6,35 @@
     xmlns:loc="using:Neap.Desktop.Localization">
 
     <!--
-        The dial on the left and the card's own column beside it: its name, the
-        chat apps and the way to the keys. Arrange stacks them in a narrow card.
+        The dial on the left and the card's own column beside it: its name,
+        each side's level and meter, and the chat apps. Arrange stacks them in
+        a narrow card.
     -->
     <Grid x:Name="Layout" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
 
         <!--
-            The knob, with how loud each side plays on its cap. Disabled until
-            chat apps are chosen, so the card shows what it is for before the
-            question below is answered.
+            The knob, drawn smaller than its own size so the card is as tall as
+            the column beside it, with the way the mix leans on its cap.
+            Disabled until chat apps are chosen, so the card shows what it is
+            for before the question beside it is answered.
         -->
-        <Grid
+        <Viewbox
             x:Name="DialArea"
-            Margin="0,0,0,14"
+            Width="{StaticResource NeapDialShown}"
+            Height="{StaticResource NeapDialShown}"
             HorizontalAlignment="Center"
-            VerticalAlignment="Top"
+            VerticalAlignment="Center"
             Classes="mixdial">
-            <c:GameChatDial x:Name="Dial" loc:Uid.Value="Mix_Dial" />
-            <StackPanel
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                IsHitTestVisible="False"
-                Spacing="{StaticResource NeapSpaceHairline}">
+            <Grid>
+                <c:GameChatDial x:Name="Dial" loc:Uid.Value="Mix_Dial" />
                 <TextBlock
                     x:Name="LeanText"
                     HorizontalAlignment="Center"
-                    Classes="label" />
-                <StackPanel
-                    HorizontalAlignment="Center"
-                    Orientation="Horizontal"
-                    Spacing="{StaticResource NeapSpaceM}">
-                    <TextBlock
-                        x:Name="GameLevel"
-                        MinWidth="56"
-                        Classes="reading"
-                        Foreground="{DynamicResource NeapGameTextBrush}"
-                        TextAlignment="Right" />
-                    <TextBlock
-                        x:Name="ChatLevel"
-                        MinWidth="56"
-                        Classes="reading"
-                        Foreground="{DynamicResource NeapChatTextBrush}"
-                        TextAlignment="Left" />
-                </StackPanel>
-            </StackPanel>
-
-            <!-- Under each end of the ring: which side is which. -->
-            <TextBlock
-                loc:Uid.Value="Mix_Game"
-                Margin="28,0,0,-14"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Classes="label"
-                Foreground="{DynamicResource NeapGameTextBrush}" />
-            <TextBlock
-                loc:Uid.Value="Mix_Chat"
-                Margin="0,0,28,-14"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Classes="label"
-                Foreground="{DynamicResource NeapChatTextBrush}" />
-        </Grid>
+                    VerticalAlignment="Center"
+                    FontWeight="SemiBold"
+                    IsHitTestVisible="False" />
+            </Grid>
+        </Viewbox>
 
         <StackPanel
             x:Name="Side"
@@ -114,6 +82,40 @@
                 loc:Uid.Value="Mix_Setup"
                 Classes="secondary"
                 IsVisible="False" />
+
+            <!--
+                Each side's name, what it is playing just now and how loud the
+                mix lets it play. The number is the setting; the bars are the
+                sound, decoration that a screen reader skips.
+            -->
+            <Grid
+                x:Name="Levels"
+                ColumnDefinitions="Auto,*,Auto"
+                RowDefinitions="Auto,Auto"
+                ColumnSpacing="{StaticResource NeapSpaceM}"
+                RowSpacing="{StaticResource NeapSpaceS}">
+                <TextBlock loc:Uid.Value="Mix_Game" Foreground="{DynamicResource NeapGameTextBrush}" />
+                <c:LevelBars x:Name="GameBars" Grid.Column="1" Count="{StaticResource NeapMixBars}" VerticalAlignment="Center" />
+                <TextBlock
+                    x:Name="GameLevel"
+                    Grid.Column="2"
+                    MinWidth="32"
+                    FontFeatures="tnum"
+                    FontWeight="SemiBold"
+                    Foreground="{DynamicResource NeapGameTextBrush}"
+                    TextAlignment="Right" />
+                <TextBlock Grid.Row="1" loc:Uid.Value="Mix_Chat" Foreground="{DynamicResource NeapChatTextBrush}" />
+                <c:LevelBars x:Name="ChatBars" Grid.Row="1" Grid.Column="1" Count="{StaticResource NeapMixBars}" VerticalAlignment="Center" Classes="chat" />
+                <TextBlock
+                    x:Name="ChatLevel"
+                    Grid.Row="1"
+                    Grid.Column="2"
+                    MinWidth="32"
+                    FontFeatures="tnum"
+                    FontWeight="SemiBold"
+                    Foreground="{DynamicResource NeapChatTextBrush}"
+                    TextAlignment="Right" />
+            </Grid>
 
             <!--
                 Which applications carry chat: the only thing the mix needs to

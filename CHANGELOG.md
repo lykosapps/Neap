@@ -22,11 +22,11 @@ and date.
 - A switch on the Settings page turns the mini panel on or off. It is on by
   default; when it is off, a click on the icon by the clock opens the window,
   and "Mini panel" is left off the icon's menu.
-- The game and chat dial shows live levels: a thin arc inside the ring for each
-  side, growing from its own end as that side plays, so you can see chat
-  speaking and the game's sound as you set the mix. It reads each app's own
-  level, so it follows the mix. Windows only; it stops when the window is behind
-  or animation is off. When the headset's chat wheel moves the dial, the dial
+- The game and chat card shows live levels: a meter for each side beside the
+  dial, with the level the mix sets, so you can see chat speaking and the
+  game's sound as you set the mix. It reads each app's own level, so it follows
+  the mix. Windows only; it stops when the window is behind and is left out
+  when animation is off. When the headset's chat wheel moves the dial, the dial
   now glides to its place.
 - A click on Neap's icon by the clock opens a mini panel for mid-game: the
   game and chat mix, mute for the microphone, noise cancellation and the
@@ -75,6 +75,18 @@ and date.
 
 ### Changed
 
+- The game and chat card on Home is shorter: a smaller dial, with each side's
+  level and meter beside it and the choice of chat apps under them.
+- Home's cards and the Device page's transmitters are set out so no row ends
+  with one card stretched across it; the Atlas Air's four cards are two rows
+  of two.
+- The Atlas Air's voice prompts read as a percentage, like the levels beside
+  them, and the slider keeps one scale from the start.
+- Spatial sound and the loudness boost have icons of their own, instead of the
+  volume's speaker.
+- Home's headset card says "Through the USB Transmitter" rather than repeating
+  "Connected" from the top of the window, and the Audio page's link to the
+  equaliser takes the same arrow as every other link.
 - A microphone muted in Windows while the headset itself is live, as Neap's
   switch does with the boom microphone in, says "Muted on this PC", so
   nobody waits for the headset's tone or red ring. A tile in the mini panel

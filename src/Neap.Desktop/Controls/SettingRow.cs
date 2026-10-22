@@ -168,8 +168,11 @@ public sealed class SettingRow : SettingsCard
     private Control BuildSlider(SettingKey key)
     {
         _slider = NeapControls.Slider();
-        _slider.Minimum = double.IsNaN(Minimum) ? key.Minimum ?? 0 : Math.Max(Minimum, key.Minimum ?? 0);
-        _slider.Maximum = key.Maximum ?? 100;
+        // The headset in use may keep the setting elsewhere, with a range of its
+        // own; taking it now keeps the slider from changing scale on the first reading.
+        var own = HeadsetModels.OnHeadset(AppServices.Headset.Model, key);
+        _slider.Minimum = double.IsNaN(Minimum) ? own.Minimum ?? 0 : Math.Max(Minimum, own.Minimum ?? 0);
+        _slider.Maximum = own.Maximum ?? 100;
         // Whole steps, as the headset keeps them: on a short range such as
         // voice prompts' 0 to 15, a thumb left between steps is pulled back
         // to the step each time the value is painted, and shakes as it moves.
@@ -207,8 +210,8 @@ public sealed class SettingRow : SettingsCard
     private void ShowValue(int value)
     {
         if (_readout is not null)
-            _readout.Text = _link.Key is { } key && HeadsetModels.OnHeadset(AppServices.Headset.Model, key).IsPercent
-                ? Strings.Format("Level_Percent", value)
+            _readout.Text = _link.Key is { } key && HeadsetModels.OnHeadset(AppServices.Headset.Model, key) is { IsPercent: true } own
+                ? Strings.Format("Level_Percent", own.PercentOf(value))
                 : value.ToString(CultureInfo.CurrentCulture);
     }
 

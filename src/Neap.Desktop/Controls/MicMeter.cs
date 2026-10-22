@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Neap.Core.Audio;
@@ -31,12 +30,11 @@ public sealed class MicMeter : UserControl
 
     private static readonly TimeSpan Reading = TimeSpan.FromMilliseconds(50);
 
-    private readonly List<Rectangle> _bars = new();
-    private readonly StackPanel _meter = new() { Orientation = Orientation.Horizontal };
+    /// <summary>A thin line under a name, not a monitor.</summary>
+    private readonly LevelBars _meter = new() { Count = BarCount, Width = BarCount * 8, HorizontalAlignment = HorizontalAlignment.Left };
     private readonly TextBlock _trouble = new() { IsVisible = false, Classes = { "caption", "secondary" } };
     private IDisposable? _timer;
     private IMicrophoneListener? _listener;
-    private int _shown = -1;
     private int _opening;
 
     public MicMeter() => Content = new StackPanel { Margin = new Thickness(0, Space.XS, 0, 0), Spacing = Space.XS, Children = { _meter, _trouble } };
@@ -44,7 +42,6 @@ public sealed class MicMeter : UserControl
     protected override async void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        BuildBars();
         WindowPresence.Changed += OnPresence;
         if (WindowPresence.InFront) await Open();
     }
@@ -55,28 +52,6 @@ public sealed class MicMeter : UserControl
         if (IsLoaded) return;
         WindowPresence.Changed -= OnPresence;
         Close();
-    }
-
-    /// <summary>Lays out the bars: a thin line under a name, not a monitor.</summary>
-    private void BuildBars()
-    {
-        _bars.Clear();
-        _meter.Children.Clear();
-        _meter.Spacing = Space.Hairline;
-        for (int i = 0; i < BarCount; i++)
-        {
-            var bar = new Rectangle
-            {
-                Width = 6,
-                Height = 6,
-                RadiusX = 1,
-                RadiusY = 1,
-            };
-            _bars.Add(bar);
-            _meter.Children.Add(bar);
-        }
-        _shown = -1;
-        Paint(0);
     }
 
     private async void OnPresence()
@@ -124,7 +99,7 @@ public sealed class MicMeter : UserControl
         _opening++;
         _timer?.Dispose();
         _timer = null;
-        Paint(0);
+        _meter.Paint(0);
         if (_listener is not { } listener) return;
         _listener = null;
         AppLog.Write("microphone meter: stopped listening");
@@ -134,7 +109,7 @@ public sealed class MicMeter : UserControl
     private void Read()
     {
         float? heard = Pretend.Windows?.MicrophonePeak ?? _listener?.Take();
-        if (heard is float peak) Paint(MicLevel.Fall(_shown, MicLevel.Lit(peak, BarCount)));
+        if (heard is float peak) _meter.Paint(MicLevel.Fall(_meter.Lit, MicLevel.Lit(peak, BarCount)));
     }
 
     private void Fail(string why)
@@ -149,17 +124,5 @@ public sealed class MicMeter : UserControl
         _trouble.Text = trouble ?? "";
         _trouble.IsVisible = trouble is not null;
         _meter.IsVisible = trouble is null;
-    }
-
-    /// <summary>Lights the first bars, restyling only those that changed.</summary>
-    private void Paint(int lit)
-    {
-        if (_bars.Count == 0 || lit == _shown) return;
-        for (int i = 0; i < _bars.Count; i++)
-        {
-            _bars[i].Classes.Set("lit", i < lit);
-            _bars[i].Classes.Set("unlit", i >= lit);
-        }
-        _shown = lit;
     }
 }

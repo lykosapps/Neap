@@ -119,7 +119,7 @@
                         </c:HeadsetSection>
                         <c:LoudnessBoostRow
                             loc:Uid.Value="Audio_LoudnessBoost"
-                            Icon="{StaticResource IconVolume}" />
+                            Icon="{StaticResource IconBoost}" />
                     </StackPanel>
                 </Border>
 

@@ -1066,7 +1066,7 @@
     <value>Turn it up slowly to protect your hearing.</value>
   </data>
   <data name="Equaliser_Open" xml:space="preserve">
-    <value>Open →</value>
+    <value>Open</value>
   </data>
   <data name="Equaliser_LinkNamed" xml:space="preserve">
     <value>{0} · {1}</value>
@@ -1120,10 +1120,10 @@
     <value>Equaliser settings</value>
   </data>
   <data name="Home_Through" xml:space="preserve">
-    <value>Connected through the {0}</value>
+    <value>Through the {0}</value>
   </data>
   <data name="Home_ThroughCable" xml:space="preserve">
-    <value>Connected with its USB-C cable</value>
+    <value>Through its USB-C cable</value>
   </data>
   <data name="Home_ThroughUnplugged" xml:space="preserve">
     <value>Set to the {0}, which isn't plugged in</value>

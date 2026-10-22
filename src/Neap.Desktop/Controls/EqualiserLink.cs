@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Interactivity;
 using Neap.Core.Connection;
 using Neap.Core.Presets;
@@ -36,8 +37,25 @@ public sealed class EqualiserLink : Button
     public EqualiserLink()
     {
         Classes.Add("rowlink");
-        var open = new TextBlock { Text = Strings.Get("Equaliser_Open"), VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
-        open.Bind(TextBlock.ForegroundProperty, open.GetResourceObservable("NeapAccentTextBrush"));
+        // Worded and drawn as every other link to a page: the accent, with the links' arrow after it.
+        var open = new StackPanel
+        {
+            Orientation = Avalonia.Layout.Orientation.Horizontal,
+            Spacing = Space.XS,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+            Children =
+            {
+                new TextBlock { Text = Strings.Get("Equaliser_Open"), VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center },
+                new PathIcon
+                {
+                    Width = (double)Application.Current!.FindResource("NeapIconRow")!,
+                    Height = (double)Application.Current!.FindResource("NeapIconRow")!,
+                    Data = (Avalonia.Media.Geometry)Application.Current!.FindResource("IconArrowUp")!,
+                    RenderTransform = new Avalonia.Media.RotateTransform(90),
+                },
+            },
+        };
+        open.Bind(TextElement.ForegroundProperty, open.GetResourceObservable("NeapAccentTextBrush"));
         var line = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
         Grid.SetColumn(open, 1);
         line.Children.Add(_name);

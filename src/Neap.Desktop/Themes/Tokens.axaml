@@ -275,7 +275,10 @@
     <x:Double x:Key="NeapDialFocusSize">196</x:Double>
     <x:Double x:Key="NeapDialSegmentWidth">8</x:Double>
     <x:Double x:Key="NeapDialPointerWidth">4</x:Double>
-    <x:Double x:Key="NeapDialLevelWidth">3</x:Double>
+    <!-- The dial as the mix card draws it, scaled down to the height of the column beside it. -->
+    <x:Double x:Key="NeapDialShown">168</x:Double>
+    <!-- How many bars each side's meter in the mix card has. -->
+    <x:Int32 x:Key="NeapMixBars">32</x:Int32>
     <!-- The curves' small shapes, and the icons in a row. -->
     <CornerRadius x:Key="NeapRadiusTag">4</CornerRadius>
     <CornerRadius x:Key="NeapRadiusPill">10</CornerRadius>

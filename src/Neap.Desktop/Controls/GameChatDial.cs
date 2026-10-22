@@ -33,10 +33,6 @@ namespace Neap.Desktop.Controls;
 /// of up to four.
 /// </para>
 /// <para>
-/// A thin ring just inside the segments carries the live levels
-/// (<see cref="ShowLevels"/>): the game side's arc grows from the game end
-/// and the chat side's from the chat end. They are decoration for the eye,
-/// hidden from screen readers, which have the dial's own name and value.
 /// A value that changes by itself, the chat wheel turning it, glides to its
 /// new place when animation is on; a hand on the dial is followed at once.
 /// </para>
@@ -54,9 +50,6 @@ public sealed class GameChatDial : RangeBase
 
     private const double PointerInner = 50, PointerOuter = 66;
 
-    /// <summary>The live level arcs' radius: in the gap between the knob and the segments.</summary>
-    private const double LevelRadius = 82;
-
     private static readonly TimeSpan Glide = TimeSpan.FromMilliseconds(160);
 
     /// <summary>Where the dial is drawn, which follows <see cref="RangeBase.Value"/> by a glide.</summary>
@@ -67,7 +60,6 @@ public sealed class GameChatDial : RangeBase
 
     private readonly Path[] _segments = new Path[MixDial.SegmentCount];
     private Path? _pointer;
-    private Path? _gameLevel, _chatLevel;
     private bool _placed;
 
     private enum Hold { None, Ring, Knob }
@@ -90,8 +82,6 @@ public sealed class GameChatDial : RangeBase
     {
         base.OnApplyTemplate(e);
         _pointer = e.NameScope.Find<Path>("Pointer");
-        _gameLevel = e.NameScope.Find<Path>("GameLevel");
-        _chatLevel = e.NameScope.Find<Path>("ChatLevel");
 
         if (e.NameScope.Find<Canvas>("Ring") is { } ring)
         {
@@ -128,26 +118,6 @@ public sealed class GameChatDial : RangeBase
     }
 
     private int Mix => (int)Math.Round(Shown);
-
-    /// <summary>
-    /// Shows how loud each side is playing, each from 0 to 1 of its half of
-    /// the ring. An empty side draws nothing.
-    /// </summary>
-    public void ShowLevels(float game, float chat)
-    {
-        Level(_gameLevel, MixDial.GameLevelArc(game));
-        Level(_chatLevel, MixDial.ChatLevelArc(chat));
-    }
-
-    private static void Level(Path? path, DialArc arc)
-    {
-        if (path is null) return;
-        path.IsVisible = arc.Length >= LevelLeast;
-        if (path.IsVisible) path.Data = Arc(arc, LevelRadius);
-    }
-
-    /// <summary>The shortest arc worth drawing, in degrees: shorter is a dot.</summary>
-    private const double LevelLeast = 2;
 
     /// <summary>Lights the segments and turns the pointer. Style classes carry the colours, so a theme change needs no redraw.</summary>
     private void Draw()

@@ -29,20 +29,8 @@
         for, and faded well below its working contrast, so it plainly cannot
         be turned yet.
     -->
-    <Style Selector="Grid.mixdial:disabled">
+    <Style Selector="Viewbox.mixdial:disabled">
         <Setter Property="Opacity" Value="0.35" />
-    </Style>
-
-    <!-- The live levels: thin arcs in each side's colour, just inside the segments. -->
-    <Style Selector="c|GameChatDial Path.level">
-        <Setter Property="StrokeThickness" Value="{StaticResource NeapDialLevelWidth}" />
-        <Setter Property="StrokeLineCap" Value="Round" />
-    </Style>
-    <Style Selector="c|GameChatDial Path#GameLevel">
-        <Setter Property="Stroke" Value="{DynamicResource NeapGameBrush}" />
-    </Style>
-    <Style Selector="c|GameChatDial Path#ChatLevel">
-        <Setter Property="Stroke" Value="{DynamicResource NeapChatBrush}" />
     </Style>
 
     <!-- The knob's pointer, in the colour of the side the mix leans to. -->
@@ -70,11 +58,6 @@
                              Stroke="{DynamicResource NeapAccentTextBrush}" StrokeThickness="2" />
                     <!-- The segments, placed by the code. -->
                     <Canvas x:Name="Ring" />
-                    <!-- Decoration for the eye; the dial's own name and value are its state. -->
-                    <Canvas AutomationProperties.AccessibilityView="Raw" IsHitTestVisible="False">
-                        <Path x:Name="GameLevel" Classes="level" IsVisible="False" />
-                        <Path x:Name="ChatLevel" Classes="level" IsVisible="False" />
-                    </Canvas>
                     <Ellipse Width="{StaticResource NeapDialKnobSize}" Height="{StaticResource NeapDialKnobSize}"
                              Fill="{DynamicResource NeapKnobBrush}"
                              Stroke="{DynamicResource NeapKnobEdgeBrush}" StrokeThickness="1" />

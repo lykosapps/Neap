@@ -44,12 +44,6 @@ public static class MixDial
     /// <summary>The chat arc, back from the chat end, as long as the chat side is loud.</summary>
     public static DialArc ChatArc(int mix) => new(ChatEnd - Sweep / 2 * MixLevels.ChatScale(mix), ChatEnd);
 
-    /// <summary>The game side's live level, from the game end, as long as that share of the game half.</summary>
-    public static DialArc GameLevelArc(float share) => new(GameEnd, GameEnd + Sweep / 2 * Math.Clamp(share, 0, 1));
-
-    /// <summary>The chat side's live level, back from the chat end, as long as that share of the chat half.</summary>
-    public static DialArc ChatLevelArc(float share) => new(ChatEnd - Sweep / 2 * Math.Clamp(share, 0, 1), ChatEnd);
-
     /// <summary>The mix for a point pressed or dragged on the dial.</summary>
     /// <remarks>
     /// A point in the gap below the dial goes to the nearer end, so dragging
@@ -63,8 +57,8 @@ public static class MixDial
 
     /// <summary>Whether a press at this point lands on the arc, between two distances from the centre.</summary>
     /// <remarks>
-    /// Only a press on the arc moves the mix. The face inside it carries the
-    /// levels, and the gap below it lies past both ends: a press there would
+    /// Only a press on the arc moves the mix. The face inside it is the knob,
+    /// and the gap below it lies past both ends: a press there would
     /// throw the mix to whichever end was nearer and silence the other side.
     /// Once a drag has started it may go anywhere; see <see cref="MixAt"/>.
     /// </remarks>

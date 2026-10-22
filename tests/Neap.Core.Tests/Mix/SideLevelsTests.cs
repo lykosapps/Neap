@@ -70,12 +70,12 @@ public class SideLevelsTests
     }
 
     [Fact]
-    public void TheLevelArcsGrowFromTheirOwnEnds()
+    public void AReadingLightsItsShareOfTheBars()
     {
-        Assert.Equal(new DialArc(-135, -135 + 135 * 0.5), MixDial.GameLevelArc(0.5f));
-        Assert.Equal(new DialArc(135 - 135 * 0.5, 135), MixDial.ChatLevelArc(0.5f));
-        Assert.Equal(0, MixDial.GameLevelArc(0).Length);
-        Assert.Equal(135, MixDial.ChatLevelArc(3).Length);
+        Assert.Equal(16, SideLevels.Lit(0.5f, 32));
+        Assert.Equal(0, SideLevels.Lit(0, 32));
+        Assert.Equal(32, SideLevels.Lit(3, 32));
+        Assert.Equal(0, SideLevels.Lit(-1, 32));
     }
 
     [Fact]

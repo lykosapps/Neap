@@ -49,7 +49,7 @@ public sealed record RoutingStory(string Title, string Message)
         bool mic = wrong.Any(w => !w.Output);
 
         // Not "the system is using the Charging Dock": on Home that sits right
-        // under "Connected through", and the two read as the same good news.
+        // under "Through the Charging Dock", and the two read as the same good news.
         string title = Strings.Format((outSound, calls, mic) switch
         {
             (true, false, false) => "Routing_TitleSound",

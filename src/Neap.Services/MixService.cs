@@ -220,7 +220,7 @@ public sealed class MixService : IDisposable
 
     private void OnLink(HeadsetStatus status) => _wheel.Link(status);
 
-    // -- the level arcs ----------------------------------------------------
+    // -- the meters --------------------------------------------------------
 
     private static bool _noLevels;
 
@@ -236,7 +236,7 @@ public sealed class MixService : IDisposable
         if (meter is null && !_noLevels)
         {
             _noLevels = true;
-            AppLog.Write("mix: this system has no meter on each application, so the dial shows no level arcs");
+            AppLog.Write("mix: this system has no meter on each application, so the mix shows no meters");
         }
         return meter;
     }

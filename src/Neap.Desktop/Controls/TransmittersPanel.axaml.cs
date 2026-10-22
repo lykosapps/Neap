@@ -106,6 +106,8 @@ public partial class TransmittersPanel : UserControl
             if (i % 2 == 0) Others.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
             Grid.SetRow(others[i], i / 2);
             Grid.SetColumn(others[i], i % 2);
+            // A last one on its own takes the whole row, so no row ends short.
+            Grid.SetColumnSpan(others[i], i == others.Count - 1 && i % 2 == 0 ? 2 : 1);
             Others.Children.Add(others[i]);
         }
         PaintBluetooth();
@@ -191,9 +193,10 @@ public partial class TransmittersPanel : UserControl
     {
         if (lights == LightSet.None) return null;
         var panel = new StackPanel { Spacing = Space.XS, Margin = new Thickness(0, Space.S, 0, 0) };
-        panel.Children.Add(new TextBlock { Text = Strings.Get("Device_LightsLabel"), Classes = { "label" } });
         if (lights == LightSet.Dock)
         {
+            // Two lights under one name; a single light's own row names it.
+            panel.Children.Add(new TextBlock { Text = Strings.Get("Device_LightsLabel"), Classes = { "label" } });
             panel.Children.Add(Light("led_brightness_1", "Device_DockStatusName", "Device_DockStatusNote"));
             panel.Children.Add(Light("led_brightness_2", "Device_DockRingName", "Device_DockRingNote"));
         }

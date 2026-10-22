@@ -56,9 +56,20 @@ public class SettingKeyTests
     [InlineData("mic_monitoring", true)]
     [InlineData("noise_gate_threshold", true)]
     [InlineData("voice_prompt_volume", true)]
+    [InlineData("atlas_voice_prompt_volume", true)]
+    [InlineData("eq_preset", false)]
     [InlineData("eq_band_3", false)]
     [InlineData("anc", false)]
     [InlineData("dial_function", false)]
     public void ALevelFromZeroToAHundredIsAPercentage(string name, bool percent) =>
         Assert.Equal(percent, Registry.Resolve(name).IsPercent);
+
+    [Fact]
+    public void ALevelOfFewStepsReadsAsAShareOfItsTop()
+    {
+        Assert.Equal(80, Registry.Resolve("atlas_voice_prompt_volume").PercentOf(12));
+        Assert.Equal(100, Registry.Resolve("atlas_voice_prompt_volume").PercentOf(15));
+        Assert.Equal(7, Registry.Resolve("atlas_voice_prompt_volume").PercentOf(1));
+        Assert.Equal(45, Registry.Resolve("voice_prompt_volume").PercentOf(45));
+    }
 }

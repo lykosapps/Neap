@@ -91,17 +91,22 @@ public partial class QuickSettings : UserControl
     /// them, two with less and one in a narrow window. The last tile takes the
     /// rest of its row, so no row ends short.
     /// </summary>
+    /// <remarks>
+    /// Wide, an odd number of tiles puts three in the first row and two in
+    /// each after it; an even number puts two in every row, so four tiles
+    /// are two rows of two rather than three and one stretched across.
+    /// </remarks>
     private void Arrange()
     {
         double width = Tiles.Bounds.Width;
-        bool wide = width >= ThreeAcross;
-        int across = wide ? 3 : width >= TwoAcross ? 2 : 1;
         var shown = Tiles.Children.Where(tile => tile.IsVisible).ToList();
+        bool wide = width >= ThreeAcross;
+        bool threeFirst = wide && shown.Count % 2 == 1;
+        int across = threeFirst ? 3 : width >= TwoAcross ? 2 : 1;
         int row = 0, used = 0;
         for (int i = 0; i < shown.Count; i++)
         {
-            // Wide, the first row holds three and the rest two.
-            int span = Columns / (wide && i >= 3 ? 2 : across);
+            int span = Columns / (threeFirst && i >= 3 ? 2 : across);
             if (used + span > Columns)
             {
                 row++;
