@@ -105,12 +105,14 @@ public partial class MainWindow : Window
     /// <summary>Puts the Firmware page in the menu when it is asked for in Settings, and takes it out when it is not.</summary>
     /// <remarks>
     /// Taken out of the list rather than hidden: the list's panel shows every
-    /// item it lays out, whatever the item says. A pretend run asked to open it
-    /// shows it either way, so a picture of it can be taken.
+    /// item it lays out, whatever the item says. Never shown in a release
+    /// without firmware edits (<see cref="Core.Firmware.FirmwareEdit.Released"/>),
+    /// except to a pretend run asked to open it, so a picture of it can be taken.
     /// </remarks>
     public void FirmwareSettingChanged()
     {
-        bool wanted = AppSettings.Current.ShowFirmwareEdits || Pretend.Page == "firmware";
+        bool wanted = (Core.Firmware.FirmwareEdit.Released && AppSettings.Current.ShowFirmwareEdits)
+            || (Pretend.Active && Pretend.Page == "firmware");
         bool listed = Places.Items.Contains(FirmwareNav);
         if (wanted && !listed) Places.Items.Add(FirmwareNav);
         else if (!wanted && listed) Places.Items.Remove(FirmwareNav);

@@ -34,6 +34,7 @@ public partial class SettingsPage : UserControl
         if (!TrayAvailability.Exists) StartCard.Description = Strings.Get("Settings_StartMinimised");
 
         MiniCard.IsVisible = TrayAvailability.Exists;
+        Advanced.IsVisible = Core.Firmware.FirmwareEdit.Released;
 
         _painting = true;
         MiniPanelSwitch.IsChecked = AppSettings.Current.MiniPanel;

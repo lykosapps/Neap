@@ -1,5 +1,18 @@
 # Decisions
 
+## 2026-10-22 — Firmware edits wait for a later release
+
+- **Options:** ship the Firmware page behind its Settings switch in the
+  next release; keep it out of the release altogether until Neap can write
+  a real headset.
+- **Chosen:** keep it out. `FirmwareEdit.Released` is off, so the page and
+  its switch are nowhere in the app, whatever the settings file says. Only
+  a pretend run asked to open the page shows it, against the pretend
+  headset.
+- **Why:** the owner's call: release the improvements made so far first,
+  and ship firmware editing once the writer is built into Neap.
+- **Revisit when:** Neap's own writer is proven on a real headset.
+
 ## 2026-10-22 — Firmware edits are ticked and applied as one plan
 
 - **Options:** an Install and a Remove button for each edit; the edits

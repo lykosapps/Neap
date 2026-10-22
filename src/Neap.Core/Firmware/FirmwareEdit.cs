@@ -122,6 +122,15 @@ public sealed record EditPlan(IReadOnlyList<FirmwareEdit> Changing, IReadOnlyLis
 /// <param name="Sectors">The sections of flash it touches, by address, in the order they are written to put it on.</param>
 public sealed record FirmwareEdit(string Id, HeadsetModel Model, string FirmwareBuild, int Bit, EditRisk Risk, IReadOnlyList<int> Sectors)
 {
+    /// <summary>Whether firmware edits are in this release of Neap at all.</summary>
+    /// <remarks>
+    /// Off until Neap has its own writer for a real headset. While it is off
+    /// the Firmware page and its switch in Settings are nowhere to be found,
+    /// whatever the settings file says; only a pretend run asked to open the
+    /// page shows it, against the pretend headset.
+    /// </remarks>
+    public const bool Released = false;
+
     /// <summary>The size of a section of flash, the least that is written at once.</summary>
     public const int SectorSize = 0x1000;
 
