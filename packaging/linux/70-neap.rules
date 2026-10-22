@@ -1,5 +1,6 @@
 # Lets the person signed in at this computer use Turtle Beach headsets' control channel,
 # which Neap needs to read and change the headset's settings, and reset a transmitter
-# that has stopped answering.
+# that has stopped answering. Keeps those devices awake, as a transmitter put to sleep
+# can stop answering until it is reset.
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="10f5", TAG+="uaccess"
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="10f5", TAG+="uaccess"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="10f5", TAG+="uaccess", ATTR{power/control}="on"

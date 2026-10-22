@@ -211,6 +211,29 @@ public sealed class HidrawTransport : IHidTransport
     [DllImport("libc", EntryPoint = "read", SetLastError = true)]
     private static extern nint Read(int descriptor, [Out] byte[] buffer, nint count);
 
+    // -- asking the transmitter itself --------------------------------------
+
+    /// <summary>Asks a transmitter, with <see cref="LinkInquiry"/>, whether the headset is linked to it.</summary>
+    /// <remarks>
+    /// The transmitter answers this itself, so an answer at all says its
+    /// control channel works, whatever the headset is doing.
+    /// </remarks>
+    /// <returns>Its answer, or null when it gave none in time.</returns>
+    /// <exception cref="AccessDeniedException">The system does not let this user open the device.</exception>
+    /// <exception cref="TransportException">The device could not be opened, written or read.</exception>
+    public static bool? AskLinked(HidDeviceInfo device, TimeSpan wait)
+    {
+        using var hid = new HidrawTransport(device);
+        hid.SendOutput(LinkInquiry.Frame);
+        long until = Environment.TickCount64 + (long)wait.TotalMilliseconds;
+        while (Environment.TickCount64 < until)
+        {
+            if (LinkInquiry.Linked(hid.GetInput()) is { } linked) return linked;
+            Thread.Sleep(4);
+        }
+        return null;
+    }
+
     // -- restarting ----------------------------------------------------------
 
     /// <summary>
@@ -235,7 +258,11 @@ public sealed class HidrawTransport : IHidTransport
     /// </remarks>
     /// <param name="device">The silent device, as listed.</param>
     /// <param name="listen">How long to go on reading after the reset.</param>
-    /// <returns>The reports with something in them that were read, in hex, report id first and trailing zeros left off.</returns>
+    /// <returns>
+    /// The reports that carried a frame, in hex, report id first and trailing
+    /// zeros left off. A report whose length byte is zero is empty, whatever is
+    /// left after it in the buffer from an earlier reply.
+    /// </returns>
     /// <exception cref="AccessDeniedException">The system does not let this user reset the device.</exception>
     /// <exception cref="TransportException">The device could not be found or reset.</exception>
     public static IReadOnlyList<string> Restart(HidDeviceInfo device, TimeSpan listen)
@@ -266,7 +293,7 @@ public sealed class HidrawTransport : IHidTransport
                 {
                     var report = hid.GetInput();
                     int end = report.AsSpan().LastIndexOfAnyExcept((byte)0) + 1;
-                    if (end > 1) heard.Add(Convert.ToHexString(report, 0, end));
+                    if (report.Length > 1 && report[1] > 0) heard.Add(Convert.ToHexString(report, 0, end));
                 }
                 catch (TransportException)
                 {

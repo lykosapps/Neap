@@ -43,4 +43,11 @@ public class SilentRestartsTests
 
         Assert.Equal(["/dev/hidraw1"], restarts.Due(["/dev/hidraw0", "/dev/hidraw1"], ["/dev/hidraw0", "/dev/hidraw1"]));
     }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    public void OnlyATransmitterThatSaysNoHeadsetIsLinkedIsLeftAlone(bool? linked, bool restart) =>
+        Assert.Equal(restart, SilentRestarts.Needed(linked));
 }

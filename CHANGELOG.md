@@ -170,6 +170,12 @@ and date.
 
 ### Fixed
 
+- On Linux, Neap's access rule keeps Turtle Beach transmitters from being put
+  to sleep to save power, which could leave one answering nothing until it
+  was restarted. If an older rule is installed, Neap offers the new one once,
+  with the same password prompt.
+- On Linux, a transmitter that answers but has no headset linked to it is no
+  longer restarted. The restart switched the headset off as it came back.
 - Choosing which apps carry chat now opens in a dropdown over the page,
   instead of an in-card list that grew and shrank. The card keeps one height,
   so the game and chat dial and the settings below it no longer jump as you

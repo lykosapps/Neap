@@ -965,20 +965,40 @@ public sealed class HeadsetService : IDisposable
 
     /// <summary>Restarts each silent transmitter that is due a restart, reading it as it comes back; see <see cref="SilentRestarts"/>.</summary>
     /// <remarks>
-    /// The next ask, a few seconds later, finds out whether it worked: a
+    /// <para>
+    /// Each is asked first whether the headset is linked to it, a question it
+    /// answers itself (<see cref="LinkInquiry"/>). One that answers no has a
+    /// working channel and no headset to speak for, and is asked again next
+    /// time rather than restarted: the restart switches the headset off.
+    /// </para>
+    /// <para>
+    /// The next ask, a few seconds later, finds out whether a restart worked: a
     /// restarted transmitter's replies last through closing and reopening it.
+    /// </para>
     /// </remarks>
-    /// <returns>Whether the system refused to let this user restart one.</returns>
+    /// <returns>Whether the system refused to let this user restart one, or the access rule needs bringing up to date.</returns>
     [System.Runtime.Versioning.SupportedOSPlatform("linux")]
     private bool RestartSilent(IReadOnlyList<string> silent)
     {
         var present = _devices.Candidates();
-        bool denied = false;
+        bool denied = silent.Count > 0 && RuleOutOfDate();
         foreach (string path in _restarts.Due(silent, present.Select(device => device.Path)))
         {
             var device = present.First(d => d.Path == path);
             try
             {
+                bool? linked = HidrawTransport.AskLinked(device, LinkWait);
+                if (!SilentRestarts.Needed(linked))
+                {
+                    _restarts.Retry(path);
+                    if (_toldUnlinked.Add(path))
+                        AppLog.Write($"headset: the transmitter at {path} answers, and says no headset is linked to it, so it is left as it is");
+                    continue;
+                }
+                _toldUnlinked.Remove(path);
+                AppLog.Write($"headset: the transmitter at {path} "
+                    + (linked is null ? "gave no answer to the link question" : "says the headset is linked, and answers nothing else")
+                    + ", so it is restarted");
                 var heard = HidrawTransport.Restart(device, RestartListen);
                 AppLog.Write($"headset: restarted the silent transmitter at {path}, and read {heard.Count} reports with something in them as it came back"
                     + (heard.Count == 0 ? "" : $", the first {Math.Min(heard.Count, 5)}: {string.Join(" ", heard.Take(5))}"));
@@ -1000,6 +1020,37 @@ public sealed class HeadsetService : IDisposable
 
     /// <summary>How long a restarted transmitter is read after it comes back: the start-up messages come within the first second or two.</summary>
     private static readonly TimeSpan RestartListen = TimeSpan.FromSeconds(2);
+
+    /// <summary>How long a transmitter is given to answer the link question, which it answers itself.</summary>
+    private static readonly TimeSpan LinkWait = TimeSpan.FromMilliseconds(700);
+
+    /// <summary>The transmitters the log has said have no headset linked, until one is restarted or answers.</summary>
+    private readonly HashSet<string> _toldUnlinked = new(StringComparer.Ordinal);
+
+    private bool _toldRuleOutOfDate;
+
+    /// <summary>Whether the access rule installed is an older one than this version's.</summary>
+    /// <remarks>
+    /// An older rule still gives access, so nothing else would notice it; but
+    /// it lets the system put a transmitter to sleep, which can leave it
+    /// answering nothing until it is reset. So while a transmitter is silent,
+    /// the person is offered the new rule the same way as a first one.
+    /// </remarks>
+    private bool RuleOutOfDate()
+    {
+        try
+        {
+            bool old = File.Exists(UdevRule.InstalledPath) && !UdevRule.IsCurrent(File.ReadAllText(UdevRule.InstalledPath));
+            if (old && !_toldRuleOutOfDate)
+                AppLog.Write($"headset access: {UdevRule.InstalledPath} is an older rule, which lets the system put the transmitter to sleep; offering this version's");
+            _toldRuleOutOfDate = old;
+            return old;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
 
     private readonly SilentRestarts _restarts = new();
 

@@ -76,4 +76,18 @@ public class UdevRuleTests
         public IHidTransport Open(HidDeviceInfo device) =>
             throw new AccessDeniedException($"no permission to open {device.Path}");
     }
+
+    [Fact]
+    public void TheRuleKeepsTurtleBeachsUsbDevicesAwake() =>
+        Assert.EndsWith("ATTR{power/control}=\"on\"", UdevRule.Lines.Last(line => !line.StartsWith('#')), StringComparison.Ordinal);
+
+    [Fact]
+    public void ThisVersionsRuleIsCurrentWhateverItsLineEndings() =>
+        Assert.True(UdevRule.IsCurrent(string.Join("\r\n", UdevRule.Lines) + "\r\n"));
+
+    [Fact]
+    public void TheRuleBeforeItKeptDevicesAwakeIsNotCurrent() =>
+        Assert.False(UdevRule.IsCurrent(
+            "SUBSYSTEM==\"hidraw\", ATTRS{idVendor}==\"10f5\", TAG+=\"uaccess\"\n"
+            + "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"10f5\", TAG+=\"uaccess\"\n"));
 }

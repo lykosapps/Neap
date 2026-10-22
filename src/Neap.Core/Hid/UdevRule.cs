@@ -16,6 +16,13 @@ namespace Neap.Core.Hid;
 /// <see cref="HidrawTransport.Restart"/>.
 /// </para>
 /// <para>
+/// The second also keeps the system from putting those devices to sleep to
+/// save power. The Atlas Air's transmitter drops every reply once its USB
+/// state has been lost, and only a reset brings it back (SP2Tools F115), so
+/// a transmitter that never sleeps never needs the reset that switches the
+/// headset off.
+/// </para>
+/// <para>
 /// The same text is in <c>packaging/linux</c>, for a package to install; a
 /// test keeps the two the same.
 /// </para>
@@ -33,10 +40,19 @@ public static class UdevRule
     [
         "# Lets the person signed in at this computer use Turtle Beach headsets' control channel,",
         "# which Neap needs to read and change the headset's settings, and reset a transmitter",
-        "# that has stopped answering.",
+        "# that has stopped answering. Keeps those devices awake, as a transmitter put to sleep",
+        "# can stop answering until it is reset.",
         "SUBSYSTEM==\"hidraw\", ATTRS{idVendor}==\"10f5\", TAG+=\"uaccess\"",
-        "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"10f5\", TAG+=\"uaccess\"",
+        "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"10f5\", TAG+=\"uaccess\", ATTR{power/control}=\"on\"",
     ];
+
+    /// <summary>The installed rule's path.</summary>
+    public static string InstalledPath => $"{Folder}/{FileName}";
+
+    /// <summary>Whether an installed rule's text is this version's.</summary>
+    /// <remarks>An older rule still gives access, so it is only noticed by reading it.</remarks>
+    public static bool IsCurrent(string installed) =>
+        installed.ReplaceLineEndings("\n").TrimEnd('\n') == string.Join('\n', Lines);
 
     /// <summary>A line as one word to a shell, with any apostrophe in it closed around and put back.</summary>
     private static string Quoted(string line) => "'" + line.Replace("'", "'\\''", StringComparison.Ordinal) + "'";
