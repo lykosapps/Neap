@@ -54,13 +54,32 @@ function Test-Same($Seen, $Element) {
     $Seen.Label -eq (Get-Label $Element) -and [Math]::Abs($Seen.Box.X - $box.X) -le 8 -and [Math]::Abs($Seen.Box.Y - $box.Y) -le 8
 }
 
+# Asks the practice run something over its pipe and returns the answer. Pages
+# are opened and focus moved this way, since doing either through UI
+# Automation brings the window to the front.
+function Connect-Pretend {
+    $stream = New-Object System.IO.Pipes.NamedPipeClientStream('.', 'Neap.Pretend', [System.IO.Pipes.PipeDirection]::InOut)
+    $stream.Connect(10000)
+    $script:Pipe = @{ Stream = $stream; Reader = New-Object System.IO.StreamReader($stream); Writer = New-Object System.IO.StreamWriter($stream) }
+    $script:Pipe.Writer.AutoFlush = $true
+}
+function Invoke-Pretend([string]$Line) {
+    $script:Pipe.Writer.WriteLine($Line)
+    $reply = $script:Pipe.Reader.ReadLine() | ConvertFrom-Json
+    if (-not $reply.ok) { throw "the practice run would not do '$Line': $($reply.error)" }
+    $reply.result
+}
+
+# Opens a page and waits until what is on it has stopped moving.
+function Open-PageBehind([string]$Page) {
+    Invoke-Pretend "page $Page" | Out-Null
+    Wait-Stable { (Get-Texts) -join ';' } | Out-Null
+}
+
 # Asks the practice run to move focus as Tab does, and returns what took it,
 # or null when nothing did.
-function Invoke-Focus($Pipe, [string]$Way) {
-    $Pipe.Writer.WriteLine("focus $Way")
-    $reply = $Pipe.Reader.ReadLine() | ConvertFrom-Json
-    if (-not $reply.ok) { throw "the practice run would not move focus: $($reply.error)" }
-    $r = $reply.result
+function Invoke-Focus([string]$Way) {
+    $r = Invoke-Pretend "focus $Way"
     if ($null -eq $r) { return $null }
     @{
         From = $r.from
@@ -117,27 +136,20 @@ function Get-StillBitmap {
 # Moves focus from the first control until it comes round again, taking a
 # picture at each stop. Returns what each stop was and whether it showed focus.
 function Invoke-TabWalk($Stops) {
-    $stream = New-Object System.IO.Pipes.NamedPipeClientStream('.', 'Neap.Pretend', [System.IO.Pipes.PipeDirection]::InOut)
-    $stream.Connect(10000)
-    $pipe = @{ Reader = New-Object System.IO.StreamReader($stream); Writer = New-Object System.IO.StreamWriter($stream) }
-    $pipe.Writer.AutoFlush = $true
-    try {
-        $seen = @(); $shots = @(); $origin = Get-NeapRect
+    $seen = @(); $shots = @(); $origin = Get-NeapRect
         $limit = $Stops.Count + 15
         # Every walk starts on the window's first control, wherever the last
         # page left focus, so coming round to it again is plain to see.
-        $now = Invoke-Focus $pipe 'first'
-        for ($i = 0; $i -lt $limit; $i++) {
-            if ($null -eq $now) { $seen += , @{ Left = $true }; break }
-            if ($seen.Count -gt 0 -and $now.Key -eq $seen[0].Key) { $seen += , @{ Wrapped = $true }; break }
-            $seen += , $now
-            $shots += , (Get-StillBitmap)
-            $now = Invoke-Focus $pipe 'next'
-            if ($null -ne $now -and $now.From -ne $seen[-1].Label) { $script:Wandered += , "from $($seen[-1].Label) to $($now.From)" }
-        }
-        $after = Get-StillBitmap
+    $now = Invoke-Focus 'first'
+    for ($i = 0; $i -lt $limit; $i++) {
+        if ($null -eq $now) { $seen += , @{ Left = $true }; break }
+        if ($seen.Count -gt 0 -and $now.Key -eq $seen[0].Key) { $seen += , @{ Wrapped = $true }; break }
+        $seen += , $now
+        $shots += , (Get-StillBitmap)
+        $now = Invoke-Focus 'next'
+        if ($null -ne $now -and $now.From -ne $seen[-1].Label) { $script:Wandered += , "from $($seen[-1].Label) to $($now.From)" }
     }
-    finally { $stream.Dispose() }
+    $after = Get-StillBitmap
     $visited = @()
     for ($i = 0; $i -lt $shots.Count; $i++) {
         $next = if ($i + 1 -lt $shots.Count) { $shots[$i + 1] } else { $after }
@@ -231,11 +243,15 @@ function Test-Page([string]$Page, [string]$Theme) {
     Check ($cut.Count -eq 0) 'in a narrow window nothing is cut off at the side'
     foreach ($stop in $cut) { Note "cut off: $(Get-Label $stop)" }
     Save-Shot "access-$Page-$Theme-narrow" -Top 300 | ForEach-Object { $_.Dispose() }
+    # The check runs while somebody works, so nothing in it may bring the window forward.
+    $front = [NeapUi]::GetForegroundWindow()
+    Check ($front -eq [IntPtr]::Zero -or $A::FromHandle($front).Current.ProcessId -ne $script:Proc.Id) 'the window stayed behind other windows'
 }
 
 $pages = @($Parts.Split(',') | ForEach-Object { $_.Trim() })
 foreach ($theme in 'dark', 'light') {
     Start-NeapPretend -Theme $theme -Page $pages[0]
+    Connect-Pretend
     try {
         # The simulated update's banner arrives a moment after launch and moves
         # everything below it, so no page is walked until it is there.
@@ -243,11 +259,11 @@ foreach ($theme in 'dark', 'light') {
         foreach ($page in $pages) {
             # Wide again after the last page's narrow window, so the rail is there to open the next.
             Set-NeapSize 1536 1000 'Home' | Out-Null
-            if ($page -ne $pages[0]) { Open-Page (Get-Culture).TextInfo.ToTitleCase($page) }
+            if ($page -ne $pages[0]) { Open-PageBehind $page }
             Test-Page $page $theme
         }
     }
-    finally { Stop-NeapPretend }
+    finally { $script:Pipe.Stream.Dispose(); Stop-NeapPretend }
 }
 Write-Host "$script:Fails failures"
 exit $script:Fails

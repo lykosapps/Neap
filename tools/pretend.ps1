@@ -91,6 +91,14 @@ $Scopes = [System.Windows.Automation.TreeScope]
 $script:failures = New-Object System.Collections.Generic.List[string]
 $script:passes = 0
 
+# A section's heading, with how long the one before it took.
+$script:sectionClock = $null
+function Section([string]$name) {
+    if ($script:sectionClock) { Write-Host ("  time  {0:0.0}s" -f $script:sectionClock.Elapsed.TotalSeconds) }
+    $script:sectionClock = [Diagnostics.Stopwatch]::StartNew()
+    Write-Host $name
+}
+
 function Pass([string]$what) { $script:passes++; Write-Host "  ok    $what" }
 function Fail([string]$what) { $script:failures.Add($what); Write-Host "  FAIL  $what" -ForegroundColor Red }
 function Check([bool]$condition, [string]$what) { if ($condition) { Pass $what } else { Fail $what } }
@@ -173,22 +181,36 @@ function Control([string]$name, $type) {
 
 function Pattern($element, $pattern) { $element.GetCurrentPattern($pattern::Pattern) }
 
+# The groups the app reads all the time while it is connected: the state it
+# checks every beat, the groups it watches, and the transmitter slots it
+# looks over now and then. A page never waits on these, which never stop.
+$script:background = @('GSI', 'Inf', 'SAF', 'Mic', 'TX', 'TX1', 'TX2', 'TX3', 'TX4')
+
+# What the app has asked the headset to do beyond its background reading.
+function Busy {
+    $reads = Ask 'reads'
+    $count = @(Writes).Count
+    foreach ($group in $reads.PSObject.Properties) { if ($group.Name -notin $script:background) { $count += $group.Value } }
+    $count
+}
+
 # Opens a page and waits for the app to stop asking the headset things. A
 # page with an equaliser reads the preset slots on arrival, an empty one
-# taking a second, and a write made meanwhile waits behind them.
+# taking a second, and a write made meanwhile waits behind them. Only what
+# the page asks counts: the app's background reading goes on all the time.
 function Page([string]$name) {
     $script:step = "the $name page"
     $items = FindAll $script:window 'NameProperty' $name |
         Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem }
     (Pattern $items[0] ([System.Windows.Automation.SelectionItemPattern])).Select()
-    Start-Sleep -Milliseconds 800
+    Until { @(FindAll $script:window 'NameProperty' $name | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Text }).Count -gt 0 } | Out-Null
     $clock = [Diagnostics.Stopwatch]::StartNew()
-    $count = Ask 'sent'
+    $count = Busy
     $still = [Diagnostics.Stopwatch]::StartNew()
-    while ($still.Elapsed.TotalSeconds -lt 1.5 -and $clock.Elapsed.TotalSeconds -lt 20) {
+    while ($still.Elapsed.TotalSeconds -lt 1 -and $clock.Elapsed.TotalSeconds -lt 10) {
         Watch
         Start-Sleep -Milliseconds 100
-        $now = Ask 'sent'
+        $now = Busy
         if ($now -ne $count) { $count = $now; $still.Restart() }
     }
 }
@@ -554,9 +576,9 @@ function Format {
     $before = Ask 'format output'
     $other = @(Options $format | Where-Object { $_ -ne (Shown $format) })[0]
     Choose $format $other
-    Start-Sleep -Seconds 3
+    $moved = Until { $process.HasExited -or (Ask 'format output') -ne $before } 8
     if ($process.HasExited) { throw 'the app crashed choosing an output format' }
-    Check (Until { (Ask 'format output') -ne $before } 5) "the output format moves off $before"
+    Check $moved "the output format moves off $before"
     Check (@(Writes).Count -eq 0) 'the format writes nothing to the headset'
     Collect
 }
@@ -932,56 +954,57 @@ try {
     $script:everything = New-Object System.Collections.Generic.List[object]
     $script:covered = @{}
 
-    Write-Host 'Connecting'
+    Section 'Connecting'
     Check (Until { (Header) -eq 'Headset connected' } 20) 'the app reads the pretend headset as connected'
     Check ($script:window.Current.Name -like '*pretend*') 'the window says it is a pretend run'
 
-    Write-Host 'Pages'
+    Section 'Pages'
     foreach ($page in 'Home', 'Audio', 'Equaliser', 'Controls', 'Profiles', 'Device', 'Settings') {
         Page $page
-        Start-Sleep -Seconds 1
+        # A moment for the page's entrance to finish drawing.
+        Start-Sleep -Milliseconds 400
         Screenshot $page.ToLowerInvariant()
     }
 
-    Write-Host 'Settings'
+    Section 'Settings'
     foreach ($page in 'Audio', 'Controls', 'Device') { Settings $page }
     Drawer 'Audio' 'superhuman_hearing' 'shh_preset', 'shh_level'
     Drawer 'Audio' 'noise_gate' 'noise_gate_threshold'
     $missed = @($script:registry | Where-Object { $_.writable -and $_.kind -ne 'Text' -and -not $script:covered[$_.name] } | ForEach-Object { $_.name })
     Write-Host "  note  writable settings with no control on these pages: $($missed -join ', ')"
 
-    Write-Host 'Equaliser'
+    Section 'Equaliser'
     Band 'Game' '1 kHz' '0x1270'
     Preset 'Game' 'Vocal Boost' '0x1210' '4'
     Band 'Microphone' '1 kHz' '0x1370'
     Preset 'Microphone' 'Clarity' '0x1310' '3'
 
-    Write-Host 'Windows'
+    Section 'Windows'
     WindowsOwned
     Format
 
-    Write-Host 'Chat wheel'
+    Section 'Chat wheel'
     Wheel
 
     PresetTools
 
-    Write-Host 'Home'
+    Section 'Home'
     Quick
     HomeExtras
 
-    Write-Host 'Noise control'
+    Section 'Noise control'
     NoiseControl
 
-    Write-Host 'Profiles'
+    Section 'Profiles'
     Profiles
     AutoSwitching
 
-    Write-Host 'Headset'
+    Section 'Headset'
     Battery
     Spare
     PowerCycle
 
-    Write-Host 'Everything sent'
+    Section 'Everything sent'
     Collect
     $refusals = @(Ask 'refusals')
     Check ($refusals.Count -eq 0) "the pretend headset refused nothing$(if ($refusals.Count) { ': ' + ($refusals | ForEach-Object { $_.reason }) -join '; ' })"
@@ -994,6 +1017,6 @@ finally {
     if (-not $KeepOpen) { Stop-Process -Id $process.Id -ErrorAction SilentlyContinue }
 }
 
-Write-Host ''
+Section ''
 Write-Host "$($script:passes) passed, $($script:failures.Count) failed. Screenshots in $Out"
 if ($script:failures.Count -gt 0) { exit 1 }

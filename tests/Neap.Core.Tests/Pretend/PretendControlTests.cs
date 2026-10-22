@@ -30,6 +30,21 @@ public class PretendControlTests
     }
 
     [Fact]
+    public void CountsTheReadsOfEachGroup()
+    {
+        var (headset, control) = Make();
+        using var client = new HeadsetClient(allowWrites: false, transport: headset.Open());
+        client.ReadCategory("Mic", TimeSpan.FromSeconds(1));
+        client.ReadCategory("Mic", TimeSpan.FromSeconds(1));
+
+        var reads = Reply(control, "reads").GetProperty("result");
+
+        Assert.Equal(2, reads.GetProperty("Mic").GetInt32());
+        Reply(control, "clear");
+        Assert.False(Reply(control, "reads").GetProperty("result").TryGetProperty("Mic", out _));
+    }
+
+    [Fact]
     public void FocusMovesThroughWhatTheAppGives()
     {
         var (_, control) = Make();
@@ -41,6 +56,18 @@ public class PretendControlTests
         Reply(control, "focus first");
 
         Assert.Equal([FocusMove.Next, FocusMove.Previous, FocusMove.First], asked);
+    }
+
+    [Fact]
+    public void APageOpensByItsNameAndAnUnknownOneIsRefused()
+    {
+        var (_, control) = Make();
+        var opened = new List<string>();
+        control.OpenPage = page => { opened.Add(page); return page == "audio"; };
+
+        Assert.True(Reply(control, "page audio").GetProperty("ok").GetBoolean());
+        Assert.False(Reply(control, "page nowhere").GetProperty("ok").GetBoolean());
+        Assert.Equal(["audio", "nowhere"], opened);
     }
 
     [Fact]

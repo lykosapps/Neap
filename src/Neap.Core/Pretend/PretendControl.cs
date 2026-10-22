@@ -22,7 +22,8 @@ namespace Neap.Core.Pretend;
 ///   writes                  the writes accepted, in order
 ///   refusals                the frames refused, and why
 ///   sent                    how many frames have been sent
-///   clear                   forget all three
+///   reads                   how many times each group of settings has been read
+///   clear                   forget all four
 ///   value KEY               what the headset holds for a key
 ///   report KEY VALUE        the headset changes a value itself and says so
 ///   on | off                switch the headset on or off
@@ -38,6 +39,7 @@ namespace Neap.Core.Pretend;
 ///   registry                every confirmed setting, its limits and its options' labels
 ///   focus first|next|previous  put the keyboard focus on the window's first control, or move it
 ///                           as Tab or Shift+Tab would, and say what took it
+///   page NAME               open a page from the menu, such as audio
 /// </code>
 /// <para>
 /// The pipe is open to the current user only.
@@ -78,6 +80,13 @@ public sealed class PretendControl : IDisposable
     /// with the window left where it is.
     /// </remarks>
     public Func<FocusMove, JsonNode?>? MoveFocus { get; set; }
+
+    /// <summary>Gets or sets what opens a page of the app's window by its name, such as audio, saying whether there is one.</summary>
+    /// <remarks>
+    /// A page chosen through UI Automation brings the window to the front, as
+    /// most of its actions do; this opens one with the window left where it is.
+    /// </remarks>
+    public Func<string, bool>? OpenPage { get; set; }
 
     /// <summary>Starts answering on the pipe, one script at a time.</summary>
     public void Start() => _serving ??= Task.Run(Serve);
@@ -149,6 +158,7 @@ public sealed class PretendControl : IDisposable
                 ("refusals", 1) => new JsonArray(_headset.Refusals
                     .Select(r => (JsonNode)new JsonObject { ["frame"] = r.Frame, ["reason"] = r.Reason }).ToArray()),
                 ("sent", 1) => _headset.Sent.Count,
+                ("reads", 1) => new JsonObject(_headset.Reads.Select(r => KeyValuePair.Create(r.Key, (JsonNode?)r.Value))),
                 ("clear", 1) => Done(_headset.ClearRecord),
                 ("value", 2) => _headset.Value(Key(words[1])),
                 ("report", 3) => Done(() => _headset.Report(Key(words[1]), words[2])),
@@ -168,6 +178,8 @@ public sealed class PretendControl : IDisposable
                 ("record", >= 2) => Done(() => _windows.Record(Rest(line))),
                 ("unrecord", >= 2) => Done(() => _windows.StopRecording(Rest(line))),
                 ("registry", 1) => new JsonArray(Registry.All.Select(Describe).ToArray()),
+                ("page", 2) => (OpenPage ?? throw new ArgumentException("there is no window to open a page in"))(words[1])
+                    ? "ok" : throw new ArgumentException($"no page called '{words[1]}'"),
                 ("focus", 2) => (MoveFocus ?? throw new ArgumentException("there is no window to move focus in"))(MoveOf(words[1])),
                 _ => throw new ArgumentException($"not a command: '{line}'"),
             };

@@ -97,6 +97,7 @@ public sealed class PretendHeadset : IDeviceSource
     private readonly string[][] _control;
     private readonly Queue<byte[]> _incoming = new();
     private readonly List<byte[]> _sent = new();
+    private readonly Dictionary<string, int> _reads = new(StringComparer.Ordinal);
     private readonly List<PretendWrite> _writes = new();
     private readonly List<PretendRefusal> _refusals = new();
     private readonly List<PretendRefusal> _unraised = new();
@@ -204,6 +205,12 @@ public sealed class PretendHeadset : IDeviceSource
         get { lock (_gate) return _sent.Select(frame => frame.ToArray()).ToList(); }
     }
 
+    /// <summary>How many times each group of settings has been read.</summary>
+    public IReadOnlyDictionary<string, int> Reads
+    {
+        get { lock (_gate) return new Dictionary<string, int>(_reads, StringComparer.Ordinal); }
+    }
+
     /// <summary>Every write accepted, in order.</summary>
     public IReadOnlyList<PretendWrite> Writes
     {
@@ -216,12 +223,13 @@ public sealed class PretendHeadset : IDeviceSource
         get { lock (_gate) return _refusals.ToList(); }
     }
 
-    /// <summary>Forgets the frames, writes and refusals recorded so far.</summary>
+    /// <summary>Forgets the frames, reads, writes and refusals recorded so far.</summary>
     public void ClearRecord()
     {
         lock (_gate)
         {
             _sent.Clear();
+            _reads.Clear();
             _writes.Clear();
             _refusals.Clear();
         }
@@ -482,6 +490,7 @@ public sealed class PretendHeadset : IDeviceSource
     private void Answer(string verb)
     {
         string category = Verbs.Readers.First(pair => pair.Value == verb).Key;
+        _reads[category] = _reads.GetValueOrDefault(category) + 1;
         if (!_on || (_atlas && category == AtlasSilent)) return;
         var kvp = new StringBuilder();
 

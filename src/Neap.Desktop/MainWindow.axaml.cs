@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Neap.Core;
 using Neap.Desktop.Controls;
@@ -119,16 +120,18 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Opens the page with this tag, and marks its place in the rail.</summary>
-    public void Open(string page)
+    /// <returns>Whether there is a page with that tag.</returns>
+    public bool Open(string page)
     {
         foreach (var rail in new[] { Places, Foot })
             foreach (var item in rail.Items.OfType<NavItem>())
                 if (item.Page == page)
                 {
                     rail.SelectedItem = item;
-                    return;
+                    return true;
                 }
         AppLog.Write($"no page with the tag {page}: stayed where it was");
+        return false;
     }
 
     /// <summary>
@@ -213,7 +216,8 @@ public partial class MainWindow : Window
     {
         base.OnLoaded(e);
         FitRail(Bounds.Width);
-        if (Pretend.Active) Pretend.MovesFocus(move => PretendFocus.Move(this, move));
+        if (Pretend.Active)
+            Pretend.Drives(move => PretendFocus.Move(this, move), page => Dispatcher.UIThread.Invoke(() => Open(page)));
         if (Pretend.Snapshot is { } file) _ = SaveAndExit(file);
 
         // A launch at sign-in lives in the notification area rather than open
