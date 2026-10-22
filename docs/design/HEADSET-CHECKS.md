@@ -86,6 +86,12 @@ Checks 1 to 17 passed on 18 October 2026. These cover what came after.
 What came after the third round. Checks 5 and 7 are worded for the meters,
 which replaced the arcs inside the ring, and need doing again.
 
+Checks 5, 7 and 24 to 29 passed on 23 October 2026 on the Stealth Pro II
+through its Charging Dock, with the try-it copy. Check 30 needs a Linux PC
+and is still to do. The same session found the chat wheel stuck at the
+middle after a quick turn through it, fixed in the same day's commit; the
+turn toward both ends was checked by hand afterward.
+
 24. **Chat comes from:** open the dropdown, tick a chat app, untick it, and
     press Refresh with a new app playing. The card and the cards below it
     never move, and the dial turns on once an app is ticked.
