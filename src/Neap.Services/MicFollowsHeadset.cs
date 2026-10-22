@@ -38,7 +38,7 @@ public sealed class MicFollowsHeadset : IDisposable
         _last = now;
 
         if (Microphone.SystemMuteFor(before, now, AppSettings.Current.MicMutedByHeadset) is not { } mute) return;
-        AppLog.Write($"microphone: the headset's own mute is {(mute ? "on" : "off")}, so the system's is set to match");
+        AppLog.Write($"microphone: the headset's own mute is {(mute ? "on" : "off")}, so the system's is set to match ({_headset.Microphone})");
         await SoundVolume.SetMuted(mute, Flow.Input);
         AppSettings.Update(settings => settings.MicMutedByHeadset = mute);
     }

@@ -109,7 +109,9 @@ public partial class MicTile : UserControl
 
     private async Task Toggle()
     {
-        switch (Microphone.ChangeFor(State, HeadsetMutes))
+        var change = Microphone.ChangeFor(State, HeadsetMutes);
+        AppLog.Write($"microphone: the switch was pressed while {State}, so {change} ({AppServices.Headset.Microphone})");
+        switch (change)
         {
             case MicChange.MuteHeadset: AppServices.Headset.SetKey(BuiltInKey.Key, 1); break;
             case MicChange.UnmuteHeadset: AppServices.Headset.SetKey(BuiltInKey.Key, 0); break;
