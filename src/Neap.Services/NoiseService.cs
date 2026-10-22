@@ -41,6 +41,10 @@ public sealed class NoiseService : IDisposable
     /// <summary>Gets whether a press of the Mode button steps through all three modes.</summary>
     public bool Cycling => _noise.Cycling;
 
+    /// <summary>Gets the way noise control was last on, which a press of the mini panel's tile turns it back on to.</summary>
+    /// <remarks>Noise cancellation until the headset has been seen in a mode other than off. Kept for as long as Neap runs.</remarks>
+    public NoiseMode LastOn { get; private set; } = NoiseMode.Cancelling;
+
     /// <summary>Gets whether the mode is known and both of its settings can be written, on a headset whose settings Neap changes.</summary>
     public bool CanChoose => Mode is not null && !_headset.ReadOnly
         && Registry.ByKey[NoiseControl.AncKey].Writable
@@ -79,6 +83,8 @@ public sealed class NoiseService : IDisposable
                 $"noise control: the Mode button left {before}, so it goes on to {NoiseControl.Next(before!.Value)}"));
             Send(writes, hold: false);
         }
+
+        if (_noise.Mode is { } mode) LastOn = QuickToggle.LastOn(mode, NoiseMode.Off, LastOn);
 
         // Kept once noise cancellation is left, not while its slider moves.
         if (_noise.Mode is not NoiseMode.Cancelling && AppSettings.Current.NoiseBlocking != _noise.Blocking)

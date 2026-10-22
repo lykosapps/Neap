@@ -45,5 +45,7 @@
             loc:Uid.Value="Spatial_Row"
             Icon="{StaticResource IconSpatial}"
             IsVisible="False" />
+
+        <c:QuickTile x:Name="Tile" IsVisible="False" />
     </Grid>
 </UserControl>

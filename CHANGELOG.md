@@ -13,10 +13,9 @@ and date.
 
 ### Added
 
-- The mini panel has spatial sound, between noise cancellation and the
-  equaliser: Off, Windows Sonic or Dolby Atmos, whichever the system offers. It
-  is left out where the system has none, and folds away with the headset's
-  settings when the headset is away.
+- The mini panel has spatial sound: Off, Windows Sonic or Dolby Atmos,
+  whichever the system offers. It is left out where the system has none, and
+  folds away with the headset's settings when the headset is away.
 - A switch on the Settings page turns the mini panel on or off. It is on by
   default; when it is off, a click on the icon by the clock opens the window,
   and "Mini panel" is left off the icon's menu.
@@ -73,6 +72,10 @@ and date.
 
 ### Changed
 
+- The mini panel is smaller and quicker: a slim game and chat slider in
+  place of the dial, and tiles for the microphone, noise cancellation and
+  spatial sound. A press turns a tile off, or back on the way it was last
+  on, and the arrow in its corner lists its choices.
 - "Help support another headset" says it's for Turtle Beach headsets that
   work with Swarm II, as the GitHub form and the guide now do: Neap talks to a
   headset the way Swarm II does, so it can't support others.

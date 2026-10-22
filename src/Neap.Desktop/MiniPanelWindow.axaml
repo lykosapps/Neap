@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization"
-    Width="360"
+    Width="320"
     CanResize="False"
     ShowInTaskbar="False"
     SizeToContent="Height"
@@ -14,14 +14,11 @@
     Background="Transparent">
 
     <Window.Styles>
-        <!-- Rows here are short, so a switch or a button stays beside its name rather than dropping under it. -->
-        <Style Selector="c|SettingsCard">
-            <Setter Property="SideBySideWidth" Value="0" />
-        </Style>
-
-        <!-- Windows Sonic and Dolby Atmos under their title need the room the 360 wide panel has, so every pill here gives its segments a little less padding. -->
-        <Style Selector="Border.segmented RadioButton">
-            <Setter Property="Padding" Value="8,0" />
+        <!-- The preset picker sized to the panel's compact row. -->
+        <Style Selector="c|PresetChoice">
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
         </Style>
     </Window.Styles>
 
@@ -69,74 +66,65 @@
                 With the headset away the header's status says so, and the
                 sections fold without explaining: the panel is for changing
                 things mid-game, and the window has the detail.
-            -->
-            <!--
+
                 The mix goes on working with only the headset's settings out of
-                reach, so it folds only when the headset is away. Without chat
-                apps chosen there is nothing to mix, so the dial is disabled and
-                the line below it says how to get one.
+                reach, so it folds only when the headset is away. It is a slider
+                here, Home's dial made small: game at the left, chat at the
+                right. Without chat apps chosen there is nothing to mix, so the
+                slider is disabled and the line below it says how to get one.
             -->
             <c:HeadsetSection Explain="False" WhenOff="True">
-                <Grid
-                    x:Name="DialArea"
-                    Margin="0,0,0,14"
-                    HorizontalAlignment="Center"
-                    Classes="mixdial">
-                    <Viewbox Width="160" Height="160">
-                        <c:GameChatDial x:Name="Dial" loc:Uid.Value="Mix_Dial" />
-                    </Viewbox>
-                    <StackPanel
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        IsHitTestVisible="False"
-                        Spacing="{StaticResource NeapSpaceHairline}">
-                        <TextBlock
-                            x:Name="LeanText"
-                            HorizontalAlignment="Center"
-                            Classes="label" />
-                        <StackPanel
-                            HorizontalAlignment="Center"
-                            Orientation="Horizontal"
-                            Spacing="{StaticResource NeapSpaceS}">
+                <StackPanel x:Name="DialArea" Spacing="{StaticResource NeapSpaceXS}">
+                    <Grid ColumnDefinitions="*,Auto,*">
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceXS}">
+                            <TextBlock
+                                loc:Uid.Value="Mix_Game"
+                                Classes="label"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource NeapGameTextBrush}" />
                             <TextBlock
                                 x:Name="GameLevel"
-                                MinWidth="30"
-                                Classes="reading"
-                                FontSize="{StaticResource NeapFontGlance}"
-                                Foreground="{DynamicResource NeapGameTextBrush}"
-                                TextAlignment="Right" />
+                                Classes="label"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource NeapGameTextBrush}" />
+                        </StackPanel>
+                        <TextBlock
+                            x:Name="LeanText"
+                            Grid.Column="1"
+                            Classes="label secondary"
+                            VerticalAlignment="Center" />
+                        <StackPanel
+                            Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            Spacing="{StaticResource NeapSpaceXS}">
                             <TextBlock
                                 x:Name="ChatLevel"
-                                MinWidth="30"
-                                Classes="reading"
-                                FontSize="{StaticResource NeapFontGlance}"
-                                Foreground="{DynamicResource NeapChatTextBrush}"
-                                TextAlignment="Left" />
+                                Classes="label"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource NeapChatTextBrush}" />
+                            <TextBlock
+                                loc:Uid.Value="Mix_Chat"
+                                Classes="label"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource NeapChatTextBrush}" />
                         </StackPanel>
-                    </StackPanel>
-
-                    <!-- Under each end of the ring: which side is which. -->
-                    <TextBlock
-                        loc:Uid.Value="Mix_Game"
-                        Margin="22,0,0,-14"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Bottom"
-                        Classes="label"
-                        Foreground="{DynamicResource NeapGameTextBrush}" />
-                    <TextBlock
-                        loc:Uid.Value="Mix_Chat"
-                        Margin="0,0,22,-14"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Classes="label"
-                        Foreground="{DynamicResource NeapChatTextBrush}" />
-                </Grid>
+                    </Grid>
+                    <Slider
+                        x:Name="Dial"
+                        Classes="balance"
+                        Theme="{StaticResource NeapSlider}"
+                        Minimum="0"
+                        Maximum="100"
+                        SmallChange="1"
+                        LargeChange="10"
+                        loc:Uid.Value="Mix_Dial" />
+                </StackPanel>
                 <StackPanel
                     x:Name="SetupArea"
-                    Margin="{StaticResource NeapCardGap}"
                     Spacing="{StaticResource NeapSpaceXS}"
                     IsVisible="False">
-                    <TextBlock loc:Uid.Value="Mix_Setup" Classes="secondary" />
+                    <TextBlock loc:Uid.Value="Mix_Setup" Classes="caption secondary" TextWrapping="Wrap" />
                     <Button
                         x:Name="ChooseApps"
                         loc:Uid.Value="Mini_ChooseApps"
@@ -145,34 +133,39 @@
             </c:HeadsetSection>
 
             <!--
-                One list. Spatial sound is the system's setting, not the
-                headset's, but the panel is for the headset in use, so it folds
-                away with the headset's settings rather than standing alone.
+                The settings changed mid-game, as quick tiles the way the
+                system's quick settings are: a press turns one on or off, and a
+                tile with more than one way of being on lists them from its
+                corner. Spatial sound is the system's setting, not the headset's,
+                but the panel is for the headset in use, so it folds away with
+                the headset's settings rather than standing alone.
             -->
             <c:HeadsetSection Explain="False" Spacing="{StaticResource NeapSpaceS}">
-                <c:MicTile AsRow="True" />
+                <UniformGrid Rows="1" ColumnSpacing="{StaticResource NeapSpaceS}">
+                    <c:MicTile AsTile="True" />
+                    <c:QuickTile x:Name="NoiseTile" />
+                    <c:SpatialTile AsTile="True" />
+                </UniformGrid>
 
-                <c:SettingsCard
-                    x:Name="NoiseRow"
-                    loc:Uid.Value="Mini_Noise"
-                    Icon="{StaticResource IconNoise}">
-                    <c:SettingsCard.Below>
-                        <Border Margin="{StaticResource NeapSectionGap}" Classes="segmented">
-                            <c:NoiseModes
-                                loc:Uid.Value="Quick_NoiseTile"
-                                AutomationProperties.AutomationId="mini_noise_control" />
-                        </Border>
-                    </c:SettingsCard.Below>
-                </c:SettingsCard>
-
-                <c:SpatialTile AsRow="True" Stacked="True" />
-
-                <c:SettingsCard loc:Uid.Value="Mini_Equaliser" Icon="{StaticResource IconEqualiser}">
-                    <c:PresetChoice
-                        x:Name="Preset"
-                        MaxWidth="190"
-                        loc:Uid.Value="Quick_PresetPicker" />
-                </c:SettingsCard>
+                <Border Classes="quickrow">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource NeapSpaceS}">
+                        <PathIcon
+                            Classes="quickicon"
+                            VerticalAlignment="Center"
+                            AutomationProperties.AccessibilityView="Raw"
+                            Data="{StaticResource IconEqualiser}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            loc:Uid.Value="Mini_Equaliser"
+                            Classes="quicktitle"
+                            VerticalAlignment="Center" />
+                        <c:PresetChoice
+                            x:Name="Preset"
+                            Grid.Column="2"
+                            MaxWidth="170"
+                            loc:Uid.Value="Quick_PresetPicker" />
+                    </Grid>
+                </Border>
             </c:HeadsetSection>
         </StackPanel>
     </Border>

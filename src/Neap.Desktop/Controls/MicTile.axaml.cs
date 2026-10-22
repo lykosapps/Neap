@@ -10,7 +10,8 @@ namespace Neap.Desktop.Controls;
 
 /// <summary>
 /// The headset's microphone as a card with a switch on Home, tinted while it is
-/// live, or as a settings row with a switch on the Audio page.
+/// live, as a settings row with a switch on the Audio page, or as a tile in
+/// the mini panel.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -40,6 +41,9 @@ public partial class MicTile : UserControl
     public static readonly StyledProperty<bool> AsRowProperty =
         AvaloniaProperty.Register<MicTile, bool>(nameof(AsRow));
 
+    public static readonly StyledProperty<bool> AsTileProperty =
+        AvaloniaProperty.Register<MicTile, bool>(nameof(AsTile));
+
     public static readonly StyledProperty<Control?> BelowProperty =
         AvaloniaProperty.Register<MicTile, Control?>(nameof(Below));
 
@@ -61,7 +65,11 @@ public partial class MicTile : UserControl
         _switch.OnContent = _switch.OffContent = Word.Text;
         _link = new SettingLink(this, () => Microphone.ArmSetting, _ => { }, Paint);
 
+        Tile.Icon = (Geometry)Application.Current!.FindResource("IconMicrophone")!;
+        Tile.Describe(Strings.Get("Mic_Name"), Strings.Get("Mic_Name"));
+
         Face.Click += async (_, _) => await Toggle();
+        Tile.Pressed += async () => await Toggle();
         _switch.Click += async (_, _) => await Toggle();
     }
 
@@ -71,6 +79,13 @@ public partial class MicTile : UserControl
     {
         get => GetValue(AsRowProperty);
         set => SetValue(AsRowProperty, value);
+    }
+
+    /// <summary>Gets or sets whether it shows as a tile in the mini panel, rather than as Home's card or a row.</summary>
+    public bool AsTile
+    {
+        get => GetValue(AsTileProperty);
+        set => SetValue(AsTileProperty, value);
     }
 
     /// <summary>Gets or sets what the row shows under the name, such as a level meter.</summary>
@@ -83,10 +98,11 @@ public partial class MicTile : UserControl
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == AsRowProperty)
+        if (change.Property == AsRowProperty || change.Property == AsTileProperty)
         {
-            Card.IsVisible = !AsRow;
-            Row.IsVisible = AsRow;
+            Card.IsVisible = !AsRow && !AsTile;
+            Row.IsVisible = AsRow && !AsTile;
+            Tile.IsVisible = AsTile;
         }
         else if (change.Property == BelowProperty) Row.Below = Below;
     }
@@ -183,5 +199,7 @@ public partial class MicTile : UserControl
         _switch.IsEnabled = Face.IsEnabled;
         _switch.IsChecked = state == MicState.Live;
         _switch.OnContent = _switch.OffContent = Word.Text;
+        Tile.Icon = icon;
+        Tile.Show(state == MicState.Live, Word.Text, Face.IsEnabled);
     }
 }

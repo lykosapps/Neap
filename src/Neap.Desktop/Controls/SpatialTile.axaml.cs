@@ -3,16 +3,18 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Neap.Core.Audio;
 using Neap.Core.Connection;
+using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// The system's spatial sound for the headset, as Home's card or a settings row:
-/// off, Windows Sonic, or Dolby Atmos where this PC has it installed, as a
-/// segmented control either way.
+/// The system's spatial sound for the headset, as Home's card, a settings row
+/// or a mini panel tile: off, Windows Sonic, or Dolby Atmos where this PC has
+/// it installed, as a segmented control on the card and the row.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -54,8 +56,12 @@ public partial class SpatialTile : UserControl
     public static readonly StyledProperty<bool> AsRowProperty =
         AvaloniaProperty.Register<SpatialTile, bool>(nameof(AsRow));
 
-    public static readonly StyledProperty<bool> StackedProperty =
-        AvaloniaProperty.Register<SpatialTile, bool>(nameof(Stacked));
+    public static readonly StyledProperty<bool> AsTileProperty =
+        AvaloniaProperty.Register<SpatialTile, bool>(nameof(AsTile));
+
+    /// <summary>The format spatial sound was last on in, which a press of the tile turns it back on to.</summary>
+    /// <remarks>Shared by every tile and kept while Neap runs, since the mini panel is made anew each time it opens.</remarks>
+    private static SpatialFormat _lastOn = SpatialFormat.WindowsSonic;
 
     private const string DolbyAccess = "ms-windows-store://pdp/?productid=9N0866FS04W8";
 
@@ -67,6 +73,7 @@ public partial class SpatialTile : UserControl
     private SpatialFormat? _known;
     private IDisposable? _watch;
     private Task? _loading;
+    private SpatialPanel? _panel;
 
     public SpatialTile()
     {
@@ -81,6 +88,13 @@ public partial class SpatialTile : UserControl
         _pill = NeapControls.Pill(_segments);
         Row.Content = _pill;
         Choice.Child = _cardSegments;
+        Tile.Icon = (Geometry)Application.Current!.FindResource("IconSpatial")!;
+        Tile.Describe(Strings.Get("Mini_SpatialTile"), name, Strings.Get("Mini_SpatialChoices"));
+        Tile.Pressed += async () =>
+        {
+            if (_panel is { } panel)
+                await Choose(QuickToggle.Press(panel.Active ?? SpatialFormat.Off, SpatialFormat.Off, _lastOn, panel.Offered));
+        };
     }
 
     /// <summary>Gets or sets whether it shows as a settings row rather than as Home's card.</summary>
@@ -91,28 +105,21 @@ public partial class SpatialTile : UserControl
         set => SetValue(AsRowProperty, value);
     }
 
-    /// <summary>Gets or sets whether a row puts its segments under its title, as the mini panel's other rows do, instead of beside it.</summary>
-    /// <remarks>The same segments move; nothing is built twice.</remarks>
-    public bool Stacked
+    /// <summary>Gets or sets whether it shows as a tile in the mini panel, rather than as Home's card or a row.</summary>
+    public bool AsTile
     {
-        get => GetValue(StackedProperty);
-        set => SetValue(StackedProperty, value);
+        get => GetValue(AsTileProperty);
+        set => SetValue(AsTileProperty, value);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == AsRowProperty)
+        if (change.Property == AsRowProperty || change.Property == AsTileProperty)
         {
-            Card.IsVisible = !AsRow;
-            Row.IsVisible = AsRow;
-        }
-        else if (change.Property == StackedProperty)
-        {
-            Row.Content = Stacked ? null : _pill;
-            Row.Below = Stacked ? _pill : null;
-            _pill.HorizontalAlignment = Stacked ? HorizontalAlignment.Left : HorizontalAlignment.Right;
-            _pill.Margin = Stacked ? (Thickness)Application.Current!.FindResource("NeapSectionGap")! : default;
+            Card.IsVisible = !AsRow && !AsTile;
+            Row.IsVisible = AsRow && !AsTile;
+            Tile.IsVisible = AsTile;
         }
     }
 
@@ -170,6 +177,12 @@ public partial class SpatialTile : UserControl
 
     private void Paint(SpatialPanel panel)
     {
+        _panel = panel;
+        if (panel.Active is { } active) _lastOn = QuickToggle.LastOn(active, SpatialFormat.Off, _lastOn);
+        bool canChoose = panel.Offered.Count > 1;
+        Tile.Show(panel.Active is { } on && on != SpatialFormat.Off,
+            panel.Active is { } shown ? Label(shown) : Strings.Get("Reading_None"), canChoose);
+        Tile.Offer(panel.Offered.Select(format => (Label(format), format == panel.Active, (Action)(() => _ = Choose(format)))), canChoose);
         _painting = true;
         try
         {
@@ -190,8 +203,7 @@ public partial class SpatialTile : UserControl
                 : needsDriver ? Strings.Get("Spatial_DolbyNeedsDriver")
                 : null;
 
-            // Stacked rows are narrow, so only the short note shows; the driver and equaliser notes stay on Home and Audio.
-            Row.Description = Stacked && !(panel.Active is null && panel.Unrecognised) ? null : note;
+            Row.Description = note;
             Note.Text = note;
             Note.IsVisible = note is not null;
         }

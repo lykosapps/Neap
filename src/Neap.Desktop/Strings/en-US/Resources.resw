@@ -69,10 +69,24 @@
   <data name="Mini_Open.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Open Neap</value>
   </data>
-  <data name="Mini_Noise.Header" xml:space="preserve">
+  <data name="Mini_Noise" xml:space="preserve">
     <value>Noise cancellation</value>
   </data>
-  <data name="Mini_Equaliser.Header" xml:space="preserve">
+  <data name="Mini_NoiseTile" xml:space="preserve">
+    <value>Noise</value>
+    <comment>The noise cancellation tile's name in the mini panel, a third of its width.</comment>
+  </data>
+  <data name="Mini_NoiseChoices" xml:space="preserve">
+    <value>Noise cancellation choices</value>
+  </data>
+  <data name="Mini_SpatialTile" xml:space="preserve">
+    <value>Spatial</value>
+    <comment>The spatial sound tile's name in the mini panel, a third of its width.</comment>
+  </data>
+  <data name="Mini_SpatialChoices" xml:space="preserve">
+    <value>Spatial sound choices</value>
+  </data>
+  <data name="Mini_Equaliser.Text" xml:space="preserve">
     <value>Equaliser</value>
   </data>
   <data name="Mini_ChooseApps.Content" xml:space="preserve">

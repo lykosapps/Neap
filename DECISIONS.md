@@ -1,5 +1,26 @@
 # Decisions
 
+## 2026-10-22 — The mini panel as quick tiles
+
+- **Options:** keep Home's controls in the panel at full size; the same
+  controls made small, as a compact list with small segmented controls;
+  quick tiles, as the system's quick settings and the Steam Deck's quick
+  menu have.
+- **Chosen:** quick tiles. The mix is a slim balance slider, game at the
+  left and chat at the right, in place of Home's dial. The microphone,
+  noise cancellation and spatial sound are three tiles in a row: a press
+  turns one off, or back on the way it was last on, and the arrow in a
+  tile's corner lists its choices. The equaliser preset is one compact row
+  under them. The panel is 320 wide.
+- **Why:** the owner found the panel full-size, not mini: it reused Home's
+  controls, and the dial alone took a third of it. Tiles are the most
+  compact form, and a pattern people know from their system. A press that
+  turns a setting off or back on, with a list for the rest, keeps every
+  choice one step away, where stepping through them would hide what comes
+  next mid-game.
+- **Revisit if:** people miss seeing noise cancellation's three modes at a
+  glance, or want the dial back in the panel.
+
 ## 2026-10-17 — A mini panel on the tray icon's left click
 
 - **Options:** leave a click on the icon opening the window; a menu of

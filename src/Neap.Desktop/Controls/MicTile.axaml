@@ -36,5 +36,7 @@
         </Border>
 
         <c:SettingsCard x:Name="Row" Icon="{StaticResource IconMicrophone}" IsVisible="False" />
+
+        <c:QuickTile x:Name="Tile" IsVisible="False" />
     </Grid>
 </UserControl>

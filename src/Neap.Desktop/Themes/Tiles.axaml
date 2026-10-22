@@ -18,6 +18,83 @@
     </Style>
 
     <!--
+        A quick tile in the mini panel: the inset's fill, taking the on tint
+        while its setting is on, as Home's cards do. The icon at the top, the
+        name and state at the foot, and the list's arrow in the top corner.
+    -->
+    <Style Selector="ToggleButton.quicktile">
+        <Setter Property="Height" Value="64" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapQuickStrokeBrush}" />
+        <Setter Property="Background" Value="{DynamicResource NeapInsetBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.quicktile:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource NeapButtonHoverBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapQuickStrokeBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.quicktile:checked /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource NeapQuickOnBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapQuickStrokeBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapQuickOnTextBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.quicktile:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource NeapQuickOnBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapQuickStrokeBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapQuickOnTextBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.quicktile:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource NeapInsetBrush}" />
+    </Style>
+    <!-- A row in the mini panel under its tiles, such as the equaliser's preset: as low as the tiles are plain. -->
+    <Style Selector="Border.quickrow">
+        <Setter Property="Background" Value="{DynamicResource NeapInsetBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapQuickStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+        <Setter Property="Padding" Value="10,6" />
+    </Style>
+    <Style Selector="PathIcon.quickicon">
+        <Setter Property="Width" Value="{StaticResource NeapIconRow}" />
+        <Setter Property="Height" Value="{StaticResource NeapIconRow}" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <Style Selector="TextBlock.quicktitle">
+        <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style Selector="TextBlock.quickvalue">
+        <Setter Property="FontSize" Value="{StaticResource NeapFontLabel}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style Selector="Button.quickmore">
+        <Setter Property="Width" Value="24" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <!-- The list's arrow sits on the tile, so it takes the tile's text colour while the tile is on. -->
+    <Style Selector="c|QuickTile.on Button.quickmore">
+        <Setter Property="Foreground" Value="{DynamicResource NeapQuickOnTextBrush}" />
+    </Style>
+    <Style Selector="Button.quickmore PathIcon">
+        <Setter Property="Width" Value="12" />
+        <Setter Property="Height" Value="12" />
+    </Style>
+
+    <!--
         Something that cannot be used yet is shown faded, not hidden: a
         segmented control in a card, such as the sound of Superhuman Hearing
         while it is off.

@@ -116,6 +116,12 @@ internal static class HighContrast
         Brush("NeapTileOnDisabledBrush", p.Gray);
         Brush("NeapTileOnDisabledTextBrush", p.Window);
 
+        // A quick tile has no switch to say it is on, so it is outlined, and
+        // filled in the highlight while on, as a chosen segment is.
+        Brush("NeapQuickStrokeBrush", p.Text);
+        Brush("NeapQuickOnBrush", p.Highlight);
+        Brush("NeapQuickOnTextBrush", p.HighlightText);
+
         // The page and the rail share the window's colour; the chosen place
         // is marked by its bar, not by a fill.
         // The mark keeps its shape: the window's colour for the square, edged and drawn in the text colour.

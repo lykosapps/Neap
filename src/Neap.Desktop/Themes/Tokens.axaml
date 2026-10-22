@@ -77,6 +77,10 @@
             <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#322A5E" />
             <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#F2F2F4" />
+            <!-- A quick tile in the mini panel: no edge, and the on tint while on, as a card on Home. -->
+            <SolidColorBrush x:Key="NeapQuickStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapQuickOnBrush" Color="#2A2250" />
+            <SolidColorBrush x:Key="NeapQuickOnTextBrush" Color="#F2F2F4" />
             <!-- The switch drawn on a tile that is on: the accent track and a white knob, on the tile's soft tint. -->
             <SolidColorBrush x:Key="NeapTileOnGlyphBrush" Color="#6D4AFF" />
             <SolidColorBrush x:Key="NeapTileOnKnobBrush" Color="#FFFFFF" />
@@ -156,6 +160,10 @@
             <SolidColorBrush x:Key="NeapTileOnHoverBrush" Color="#DCD2FF" />
             <SolidColorBrush x:Key="NeapTileOnStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapTileOnTextBrush" Color="#1C1240" />
+            <!-- A quick tile in the mini panel: no edge, and the on tint while on, as a card on Home. -->
+            <SolidColorBrush x:Key="NeapQuickStrokeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="NeapQuickOnBrush" Color="#E4DCFF" />
+            <SolidColorBrush x:Key="NeapQuickOnTextBrush" Color="#1C1240" />
             <!-- The switch drawn on a tile that is on: the accent track and a white knob, on the tile's soft tint. -->
             <SolidColorBrush x:Key="NeapTileOnGlyphBrush" Color="#6D4AFF" />
             <SolidColorBrush x:Key="NeapTileOnKnobBrush" Color="#FFFFFF" />
