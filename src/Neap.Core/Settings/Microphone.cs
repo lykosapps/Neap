@@ -23,8 +23,8 @@ public enum MicChange { None, MuteSystem, UnmuteSystem, MuteHeadset, UnmuteHeads
 /// With the boom microphone taken off, the headset picks you up with its
 /// built-in microphones, and its mute button mutes those instead. Their mute
 /// is <c>builtin_mic_muted</c>, 1 while muted, and the arm reads 0 throughout.
-/// Unlike the arm, it takes a write: the headset mutes, with its tone, as if
-/// the button were pressed. Measured.
+/// Unlike the arm, it takes a write while those microphones are in use: the
+/// headset mutes, with its tone, as if the button were pressed. Measured.
 /// </para>
 /// <para>
 /// While the arm is up nothing on the PC can make the microphone live, so
@@ -39,6 +39,23 @@ public static class Microphone
 
     /// <summary>The registry name of the headset's reading of its built-in microphones' mute.</summary>
     public const string BuiltInSetting = "builtin_mic_muted";
+
+    /// <summary>The registry name of the headset's reading of which microphone is in use: 1 the boom, 2 the built-in ones.</summary>
+    public const string InUseSetting = "mic_in_use";
+
+    /// <summary>The <see cref="InUseSetting"/> reading while the built-in microphones are in use.</summary>
+    public const int BuiltInInUse = 2;
+
+    /// <summary>Whether a mute written to the headset mutes the microphone in use, so the app's switch can mute on the headset.</summary>
+    /// <param name="inUse">The reported <c>mic_in_use</c>, or null if the headset has not reported it.</param>
+    /// <param name="builtIn">The reported <c>builtin_mic_muted</c>, or null if the headset has not reported it.</param>
+    /// <remarks>
+    /// Only the built-in microphones' mute takes a write. With the boom
+    /// microphone in use the headset undoes that mute a moment later, so the
+    /// switch mutes in the system instead, as it does for the arm. Anything
+    /// but the built-in reading, including none, is taken as the boom.
+    /// </remarks>
+    public static bool HeadsetMutes(int? inUse, int? builtIn) => inUse == BuiltInInUse && builtIn is not null;
 
     /// <param name="arm">The reported <c>mic_muted</c>, or null if the headset has not reported it.</param>
     /// <param name="builtIn">The reported <c>builtin_mic_muted</c>, or null if the headset has not reported it.</param>
@@ -98,7 +115,7 @@ public static class Microphone
 
     /// <summary>What a press of the app's switch changes in this state.</summary>
     /// <param name="state">The microphone now.</param>
-    /// <param name="headsetMutes">Whether the headset reports its built-in microphones' mute and Neap may write it.</param>
+    /// <param name="headsetMutes">Whether the headset can mute the microphone in use, by <see cref="HeadsetMutes"/>, and Neap may write it.</param>
     /// <remarks>
     /// Where the headset can mute itself the switch does that, so a press is
     /// the same as the headset's own button: the headset plays its tone, and
@@ -115,6 +132,6 @@ public static class Microphone
 
     /// <summary>Whether the app can mute or unmute the microphone in this state.</summary>
     /// <param name="state">The microphone now.</param>
-    /// <param name="headsetMutes">Whether the headset reports its built-in microphones' mute and Neap may write it.</param>
+    /// <param name="headsetMutes">Whether the headset can mute the microphone in use, by <see cref="HeadsetMutes"/>, and Neap may write it.</param>
     public static bool CanChange(MicState state, bool headsetMutes) => ChangeFor(state, headsetMutes) != MicChange.None;
 }

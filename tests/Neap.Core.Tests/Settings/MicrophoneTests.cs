@@ -103,6 +103,24 @@ public class MicrophoneTests
         Assert.False(arm.Writable);
     }
 
+    [Theory]
+    [InlineData(2, 0, true)]
+    [InlineData(2, 1, true)]
+    [InlineData(1, 0, false)]
+    [InlineData(null, 0, false)]
+    [InlineData(2, null, false)]
+    [InlineData(3, 0, false)]
+    public void TheHeadsetMutesItselfOnlyWhileItsBuiltInMicrophonesAreInUse(int? inUse, int? builtIn, bool mutes) =>
+        Assert.Equal(mutes, Microphone.HeadsetMutes(inUse, builtIn));
+
+    [Fact]
+    public void WhichMicrophoneIsInUseIsAReadingNotASetting()
+    {
+        Assert.True(Registry.ByName.TryGetValue(Microphone.InUseSetting, out var inUse));
+        Assert.Equal(0x640, inUse.Key);
+        Assert.False(inUse.Writable);
+    }
+
     [Fact]
     public void TheBuiltInMicrophonesMuteIsASetting()
     {

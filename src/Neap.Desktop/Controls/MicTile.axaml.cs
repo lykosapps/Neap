@@ -124,11 +124,14 @@ public partial class MicTile : UserControl
 
     private MicState State => Microphone.Of(_link.Value, BuiltIn, _mutedInSystem);
 
-    private static int? BuiltIn =>
-        AppServices.Headset.TryGetNumberByKey(BuiltInKey.Key, out int value) ? value : null;
+    private static int? BuiltIn => Number(Microphone.BuiltInSetting);
 
-    /// <summary>Whether the headset reports its built-in microphones' mute and Neap may change it.</summary>
-    private static bool HeadsetMutes => BuiltIn is not null && !AppServices.Headset.ReadOnly;
+    /// <summary>Whether the headset can mute the microphone in use and Neap may change it.</summary>
+    private static bool HeadsetMutes =>
+        Microphone.HeadsetMutes(Number(Microphone.InUseSetting), BuiltIn) && !AppServices.Headset.ReadOnly;
+
+    private static int? Number(string setting) =>
+        AppServices.Headset.TryGetNumberByKey(Registry.ByName[setting].Key, out int value) ? value : null;
 
     protected override async void OnLoaded(RoutedEventArgs e)
     {

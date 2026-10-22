@@ -166,6 +166,9 @@ and date.
 
 ### Fixed
 
+- With the boom microphone on, Neap's microphone switch mutes again. It was
+  muting the headset's built-in microphones, which the headset undoes while
+  the boom is in use; it now mutes on the headset only with the boom off.
 - Button text sits in the middle of its button; it sat a little high.
 - A click anywhere along a slider moves it there. Before, only dragging the
   handle moved it.
