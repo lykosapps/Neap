@@ -1,5 +1,19 @@
 # Decisions
 
+## 2026-10-22 — Touch size goes by the screen, not the window
+
+- **Options:** keep drawing at touch size whenever the window is the size of
+  the Steam Deck's screen or smaller; go by the size of the screen instead.
+- **Chosen:** the screen. Touch size is for a screen of 1280 by 820 or less,
+  in device-independent pixels, for the main window and the mini panel
+  alike.
+- **Why:** the owner's window, made small on a large screen, drew its
+  switches and sliders at a finger's size, which looked too large with a
+  mouse. This replaces the reason in "Ultraviolet on a darker neutral,
+  roomier on small screens": a small window is not a touch screen.
+- **Revisit if:** someone using a touch screen larger than the Deck's asks
+  for the larger controls.
+
 ## 2026-10-22 — The mini panel as quick tiles
 
 - **Options:** keep Home's controls in the panel at full size; the same

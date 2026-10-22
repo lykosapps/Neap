@@ -310,11 +310,6 @@
     <Style Selector="Window.touch Slider">
         <Setter Property="MinHeight" Value="{StaticResource NeapTargetTouch}" />
     </Style>
-    <Style Selector="Window.touch Slider /template/ Thumb">
-        <Setter Property="Width" Value="{StaticResource NeapSliderThumbTouch}" />
-        <Setter Property="Height" Value="{StaticResource NeapSliderThumbTouch}" />
-        <Setter Property="CornerRadius" Value="14" />
-    </Style>
     <Style Selector="Window.touch ToggleSwitch /template/ Border#SwitchRoot">
         <Setter Property="MinHeight" Value="{StaticResource NeapTargetTouch}" />
     </Style>

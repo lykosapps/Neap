@@ -182,9 +182,10 @@ and date.
 - With the headset away, the mini panel shows only its header, which says
   the headset is not connected, without a note under it. Its button for
   opening Neap is smaller.
-- The mini panel is its usual size on a large screen. It grew whenever the
-  main window was small; it now grows only on a small screen, such as the
-  Steam Deck's.
+- The window and the mini panel keep their usual sizes on a large screen.
+  Switches, sliders and the mini panel grew to the touch size whenever the
+  window was made small; they now grow only on a small screen, such as the
+  Steam Deck's, and a slider's handle stays round at every size.
 - The microphone meter on the Audio page moves as soon as the page opens.
   It could stay still until you switched away and back or opened the page
   again: Neap could take itself to be behind other windows after the mini

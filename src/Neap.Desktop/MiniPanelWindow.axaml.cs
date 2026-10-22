@@ -96,11 +96,7 @@ public partial class MiniPanelWindow : Window
     }
 
     /// <summary>Whether the screen it opens on is small enough for the roomier touch size.</summary>
-    /// <remarks>
-    /// The screen, not the main window: the panel is the same size whatever
-    /// the window's, so a window made small on a large screen is no reason
-    /// for a large panel. On a Steam Deck the screen itself is small.
-    /// </remarks>
+    /// <remarks>The screen, as the main window does; see <see cref="Density"/>.</remarks>
     private bool OnSmallScreen() =>
         Screens.Primary is { } screen
         && Density.For(screen.WorkingArea.Width / screen.Scaling, screen.WorkingArea.Height / screen.Scaling) == DensityMode.Touch;
