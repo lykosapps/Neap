@@ -13,7 +13,7 @@ is in 0.2.1.7 for the testers to confirm.
   updated 20 March 2026.
 - **Testers:** one on Windows, one on Linux (CachyOS), on
   [issue 1](https://github.com/lykosapps/Neap/issues/1).
-- **Latest test build:** 0.2.1.7, published 22 October 2026.
+- **Latest test build:** 0.2.1.8, published 23 October 2026.
 - **SP2Tools:** the questions and answers are in its
   `knowledge/iceman-neap-asks.md`, the findings in
   `side-session-notes/iceman-re/`. All are read from the firmware; none has
@@ -128,6 +128,10 @@ From the quick start guide. Neap describes them; it doesn't set them.
 ## Next
 
 - [x] Publish test build 0.2.1.7 and ask both testers for one recording each.
+- [x] Publish test build 0.2.1.8: the Windows drops, the Linux restart order
+      and its notice, the loudness boost hidden; ask the Windows tester for ten
+      minutes untouched and Swarm II's monitoring at 100%, the Linux tester for
+      one start with the headset on.
 - [ ] Windows tester: with the noise gate off, monitoring at 100% while
       speaking normally, recorded, flipping the boom and pressing each button
       once in the same recording; the loudness boost; the light at start; which
