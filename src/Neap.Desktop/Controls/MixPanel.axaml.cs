@@ -240,8 +240,10 @@ public partial class MixPanel : UserControl
         bool chosen = apps.Count > 0;
         SetupLine.IsVisible = !chosen;
         // Kept in the layout while nothing is chosen, so the card's height
-        // does not change with the first app; unseen and unread until then.
+        // does not change with the first app; unseen, unread and switched off
+        // until then.
         Levels.Opacity = chosen ? 1 : 0;
+        Levels.IsEnabled = chosen;
         AutomationProperties.SetAccessibilityView(Levels, chosen ? AccessibilityView.Content : AccessibilityView.Raw);
         DialArea.IsEnabled = chosen;
         WatchLevels();
