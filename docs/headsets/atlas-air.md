@@ -23,7 +23,7 @@ is in 0.2.1.7 for the testers to confirm.
 
 | System | Neap connects | How sure | Next |
 |---|---|---|---|
-| Windows | Yes, through the USB Transmitter | Confirmed | — |
+| Windows | Yes, through the USB Transmitter; 0.2.1.7 drops to Not connected every 20 seconds to two minutes | Confirmed; the drops are Neap's | Fixed in main for the next test build: ask the tester to leave it running for ten minutes while recording. |
 | Linux | Only after a restart of the transmitter, which switches the headset off; on 20 and 21 October not even then | Fails | The transmitter drops every reply once its USB state is lost, and only a reset brings it back; a USB suspend is the likely cause (F115, Read). 0.2.1.7 keeps Turtle Beach's devices awake through the access rule, and asks the transmitter whether the headset is linked before restarting it. Ask the Linux tester to allow access again and record. |
 
 ## Features
@@ -112,10 +112,11 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 | Problem | Found in | Status | Next |
 |---|---|---|---|
+| Windows: Not connected every 20 seconds to two minutes, with the headset on and nothing touched | 0.2.1.7 | Fixed in main, not yet seen on the headset. 0.2.1.7 read the headset's inputs after every report it sent, several times a second, and while each read waited the transmitter seems to have handed back its last report again (Seen in the recording; the cause is inferred): one signal report came back 4,998 times in under a second, where 0.2.1.2's recording has one every ten seconds. The headset then missed two heartbeats in a row, and Neap let go of it. The inputs are now read once at connect, a repeated report is taken once, the heartbeat waits its turn after other requests, and the log says when two heartbeats go unanswered. | Ask the tester to leave it running for ten minutes while recording. |
 | Linux: the transmitter stops answering | 0.2.1.2 | Open; 0.2.1.7 keeps it awake (F115) | Ask the Linux tester. |
 | Linux: Neap's restart switches the headset off | 0.2.1.5 | It happened on every start of Neap. 0.2.1.7 restarts only a transmitter that gives no answer at all, not one that says no headset is linked. Not the transmitter's doing (F118); probably the headset reacting to the link going. | Ask the Linux tester whether it still happens. |
 | Linux: the restart's log said the transmitter answered when it hadn't | 0.2.1.5 | Fixed for 0.2.1.7: a report with a length of 0 is empty, whatever is left in it | — |
-| Mic monitoring too quiet: heard only when speaking very loudly | 0.2.1.6 | Open. Three causes, most likely first: the noise gate left on, which lets only loud speech through and which Neap could not show; the level not taking, as the headset may have nowhere to keep it (F120); or the level low, or 0 dB at 100% too quiet. 0.2.1.7 shows the noise gate and logs the gain the headset stores at connect and after each change. | Ask him to turn the noise gate off, set monitoring to 100%, speak normally and record. A gain above 0 dB would be a change of its own, not proven. |
+| Mic monitoring too quiet: heard only when speaking very loudly | 0.2.1.6 | Open. Three causes, most likely first: the noise gate left on, which lets only loud speech through and which Neap could not show; the level not taking, as the headset may have nowhere to keep it (F120); or the level low, or 0 dB at 100% too quiet. 0.2.1.7 shows the noise gate and logs the gain the headset stores at connect; the next build reads it only then. | Ask him to turn the noise gate off, set monitoring to 100%, speak normally and record. A gain above 0 dB would be a change of its own, not proven. |
 | Mic monitoring goes on while muted | 0.2.1.6 | Fixed for 0.2.1.7: Neap mutes in the system, which the headset never hears of, so it now turns monitoring down too, as the headset's own mute does (F120) | Ask the tester. |
 | Master volume shakes on big dial turns | 0.2.1.2 | Rare; explained by F120 | Left. |
 | Transmitter light has no reading at start | 0.2.1.5 | Fixed for 0.2.1.7: read from the transmitter itself (F116) | Ask the tester. |
@@ -147,6 +148,17 @@ From the quick start guide. Neap describes them; it doesn't set them.
 ## Evidence
 
 Newest first.
+
+- 2026-10-22 — Windows tester, 0.2.1.7 (7 minutes): Not connected every 20
+  seconds to two minutes, with no line in the log to say why; the recording
+  filled in 14 seconds with one signal report repeated 4,998 times. Mic
+  monitoring makes a difference between 0% and 100%, but sounds muffled
+  rather than like hearing his own voice. The loudness boost made no
+  difference he could hear. The inputs record showed the mute switch, the
+  source switch and the media button. Linux tester, 0.2.1.7: Neap restarted
+  the transmitter before offering the new access rule, the headset stayed
+  on, and after the rule was allowed Neap stayed Quiet; the transmitter
+  probably needs unplugging and plugging back in once the new rule is in.
 
 - 2026-10-22 — SP2Tools answered Neap's questions from the Atlas Air's
   firmware (F114 to F122), all read, none tried on a headset. The Linux

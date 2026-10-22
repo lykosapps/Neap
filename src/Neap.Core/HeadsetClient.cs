@@ -413,10 +413,19 @@ public sealed class HeadsetClient : IDisposable
     /// accepts, keeping any notification that arrives meanwhile.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// The reply is a RACE command reply, not the text event protocol, so it is
     /// matched on the raw report before the report reaches the event parser. A
     /// report that is not the reply is taken in as usual, so a notification in
     /// it is not lost to the exchange.
+    /// </para>
+    /// <para>
+    /// A report the same as the one read just before it is taken in once. One
+    /// tester's Atlas Air recording holds a single signal report 4,998 times
+    /// in under a second, from a headset that sends one every ten seconds,
+    /// which reads as its transmitter handing back the report it last gave
+    /// while a request waits.
+    /// </para>
     /// </remarks>
     private T? Exchange<T>(byte[] request, Func<byte[], T?> match, TimeSpan wait) where T : struct
     {
@@ -424,13 +433,18 @@ public sealed class HeadsetClient : IDisposable
         if (_lastSet != 0 && sinceWrite < AfterWrite) Thread.Sleep(AfterWrite - sinceWrite);
         _transport.SendOutput(request);
 
+        byte[] previous = [];
         var clock = Stopwatch.StartNew();
         while (clock.Elapsed < wait)
         {
             var report = _transport.GetInput();
             if (match(report) is { } hit) return hit;
-            foreach (var evt in Ingest(report))
-                if (evt.Kind == "UP") _setAside.Add(evt);
+            if (!report.AsSpan().SequenceEqual(previous))
+            {
+                foreach (var evt in Ingest(report))
+                    if (evt.Kind == "UP") _setAside.Add(evt);
+            }
+            previous = report;
             Thread.Sleep(3);
         }
         return null;

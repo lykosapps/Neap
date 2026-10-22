@@ -250,4 +250,42 @@ public class HeadsetClientTests
         Assert.Equal(1, client.Drain());
         Assert.Empty(client.ReadOnce());
     }
+
+    [Fact]
+    public void AReportHandedBackAgainWhileARequestWaitsIsTakenOnce()
+    {
+        using var client = new HeadsetClient(transport: new Repeating("{\"UP\":\"BT\",\"KVP\":{\"310\":\"-56\"}}"));
+
+        Assert.Null(client.ReadInputs(TimeSpan.FromMilliseconds(200)));
+
+        var kept = Assert.Single(client.ReadOnce());
+        Assert.Equal("-56", kept.Values["310"].GetString());
+    }
+
+    /// <summary>A transmitter that answers the reads after a request with the same notification, twenty times, as an Atlas Air's did while a request waited.</summary>
+    private sealed class Repeating(string json) : Core.Hid.IHidTransport
+    {
+        private readonly byte[] _report = Report(Encoding.ASCII.GetBytes(json));
+        private int _left;
+
+        public ushort ProductId => 0x225E;
+
+        public string Describe() => "repeating";
+
+        public void SendOutput(ReadOnlySpan<byte> report) => _left = 20;
+
+        public byte[] GetInput(byte reportId = Core.Hid.HidControl.InReportId) =>
+            _left-- > 0 ? (byte[])_report.Clone() : new byte[_report.Length];
+
+        public void Dispose() { }
+
+        private static byte[] Report(byte[] payload)
+        {
+            var report = new byte[64];
+            report[0] = Core.Hid.HidControl.InReportId;
+            report[1] = (byte)payload.Length;
+            payload.CopyTo(report, 3);
+            return report;
+        }
+    }
 }

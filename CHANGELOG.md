@@ -188,6 +188,11 @@ and date.
 
 ### Fixed
 
+- The Atlas Air no longer drops to "Not connected" every minute or so while
+  it is in use. Neap was asking it for its buttons and switches several times
+  a second, and the headset then missed Neap's regular check. They are now
+  read once, when it connects, and the log says when the headset stops
+  answering that check.
 - On Linux, Neap's access rule keeps Turtle Beach transmitters from being put
   to sleep to save power, which could leave one answering nothing until it
   was restarted. If an older rule is installed and a transmitter stops
