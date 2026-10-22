@@ -1,6 +1,9 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Layout;
+using Neap.Core;
+using Neap.Core.Diagnostics;
 using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
@@ -15,6 +18,13 @@ namespace Neap.Desktop.Controls;
 /// which the headset does not have: choosing it sets the headset to noise
 /// cancellation on/off and has the app do the rest, so it works only while
 /// the app is running, and the panel says so while it is chosen.
+/// </para>
+/// <para>
+/// Under the jobs, on a headset with noise control, the person says whether
+/// its firmware is stock or edited. Edited firmware runs the cycle itself, so
+/// the app's cycle is not offered and noise cancellation is named as the
+/// cycle. It is asked here because nothing the headset reports tells the
+/// two apart.
 /// </para>
 /// <para>
 /// The radio group's automation id is "mode_button_function", the setting it
@@ -34,16 +44,34 @@ public sealed class ModeButtonChoice : UserControl
     private readonly TextBlock _title = new() { Classes = { "cardtitle" } };
     private readonly TextBlock _description = new() { Classes = { "caption", "secondary" } };
     private readonly TextBlock _needsApp = new() { Classes = { "caption", "secondary" }, IsVisible = false };
+    private readonly StackPanel _firmware = new() { Spacing = Space.XS };
+    private readonly RadioButton _stock = NeapControls.Segment(Strings.Get("Mode_FirmwareStock"), "headset_firmware");
+    private readonly RadioButton _edited = NeapControls.Segment(Strings.Get("Mode_FirmwareEdited"), "headset_firmware");
     private readonly SettingLink _link;
+    private RadioButton? _noiseButton;
+    private string? _noiseLabel;
     private bool _painting;
 
     public ModeButtonChoice()
     {
         _needsApp.Text = Strings.Get("Mode_NoiseCycleNeedsApp");
+
+        string firmware = Strings.Get("Mode_Firmware");
+        var segments = new StackPanel { Orientation = Orientation.Horizontal, Children = { _stock, _edited } };
+        AutomationProperties.SetName(segments, firmware);
+        AutomationProperties.SetAutomationId(segments, "headset_firmware");
+        NeapControls.AsGroup(segments);
+        _stock.IsCheckedChanged += (_, _) => ChooseFirmware(_stock, headsetCycles: false);
+        _edited.IsCheckedChanged += (_, _) => ChooseFirmware(_edited, headsetCycles: true);
+        var pill = NeapControls.Pill(segments);
+        pill.HorizontalAlignment = HorizontalAlignment.Left;
+        _firmware.Children.Add(new TextBlock { Text = firmware, Classes = { "caption", "secondary" } });
+        _firmware.Children.Add(pill);
+
         Content = new Border
         {
             Classes = { "card" },
-            Child = new StackPanel { Spacing = Space.S, Children = { _title, _description, _options, _needsApp } },
+            Child = new StackPanel { Spacing = Space.S, Children = { _title, _description, _options, _needsApp, _firmware } },
         };
         _link = new SettingLink(this, () => "mode_button_function", Build, Paint);
     }
@@ -89,6 +117,11 @@ public sealed class ModeButtonChoice : UserControl
             {
                 if (button.IsChecked == true) Choose(choice);
             };
+            if (choice == new ModeChoice(ModeButton.NoiseCancellation, false))
+            {
+                _noiseButton = button;
+                _noiseLabel = label;
+            }
             _options.Children.Add(button);
         }
     }
@@ -101,15 +134,31 @@ public sealed class ModeButtonChoice : UserControl
         Paint();
     }
 
+    private void ChooseFirmware(RadioButton segment, bool headsetCycles)
+    {
+        if (_painting || segment.IsChecked != true) return;
+        AppServices.Noise.SetHeadsetCycles(headsetCycles);
+        Paint();
+    }
+
     private void Paint()
     {
-        var shown = ModeButton.Shown(_link.Value, AppServices.Noise.Cycling);
+        bool headsetCycles = AppServices.Noise.HeadsetCycles;
+        var shown = ModeButton.Shown(_link.Value, AppServices.Noise.Cycling, headsetCycles);
         _options.IsEnabled = shown is not null && _link.CanWrite;
+        if (_noiseButton is not null)
+            _noiseButton.Content = headsetCycles ? Strings.Get("Mode_NoiseCycleFirmware") : _noiseLabel;
+        _firmware.IsVisible = HeadsetModels.Shows(AppServices.Headset.Model, Feature.NoiseControl);
         _painting = true;
         try
         {
             foreach (var button in _options.Children.OfType<RadioButton>())
+            {
+                button.IsVisible = button.Tag is not ModeChoice offered || ModeButton.Offered(offered, headsetCycles);
                 button.IsChecked = button.Tag is ModeChoice choice && choice == shown;
+            }
+            _stock.IsChecked = !headsetCycles;
+            _edited.IsChecked = headsetCycles;
         }
         finally { _painting = false; }
         _needsApp.IsVisible = shown is { Cycles: true };

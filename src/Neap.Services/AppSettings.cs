@@ -75,6 +75,13 @@ public sealed class AppSettings
     /// </remarks>
     [JsonPropertyName("mode_cycles_noise")] public bool ModeCyclesNoise { get; set; }
 
+    /// <summary>Whether the headset's firmware is edited to step the Mode button through off, transparency and cancelling itself.</summary>
+    /// <remarks>
+    /// Off by default: stock firmware is what every headset ships with, and
+    /// nothing the headset reports tells the two apart.
+    /// </remarks>
+    [JsonPropertyName("headset_cycles_noise")] public bool HeadsetCyclesNoise { get; set; }
+
     /// <summary>Whether the Charging Dock's status ring is turned purple again after the microphone opens.</summary>
     /// <remarks>
     /// On by default: without it the ring shows white through every call.

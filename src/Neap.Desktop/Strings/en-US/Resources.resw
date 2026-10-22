@@ -1499,6 +1499,22 @@
   <data name="Mode_NoiseCycleNeedsApp" xml:space="preserve">
     <value>Works while Neap is running. Otherwise the button turns noise cancellation on and off.</value>
   </data>
+  <data name="Mode_Firmware" xml:space="preserve">
+    <value>Headset firmware</value>
+    <comment>Whether the headset's firmware is as it shipped or edited to run the noise cycle itself.</comment>
+  </data>
+  <data name="Mode_FirmwareStock" xml:space="preserve">
+    <value>Stock</value>
+    <comment>The firmware the headset shipped with.</comment>
+  </data>
+  <data name="Mode_FirmwareEdited" xml:space="preserve">
+    <value>Edited</value>
+    <comment>Firmware edited so the Mode button steps through off, transparency and noise cancellation by itself.</comment>
+  </data>
+  <data name="Mode_NoiseCycleFirmware" xml:space="preserve">
+    <value>Noise cancellation: off, transparency and cancelling</value>
+    <comment>What the Mode button does on edited firmware, in the order it steps.</comment>
+  </data>
   <data name="Equaliser_Mode.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Shape the sound by</value>
   </data>

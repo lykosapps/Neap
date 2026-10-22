@@ -39,6 +39,14 @@ public class NoiseControlTests
     }
 
     [Fact]
+    public void StockFirmwareShowsTheModesInTheAppsCycle() =>
+        Assert.Equal([NoiseMode.Off, NoiseMode.Cancelling, NoiseMode.Transparency], NoiseControl.Order(headsetCycles: false));
+
+    [Fact]
+    public void EditedFirmwareShowsTheModesInTheHeadsetsCycle() =>
+        Assert.Equal([NoiseMode.Off, NoiseMode.Transparency, NoiseMode.Cancelling], NoiseControl.Order(headsetCycles: true));
+
+    [Fact]
     public void NoiseCancellationRemembersTheLevelItWasUsedAt()
     {
         var noise = At(1, 60);
@@ -111,6 +119,19 @@ public class NoiseControlTests
     {
         var noise = At(1, 80);
         Assert.Empty(noise.Observe(0, 80));
+        Assert.Equal(NoiseMode.Off, noise.Mode);
+    }
+
+    [Fact]
+    public void WithEditedFirmwareEachStepOfTheHeadsetsCycleIsOnlyFollowed()
+    {
+        var noise = new NoiseControl(80) { Cycling = true, HeadsetCycles = true };
+        noise.Observe(0, 80);
+        Assert.Empty(noise.Observe(1, 0));
+        Assert.Equal(NoiseMode.Transparency, noise.Mode);
+        Assert.Empty(noise.Observe(1, 100));
+        Assert.Equal(NoiseMode.Cancelling, noise.Mode);
+        Assert.Empty(noise.Observe(0, 100));
         Assert.Equal(NoiseMode.Off, noise.Mode);
     }
 

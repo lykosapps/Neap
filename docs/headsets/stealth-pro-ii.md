@@ -77,7 +77,7 @@ system tried with a real headset.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | While Neap runs, the Mode button steps through noise cancellation, transparency and off. |
+| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (chosen on Controls): the headset steps through off, transparency and noise cancellation itself, and Neap only follows; untried in Neap on the headset. |
 | Lower wheel: monitoring, game and chat mix, bass, treble, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xA20` | — |
 
 ### Additional settings
@@ -142,6 +142,12 @@ system tried with a real headset.
 
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
+
+- 2026-10-22 — SP2Tools F090, proven on the owner's headset: edited firmware
+  makes the Mode button step off, transparency, noise cancellation, with a
+  tone for each, and keeps `0x750` and `0x760` in step as it goes (read from
+  the code, not yet seen on the wire). Neap now asks which firmware a headset
+  has, since the headset reports the same version either way.
 
 - 2026-10-17 — Turtle Beach's PC article read: the feature list above. It
   adds a per-transmitter voice prompt (none, 1–4) and lists wake on motion in

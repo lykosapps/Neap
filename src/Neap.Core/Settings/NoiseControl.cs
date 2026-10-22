@@ -31,6 +31,14 @@ public readonly record struct SettingWrite(int Key, int Value);
 /// turns it on. Going to transparency passes through off: the headset turns
 /// noise cancellation off before anything here can answer.
 /// </para>
+/// <para>
+/// A Stealth Pro II with edited firmware runs the whole cycle itself, as off,
+/// transparency, then cancelling, and writes both keys as it goes. With
+/// <see cref="HeadsetCycles"/> on, a press is only followed, never finished,
+/// since a step sent here would move the headset on a second time. Nothing
+/// the headset reports tells the two firmwares apart, so the person says
+/// which one it has.
+/// </para>
 /// </remarks>
 /// <param name="blocking">The level noise cancellation was last used at, or null if never.</param>
 public sealed class NoiseControl(int? blocking)
@@ -55,6 +63,15 @@ public sealed class NoiseControl(int? blocking)
 
     /// <summary>Gets or sets whether a press of the Mode button steps through all three modes.</summary>
     public bool Cycling { get; set; }
+
+    /// <summary>Gets or sets whether the headset's own firmware steps the Mode button through all three modes.</summary>
+    public bool HeadsetCycles { get; set; }
+
+    /// <summary>The modes in the order the Mode button steps through them, for showing them side by side.</summary>
+    /// <param name="headsetCycles">Whether the headset's own firmware runs the cycle.</param>
+    public static IReadOnlyList<NoiseMode> Order(bool headsetCycles) => headsetCycles
+        ? [NoiseMode.Off, NoiseMode.Transparency, NoiseMode.Cancelling]
+        : [NoiseMode.Off, NoiseMode.Cancelling, NoiseMode.Transparency];
 
     /// <summary>Sets the level noise cancellation comes back at, such as one a profile saved.</summary>
     public void SetBlocking(int level) => Blocking = Math.Clamp(level, LeastBlocking, 100);
@@ -94,7 +111,7 @@ public sealed class NoiseControl(int? blocking)
         _anc = anc;
         _level = level;
         if (Mode == NoiseMode.Cancelling) Blocking = level!.Value;
-        return pressed && Cycling && before is NoiseMode from ? Choose(Next(from)) : [];
+        return pressed && Cycling && !HeadsetCycles && before is NoiseMode from ? Choose(Next(from)) : [];
     }
 
     /// <summary>The writes that take the headset to a mode, in the order to send them.</summary>

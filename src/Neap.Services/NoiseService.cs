@@ -28,7 +28,7 @@ public sealed class NoiseService : IDisposable
     {
         _headset = headset;
         var saved = AppSettings.Current;
-        _noise = new NoiseControl(saved.NoiseBlocking) { Cycling = saved.ModeCyclesNoise };
+        _noise = new NoiseControl(saved.NoiseBlocking) { Cycling = saved.ModeCyclesNoise, HeadsetCycles = saved.HeadsetCyclesNoise };
         _headset.Changed += OnChanged;
     }
 
@@ -40,6 +40,12 @@ public sealed class NoiseService : IDisposable
 
     /// <summary>Gets whether a press of the Mode button steps through all three modes.</summary>
     public bool Cycling => _noise.Cycling;
+
+    /// <summary>Gets whether the headset's own firmware steps the Mode button through all three modes.</summary>
+    public bool HeadsetCycles => _noise.HeadsetCycles;
+
+    /// <summary>Gets the modes in the order the Mode button steps through them.</summary>
+    public IReadOnlyList<NoiseMode> Order => NoiseControl.Order(_noise.HeadsetCycles);
 
     /// <summary>Gets the way noise control was last on, which a press of the mini panel's tile turns it back on to.</summary>
     /// <remarks>Noise cancellation until the headset has been seen in a mode other than off. Kept for as long as Neap runs.</remarks>
@@ -70,6 +76,17 @@ public sealed class NoiseService : IDisposable
     {
         _noise.Cycling = cycling;
         AppSettings.Update(s => s.ModeCyclesNoise = cycling);
+        Changed?.Invoke();
+    }
+
+    /// <summary>Set whether the headset's own firmware steps the Mode button through all three modes.</summary>
+    public void SetHeadsetCycles(bool headsetCycles)
+    {
+        _noise.HeadsetCycles = headsetCycles;
+        AppSettings.Update(s => s.HeadsetCyclesNoise = headsetCycles);
+        AppLog.Write(headsetCycles
+            ? "noise control: the headset's edited firmware runs the Mode button's cycle"
+            : "noise control: the headset's firmware is stock, so Neap runs the Mode button's cycle when asked");
         Changed?.Invoke();
     }
 

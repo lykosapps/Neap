@@ -11,6 +11,8 @@ public readonly record struct ModeChoice(int Function, bool Cycles);
 /// has. On the headset it is noise cancellation on/off, and the app does the
 /// rest; see <see cref="NoiseControl"/>. So it is offered next to that one,
 /// and shown only while the headset's function is noise cancellation.
+/// Edited firmware has the cycle as its own noise cancellation function, so
+/// there the app's cycle is not offered at all.
 /// </remarks>
 public static class ModeButton
 {
@@ -25,7 +27,12 @@ public static class ModeButton
                 : new[] { new ModeChoice(function, false) })
             .ToList();
 
+    /// <summary>Whether a choice is offered for the headset's firmware.</summary>
+    /// <param name="choice">One of <see cref="Choices"/>.</param>
+    /// <param name="headsetCycles">Whether the headset's own firmware runs the noise cycle.</param>
+    public static bool Offered(ModeChoice choice, bool headsetCycles) => !(headsetCycles && choice.Cycles);
+
     /// <summary>The choice in effect, or null until the headset reports its function.</summary>
-    public static ModeChoice? Shown(int? function, bool cycling) =>
-        function is int f ? new ModeChoice(f, f == NoiseCancellation && cycling) : null;
+    public static ModeChoice? Shown(int? function, bool cycling, bool headsetCycles) =>
+        function is int f ? new ModeChoice(f, f == NoiseCancellation && cycling && !headsetCycles) : null;
 }
