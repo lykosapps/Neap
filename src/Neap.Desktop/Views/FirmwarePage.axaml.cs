@@ -1,5 +1,4 @@
 using System.Globalization;
-using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -12,7 +11,7 @@ namespace Neap.Desktop.Views;
 
 /// <summary>
 /// Firmware edits for the connected headset: which fit it, which are on,
-/// installing and removing them, and the backups each one leaves.
+/// ticking the ones wanted and applying them, and the backups each write leaves.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -21,24 +20,41 @@ namespace Neap.Desktop.Views;
 /// this draws what they decide.
 /// </para>
 /// <para>
-/// An install or a removal shows its steps on the edit's own card as each one
-/// starts, where the button that began it was, and says how it ended on the
-/// same card. Nothing else can be started meanwhile.
+/// The ticks start as what is on, so Apply with nothing changed writes nothing,
+/// and the plan under the list says what Apply would write before it is
+/// pressed. Restore to stock is Apply with nothing ticked.
+/// </para>
+/// <para>
+/// A run shows on its own card under the list: the one thing the person has to
+/// do, the steps, and how far the write has got, each updated where it is so a
+/// moving bar never takes the keyboard focus.
 /// </para>
 /// </remarks>
 public partial class FirmwarePage : UserControl
 {
-    /// <summary>The steps of the run under way, or of the last one, by edit.</summary>
-    private readonly Dictionary<FirmwareEdit, Run> _runs = [];
+    /// <summary>The edits ticked, kept across redraws until the headset reports what is on.</summary>
+    private HashSet<FirmwareEdit>? _wanted;
 
-    private sealed class Run
+    /// <summary>What the list was last drawn from, so a report that changes nothing on it leaves it, and the focus, alone.</summary>
+    private string? _drawn;
+
+    private CancellationTokenSource? _stopping;
+    private ApplyProgress? _progress;
+    private ApplyOutcome? _outcome;
+
+    public FirmwarePage()
     {
-        public EditStep? Current;
-        public bool Installing;
-        public EditOutcome? Outcome;
+        InitializeComponent();
+        ApplyButton.Click += async (_, _) => await AskToApply(Wanted.ToHashSet(), restoringStock: false);
+        StockButton.Click += async (_, _) => await AskToApply([], restoringStock: true);
+        CancelButton.Click += (_, _) => _stopping?.Cancel();
+        CloseButton.Click += (_, _) =>
+        {
+            _progress = null;
+            _outcome = null;
+            PaintRun(running: false);
+        };
     }
-
-    public FirmwarePage() => InitializeComponent();
 
     protected override async void OnLoaded(RoutedEventArgs e)
     {
@@ -60,168 +76,103 @@ public partial class FirmwarePage : UserControl
 
     private void OnStatus(Core.Connection.HeadsetStatus status) => Paint();
 
-    /// <summary>What the page last drew from, so a report that changes nothing on it leaves it, and the keyboard focus, alone.</summary>
-    private string? _drawn;
+    /// <summary>The edits ticked: as set by the person, or else what is on.</summary>
+    private IReadOnlySet<FirmwareEdit> Wanted =>
+        _wanted ?? (IReadOnlySet<FirmwareEdit>?)AppServices.Firmware.Installed ?? new HashSet<FirmwareEdit>();
 
     private void Paint()
     {
         var firmware = AppServices.Firmware;
+        var edits = firmware.Edits;
+        var plan = firmware.Plan(Wanted);
+        var blockers = FirmwareEdit.Blockers(plan.Changing, firmware.Readiness);
         string shown = string.Join("|",
-            firmware.CanWrite, firmware.Busy, firmware.Build, firmware.Readiness,
-            string.Join(",", firmware.Edits.Select(edit => $"{edit.Id}:{firmware.StatusOf(edit)}")),
-            string.Join(",", _runs.Select(pair => $"{pair.Key.Id}:{pair.Value.Current}:{pair.Value.Outcome}")),
+            firmware.CanWrite, firmware.Busy, firmware.Build, firmware.Readiness, firmware.Mark,
+            string.Join(",", Wanted.Select(edit => edit.Id).Order()),
+            string.Join(",", edits.Select(edit => edit.Id)),
             string.Join(",", FirmwareEditService.Backups.Select(backup => backup.File)));
         if (shown == _drawn) return;
         _drawn = shown;
 
         CannotWrite.IsOpen = !firmware.CanWrite;
-
-        var edits = firmware.Edits;
-        EditList.Children.Clear();
-        foreach (var edit in edits) EditList.Children.Add(Card(edit));
+        EditsCard.IsVisible = edits.Count > 0;
         NoEdits.IsVisible = edits.Count == 0;
 
-        var backups = FirmwareEditService.Backups;
+        EditList.Children.Clear();
+        foreach (var edit in edits) EditList.Children.Add(Row(edit));
+
+        PlanText.Text = PlanWords(plan);
+        BlockersText.Text = string.Join(" ", blockers.Select(BlockerWords));
+        BlockersText.IsVisible = !plan.Nothing && blockers.Count > 0;
+        bool free = firmware.CanWrite && !firmware.Busy;
+        ApplyButton.IsEnabled = free && !plan.Nothing && blockers.Count == 0;
+        var stock = firmware.Plan(new HashSet<FirmwareEdit>());
+        StockButton.IsEnabled = free && !stock.Nothing
+            && FirmwareEdit.Blockers(stock.Changing, firmware.Readiness).Count == 0;
+
         BackupList.Children.Clear();
-        foreach (var backup in backups) BackupList.Children.Add(Row(backup));
+        var backups = FirmwareEditService.Backups;
+        foreach (var backup in backups) BackupList.Children.Add(BackupRow(backup, free));
         NoBackups.IsVisible = backups.Count == 0;
     }
 
-    /// <summary>An edit's card: what it does, whether it is on, what is in the way, and its one action.</summary>
-    private Border Card(FirmwareEdit edit)
+    /// <summary>An edit's tick, with what it does, how much it risks and whether it is on.</summary>
+    private Control Row(FirmwareEdit edit)
     {
         var firmware = AppServices.Firmware;
         var status = firmware.StatusOf(edit);
-        var blockers = edit.Blockers(firmware.Readiness);
-        _runs.TryGetValue(edit, out var run);
-        string name = EditName(edit);
-
-        var body = new StackPanel { Spacing = Space.S };
-        body.Children.Add(new TextBlock { Text = name, Classes = { "cardtitle" } });
-        body.Children.Add(new TextBlock { Text = Description(edit), Classes = { "secondary" }, TextWrapping = TextWrapping.Wrap });
-        body.Children.Add(new TextBlock { Text = StatusWords(status, firmware.Build, edit), Classes = { "bodystrong" } });
-
-        // What stops it now, said where the button is, so a disabled button is never left unexplained.
-        bool actionable = status is EditStatus.Installed or EditStatus.NotInstalled;
-        if (actionable && blockers.Count > 0 && run?.Current is null)
-            body.Children.Add(new TextBlock
-            {
-                Text = string.Join(" ", blockers.Select(BlockerWords)),
-                Classes = { "caption", "secondary" },
-                TextWrapping = TextWrapping.Wrap,
-            });
-
-        if (run is not null) body.Children.Add(Steps(run));
-
-        if (actionable)
+        var tick = new CheckBox
         {
-            bool install = status == EditStatus.NotInstalled;
-            var action = new Button
-            {
-                Content = Strings.Get(install ? "Firmware_Install" : "Firmware_Remove"),
-                HorizontalAlignment = HorizontalAlignment.Left,
-                IsEnabled = firmware.CanWrite && !firmware.Busy && blockers.Count == 0,
-            };
-            AutomationProperties.SetName(action, Strings.Format(install ? "Firmware_InstallName" : "Firmware_RemoveName", name));
-            action.Click += async (_, _) => await Ask(edit, install);
-            body.Children.Add(action);
-        }
-
-        return new Border { Classes = { "card" }, Child = body };
-    }
-
-    /// <summary>The steps of a run, each with how far it has got, and how the run ended once it has.</summary>
-    private static StackPanel Steps(Run run)
-    {
-        var list = new StackPanel { Spacing = Space.XS };
-        AutomationProperties.SetName(list, Strings.Get("Firmware_StepsName"));
-        foreach (var step in FirmwareEdit.Steps)
+            Content = EditName(edit),
+            IsChecked = Wanted.Contains(edit),
+            IsEnabled = firmware.CanWrite && !firmware.Busy && status != EditStatus.DoesNotFit,
+        };
+        tick.IsCheckedChanged += (_, _) =>
         {
-            string state = StepState(step, run);
-            var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
-            row.Children.Add(new TextBlock { Text = StepWords(step) });
-            var said = new TextBlock { Text = state, Classes = { "secondary" } };
-            Grid.SetColumn(said, 1);
-            row.Children.Add(said);
-            AutomationProperties.SetName(row, $"{StepWords(step)}: {state}");
-            list.Children.Add(row);
-        }
-        if (run.Outcome is { } outcome)
-            list.Children.Add(new TextBlock
-            {
-                Text = OutcomeWords(outcome, run.Installing),
-                Classes = { "bodystrong" },
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 4, 0, 0),
-            });
-        return list;
+            var wanted = Wanted.ToHashSet();
+            if (tick.IsChecked == true) wanted.Add(edit);
+            else wanted.Remove(edit);
+            _wanted = wanted;
+            Paint();
+        };
+        string about = Strings.Format("Firmware_RiskAndStatus", RiskWords(edit.Risk), StatusWords(status, firmware.Build, edit));
+        AutomationProperties.SetHelpText(tick, $"{Description(edit)} {about}");
+
+        var details = new StackPanel { Margin = new Avalonia.Thickness(32, 0, 0, 0), Spacing = Space.Hairline };
+        details.Children.Add(new TextBlock { Text = Description(edit), Classes = { "secondary" }, TextWrapping = TextWrapping.Wrap });
+        details.Children.Add(new TextBlock { Text = about, Classes = { "caption", "secondary" }, TextWrapping = TextWrapping.Wrap });
+        return new StackPanel { Spacing = Space.Hairline, Children = { tick, details } };
     }
 
-    private static string StepState(EditStep step, Run run)
+    /// <summary>Asks before writing, with the plan and what can go wrong, then runs it on the run card.</summary>
+    private async Task AskToApply(HashSet<FirmwareEdit> wanted, bool restoringStock)
     {
-        var outcome = run.Outcome;
-        if (outcome is { FailedAt: { } failed })
-            return step < failed ? Strings.Get("Firmware_StepDone")
-                : step == failed ? Strings.Get("Firmware_StepFailed")
-                : Strings.Get("Firmware_StepSkipped");
-        if (outcome is not null) return Strings.Get("Firmware_StepDone");
-        return run.Current is not { } current ? Strings.Get("Firmware_StepWaiting")
-            : step < current ? Strings.Get("Firmware_StepDone")
-            : step == current ? Strings.Get("Firmware_StepWorking")
-            : Strings.Get("Firmware_StepWaiting");
-    }
-
-    /// <summary>Asks before writing, saying what can go wrong, then runs the steps on the edit's card.</summary>
-    private async Task Ask(FirmwareEdit edit, bool install)
-    {
-        string name = EditName(edit);
+        var plan = AppServices.Firmware.Plan(wanted);
         bool go = await new NeapDialog
         {
-            Heading = Strings.Format(install ? "Firmware_InstallTitle" : "Firmware_RemoveTitle", name),
-            Body = new TextBlock
+            Heading = Strings.Get(restoringStock ? "Firmware_RestoreStockTitle" : "Firmware_ApplyTitle"),
+            Body = new StackPanel
             {
-                Text = Strings.Get(install ? "Firmware_InstallWarning" : "Firmware_RemoveWarning"),
-                TextWrapping = TextWrapping.Wrap,
                 MaxWidth = 440,
+                Spacing = Space.S,
+                Children =
+                {
+                    new TextBlock { Text = PlanWords(plan), Classes = { "bodystrong" }, TextWrapping = TextWrapping.Wrap },
+                    new TextBlock { Text = Strings.Get("Firmware_ApplyWarning"), TextWrapping = TextWrapping.Wrap },
+                },
             },
-            PrimaryButtonText = Strings.Get(install ? "Firmware_Install" : "Firmware_Remove"),
+            PrimaryButtonText = Strings.Get(restoringStock ? "Firmware_RestoreStock" : "Firmware_Apply"),
             CloseButtonText = Strings.Get("Dialog_Cancel"),
         }.ShowAsync(this);
         if (!go) return;
 
-        var run = new Run { Installing = install };
-        _runs[edit] = run;
-        run.Outcome = await AppServices.Firmware.Run(edit, install, step =>
-        {
-            run.Current = step;
-            Paint();
-        });
+        RunTitle.Text = Strings.Get(restoringStock ? "Firmware_RunRestoringStock" : "Firmware_RunApplying");
+        await Running(cancel => AppServices.Firmware.Apply(wanted, Report, cancel));
+        _wanted = null;
         Paint();
     }
 
-    /// <summary>A backup's row: when it was made, for which edit, from which firmware, and putting it back.</summary>
-    private Border Row(FirmwareBackup backup)
-    {
-        var firmware = AppServices.Firmware;
-        string edit = FirmwareEdit.All.FirstOrDefault(e => e.Id == backup.Edit) is { } known ? EditName(known) : backup.Edit;
-        string what = Strings.Format("Firmware_BackupLine",
-            backup.Taken.ToString("g", CultureInfo.CurrentCulture), edit, backup.FirmwareBuild);
-
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
-        grid.Children.Add(new TextBlock { Text = what, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap });
-        var restore = new Button
-        {
-            Content = Strings.Get("Firmware_Restore"),
-            IsEnabled = firmware.CanWrite && !firmware.Busy,
-        };
-        AutomationProperties.SetName(restore, Strings.Format("Firmware_RestoreName", what));
-        restore.Click += async (_, _) => await AskRestore(backup);
-        Grid.SetColumn(restore, 1);
-        grid.Children.Add(restore);
-        return new Border { Classes = { "card", "compact" }, Child = grid };
-    }
-
-    private async Task AskRestore(FirmwareBackup backup)
+    private async Task AskToRestore(FirmwareBackup backup)
     {
         bool go = await new NeapDialog
         {
@@ -231,26 +182,129 @@ public partial class FirmwarePage : UserControl
             CloseButtonText = Strings.Get("Dialog_Cancel"),
         }.ShowAsync(this);
         if (!go) return;
-        bool done = await AppServices.Firmware.Restore(backup);
-        await new NeapDialog
-        {
-            Heading = Strings.Get(done ? "Firmware_RestoredTitle" : "Firmware_NotRestoredTitle"),
-            Body = new TextBlock { Text = Strings.Get(done ? "Firmware_Restored" : "Firmware_NotRestored"), TextWrapping = TextWrapping.Wrap, MaxWidth = 440 },
-            CloseButtonText = Strings.Get("Dialog_OK"),
-        }.ShowAsync(this);
+
+        RunTitle.Text = Strings.Get("Firmware_RunRestoring");
+        await Running(cancel => AppServices.Firmware.Restore(backup, Report, cancel));
+        _wanted = null;
+        Paint();
     }
+
+    private async Task Running(Func<CancellationToken, Task<ApplyOutcome>> run)
+    {
+        using var stopping = new CancellationTokenSource();
+        _stopping = stopping;
+        _progress = null;
+        _outcome = null;
+        PaintRun(running: true);
+        _outcome = await run(stopping.Token);
+        _stopping = null;
+        PaintRun(running: false);
+    }
+
+    private void Report(ApplyProgress progress)
+    {
+        _progress = progress;
+        PaintRun(running: true);
+    }
+
+    /// <summary>Puts the run card in step with where the run has got, in place.</summary>
+    private void PaintRun(bool running)
+    {
+        RunCard.IsVisible = running || _outcome is not null;
+        if (!RunCard.IsVisible) return;
+
+        var at = _progress;
+        RunSession.Text = at is { Sessions: > 1, Session: > 0 }
+            ? Strings.Format("Firmware_RunSession", at.Session, at.Sessions)
+            : "";
+        RunSession.IsVisible = RunSession.Text.Length > 0;
+
+        // The person's part, said only while it is theirs.
+        Guide.Text = running && at is not null ? at.Step switch
+        {
+            EditStep.Plug => Strings.Get("Firmware_GuidePlug"),
+            EditStep.Reconnect => Strings.Get("Firmware_GuideReconnect"),
+            _ => "",
+        } : "";
+        Guide.IsVisible = Guide.Text.Length > 0;
+
+        Progress.IsVisible = running;
+        Progress.IsIndeterminate = at?.Percent is null;
+        Progress.Value = at?.Percent ?? 0;
+
+        StepList.Children.Clear();
+        foreach (var step in FirmwareEdit.Steps)
+        {
+            string state = StepState(step, at, _outcome);
+            var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
+            row.Children.Add(new TextBlock { Text = StepWords(step) });
+            var said = new TextBlock { Text = state, Classes = { "secondary" } };
+            Grid.SetColumn(said, 1);
+            row.Children.Add(said);
+            AutomationProperties.SetName(row, $"{StepWords(step)}: {state}");
+            StepList.Children.Add(row);
+        }
+
+        OutcomeText.Text = _outcome is { } outcome ? OutcomeWords(outcome.Result) : "";
+        OutcomeText.IsVisible = OutcomeText.Text.Length > 0;
+        CancelButton.IsVisible = running && at?.Step == EditStep.Plug;
+        CloseButton.IsVisible = !running;
+    }
+
+    private static string StepState(EditStep step, ApplyProgress? at, ApplyOutcome? outcome)
+    {
+        if (outcome is { Stopped: null }) return Strings.Get("Firmware_StepDone");
+        var current = outcome?.Stopped ?? at?.Step;
+        if (current is not { } now) return Strings.Get("Firmware_StepWaiting");
+        if (step < now) return Strings.Get("Firmware_StepDone");
+        if (step > now) return Strings.Get(outcome is null ? "Firmware_StepWaiting" : "Firmware_StepSkipped");
+        if (outcome is not null)
+            return Strings.Get(outcome.Result == ApplyResult.Cancelled ? "Firmware_StepStopped" : "Firmware_StepFailed");
+        return at?.Percent is int percent
+            ? Strings.Format("Firmware_StepPercent", percent)
+            : Strings.Get("Firmware_StepWorking");
+    }
+
+    /// <summary>A backup's row: when it was made, of which section, from which firmware, and putting it back.</summary>
+    private Border BackupRow(FirmwareBackup backup, bool free)
+    {
+        string what = Strings.Format("Firmware_BackupLine",
+            backup.Taken.ToString("g", CultureInfo.CurrentCulture),
+            backup.Sector.ToString("X8", CultureInfo.InvariantCulture),
+            backup.FirmwareBuild);
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
+        grid.Children.Add(new TextBlock { Text = what, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap });
+        var restore = new Button { Content = Strings.Get("Firmware_Restore"), IsEnabled = free };
+        AutomationProperties.SetName(restore, Strings.Format("Firmware_RestoreName", what));
+        restore.Click += async (_, _) => await AskToRestore(backup);
+        Grid.SetColumn(restore, 1);
+        grid.Children.Add(restore);
+        return new Border { Classes = { "card", "compact" }, Child = grid };
+    }
+
+    private static string PlanWords(EditPlan plan) =>
+        plan.Nothing ? Strings.Get("Firmware_PlanNothing")
+        : plan.UpToSectors ? Strings.Format("Firmware_PlanUpTo", plan.Sectors.Count, plan.Sessions)
+        : plan.Sessions > 1 ? Strings.Format("Firmware_PlanMany", plan.Sectors.Count, plan.Sessions)
+        : plan.Sectors.Count == 1 ? Strings.Get("Firmware_PlanOneSection")
+        : Strings.Format("Firmware_PlanOnePlugIn", plan.Sectors.Count);
 
     private static string EditName(FirmwareEdit edit) => edit.Id switch
     {
         "noise_cycle" => Strings.Get("Firmware_NoiseCycle"),
+        "light_off_disconnected" => Strings.Get("Firmware_LightOff"),
         _ => edit.Id,
     };
 
     private static string Description(FirmwareEdit edit) => edit.Id switch
     {
         "noise_cycle" => Strings.Get("Firmware_NoiseCycleDescription"),
+        "light_off_disconnected" => Strings.Get("Firmware_LightOffDescription"),
         _ => "",
     };
+
+    private static string RiskWords(EditRisk risk) =>
+        Strings.Get(risk == EditRisk.Low ? "Firmware_RiskLow" : "Firmware_RiskHigher");
 
     private static string StatusWords(EditStatus status, string? build, FirmwareEdit edit) => status switch
     {
@@ -271,16 +325,22 @@ public partial class FirmwarePage : UserControl
     private static string StepWords(EditStep step) => step switch
     {
         EditStep.Check => Strings.Get("Firmware_StepCheck"),
+        EditStep.Plug => Strings.Get("Firmware_StepPlug"),
+        EditStep.Connect => Strings.Get("Firmware_StepConnect"),
         EditStep.Backup => Strings.Get("Firmware_StepBackup"),
         EditStep.Write => Strings.Get("Firmware_StepWrite"),
-        EditStep.ReadBack => Strings.Get("Firmware_StepReadBack"),
-        EditStep.Restart => Strings.Get("Firmware_StepRestart"),
+        EditStep.Verify => Strings.Get("Firmware_StepVerify"),
+        EditStep.Reconnect => Strings.Get("Firmware_StepReconnect"),
         _ => Strings.Get("Firmware_StepConfirm"),
     };
 
-    private static string OutcomeWords(EditOutcome outcome, bool installing) =>
-        outcome.Done ? Strings.Get(installing ? "Firmware_InstalledDone" : "Firmware_RemovedDone")
-        : outcome.FailedAt is { } failed && !FirmwareEdit.UndoAfter(failed) ? Strings.Get("Firmware_FailedNothingWritten")
-        : outcome.Undone ? Strings.Get("Firmware_FailedUndone")
-        : Strings.Get("Firmware_FailedNotUndone");
+    private static string OutcomeWords(ApplyResult result) => result switch
+    {
+        ApplyResult.Done => Strings.Get("Firmware_OutcomeDone"),
+        ApplyResult.Unconfirmed => Strings.Get("Firmware_OutcomeUnconfirmed"),
+        ApplyResult.Cancelled => Strings.Get("Firmware_OutcomeCancelled"),
+        ApplyResult.Refused => Strings.Get("Firmware_OutcomeRefused"),
+        ApplyResult.Reverted => Strings.Get("Firmware_OutcomeReverted"),
+        _ => Strings.Get("Firmware_OutcomeFailed"),
+    };
 }

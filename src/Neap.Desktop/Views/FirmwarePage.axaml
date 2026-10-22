@@ -26,13 +26,68 @@
                 loc:Uid.Value="Firmware_CannotWrite"
                 Severity="Warning" />
 
+            <!--
+                The edits as a list to tick, and one Apply: two edits can share a
+                section of flash, so Neap works out what to write from the whole
+                list and says it before anything is written.
+            -->
             <TextBlock loc:Uid.Value="Firmware_EditsHeading" Classes="sectionheader" />
-            <StackPanel x:Name="EditList" Spacing="{StaticResource NeapSpaceS}" />
+            <Border x:Name="EditsCard" Classes="card">
+                <StackPanel Spacing="{StaticResource NeapSpaceM}">
+                    <StackPanel x:Name="EditList" Spacing="{StaticResource NeapSpaceM}" />
+                    <StackPanel Spacing="{StaticResource NeapSpaceXS}">
+                        <TextBlock x:Name="PlanText" TextWrapping="Wrap" />
+                        <TextBlock x:Name="BlockersText" Classes="caption secondary" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
+                        <Button x:Name="ApplyButton" loc:Uid.Value="Firmware_Apply" Classes="accent" />
+                        <Button x:Name="StockButton" loc:Uid.Value="Firmware_RestoreStock" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
             <TextBlock x:Name="NoEdits" loc:Uid.Value="Firmware_NoEdits" Classes="secondary" />
 
             <!--
-                Every install and removal leaves a backup here. Putting one back
-                is the way out for a headset an edit has left unwell.
+                A run in progress, under the list it was started from. The one
+                thing the person has to do is said largest, while it is theirs
+                to do; the rest is the steps and how far the write has got.
+            -->
+            <Border
+                x:Name="RunCard"
+                Margin="0,8,0,0"
+                Classes="card"
+                IsVisible="False">
+                <StackPanel Spacing="{StaticResource NeapSpaceM}">
+                    <StackPanel Spacing="{StaticResource NeapSpaceHairline}">
+                        <TextBlock x:Name="RunTitle" Classes="cardtitle" AutomationProperties.HeadingLevel="2" />
+                        <TextBlock x:Name="RunSession" Classes="caption secondary" />
+                    </StackPanel>
+                    <TextBlock
+                        x:Name="Guide"
+                        Classes="bodystrong"
+                        AutomationProperties.LiveSetting="Polite"
+                        TextWrapping="Wrap" />
+                    <ProgressBar
+                        x:Name="Progress"
+                        loc:Uid.Value="Firmware_Progress"
+                        Maximum="100"
+                        Minimum="0" />
+                    <StackPanel x:Name="StepList" loc:Uid.Value="Firmware_Steps" Spacing="{StaticResource NeapSpaceXS}" />
+                    <TextBlock
+                        x:Name="OutcomeText"
+                        Classes="bodystrong"
+                        AutomationProperties.LiveSetting="Polite"
+                        TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
+                        <Button x:Name="CancelButton" loc:Uid.Value="Firmware_StopWaiting" />
+                        <Button x:Name="CloseButton" loc:Uid.Value="Firmware_CloseRun" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!--
+                Every section written leaves its backup here. Putting one back is
+                the way out for a headset an edit has left unwell.
             -->
             <TextBlock loc:Uid.Value="Firmware_BackupsHeading" Classes="sectionheader" />
             <TextBlock

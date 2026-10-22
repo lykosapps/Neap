@@ -1,5 +1,21 @@
 # Decisions
 
+## 2026-10-22 — Firmware edits are ticked and applied as one plan
+
+- **Options:** an Install and a Remove button for each edit; the edits
+  ticked as a list, with Neap working out what to write.
+- **Chosen:** the list, as SP2Tools' delivery spec sets out. Each section of
+  flash a changing edit touches is written whole, as stock with every ticked
+  edit in it, so two edits in one section never undo each other, and
+  Restore to stock is unticking everything. The plan is shown before Apply.
+- **Also chosen:** an edit's sections are written in an order that leaves a
+  headset that starts wherever the write stops: new code before the call
+  that reaches it, and the call put back first. The spec writes and checks
+  one section at a time, and the brick of 15 October was a call into flash
+  with nothing in it.
+- **Revisit if:** SP2Tools' list of edits gives an edit whose sections have
+  no such order.
+
 ## 2026-10-22 — Firmware edits get their own page, behind an opt-in
 
 - **Options:** leave installing firmware edits to SP2Tools; build the screens
@@ -8,7 +24,7 @@
   first.
 - **Chosen:** a Firmware page of its own, in the menu only once "Firmware
   edits" is switched on in Settings, off by default. The first version runs
-  every step, failure and undo on the pretend headset; on a real headset it
+  every step and failure on the pretend headset; on a real headset it
   shows which edits fit and writes nothing. Real writes come next, ported
   from SP2Tools' flasher.
 - **Why:** the owner's call: firmware edits are part of Neap from here on.

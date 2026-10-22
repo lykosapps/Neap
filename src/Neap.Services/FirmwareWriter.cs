@@ -1,8 +1,19 @@
+using System.Text;
 using Neap.Core.Firmware;
 
 namespace Neap.Services;
 
-/// <summary>What reads and writes the parts of a headset's firmware that the edits change.</summary>
+/// <summary>How a section's write ended, as the headset said after reading it back.</summary>
+public enum WriteResult
+{
+    /// <summary>What was read back is what was written.</summary>
+    Verified,
+
+    /// <summary>It did not match, and the headset put stock back itself before restarting.</summary>
+    Reverted,
+}
+
+/// <summary>What writes sections of a headset's firmware, in its download mode.</summary>
 /// <remarks>
 /// <para>
 /// Pretend mode has <see cref="PretendFirmwareWriter"/>. A writer for a real
@@ -11,67 +22,102 @@ namespace Neap.Services;
 /// </para>
 /// <para>
 /// A writer does what it is asked and throws when it cannot.
-/// <see cref="FirmwareEditService"/> decides the order and when to undo.
+/// <see cref="FirmwareEditService"/> decides the order and what is written.
 /// </para>
 /// </remarks>
 public interface IFirmwareWriter
 {
-    /// <summary>The mark the edits leave, one bit per edit, or null where the headset leaves none.</summary>
+    /// <summary>The mark the edits leave, one bit per edit, read while the headset is connected as usual, or null where it leaves none.</summary>
     Task<int?> ReadMark();
 
-    /// <summary>Saves what an edit changes as it is now, and gives the file it went to.</summary>
-    Task<string> Backup(FirmwareEdit edit, string folder);
+    /// <summary>Waits until the headset is plugged in in download mode.</summary>
+    Task WaitForDownloadMode(CancellationToken cancel);
 
-    /// <summary>Writes an edit, or the stock bytes it replaces.</summary>
-    Task Write(FirmwareEdit edit, bool install);
+    /// <summary>Reaches the headset in download mode, and gives the firmware version on its chip.</summary>
+    Task<string> Connect();
 
-    /// <summary>Whether what is on the headset now is what <see cref="Write"/> put there.</summary>
-    Task<bool> ReadBack(FirmwareEdit edit, bool install);
+    /// <summary>Saves a section as it is now, and gives the file it went to.</summary>
+    Task<string> Backup(int sector, string folder);
 
-    /// <summary>Restarts the headset, so it runs what was written.</summary>
-    Task Restart();
+    /// <summary>Writes a section as stock with these edits in it.</summary>
+    /// <param name="sector">The section, by address.</param>
+    /// <param name="held">The edits the section holds once written; everything else in it is stock.</param>
+    /// <param name="percent">Told how much is written, from 0 to 100.</param>
+    Task Write(int sector, IReadOnlyList<FirmwareEdit> held, IProgress<int> percent);
 
-    /// <summary>Puts back what a backup holds.</summary>
-    Task Restore(string backup);
+    /// <summary>Has the headset read back the section it last wrote, and put stock back itself if it does not match.</summary>
+    Task<WriteResult> Verify(int sector);
+
+    /// <summary>Writes a section back as a backup holds it, and verifies it the same way.</summary>
+    Task<WriteResult> Restore(string backup, IProgress<int> percent);
+
+    /// <summary>Waits until the headset is back, connected as usual.</summary>
+    Task WaitForHeadset(CancellationToken cancel);
 }
 
 /// <summary>The pretend headset's firmware: the whole flow, with a pause at each step, and nothing real written.</summary>
-/// <param name="fails">Whether the write fails, so the undo can be seen.</param>
-public sealed class PretendFirmwareWriter(bool fails) : IFirmwareWriter
+/// <remarks>
+/// Each section remembers which edits it holds, and an edit is on once every
+/// section it touches holds it, so a plan cut short shows as it would on a
+/// headset. The person plugging the headset in is a short wait.
+/// </remarks>
+/// <param name="build">The firmware version its chip holds.</param>
+/// <param name="reverts">Whether every write fails its read back, so the headset's own revert can be seen.</param>
+public sealed class PretendFirmwareWriter(string build, bool reverts) : IFirmwareWriter
 {
-    private static readonly TimeSpan Pause = TimeSpan.FromMilliseconds(700);
+    private static readonly TimeSpan Pause = TimeSpan.FromMilliseconds(600);
+    private static readonly TimeSpan Plugging = TimeSpan.FromSeconds(3);
 
-    private int _mark;
+    private readonly Dictionary<int, HashSet<string>> _held = [];
+    private (int Sector, IReadOnlyList<FirmwareEdit> Held)? _written;
 
-    public Task<int?> ReadMark() => Task.FromResult<int?>(_mark);
+    public Task<int?> ReadMark() => Task.FromResult<int?>(FirmwareEdit.MarkOf(
+        FirmwareEdit.All.Where(edit => edit.Sectors.All(sector => Holds(sector).Contains(edit.Id)))));
 
-    public async Task<string> Backup(FirmwareEdit edit, string folder)
+    public Task WaitForDownloadMode(CancellationToken cancel) => Task.Delay(Plugging, cancel);
+
+    public async Task<string> Connect()
+    {
+        await Task.Delay(Pause);
+        return build;
+    }
+
+    public async Task<string> Backup(int sector, string folder)
     {
         await Task.Delay(Pause);
         Directory.CreateDirectory(folder);
-        string file = Path.Combine(folder, FirmwareBackup.FileName(DateTime.Now, edit));
-        await File.WriteAllBytesAsync(file, BitConverter.GetBytes(_mark));
+        string file = Path.Combine(folder, FirmwareBackup.FileName(DateTime.Now, sector, build));
+        await File.WriteAllTextAsync(file, string.Join('\n', Holds(sector)), Encoding.UTF8);
         return file;
     }
 
-    public async Task Write(FirmwareEdit edit, bool install)
+    public async Task Write(int sector, IReadOnlyList<FirmwareEdit> held, IProgress<int> percent)
     {
-        await Task.Delay(Pause);
-        if (fails) throw new IOException("the pretend headset's write failed, as --firmware-fails asks");
-        _mark = install ? _mark | 1 << edit.Bit : _mark & ~(1 << edit.Bit);
+        for (int done = 0; done <= 100; done += 10)
+        {
+            percent.Report(done);
+            await Task.Delay(Pause / 6);
+        }
+        _written = (sector, held);
     }
 
-    public async Task<bool> ReadBack(FirmwareEdit edit, bool install)
+    public async Task<WriteResult> Verify(int sector)
     {
         await Task.Delay(Pause);
-        return true;
+        if (reverts || _written is not { } written || written.Sector != sector) return WriteResult.Reverted;
+        _held[sector] = written.Held.Select(edit => edit.Id).ToHashSet();
+        return WriteResult.Verified;
     }
 
-    public Task Restart() => Task.Delay(Pause * 2);
-
-    public async Task Restore(string backup)
+    public async Task<WriteResult> Restore(string backup, IProgress<int> percent)
     {
-        await Task.Delay(Pause);
-        _mark = BitConverter.ToInt32(await File.ReadAllBytesAsync(backup));
+        var saved = FirmwareBackup.Of(backup) ?? throw new InvalidDataException($"{Path.GetFileName(backup)} is not a backup Neap made");
+        var ids = (await File.ReadAllTextAsync(backup)).Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        await Write(saved.Sector, FirmwareEdit.All.Where(edit => ids.Contains(edit.Id)).ToList(), percent);
+        return await Verify(saved.Sector);
     }
+
+    public Task WaitForHeadset(CancellationToken cancel) => Task.Delay(Plugging, cancel);
+
+    private HashSet<string> Holds(int sector) => _held.TryGetValue(sector, out var ids) ? ids : [];
 }

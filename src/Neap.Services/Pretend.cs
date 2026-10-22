@@ -78,13 +78,15 @@ public static class Pretend
     /// <summary>With <see cref="MiniFlag"/>, draws the mini panel at touch size, as a small window gets it.</summary>
     public const string TouchFlag = "--touch";
 
-    /// <summary>With <see cref="Flag"/>, makes writing a firmware edit fail, so the undo from the backup can be seen.</summary>
-    public const string FirmwareFailsFlag = "--firmware-fails";
+    /// <summary>With <see cref="Flag"/>, makes every firmware section fail its read back, so the headset's own revert can be seen.</summary>
+    public const string FirmwareRevertsFlag = "--firmware-reverts";
 
     public static bool Active { get; } = Given(Flag);
 
     /// <summary>The pretend headset's firmware, or null outside pretend mode, where no headset's firmware is written yet.</summary>
-    public static IFirmwareWriter? Firmware { get; } = Active ? new PretendFirmwareWriter(Given(FirmwareFailsFlag)) : null;
+    public static IFirmwareWriter? Firmware { get; } = Active
+        ? new PretendFirmwareWriter(Core.Firmware.FirmwareEdit.NoiseCycle.FirmwareBuild, Given(FirmwareRevertsFlag))
+        : null;
 
     /// <summary>Whether a pretend run is shown in high contrast.</summary>
     public static bool HighContrast { get; } = Active && Given(HighContrastFlag);

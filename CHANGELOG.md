@@ -14,11 +14,12 @@ and date.
 ### Added
 
 - A Firmware page, in the menu once "Firmware edits" is switched on under
-  Advanced in Settings. It lists the edits made for your headset, whether each
-  fits its firmware, and whether it is installed, with the backups made so
-  far. Installing, removing and restoring work in pretend mode only for now:
-  each shows its steps as they run, and a failed step is undone from the
-  backup.
+  Advanced in Settings. You tick the edits you want, each with what it does
+  and how risky it is, and Neap says what Apply would write before you press
+  it; Restore to stock takes every edit off. Applying walks you through
+  plugging the headset in by its left ear cup, shows each step with a
+  progress bar, and keeps a backup of each section it writes. It works in
+  pretend mode only for now.
 
 - On the Controls page, the Mode button's card asks whether the headset's
   firmware is stock or edited. Edited firmware steps the Mode button through

@@ -5,28 +5,53 @@ using Neap.Core.Firmware;
 
 namespace Neap.Services;
 
-/// <summary>How an install, a removal or a restore ended.</summary>
-/// <param name="FailedAt">The step that failed, or null if every step finished.</param>
-/// <param name="Undone">Whether a failure was undone from the backup.</param>
-/// <param name="Backup">The backup made before writing, or null if none was.</param>
-public sealed record EditOutcome(EditStep? FailedAt, bool Undone, string? Backup)
+/// <summary>How applying the edits, or restoring a backup, ended.</summary>
+public enum ApplyResult
 {
-    /// <summary>Gets whether every step finished.</summary>
-    public bool Done => FailedAt is null;
+    /// <summary>Every section was written and verified, and the mark shows the edits wanted.</summary>
+    Done,
+
+    /// <summary>Every section was written and verified, but the headset leaves no mark to confirm it by.</summary>
+    Unconfirmed,
+
+    /// <summary>The person stopped while Neap was waiting for the headset in download mode.</summary>
+    Cancelled,
+
+    /// <summary>The firmware on the chip is not the build the edits are made for, so nothing was written.</summary>
+    Refused,
+
+    /// <summary>A section did not read back as written, and the headset put stock back in it itself.</summary>
+    Reverted,
+
+    /// <summary>A step failed for another reason; the app log says which.</summary>
+    Failed,
 }
 
-/// <summary>A backup saved before an edit was written.</summary>
+/// <summary>Where applying has got to.</summary>
+/// <param name="Step">The step under way.</param>
+/// <param name="Session">Which session in download mode, from 1, or 0 before the first.</param>
+/// <param name="Sessions">How many sessions the plan needs.</param>
+/// <param name="Percent">How much of the section is written, during <see cref="EditStep.Write"/>.</param>
+public sealed record ApplyProgress(EditStep Step, int Session, int Sessions, int? Percent);
+
+/// <summary>How applying ended, and where.</summary>
+/// <param name="Result">How it ended.</param>
+/// <param name="Stopped">The step it stopped at, or null if every step finished.</param>
+/// <param name="Backups">The backups made on the way.</param>
+public sealed record ApplyOutcome(ApplyResult Result, EditStep? Stopped, IReadOnlyList<string> Backups);
+
+/// <summary>A section of firmware saved before it was written.</summary>
 /// <param name="File">Where it is.</param>
 /// <param name="Taken">When it was made.</param>
-/// <param name="Edit">The edit it was made for, by its id.</param>
+/// <param name="Sector">The section, by address.</param>
 /// <param name="FirmwareBuild">The firmware it was taken from.</param>
-public sealed record FirmwareBackup(string File, DateTime Taken, string Edit, string FirmwareBuild)
+public sealed record FirmwareBackup(string File, DateTime Taken, int Sector, string FirmwareBuild)
 {
     private const string Stamp = "yyyy-MM-dd HH.mm.ss";
 
     /// <summary>The file name a backup is saved under, which says what it holds.</summary>
-    public static string FileName(DateTime taken, FirmwareEdit edit) =>
-        $"{taken.ToString(Stamp, CultureInfo.InvariantCulture)} {edit.Id} {edit.FirmwareBuild}.bin";
+    public static string FileName(DateTime taken, int sector, string build) =>
+        string.Create(CultureInfo.InvariantCulture, $"{taken.ToString(Stamp, CultureInfo.InvariantCulture)} {sector:X8} {build}.bin");
 
     /// <summary>The backup a file holds, or null for a file not named by <see cref="FileName"/>.</summary>
     public static FirmwareBackup? Of(string file)
@@ -34,21 +59,23 @@ public sealed record FirmwareBackup(string File, DateTime Taken, string Edit, st
         var parts = Path.GetFileNameWithoutExtension(file).Split(' ');
         return parts.Length == 4
             && DateTime.TryParseExact($"{parts[0]} {parts[1]}", Stamp, CultureInfo.InvariantCulture, DateTimeStyles.None, out var taken)
-            ? new FirmwareBackup(file, taken, parts[2], parts[3])
+            && int.TryParse(parts[2], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int sector)
+            ? new FirmwareBackup(file, taken, sector, parts[3])
             : null;
     }
 }
 
 /// <summary>
 /// Firmware edits on the connected headset: which fit it, which are on, and
-/// installing, removing and restoring them.
+/// applying the ones ticked.
 /// </summary>
 /// <remarks>
 /// <para>
-/// The rules are <see cref="FirmwareEdit"/>'s. This runs the steps in order
-/// on the headset's <see cref="IFirmwareWriter"/>, undoes a failure from the
-/// backup, and says each step in the app log, so a recording shows exactly
-/// what was written and what was put back.
+/// The rules are <see cref="FirmwareEdit"/>'s. This runs the plan on the
+/// headset's <see cref="IFirmwareWriter"/> a session at a time, says each step
+/// in the app log, so a recording shows exactly what was written, and stops at
+/// the first step that fails. The plan's order leaves a headset that starts
+/// wherever it stops.
 /// </para>
 /// <para>
 /// A headset with no writer can be looked at but not changed: its edits are
@@ -57,13 +84,13 @@ public sealed record FirmwareBackup(string File, DateTime Taken, string Edit, st
 /// </remarks>
 public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter? writer)
 {
-    /// <summary>The mark, a step or a backup changed.</summary>
+    /// <summary>The mark or the running state changed.</summary>
     public event Action? Changed;
 
     /// <summary>Gets whether this headset's firmware can be written by this build of Neap.</summary>
     public bool CanWrite => writer is not null;
 
-    /// <summary>Gets whether an install, a removal or a restore is under way.</summary>
+    /// <summary>Gets whether applying or a restore is under way.</summary>
     public bool Busy { get; private set; }
 
     /// <summary>Gets the mark last read from the headset, or null where it leaves none.</summary>
@@ -75,7 +102,10 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     /// <summary>Gets the edits made for the connected headset.</summary>
     public IReadOnlyList<FirmwareEdit> Edits => FirmwareEdit.For(headset.Model);
 
-    /// <summary>Gets what Neap knows of the headset for writing.</summary>
+    /// <summary>Gets the edits on now, or null where that is not known.</summary>
+    public IReadOnlySet<FirmwareEdit>? Installed => FirmwareEdit.Installed(Edits, Mark);
+
+    /// <summary>Gets what Neap knows of the headset before writing.</summary>
     /// <remarks>
     /// Swarm II is not looked for yet: its program's name is not known, and
     /// nothing is written to a real headset until it is.
@@ -101,6 +131,9 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     /// <summary>Whether an edit is on the connected headset.</summary>
     public EditStatus StatusOf(FirmwareEdit edit) => edit.StatusOn(Build, Mark);
 
+    /// <summary>What applying these edits would write.</summary>
+    public EditPlan Plan(IReadOnlySet<FirmwareEdit> wanted) => FirmwareEdit.Plan(Edits, wanted, Installed);
+
     /// <summary>Reads the mark again.</summary>
     public async Task ReadMark()
     {
@@ -108,84 +141,122 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         Changed?.Invoke();
     }
 
-    /// <summary>Installs an edit, or removes it, one step at a time.</summary>
-    /// <param name="edit">The edit.</param>
-    /// <param name="install">True to install it, false to put back the stock bytes.</param>
-    /// <param name="starting">Told each step as it starts, so it can be shown as it happens.</param>
-    public async Task<EditOutcome> Run(FirmwareEdit edit, bool install, Action<EditStep> starting)
+    /// <summary>Writes what it takes to have exactly these edits on, one step at a time.</summary>
+    /// <param name="wanted">The edits ticked. None is restoring stock.</param>
+    /// <param name="report">Told each step as it starts, and how far the write has got.</param>
+    /// <param name="cancel">Stops the wait for the headset in download mode; nothing else can be stopped part way.</param>
+    public async Task<ApplyOutcome> Apply(IReadOnlySet<FirmwareEdit> wanted, Action<ApplyProgress> report, CancellationToken cancel)
     {
         if (writer is null) throw new InvalidOperationException("this headset's firmware cannot be written by this build");
-        string doing = install ? "installing" : "removing";
-        Busy = true;
-        Changed?.Invoke();
-        string? backup = null;
-        var step = EditStep.Check;
-        try
+        var plan = Plan(wanted);
+        var sessions = FirmwareEdit.Sessions(plan);
+        AppLog.Write(string.Create(CultureInfo.InvariantCulture,
+            $"firmware edits: applying [{string.Join(", ", wanted.Select(edit => edit.Id))}], {plan.Sectors.Count} sections in {sessions.Count} sessions: {string.Join(", ", plan.Sectors.Select(sector => sector.ToString("X8", CultureInfo.InvariantCulture)))}"));
+
+        return await Run(sessions.Count, report, cancel: cancel, steps: async say =>
         {
-            foreach (var next in FirmwareEdit.Steps)
+            say(EditStep.Check, 0, null);
+            var blockers = FirmwareEdit.Blockers(plan.Changing, Readiness);
+            if (blockers.Count > 0) return Stop(ApplyResult.Failed, $"not ready: {string.Join(", ", blockers)}");
+
+            int session = 0;
+            foreach (var sectors in sessions)
             {
-                step = next;
-                starting(step);
-                AppLog.Write($"firmware edit: {doing} {edit.Id}, {Words(step)}");
-                switch (step)
+                session++;
+                say(EditStep.Plug, session, null);
+                await writer.WaitForDownloadMode(cancel);
+                say(EditStep.Connect, session, null);
+                string chip = await writer.Connect();
+                if (plan.Changing.Any(edit => edit.FirmwareBuild != chip))
+                    return Stop(ApplyResult.Refused, $"the chip holds firmware {chip}, which the edits are not made for");
+                foreach (int sector in sectors)
                 {
-                    case EditStep.Check:
-                        var blockers = edit.Blockers(Readiness);
-                        if (blockers.Count > 0)
-                            throw new InvalidOperationException($"not ready: {string.Join(", ", blockers)}");
-                        break;
-                    case EditStep.Backup:
-                        backup = await writer.Backup(edit, BackupFolder);
-                        AppLog.Write($"firmware edit: backed up to {Path.GetFileName(backup)}");
-                        break;
-                    case EditStep.Write:
-                        await writer.Write(edit, install);
-                        break;
-                    case EditStep.ReadBack:
-                        if (!await writer.ReadBack(edit, install))
-                            throw new InvalidDataException("what was read back is not what was written");
-                        break;
-                    case EditStep.Restart:
-                        await writer.Restart();
-                        break;
-                    case EditStep.Confirm:
-                        Mark = await writer.ReadMark();
-                        var wanted = install ? EditStatus.Installed : EditStatus.NotInstalled;
-                        if (StatusOf(edit) != wanted)
-                            throw new InvalidDataException($"the headset's mark says {StatusOf(edit)} after the restart");
-                        break;
+                    say(EditStep.Backup, session, null);
+                    Backed(await writer.Backup(sector, BackupFolder));
+                    say(EditStep.Write, session, 0);
+                    await writer.Write(sector, FirmwareEdit.In(sector, wanted), new Reporter(done => say(EditStep.Write, session, done)));
+                    say(EditStep.Verify, session, null);
+                    if (await writer.Verify(sector) == WriteResult.Reverted)
+                        return Stop(ApplyResult.Reverted, string.Create(CultureInfo.InvariantCulture, $"section {sector:X8} did not read back as written, and the headset put stock back"));
                 }
+                say(EditStep.Reconnect, session, null);
+                await writer.WaitForHeadset(CancellationToken.None);
             }
-            AppLog.Write($"firmware edit: {edit.Id} {(install ? "installed" : "removed")} and confirmed");
-            return new EditOutcome(null, false, backup);
-        }
-        catch (Exception ex)
-        {
-            AppLog.Write($"firmware edit: {doing} {edit.Id} failed while {Words(step)}: {ex.Message}");
-            bool undone = FirmwareEdit.UndoAfter(step) && backup is not null && await Undo(backup);
-            return new EditOutcome(step, undone, backup);
-        }
-        finally
-        {
+
+            say(EditStep.Confirm, session, null);
             Mark = await writer.ReadMark();
-            Busy = false;
-            Changed?.Invoke();
-        }
+            if (Mark is null) return Stop(ApplyResult.Unconfirmed, "written and verified; the headset leaves no mark to confirm it by");
+            if (Installed is { } on && !on.SetEquals(wanted))
+                return Stop(ApplyResult.Failed, $"the mark shows [{string.Join(", ", on.Select(edit => edit.Id))}] after the restart");
+            return Stop(ApplyResult.Done, "every section written, verified and confirmed");
+        });
     }
 
-    /// <summary>Puts back what a backup holds, for a headset an edit has left unwell.</summary>
-    /// <returns>Whether it was put back.</returns>
-    public async Task<bool> Restore(FirmwareBackup backup)
+    /// <summary>Writes a section back as a backup holds it, for a headset an edit has left unwell.</summary>
+    public async Task<ApplyOutcome> Restore(FirmwareBackup backup, Action<ApplyProgress> report, CancellationToken cancel)
     {
         if (writer is null) throw new InvalidOperationException("this headset's firmware cannot be written by this build");
+        AppLog.Write($"firmware edits: restoring {Path.GetFileName(backup.File)}");
+
+        return await Run(1, report, cancel: cancel, steps: async say =>
+        {
+            say(EditStep.Plug, 1, null);
+            await writer.WaitForDownloadMode(cancel);
+            say(EditStep.Connect, 1, null);
+            string chip = await writer.Connect();
+            if (chip != backup.FirmwareBuild)
+                return Stop(ApplyResult.Refused, $"the chip holds firmware {chip}, and the backup was taken from {backup.FirmwareBuild}");
+            say(EditStep.Write, 1, 0);
+            var result = await writer.Restore(backup.File, new Reporter(done => say(EditStep.Write, 1, done)));
+            say(EditStep.Verify, 1, null);
+            if (result == WriteResult.Reverted) return Stop(ApplyResult.Reverted, "the backup did not read back as written, and the headset put stock back");
+            say(EditStep.Reconnect, 1, null);
+            await writer.WaitForHeadset(CancellationToken.None);
+            say(EditStep.Confirm, 1, null);
+            Mark = await writer.ReadMark();
+            return Stop(Mark is null ? ApplyResult.Unconfirmed : ApplyResult.Done, "restored");
+        });
+    }
+
+    private List<string> _backups = [];
+    private EditStep? _at;
+
+    private void Backed(string file)
+    {
+        _backups.Add(file);
+        AppLog.Write($"firmware edits: backed up to {Path.GetFileName(file)}");
+    }
+
+    private ApplyOutcome Stop(ApplyResult result, string why)
+    {
+        AppLog.Write($"firmware edits: {result} at {_at}: {why}");
+        return new ApplyOutcome(result, result is ApplyResult.Done or ApplyResult.Unconfirmed ? null : _at, _backups);
+    }
+
+    /// <summary>Runs the steps with the page told of each, and ends a cancel or a fault as an outcome rather than a throw.</summary>
+    private async Task<ApplyOutcome> Run(int sessions, Action<ApplyProgress> report,
+        Func<Action<EditStep, int, int?>, Task<ApplyOutcome>> steps, CancellationToken cancel)
+    {
         Busy = true;
+        _backups = [];
+        _at = null;
         Changed?.Invoke();
         try
         {
-            AppLog.Write($"firmware edit: restoring {Path.GetFileName(backup.File)}");
-            bool done = await Undo(backup.File);
-            Mark = await writer.ReadMark();
-            return done;
+            return await steps((step, session, percent) =>
+            {
+                if (_at != step) AppLog.Write(string.Create(CultureInfo.InvariantCulture, $"firmware edits: {step}, session {session} of {sessions}"));
+                _at = step;
+                report(new ApplyProgress(step, session, sessions, percent));
+            });
+        }
+        catch (OperationCanceledException) when (cancel.IsCancellationRequested && _at == EditStep.Plug)
+        {
+            return Stop(ApplyResult.Cancelled, "stopped while waiting for the headset in download mode");
+        }
+        catch (Exception ex)
+        {
+            return Stop(ApplyResult.Failed, ex.Message);
         }
         finally
         {
@@ -194,29 +265,9 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         }
     }
 
-    private async Task<bool> Undo(string backup)
+    /// <summary>Tells of progress as it happens, on the writer's own thread, so a late report never lands after the next step.</summary>
+    private sealed class Reporter(Action<int> said) : IProgress<int>
     {
-        try
-        {
-            await writer!.Restore(backup);
-            await writer.Restart();
-            AppLog.Write($"firmware edit: put back {Path.GetFileName(backup)}");
-            return true;
-        }
-        catch (Exception ex)
-        {
-            AppLog.Write($"firmware edit: could not put back {Path.GetFileName(backup)}: {ex.Message}");
-            return false;
-        }
+        public void Report(int value) => said(value);
     }
-
-    private static string Words(EditStep step) => step switch
-    {
-        EditStep.Check => "checking the headset",
-        EditStep.Backup => "backing up",
-        EditStep.Write => "writing",
-        EditStep.ReadBack => "reading back",
-        EditStep.Restart => "restarting the headset",
-        _ => "confirming",
-    };
 }
