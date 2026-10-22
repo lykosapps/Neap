@@ -193,6 +193,9 @@ and date.
   a second, and the headset then missed Neap's regular check. They are now
   read once, when it connects, and the log says when the headset stops
   answering that check.
+- On Linux, a transmitter that has stopped answering is restarted only once
+  Neap's newer access rule is in. Under the older rule the system can put it
+  straight back to sleep, so a restart before then was used up for nothing.
 - On Linux, Neap's access rule keeps Turtle Beach transmitters from being put
   to sleep to save power, which could leave one answering nothing until it
   was restarted. If an older rule is installed and a transmitter stops

@@ -1060,12 +1060,15 @@ public sealed class HeadsetService : IDisposable
             try
             {
                 bool? linked = HidrawTransport.AskLinked(device, LinkWait);
-                _channelStopped |= SilentRestarts.ChannelStopped(linked);
-                if (!SilentRestarts.Needed(linked))
+                bool stopped = SilentRestarts.ChannelStopped(linked);
+                _channelStopped |= stopped;
+                if (!SilentRestarts.Needed(linked, stopped && RuleOutOfDate()))
                 {
                     _restarts.Retry(path);
                     if (_toldUnlinked.Add(path))
-                        AppLog.Write($"headset: the transmitter at {path} answers, and says no headset is linked to it, so it is left as it is");
+                        AppLog.Write(stopped
+                            ? $"headset: the transmitter at {path} gave no answer to the link question, so it is restarted once this version's access rule is in"
+                            : $"headset: the transmitter at {path} answers, and says no headset is linked to it, so it is left as it is");
                     continue;
                 }
                 _toldUnlinked.Remove(path);
@@ -1099,7 +1102,7 @@ public sealed class HeadsetService : IDisposable
     /// <summary>How long a transmitter is given to answer the link question, which it answers itself.</summary>
     private static readonly TimeSpan LinkWait = TimeSpan.FromMilliseconds(700);
 
-    /// <summary>The transmitters the log has said have no headset linked, until one is restarted or answers.</summary>
+    /// <summary>The transmitters the log has said are left as they are, for now or for good, until one is restarted or answers.</summary>
     private readonly HashSet<string> _toldUnlinked = new(StringComparer.Ordinal);
 
     private bool _toldRuleOutOfDate;

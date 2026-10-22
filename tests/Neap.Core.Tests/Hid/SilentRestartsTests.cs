@@ -49,7 +49,14 @@ public class SilentRestartsTests
     [InlineData(true, true)]
     [InlineData(false, false)]
     public void OnlyATransmitterThatSaysNoHeadsetIsLinkedIsLeftAlone(bool? linked, bool restart) =>
-        Assert.Equal(restart, SilentRestarts.Needed(linked));
+        Assert.Equal(restart, SilentRestarts.Needed(linked, ruleOutOfDate: false));
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    public void AStoppedChannelUnderAnOlderRuleWaitsForTheNewOne(bool? linked, bool restart) =>
+        Assert.Equal(restart, SilentRestarts.Needed(linked, ruleOutOfDate: true));
 
     [Theory]
     [InlineData(null, true)]

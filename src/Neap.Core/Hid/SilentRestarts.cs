@@ -31,16 +31,30 @@ public sealed class SilentRestarts
     /// <summary>Makes a device due again, after a restart that could not be tried at all, such as one the system refused.</summary>
     public void Retry(string path) => _restarted.Remove(path);
 
-    /// <summary>Whether a silent transmitter's answer to <see cref="LinkInquiry"/> calls for a restart.</summary>
+    /// <summary>Whether a silent transmitter's answer to <see cref="LinkInquiry"/> calls for a restart now.</summary>
     /// <param name="linked">Its answer, or null when it gave none.</param>
+    /// <param name="ruleOutOfDate">Whether the access rule installed is older than this version's; see <see cref="UdevRule"/>.</param>
     /// <remarks>
+    /// <para>
     /// One that answers that no headset is linked has a working channel and
     /// simply has no headset to speak for: the headset is off or out of
     /// range, and a restart would only switch it off once it comes back. One
     /// that gives no answer, or says the headset is linked and still answers
     /// nothing else, has a channel that has stopped, and is restarted.
+    /// </para>
+    /// <para>
+    /// A stopped channel under an older rule waits for the new one. The older
+    /// rule lets the system put the transmitter back to sleep, so a restart
+    /// under it is used up for nothing: on one tester's CachyOS it brought
+    /// back no reports at all.
+    /// </para>
     /// </remarks>
-    public static bool Needed(bool? linked) => linked != false;
+    public static bool Needed(bool? linked, bool ruleOutOfDate) => linked switch
+    {
+        false => false,
+        null => !ruleOutOfDate,
+        true => true,
+    };
 
     /// <summary>Whether a silent transmitter's answer to <see cref="LinkInquiry"/> shows its control channel has stopped.</summary>
     /// <param name="linked">Its answer, or null when it gave none.</param>
