@@ -157,8 +157,10 @@ and date.
 
 ### Fixed
 
-- The game and chat dial stays put when the list of chat apps is opened or
-  closed, instead of sliding down the card as the list grows.
+- Choosing which apps carry chat now opens in a dropdown over the page,
+  instead of an in-card list that grew and shrank. The card keeps one height,
+  so the game and chat dial and the settings below it no longer jump as you
+  open or close it.
 - On the Atlas Air, moving mic monitoring above 1% changes it. Every
   higher level was refused, because its place is where the Stealth Pro II
   keeps an on and off switch.

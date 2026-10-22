@@ -107,8 +107,6 @@ public partial class MixPanel : UserControl
         // The wheel's notice names the keys once they are on.
         AppServices.Hotkeys.Changed += Paint;
         WindowPresence.Changed += WatchLevels;
-        // After the expander has its template: set before it, it can come up folded.
-        Platform.Post(() => ChatFrom.IsExpanded = AppServices.Mix.ChatApps.Count == 0);
         Paint();
         _ = LoadCandidates();
     }
@@ -231,7 +229,7 @@ public partial class MixPanel : UserControl
         ChosenText.Text = chosen
             ? Strings.List(apps.Select(a => _names.GetValueOrDefault(a, a)).ToList())
             : Strings.Get("Mix_NoneChosen");
-        AutomationProperties.SetName(ChatFrom, Strings.Format("Mix_ChatFromName", ChosenText.Text));
+        AutomationProperties.SetName(ChatFromButton, Strings.Format("Mix_ChatFromName", ChosenText.Text));
 
         var status = AppServices.Headset.Status;
 

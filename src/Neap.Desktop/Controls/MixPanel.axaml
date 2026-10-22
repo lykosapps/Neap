@@ -117,47 +117,47 @@
 
             <!--
                 Which applications carry chat: the only thing the mix needs to
-                know. Folded to a line naming them once chosen, and open until
-                then, because the choice is the question the panel is asking.
+                know. A field naming the chosen apps; the list opens in a flyout
+                over the page, so choosing never changes the card's height.
             -->
-            <Border Classes="inset">
-                <Expander
-                    x:Name="ChatFrom"
-                    CornerRadius="{StaticResource NeapRadiusInset}"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch">
-                    <Expander.Resources>
-                        <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="Transparent" />
-                        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="Transparent" />
-                        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed" Color="Transparent" />
-                    </Expander.Resources>
-                    <Expander.Header>
-                        <StackPanel Margin="0,8" Spacing="{StaticResource NeapSpaceHairline}">
-                            <TextBlock loc:Uid.Value="Mix_ChatFrom" Classes="caption secondary" />
-                            <TextBlock x:Name="ChosenText" TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
-                    </Expander.Header>
-                    <StackPanel Spacing="{StaticResource NeapSpaceS}">
-                        <StackPanel x:Name="AppList" Spacing="{StaticResource NeapSpaceXS}" />
-                        <!--
-                            Only applications with sound open on the headset are
-                            listed, so one not yet started is missing. The notice
-                            below says so instead when nothing is listed at all.
-                        -->
-                        <TextBlock
-                            x:Name="MissingHint"
-                            loc:Uid.Value="Mix_MissingHint"
-                            Classes="caption secondary" />
-                        <c:Notice x:Name="Nothing" loc:Uid.Value="Mix_NothingPlaying" />
-                        <Button x:Name="Refresh" loc:Uid.Value="Mix_Refresh">
-                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
-                                <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconRefresh}" />
-                                <TextBlock loc:Uid.Value="Mix_RefreshText" />
-                            </StackPanel>
-                        </Button>
+            <Button x:Name="ChatFromButton" Classes="chooser">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource NeapSpaceS}">
+                    <StackPanel VerticalAlignment="Center" Spacing="{StaticResource NeapSpaceHairline}">
+                        <TextBlock loc:Uid.Value="Mix_ChatFrom" Classes="caption secondary" />
+                        <TextBlock x:Name="ChosenText" TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-                </Expander>
-            </Border>
+                    <PathIcon
+                        Grid.Column="1"
+                        Width="{StaticResource NeapIconRow}"
+                        Height="{StaticResource NeapIconRow}"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource NeapTextSecondaryBrush}"
+                        Data="{StaticResource IconChevronDown}" />
+                </Grid>
+                <Button.Flyout>
+                    <Flyout Placement="Bottom">
+                        <StackPanel MinWidth="260" MaxWidth="360" Spacing="{StaticResource NeapSpaceS}">
+                            <StackPanel x:Name="AppList" Spacing="{StaticResource NeapSpaceXS}" />
+                            <!--
+                                Only applications with sound open on the headset are
+                                listed, so one not yet started is missing. The notice
+                                below says so instead when nothing is listed at all.
+                            -->
+                            <TextBlock
+                                x:Name="MissingHint"
+                                loc:Uid.Value="Mix_MissingHint"
+                                Classes="caption secondary" />
+                            <c:Notice x:Name="Nothing" loc:Uid.Value="Mix_NothingPlaying" />
+                            <Button x:Name="Refresh" loc:Uid.Value="Mix_Refresh" HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
+                                    <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconRefresh}" />
+                                    <TextBlock loc:Uid.Value="Mix_RefreshText" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>
