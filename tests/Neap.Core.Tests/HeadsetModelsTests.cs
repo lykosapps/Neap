@@ -174,8 +174,8 @@ public class HeadsetModelsTests
     }
 
     [Fact]
-    public void BothHeadsetsHaveTheLoudnessBoost() =>
-        Assert.Equal(["Stealth Pro II", "Atlas Air"], HeadsetModels.All.Where(m => m.HasLoudnessBoost).Select(m => m.Name));
+    public void OnlyTheStealthProIIHasTheLoudnessBoost() =>
+        Assert.Equal(["Stealth Pro II"], HeadsetModels.All.Where(m => m.HasLoudnessBoost).Select(m => m.Name));
 
     [Fact]
     public void OnlyTheAtlasAirTurnsHearingOffWithTheEqualiser()

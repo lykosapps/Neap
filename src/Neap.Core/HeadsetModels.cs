@@ -223,7 +223,6 @@ public static class HeadsetModels
         ShowsGivenName = false,
         QuietsMonitoringWhileMuted = true,
         HearingOffAfterEqualiser = "SHH",
-        HasLoudnessBoost = true,
         LightReadFromTransmitter = 0x430,
         ReadsMonitoringBack = true,
         LogsInputs = true,
