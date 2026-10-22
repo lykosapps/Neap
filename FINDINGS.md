@@ -870,6 +870,21 @@ live only in Swarm II's own `STEALTH_PRO_II.ini` *(research)*.
   reading jumps 20 to 30 (40 straight to 70, 70 to 40, 35 to 65) *(measured)*.
 - **The Bluetooth button** drives the headset's own radio and sends nothing
   to the PC, short or long press. It is not remappable.
+- **The headset keeps a record of its inputs,** which the PC can read: RACE
+  command `0x0000` with the byte `01` (read) is answered with a flags word, one
+  bit for each press and each release, which stays set once it has happened,
+  then where each of three wheels stands, all little-endian 32-bit numbers.
+  On the Atlas Air the bits are, in pairs of press then release: 0 and 1 the
+  power button, 2 and 3 the microphone mute switch, 4 and 5 the source switch,
+  6 and 7 the button `0xB00` to `0xB20` set, 8 and 9 the media and call button,
+  10 and 11 the mute switch's second contact, then 16 to 21 each wheel up and
+  down (SP2Tools F126, read from the firmware). A Stealth Pro II on the
+  Charging Dock answers it, relayed: `flags 0x00001002, wheels 30, 41, 0`,
+  just after the app started, with its two wheels numbered *(measured)*; what
+  each of its bits is has not been worked out. On the Atlas Air, Neap writes
+  the reading to its log at connect and after each change the headset
+  reports, so a tester's recording shows which button and which switch
+  contact moved.
 
 ## Windows audio
 

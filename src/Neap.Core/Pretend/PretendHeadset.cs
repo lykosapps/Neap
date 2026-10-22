@@ -344,6 +344,8 @@ public sealed class PretendHeadset : IDeviceSource
                 Loudness(frame);
             else if (_atlas && IsLightRead(frame))
                 ReplyLight();
+            else if (_atlas && IsInputsRead(frame))
+                ReplyInputs();
             else if (Unwrap(frame, out string? verb, out string? argument) is string wrong)
                 Refuse(frame, wrong);
             else if (argument is null)
@@ -460,6 +462,18 @@ public sealed class PretendHeadset : IDeviceSource
     {
         int level = int.Parse(_values[0x430], CultureInfo.InvariantCulture);
         var message = new byte[] { Frames.RaceStart, Frames.RaceReply, 6, 0, 0x06, 0x00, (byte)level, 0, 0, 0 };
+        Fragment(message);
+    }
+
+    private static bool IsInputsRead(byte[] frame) =>
+        frame.AsSpan().StartsWith(HeadsetInputs.ReadFrame(true)) || frame.AsSpan().StartsWith(HeadsetInputs.ReadFrame(false));
+
+    /// <summary>Queues the headset's answer to a read of its inputs: no presses yet and every wheel at rest.</summary>
+    private void ReplyInputs()
+    {
+        if (!_on) return;
+        var message = new byte[4 + 18];
+        new byte[] { Frames.RaceStart, Frames.RaceReply, 18, 0, 0x00, 0x00 }.CopyTo(message, 0);
         Fragment(message);
     }
 

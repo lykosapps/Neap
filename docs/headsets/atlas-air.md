@@ -47,7 +47,7 @@ is in 0.2.1.7 for the testers to confirm.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Microphone mute | Listed | Yes | Has | Seen | Blocked | Done on the PC. The headset's own is `0x600`, refused while the boom's switch is low (F120, Read) | No key reports the boom, and which position the switch is low in is not known. 0.2.1.7 also turns monitoring down while Neap has the microphone muted, as the headset's own mute does. Ask the tester which boom position mutes. |
+| Microphone mute | Listed | Yes | Has | Seen | Blocked | Done on the PC. The headset's own is `0x600`, refused while the boom's switch is low (F120, Read) | No key reports the boom, and which position the switch is low in is not known. 0.2.1.7 also turns monitoring down while Neap has the microphone muted, as the headset's own mute does, and logs the headset's record of its inputs, which shows each contact of the mute switch move (answered on a Stealth Pro II, Seen; the Atlas Air's bits from SP2Tools F126, Read). Ask the tester to flip the boom up and down once while recording. |
 | Sensitivity | Listed | Yes | Has | Confirmed | Blocked | Done on the PC; the transmitter copies the PC's level into `0x610` (F120, Read) | The tester says it works (0.2.1.5). |
 | Monitoring, on/off | Listed | Yes, at `0x620` (F120, Read) | Hidden | Untried | Blocked | `0x620`, 1 off, 0 on | The level at 0 is off, so no switch is offered. |
 | Monitoring, level | Listed | Yes | Has, test | Seen | Blocked | `0x630`, 0–100: −30 dB to 0 dB, 0 off, 20 as shipped (F120, Read) | The tester hears it only when speaking loudly, at a level not known. Ask him to try 100%, and whether Swarm II at its most is louder; see Problems. |
@@ -105,7 +105,7 @@ From the quick start guide. Neap describes them; it doesn't set them.
 |---|---|---|---|---|---|---|---|
 | AI noise reduction | Not listed | No: the headset doesn't have it | Hidden | Fails | — | `0x630` is mic monitoring here | Not offered. |
 | Dial functions | Not listed on PC; the quick start guide has no second wheel | No: its one wheel is the volume, which cannot be given another job | Hidden | — | — | `0xA00`–`0xA30`: reported (Seen), but for a second wheel it does not have; a write is kept and does nothing, `0xA30` is refused (SP2Tools F126, Read) | Not offered. |
-| Button function | Not listed on PC; the mobile article lists it | Possibly: one button's short press, as the next game preset, the noise gate or chat boost | Hidden | — | — | `0xB00`–`0xB20`, one for each of PlayStation, Xbox and PC (`0xB20`); 0, 1 or 2 (SP2Tools F126, Read). Which button it is, and whether it is a button at all, needs a test on the headset | Would be a choice of three on the Controls page, writing `0xB20`. Needs the headset test first, and a tester to try the write. |
+| Button function | Not listed on PC; the mobile article lists it | Possibly: one button's short press, as the next game preset, the noise gate or chat boost | Hidden | — | — | `0xB00`–`0xB20`, one for each of PlayStation, Xbox and PC (`0xB20`); 0, 1 or 2 (SP2Tools F126, Read). Which button it is, and whether it is a button at all, needs a test on the headset; 0.2.1.7 logs the headset's record of its inputs, which shows it | Would be a choice of three on the Controls page, writing `0xB20`. Needs the tester's recording to name the button first, then a tester to try the write. |
 | Headset name | — | Yes | Has | Confirmed | — | `0x220` holds "My Headset" | "Atlas Air", and "Headset" with nothing connected. |
 
 ## Problems
@@ -128,7 +128,8 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 - [ ] Publish test build 0.2.1.7 and ask both testers for one recording each.
 - [ ] Windows tester: with the noise gate off, monitoring at 100% while
-      speaking normally, recorded; the loudness boost; the light at start; which
+      speaking normally, recorded, flipping the boom and pressing each button
+      once in the same recording; the loudness boost; the light at start; which
       boom position mutes; and the checks never answered (equalisers, a custom
       preset, auto shut-off, the volume's mute, profiles with different mixes).
 - [ ] Linux tester: allow access again when Neap asks, then record a start
@@ -136,8 +137,9 @@ From the quick start guide. Neap describes them; it doesn't set them.
 - [ ] Ask the Windows tester to check the equalisers, a custom preset and
       auto shut-off.
 - [ ] Decide on battery warnings and the High Bandwidth switches.
-- [ ] Find which button `0xB00`–`0xB20` sets, with a read-only test on the
-      headset (SP2Tools F126), before offering the button's job.
+- [ ] Find which button `0xB00`–`0xB20` sets from the tester's recording,
+      which logs the headset's record of its inputs, before offering the
+      button's job.
 - [ ] Add what Swarm II's Atlas Air plugin showed to SP2Tools.
 - [ ] Before 0.3.0: hide on the Atlas Air whatever the testers have not
       confirmed.

@@ -85,6 +85,13 @@ public sealed class HeadsetService : IDisposable
     /// <summary>A group to read at the next watch, ahead of <see cref="Watched"/>: one a write changed without the headset saying so; see <see cref="HeadsetModel.HearingOffAfterEqualiser"/>.</summary>
     private string? _readNext;
 
+    /// <summary>Whether the headset has reported a change since its inputs were last read; see <see cref="LogInputs"/>.</summary>
+    private bool _inputsMoved;
+
+    /// <summary>The inputs last written to the log, or none, so only a change is written again.</summary>
+    private InputReading? _inputsLogged;
+    private bool _inputsSaid;
+
     /// <summary>Closest together two requests to the headset are sent; it drops one sent straight after another.</summary>
     private static readonly TimeSpan AskGap = TimeSpan.FromMilliseconds(300);
 
@@ -564,6 +571,27 @@ public sealed class HeadsetService : IDisposable
             : $"mic monitoring: {when}, the headset gave no reading of the gain it stores{expected}");
     }
 
+    /// <summary>Writes in the log what the headset's buttons and switches have done, when it has changed, on a headset that keeps it; see <see cref="HeadsetModel.LogsInputs"/>.</summary>
+    /// <param name="client">The open client, on the headset thread.</param>
+    private void LogInputs(HeadsetClient client)
+    {
+        if (Model is not { LogsInputs: true }) return;
+        InputReading? reading;
+        try { reading = client.ReadInputs(TimeSpan.FromMilliseconds(500)); }
+        catch (Exception) { reading = null; }
+        if (_inputsSaid && reading == _inputsLogged) return;
+        _inputsSaid = true;
+        _inputsLogged = reading;
+        if (reading is not { } r)
+        {
+            AppLog.Write("inputs: the headset gave no reading of its buttons and switches");
+            return;
+        }
+        var said = HeadsetInputs.Describe(r.Flags);
+        AppLog.Write(string.Create(CultureInfo.InvariantCulture,
+            $"inputs: flags 0x{r.Flags:x8} ({(said.Count == 0 ? "nothing yet" : string.Join(", ", said))}); wheels {r.Wheel0}, {r.Wheel1}, {r.Wheel2}"));
+    }
+
     /// <summary>Reads the loudness level on connect and files it, hiding the feature when the headset does not answer.</summary>
     /// <remarks>Only a headset whose model has the boost is asked; any other is not sent the command at all.</remarks>
     private void ProbeLoudness(HeadsetClient client)
@@ -664,6 +692,8 @@ public sealed class HeadsetService : IDisposable
                     ProbeLoudness(client);
                     ProbeLight(client);
                     ReadMonitoringBack(client, "at connect", null);
+                    _inputsSaid = false;
+                    LogInputs(client);
                     var held = Carrying(client);
                     carrying = held?.Name ?? adapter;
                     product = held?.Product ?? client.ProductId.ToString("X4", CultureInfo.InvariantCulture);
@@ -699,6 +729,7 @@ public sealed class HeadsetService : IDisposable
                     {
                         Heard?.Invoke(evt);
                         Merge(evt.Values, authoritative: false);
+                        _inputsMoved |= evt.Values.Count > 0;
                         TakeSlot(evt);
                     }
                     unanswered = 0;
@@ -780,12 +811,22 @@ public sealed class HeadsetService : IDisposable
                 if (primed && client is not null && asking >= nextWatch
                     && asking - lastAsk >= AskGap.TotalSeconds * Stopwatch.Frequency)
                 {
-                    // A group a write has changed without the headset saying so goes first.
-                    string group = Interlocked.Exchange(ref _readNext, null) ?? Watched[watches++ % Watched.Length];
-                    var seen = client.ReadCategory(group, BeatWindow);
+                    // A headset that has reported a change has its inputs read
+                    // in this turn; otherwise a group a write has changed
+                    // without the headset saying so goes first.
+                    if (_inputsMoved && Model is { LogsInputs: true })
+                    {
+                        _inputsMoved = false;
+                        LogInputs(client);
+                    }
+                    else
+                    {
+                        string group = Interlocked.Exchange(ref _readNext, null) ?? Watched[watches++ % Watched.Length];
+                        var seen = client.ReadCategory(group, BeatWindow);
+                        if (seen.Count > 0) Merge(seen, authoritative: false);
+                    }
                     lastAsk = Stopwatch.GetTimestamp();
                     nextWatch = lastAsk + (long)(WatchEvery.TotalSeconds * Stopwatch.Frequency);
-                    if (seen.Count > 0) Merge(seen, authoritative: false);
                 }
             }
             catch (DeviceNotFoundException)

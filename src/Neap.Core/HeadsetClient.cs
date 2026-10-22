@@ -400,6 +400,10 @@ public sealed class HeadsetClient : IDisposable
     public float? ReadSidetone(TimeSpan wait) =>
         Exchange(Sidetone.ReadFrame(RelayThroughBase), report => Sidetone.GainInReply(report), wait);
 
+    /// <summary>Reads what the headset's buttons and switches have done, or null when it gives no reading; see <see cref="HeadsetInputs"/>.</summary>
+    public InputReading? ReadInputs(TimeSpan wait) =>
+        Exchange(HeadsetInputs.ReadFrame(RelayThroughBase), report => HeadsetInputs.InReply(report), wait);
+
     /// <summary>Reads the transmitter's light level as the transmitter gives it, or null when it gives none; see <see cref="TransmitterLight"/>.</summary>
     public int? ReadTransmitterLight(TimeSpan wait) =>
         Exchange(TransmitterLight.ReadFrame, report => TransmitterLight.LevelInReply(report), wait);

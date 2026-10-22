@@ -86,6 +86,13 @@ public sealed record HeadsetModel(
     /// <remarks>On the Atlas Air a monitoring level can be accepted and still change nothing (SP2Tools F120), which only the stored gain shows.</remarks>
     public bool ReadsMonitoringBack { get; init; }
 
+    /// <summary>Whether what its buttons and switches have done is read into the log at connect and after each change it reports; see <see cref="Hid.HeadsetInputs"/>.</summary>
+    /// <remarks>
+    /// On the Atlas Air no key says where the boom is or which button a
+    /// setting belongs to (SP2Tools F120, F126); a tester's log shows both.
+    /// </remarks>
+    public bool LogsInputs { get; init; }
+
     /// <summary>Whether a key is one of the equalisers', game, microphone or Bluetooth: presets, bands and saving.</summary>
     public static bool IsEqualiserKey(int key) => key is >= 0x1200 and < 0x1500;
 }
@@ -219,6 +226,7 @@ public static class HeadsetModels
         HasLoudnessBoost = true,
         LightReadFromTransmitter = 0x430,
         ReadsMonitoringBack = true,
+        LogsInputs = true,
     };
 
     public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];

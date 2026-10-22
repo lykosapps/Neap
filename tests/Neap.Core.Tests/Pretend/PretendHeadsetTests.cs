@@ -235,6 +235,13 @@ public class PretendHeadsetTests
     }
 
     [Fact]
+    public void AnAtlasAirGivesItsInputs()
+    {
+        using var client = HeadsetClient.Behind(allowWrites: _ => false, out _, devices: new PretendHeadset(atlas: true));
+        Assert.Equal(new Core.Hid.InputReading(0, 0, 0, 0), client!.ReadInputs(TimeSpan.FromSeconds(1)));
+    }
+
+    [Fact]
     public void AnAtlasAirGivesItsLoudnessLevel()
     {
         using var client = HeadsetClient.Behind(allowWrites: _ => false, out _, devices: new PretendHeadset(atlas: true));
