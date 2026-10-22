@@ -968,6 +968,18 @@
   <data name="Access_Manual" xml:space="preserve">
     <value>Your system keeps the headset's controls to itself until it is told otherwise, and cannot ask for your password from here. Copy the command, run it in a terminal, then unplug the headset's transmitter and plug it in again.</value>
   </data>
+  <data name="Access_UpdateTitle" xml:space="preserve">
+    <value>Neap's access to the headset needs updating</value>
+  </data>
+  <data name="Access_UpdateMessage" xml:space="preserve">
+    <value>The transmitter has stopped answering. The newer access rule keeps it from being put to sleep. Updating takes your password once, and changes nothing else.</value>
+  </data>
+  <data name="Access_Update" xml:space="preserve">
+    <value>Update access</value>
+  </data>
+  <data name="Access_UpdateManual" xml:space="preserve">
+    <value>The transmitter has stopped answering. The newer access rule keeps it from being put to sleep, and your system cannot ask for your password from here. Copy the command, run it in a terminal, then unplug the headset's transmitter and plug it in again.</value>
+  </data>
   <data name="Access_Copy" xml:space="preserve">
     <value>Copy the command</value>
   </data>

@@ -193,6 +193,8 @@ and date.
 - On Linux, a transmitter that has stopped answering is restarted only once
   Neap's newer access rule is in. Under the older rule the system can put it
   straight back to sleep, so a restart before then was used up for nothing.
+  The notice then says Neap's access needs updating, with an Update access
+  button, rather than that Neap isn't allowed to use the headset.
 - On Linux, Neap's access rule keeps Turtle Beach transmitters from being put
   to sleep to save power, which could leave one answering nothing until it
   was restarted. If an older rule is installed and a transmitter stops

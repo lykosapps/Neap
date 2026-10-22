@@ -73,12 +73,13 @@ public sealed class HeadsetNotice : Notice
         if (AppServices.Headset.AccessDenied)
         {
             bool asks = _failed is null && HeadsetAccess.CanAsk;
+            bool update = AppServices.Headset.AccessOutOfDate;
             Severity = Severity.Warning;
-            Title = Strings.Get("Access_Title");
+            Title = Strings.Get(update ? "Access_UpdateTitle" : "Access_Title");
             Message = _failed is not null ? Strings.Format("Access_Failed", _failed)
-                : asks ? Strings.Get("Access_Message")
-                : Strings.Get("Access_Manual");
-            ActionText = Strings.Get(asks ? "Access_Allow" : "Access_Copy");
+                : asks ? Strings.Get(update ? "Access_UpdateMessage" : "Access_Message")
+                : Strings.Get(update ? "Access_UpdateManual" : "Access_Manual");
+            ActionText = Strings.Get(asks ? (update ? "Access_Update" : "Access_Allow") : "Access_Copy");
             IsOpen = true;
             return;
         }

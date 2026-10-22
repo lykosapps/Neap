@@ -148,19 +148,30 @@ public sealed class HeadsetService : IDisposable
     public event Action<HeadsetStatus>? StatusChanged;
 
     /// <summary>
-    /// Whether the headset is there and the system will not let this user open
-    /// it, which no switching on or plugging in will change.
+    /// Whether the headset is there and needs the access rule before Neap can
+    /// use it, which no switching on or plugging in will change: the system
+    /// will not let this user open it, or see <see cref="AccessOutOfDate"/>.
     /// </summary>
     public bool AccessDenied { get; private set; }
 
-    /// <summary><see cref="AccessDenied"/> changed. Raised on the UI thread.</summary>
+    /// <summary>
+    /// Of <see cref="AccessDenied"/>, whether this user can open the headset,
+    /// and the rule installed is an older one under which its transmitter has
+    /// stopped answering; see <see cref="RuleOutOfDate"/>.
+    /// </summary>
+    public bool AccessOutOfDate { get; private set; }
+
+    /// <summary><see cref="AccessDenied"/> or <see cref="AccessOutOfDate"/> changed. Raised on the UI thread.</summary>
     public event Action? AccessChanged;
 
-    private void SetAccessDenied(bool denied)
+    private void SetAccessDenied(bool denied, bool outOfDate = false)
     {
-        if (AccessDenied == denied) return;
+        if (AccessDenied == denied && AccessOutOfDate == outOfDate) return;
         AccessDenied = denied;
-        AppLog.Write(denied ? "headset: the system does not let this user open it" : "headset: the system lets this user open it");
+        AccessOutOfDate = outOfDate;
+        AppLog.Write(!denied ? "headset: the system lets this user open it"
+            : outOfDate ? "headset: the access rule needs bringing up to date before the transmitter can answer"
+            : "headset: the system does not let this user open it");
         _ui.Post(() => AccessChanged?.Invoke());
     }
 
@@ -1020,8 +1031,13 @@ public sealed class HeadsetService : IDisposable
         }, _askedBefore ? null : FirstAsk);
         _askedBefore = true;
         _askLast = null;
+        bool outOfDate = false;
         if (client is null && OperatingSystem.IsLinux() && _devices is SystemDevices)
-            denied |= RestartSilent(silent);
+        {
+            var (refused, old) = RestartSilent(silent);
+            denied |= refused;
+            outOfDate = old && !denied;
+        }
         if (client is not null)
         {
             _toldQuiet.Clear();
@@ -1036,7 +1052,7 @@ public sealed class HeadsetService : IDisposable
 
         // Said only when nothing could be opened: one transmitter that will
         // not open beside another that does is not the person's problem.
-        SetAccessDenied(client is null && denied);
+        SetAccessDenied(client is null && (denied || outOfDate), client is null && outOfDate);
         return client;
     }
 
@@ -1053,9 +1069,9 @@ public sealed class HeadsetService : IDisposable
     /// restarted transmitter's replies last through closing and reopening it.
     /// </para>
     /// </remarks>
-    /// <returns>Whether the system refused to let this user restart one, or the access rule needs bringing up to date.</returns>
+    /// <returns>Whether the system refused to let this user restart one, and whether the access rule needs bringing up to date.</returns>
     [System.Runtime.Versioning.SupportedOSPlatform("linux")]
-    private bool RestartSilent(IReadOnlyList<string> silent)
+    private (bool Refused, bool OutOfDate) RestartSilent(IReadOnlyList<string> silent)
     {
         var present = _devices.Candidates();
         bool denied = false;
@@ -1098,7 +1114,7 @@ public sealed class HeadsetService : IDisposable
         }
         // Asked every time, not only when a restart is due, so the offer stays
         // on screen until the person takes it or the headset answers.
-        return denied || (_channelStopped && RuleOutOfDate());
+        return (denied, _channelStopped && RuleOutOfDate());
     }
 
     /// <summary>How long a restarted transmitter is read after it comes back: the start-up messages come within the first second or two.</summary>
