@@ -183,7 +183,7 @@ public partial class MixPanel : UserControl
     /// </summary>
     private void WatchLevels()
     {
-        bool wanted = this.InWindow() && Levels.IsVisible && WindowPresence.InFront && AppServices.Mix.Running && Motion.Enabled;
+        bool wanted = this.InWindow() && DialArea.IsEnabled && WindowPresence.InFront && AppServices.Mix.Running && Motion.Enabled;
         if (!wanted) { StopLevels(); return; }
         if (_levelTimer is not null) return;
         _levels ??= AppServices.Mix.OpenLevels();
@@ -239,7 +239,10 @@ public partial class MixPanel : UserControl
         var apps = AppServices.Mix.ChatApps;
         bool chosen = apps.Count > 0;
         SetupLine.IsVisible = !chosen;
-        Levels.IsVisible = chosen;
+        // Kept in the layout while nothing is chosen, so the card's height
+        // does not change with the first app; unseen and unread until then.
+        Levels.Opacity = chosen ? 1 : 0;
+        AutomationProperties.SetAccessibilityView(Levels, chosen ? AccessibilityView.Content : AccessibilityView.Raw);
         DialArea.IsEnabled = chosen;
         WatchLevels();
 

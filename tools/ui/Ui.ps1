@@ -137,9 +137,17 @@ function Wait-Stable([scriptblock]$Read, [double]$Seconds = 3) {
 function New-Condition([string]$Property, $Value) {
     New-Object System.Windows.Automation.PropertyCondition($A::$Property, $Value)
 }
-function Find-Named([string]$Name) { $script:Window.FindFirst($Scope::Descendants, (New-Condition NameProperty $Name)) }
-function Find-Id([string]$Id) { $script:Window.FindFirst($Scope::Descendants, (New-Condition AutomationIdProperty $Id)) }
-function Find-All([string]$Name) { @($script:Window.FindAll($Scope::Descendants, (New-Condition NameProperty $Name))) }
+# A search made while a page is being rebuilt can fail inside UI Automation;
+# it is asked again a few times before the failure is let through.
+function Search([scriptblock]$Find) {
+    for ($try = 1; ; $try++) {
+        try { return (& $Find) }
+        catch [System.Management.Automation.MethodInvocationException] { if ($try -ge 5) { throw }; Start-Sleep -Milliseconds 200 }
+    }
+}
+function Find-Named([string]$Name) { Search { $script:Window.FindFirst($Scope::Descendants, (New-Condition NameProperty $Name)) } }
+function Find-Id([string]$Id) { Search { $script:Window.FindFirst($Scope::Descendants, (New-Condition AutomationIdProperty $Id)) } }
+function Find-All([string]$Name) { @(Search { $script:Window.FindAll($Scope::Descendants, (New-Condition NameProperty $Name)) }) }
 
 # The element of this name that is lowest on the screen, for when the banner and
 # the page both say the same thing.
@@ -153,7 +161,7 @@ function Find-Text([string]$Name) {
 }
 function Test-Present($Element) { $null -ne $Element -and -not $Element.Current.IsOffscreen }
 function Get-Texts {
-    @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Text)))) |
+    @(Search { $script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Text))) }) |
         ForEach-Object { $_.Current.Name }
 }
 function Get-Popups {

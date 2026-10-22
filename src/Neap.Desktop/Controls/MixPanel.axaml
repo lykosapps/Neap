@@ -75,46 +75,52 @@
             <c:Notice x:Name="ElsewhereBar" loc:Uid.Value="Mix_ElsewhereBar" Severity="Warning" />
 
             <!--
-                Nothing chosen yet: the question the disabled dial is waiting on.
+                Nothing chosen yet, the question the disabled dial is waiting
+                on; once an app is chosen, the levels in its place. The two
+                share one cell, so the card keeps its height and the field
+                below never moves under the pointer as the first app is ticked.
             -->
-            <TextBlock
-                x:Name="SetupLine"
-                loc:Uid.Value="Mix_Setup"
-                Classes="secondary"
-                IsVisible="False" />
+            <Grid>
+                <TextBlock
+                    x:Name="SetupLine"
+                    loc:Uid.Value="Mix_Setup"
+                    VerticalAlignment="Center"
+                    Classes="secondary"
+                    IsVisible="False" />
 
-            <!--
-                Each side's name, what it is playing just now and how loud the
-                mix lets it play. The number is the setting; the bars are the
-                sound, decoration that a screen reader skips.
-            -->
-            <Grid
-                x:Name="Levels"
-                ColumnDefinitions="Auto,*,Auto"
-                RowDefinitions="Auto,Auto"
-                ColumnSpacing="{StaticResource NeapSpaceM}"
-                RowSpacing="{StaticResource NeapSpaceS}">
-                <TextBlock loc:Uid.Value="Mix_Game" Foreground="{DynamicResource NeapGameTextBrush}" />
-                <c:LevelBars x:Name="GameBars" Grid.Column="1" Count="{StaticResource NeapMixBars}" VerticalAlignment="Center" />
-                <TextBlock
-                    x:Name="GameLevel"
-                    Grid.Column="2"
-                    MinWidth="32"
-                    FontFeatures="tnum"
-                    FontWeight="SemiBold"
-                    Foreground="{DynamicResource NeapGameTextBrush}"
-                    TextAlignment="Right" />
-                <TextBlock Grid.Row="1" loc:Uid.Value="Mix_Chat" Foreground="{DynamicResource NeapChatTextBrush}" />
-                <c:LevelBars x:Name="ChatBars" Grid.Row="1" Grid.Column="1" Count="{StaticResource NeapMixBars}" VerticalAlignment="Center" Classes="chat" />
-                <TextBlock
-                    x:Name="ChatLevel"
-                    Grid.Row="1"
-                    Grid.Column="2"
-                    MinWidth="32"
-                    FontFeatures="tnum"
-                    FontWeight="SemiBold"
-                    Foreground="{DynamicResource NeapChatTextBrush}"
-                    TextAlignment="Right" />
+                <!--
+                    Each side's name, what it is playing just now and how loud the
+                    mix lets it play. The number is the setting; the bars are the
+                    sound, decoration that a screen reader skips.
+                -->
+                <Grid
+                    x:Name="Levels"
+                    ColumnDefinitions="Auto,*,Auto"
+                    RowDefinitions="Auto,Auto"
+                    ColumnSpacing="{StaticResource NeapSpaceM}"
+                    RowSpacing="{StaticResource NeapSpaceS}">
+                    <TextBlock loc:Uid.Value="Mix_Game" Foreground="{DynamicResource NeapGameTextBrush}" />
+                    <c:LevelBars x:Name="GameBars" Grid.Column="1" Count="{StaticResource NeapMixBars}" VerticalAlignment="Center" />
+                    <TextBlock
+                        x:Name="GameLevel"
+                        Grid.Column="2"
+                        MinWidth="32"
+                        FontFeatures="tnum"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource NeapGameTextBrush}"
+                        TextAlignment="Right" />
+                    <TextBlock Grid.Row="1" loc:Uid.Value="Mix_Chat" Foreground="{DynamicResource NeapChatTextBrush}" />
+                    <c:LevelBars x:Name="ChatBars" Grid.Row="1" Grid.Column="1" Count="{StaticResource NeapMixBars}" VerticalAlignment="Center" Classes="chat" />
+                    <TextBlock
+                        x:Name="ChatLevel"
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        MinWidth="32"
+                        FontFeatures="tnum"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource NeapChatTextBrush}"
+                        TextAlignment="Right" />
+                </Grid>
             </Grid>
 
             <!--

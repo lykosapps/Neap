@@ -29,12 +29,7 @@ $smallest = 24
 $focusable = New-Condition IsKeyboardFocusableProperty $true
 
 function Get-Stops {
-    # A search while the page is being rebuilt can fail inside UI Automation;
-    # it is asked again a few times before the failure is let through.
-    for ($try = 1; ; $try++) {
-        try { return @($script:Window.FindAll($Scope::Descendants, $focusable)) | Where-Object { -not $_.Current.IsOffscreen -and $_.Current.IsEnabled } }
-        catch [System.Management.Automation.MethodInvocationException] { if ($try -ge 5) { throw }; Start-Sleep -Milliseconds 200 }
-    }
+    @(Search { $script:Window.FindAll($Scope::Descendants, $focusable) }) | Where-Object { -not $_.Current.IsOffscreen -and $_.Current.IsEnabled }
 }
 # WCAG leaves out controls that are switched off, so text inside one is not measured.
 function Test-InDisabled($Element) {

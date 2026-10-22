@@ -288,6 +288,13 @@ function Options($element) {
 function Choose($element, [string]$label) {
     $expand = Pattern $element ([System.Windows.Automation.ExpandCollapsePattern])
     $expand.Expand()
+    # A list opened just after it closed can miss the opening; it is opened
+    # once more before the option is called missing.
+    if (-not (Until { $null -ne (Item $element $label) })) {
+        $expand.Collapse()
+        Start-Sleep -Milliseconds 300
+        $expand.Expand()
+    }
     if (-not (Until { $null -ne (Item $element $label) })) { $expand.Collapse(); throw "no option '$label' in $($element.Current.Name)" }
     $item = Item $element $label
     try { (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select() }
@@ -583,21 +590,27 @@ function Format {
     Collect
 }
 
+# Home's "Chat comes from" field: a button naming the chosen apps, whose list
+# opens over the page, so choosing never moves the card.
 function Wheel {
     Page 'Home'
-    $list = Find $script:window 'AutomationIdProperty' 'ChatFrom'
-    if ($null -eq $list) { Fail 'Home offers a list of chat apps'; return }
-    $expand = Pattern $list ([System.Windows.Automation.ExpandCollapsePattern])
-    Check ($expand.Current.ExpandCollapseState -eq 'Expanded') 'with no chat app chosen, the list is open'
-    Screenshot 'home-mix-choose'
-    $boxes = FindAll $list 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox)
-    $chat = $boxes | Where-Object { $_.Current.Name -like 'Pretend Chat*' } | Select-Object -First 1
-    $music = $boxes | Where-Object { $_.Current.Name -eq 'Pretend Music' } | Select-Object -First 1
+    $chooser = Everywhere 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::Button) |
+        Where-Object { $_.Current.Name -like 'Chat comes from*' } | Select-Object -First 1
+    if ($null -eq $chooser) { Fail 'Home offers a choice of chat apps'; return }
+    Check ($chooser.Current.Name -eq 'Chat comes from No app chosen yet') "with no chat app chosen, the field says so: $($chooser.Current.Name)"
+    $top = $chooser.Current.BoundingRectangle.Top
+    (Pattern $chooser ([System.Windows.Automation.InvokePattern])).Invoke()
+    $box = { param($name) Everywhere 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox) | Where-Object { $_.Current.Name -like $name } | Select-Object -First 1 }
+    Until { $null -ne (& $box 'Pretend Chat*') } | Out-Null
+    $chat = & $box 'Pretend Chat*'
+    $music = & $box 'Pretend Music'
     if ($null -eq $chat -or $null -eq $music) { Fail 'the list offers the pretend apps'; return }
+    Screenshot 'home-mix-choose'
     (Pattern $chat ([System.Windows.Automation.TogglePattern])).Toggle()
     Check (Until { $null -ne (Ask 'mix') } 5) 'choosing a chat app starts the mix'
     (Pattern $music ([System.Windows.Automation.TogglePattern])).Toggle()
-    Check (Until { $list.Current.Name -eq 'Chat comes from Pretend Chat and Pretend Music' }) "a second app joins the first: $($list.Current.Name)"
+    Check (Until { $chooser.Current.Name -eq 'Chat comes from Pretend Chat and Pretend Music' }) "a second app joins the first: $($chooser.Current.Name)"
+    Check ($chooser.Current.BoundingRectangle.Top -eq $top) 'choosing apps does not move the field'
     Screenshot 'home-mix-two'
     (Pattern $chat ([System.Windows.Automation.TogglePattern])).Toggle()
     (Pattern $music ([System.Windows.Automation.TogglePattern])).Toggle()
@@ -712,10 +725,14 @@ function NoiseControl {
     Screenshot 'controls-mode'
 }
 
+# A battery reading that rises is shown as it is; one that falls fast is a new
+# battery settling, and Home says so rather than show a number (BatteryTrend).
 function Battery {
     Page 'Home'
-    Ask 'report battery 42' | Out-Null
-    Check (Until { $null -ne (Find $script:window 'NameProperty' '42%') }) 'Home shows the battery the headset reports'
+    Ask 'report battery 90' | Out-Null
+    Check (Until { $null -ne (Find $script:window 'NameProperty' '90%') }) 'Home shows the battery the headset reports'
+    Ask 'report battery 40' | Out-Null
+    Check (Until { $null -ne (Find $script:window 'NameProperty' "Reading$([char]0x2026)") }) 'a battery falling fast shows as still reading, not as a number'
 }
 
 function Spare {
