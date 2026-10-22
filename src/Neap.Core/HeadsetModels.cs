@@ -228,11 +228,19 @@ public static class HeadsetModels
         LogsInputs = true,
     };
 
-    public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];
+    /// <summary>Whether the Atlas Air is among the headsets this release of Neap supports.</summary>
+    /// <remarks>
+    /// Off until its testers have confirmed what it does. While it is off Neap
+    /// does not know the Atlas Air: its hardware, speakers and microphone are
+    /// those of a headset Neap has no support for.
+    /// </remarks>
+    public const bool AtlasAirReleased = false;
+
+    public static readonly IReadOnlyList<HeadsetModel> All = AtlasAirReleased ? [StealthProII, AtlasAir] : [StealthProII];
 
     /// <summary>Every known headset's <see cref="HeadsetModel.SoundName"/>, apart by |, for finding its speakers and microphone.</summary>
     /// <remarks>Written out rather than built from <see cref="All"/>, as it is the default of many a parameter; a test keeps the two the same.</remarks>
-    public const string SoundNames = "stealth pro|atlas air";
+    public const string SoundNames = AtlasAirReleased ? "stealth pro|atlas air" : "stealth pro";
 
     /// <summary>Whether a speaker or microphone's name holds any of the fragments in <paramref name="match"/>, apart by |.</summary>
     public static bool SoundMatches(string name, string match = SoundNames) =>

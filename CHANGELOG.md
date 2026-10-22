@@ -13,8 +13,6 @@ and date.
 
 ### Added
 
-- Neap no longer asks the Atlas Air for two groups of settings it does not
-  have.
 
 - The mini panel has spatial sound: Off, Windows Sonic or Dolby Atmos,
   whichever the system offers. It is left out where the system has none, and
@@ -56,17 +54,6 @@ and date.
 - An app given to a profile can switch to it only while it's using the
   microphone, rather than whenever it's open. A profile for Teams calls comes
   on as a call starts, and the default comes back when it ends.
-- Neap recognises the Turtle Beach Atlas Air, finds its speakers and
-  microphone, and shows only what it has: no chat wheel, noise cancellation,
-  lights, Charging Dock or CrossPlay. Its settings can be changed, in testing
-  with an owner of one.
-- On the Atlas Air, Superhuman Hearing and voice prompts use the places
-  Swarm II keeps them, rather than the Stealth Pro II's. In testing with an
-  owner of one.
-- On the Atlas Air, mic monitoring and the transmitter's light use the places
-  Swarm II keeps them. In testing with an owner of one.
-- On a headset with no chat wheel, such as the Atlas Air, a profile saves the
-  game and chat mix and puts it back when it's switched to.
 - The game and chat mix on Home links to its keyboard shortcuts.
 - A recording lists each change Neap sends to the headset beside what the
   headset says, and says why when a change wasn't sent.
@@ -78,10 +65,7 @@ and date.
 - The game and chat card on Home is shorter: a smaller dial, with each side's
   level and meter beside it and the choice of chat apps under them.
 - Home's cards and the Device page's transmitters are set out so no row ends
-  with one card stretched across it; the Atlas Air's four cards are two rows
-  of two.
-- The Atlas Air's voice prompts read as a percentage, like the levels beside
-  them, and the slider keeps one scale from the start.
+  with one card stretched across it.
 - Spatial sound and the loudness boost have icons of their own, instead of the
   volume's speaker.
 - Home's headset card says "Through the USB Transmitter" rather than repeating
@@ -189,11 +173,6 @@ and date.
   the middle to its game or chat end, the mix stopped at the middle and the
   wheel then had no room left to turn it further; the mix now goes to that
   end with the wheel.
-- The Atlas Air no longer drops to "Not connected" every minute or so while
-  it is in use. Neap was asking it for its buttons and switches several times
-  a second, and the headset then missed Neap's regular check. They are now
-  read once, when it connects, and the log says when the headset stops
-  answering that check.
 - On Linux, a transmitter that has stopped answering is restarted only once
   Neap's newer access rule is in. Under the older rule the system can put it
   straight back to sleep, so a restart before then was used up for nothing.
@@ -206,16 +185,6 @@ and date.
   that is only switched off is no reason to ask.
 - On Linux, a transmitter that answers but has no headset linked to it is no
   longer restarted. The restart switched the headset off as it came back.
-- On the Atlas Air, muting the microphone from Neap also turns mic monitoring
-  down, as the headset's own mute does, and puts it back when you unmute.
-  Before, you went on hearing yourself while muted.
-- On the Atlas Air, the transmitter light shows its level as soon as Neap
-  connects.
-- On the Atlas Air, Superhuman Hearing shows as off when a change to the
-  equaliser turns it off.
-- On the Atlas Air, profiles keep Superhuman Hearing and the voice prompt
-  level. Neap had taken them for settings it could not read, though the
-  headset reports both.
 - Choosing which apps carry chat now opens in a dropdown over the page,
   instead of an in-card list that grew and shrank. The card keeps one height,
   so the game and chat dial and the settings below it no longer jump as you
@@ -251,49 +220,29 @@ and date.
   headset". Neap's own microphone switch mutes the headset itself, with its
   tone, the same as the button. Before, Neap followed only the boom arm, so
   the PC stayed live, and its switch muted only Windows.
-- On the Atlas Air, moving mic monitoring above 1% changes it. Every
-  higher level was refused, because its place is where the Stealth Pro II
-  keeps an on and off switch.
-- Sliders move in whole steps, so the Atlas Air's voice prompts, from 0 to
-  15, no longer shake as they are dragged, and never show a number past
-  the slider's end.
+- Sliders move in whole steps, so they no longer shake as they are dragged,
+  and never show a number past the slider's end.
 - If the headset muted the PC's microphone, by its arm or by being switched
   off, the microphone comes back on when the arm is seen down, even after
   Neap was closed or the headset was off in between. A mute you set
   yourself in Neap stays.
 - When the headset gives no answer for a group of its settings, such as
-  the Atlas Air's transmitter light, the app log and recordings say so.
+  the transmitter light, the app log and recordings say so.
 - A recording says "no answer" for a transmitter slot the headset didn't
   answer for, rather than calling it empty, and names each change Neap sends
-  by the setting it changes: the Atlas Air's mic monitoring shows as mic
-  monitoring, not as the noise reduction switch kept at the same place on
-  the Stealth Pro II.
+  by the setting it changes.
 - A screen reader now announces noise cancellation, the Mode button, the lower
   dial and Superhuman Hearing's sound as named groups of options, instead of
   leaving the group's name out.
-- A headset with no name of its own now shows its own model name. An Atlas Air
-  without a given name used to show as "Stealth Pro II"; a headset Neap doesn't
-  recognise now shows simply as "Headset".
-- On the Atlas Air, the master volume no longer jumps to 100% and back as it
-  is moved, from the slider or the headset's wheel.
+- A headset Neap doesn't recognise now shows simply as "Headset", rather than
+  as "Stealth Pro II".
 - The volume and microphone sliders no longer jump back while they are moved.
   The headset reports each level a moment late, and a late report pulled the
   slider back, then forward again. They now leave the headset's reports alone
   for a moment after a change.
-- On the Atlas Air, Bluetooth says whether the headset is listening over it.
-  It used to say "Connected" on the transmitter and "Not connected" on
-  Bluetooth.
-- On the Atlas Air, profiles no longer stay on "Reading the headset's
-  settings…". They wait only for settings the headset has.
 - A profile saved on one headset no longer shows as changed on another that
   lacks some of its settings, and saving over it keeps them.
-- On the Atlas Air, AI noise reduction is no longer offered. The headset
-  doesn't have it, and the switch was changing its mic monitoring level.
-- On the Atlas Air, voice prompts go from 0 to 15, as in Swarm II, so every
-  step changes how loud they are.
-- Home calls the Atlas Air "Atlas Air", as Swarm II does, rather than the name
-  it holds. With nothing connected, it says "Headset" rather than
-  "Stealth Pro II".
+- With nothing connected, Home says "Headset" rather than "Stealth Pro II".
 - On Linux, a headset that seems to say nothing is also listened for where
   Linux keeps what the headset sends unasked. If it still says nothing, the
   log says what arrived there.

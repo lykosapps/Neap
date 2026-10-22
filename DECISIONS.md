@@ -1,5 +1,18 @@
 # Decisions
 
+## 2026-10-23 — The Atlas Air waits for a later release
+
+- **Options:** ship 0.3.0 with the Atlas Air hidden in part, only what its
+  testers have confirmed; keep the Atlas Air out of 0.3.0 altogether.
+- **Chosen:** keep it out. `HeadsetModels.AtlasAirReleased` is off, so Neap
+  does not know the Atlas Air: its hardware, speakers and microphone are
+  those of a headset it has no support for. The code and tests for it stay,
+  and its changelog lines are kept in `docs/headsets/atlas-air.md`.
+- **Why:** the owner's call: 0.3.0 officially supports the Stealth Pro II
+  only, as the Atlas Air's testers have not yet confirmed what Neap does on
+  it, and its latest fix has had no reply.
+- **Revisit when:** the testers confirm 0.2.1.8 or a later test build.
+
 ## 2026-10-22 — Firmware edits wait for a later release
 
 - **Options:** ship the Firmware page behind its Settings switch in the

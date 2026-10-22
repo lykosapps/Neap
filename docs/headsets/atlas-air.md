@@ -1,6 +1,7 @@
 # Atlas Air
 
-In testing. On Windows it connects and most settings work. On Linux it
+Not in 0.3.0: Neap does not know this headset while `HeadsetModels.AtlasAirReleased`
+is off (DECISIONS.md, 23 October 2026). In testing. On Windows it connects and most settings work. On Linux it
 connects only after Neap restarts the transmitter, which switches the headset
 off; 0.2.1.7 keeps the transmitter awake instead, as a test. SP2Tools has read
 the headset's firmware for every open question (F114 to F126); what it found
@@ -146,8 +147,8 @@ From the quick start guide. Neap describes them; it doesn't set them.
       which logs the headset's record of its inputs, before offering the
       button's job.
 - [ ] Add what Swarm II's Atlas Air plugin showed to SP2Tools.
-- [ ] Before 0.3.0: hide on the Atlas Air whatever the testers have not
-      confirmed.
+- [x] Before 0.3.0: hide on the Atlas Air whatever the testers have not
+      confirmed. Done by leaving the Atlas Air out of 0.3.0 altogether.
 
 ## Evidence
 
@@ -287,3 +288,53 @@ Newest first.
 - Before 2026-10-15 — Windows tester, 0.2.0 and 0.2.1 recordings: the
   hardware ids. The volume mirror is at `0x260`. `0x290` follows QuickSwitch.
   `0x620` follows the mute.
+
+## Changelog lines held back from 0.3.0
+
+Taken out of `CHANGELOG.md`'s Unreleased section; put them back, under Added and
+Fixed, when the Atlas Air is released.
+
+- Neap no longer asks the Atlas Air for two groups of settings it does not
+  have.
+- Neap recognises the Turtle Beach Atlas Air, finds its speakers and
+  microphone, and shows only what it has: no chat wheel, noise cancellation,
+  lights, Charging Dock or CrossPlay. Its settings can be changed, in testing
+  with an owner of one.
+- On the Atlas Air, Superhuman Hearing and voice prompts use the places
+  Swarm II keeps them, rather than the Stealth Pro II's. In testing with an
+  owner of one.
+- On the Atlas Air, mic monitoring and the transmitter's light use the places
+  Swarm II keeps them. In testing with an owner of one.
+- On a headset with no chat wheel, such as the Atlas Air, a profile saves the
+  game and chat mix and puts it back when it's switched to.
+- The Atlas Air's voice prompts read as a percentage, like the levels beside
+  them, and the slider keeps one scale from the start.
+- The Atlas Air no longer drops to "Not connected" every minute or so while
+  it is in use. Neap was asking it for its buttons and switches several times
+  a second, and the headset then missed Neap's regular check. They are now
+  read once, when it connects, and the log says when the headset stops
+  answering that check.
+- On the Atlas Air, muting the microphone from Neap also turns mic monitoring
+  down, as the headset's own mute does, and puts it back when you unmute.
+  Before, you went on hearing yourself while muted.
+- On the Atlas Air, the transmitter light shows its level as soon as Neap
+  connects.
+- On the Atlas Air, Superhuman Hearing shows as off when a change to the
+  equaliser turns it off.
+- On the Atlas Air, profiles keep Superhuman Hearing and the voice prompt
+  level. Neap had taken them for settings it could not read, though the
+  headset reports both.
+- On the Atlas Air, moving mic monitoring above 1% changes it. Every
+  higher level was refused, because its place is where the Stealth Pro II
+  keeps an on and off switch.
+- On the Atlas Air, the master volume no longer jumps to 100% and back as it
+  is moved, from the slider or the headset's wheel.
+- On the Atlas Air, Bluetooth says whether the headset is listening over it.
+  It used to say "Connected" on the transmitter and "Not connected" on
+  Bluetooth.
+- On the Atlas Air, profiles no longer stay on "Reading the headset's
+  settings…". They wait only for settings the headset has.
+- On the Atlas Air, AI noise reduction is no longer offered. The headset
+  doesn't have it, and the switch was changing its mic monitoring level.
+- On the Atlas Air, voice prompts go from 0 to 15, as in Swarm II, so every
+  step changes how loud they are.

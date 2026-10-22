@@ -10,8 +10,6 @@ public class HeadsetModelsTests
     [Theory]
     [InlineData("229B", "Stealth Pro II")]
     [InlineData("2289", "Stealth Pro II")]
-    [InlineData("225E", "Atlas Air")]
-    [InlineData("2260", "Atlas Air")]
     public void HardwareIsKnownAsItsHeadset(string product, string name) =>
         Assert.Equal(name, HeadsetModels.Of(product)?.Name);
 
@@ -27,8 +25,13 @@ public class HeadsetModelsTests
     }
 
     [Fact]
-    public void TheAtlasAirsTransmitterIsATransmitter() =>
-        Assert.Equal(Transmitters.Piece.Transmitter, Transmitters.PieceOf("225E"));
+    public void TheAtlasAirIsKnownOnlyWhileItIsReleased()
+    {
+        Assert.Equal(HeadsetModels.AtlasAirReleased, HeadsetModels.Of("225E") is not null);
+        Assert.Equal(HeadsetModels.AtlasAirReleased, HeadsetModels.Of("2260") is not null);
+        Assert.Equal(HeadsetModels.AtlasAirReleased, Transmitters.PieceOf("225E") == Transmitters.Piece.Transmitter);
+        Assert.Equal(HeadsetModels.AtlasAirReleased, HeadsetModels.SoundMatches("Speakers (Atlas Air)"));
+    }
 
     [Fact]
     public void NoProductIdBelongsToTwoHeadsets() =>
@@ -89,7 +92,7 @@ public class HeadsetModelsTests
     [InlineData("Stealth Pro II", 0x2A0)]
     [InlineData("Atlas Air", 0x260)]
     public void EachHeadsetKeepsItsCopyOfTheSystemVolumeUnderItsOwnKey(string name, int key) =>
-        Assert.Equal(key, HeadsetModels.VolumeKeyOf(HeadsetModels.All.Single(model => model.Name == name)));
+        Assert.Equal(key, HeadsetModels.VolumeKeyOf(new[] { HeadsetModels.StealthProII, HeadsetModels.AtlasAir }.Single(model => model.Name == name)));
 
     [Fact]
     public void BeforeAHeadsetIsKnownItsVolumeIsTheStealthProIIs() =>
@@ -101,8 +104,6 @@ public class HeadsetModelsTests
 
     [Theory]
     [InlineData("Speakers (Stealth Pro II Xbox Headset)", true)]
-    [InlineData("Speakers (Atlas Air)", true)]
-    [InlineData("Microphone (Atlas Air)", true)]
     [InlineData("Speakers (Realtek(R) Audio)", false)]
     [InlineData("Headset Chat (Turtle Beach) (Virtual Audio Device)", false)]
     public void EveryKnownHeadsetsSoundIsFoundByName(string name, bool headset) =>
