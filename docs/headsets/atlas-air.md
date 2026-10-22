@@ -3,7 +3,7 @@
 In testing. On Windows it connects and most settings work. On Linux it
 connects only after Neap restarts the transmitter, which switches the headset
 off; 0.2.1.7 keeps the transmitter awake instead, as a test. SP2Tools has read
-the headset's firmware for every open question (F114 to F122); what it found
+the headset's firmware for every open question (F114 to F126); what it found
 is in 0.2.1.7 for the testers to confirm.
 
 - **Hardware:** USB Transmitter `225E`; the headset reports itself as `2260`;
@@ -13,7 +13,7 @@ is in 0.2.1.7 for the testers to confirm.
   updated 20 March 2026.
 - **Testers:** one on Windows, one on Linux (CachyOS), on
   [issue 1](https://github.com/lykosapps/Neap/issues/1).
-- **Latest test build:** 0.2.1.6. 0.2.1.7 is built, not yet published.
+- **Latest test build:** 0.2.1.7, published 22 October 2026.
 - **SP2Tools:** the questions and answers are in its
   `knowledge/iceman-neap-asks.md`, the findings in
   `side-session-notes/iceman-re/`. All are read from the firmware; none has
@@ -126,7 +126,7 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 ## Next
 
-- [ ] Publish test build 0.2.1.7 and ask both testers for one recording each.
+- [x] Publish test build 0.2.1.7 and ask both testers for one recording each.
 - [ ] Windows tester: with the noise gate off, monitoring at 100% while
       speaking normally, recorded, flipping the boom and pressing each button
       once in the same recording; the loudness boost; the light at start; which
