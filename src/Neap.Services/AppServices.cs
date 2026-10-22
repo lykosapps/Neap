@@ -26,6 +26,7 @@ public static class AppServices
     public static SessionRecorder Recorder { get; private set; } = null!;
     public static MicFollowsHeadset MicFollow { get; private set; } = null!;
     public static UpdateService Updates { get; private set; } = null!;
+    public static FirmwareEditService Firmware { get; private set; } = null!;
 
     /// <summary>Where the headset's transmitters are looked for.</summary>
     public static IDeviceSource Devices { get; } = (IDeviceSource?)Pretend.Headset ?? SystemDevices.Instance;
@@ -46,6 +47,7 @@ public static class AppServices
         Headset = new HeadsetService(Devices, cabled: () => AudioRoute.Cable.Length > 0);
         Mix = new MixService(Headset);
         Noise = new NoiseService(Headset);
+        Firmware = new FirmwareEditService(Headset, Pretend.Firmware);
         Presets = new PresetService(Headset);
         Profiles = new ProfileService(Headset);
         AutoSwitch = Pretend.Windows is { } windows

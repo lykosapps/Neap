@@ -82,6 +82,10 @@ public sealed class AppSettings
     /// </remarks>
     [JsonPropertyName("headset_cycles_noise")] public bool HeadsetCyclesNoise { get; set; }
 
+    /// <summary>Whether the Firmware page, for installing and removing firmware edits, is in the menu.</summary>
+    /// <remarks>Off by default: a firmware edit can stop a headset starting, so nothing about them shows until asked for.</remarks>
+    [JsonPropertyName("show_firmware_edits")] public bool ShowFirmwareEdits { get; set; }
+
     /// <summary>Whether the Charging Dock's status ring is turned purple again after the microphone opens.</summary>
     /// <remarks>
     /// On by default: without it the ring shows white through every call.

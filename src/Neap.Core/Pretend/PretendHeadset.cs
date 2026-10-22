@@ -147,6 +147,7 @@ public sealed class PretendHeadset : IDeviceSource
         _atlas = true;
         foreach (int key in AtlasLacks) _values.Remove(key);
         _values[0x110] = AtlasHeadsetProduct.ToString("X4", CultureInfo.InvariantCulture);
+        _values[0x130] = "6.163.1646.0";
         _values[0x260] = _values[0x2A0];
         _values[0x2A0] = "100";
         _values[0x290] = "1";
@@ -717,11 +718,11 @@ public sealed class PretendHeadset : IDeviceSource
     {
         var values = new Dictionary<int, string>
         {
-            // Identity. The serial and firmware are made up.
+            // Identity. The serial is made up; the firmware is the build firmware edits are made for.
             [0x100] = "10F5",
             [0x110] = "229E",
             [0x120] = Serial,
-            [0x130] = "0.0.0.0",
+            [0x130] = "4.107.703.0",
             [0x140] = "0",
             [0x150] = "1",
             [0x160] = "0",

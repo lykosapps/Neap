@@ -133,6 +133,12 @@
                         loc:Uid.Value="Main_NavDevice"
                         Icon="{StaticResource IconDevice}"
                         Page="device" />
+                    <!-- Only once asked for in Settings: a firmware edit can stop a headset starting. -->
+                    <c:NavItem
+                        x:Name="FirmwareNav"
+                        loc:Uid.Value="Main_NavFirmware"
+                        Icon="{StaticResource IconUpdate}"
+                        Page="firmware" />
                 </ListBox>
             </DockPanel>
         </SplitView.Pane>

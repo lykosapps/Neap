@@ -1,0 +1,49 @@
+<UserControl
+    x:Class="Neap.Desktop.Views.FirmwarePage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Neap.Desktop.Controls"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <c:PageView>
+        <StackPanel>
+
+            <TextBlock loc:Uid.Value="Firmware_Title" Classes="pagetitle" />
+
+            <!-- What an edit risks, said once at the top, so every action below is read with it. -->
+            <TextBlock
+                loc:Uid.Value="Firmware_Intro"
+                MaxWidth="760"
+                HorizontalAlignment="Left"
+                Classes="secondary" />
+
+            <c:HeadsetNotice />
+
+            <!-- A headset this build cannot write is still shown: what fits it and what is on it. -->
+            <c:Notice
+                x:Name="CannotWrite"
+                Margin="{StaticResource NeapSectionGap}"
+                loc:Uid.Value="Firmware_CannotWrite"
+                Severity="Warning" />
+
+            <TextBlock loc:Uid.Value="Firmware_EditsHeading" Classes="sectionheader" />
+            <StackPanel x:Name="EditList" Spacing="{StaticResource NeapSpaceS}" />
+            <TextBlock x:Name="NoEdits" loc:Uid.Value="Firmware_NoEdits" Classes="secondary" />
+
+            <!--
+                Every install and removal leaves a backup here. Putting one back
+                is the way out for a headset an edit has left unwell.
+            -->
+            <TextBlock loc:Uid.Value="Firmware_BackupsHeading" Classes="sectionheader" />
+            <TextBlock
+                loc:Uid.Value="Firmware_BackupsNote"
+                MaxWidth="760"
+                Margin="0,0,0,8"
+                HorizontalAlignment="Left"
+                Classes="caption secondary" />
+            <StackPanel x:Name="BackupList" Spacing="{StaticResource NeapSpaceXS}" />
+            <TextBlock x:Name="NoBackups" loc:Uid.Value="Firmware_NoBackups" Classes="secondary" />
+
+        </StackPanel>
+    </c:PageView>
+</UserControl>

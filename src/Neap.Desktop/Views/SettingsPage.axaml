@@ -120,6 +120,12 @@
                 </c:SettingsCard>
             </StackPanel>
 
+            <!-- Firmware edits stay out of sight until asked for: one can stop a headset starting. -->
+            <TextBlock loc:Uid.Value="Settings_AdvancedHeading" Classes="sectionheader" />
+            <c:SettingsCard loc:Uid.Value="Settings_FirmwareEdits" Icon="{StaticResource IconWarning}">
+                <ToggleSwitch x:Name="FirmwareSwitch" />
+            </c:SettingsCard>
+
             <!-- What has to be said and nothing a card could say instead, last and quiet. -->
             <TextBlock
                 loc:Uid.Value="Settings_Legal"

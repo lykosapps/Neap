@@ -74,6 +74,7 @@ public partial class MainWindow : Window
         Body.PageTransition = new EntranceTransition();
         DrawOwnTitleBar();
 
+        FirmwareSettingChanged();
         Open(Pretend.Page ?? "home");
         StartTray();
         AddHandler(KeyDownEvent, OnPlaceKey, RoutingStrategies.Tunnel);
@@ -100,6 +101,20 @@ public partial class MainWindow : Window
 
     /// <summary>Gets the page on show.</summary>
     public Control? CurrentPage => Body.Content as Control;
+
+    /// <summary>Puts the Firmware page in the menu when it is asked for in Settings, and takes it out when it is not.</summary>
+    /// <remarks>
+    /// Taken out of the list rather than hidden: the list's panel shows every
+    /// item it lays out, whatever the item says. A pretend run asked to open it
+    /// shows it either way, so a picture of it can be taken.
+    /// </remarks>
+    public void FirmwareSettingChanged()
+    {
+        bool wanted = AppSettings.Current.ShowFirmwareEdits || Pretend.Page == "firmware";
+        bool listed = Places.Items.Contains(FirmwareNav);
+        if (wanted && !listed) Places.Items.Add(FirmwareNav);
+        else if (!wanted && listed) Places.Items.Remove(FirmwareNav);
+    }
 
     /// <summary>Opens the page with this tag, and marks its place in the rail.</summary>
     public void Open(string page)
@@ -179,6 +194,7 @@ public partial class MainWindow : Window
                 "controls" => new ControlsPage(),
                 "profiles" => new ProfilesPage(),
                 "device" => new DevicePage(),
+                "firmware" => new FirmwarePage(),
                 "settings" => new SettingsPage(),
                 _ => new NotYet(),
             };

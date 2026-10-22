@@ -1,5 +1,23 @@
 # Decisions
 
+## 2026-10-22 — Firmware edits get their own page, behind an opt-in
+
+- **Options:** leave installing firmware edits to SP2Tools; build the screens
+  in Neap now, either on the Device page or on a page of their own; write to
+  real headsets straight away, or run the whole flow on the pretend headset
+  first.
+- **Chosen:** a Firmware page of its own, in the menu only once "Firmware
+  edits" is switched on in Settings, off by default. The first version runs
+  every step, failure and undo on the pretend headset; on a real headset it
+  shows which edits fit and writes nothing. Real writes come next, ported
+  from SP2Tools' flasher.
+- **Why:** the owner's call: firmware edits are part of Neap from here on.
+  An edit can stop a headset starting, so nothing about them shows until
+  asked for, every write is backed up first, and a failure from the write on
+  is undone from the backup.
+- **Revisit if:** an edit leaves a headset Neap cannot put back, or a tester
+  without the recovery tools needs one.
+
 ## 2026-10-22 — Touch size goes by the screen, not the window
 
 - **Options:** keep drawing at touch size whenever the window is the size of

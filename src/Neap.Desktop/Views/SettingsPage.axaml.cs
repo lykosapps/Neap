@@ -37,6 +37,7 @@ public partial class SettingsPage : UserControl
 
         _painting = true;
         MiniPanelSwitch.IsChecked = AppSettings.Current.MiniPanel;
+        FirmwareSwitch.IsChecked = AppSettings.Current.ShowFirmwareEdits;
         StartWhenSignedIn.IsChecked = Startup.Enabled;
         CheckForUpdates.IsChecked = AppServices.Updates.Automatic;
         _painting = false;
@@ -62,6 +63,15 @@ public partial class SettingsPage : UserControl
             AppSettings.Update(s => s.MiniPanel = on);
             AppLog.Write(on ? "mini panel: on, a click on the icon opens it" : "mini panel: off, a click on the icon opens the window");
             (TopLevel.GetTopLevel(this) as MainWindow)?.MiniPanelSettingChanged();
+        };
+
+        FirmwareSwitch.IsCheckedChanged += (_, _) =>
+        {
+            if (_painting) return;
+            bool on = FirmwareSwitch.IsChecked == true;
+            AppSettings.Update(s => s.ShowFirmwareEdits = on);
+            AppLog.Write(on ? "firmware edits: the Firmware page is in the menu" : "firmware edits: the Firmware page is out of the menu");
+            (TopLevel.GetTopLevel(this) as MainWindow)?.FirmwareSettingChanged();
         };
 
         CheckForUpdates.IsCheckedChanged += (_, _) =>
