@@ -32,7 +32,8 @@ works on the Xbox edition, where Swarm II's mix isn't officially supported.
 
 Move it with the headset's chat wheel, the dial on Home, or the keyboard
 from inside a game: Ctrl + Alt + Page Down, Page Up and Home, all
-rebindable.
+rebindable. On Windows, a meter for each side shows chat speaking and the
+game's sound as you set it.
 
 ![Home, with the game and chat dial, a chat app chosen, and tiles for the microphone, noise control and equaliser.](docs/screenshots/mix.png)
 
@@ -51,6 +52,8 @@ is running.
   the headset's ten bands, with a plot of what you'll actually hear.
 - **Test tone.** Find a frequency that stands out, then cut or boost it on
   the spot.
+- **Compare.** Hold it to hear the headset flat, and let go to hear your
+  curve again.
 - **Presets stored on the headset**, for game and microphone, so they also
   appear in the phone app and survive uninstalling everything.
 
@@ -77,8 +80,14 @@ reads "Settling…" until its reading steadies.
 
 ### Everything else
 
-- **Clear status.** Connected, no sound, switched off or out of range, each
-  with what still works and the one thing to do.
+- **A mini panel by the clock** for mid-game: the mix, the microphone,
+  noise cancellation, spatial sound and the equaliser preset, without
+  opening the window.
+- **Louder than the headset's maximum.** A loudness boost on the Audio page
+  raises the headset's own level, for when it is too quiet even at full
+  volume.
+- **Clear status.** Connected, no sound, off or out of range, each with
+  what still works and the one thing to do.
 - **Catches the wrong device.** When your system sends sound or the
   microphone somewhere the headset isn't listening, Neap names the right one.
 - **Settings Swarm II's desktop app doesn't have:** wake on motion and voice

@@ -7,16 +7,6 @@ to GitHub, these become issues.
 
 ## Next, after 0.2.0 (released 8 October)
 
-- **Before 0.3.0 is tagged: bring the README up to the redesign.** The five
-  pictures in `docs/screenshots` (`mix`, `audio`, `equaliser`, `profiles`,
-  `dock`) are of the old layout: a menu with a Microphone page that no longer
-  exists, and `dock.png` shows "Keep high-resolution audio", which is out of
-  0.3.0. Draw them again from the pretend headset with `tools\ui\snap.ps1`,
-  which runs behind other windows, and look at each. Then read the README
-  against the new app: the pages it describes, the Home tiles, the mini panel,
-  spatial sound, the loudness boost, the game and chat levels, and the Status
-  section. Nothing that could identify the owner goes in a picture.
-
 - **Before 0.3.0 is tagged: run part K of the headset checks again, with
   the headset as Windows' sound output.** On 23 October it ran with sound
   going to the PC's own speakers, so the keys had nothing to move and that
