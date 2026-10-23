@@ -101,10 +101,11 @@ public partial class QuickControls : UserControl
 
         HeadsetName.Text = HeadsetTitle.Current();
 
-        var look = StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status), headset.AccessDenied);
+        bool elsewhere = AppServices.AudioRoute.SoundElsewhere(status);
+        var look = StatusLook.Of(status, elsewhere, headset.AccessDenied);
         Tones.Apply(StateDot, look.Tone);
         bool cable = AppServices.AudioRoute.OverCable(status);
-        HowConnected.Text = Connection(status, cable, look.Headline);
+        HowConnected.Text = Connection(status, cable, elsewhere, look.Headline);
 
         if (headset.Battery is { } battery)
         {
@@ -144,8 +145,8 @@ public partial class QuickControls : UserControl
             part.IsVisible = fold == Core.Connection.Fold.Open;
     }
 
-    private string Connection(HeadsetStatus status, bool cable, Headline headline) =>
-        ConnectionLine.Of(status, cable, _plugged is { Looked: true } p ? p.Products : null) switch
+    private string Connection(HeadsetStatus status, bool cable, bool elsewhere, Headline headline) =>
+        ConnectionLine.Of(status, cable, _plugged is { Looked: true } p ? p.Products : null, elsewhere) switch
         {
             ConnectionShown.Cable => Strings.Get("Home_ThroughCable"),
             ConnectionShown.NoTransmitter => Strings.Get("Home_ThroughNoSound"),

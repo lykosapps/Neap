@@ -24,6 +24,12 @@ public class ConnectionLineTests
     public void NoSoundNamesNoTransmitter() =>
         Assert.Equal(ConnectionShown.NoTransmitter, ConnectionLine.Of(Connected(noSound: true), cable: false, ["2B00"]));
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SoundSentElsewhereSaysNoSoundAsTheHeaderDoes(bool cable) =>
+        Assert.Equal(ConnectionShown.NoTransmitter, ConnectionLine.Of(Connected(), cable, ["2B00"], soundElsewhere: true));
+
     [Fact]
     public void ThePluggedInTransmitterIsNamed() =>
         Assert.Equal(ConnectionShown.Transmitter, ConnectionLine.Of(Connected(), cable: false, ["2b00", "2B01"]));

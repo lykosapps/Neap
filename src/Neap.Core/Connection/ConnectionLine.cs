@@ -7,7 +7,7 @@ public enum ConnectionShown
     State,
     /// <summary>The headset's USB-C cable.</summary>
     Cable,
-    /// <summary>Connected, and no transmitter is carrying its sound.</summary>
+    /// <summary>Connected, and no sound reaches it: no transmitter is carrying it, or Windows sends it elsewhere.</summary>
     NoTransmitter,
     /// <summary>The transmitter carrying its sound.</summary>
     Transmitter,
@@ -37,8 +37,15 @@ public static class ConnectionLine
     /// <param name="status">The headset's state.</param>
     /// <param name="cable">The headset is plugged in with its USB-C cable; see <see cref="OverCable"/>.</param>
     /// <param name="plugged">Product ids of what is plugged in, or null before the first look.</param>
-    public static ConnectionShown Of(HeadsetStatus status, bool cable, IReadOnlyCollection<string>? plugged) =>
+    /// <param name="soundElsewhere">
+    /// Windows is sending sound to a device the headset is not listening on.
+    /// The header says "No sound" then, and so does this line; the routing
+    /// warning beneath it names the devices.
+    /// </param>
+    public static ConnectionShown Of(HeadsetStatus status, bool cable, IReadOnlyCollection<string>? plugged,
+        bool soundElsewhere = false) =>
         status.Link != Link.Connected ? ConnectionShown.State
+        : soundElsewhere ? ConnectionShown.NoTransmitter
         : cable ? ConnectionShown.Cable
         : status.NoSound ? ConnectionShown.NoTransmitter
         : plugged is null || plugged.Count == 0
