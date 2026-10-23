@@ -60,7 +60,7 @@ public sealed class HidrawTransport : IHidTransport
         UsagePage = device.UsagePage;
         OutputLength = device.OutputLength;
         InputLength = device.InputLength;
-        Name = ProductName(Path);
+        Name = Hidraw.ProductName(System.IO.Path.Combine(Devices, System.IO.Path.GetFileName(Path)));
 
         try
         {
@@ -74,28 +74,6 @@ public sealed class HidrawTransport : IHidTransport
         catch (IOException ex)
         {
             throw new TransportException($"could not open {Path} ({ex.Message})");
-        }
-    }
-
-    /// <summary>The USB device's product string, read from sysfs, or empty when it has none.</summary>
-    /// <remarks>
-    /// The node's device folder is the HID device. Two levels up, past the
-    /// interface, is the USB device, which holds the string. The link is
-    /// resolved first, as a path's ".." is otherwise taken from its spelling.
-    /// </remarks>
-    private static string ProductName(string node)
-    {
-        string device = System.IO.Path.Combine(Devices, System.IO.Path.GetFileName(node), "device");
-        try
-        {
-            if (Directory.ResolveLinkTarget(device, returnFinalTarget: true)?.FullName is not { } hid
-                || new DirectoryInfo(hid).Parent?.Parent is not { } usb) return "";
-            string product = System.IO.Path.Combine(usb.FullName, "product");
-            return File.Exists(product) ? Hidraw.ReadAll(product).Trim() : "";
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            return "";
         }
     }
 
@@ -457,6 +435,30 @@ public static class Hidraw
 
     /// <summary>A whole text file of the kernel's; see <see cref="ReadBytes"/>.</summary>
     public static string ReadAll(string path) => System.Text.Encoding.UTF8.GetString(ReadBytes(path));
+
+    /// <summary>The USB device's product string, or empty when it has none.</summary>
+    /// <param name="folder">The hidraw node's folder in sysfs, such as /sys/class/hidraw/hidraw0.</param>
+    /// <remarks>
+    /// The folder's device link is the HID device. Two levels up, past the
+    /// interface, is the USB device, which holds the string. The folder is a
+    /// link too, and a link's target is taken from the path as spelled, so the
+    /// folder is resolved before the device link that climbs out of it.
+    /// </remarks>
+    public static string ProductName(string folder)
+    {
+        try
+        {
+            string real = Directory.ResolveLinkTarget(folder, returnFinalTarget: true)?.FullName ?? folder;
+            if (Directory.ResolveLinkTarget(System.IO.Path.Combine(real, "device"), returnFinalTarget: true)?.FullName is not { } hid
+                || new DirectoryInfo(hid).Parent?.Parent is not { } usb) return "";
+            string product = System.IO.Path.Combine(usb.FullName, "product");
+            return File.Exists(product) ? ReadAll(product).Trim() : "";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return "";
+        }
+    }
 
     /// <summary>The vendor and product ids in a hidraw device's uevent, or null when it has none.</summary>
     /// <remarks>
