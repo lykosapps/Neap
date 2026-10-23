@@ -167,6 +167,9 @@
   <data name="Mix_WheelBar.Title" xml:space="preserve">
     <value>The chat wheel isn't reaching the app</value>
   </data>
+  <data name="Mix_WheelOnCable" xml:space="preserve">
+    <value>The chat wheel doesn't work on the cable</value>
+  </data>
   <data name="Mix_ElsewhereBar.Title" xml:space="preserve">
     <value>Chat is going to another device</value>
   </data>
@@ -531,10 +534,10 @@
     <value>Your headset is switched off.</value>
   </data>
   <data name="State_MixWithKeys" xml:space="preserve">
-    <value>You can still move the mix with the dial, or from the keyboard with {0} and {1}.</value>
+    <value>Use the dial, or {0} and {1}.</value>
   </data>
   <data name="State_MixKeysInSettings" xml:space="preserve">
-    <value>You can still move the mix with the dial, or turn on keyboard shortcuts in Settings.</value>
+    <value>Use the dial, or turn on keyboard shortcuts in Settings.</value>
   </data>
   <data name="Routing_OpenSoundSettings" xml:space="preserve">
     <value>Open Sound settings</value>
@@ -1773,7 +1776,7 @@
     <value>Turn off the equaliser in the Dolby Access app, so it doesn't double up with the headset's own.</value>
   </data>
   <data name="State_MixWithDial" xml:space="preserve">
-    <value>You can still move the mix with the dial.</value>
+    <value>Use the dial.</value>
   </data>
   <data name="Equaliser_Compare.Content" xml:space="preserve">
     <value>Compare</value>

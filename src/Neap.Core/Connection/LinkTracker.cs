@@ -102,6 +102,16 @@ public sealed record HeadsetStatus(
     /// </remarks>
     public bool SwitchedOff => Link == Link.Quiet && Route == Route.DirectUsb;
 
+    /// <summary>Connected by its USB-C cable alone, where the chat wheel sends nothing.</summary>
+    /// <remarks>
+    /// The headset gives the wheel's turns only over a transmitter's wireless
+    /// link: on the cable alone it neither sends them nor updates the reading.
+    /// </remarks>
+    public bool WheelOffOnCable => Link == Link.Connected && Route == Route.DirectUsb;
+
+    /// <summary>The chat wheel's turns cannot reach the app, so only the dial and the keys move the mix.</summary>
+    public bool WheelUnreachable => SettingsUnreachable || NoSound || WheelOffOnCable;
+
     /// <summary>The state in one line for a record, such as "Connected via Charging Dock, no sound".</summary>
     /// <remarks>The detail is left out: it is wording, and changes without the state changing.</remarks>
     public string Summary => Link

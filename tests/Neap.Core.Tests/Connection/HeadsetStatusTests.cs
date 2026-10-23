@@ -5,17 +5,29 @@ namespace Neap.Core.Tests.Connection;
 public class HeadsetStatusTests
 {
     [Fact]
-    public void TheSummaryNamesTheStateAndWhereItIs()
+    public void OnItsCableAloneTheWheelCannotReachTheApp()
     {
-        var status = new HeadsetStatus(Link.Connected, Route.ChargingDock, "Charging Dock", "detail",
-            ControlVia: "USB Transmitter", NoSound: true);
+        var status = new HeadsetStatus(Link.Connected, Route.DirectUsb, "Headset", "");
 
-        Assert.Equal("Connected via Charging Dock, settings via USB Transmitter, no sound", status.Summary);
+        Assert.True(status.WheelOffOnCable);
+        Assert.True(status.WheelUnreachable);
     }
+
+    [Theory]
+    [InlineData(Route.ChargingDock)]
+    [InlineData(Route.UsbTransmitter)]
+    public void OverATransmitterTheWheelReachesTheApp(Route route) =>
+        Assert.False(new HeadsetStatus(Link.Connected, route, "", "").WheelUnreachable);
 
     [Fact]
-    public void TheSummaryLeavesOutTheDetail()
-    {
-        Assert.Equal("Quiet", new HeadsetStatus(Link.Quiet, Route.Unknown, "", "Switch it on").Summary);
-    }
+    public void WithTheSoundLinkDownTheWheelCannotReachTheApp() =>
+        Assert.True(new HeadsetStatus(Link.Connected, Route.ChargingDock, "", "", NoSound: true).WheelUnreachable);
+
+    [Fact]
+    public void WithTheSettingsOutOfReachTheWheelCannotReachTheApp() =>
+        Assert.True(new HeadsetStatus(Link.Silent, Route.ChargingDock, "", "").WheelUnreachable);
+
+    [Fact]
+    public void SwitchedOffOnItsCableIsNotAWheelProblem() =>
+        Assert.False(new HeadsetStatus(Link.Quiet, Route.DirectUsb, "Headset", "").WheelOffOnCable);
 }

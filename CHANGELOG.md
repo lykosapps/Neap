@@ -185,6 +185,9 @@ and date.
   list was redrawn each time, taking the slider away from under the pointer.
 - On Home, the dot beside how the headset is connected sits level with its
   words, and the headset's name and readings sit in the middle of their card.
+- On its cable alone, where the headset sends nothing from its chat wheel,
+  the mix says so, with what still moves it. Those lines are shorter
+  everywhere.
 - The headset is called what its firmware calls it, the name the system
   and a phone show, such as "Stealth Pro II Xbox", rather than "My Headset".
   Where the firmware gives no name, it is called by its model.

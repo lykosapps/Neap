@@ -91,8 +91,9 @@ public partial class MixPanel : UserControl
 
     /// <summary>
     /// Gets or sets whether the mix itself says the chat wheel is not reaching
-    /// the app. False where a note beside it already says so, so one problem
-    /// is not explained twice.
+    /// the app while a transmitter is lost. False where a note beside it
+    /// already says so, so one problem is not explained twice. The cable is
+    /// always said here, as no note beside it covers that.
     /// </summary>
     public bool ExplainsWheel
     {
@@ -257,8 +258,9 @@ public partial class MixPanel : UserControl
 
         // The wheel arrives over the very link that is missing, so the app
         // cannot fix this itself; it says what still moves the mix.
-        WheelBar.IsOpen = ExplainsWheel && chosen && (status.SettingsUnreachable || status.NoSound)
+        WheelBar.IsOpen = chosen && (status.WheelOffOnCable || (ExplainsWheel && status.WheelUnreachable))
             && HeadsetModels.Shows(AppServices.Headset.Model, Feature.ChatWheel);
+        WheelBar.Title = Strings.Get(status.WheelOffOnCable ? "Mix_WheelOnCable" : "Mix_WheelBar.Title");
         WheelBar.Message = StateCopy.MixWithoutWheel();
 
         // The chat application is playing to another device. It keeps its own
