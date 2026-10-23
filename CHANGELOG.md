@@ -17,7 +17,10 @@ and date.
 
 ### Added
 
-
+- On its cable alone, where the headset sends nothing from its chat wheel,
+  the mix says so, with what still moves it.
+- With a headset whose settings Neap only reads, Home says so, rather than
+  leaving its controls greyed out without a word.
 - The mini panel has spatial sound: Off, Windows Sonic or Dolby Atmos,
   whichever the system offers. It is left out where the system has none, and
   folds away with the headset's settings when the headset is away.
@@ -66,6 +69,15 @@ and date.
 
 ### Changed
 
+- The headset is called what its firmware calls it, the name the system
+  and a phone show, such as "Stealth Pro II Xbox", rather than "My Headset".
+  Where the firmware gives no name, it is called by its model.
+- What Neap says about the headset's state is shorter throughout: off or
+  out of range, no sound, settings out of reach, nothing plugged in, the
+  sections that fold away, and what still moves the mix without the wheel.
+- When your system sends sound to a device the headset isn't listening on,
+  Home's connection line says there's no sound, as the title bar does,
+  rather than naming the transmitter.
 - "Keep high-resolution audio" is gone from the Device page, for now. It
   restarted the headset's sound to turn the Charging Dock's ring purple again
   after an app used the microphone, and that only works while something is
@@ -185,14 +197,6 @@ and date.
   list was redrawn each time, taking the slider away from under the pointer.
 - On Home, the dot beside how the headset is connected sits level with its
   words, and the headset's name and readings sit in the middle of their card.
-- What Neap says about the headset's state is shorter throughout: off or
-  out of range, no sound, settings out of reach, nothing plugged in, and
-  the sections that fold away.
-- When your system sends sound to a device the headset isn't listening on,
-  Home's connection line says there's no sound, as the title bar does,
-  rather than naming the transmitter.
-- With a headset whose settings Neap only reads, Home says so, rather than
-  leaving its controls greyed out without a word.
 - Profiles no longer ask you to turn the headset on when it is already on;
   they say Neap can't reach its settings.
 - Switched off with only its cable plugged in, Home says the headset is
@@ -204,12 +208,6 @@ and date.
 - The connection status no longer shows the device's technical description
   when you point at it, and Home's connection line has no tooltip repeating
   what Home already says.
-- On its cable alone, where the headset sends nothing from its chat wheel,
-  the mix says so, with what still moves it. Those lines are shorter
-  everywhere.
-- The headset is called what its firmware calls it, the name the system
-  and a phone show, such as "Stealth Pro II Xbox", rather than "My Headset".
-  Where the firmware gives no name, it is called by its model.
 - The chat wheel no longer gets stuck at the middle. Turned quickly through
   the middle to its game or chat end, the mix stopped at the middle and the
   wheel then had no room left to turn it further; the mix now goes to that

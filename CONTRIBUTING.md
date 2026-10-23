@@ -124,7 +124,9 @@ in front, signing out and updating from an installed copy stay by hand.
    | Switch it on | *Headset connected* | |
    | Unplug everything | *Nothing plugged in* | |
    | Plug in the USB-C cable, headset on | *Headset connected*; sound and microphone move to the cable | |
-   | Switch it off on the cable | *Not connected*, then *Headset off*, with nothing in between | |
+   | With only the cable plugged in, turn the chat wheel | *Headset connected*; the mix card says the chat wheel doesn't work on the cable | use the dial |
+   | Switch it off on the cable | *Not connected*, then *Headset off*, with nothing in between; Home says the headset is off throughout | switch it on |
+   | On Linux, with Neap's access rule removed, start the app | *No access* in the header, Home and the mini panel | allow access, from the notice |
    | With the settings unavailable, restart the app | still *Settings unavailable* | switch off and on |
 
    A state that no row covers is a bug, and gets a row here and a test.
