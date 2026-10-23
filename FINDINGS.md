@@ -733,6 +733,16 @@ it, but the headset played nothing *(measured, once)*. CrossPlay did not
 bring it back; switching the headset off and on did. Whether it happens
 every time is not yet known.
 
+On its cable alone, the chat wheel reaches nothing *(measured)*. Asked
+about seven times a second while it was turned both ways, `0x510` stayed at
+50 and nothing else moved but the battery, so it is neither sent nor
+readable. `0x500` read 0 there, where the Dock shows 1; set to 1 (SP2Tools
+reads it in the Atlas Air's firmware as the flag that says an app is
+listening), it held, and the wheel still changed nothing. SP2Tools finds the
+wheel's position reaching the main chip as a message from the other earcup's
+chip, which would explain it if that message travels over the wireless
+link *(inferred)*.
+
 Switched off on its cable, the headset's speakers, microphone and consumer
 control leave Windows, one vendor HID collection stays, and it keeps
 answering, battery included. Switching on or off restarts the USB connection
