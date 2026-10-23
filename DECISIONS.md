@@ -1,5 +1,17 @@
 # Decisions
 
+## 2026-10-23 — 0.3.0 ships without a Narrator pass
+
+- **Options:** read every page and dialog with Narrator before 0.3.0, as
+  CONTRIBUTING.md's release check 12 says; ship without it.
+- **Chosen:** ship without it. The accessibility check (`access`) passed on
+  every page in both themes, which covers names, target sizes, Tab order,
+  focus marks and contrast; what it cannot see is how a screen reader reads
+  a page.
+- **Why:** the owner's call, to get the release out.
+- **Revisit when:** the next release, or a report from someone using a
+  screen reader; the redesigned pages are the ones to read first.
+
 ## 2026-10-23 — The Atlas Air waits for a later release
 
 - **Options:** ship 0.3.0 with the Atlas Air hidden in part, only what its
