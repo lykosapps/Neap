@@ -20,7 +20,7 @@ and its battery warnings.
 
 | System | Neap connects | How sure | Next |
 |---|---|---|---|
-| Windows | Yes: Charging Dock, USB Transmitter and USB-C cable | Confirmed | — |
+| Windows | Yes: Charging Dock, USB Transmitter and USB-C cable | Confirmed | Once, unplugging the Charging Dock with the cable in left the headset silent until it was switched off and on. Repeat it to learn whether it always does. |
 | Linux, Steam Deck | Yes, after the one-time access rule | Confirmed | — |
 | Linux, other systems | Only against the pretend headset | Untried | A tester with another system. |
 

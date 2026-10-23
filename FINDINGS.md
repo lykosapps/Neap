@@ -726,6 +726,13 @@ So with the cable in, the cable is the only right place for sound, calls and
 the microphone. Not yet tried: whether the Dock's sound also cuts out the
 cable's, and all of this with the USB Transmitter.
 
+Once, the Dock was unplugged while the headset was on its cable with music
+playing. The wireless sound link went to 0, Neap carried on over the cable,
+and Windows kept sound and microphone on the cable with the music reaching
+it, but the headset played nothing *(measured, once)*. CrossPlay did not
+bring it back; switching the headset off and on did. Whether it happens
+every time is not yet known.
+
 Switched off on its cable, the headset's speakers, microphone and consumer
 control leave Windows, one vendor HID collection stays, and it keeps
 answering, battery included. Switching on or off restarts the USB connection
