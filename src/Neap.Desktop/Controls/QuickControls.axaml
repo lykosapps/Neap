@@ -16,8 +16,7 @@
                 x:Name="Header"
                 ColumnDefinitions="*,Auto"
                 ColumnSpacing="{StaticResource NeapSpaceXL}"
-                RowDefinitions="Auto,Auto"
-                RowSpacing="{StaticResource NeapSpaceM}">
+                RowDefinitions="Auto,Auto">
                 <StackPanel VerticalAlignment="Center" Spacing="{StaticResource NeapSpaceXS}">
                     <TextBlock x:Name="HeadsetName" Classes="cardtitle" AutomationProperties.HeadingLevel="1" />
                     <!-- A grid, not a row of two: the words wrap beside the dot in a narrow window instead of running under the readings. -->
@@ -26,7 +25,7 @@
                             x:Name="StateDot"
                             Width="{StaticResource NeapStatusDot}"
                             Height="{StaticResource NeapStatusDot}"
-                            Margin="{StaticResource NeapSectionGap}"
+                            Margin="{StaticResource NeapStatusDotLine}"
                             VerticalAlignment="Top"
                             Classes="caution" />
                         <TextBlock

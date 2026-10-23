@@ -186,6 +186,9 @@ public partial class QuickControls : UserControl
     {
         bool beside = Header.Bounds.Width >= ReadingsBeside;
         Grid.SetRow(Readings, beside ? 0 : 1);
+        // The empty second row would still take the gap and push the name and
+        // readings above the card's middle.
+        Header.RowSpacing = beside ? 0 : Space.M;
         Grid.SetColumn(Readings, beside ? 1 : 0);
         Grid.SetColumnSpan(Readings, beside ? 1 : 2);
         Readings.HorizontalAlignment = beside ? Avalonia.Layout.HorizontalAlignment.Right : Avalonia.Layout.HorizontalAlignment.Left;

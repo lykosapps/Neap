@@ -36,6 +36,7 @@ public partial class TransmittersPanel : UserControl
 {
     private PluggedWatch? _plugged;
     private TextBlock? _bluetooth;
+    private (IReadOnlyList<TransmitterRow>? Rows, LightSet Lights, bool Bluetooth)? _painted;
 
     public TransmittersPanel() => InitializeComponent();
 
@@ -61,6 +62,7 @@ public partial class TransmittersPanel : UserControl
         AppServices.AudioRoute.Changed -= Paint;
         _plugged?.Stop();
         _plugged = null;
+        _painted = null;
     }
 
     /// <summary>
@@ -79,27 +81,39 @@ public partial class TransmittersPanel : UserControl
         IsVisible = !(status.SettingsUnreachable || status.Link == Link.Absent);
         CrossPlayNote.IsVisible = HeadsetModels.ShowsCrossPlay(AppServices.Headset.Model);
 
+        // Nothing until the first look at what is plugged in: before it, the
+        // transmitter in use would be listed as unplugged for a moment.
+        var rows = _plugged is { Looked: true } plugged
+            ? TransmitterList.Rows(status, AppServices.Headset.KnownTransmitters,
+                plugged.Products, AppServices.AudioRoute.OverCable(status))
+            : null;
+        var lights = HeadsetModels.Shows(AppServices.Headset.Model, Feature.Lights) ? TransmitterLights.For(status) : LightSet.None;
+        bool bluetooth = status.Link == Link.Connected;
+
+        // The dock sends its slot back after each light is set, so rebuilding
+        // on every change would take a light's slider away in the middle of a drag.
+        if (_painted is { } was && was.Rows is not null && rows is not null
+            && was.Rows.SequenceEqual(rows) && was.Lights == lights && was.Bluetooth == bluetooth)
+        {
+            PaintBluetooth();
+            return;
+        }
+        _painted = (rows, lights, bluetooth);
+
         InUse.Content = null;
         Others.Children.Clear();
         Others.RowDefinitions.Clear();
         _bluetooth = null;
-
-        // Nothing until the first look at what is plugged in: before it, the
-        // transmitter in use would be listed as unplugged for a moment.
-        if (_plugged is not { Looked: true } plugged) return;
-
-        var rows = TransmitterList.Rows(status, AppServices.Headset.KnownTransmitters,
-            plugged.Products, AppServices.AudioRoute.OverCable(status));
+        if (rows is null) return;
 
         var others = new List<Control>();
         foreach (var row in rows)
         {
-            if (row.State == TransmitterState.InUse) InUse.Content = Panel(row, LightsPanel(
-                HeadsetModels.Shows(AppServices.Headset.Model, Feature.Lights) ? TransmitterLights.For(status) : LightSet.None));
+            if (row.State == TransmitterState.InUse) InUse.Content = Panel(row, LightsPanel(lights));
             else others.Add(Panel(row, null));
         }
         if (rows.Count == 0) others.Add(Note(Strings.Get("Transmitters_None")));
-        if (status.Link == Link.Connected) others.Add(BluetoothPanel());
+        if (bluetooth) others.Add(BluetoothPanel());
 
         for (int i = 0; i < others.Count; i++)
         {

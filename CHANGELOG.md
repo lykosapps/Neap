@@ -180,6 +180,11 @@ and date.
 
 ### Fixed
 
+- The Charging Dock's two light sliders no longer stop partway through a
+  drag. The dock reports its lights back as they change, and the transmitter
+  list was redrawn each time, taking the slider away from under the pointer.
+- On Home, the dot beside how the headset is connected sits level with its
+  words, and the headset's name and readings sit in the middle of their card.
 - The chat wheel no longer gets stuck at the middle. Turned quickly through
   the middle to its game or chat end, the mix stopped at the middle and the
   wheel then had no room left to turn it further; the mix now goes to that
