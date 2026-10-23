@@ -282,6 +282,7 @@ public class HeadsetModelsTests
     [Theory]
     [InlineData("Desk", "Desk")]
     [InlineData("  ", "Stealth Pro II")]
+    [InlineData("My Headset", "Stealth Pro II")]
     [InlineData(null, "Stealth Pro II")]
     public void TheStealthProIIIsCalledByItsGivenNameOrElseItsModel(string? given, string shown) =>
         Assert.Equal(shown, HeadsetModels.Label(HeadsetModels.StealthProII, given));

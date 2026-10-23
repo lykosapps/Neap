@@ -88,6 +88,7 @@ system tried with a real headset.
 | Spare battery charging in the dock | Not listed | Yes | Has | Confirmed | Confirmed | `0x250` | Shown with a bolt while it charges, since the level isn't reliable then. |
 | Drivers status | Listed | — | Not planned | — | — | — | Swarm II's own drivers. |
 | Connection, transmitter status, platform | Listed | Yes | Has | Confirmed | Confirmed | `0x290`, `0x400`–`0x460` | — |
+| Headset name | Not listed | Shown; changing it is unknown | Has | Untried | Untried | `0x220`: "My Headset" from the factory (Seen), taken as no name, so Neap shows "Stealth Pro II" | Whether Swarm II can rename it, and the write it sends, is unknown. A recording of a rename would settle it. |
 | Pop-up battery warnings | Listed | Yes, on the PC | Missing | — | — | Done on the PC | Decide whether Neap should warn. |
 | Battery in the notification area | Listed | Yes | Has | Confirmed | Confirmed | — | Shown in the icon's status. |
 | Auto shut-off (off, 5, 10, 20, 30 min) | Listed | Yes | Has | Confirmed | Confirmed | `0x280` | — |

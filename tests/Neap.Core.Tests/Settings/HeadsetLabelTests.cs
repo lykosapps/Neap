@@ -10,6 +10,11 @@ public class HeadsetLabelTests
     [InlineData("   ")]
     public void ABlankNameIsNoName(string? reported) => Assert.Null(HeadsetLabel.Given(reported));
 
+    [Theory]
+    [InlineData("My Headset")]
+    [InlineData(" my headset ")]
+    public void TheFactoryNameIsNoName(string reported) => Assert.Null(HeadsetLabel.Given(reported));
+
     [Fact]
     public void AGivenNameIsShownWithoutItsPadding() => Assert.Equal("Desk", HeadsetLabel.Given(" Desk "));
 }
