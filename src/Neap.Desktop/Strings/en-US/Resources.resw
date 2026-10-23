@@ -378,10 +378,10 @@
     <value>Firmware, serial number and everything the headset reports</value>
   </data>
   <data name="Device_DetailsSection.Why" xml:space="preserve">
-    <value>These come from the headset. Switch it off and on again to see them here.</value>
+    <value>Switch the headset off and on to see these.</value>
   </data>
   <data name="Device_DetailsSection.WhyOff" xml:space="preserve">
-    <value>Switch your headset on to see these.</value>
+    <value>Switch the headset on to see these.</value>
   </data>
   <data name="Device_AboutHeading.Text" xml:space="preserve">
     <value>About the headset</value>
@@ -510,40 +510,40 @@
     <value>No access</value>
   </data>
   <data name="State_WhatUnreachable" xml:space="preserve">
-    <value>Neap can't reach your headset's settings right now. Sound, volume and the headset's own buttons still work.</value>
+    <value>Neap can't reach the headset's settings. Sound and buttons still work.</value>
   </data>
   <data name="State_FixUnreachable" xml:space="preserve">
-    <value>Switch the headset off and on again to bring everything back.</value>
+    <value>Switch the headset off and on.</value>
   </data>
   <data name="State_WhatUnreachableNoSound" xml:space="preserve">
-    <value>Your headset lost its transmitter, so there's no sound and nobody can hear you.</value>
+    <value>Your headset lost its transmitter. No sound, no microphone.</value>
   </data>
   <data name="State_WhatNoSound" xml:space="preserve">
-    <value>Your headset is connected, but no sound is reaching it.</value>
+    <value>No sound is reaching your headset.</value>
   </data>
   <data name="State_FixNoSound" xml:space="preserve">
-    <value>Press CrossPlay on the headset to bring the sound back.</value>
+    <value>Press CrossPlay.</value>
   </data>
   <data name="State_FallbackNoSound" xml:space="preserve">
-    <value>Still nothing? Switch the headset off and on again.</value>
+    <value>Still nothing? Switch the headset off and on.</value>
   </data>
   <data name="State_WhatOff" xml:space="preserve">
-    <value>Your headset is switched off or out of range.</value>
+    <value>Your headset is off or out of range.</value>
   </data>
   <data name="State_FixOff" xml:space="preserve">
-    <value>Switch it on and it connects by itself.</value>
+    <value>Switch it on. It connects by itself.</value>
   </data>
   <data name="State_FallbackOff" xml:space="preserve">
-    <value>On, but still not connecting? Press the CrossPlay button on the headset. Moved it between the Charging Dock and the USB Transmitter? Switch it off and on again.</value>
+    <value>Still not connecting? Press CrossPlay, or switch the headset off and on.</value>
   </data>
   <data name="State_WhatOffOnCable" xml:space="preserve">
-    <value>Your headset is switched off.</value>
+    <value>Your headset is off.</value>
   </data>
   <data name="State_MixWithKeys" xml:space="preserve">
     <value>Use the dial, or {0} and {1}.</value>
   </data>
   <data name="State_MixKeysInSettings" xml:space="preserve">
-    <value>Use the dial, or turn on keyboard shortcuts in Settings.</value>
+    <value>Use the dial or keyboard shortcuts.</value>
   </data>
   <data name="Routing_OpenSoundSettings" xml:space="preserve">
     <value>Open Sound settings</value>
@@ -627,7 +627,7 @@
     <value>Looking for the headset…</value>
   </data>
   <data name="Headset_NothingPluggedIn" xml:space="preserve">
-    <value>No transmitter or cable plugged in.</value>
+    <value>Plug in the Charging Dock, USB Transmitter or cable.</value>
   </data>
   <data name="Headset_LostContact" xml:space="preserve">
     <value>Lost contact with the headset.</value>
@@ -960,10 +960,10 @@
     <value>Couldn't change the format</value>
   </data>
   <data name="Notice_NoHeadsetTitle" xml:space="preserve">
-    <value>No headset connected</value>
+    <value>Nothing plugged in</value>
   </data>
   <data name="Notice_NoHeadset" xml:space="preserve">
-    <value>Plug in its Charging Dock, its USB Transmitter or its USB-C cable, then switch the headset on.</value>
+    <value>Plug in the Charging Dock, USB Transmitter or cable.</value>
   </data>
   <data name="Access_Title" xml:space="preserve">
     <value>Neap isn't allowed to use the headset</value>
@@ -996,10 +996,10 @@
     <value>That did not work: {0} Copy the command and run it in a terminal instead, then unplug the headset's transmitter and plug it in again.</value>
   </data>
   <data name="Section_WhyOff" xml:space="preserve">
-    <value>Switch your headset on to see and change these.</value>
+    <value>Switch the headset on to change these.</value>
   </data>
   <data name="Section_Why" xml:space="preserve">
-    <value>Your headset keeps using these. Switch it off and on again to change them here.</value>
+    <value>Switch the headset off and on to change these.</value>
   </data>
   <data name="Mix_Playing" xml:space="preserve">
     <value>{0} is playing</value>
@@ -1470,7 +1470,7 @@
     <value>Wake on motion</value>
   </data>
   <data name="State_SoundElsewhere" xml:space="preserve">
-    <value>Your system is sending sound to a device your headset isn't listening on. Home says which one to choose.</value>
+    <value>Sound is going to the wrong device. See Home.</value>
   </data>
   <data name="Startup_Description" xml:space="preserve">
     <value>Starts {0} in the notification area.</value>

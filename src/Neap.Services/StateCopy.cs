@@ -84,10 +84,9 @@ public static class StateCopy
 
     /// <summary>What still moves the mix when the wheel cannot.</summary>
     /// <remarks>
-    /// The keyboard is named precisely. "Use your keyboard shortcut" is no help
-    /// to somebody who has never turned it on, which is most people: it ships
-    /// off. So this gives the actual keys when they are on, and where to turn
-    /// them on when they are not.
+    /// The keyboard is named precisely. The shortcuts ship off, so this gives
+    /// the actual keys when they are on, and only names them when they are
+    /// not: the mix card's "Keyboard shortcuts" link beside it turns them on.
     /// </remarks>
     public static string MixWithoutWheel()
     {

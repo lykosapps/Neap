@@ -185,6 +185,9 @@ and date.
   list was redrawn each time, taking the slider away from under the pointer.
 - On Home, the dot beside how the headset is connected sits level with its
   words, and the headset's name and readings sit in the middle of their card.
+- What Neap says about the headset's state is shorter throughout: off or
+  out of range, no sound, settings out of reach, nothing plugged in, and
+  the sections that fold away.
 - When your system sends sound to a device the headset isn't listening on,
   Home's connection line says there's no sound, as the title bar does,
   rather than naming the transmitter.
