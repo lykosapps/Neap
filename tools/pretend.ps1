@@ -928,7 +928,7 @@ function PowerCycle {
     $bar = Control 'Profile' ([System.Windows.Automation.ControlType]::Button)
     if ($null -ne $bar) {
         (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
-        Check (Until { @(Everywhere 'NameProperty' 'Turn the headset on to switch profiles or save one.').Count -gt 0 }) 'with the headset off, the profile list says why it is unavailable'
+        Check (Until { @(Everywhere 'NameProperty' "Neap can't reach the headset's settings.").Count -gt 0 }) 'with the headset off, the profile list says why it is unavailable'
         $save = Control 'New profile' ([System.Windows.Automation.ControlType]::Button)
         Check ($null -ne $save -and -not $save.Current.IsEnabled) 'with the headset off, saving a new profile is not offered'
         Screenshot 'profile-off'
