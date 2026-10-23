@@ -185,6 +185,9 @@ and date.
   list was redrawn each time, taking the slider away from under the pointer.
 - On Home, the dot beside how the headset is connected sits level with its
   words, and the headset's name and readings sit in the middle of their card.
+- Switched off with only its cable plugged in, Home says the headset is
+  off from the start, rather than first suggesting CrossPlay and the
+  transmitters.
 - On Linux, while the system keeps Neap from the headset, the title bar,
   Home, the mini panel and the notification-area icon say "No access",
   rather than "Not connected" with a hint that the headset is off.

@@ -24,13 +24,24 @@ public enum Note
 /// </remarks>
 public static class StateNote
 {
-    public static Note For(HeadsetStatus status) => status.Link switch
+    /// <param name="status">The headset's state.</param>
+    /// <param name="plugged">
+    /// The product ids plugged in, as four hex digits, or null before the
+    /// first look. With nothing but the headset's own cable among them, a
+    /// quiet headset is off: there is no transmitter for it to be out of
+    /// range of, and no CrossPlay to press. The cable shows it for certain a
+    /// few seconds later.
+    /// </param>
+    public static Note For(HeadsetStatus status, IReadOnlyList<string>? plugged = null) => status.Link switch
     {
         Link.Silent when status.NoSound => Note.UnreachableNoSound,
         Link.Silent => Note.Unreachable,
         Link.Connected when status.NoSound => Note.NoSound,
-        Link.Quiet when status.SwitchedOff => Note.OffOnCable,
+        Link.Quiet when status.SwitchedOff || OnlyTheCable(plugged) => Note.OffOnCable,
         Link.Quiet => Note.Off,
         _ => Note.None,
     };
+
+    private static bool OnlyTheCable(IReadOnlyList<string>? plugged) =>
+        plugged is { Count: > 0 } && plugged.All(product => Transmitters.PieceOf(product) == Transmitters.Piece.Headset);
 }

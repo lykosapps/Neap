@@ -132,7 +132,7 @@ public partial class QuickControls : UserControl
         }
         _signal.Panel.IsVisible = showSignal;
 
-        PaintNote(StateNote.For(status));
+        PaintNote(StateNote.For(status, _plugged is { Looked: true } plugged ? plugged.Products : null));
         Fold(MixCard, SectionFold.For(status, whenOff: true, headset.AccessDenied));
         Fold(SettingsCard, SectionFold.For(status, whenOff: false, headset.AccessDenied));
     }
