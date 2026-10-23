@@ -12,7 +12,9 @@ is not here.
 .PARAMETER Parts
 Which parts to run: A the first look, at what Home says about the headset.
 V reads the loudness level; W and Z set the boost to +6 and +0 dB and
-read it back on a fresh launch.
+read it back on a fresh launch. S moves each Charging Dock light's slider
+through seven values and checks it is not drawn again under the pointer,
+then puts the light back.
 #>
 param([string]$Parts = 'A')
 
@@ -309,6 +311,34 @@ Protect-RealRun {
             Note "read on a fresh launch: $level"
             if ($null -ne $boost) { Check ($level -eq ('Headset level: {0} dB' -f (-12 + $boost))) "the headset kept +$boost dB" }
         }
+    }
+
+    if ($Parts.Contains('S')) {
+        Section 'the Charging Dock lights keep their sliders while they are moved'
+        Use-Page 'device' {
+            foreach ($name in 'Status ring', 'Battery slot ring') {
+                Wait-Until { $null -ne (Find-Slider $name) } 10 | Out-Null
+                $slider = Find-Slider $name
+                Check ($null -ne $slider) "$name has a slider on the Device page"
+                if (-not $slider) { continue }
+                $original = [int]$slider.GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).Current.Value
+                $id = $slider.GetRuntimeId() -join '.'
+                $kept = $true
+                # The headset says a light changed each time one is written, and a
+                # slider drawn again under the pointer ends the drag.
+                foreach ($value in 20, 40, 60, 80, 100, 70, 40) {
+                    $slider.GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).SetValue([double]$value)
+                    Start-Sleep -Milliseconds 700
+                    $now = Find-Slider $name
+                    if ($null -eq $now -or ($now.GetRuntimeId() -join '.') -ne $id) { $kept = $false; break }
+                }
+                Check $kept "$name stays the same slider through seven changes"
+                if ($now = Find-Slider $name) {
+                    $now.GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).SetValue([double]$original)
+                    Start-Sleep -Seconds 1
+                }
+            }
+        } 8
     }
 
     if ($Parts.Contains('P')) {
