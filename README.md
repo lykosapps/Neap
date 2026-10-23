@@ -37,6 +37,15 @@ game's sound as you set it.
 
 ![Home, with the game and chat dial, a chat app chosen, and tiles for the microphone, noise control and equaliser.](docs/screenshots/mix.png)
 
+### A mini panel for mid-game
+
+A click on Neap's icon by the clock opens a small panel with the mix, the
+microphone, noise cancellation, spatial sound and the equaliser preset, so a
+change mid-game doesn't mean opening the window. It closes when you click
+elsewhere.
+
+![The mini panel, with the game and chat mix, tiles for the microphone, noise cancellation and spatial sound, and the equaliser preset.](docs/screenshots/mini.png)
+
 ### Transparency
 
 Choose noise cancellation, transparency or off. The headset has no
@@ -52,8 +61,8 @@ is running.
   the headset's ten bands, with a plot of what you'll actually hear.
 - **Test tone.** Find a frequency that stands out, then cut or boost it on
   the spot.
-- **Compare.** Hold it to hear the headset flat, and let go to hear your
-  curve again.
+- **Try things freely.** Drag the points or use the keyboard, hold Compare
+  to hear the headset flat, and undo any change.
 - **Presets stored on the headset**, for game and microphone, so they also
   appear in the phone app and survive uninstalling everything.
 
@@ -80,9 +89,8 @@ reads "Settling…" until its reading steadies.
 
 ### Everything else
 
-- **A mini panel by the clock** for mid-game: the mix, the microphone,
-  noise cancellation, spatial sound and the equaliser preset, without
-  opening the window.
+- **The microphone follows the headset.** Muted by the boom arm or the mute
+  button, it is muted on the PC too, and unmuted with it.
 - **Louder than the headset's maximum.** A loudness boost on the Audio page
   raises the headset's own level, for when it is too quiet even at full
   volume.

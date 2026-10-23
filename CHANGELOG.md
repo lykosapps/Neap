@@ -15,6 +15,27 @@ and date.
 
 **A redesigned Neap for the Stealth Pro II.**
 
+### Highlights
+
+- **A redesign.** Home, Audio and a new Equaliser page are set out afresh,
+  with a flatter, calmer look, a new icon and a typeface of its own that
+  looks the same on Windows and Linux.
+- **A mini panel by the clock.** The mix, the microphone, noise
+  cancellation, spatial sound and the equaliser preset, mid-game, without
+  opening the window.
+- **See the mix.** On Windows, a live meter for each side shows chat
+  speaking and the game's sound as you set it.
+- **Louder than the headset's maximum.** A loudness boost raises the
+  Stealth Pro II's own level, for when it is too quiet even at full volume.
+- **An equaliser to try things on.** Drag the points or use the keyboard,
+  hold Compare to hear the headset flat, and undo any change.
+- **Profiles for calls.** A call app can switch to its profile only while
+  it is using the microphone.
+- **The microphone follows every mute:** the boom arm, the mute button, and
+  the boom microphone going in or out.
+- **Steadier on Linux.** Transmitters are kept from sleeping, and one that
+  goes quiet is brought back.
+
 ### Added
 
 - On its cable alone, where the headset sends nothing from its chat wheel,
@@ -108,9 +129,9 @@ and date.
 - "Help support another headset" says it's for Turtle Beach headsets that
   work with Swarm II, as the GitHub form and the guide now do: Neap talks to a
   headset the way Swarm II does, so it can't support others.
-- The app's text is set in Figtree, and the name beside the mark in Outfit,
-  in place of Inter. Both are carried inside the app, so Windows and Linux
-  show the same letters. The text is a little rounder and a little wider.
+- The app's text is set in Figtree, and the name beside the mark in Outfit.
+  Both are carried inside the app, so Windows and Linux show the same
+  letters.
 - The menu and the page each run the full height of the window, so the edge
   between them reaches the top, and the menu starts in the title bar's row.
   The headset's status and the update bar sit at the top of the page.
@@ -172,8 +193,6 @@ and date.
   violet-tinted ones, flat panels without gradients or outlines, smaller
   text and tighter rows, so more of each page fits on screen. Neap's violet
   now marks only what is on, chosen or playing.
-- Text uses the Inter typeface, carried by the app, so it looks the same on
-  Windows and Linux.
 - The menu on the left has a softer chosen-place highlight, and shows a ring around
   the place the keyboard is on. Pages sit slightly closer to the edges.
 - Cards, rows and tiles are flat, and tiles are shorter. In high contrast,
@@ -241,9 +260,6 @@ and date.
   turning bold, which pushed the text around them.
 - The line that shows the equaliser reading its presets, and a profile being
   saved, moves again. It stays still when animation is off in Windows.
-- With the headset away, the mini panel shows only its header, which says
-  the headset is not connected, without a note under it. Its button for
-  opening Neap is smaller.
 - The window and the mini panel keep their usual sizes on a large screen.
   Switches, sliders and the mini panel grew to the touch size whenever the
   window was made small; they now grow only on a small screen, such as the

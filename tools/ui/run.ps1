@@ -74,7 +74,9 @@ function Publish-IfStale {
         Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' } |
         Sort-Object LastWriteTime -Descending | Select-Object -First 1
     $props = Get-Item (Join-Path $root 'Directory.Build.props')
-    $changed = [Math]::Max($newest.LastWriteTime.Ticks, $props.LastWriteTime.Ticks)
+    # The changelog is built in, for What's new.
+    $notes = Get-Item (Join-Path $root 'CHANGELOG.md')
+    $changed = [Math]::Max([Math]::Max($newest.LastWriteTime.Ticks, $props.LastWriteTime.Ticks), $notes.LastWriteTime.Ticks)
     if ((Test-Path $dll) -and (Get-Item $dll).LastWriteTime.Ticks -ge $changed) {
         Write-Host 'the build is up to date'
         return
@@ -83,6 +85,10 @@ function Publish-IfStale {
     dotnet publish (Join-Path $root 'src\Neap.Desktop') -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained --nologo -v:q
     if ($LASTEXITCODE -ne 0) { throw 'the publish failed' }
 }
+
+# Run through pretend-quiet, a check is -Inside with nothing outside it having
+# published, so it publishes here.
+if ($Inside -and $env:NEAP_QUIET_DESKTOP -and -not $NoPublish) { Publish-IfStale }
 
 if (-not $Inside) {
     if (-not $NoPublish) { Publish-IfStale }
