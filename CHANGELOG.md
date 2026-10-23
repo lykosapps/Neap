@@ -185,6 +185,8 @@ and date.
   list was redrawn each time, taking the slider away from under the pointer.
 - On Home, the dot beside how the headset is connected sits level with its
   words, and the headset's name and readings sit in the middle of their card.
+- With a headset whose settings Neap only reads, Home says so, rather than
+  leaving its controls greyed out without a word.
 - Profiles no longer ask you to turn the headset on when it is already on;
   they say Neap can't reach its settings.
 - Switched off with only its cable plugged in, Home says the headset is

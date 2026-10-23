@@ -503,6 +503,9 @@
   <data name="State_NothingPluggedIn" xml:space="preserve">
     <value>Nothing plugged in</value>
   </data>
+  <data name="State_WhatReadOnly" xml:space="preserve">
+    <value>Neap can only read this headset's settings.</value>
+  </data>
   <data name="State_NoAccess" xml:space="preserve">
     <value>No access</value>
   </data>

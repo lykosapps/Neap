@@ -33,6 +33,8 @@ public static class StateCopy
         _ => Strings.Get("State_NothingPluggedIn"),
     };
 
+    public static string WhatReadOnly => Strings.Get("State_WhatReadOnly");
+
     // -- settings out of reach ---------------------------------------------
 
     public static string WhatUnreachable => Strings.Get("State_WhatUnreachable");

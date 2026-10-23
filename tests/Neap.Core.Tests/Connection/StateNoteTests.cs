@@ -19,6 +19,15 @@ public class StateNoteTests
         Assert.Equal(note, StateNote.For(new HeadsetStatus(link, route, "", "", NoSound: noSound)));
 
     [Fact]
+    public void AHeadsetNeapOnlyReadsSaysSo() =>
+        Assert.Equal(Note.ReadOnly, StateNote.For(new HeadsetStatus(Link.Connected, Route.ChargingDock, "", ""), readOnly: true));
+
+    [Fact]
+    public void NoSoundComesBeforeReadOnly() =>
+        Assert.Equal(Note.NoSound,
+            StateNote.For(new HeadsetStatus(Link.Connected, Route.ChargingDock, "", "", NoSound: true), readOnly: true));
+
+    [Fact]
     public void WithOnlyItsCablePluggedInAQuietHeadsetIsOff() =>
         Assert.Equal(Note.OffOnCable, StateNote.For(new HeadsetStatus(Link.Quiet, Route.Unknown, "", ""), ["229E"]));
 

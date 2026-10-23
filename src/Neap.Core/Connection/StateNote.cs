@@ -15,6 +15,8 @@ public enum Note
     OffOnCable,
     /// <summary>Switched off or out of range, which cannot be told apart.</summary>
     Off,
+    /// <summary>Connected to a headset whose settings Neap only reads, so its controls are shown but cannot be used.</summary>
+    ReadOnly,
 }
 
 /// <summary>Decides which explanation Home gives for the headset's state.</summary>
@@ -32,11 +34,13 @@ public static class StateNote
     /// range of, and no CrossPlay to press. The cable shows it for certain a
     /// few seconds later.
     /// </param>
-    public static Note For(HeadsetStatus status, IReadOnlyList<string>? plugged = null) => status.Link switch
+    /// <param name="readOnly">Whether the headset is one whose settings Neap only reads; see <see cref="HeadsetModel.Writable"/>.</param>
+    public static Note For(HeadsetStatus status, IReadOnlyList<string>? plugged = null, bool readOnly = false) => status.Link switch
     {
         Link.Silent when status.NoSound => Note.UnreachableNoSound,
         Link.Silent => Note.Unreachable,
         Link.Connected when status.NoSound => Note.NoSound,
+        Link.Connected when readOnly => Note.ReadOnly,
         Link.Quiet when status.SwitchedOff || OnlyTheCable(plugged) => Note.OffOnCable,
         Link.Quiet => Note.Off,
         _ => Note.None,
