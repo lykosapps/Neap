@@ -48,6 +48,7 @@ public sealed class HidrawTransport : IHidTransport
     public ushort UsagePage { get; }
     public int OutputLength { get; }
     public int InputLength { get; }
+    public string Name { get; }
 
     /// <param name="device">One of <see cref="ListDevices"/>.</param>
     /// <exception cref="TransportException">The device node could not be opened.</exception>
@@ -59,6 +60,7 @@ public sealed class HidrawTransport : IHidTransport
         UsagePage = device.UsagePage;
         OutputLength = device.OutputLength;
         InputLength = device.InputLength;
+        Name = ProductName(Path);
 
         try
         {
@@ -72,6 +74,28 @@ public sealed class HidrawTransport : IHidTransport
         catch (IOException ex)
         {
             throw new TransportException($"could not open {Path} ({ex.Message})");
+        }
+    }
+
+    /// <summary>The USB device's product string, read from sysfs, or empty when it has none.</summary>
+    /// <remarks>
+    /// The node's device folder is the HID device. Two levels up, past the
+    /// interface, is the USB device, which holds the string. The link is
+    /// resolved first, as a path's ".." is otherwise taken from its spelling.
+    /// </remarks>
+    private static string ProductName(string node)
+    {
+        string device = System.IO.Path.Combine(Devices, System.IO.Path.GetFileName(node), "device");
+        try
+        {
+            if (Directory.ResolveLinkTarget(device, returnFinalTarget: true)?.FullName is not { } hid
+                || new DirectoryInfo(hid).Parent?.Parent is not { } usb) return "";
+            string product = System.IO.Path.Combine(usb.FullName, "product");
+            return File.Exists(product) ? Hidraw.ReadAll(product).Trim() : "";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return "";
         }
     }
 

@@ -230,6 +230,9 @@ public sealed class HeadsetService : IDisposable
     /// <summary>The headset connected, or last connected, or null for one Neap does not know.</summary>
     public HeadsetModel? Model { get; private set; }
 
+    /// <summary>The name the firmware of the device connected, or last connected, gives itself, or empty when it gives none.</summary>
+    public string DeviceName { get; private set; } = "";
+
     /// <summary>Whether the headset connected is one whose settings Neap only reads; see <see cref="HeadsetModel.Writable"/>.</summary>
     public bool ReadOnly => _readOnly;
 
@@ -1044,6 +1047,11 @@ public sealed class HeadsetService : IDisposable
             _channelStopped = false;
             client.Wrote += attempt => Wrote?.Invoke(attempt);
             Model = HeadsetModels.Of(client.ProductId);
+            if (client.Name != DeviceName)
+                AppLog.Write(client.Name.Length > 0
+                    ? $"headset: its firmware calls it {client.Name}"
+                    : $"headset: {client.Device} gives no name, so the model's is shown");
+            DeviceName = client.Name;
             _readOnly = !client.AllowWrites;
             _refused.Clear();
             if (_readOnly)

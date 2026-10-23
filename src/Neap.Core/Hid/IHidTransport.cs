@@ -12,6 +12,9 @@ public interface IHidTransport : IDisposable
     /// <summary>The USB product ID of the Turtle Beach device.</summary>
     ushort ProductId { get; }
 
+    /// <summary>The name the device's firmware gives itself, such as "Stealth Pro II Xbox", or empty when it gives none.</summary>
+    string Name { get; }
+
     string Describe();
 
     /// <summary>Writes one output report, report id included.</summary>

@@ -325,6 +325,8 @@ public sealed class PretendHeadset : IDeviceSource
     {
         public ushort ProductId => headset._product;
 
+        public string Name => HeadsetName;
+
         public string Describe() => $"pretend 0x{HidControl.VendorId:x4}:0x{headset._product:x4}";
 
         public void SendOutput(ReadOnlySpan<byte> report) => headset.Receive(report);

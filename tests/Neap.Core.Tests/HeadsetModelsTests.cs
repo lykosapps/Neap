@@ -274,20 +274,18 @@ public class HeadsetModelsTests
     }
 
     [Theory]
-    [InlineData("My Headset", "Atlas Air")]
-    [InlineData(null, "Atlas Air")]
-    public void TheAtlasAirIsAlwaysCalledByItsModel(string? given, string shown) =>
-        Assert.Equal(shown, HeadsetModels.Label(HeadsetModels.AtlasAir, given));
-
-    [Theory]
-    [InlineData("Desk", "Desk")]
+    [InlineData(" Stealth Pro II Xbox ", "Stealth Pro II Xbox")]
+    [InlineData("", "Stealth Pro II")]
     [InlineData("  ", "Stealth Pro II")]
-    [InlineData("My Headset", "Stealth Pro II")]
     [InlineData(null, "Stealth Pro II")]
-    public void TheStealthProIIIsCalledByItsGivenNameOrElseItsModel(string? given, string shown) =>
-        Assert.Equal(shown, HeadsetModels.Label(HeadsetModels.StealthProII, given));
+    public void AHeadsetIsCalledWhatItsFirmwareSaysOrElseItsModel(string? firmware, string shown) =>
+        Assert.Equal(shown, HeadsetModels.Label(HeadsetModels.StealthProII, firmware));
+
+    [Fact]
+    public void AnUnknownHeadsetIsCalledWhatItsFirmwareSays() =>
+        Assert.Equal("Some Headset", HeadsetModels.Label(null, "Some Headset"));
 
     [Fact]
     public void AnUnknownHeadsetWithNoNameHasNoLabel() =>
-        Assert.Null(HeadsetModels.Label(null, null));
+        Assert.Null(HeadsetModels.Label(null, ""));
 }

@@ -1,7 +1,4 @@
-using System.Globalization;
-using System.Text.Json;
 using Neap.Core;
-using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
 
@@ -9,11 +6,6 @@ namespace Neap.Desktop.Controls;
 internal static class HeadsetTitle
 {
     /// <summary>The connected headset's label (see <see cref="HeadsetModels.Label"/>), and only a generic word for a headset Neap does not know.</summary>
-    public static string Current()
-    {
-        var headset = AppServices.Headset;
-        headset.Values.TryGetValue(HeadsetLabel.Key.ToString("x", CultureInfo.InvariantCulture), out var given);
-        return HeadsetModels.Label(headset.Model, given.ValueKind == JsonValueKind.Undefined ? null : given.ToString())
-            ?? Strings.Get("Headset_Model");
-    }
+    public static string Current() =>
+        HeadsetModels.Label(AppServices.Headset.Model, AppServices.Headset.DeviceName) ?? Strings.Get("Headset_Model");
 }

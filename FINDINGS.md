@@ -456,7 +456,7 @@ matched to anything. Key numbers are hex; values travel as decimal strings.
 
 | Key | Meaning |
 |---|---|
-| `0x220` | the headset's name; "My Headset" from the factory, and no recording shows Swarm II changing it |
+| `0x220` | a name the headset keeps, "My Headset" from the factory; no recording shows Swarm II changing it. Neap shows the USB product string instead |
 | `0x230` | the wireless sound link: 2 while a transmitter sends the headset sound, 0 while none does. See [Connection state](#connection-state) |
 | `0x240` | battery, percent |
 | `0x250` | charging: 1 while the battery is filling *(measured; see below)* |

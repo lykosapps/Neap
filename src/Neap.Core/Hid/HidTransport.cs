@@ -25,6 +25,7 @@ public sealed class HidTransport : IHidTransport
     public ushort UsagePage { get; }
     public int OutputLength { get; }
     public int InputLength { get; }
+    public string Name { get; }
 
     /// <exception cref="DeviceNotFoundException">Nothing at that path can be described.</exception>
     /// <exception cref="TransportException">The device could not be opened.</exception>
@@ -45,6 +46,12 @@ public sealed class HidTransport : IHidTransport
         if (_handle == IntPtr.Zero || _handle == new IntPtr(-1))
             throw new TransportException(
                 $"could not open device ({new Win32Exception(Marshal.GetLastWin32Error()).Message})");
+
+        // The USB product string: at most 126 characters and a terminator.
+        var buffer = new byte[254];
+        Name = Native.HidD_GetProductString(_handle, buffer, (uint)buffer.Length)
+            ? System.Text.Encoding.Unicode.GetString(buffer).TrimEnd('\0').Trim()
+            : "";
     }
 
     public string Describe() =>

@@ -120,6 +120,10 @@ internal static class Native
     [return: MarshalAs(UnmanagedType.U1)]
     internal static extern bool HidD_GetInputReport(IntPtr device, byte[] report, uint length);
 
+    [DllImport("hid.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.U1)]
+    internal static extern bool HidD_GetProductString(IntPtr device, byte[] buffer, uint length);
+
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     internal static extern IntPtr CreateFileW(
         string fileName, uint access, uint shareMode, IntPtr security,

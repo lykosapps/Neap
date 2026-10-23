@@ -107,7 +107,7 @@ From the quick start guide. Neap describes them; it doesn't set them.
 | AI noise reduction | Not listed | No: the headset doesn't have it | Hidden | Fails | — | `0x630` is mic monitoring here | Not offered. |
 | Dial functions | Not listed on PC; the quick start guide has no second wheel | No: its one wheel is the volume, which cannot be given another job | Hidden | — | — | `0xA00`–`0xA30`: reported (Seen), but for a second wheel it does not have; a write is kept and does nothing, `0xA30` is refused (SP2Tools F126, Read) | Not offered. |
 | Button function | Not listed on PC; the mobile article lists it | Possibly: one button's short press, as the next game preset, the noise gate or chat boost | Hidden | — | — | `0xB00`–`0xB20`, one for each of PlayStation, Xbox and PC (`0xB20`); 0, 1 or 2 (SP2Tools F126, Read). Which button it is, and whether it is a button at all, needs a test on the headset; 0.2.1.7 logs the headset's record of its inputs, which shows it | Would be a choice of three on the Controls page, writing `0xB20`. Needs the tester's recording to name the button first, then a tester to try the write. |
-| Headset name | — | Yes | Has | Confirmed | — | `0x220` holds "My Headset" | "Atlas Air", and "Headset" with nothing connected. |
+| Headset name | — | Yes | Has | Untried | Untried | The USB product string of its transmitter, not yet seen; `0x220` holds "My Headset" and is not shown | The transmitter's own name, else "Atlas Air", and "Headset" with nothing connected. A tester's app log names it. |
 
 ## Problems
 

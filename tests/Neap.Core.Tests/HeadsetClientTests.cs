@@ -283,6 +283,8 @@ public class HeadsetClientTests
 
         public ushort ProductId => 0x225E;
 
+        public string Name => "";
+
         public string Describe() => "repeating";
 
         public void SendOutput(ReadOnlySpan<byte> report) => _left = 5;

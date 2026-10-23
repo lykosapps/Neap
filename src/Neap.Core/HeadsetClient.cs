@@ -169,6 +169,9 @@ public sealed class HeadsetClient : IDisposable
     /// </remarks>
     public ushort ProductId => _transport.ProductId;
 
+    /// <summary>The name the device's firmware gives itself, or empty when it gives none; see <see cref="IHidTransport.Name"/>.</summary>
+    public string Name => _transport.Name;
+
     private int NextCounter() => _counter = (_counter + 1) & 0xFFFF;
 
     // -- reading -----------------------------------------------------------

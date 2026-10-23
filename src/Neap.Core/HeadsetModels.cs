@@ -69,9 +69,6 @@ public sealed record HeadsetModel(
     /// </remarks>
     public bool HasLoudnessBoost { get; init; }
 
-    /// <summary>Whether the name its owner gave it is shown above its status, rather than <see cref="Name"/>.</summary>
-    public bool ShowsGivenName { get; init; } = true;
-
     /// <summary>Whether its mic monitoring is turned down while the app has the microphone muted; see <see cref="Settings.MonitoringWhileMuted"/>.</summary>
     public bool QuietsMonitoringWhileMuted { get; init; }
 
@@ -220,7 +217,6 @@ public static class HeadsetModels
         // Not among the 25 groups its firmware serves (SP2Tools F125): the
         // noise gate is in NG, and the game and chat mix in GSI.
         MissingCategories = ["SAF", "3DT"],
-        ShowsGivenName = false,
         QuietsMonitoringWhileMuted = true,
         HearingOffAfterEqualiser = "SHH",
         LightReadFromTransmitter = 0x430,
@@ -281,10 +277,15 @@ public static class HeadsetModels
     public static int CheckedAs(HeadsetModel? model, int key) =>
         Registry.ByKey.TryGetValue(key, out var setting) ? OnHeadset(model, setting).Key : key;
 
-    /// <summary>The name shown above a headset's status: the one its owner gave it where the headset shows that, else its model's.</summary>
-    /// <returns>Null while no known headset is connected and it has no name.</returns>
-    public static string? Label(HeadsetModel? model, string? given) =>
-        model is { ShowsGivenName: false } ? model.Name : HeadsetLabel.Given(given) ?? model?.Name;
+    /// <summary>The name shown above a headset's status: the one its firmware gives the device connected, else its model's.</summary>
+    /// <remarks>
+    /// The firmware's name is the one the system and a phone show, such as
+    /// "Stealth Pro II Xbox", so it says which edition is connected. A name
+    /// someone gives it in a phone's or the system's settings stays there.
+    /// </remarks>
+    /// <returns>Null while no known headset is connected and its device gives no name.</returns>
+    public static string? Label(HeadsetModel? model, string? firmware) =>
+        string.IsNullOrWhiteSpace(firmware) ? model?.Name : firmware.Trim();
 
     /// <summary>What a headset reported, with each setting it keeps elsewhere moved to the Stealth Pro II's key, where the app looks for it.</summary>
     /// <remarks>

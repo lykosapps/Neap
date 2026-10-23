@@ -185,9 +185,9 @@ and date.
   list was redrawn each time, taking the slider away from under the pointer.
 - On Home, the dot beside how the headset is connected sits level with its
   words, and the headset's name and readings sit in the middle of their card.
-- A headset still called "My Headset", the name it leaves the factory with,
-  is shown by its model, "Stealth Pro II". A name its owner gave it is still
-  shown.
+- The headset is called what its firmware calls it, the name the system
+  and a phone show, such as "Stealth Pro II Xbox", rather than "My Headset".
+  Where the firmware gives no name, it is called by its model.
 - The chat wheel no longer gets stuck at the middle. Turned quickly through
   the middle to its game or chat end, the mix stopped at the middle and the
   wheel then had no room left to turn it further; the mix now goes to that
