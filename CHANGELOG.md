@@ -66,6 +66,13 @@ and date.
 
 ### Changed
 
+- "Keep high-resolution audio" is gone from the Device page, for now. It
+  restarted the headset's sound to turn the Charging Dock's ring purple again
+  after an app used the microphone, and that only works while something is
+  playing. Neap no longer restarts the sound. After a call the ring stays
+  white until something plays, then turns purple by itself. Windows keeps
+  sending the same format while the ring is white, and the ring is the only
+  change seen.
 - The game and chat card on Home is shorter: a smaller dial, with each side's
   level and meter beside it and the choice of chat apps under them.
 - Home's cards and the Device page's transmitters are set out so no row ends

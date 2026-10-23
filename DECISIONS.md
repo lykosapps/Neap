@@ -1,5 +1,22 @@
 # Decisions
 
+## 2026-10-23 — "Keep high-resolution audio" is out of 0.3.0
+
+- **Options:** keep it as it was; keep it but skip the reset when nothing is
+  playing and reword it; take it out of 0.3.0 and look into the dock first.
+- **Chosen:** take it out. `RingRefresh.Released` is off, so the Device page
+  has no switch for it and nothing sets the output format again, whatever
+  the settings file says.
+- **Why:** a USB capture of the dock (FINDINGS.md) showed the ring turns
+  white when the dock is told a microphone stream has started, and purple
+  again only when it is told a playback stream has started at 96 kHz. The
+  reset works only while something is playing, and restarts every
+  application's sound when it does. The owner's call was to remove it for
+  now rather than ship it half understood. The ring then turns purple by
+  itself the next time anything plays.
+- **Revisit when:** the desk investigation of the dock's ring code in
+  BACKLOG.md says whether the dock can be stopped from changing it.
+
 ## 2026-10-23 — 0.3.0 ships without a Narrator pass
 
 - **Options:** read every page and dialog with Narrator before 0.3.0, as

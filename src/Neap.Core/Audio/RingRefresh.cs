@@ -37,6 +37,17 @@ namespace Neap.Core.Audio;
 /// </remarks>
 public sealed class RingRefresh
 {
+    /// <summary>Whether keeping the ring purple is in this release of Neap at all.</summary>
+    /// <remarks>
+    /// Off until the dock's ring is understood. The dock turns it white when it
+    /// is told a microphone stream has started, and purple again only when it
+    /// is told a playback stream has started at 96 kHz (FINDINGS.md), so setting
+    /// the format again does nothing unless something is playing, and restarts
+    /// every application's sound when it is. While it is off the Device page has
+    /// no switch for it and nothing sets the format again.
+    /// </remarks>
+    public const bool Released = false;
+
     /// <summary>How long the microphone has to stay open before the reset.</summary>
     public static readonly TimeSpan Settle = TimeSpan.FromSeconds(2);
 

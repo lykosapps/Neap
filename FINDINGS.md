@@ -950,8 +950,9 @@ recording from the headset, the ring turns white within moments and stays
 white after the recording stops, while Windows goes on reporting 24-bit/96
 kHz throughout. Stepping the format to 48 kHz and back turns it purple
 again, with the microphone still open, and it stays purple *(confirmed by
-the owner, three times, with Discord and Teams)*. Whether the sound itself
-changes while the ring is white is not known.
+the owner, three times, with Discord and Teams)*. The format Windows sends
+does not change while it is white; whether the dock's radio link to the
+headset does is not known.
 
 Only the first recording turns it white. Joining a Discord call while
 another application already had the microphone open left the ring purple
@@ -985,8 +986,9 @@ because that makes Windows start the playing stream again at 96 kHz, which is
 the owner's confirmed case with Discord and Teams. With nothing playing, the
 ring stays white until anything plays, and then turns purple by itself, as it
 did between two tests earlier the same day. Whether the colour follows the
-rate or only the start, and whether the sound changes while the ring is
-white, are not known.
+rate or only the start, and whether the dock's radio link to the headset
+changes while the ring is white, are not known. Windows keeps sending
+24-bit 96 kHz to the dock throughout *(measured)*.
 
 **The Charging Dock can go silent at 96 kHz.** Windows was mixing at
 96 kHz, playing to the dock at a healthy level, with the sound link at 2,

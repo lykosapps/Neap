@@ -40,10 +40,10 @@ public sealed class RingService : IRing
     public RingService(AudioRoute route)
     {
         _route = route;
-        if (!Pretend.Active) _look = new Timer(_ => Look(), null, LookEvery, LookEvery);
+        if (RingRefresh.Released && !Pretend.Active) _look = new Timer(_ => Look(), null, LookEvery, LookEvery);
     }
 
-    public bool Supported => true;
+    public bool Supported => RingRefresh.Released;
 
     /// <summary>Gets or sets whether the ring is kept purple.</summary>
     public bool KeepPurple

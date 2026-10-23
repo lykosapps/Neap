@@ -7,6 +7,25 @@ to GitHub, these become issues.
 
 ## Next, after 0.2.0 (released 8 October)
 
+- **The Charging Dock's ring: can a microphone be stopped turning it white?
+  A desk investigation, with no device touched.** "Keep high-resolution
+  audio" was taken out of 0.3.0 (DECISIONS.md, 23 October). A USB capture
+  shows the dock turns the ring white when the PC starts the microphone
+  stream (48 kHz) and purple only when a playback stream starts at 96 kHz
+  (FINDINGS.md, "What the dock is sent when the ring turns white"). To find
+  out: which code in the dock's firmware turns a stream start into a ring
+  colour; whether any setting stops a microphone start changing it (SP2Tools
+  has two unproven candidates: the LED mode byte, NVKey `0xF607`, and the
+  RAM-only kvp `0x20`); and whether it is only a flash patch, which has no
+  proven recovery for the dock. SP2Tools has no map of the dock's ring code
+  and its dock image and Ghidra project were not in its folder on 23 October,
+  so they have to be found or rebuilt first. Rate every option before
+  touching the device. If the feature returns: reset only while something is
+  playing, and reword its text to what is known. Windows keeps sending
+  24-bit 96 kHz to the dock while the ring is white; not known: whether the
+  dock's radio link to the headset changes with it. Needs the headset only
+  to check what the desk work finds.
+
 - **Before the next public release: the Atlas Air carries only what its
   tester confirmed.** Its test build has every function, writes included
   (see DECISIONS.md). Before a release, set its list of functions, and
