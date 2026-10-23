@@ -11,6 +11,10 @@ and date.
 
 ## Unreleased
 
+## 0.3.0 — 2026-10-23
+
+**A redesigned Neap for the Stealth Pro II.**
+
 ### Added
 
 
