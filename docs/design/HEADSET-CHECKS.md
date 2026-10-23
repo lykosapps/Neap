@@ -98,7 +98,10 @@ connected for ten minutes idle with no transmitter restart, and a change to
 noise cancellation, made with the headset answering, took and was read back.
 The VM kept the dock awake before the rule went in, so this shows Neap works
 with the rule, not that the rule stops a PC putting the transmitter to sleep.
-That still needs a real Linux PC, such as the Steam Deck.
+That still needs a real Linux PC, such as the Steam Deck. After the dock was
+handed back to Windows its status ring blinked purple, with the headset
+connected and sound playing, until the dock's USB cable was unplugged and
+plugged in again; the headset's lights read as before throughout.
 
 24. **Chat comes from:** open the dropdown, tick a chat app, untick it, and
     press Refresh with a new app playing. The card and the cards below it
