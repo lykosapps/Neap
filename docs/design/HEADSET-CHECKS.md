@@ -88,9 +88,17 @@ which replaced the arcs inside the ring, and need doing again.
 
 Checks 5, 7 and 24 to 29 passed on 23 October 2026 on the Stealth Pro II
 through its Charging Dock, with the try-it copy. Check 30 needs a Linux PC
-and is still to do. The same session found the chat wheel stuck at the
-middle after a quick turn through it, fixed in the same day's commit; the
-turn toward both ends was checked by hand afterward.
+and was done only in an Ubuntu 24.04 VM (below). The same session found the chat
+wheel stuck at the middle after a quick turn through it, fixed in the same
+day's commit; the turn toward both ends was checked by hand afterward.
+
+Check 30, 23 October 2026, in the VM with the Stealth Pro II Charging Dock
+shared from Windows and the headset on: with Neap's rule in, Neap stayed
+connected for ten minutes idle with no transmitter restart, and a change to
+noise cancellation, made with the headset answering, took and was read back.
+The VM kept the dock awake before the rule went in, so this shows Neap works
+with the rule, not that the rule stops a PC putting the transmitter to sleep.
+That still needs a real Linux PC, such as the Steam Deck.
 
 24. **Chat comes from:** open the dropdown, tick a chat app, untick it, and
     press Refresh with a new app playing. The card and the cards below it
