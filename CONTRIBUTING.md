@@ -97,6 +97,12 @@ copy rewrites the sign-in shortcut and takes the headset.
 
 ## Before a release
 
+Last of all, `powershell -ExecutionPolicy Bypass -File tools\release-check.ps1`
+says whether main is ready to tag, and lists what is left if not: anything
+uncommitted, unpushed or only on GitHub, anything in the unpushed commits that
+could identify the owner, a version, changelog date or Unreleased section out
+of step, and the backlog's items for before the tag.
+
 Run through this with the release build, not a debug one. Most of what needs
 the headset can be run for you: `powershell -ExecutionPolicy Bypass -File
 tools\ui\run.ps1 hardware -Parts BFKLT` runs the real app and reads the
