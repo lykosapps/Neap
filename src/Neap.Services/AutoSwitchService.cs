@@ -42,6 +42,8 @@ public sealed class AutoSwitchService : IDisposable
     private bool _looking;
     private bool _applying;
     private string _lastFault = "";
+    private string _micFault = "";
+    private IReadOnlyCollection<string> _lastOnMicrophone = [];
 
     /// <param name="profiles">The profiles to switch between.</param>
     /// <param name="headset">The headset, whose state decides when a switch can happen.</param>
@@ -88,7 +90,7 @@ public sealed class AutoSwitchService : IDisposable
                 ? await Task.Run(_programs)
                 : [];
             IReadOnlyCollection<string> onMicrophone = profiles.Any(p => p.MicrophoneApps.Count > 0)
-                ? await Task.Run(_onMicrophone)
+                ? await OnMicrophone()
                 : [];
             if (_rule.Observe(running, onMicrophone, profiles, _profiles.DefaultId, _profiles.ActiveId) is not { } target) return;
 
@@ -101,11 +103,34 @@ public sealed class AutoSwitchService : IDisposable
         catch (Exception ex)
         {
             // Once per fault, not every two seconds.
-            string line = $"profiles: could not look at the running programs or the microphones: {ex.Message}";
+            string line = $"profiles: could not look at the running programs: {ex.Message}";
             if (line != _lastFault) AppLog.Write(line);
             _lastFault = line;
         }
         finally { _looking = false; }
+    }
+
+    /// <summary>The programs using a microphone, or the last ones seen when the system cannot say.</summary>
+    /// <remarks>
+    /// A failed look leaves the running programs to switch by themselves. The
+    /// last list stands in for it rather than an empty one, which would read
+    /// as a call app letting go of the microphone and switch away mid-call.
+    /// </remarks>
+    private async Task<IReadOnlyCollection<string>> OnMicrophone()
+    {
+        try
+        {
+            _lastOnMicrophone = await Task.Run(_onMicrophone);
+            _micFault = "";
+        }
+        catch (Exception ex)
+        {
+            // Once per fault, not every two seconds.
+            string line = $"profiles: could not see which programs are using a microphone, so the last ones seen stand: {ex.Message}";
+            if (line != _micFault) AppLog.Write(line);
+            _micFault = line;
+        }
+        return _lastOnMicrophone;
     }
 
     /// <param name="read">
