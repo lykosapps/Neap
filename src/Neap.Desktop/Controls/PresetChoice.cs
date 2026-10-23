@@ -42,13 +42,8 @@ public sealed class PresetChoice : Button
         Flyout = new Flyout { Placement = PlacementMode.BottomEdgeAlignedRight, Content = _list };
         HorizontalContentAlignment = HorizontalAlignment.Stretch;
 
-        double icon = (double)Application.Current!.FindResource("NeapIconRow")!;
-        var chevron = new PathIcon
-        {
-            Width = icon,
-            Height = icon,
-            Data = (Geometry)Application.Current!.FindResource("IconChevronDown")!,
-        };
+        // Sized by the theme rather than here, so the mini panel can give it its tiles' size.
+        var chevron = new PathIcon { Data = (Geometry)Application.Current!.FindResource("IconChevronDown")!, Classes = { "choicearrow" } };
         AutomationProperties.SetAccessibilityView(chevron, AccessibilityView.Raw);
         Grid.SetColumn(_tag, 1);
         Grid.SetColumn(chevron, 2);

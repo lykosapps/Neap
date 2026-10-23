@@ -5,6 +5,7 @@
     xmlns:c="using:Neap.Desktop.Controls"
     xmlns:loc="using:Neap.Desktop.Localization"
     Width="320"
+    Classes="mini"
     CanResize="False"
     ShowInTaskbar="False"
     SizeToContent="Height"
@@ -18,7 +19,6 @@
         <Style Selector="c|PresetChoice">
             <Setter Property="MinHeight" Value="0" />
             <Setter Property="Height" Value="28" />
-            <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
         </Style>
     </Window.Styles>
 
@@ -39,7 +39,7 @@
                         Classes="cardtitle"
                         AutomationProperties.HeadingLevel="1"
                         TextTrimming="CharacterEllipsis" />
-                    <c:HeadsetStatusStrip HorizontalAlignment="Left" />
+                    <c:HeadsetStatusStrip x:Name="Status" HorizontalAlignment="Left" />
                 </StackPanel>
                 <ContentControl
                     x:Name="BatteryHolder"
@@ -70,48 +70,27 @@
                 The mix goes on working with only the headset's settings out of
                 reach, so it folds only when the headset is away. It is a slider
                 here, Home's dial made small: game at the left, chat at the
-                right. Without chat apps chosen there is nothing to mix, so the
-                slider is disabled and the line below it says how to get one.
+                right. Without chat apps chosen there is nothing to mix, so a
+                link to choose them stands in for the slider.
             -->
             <c:HeadsetSection Explain="False" WhenOff="True">
-                <StackPanel x:Name="DialArea" Spacing="{StaticResource NeapSpaceXS}">
-                    <Grid ColumnDefinitions="*,Auto,*">
-                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceXS}">
-                            <TextBlock
-                                loc:Uid.Value="Mix_Game"
-                                Classes="label"
-                                VerticalAlignment="Center"
-                                Foreground="{DynamicResource NeapGameTextBrush}" />
-                            <TextBlock
-                                x:Name="GameLevel"
-                                Classes="label"
-                                VerticalAlignment="Center"
-                                Foreground="{DynamicResource NeapGameTextBrush}" />
-                        </StackPanel>
+                <!-- Its two ends, and nothing more: where the thumb sits says the balance, and a screen reader hears the levels. -->
+                <StackPanel x:Name="DialArea" Spacing="{StaticResource NeapSpaceS}">
+                    <Grid ColumnDefinitions="*,*">
                         <TextBlock
-                            x:Name="LeanText"
+                            loc:Uid.Value="Mix_Game"
+                            Classes="label"
+                            Foreground="{DynamicResource NeapGameTextBrush}" />
+                        <TextBlock
                             Grid.Column="1"
-                            Classes="label secondary"
-                            VerticalAlignment="Center" />
-                        <StackPanel
-                            Grid.Column="2"
                             HorizontalAlignment="Right"
-                            Orientation="Horizontal"
-                            Spacing="{StaticResource NeapSpaceXS}">
-                            <TextBlock
-                                x:Name="ChatLevel"
-                                Classes="label"
-                                VerticalAlignment="Center"
-                                Foreground="{DynamicResource NeapChatTextBrush}" />
-                            <TextBlock
-                                loc:Uid.Value="Mix_Chat"
-                                Classes="label"
-                                VerticalAlignment="Center"
-                                Foreground="{DynamicResource NeapChatTextBrush}" />
-                        </StackPanel>
+                            loc:Uid.Value="Mix_Chat"
+                            Classes="label"
+                            Foreground="{DynamicResource NeapChatTextBrush}" />
                     </Grid>
                     <Slider
                         x:Name="Dial"
+                        Margin="0,-12"
                         Classes="balance"
                         Minimum="0"
                         Maximum="100"
@@ -119,16 +98,11 @@
                         LargeChange="10"
                         loc:Uid.Value="Mix_Dial" />
                 </StackPanel>
-                <StackPanel
-                    x:Name="SetupArea"
-                    Spacing="{StaticResource NeapSpaceXS}"
-                    IsVisible="False">
-                    <TextBlock loc:Uid.Value="Mix_Setup" Classes="caption secondary" TextWrapping="Wrap" />
-                    <Button
-                        x:Name="ChooseApps"
-                        loc:Uid.Value="Mini_ChooseApps"
-                        Classes="link" />
-                </StackPanel>
+                <Button
+                    x:Name="ChooseApps"
+                    loc:Uid.Value="Mini_ChooseApps"
+                    Classes="link"
+                    IsVisible="False" />
             </c:HeadsetSection>
 
             <!--

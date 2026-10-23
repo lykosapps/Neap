@@ -56,7 +56,8 @@ and date.
   now glides to its place.
 - A click on Neap's icon by the clock opens a mini panel for mid-game: the
   game and chat mix, mute for the microphone, noise cancellation and the
-  equaliser preset, with the headset's name, state and battery above them. It
+  equaliser preset, with the headset's name and battery above them, and its
+  state when something is wrong. It
   closes on Escape or when you click elsewhere. The window is now "Open Neap"
   on the icon's menu, and on the panel.
 - The equaliser is easier to try things on. Points show they can be dragged:

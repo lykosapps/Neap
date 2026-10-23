@@ -90,7 +90,7 @@
     <value>Equaliser</value>
   </data>
   <data name="Mini_ChooseApps.Content" xml:space="preserve">
-    <value>Choose in Neap</value>
+    <value>Choose chat apps</value>
   </data>
   <data name="Main_TrayQuit" xml:space="preserve">
     <value>Quit</value>

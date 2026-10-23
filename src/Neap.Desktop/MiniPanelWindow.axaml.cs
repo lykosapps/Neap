@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Globalization;
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
@@ -189,19 +188,21 @@ public partial class MiniPanelWindow : Window
 
         NoiseTile.IsVisible = HeadsetModels.Shows(headset.Model, Feature.NoiseControl);
 
+        // The state line only when something is wrong: connected, the battery says enough.
+        var status = headset.Status;
+        Status.IsVisible = StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status), headset.AccessDenied).Headline
+            != Headline.Connected;
+
         bool chosen = AppServices.Mix.ChatApps.Count > 0;
-        SetupArea.IsVisible = !chosen;
-        DialArea.IsEnabled = chosen;
+        ChooseApps.IsVisible = !chosen;
+        DialArea.IsVisible = chosen;
 
         _painting = true;
         try
         {
             int mix = AppServices.Mix.Mix;
-            int game = MixLevels.Game(mix), chat = MixLevels.Chat(mix);
             Dial.Value = mix;
-            GameLevel.Text = game.ToString(CultureInfo.CurrentCulture);
-            ChatLevel.Text = chat.ToString(CultureInfo.CurrentCulture);
-            LeanText.Text = MixLevels.Lean(mix) switch
+            string lean = MixLevels.Lean(mix) switch
             {
                 MixLean.GameOnly => Strings.Get("Mix_GameOnly"),
                 MixLean.TowardGame => Strings.Get("Mix_TowardGame"),
@@ -209,7 +210,7 @@ public partial class MiniPanelWindow : Window
                 MixLean.TowardChat => Strings.Get("Mix_TowardChat"),
                 _ => Strings.Get("Mix_ChatOnly"),
             };
-            AutomationProperties.SetHelpText(Dial, Strings.Format("Mix_Levels", LeanText.Text, game, chat));
+            AutomationProperties.SetHelpText(Dial, Strings.Format("Mix_Levels", lean, MixLevels.Game(mix), MixLevels.Chat(mix)));
         }
         finally { _painting = false; }
     }
