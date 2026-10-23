@@ -125,7 +125,12 @@ if ($Parts.Contains('A') -or $Parts.Contains('B') -or $Parts.Contains('D') -or $
                 Close-Menu $notNow
             }
 
-            if ($Parts.Contains('E')) {
+            if ($Parts.Contains('E') -and $env:NEAP_QUIET_DESKTOP) {
+                Section 'focus when the layout changes'
+                # The system reports no focus for a window on a desktop of its own, so this part needs the screen.
+                Note 'skipped on a desktop of its own: run part E on the screen'
+            }
+            elseif ($Parts.Contains('E')) {
                 Section 'focus when the layout changes'
                 # Where focus lands in the app can only be judged while its
                 # window is in front: one brought forward meanwhile takes the

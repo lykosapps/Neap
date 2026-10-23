@@ -40,6 +40,8 @@ namespace Neap.Core.Pretend;
 ///   focus first|next|previous  put the keyboard focus on the window's first control, or move it
 ///                           as Tab or Shift+Tab would, and say what took it
 ///   page NAME               open a page from the menu, such as audio
+///   mini                    open the mini panel, as a click on the icon by the clock does
+///   press NAME              press the control or menu item a screen reader calls NAME, in any of the app's windows
 /// </code>
 /// <para>
 /// The pipe is open to the current user only.
@@ -87,6 +89,21 @@ public sealed class PretendControl : IDisposable
     /// most of its actions do; this opens one with the window left where it is.
     /// </remarks>
     public Func<string, bool>? OpenPage { get; set; }
+
+    /// <summary>Gets or sets what opens the mini panel, as a click on the icon by the clock does.</summary>
+    /// <remarks>
+    /// The icon is the system's, out of the reach of UI Automation on Windows
+    /// 11 short of walking the notification area with the keyboard.
+    /// </remarks>
+    public Action? OpenMini { get; set; }
+
+    /// <summary>Gets or sets what presses the control or menu item a screen reader calls by a name, saying whether there is one.</summary>
+    /// <remarks>
+    /// Some menu items answer only Enter, which a script on a desktop of its
+    /// own cannot send: a key goes to the person's desktop. This presses them
+    /// inside the app instead.
+    /// </remarks>
+    public Func<string, bool>? Press { get; set; }
 
     /// <summary>Starts answering on the pipe, one script at a time.</summary>
     public void Start() => _serving ??= Task.Run(Serve);
@@ -181,6 +198,9 @@ public sealed class PretendControl : IDisposable
                 ("page", 2) => (OpenPage ?? throw new ArgumentException("there is no window to open a page in"))(words[1])
                     ? "ok" : throw new ArgumentException($"no page called '{words[1]}'"),
                 ("focus", 2) => (MoveFocus ?? throw new ArgumentException("there is no window to move focus in"))(MoveOf(words[1])),
+                ("mini", 1) => Done(OpenMini ?? throw new ArgumentException("there is no window to open the mini panel from")),
+                ("press", >= 2) => (Press ?? throw new ArgumentException("there is no window to press in"))(Rest(line))
+                    ? "ok" : throw new ArgumentException($"nothing called '{Rest(line)}' to press"),
                 _ => throw new ArgumentException($"not a command: '{line}'"),
             };
             return new JsonObject { ["ok"] = true, ["result"] = result }.ToJsonString();

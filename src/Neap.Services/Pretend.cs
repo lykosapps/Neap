@@ -249,12 +249,14 @@ public static class Pretend
         AppLog.Write($"pretend headset: answering on the pipe {PretendControl.DefaultPipe}");
     }
 
-    /// <summary>Lets a test script move the keyboard focus and open pages in the window; see <see cref="PretendControl.MoveFocus"/> and <see cref="PretendControl.OpenPage"/>.</summary>
-    public static void Drives(Func<FocusMove, JsonNode?> move, Func<string, bool> open)
+    /// <summary>Lets a test script move the keyboard focus, open pages and the mini panel, and press controls; see <see cref="PretendControl.MoveFocus"/>, <see cref="PretendControl.OpenPage"/>, <see cref="PretendControl.OpenMini"/> and <see cref="PretendControl.Press"/>.</summary>
+    public static void Drives(Func<FocusMove, JsonNode?> move, Func<string, bool> open, Action mini, Func<string, bool> press)
     {
         if (_control is null) return;
         _control.MoveFocus = move;
         _control.OpenPage = open;
+        _control.OpenMini = mini;
+        _control.Press = press;
     }
 
     public static void Stop() => _control?.Dispose();

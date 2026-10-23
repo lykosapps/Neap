@@ -95,12 +95,19 @@ preparing code for experienced reviewers.
   while the owner works. Every other check runs through
   `tools/pretend-quiet.ps1 -Run '<check> -Inside'` on a desktop of its own,
   such as `-Run 'tools\ui\run.ps1 notes -Inside'`, so it never waits for the
-  owner to be away. A check that sends real key presses cannot, as the keys
-  go to the owner's desktop: part B of `banner` (its menu item only answers
-  Enter), so `all` cannot either; and part K of the headset checks, the mix's
-  keyboard shortcuts. Those wait until the owner says they are away. Run
-  `banner -Parts ACDEF`, `notes`, `settings` and `profiles` quietly instead
-  of `all`.
+  owner to be away, `all` included. Menu items that answer only Enter are
+  pressed inside the practice run over its pipe (`press NAME`), and `mini`
+  opens the mini panel there, so no key is sent. Two parts still need the
+  screen: part E of `banner`, as the system reports no focus for a window on
+  a desktop of its own (it skips itself there), and part K of the headset
+  checks, the mix's keyboard shortcuts. Those wait until the owner says they
+  are away. `run.ps1 mini` checks the mini panel: its tiles' lists, a choice
+  from each, and Open Neap.
+- **Before tagging, run `tools\release-check.ps1`.** It reads, and changes
+  nothing: main checked out and clean, in step with GitHub both ways, the
+  unpushed commits scanned for anything identifying, the version, changelog
+  date and Unreleased section agreeing, no tag yet, and the backlog's items
+  for before the tag.
 - **Size the check to the change.** Notes and docs need only the build. A
   rule in Core needs its tests, and the check for its page if what the page
   shows changes. One screen needs that screen's check. What every screen

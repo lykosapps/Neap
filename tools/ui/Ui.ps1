@@ -182,11 +182,28 @@ function Press($Element) {
     }
     $found = $null
     if ($Element.TryGetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern, [ref]$found)) { $found.Select(); return }
-    # A menu item that only takes the keyboard: focus it and press Enter. Not
-    # on a desktop of its own, where the key would land on the person's.
-    if ($env:NEAP_QUIET_DESKTOP) { throw "'$($Element.Current.Name)' only answers a key press, which would go to the person's desktop; run this part on the screen" }
+    # A menu item that only takes the keyboard: focus it and press Enter. On a
+    # desktop of its own, where the key would land on the person's, the
+    # practice run presses it from inside instead.
+    if ($env:NEAP_QUIET_DESKTOP) { Send-Pretend "press $($Element.Current.Name)" | Out-Null; return }
     $Element.SetFocus()
     (New-Object -ComObject WScript.Shell).SendKeys('{ENTER}')
+}
+# Sends one line to a practice run's pipe and gives its answer; see
+# PretendControl for the lines it takes. The pipe serves one script at a time,
+# so this is for a check that does not hold it open itself.
+function Send-Pretend([string]$Line) {
+    $stream = New-Object System.IO.Pipes.NamedPipeClientStream('.', 'Neap.Pretend', [System.IO.Pipes.PipeDirection]::InOut)
+    try {
+        $stream.Connect(5000)
+        $writer = New-Object System.IO.StreamWriter($stream)
+        $writer.AutoFlush = $true
+        $writer.WriteLine($Line)
+        $reply = (New-Object System.IO.StreamReader($stream)).ReadLine() | ConvertFrom-Json
+        if (-not $reply.ok) { throw "the practice run would not do '$Line': $($reply.error)" }
+        $reply.result
+    }
+    finally { $stream.Dispose() }
 }
 # Opens a page from the rail by its name, and waits until it has drawn: its
 # heading is there and what is on it has stopped moving.
