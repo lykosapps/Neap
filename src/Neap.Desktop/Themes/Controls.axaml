@@ -34,7 +34,10 @@
         Motion.axaml sweeps it along while animation is on; with it off the
         line stands still, as everything else does. The toolkit's own
         indeterminate bar works out its sweep before it has a size, so it
-        sweeps nowhere.
+        sweeps nowhere. The stretch is not the toolkit's PART_Indicator, which
+        the bar sizes to its value, nothing, whenever it is not yet
+        indeterminate; that part is kept, empty and hidden, as the bar
+        requires one.
     -->
     <Style Selector="ProgressBar.busy">
         <Setter Property="Width" Value="48" />
@@ -45,11 +48,14 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Background="{DynamicResource NeapDialTrackBrush}" CornerRadius="2" ClipToBounds="True">
-                    <Border x:Name="PART_Indicator"
-                            Width="16"
-                            HorizontalAlignment="Left"
-                            Background="{DynamicResource NeapAccentFillBrush}"
-                            CornerRadius="2" />
+                    <Panel>
+                        <Border x:Name="PART_Indicator" IsVisible="False" />
+                        <Border x:Name="Stretch"
+                                Width="16"
+                                HorizontalAlignment="Left"
+                                Background="{DynamicResource NeapAccentFillBrush}"
+                                CornerRadius="2" />
+                    </Panel>
                 </Border>
             </ControlTemplate>
         </Setter>

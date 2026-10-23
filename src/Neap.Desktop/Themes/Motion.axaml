@@ -21,7 +21,7 @@
     </Style>
 
     <!-- The busy line's stretch of accent runs from before its start to past its end, over and over. -->
-    <Style Selector="ProgressBar.busy /template/ Border#PART_Indicator">
+    <Style Selector="ProgressBar.busy /template/ Border#Stretch">
         <Style.Animations>
             <Animation Duration="0:0:1.2" IterationCount="Infinite" Easing="SineEaseInOut">
                 <KeyFrame Cue="0%">
