@@ -807,7 +807,7 @@
     <value>Browse for a program…</value>
   </data>
   <data name="Profile_NeedsHeadset" xml:space="preserve">
-    <value>Turn the headset on to switch profiles or save one.</value>
+    <value>Neap can't reach the headset's settings.</value>
   </data>
   <data name="Profile_Reading" xml:space="preserve">
     <value>Reading the headset's settings…</value>

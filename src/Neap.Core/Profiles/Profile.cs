@@ -119,7 +119,7 @@ public enum ProfileReadiness
 {
     Ready,
 
-    /// <summary>The headset is off, out of range or unplugged: nothing can be written to it or read from it.</summary>
+    /// <summary>The headset's settings are out of reach, for whatever reason the header gives: nothing can be written to it or read from it.</summary>
     HeadsetNotAnswering,
 
     /// <summary>The headset answers, but its settings have not all been read yet.</summary>
