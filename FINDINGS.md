@@ -969,13 +969,24 @@ Setting the format again did not turn it purple in two tries, once with the
 microphone closed and once with it open, with nothing else playing. In both,
 the dock saw the playback stream stop, then start at the old rate for under
 40 ms and stop again, and never a playback stream at 96 kHz after the step.
-A silent stream opened on the headset sent the dock nothing at all. A
-playback stream of an inaudible tone, not captured, left the ring white
-too. The ring had turned purple by itself in an earlier gap, with no capture
-running and an unknown program playing, so the white state does not last for
-ever. Not known: whether the dock's ring follows the last stream to start,
-what turns it purple apart from the owner's confirmed cases with Discord and
-Teams playing, and whether the sound changes while it is white.
+A silent stream, and the stream of an inaudible tone, sent the dock nothing
+at all, and the ring stayed white.
+
+**Starting real playback turns it purple** *(seen on the wire, a second
+capture, owner reading the ring)*. With the ring white and nothing playing,
+the owner played music. The dock was sent the playback interface set to idle
+and then to its working setting 42 ms later, then the sampling frequency
+96 kHz; five seconds later the ring was purple. That is the only playback
+start in the capture, and the only thing that changed the ring after the
+microphone turned it white. So the ring follows the last stream the dock is
+told to start: the microphone, at 48 kHz, white; playback at 96 kHz, purple.
+Setting the format again turns it purple only when something is playing,
+because that makes Windows start the playing stream again at 96 kHz, which is
+the owner's confirmed case with Discord and Teams. With nothing playing, the
+ring stays white until anything plays, and then turns purple by itself, as it
+did between two tests earlier the same day. Whether the colour follows the
+rate or only the start, and whether the sound changes while the ring is
+white, are not known.
 
 **The Charging Dock can go silent at 96 kHz.** Windows was mixing at
 96 kHz, playing to the dock at a healthy level, with the sound link at 2,
