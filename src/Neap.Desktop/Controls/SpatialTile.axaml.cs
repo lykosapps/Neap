@@ -148,6 +148,9 @@ public partial class SpatialTile : UserControl
     {
         var spatial = Platform.Current.Spatial;
         var panel = await spatial.Read();
+        // Closed while reading, as the mini panel can be: a watch started now
+        // would never be stopped, and would act and ask from a tile no one sees.
+        if (!this.InWindow()) return;
 
         if (panel.EndpointId is { } id
             && SpatialCarryOver.ShouldCarryOver(_knownEndpointId, id, _known, panel.Active, panel.Unrecognised)
@@ -155,6 +158,7 @@ public partial class SpatialTile : UserControl
         {
             await ApplyAndHandle(_known.Value);
             panel = await spatial.Read();
+            if (!this.InWindow()) return;
         }
 
         Paint(panel);
