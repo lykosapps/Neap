@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Neap.Core.Mix;
 
@@ -37,6 +38,7 @@ public sealed class SideMeter : ISideMeter
     private TimeSpan? _listed;
     private readonly object _gate = new();
     private bool _disposed;
+    private bool _troubled;
 
     /// <summary>A meter over this system's applications, or null where it has none to read.</summary>
     /// <param name="chatApps">The applications that carry chat, asked afresh at each reading.</param>
@@ -49,17 +51,37 @@ public sealed class SideMeter : ISideMeter
         _chatApps = chatApps;
     }
 
-    /// <remarks>Silent when the headset is not the output in use: nothing to the headset is playing.</remarks>
+    /// <summary>Where a reading that failed is reported, once until one succeeds. Unset, nothing is.</summary>
+    public static Action<string>? Trouble { get; set; }
+
+    /// <remarks>
+    /// Silent when the headset is not the output in use: nothing to the
+    /// headset is playing. Silent too for the one reading in which the output
+    /// or an application goes away, as when a transmitter is unplugged; the
+    /// next reading lists them again.
+    /// </remarks>
     public SideLevel Read()
     {
         lock (_gate)
         {
             if (_disposed) return default;
-            if (_listed is not { } at || _clock.Elapsed - at >= Relist) List();
-            var peaks = _sessions
-                .Where(s => !s.Ours)
-                .Select(s => new SessionPeak(s.Program, s.Peak));
-            return SideLevels.Of(peaks, _chatApps());
+            try
+            {
+                if (_listed is not { } at || _clock.Elapsed - at >= Relist) List();
+                var peaks = _sessions
+                    .Where(s => !s.Ours)
+                    .Select(s => new SessionPeak(s.Program, s.Peak));
+                var level = SideLevels.Of(peaks, _chatApps());
+                _troubled = false;
+                return level;
+            }
+            catch (COMException ex)
+            {
+                _listed = null;
+                if (!_troubled) Trouble?.Invoke($"the meters lost the output or an application, so they list them again: {ex.Message}");
+                _troubled = true;
+                return default;
+            }
         }
     }
 

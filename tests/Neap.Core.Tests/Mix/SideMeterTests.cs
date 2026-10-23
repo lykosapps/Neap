@@ -20,9 +20,13 @@ public class SideMeterTests
         public string Id => "headset";
         public string Name => "Headset";
         public int Listed { get; private set; }
+        /// <summary>How many listings fail before one succeeds, as a device being unplugged fails.</summary>
+        public int Failing { get; set; }
         public IReadOnlyList<IPlaybackSession> Sessions()
         {
             Listed++;
+            // AUDCLNT_E_DEVICE_INVALIDATED, raised as the runtime raises it for Windows.
+            if (Failing-- > 0) System.Runtime.InteropServices.Marshal.ThrowExceptionForHR(unchecked((int)0x88890004));
             return sessions;
         }
         public void Dispose() { }
@@ -56,6 +60,17 @@ public class SideMeterTests
         meter.Read();
 
         Assert.Equal(1, device.Listed);
+    }
+
+    [Fact]
+    public void ADeviceGoingAwayReadsAsSilenceAndIsListedAgain()
+    {
+        var device = new Device(new Session("Game", 0.7f)) { Failing = 1 };
+        using var meter = new SideMeter(new Playback(device), () => []);
+
+        Assert.Equal(default, meter.Read());
+        Assert.Equal(new SideLevel(0.7f, 0), meter.Read());
+        Assert.Equal(2, device.Listed);
     }
 
     [Fact]
