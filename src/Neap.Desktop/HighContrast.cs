@@ -94,6 +94,8 @@ internal static class HighContrast
         Brush("NeapPresetHoverBrush", p.Window);
         Brush("NeapCurveGapBrush", p.Gray);
         Brush("NeapPresetSelectedBrush", p.Window);
+        // A chosen list item or option keeps the text colour, so it is not filled in the highlight.
+        Brush("NeapSelectedBrush", p.Window);
 
         // Cards, setting rows and tiles share the window colour here, so an outline is all that sets their edge.
         Brush("NeapCardStrokeBrush", p.Text);
