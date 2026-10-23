@@ -94,14 +94,28 @@ public sealed class QuickTile : Grid
     /// <summary>Offers the setting's choices in the tile's list, the current one ticked.</summary>
     /// <param name="choices">Each choice's word, whether it is the current one, and what choosing it does.</param>
     /// <param name="canChoose">Whether a choice can be made now.</param>
+    /// <remarks>
+    /// The same choices only move the tick. Choosing from the list changes the
+    /// setting, which is offered again as the list closes, and items replaced
+    /// then leave the list taking itself for open, so the next click anywhere
+    /// in the panel only closes it.
+    /// </remarks>
     public void Offer(IEnumerable<(string Word, bool Current, Action Choose)> choices, bool canChoose)
     {
-        _choices.Items.Clear();
-        foreach (var (word, current, choose) in choices)
+        var offered = choices.ToList();
+        if (offered.Select(c => c.Word).SequenceEqual(_choices.Items.OfType<MenuItem>().Select(i => i.Header as string)))
         {
-            var item = new MenuItem { Header = word, ToggleType = MenuItemToggleType.Radio, IsChecked = current };
-            item.Click += (_, _) => choose();
-            _choices.Items.Add(item);
+            foreach (var (item, (_, current, _)) in _choices.Items.OfType<MenuItem>().Zip(offered)) item.IsChecked = current;
+        }
+        else
+        {
+            _choices.Items.Clear();
+            foreach (var (word, current, choose) in offered)
+            {
+                var item = new MenuItem { Header = word, ToggleType = MenuItemToggleType.Radio, IsChecked = current };
+                item.Click += (_, _) => choose();
+                _choices.Items.Add(item);
+            }
         }
         _more.IsVisible = _choices.Items.Count > 1;
         _more.IsEnabled = canChoose;
