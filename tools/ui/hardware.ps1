@@ -178,7 +178,10 @@ Protect-RealRun {
         Check ((Get-OutputFormat) -eq '24-bit, 96 kHz (Studio quality)') "the format is $(Get-OutputFormat)"
     }
 
-    if ($Parts.Contains('K')) {
+    if ($Parts.Contains('K') -and $env:NEAP_QUIET_DESKTOP) {
+        Check $false 'the shortcuts send key presses, which would go to the person''s desktop; run part K on the screen'
+    }
+    elseif ($Parts.Contains('K')) {
         Section 'the mix, the shortcuts and recovery'
         $settings = Get-Content (Join-Path $env:LOCALAPPDATA 'Neap\app-settings.json') -Raw | ConvertFrom-Json
         Note ("chat apps: {0}; shortcuts were on: {1}" -f ($settings.chat_apps -join ', '), $settings.mix_hotkeys)

@@ -182,7 +182,9 @@ function Press($Element) {
     }
     $found = $null
     if ($Element.TryGetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern, [ref]$found)) { $found.Select(); return }
-    # A menu item that only takes the keyboard: focus it and press Enter.
+    # A menu item that only takes the keyboard: focus it and press Enter. Not
+    # on a desktop of its own, where the key would land on the person's.
+    if ($env:NEAP_QUIET_DESKTOP) { throw "'$($Element.Current.Name)' only answers a key press, which would go to the person's desktop; run this part on the screen" }
     $Element.SetFocus()
     (New-Object -ComObject WScript.Shell).SendKeys('{ENTER}')
 }

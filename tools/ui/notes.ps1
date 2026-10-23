@@ -33,7 +33,13 @@ function Test-Fits($Dialog) {
     $script:Handle = [IntPtr]$Dialog.Current.NativeWindowHandle
     Wait-Stable { (Get-NeapRect).Right } | Out-Null
     $edge = $Dialog.Current.BoundingRectangle
-    $lines = @($Dialog.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty $text)) | Where-Object { -not $_.Current.IsOffscreen -and $_.Current.Name })
+    # Only lines within the dialog: a desktop of its own, as pretend-quiet
+    # gives, calls nothing offscreen, and a line scrolled far out of view
+    # can still be measured at its unwrapped width.
+    $lines = @($Dialog.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty $text)) | Where-Object {
+        $box = $_.Current.BoundingRectangle
+        -not $_.Current.IsOffscreen -and $_.Current.Name -and $box.Top -ge $edge.Top -and $box.Bottom -le $edge.Bottom
+    })
     $over = @($lines | Where-Object { $_.Current.BoundingRectangle.Right -gt $edge.Right - 8 })
     foreach ($line in $over) { Note ("runs past the edge: '{0}'" -f $line.Current.Name) }
     Check ($lines.Count -gt 0 -and $over.Count -eq 0) "every line of the notes fits inside the dialog ($($lines.Count) read)"

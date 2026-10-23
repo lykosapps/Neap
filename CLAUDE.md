@@ -92,8 +92,15 @@ preparing code for experienced reviewers.
   pretend Atlas Air. `looks.ps1` has the app draw every page in dark,
   light and high contrast for a person to look over; it opens the app behind
   other windows without taking the keyboard, needs no screen, and can run
-  while the owner works. Every other check takes the screen and the
-  keyboard, so it waits until the owner says they are away.
+  while the owner works. Every other check runs through
+  `tools/pretend-quiet.ps1 -Run '<check> -Inside'` on a desktop of its own,
+  such as `-Run 'tools\ui\run.ps1 notes -Inside'`, so it never waits for the
+  owner to be away. A check that sends real key presses cannot, as the keys
+  go to the owner's desktop: part B of `banner` (its menu item only answers
+  Enter), so `all` cannot either; and part K of the headset checks, the mix's
+  keyboard shortcuts. Those wait until the owner says they are away. Run
+  `banner -Parts ACDEF`, `notes`, `settings` and `profiles` quietly instead
+  of `all`.
 - **Size the check to the change.** Notes and docs need only the build. A
   rule in Core needs its tests, and the check for its page if what the page
   shows changes. One screen needs that screen's check. What every screen

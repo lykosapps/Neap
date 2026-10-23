@@ -111,6 +111,9 @@ try {
     $process = New-Object Neap.Desktops+ProcessInfo
     $script, $arguments = $Run -split ' ', 2
     $command = 'cmd /c powershell -NoProfile -ExecutionPolicy Bypass -File "{0}" {1} > "{2}" 2>&1 & echo == finished >> "{2}"' -f (Join-Path $root $script), $arguments, $log
+    # Inherited by the run, so a check that would send a key press refuses:
+    # keys go to the person's desktop, not this one.
+    $env:NEAP_QUIET_DESKTOP = '1'
     if (-not [Neap.Desktops]::CreateProcess($none, $command, [IntPtr]::Zero, [IntPtr]::Zero, $false, 0, [IntPtr]::Zero, $root, [ref]$startup, [ref]$process)) {
         throw "could not start the run ($([Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
     }
