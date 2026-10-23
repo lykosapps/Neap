@@ -105,7 +105,11 @@ preparing code for experienced reviewers.
   forward. `tools/pretend-quiet.ps1` runs it on a desktop of its own, so it
   interrupts nobody and can run while the owner works; it stops at once if a
   practice window ever shows on the owner's desktop. Its Windows steps still
-  change the PC's volume, mute and audio format for a moment. It is known to
+  change the PC's volume, mute and audio format for a moment. With `-Run` it
+  runs the headset checks that send no keys the same way, such as
+  `-Run 'tools\ui\run.ps1 hardware -Parts BLT -Inside'`; with no tray on that
+  desktop, the sign-in check's "opens no window" step fails there, so check it
+  on the owner's desktop. It is known to
   trip on timing in a different place some runs, where it looks for a control
   once rather than waiting for it; read each failure before calling it a bug,
   and rerun.
