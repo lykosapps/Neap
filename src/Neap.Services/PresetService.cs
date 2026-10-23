@@ -379,11 +379,17 @@ public sealed class PresetService
     }
 
     /// <summary>Puts back every curve taken off for a comparison, for when the app is closing; the writes are queued, not waited for.</summary>
-    public void EndAllCompares()
+    /// <returns>Whether any curve was put back, so the writes are worth waiting for.</returns>
+    public bool EndAllCompares()
     {
+        bool any = false;
         foreach (var (bank, hold) in _compares)
             if (_banks.TryGetValue(bank, out var state) && hold.Release() is { } owed)
+            {
                 Restore(state, owed);
+                any = true;
+            }
+        return any;
     }
 
     private CompareHold Compare(Bank bank)

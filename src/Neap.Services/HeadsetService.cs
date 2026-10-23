@@ -478,6 +478,22 @@ public sealed class HeadsetService : IDisposable
 
     private static async Task<T> Unwrap<T>(Task<object?> task) => (T)(await task)!;
 
+    /// <summary>Waits, up to <paramref name="wait"/>, for the work queued so far to be done.</summary>
+    /// <remarks>
+    /// For closing: the worker stops at the next turn of its loop, ahead of
+    /// anything still queued. The wait is on the job itself rather than an
+    /// await, so it can be made from the UI thread without waiting on that
+    /// thread to run a continuation.
+    /// </remarks>
+    /// <returns>Whether it was done in time. Work that failed for want of a headset counts as done.</returns>
+    public bool Flush(TimeSpan wait)
+    {
+        var done = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        try { _jobs.Add(new Job(_ => null, done)); }
+        catch (InvalidOperationException) { return true; }
+        return ((IAsyncResult)done.Task).AsyncWaitHandle.WaitOne(wait);
+    }
+
     /// <summary>A full re-read of every settings category. Around 1.2 seconds.</summary>
     public Task Refresh() => Post(client =>
     {

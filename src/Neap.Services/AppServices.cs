@@ -74,8 +74,10 @@ public static class AppServices
     {
         if (_stopped) return;
         _stopped = true;
-        // Before the headset is let go, so a curve taken off for a comparison goes back on.
-        Presets?.EndAllCompares();
+        // Before the headset is let go, and waited for, so a curve taken off
+        // for a comparison goes back on: letting go stops the queue first.
+        if (Presets?.EndAllCompares() == true && Headset?.Flush(TimeSpan.FromSeconds(2)) == false)
+            AppLog.Write("equaliser: closing before the curve taken off for a comparison was all put back");
         Updates?.Dispose();
         Recorder?.Dispose();
         MicFollow?.Dispose();
