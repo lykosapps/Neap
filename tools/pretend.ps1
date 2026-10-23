@@ -105,14 +105,17 @@ function Check([bool]$condition, [string]$what) { if ($condition) { Pass $what }
 
 # Samples a condition until it holds or the time runs out: one reading after
 # the fact says where a value settled, not whether it moved.
+# A condition that meets a control not there yet, such as one on a page still
+# being drawn, is "not yet" rather than an error that ends the walk.
 function Until([scriptblock]$condition, [double]$seconds = 3) {
+    $met = { try { [bool](& $condition) } catch { $false } }
     $clock = [Diagnostics.Stopwatch]::StartNew()
     while ($clock.Elapsed.TotalSeconds -lt $seconds) {
         Watch
-        if (& $condition) { return $true }
+        if (& $met) { return $true }
         Start-Sleep -Milliseconds 100
     }
-    return [bool](& $condition)
+    return (& $met)
 }
 
 # The run happens while somebody works: the app must never come to the
