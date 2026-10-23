@@ -29,6 +29,22 @@ public class StatusLookTests
         Assert.Equal(new StatusLook(Headline.NoSound, Tone.Caution), look);
     }
 
+    [Theory]
+    [InlineData(Link.Quiet)]
+    [InlineData(Link.Connecting)]
+    [InlineData(Link.Absent)]
+    public void WithoutAccessNothingElseCanBeKnown(Link link)
+    {
+        var look = StatusLook.Of(new HeadsetStatus(link, Route.ChargingDock, "", ""), noAccess: true);
+
+        Assert.Equal(new StatusLook(Headline.NoAccess, Tone.Critical), look);
+    }
+
+    [Fact]
+    public void AHeadsetThatAnswersHasAccess() =>
+        Assert.Equal(Headline.Connected,
+            StatusLook.Of(new HeadsetStatus(Link.Connected, Route.ChargingDock, "", ""), noAccess: true).Headline);
+
     [Fact]
     public void SoundSentElsewhereDoesNotHideAHeadsetThatIsOff()
     {

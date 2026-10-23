@@ -29,6 +29,7 @@ public static class StateCopy
         Headline.HeadsetOff => Strings.Get("State_HeadsetOff"),
         Headline.NotConnected => Strings.Get("State_NotConnected"),
         Headline.Connecting => Strings.Get("State_Connecting"),
+        Headline.NoAccess => Strings.Get("State_NoAccess"),
         _ => Strings.Get("State_NothingPluggedIn"),
     };
 

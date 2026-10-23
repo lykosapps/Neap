@@ -10,6 +10,7 @@ public enum Headline
     NotConnected,
     Connecting,
     NothingPluggedIn,
+    NoAccess,
 }
 
 /// <summary>How worried the colour beside a headline should look.</summary>
@@ -21,8 +22,9 @@ public enum Tone { Good, Caution, Neutral, Critical }
 /// <remarks>
 /// Settings out of reach and switched off are neutral rather than cautions:
 /// sound usually still plays in the first, and the second is somebody's
-/// choice. Settings out of reach with the sound gone too is a caution. Only
-/// "nothing plugged in" is critical.
+/// choice. Settings out of reach with the sound gone too is a caution.
+/// "Nothing plugged in" and "no access" are critical: nothing works until the
+/// person acts.
 /// </remarks>
 public readonly record struct StatusLook(Headline Headline, Tone Tone)
 {
@@ -32,8 +34,13 @@ public readonly record struct StatusLook(Headline Headline, Tone Tone)
     /// Nothing is heard, whatever the headset says, so a connected headset
     /// reads as no sound rather than as all well.
     /// </param>
-    public static StatusLook Of(HeadsetStatus status, bool soundElsewhere = false) => status.Link switch
+    /// <param name="noAccess">
+    /// The system will not let Neap open the headset. Until it does, Neap
+    /// cannot tell whether the headset is on, so that is all it says.
+    /// </param>
+    public static StatusLook Of(HeadsetStatus status, bool soundElsewhere = false, bool noAccess = false) => status.Link switch
     {
+        not Link.Connected when noAccess => new(Headline.NoAccess, Tone.Critical),
         Link.Connected when status.NoSound || soundElsewhere => new(Headline.NoSound, Tone.Caution),
         Link.Connected => new(Headline.Connected, Tone.Good),
         Link.Silent when status.NoSound => new(Headline.SettingsUnavailable, Tone.Caution),

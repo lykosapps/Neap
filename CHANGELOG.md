@@ -185,6 +185,9 @@ and date.
   list was redrawn each time, taking the slider away from under the pointer.
 - On Home, the dot beside how the headset is connected sits level with its
   words, and the headset's name and readings sit in the middle of their card.
+- On Linux, while the system keeps Neap from the headset, the title bar,
+  Home, the mini panel and the notification-area icon say "No access",
+  rather than "Not connected" with a hint that the headset is off.
 - The connection status no longer shows the device's technical description
   when you point at it, and Home's connection line has no tooltip repeating
   what Home already says.

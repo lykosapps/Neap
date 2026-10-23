@@ -503,6 +503,9 @@
   <data name="State_NothingPluggedIn" xml:space="preserve">
     <value>Nothing plugged in</value>
   </data>
+  <data name="State_NoAccess" xml:space="preserve">
+    <value>No access</value>
+  </data>
   <data name="State_WhatUnreachable" xml:space="preserve">
     <value>Neap can't reach your headset's settings right now. Sound, volume and the headset's own buttons still work.</value>
   </data>

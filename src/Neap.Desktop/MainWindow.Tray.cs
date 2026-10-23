@@ -81,6 +81,7 @@ public partial class MainWindow : IDisposable
         AppServices.Headset.StatusChanged += _ => Dispatcher.UIThread.Post(PaintTray);
         AppServices.Headset.Changed += () => Dispatcher.UIThread.Post(PaintTray);
         AppServices.AudioRoute.Changed += () => Dispatcher.UIThread.Post(PaintTray);
+        AppServices.Headset.AccessChanged += PaintTray;
         PaintTray();
     }
 
@@ -147,7 +148,8 @@ public partial class MainWindow : IDisposable
     {
         if (_tray is null) return;
         var status = AppServices.Headset.Status;
-        string state = StateCopy.Label(StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status)).Headline);
+        string state = StateCopy.Label(StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status),
+            AppServices.Headset.AccessDenied).Headline);
         string text = AppServices.Headset.Battery is { Settling: false } battery
             ? Strings.Format(battery.Charging ? "Tray_StateCharging" : "Tray_StateBattery", Title ?? AppInfo.Name, state, battery.Percent)
             : Strings.Format("Tray_State", Title ?? AppInfo.Name, state);

@@ -101,7 +101,7 @@ public partial class QuickControls : UserControl
 
         HeadsetName.Text = HeadsetTitle.Current();
 
-        var look = StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status));
+        var look = StatusLook.Of(status, AppServices.AudioRoute.SoundElsewhere(status), headset.AccessDenied);
         Tones.Apply(StateDot, look.Tone);
         bool cable = AppServices.AudioRoute.OverCable(status);
         HowConnected.Text = Connection(status, cable, look.Headline);
