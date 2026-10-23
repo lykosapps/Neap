@@ -105,7 +105,6 @@ public partial class QuickControls : UserControl
         Tones.Apply(StateDot, look.Tone);
         bool cable = AppServices.AudioRoute.OverCable(status);
         HowConnected.Text = Connection(status, cable, look.Headline);
-        ToolTip.SetTip(HowConnected, status.Detail);
 
         if (headset.Battery is { } battery)
         {

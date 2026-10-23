@@ -42,12 +42,14 @@ public partial class HeadsetStatusStrip : UserControl
         Tones.Apply(ConnectionDot, look.Tone);
         ConnectionText.Text = StateCopy.Label(look.Headline);
 
-        // No sound happens while connected, where Detail names the device, so
-        // the tooltip explains the state instead, in the same words as Home.
-        ToolTip.SetTip(ConnectionGroup, look.Headline != Headline.NoSound
+        // No sound happens while connected, where there is no Detail, so the
+        // tooltip explains the state instead, in the same words as Home. A
+        // working connection needs no tooltip at all.
+        string tip = look.Headline != Headline.NoSound
             ? status.Detail
             : status.NoSound
                 ? StateCopy.WhatNoSound + " " + StateCopy.FixNoSound
-                : StateCopy.SoundElsewhere);
+                : StateCopy.SoundElsewhere;
+        ToolTip.SetTip(ConnectionGroup, tip.Length > 0 ? tip : null);
     }
 }

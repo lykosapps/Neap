@@ -709,7 +709,7 @@ public sealed class HeadsetService : IDisposable
                     // this catches is one the app can start up already in.
                     _lastLinkFlag = null;
                     LinkFlagMoved();
-                    Publish(_link.Answering(elsewhere, route, adapter, carrying, client.Device, product));
+                    Publish(_link.Answering(elsewhere, route, adapter, carrying, product));
                 }
 
                 // Queued work first: a slider write waiting behind a poll
@@ -726,7 +726,7 @@ public sealed class HeadsetService : IDisposable
                     LetGo(ref client);
                     continue;
                 }
-                Publish(_link.Cable(elsewhere, route, adapter, carrying, client.Device, product));
+                Publish(_link.Cable(elsewhere, route, adapter, carrying, product));
 
                 var events = client.ReadOnce();
                 if (events.Count > 0)
@@ -810,7 +810,7 @@ public sealed class HeadsetService : IDisposable
                         // the selection: the device answering goes on answering
                         // (measured every time), so reopening only finds it
                         // again after four seconds of "Connecting" on screen.
-                        Publish(_link.Answering(elsewhere, route, adapter, carrying, client.Device, product));
+                        Publish(_link.Answering(elsewhere, route, adapter, carrying, product));
                     }
                 }
 

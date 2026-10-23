@@ -21,10 +21,10 @@ public class LinkTrackerTests
     private void After(double seconds) => _now += TimeSpan.FromSeconds(seconds);
 
     private HeadsetStatus? OnTheDock() =>
-        _link.Answering(false, Route.ChargingDock, "Charging Dock", "Charging Dock", "device", "229B");
+        _link.Answering(false, Route.ChargingDock, "Charging Dock", "Charging Dock", "229B");
 
     private HeadsetStatus? OnTheCable() =>
-        _link.Answering(false, Route.DirectUsb, "Headset", "Headset", "device", "229E");
+        _link.Answering(false, Route.DirectUsb, "Headset", "Headset", "229E");
 
     [Fact]
     public void StartsOutLooking()
@@ -43,13 +43,15 @@ public class LinkTrackerTests
         Assert.Equal(Route.ChargingDock, status.Route);
         Assert.Equal("Charging Dock", status.Adapter);
         Assert.False(status.NoSound);
+        // Nothing more to say about a working connection, least of all the device's own description.
+        Assert.Equal("", status.Detail);
     }
 
     [Fact]
     public void SoundAndSettingsCanBeOnDifferentTransmitters()
     {
         var status = _link.Answering(true, Route.ChargingDock, "Charging Dock",
-            "USB Transmitter", "device", "229D");
+            "USB Transmitter", "229D");
 
         Assert.NotNull(status);
         Assert.Equal(Link.Connected, status.Link);
@@ -136,7 +138,7 @@ public class LinkTrackerTests
     {
         OnTheDock();
         _link.Lost(Dock, [Transmitter], "lost");
-        _link.Answering(false, Route.UsbTransmitter, "USB Transmitter", "USB Transmitter", "device", "229D");
+        _link.Answering(false, Route.UsbTransmitter, "USB Transmitter", "USB Transmitter", "229D");
 
         Assert.Equal(Link.Quiet, _link.Unreachable([Transmitter])?.Link);
     }
@@ -169,9 +171,9 @@ public class LinkTrackerTests
         Assert.Null(OnTheCable());
 
         After(4.9);
-        Assert.Null(_link.Cable(false, Route.DirectUsb, "Headset", "Headset", "device", "229E"));
+        Assert.Null(_link.Cable(false, Route.DirectUsb, "Headset", "Headset", "229E"));
         After(0.1);
-        var status = _link.Cable(false, Route.DirectUsb, "Headset", "Headset", "device", "229E");
+        var status = _link.Cable(false, Route.DirectUsb, "Headset", "Headset", "229E");
 
         Assert.NotNull(status);
         Assert.True(status.SwitchedOff);
@@ -192,7 +194,7 @@ public class LinkTrackerTests
         Assert.Equal(Link.Quiet, _link.Status.Link);
 
         After(LinkTracker.OffGrace.TotalSeconds);
-        Assert.True(_link.Cable(false, Route.DirectUsb, "Headset", "Headset", "device", "229E")?.SwitchedOff);
+        Assert.True(_link.Cable(false, Route.DirectUsb, "Headset", "Headset", "229E")?.SwitchedOff);
     }
 
     [Fact]
@@ -200,10 +202,10 @@ public class LinkTrackerTests
     {
         OnTheCable();
         After(5);
-        _link.Cable(false, Route.DirectUsb, "Headset", "Headset", "device", "229E");
+        _link.Cable(false, Route.DirectUsb, "Headset", "Headset", "229E");
 
         _cabled = true;
-        var status = _link.Cable(false, Route.DirectUsb, "Headset", "Headset", "device", "229E");
+        var status = _link.Cable(false, Route.DirectUsb, "Headset", "Headset", "229E");
 
         Assert.Equal(Link.Connected, status?.Link);
         Assert.Equal(Route.DirectUsb, status?.Route);
@@ -273,7 +275,7 @@ public class LinkTrackerTests
     }
 
     private HeadsetStatus? OnTheTransmitter() =>
-        _link.Answering(false, Route.UsbTransmitter, "USB Transmitter", "USB Transmitter", "device", "229D");
+        _link.Answering(false, Route.UsbTransmitter, "USB Transmitter", "USB Transmitter", "229D");
 
     /// <summary>Connected on the Dock, then switched off.</summary>
     private void SwitchedOffOnTheDock()

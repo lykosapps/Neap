@@ -35,14 +35,14 @@ public class ConnectionMatrixTests
 
     private void OnTheDock()
     {
-        _link.Answering(false, Route.ChargingDock, "Charging Dock", "Charging Dock", "d", "229B");
+        _link.Answering(false, Route.ChargingDock, "Charging Dock", "Charging Dock", "229B");
         _link.SoundLink(2);
         _link.Refresh();
     }
 
     private void SettingsOnTheDockSoundOnTheTransmitter()
     {
-        _link.Answering(true, Route.ChargingDock, "Charging Dock", "USB Transmitter", "d", "229D");
+        _link.Answering(true, Route.ChargingDock, "Charging Dock", "USB Transmitter", "229D");
         _link.SoundLink(2);
         _link.Refresh();
     }
@@ -134,7 +134,7 @@ public class ConnectionMatrixTests
         OnTheDock();
         TurnedOff(Dock, Transmitter);
         _link.SoundLink(0);
-        _link.Answering(false, Route.UsbTransmitter, "USB Transmitter", "USB Transmitter", "t", "229D");
+        _link.Answering(false, Route.UsbTransmitter, "USB Transmitter", "USB Transmitter", "229D");
 
         Assert.Equal(Headline.NotConnected, Look.Headline);
     }
@@ -165,7 +165,7 @@ public class ConnectionMatrixTests
     public void OnItsCable()
     {
         _cabled = true;
-        _link.Answering(false, Route.DirectUsb, "Headset", "Headset", "h", "229E");
+        _link.Answering(false, Route.DirectUsb, "Headset", "Headset", "229E");
 
         Assert.Equal(Headline.Connected, Look.Headline);
         Assert.Equal(Route.DirectUsb, _link.Status.Route);
@@ -177,9 +177,9 @@ public class ConnectionMatrixTests
         OnItsCable();
         _cabled = false;
         After(LinkTracker.OffGrace.TotalSeconds);
-        _link.Cable(false, Route.DirectUsb, "Headset", "Headset", "h", "229E");
+        _link.Cable(false, Route.DirectUsb, "Headset", "Headset", "229E");
         After(LinkTracker.OffGrace.TotalSeconds);
-        _link.Cable(false, Route.DirectUsb, "Headset", "Headset", "h", "229E");
+        _link.Cable(false, Route.DirectUsb, "Headset", "Headset", "229E");
 
         Assert.Equal(new StatusLook(Headline.HeadsetOff, Tone.Neutral), Look);
     }
