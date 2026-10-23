@@ -133,7 +133,7 @@ public partial class QuickControls : UserControl
         }
         _signal.Panel.IsVisible = showSignal;
 
-        PaintNote(StateNote.For(status, _plugged is { Looked: true } plugged ? plugged.Products : null, headset.ReadOnly));
+        PaintNote(StateNote.For(status, _plugged is { Looked: true } plugged ? plugged.Products : null, headset.ReadOnly, headset.TransmitterStopped));
         Fold(MixCard, SectionFold.For(status, whenOff: true, headset.AccessDenied));
         Fold(SettingsCard, SectionFold.For(status, whenOff: false, headset.AccessDenied));
     }
@@ -258,6 +258,7 @@ public partial class QuickControls : UserControl
             // No fallback: a cable has no out of range, and nothing to press.
             Note.OffOnCable => (StateCopy.WhatOffOnCable, "", StateCopy.FixOff, ""),
             Note.Off => (StateCopy.WhatOff, "", StateCopy.FixOff, StateCopy.FallbackOff),
+            Note.Stopped => (StateCopy.WhatStopped, "", StateCopy.FixStopped, ""),
             // Nothing to do: it is how Neap works with this headset for now.
             Note.ReadOnly => (StateCopy.WhatReadOnly, "", "", ""),
             _ => null,

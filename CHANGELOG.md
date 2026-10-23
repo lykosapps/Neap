@@ -11,6 +11,12 @@ and date.
 
 ## Unreleased
 
+### Fixed
+
+- On Linux, when a transmitter stays silent after Neap has restarted it,
+  Home asks you to unplug it and plug it back in. It used to say the headset
+  was off or out of range, though switching it on could not help.
+
 ## 0.3.0 — 2026-10-23
 
 **A redesigned Neap for the Stealth Pro II.**

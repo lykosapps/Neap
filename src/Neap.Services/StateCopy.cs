@@ -68,6 +68,12 @@ public static class StateCopy
 
     public static string FallbackOff => Strings.Get("State_FallbackOff");
 
+    // -- a transmitter that has stopped answering ----------------------------
+
+    public static string WhatStopped => Strings.Get("State_WhatStopped");
+
+    public static string FixStopped => Strings.Get("State_FixStopped");
+
     // -- switched off, on its cable -------------------------------------------
 
     /// <summary>

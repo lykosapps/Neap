@@ -28,6 +28,9 @@ public sealed class SilentRestarts
         return silent.Where(_restarted.Add).ToList();
     }
 
+    /// <summary>Whether a device has been restarted since it was plugged in.</summary>
+    public bool Restarted(string path) => _restarted.Contains(path);
+
     /// <summary>Makes a device due again, after a restart that could not be tried at all, such as one the system refused.</summary>
     public void Retry(string path) => _restarted.Remove(path);
 

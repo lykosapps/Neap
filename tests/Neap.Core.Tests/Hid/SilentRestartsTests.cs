@@ -14,6 +14,17 @@ public class SilentRestartsTests
     }
 
     [Fact]
+    public void ADeviceRestartedSaysSoUntilItIsPluggedInAgain()
+    {
+        var restarts = new SilentRestarts();
+        restarts.Due(["/dev/hidraw0"], ["/dev/hidraw0"]);
+
+        Assert.True(restarts.Restarted("/dev/hidraw0"));
+        restarts.Due([], []);
+        Assert.False(restarts.Restarted("/dev/hidraw0"));
+    }
+
+    [Fact]
     public void ADevicePluggedInAgainCanBeRestartedAgain()
     {
         var restarts = new SilentRestarts();

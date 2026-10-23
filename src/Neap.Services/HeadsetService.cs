@@ -161,7 +161,14 @@ public sealed class HeadsetService : IDisposable
     /// </summary>
     public bool AccessOutOfDate { get; private set; }
 
-    /// <summary><see cref="AccessDenied"/> or <see cref="AccessOutOfDate"/> changed. Raised on the UI thread.</summary>
+    /// <summary>
+    /// Whether a transmitter still gives no answer of its own after Neap
+    /// restarted it, which only plugging it in again puts right; see
+    /// <see cref="RestartSilent"/>.
+    /// </summary>
+    public bool TransmitterStopped { get; private set; }
+
+    /// <summary><see cref="AccessDenied"/>, <see cref="AccessOutOfDate"/> or <see cref="TransmitterStopped"/> changed. Raised on the UI thread.</summary>
     public event Action? AccessChanged;
 
     private void SetAccessDenied(bool denied, bool outOfDate = false)
@@ -172,6 +179,16 @@ public sealed class HeadsetService : IDisposable
         AppLog.Write(!denied ? "headset: the system lets this user open it"
             : outOfDate ? "headset: the access rule needs bringing up to date before the transmitter can answer"
             : "headset: the system does not let this user open it");
+        _ui.Post(() => AccessChanged?.Invoke());
+    }
+
+    private void SetTransmitterStopped(bool stopped)
+    {
+        if (TransmitterStopped == stopped) return;
+        TransmitterStopped = stopped;
+        AppLog.Write(stopped
+            ? "headset: the transmitter still gives no answer after its restart, so the person is asked to plug it in again"
+            : "headset: the transmitter answers again");
         _ui.Post(() => AccessChanged?.Invoke());
     }
 
@@ -647,6 +664,7 @@ public sealed class HeadsetService : IDisposable
         int beats = 0;
         long nextWatch = 0, lastAsk = 0;
         int watches = 0;
+        string[] watched = Watched;
         string carrying = "";
         string product = "";
         bool elsewhere = false;
@@ -709,6 +727,9 @@ public sealed class HeadsetService : IDisposable
                         AppLog.Write($"headset: no answer for its {group} settings, which have no reading until it reports them"
                             + (heard is null ? "" : $"; it sent {heard} instead"));
                     primed = true;
+                    // Only the groups this headset has: one it lacks costs a
+                    // whole window each time, unanswered.
+                    watched = [.. Watched.Intersect(Categories())];
                     unanswered = 0;
                     beats = 0;
                     nextBeat = Stopwatch.GetTimestamp() + BeatTicks;
@@ -833,12 +854,12 @@ public sealed class HeadsetService : IDisposable
                 // The values the headset may not announce, asked for in turn.
                 // Not straight after another request, which it would drop.
                 long asking = Stopwatch.GetTimestamp();
-                if (primed && client is not null && asking >= nextWatch
+                if (primed && client is not null && watched.Length > 0 && asking >= nextWatch
                     && asking - lastAsk >= AskGap.TotalSeconds * Stopwatch.Frequency)
                 {
                     // A group a write has changed without the headset saying so
                     // goes first.
-                    string group = Interlocked.Exchange(ref _readNext, null) ?? Watched[watches++ % Watched.Length];
+                    string group = Interlocked.Exchange(ref _readNext, null) ?? watched[watches++ % watched.Length];
                     var seen = client.ReadCategory(group, BeatWindow);
                     if (seen.Count > 0) Merge(seen, authoritative: false);
                     lastAsk = Stopwatch.GetTimestamp();
@@ -1050,12 +1071,13 @@ public sealed class HeadsetService : IDisposable
         }, _askedBefore ? null : FirstAsk);
         _askedBefore = true;
         _askLast = null;
-        bool outOfDate = false;
+        bool outOfDate = false, stopped = false;
         if (client is null && OperatingSystem.IsLinux() && _devices is SystemDevices)
         {
-            var (refused, old) = RestartSilent(silent);
+            var (refused, old, still) = RestartSilent(silent);
             denied |= refused;
             outOfDate = old && !denied;
+            stopped = still && !denied;
         }
         if (client is not null)
         {
@@ -1077,6 +1099,7 @@ public sealed class HeadsetService : IDisposable
         // Said only when nothing could be opened: one transmitter that will
         // not open beside another that does is not the person's problem.
         SetAccessDenied(client is null && (denied || outOfDate), client is null && outOfDate);
+        SetTransmitterStopped(stopped);
         return client;
     }
 
@@ -1091,15 +1114,20 @@ public sealed class HeadsetService : IDisposable
     /// <para>
     /// The next ask, a few seconds later, finds out whether a restart worked: a
     /// restarted transmitter's replies last through closing and reopening it.
+    /// One restarted already that is silent again is asked the link question
+    /// once more. No answer means the restart did not bring its channel back,
+    /// as on one tester's Atlas Air under CachyOS, where only unplugging it
+    /// and plugging it in again did.
     /// </para>
     /// </remarks>
-    /// <returns>Whether the system refused to let this user restart one, and whether the access rule needs bringing up to date.</returns>
+    /// <returns>Whether the system refused to let this user restart one, whether the access rule needs bringing up to date, and whether one still gives no answer after its restart.</returns>
     [System.Runtime.Versioning.SupportedOSPlatform("linux")]
-    private (bool Refused, bool OutOfDate) RestartSilent(IReadOnlyList<string> silent)
+    private (bool Refused, bool OutOfDate, bool Stopped) RestartSilent(IReadOnlyList<string> silent)
     {
         var present = _devices.Candidates();
         bool denied = false;
-        foreach (string path in _restarts.Due(silent, present.Select(device => device.Path)))
+        var due = _restarts.Due(silent, present.Select(device => device.Path));
+        foreach (string path in due)
         {
             var device = present.First(d => d.Path == path);
             try
@@ -1136,9 +1164,26 @@ public sealed class HeadsetService : IDisposable
                 NoteFault($"restarting {path}", ex);
             }
         }
+        bool still = present.Any(device => silent.Contains(device.Path) && !due.Contains(device.Path)
+            && _restarts.Restarted(device.Path) && StillStopped(device));
         // Asked every time, not only when a restart is due, so the offer stays
         // on screen until the person takes it or the headset answers.
-        return (denied, _channelStopped && RuleOutOfDate());
+        return (denied, _channelStopped && RuleOutOfDate(), still);
+    }
+
+    /// <summary>Whether a transmitter gives no answer to the link question, which it answers itself.</summary>
+    [System.Runtime.Versioning.SupportedOSPlatform("linux")]
+    private bool StillStopped(HidDeviceInfo device)
+    {
+        try
+        {
+            return HidrawTransport.AskLinked(device, LinkWait) is null;
+        }
+        catch (TransportException ex)
+        {
+            NoteFault($"asking {device.Path} the link question", ex);
+            return false;
+        }
     }
 
     /// <summary>How long a restarted transmitter is read after it comes back: the start-up messages come within the first second or two.</summary>

@@ -274,6 +274,82 @@ public class HeadsetClientTests
         Assert.Equal("-56", kept.Values["310"].GetString());
     }
 
+    [Fact]
+    public void AReplyWhoseFirstPartIsHandedBackAgainIsStillRead()
+    {
+        var transmitter = new Scripted();
+        transmitter.Answer(Fragments(LongReply, repeatFirst: 5));
+        transmitter.Answer(Fragments("{\"OR\":\"GSI\",\"KVP\":{\"240\":\"72\"}}"));
+        using var client = new HeadsetClient(transport: transmitter);
+
+        Assert.Equal("50", client.ReadCategory("Prm", Slow)["c00"].GetString());
+        Assert.Equal("72", client.ReadCategory("GSI", Slow)["240"].GetString());
+    }
+
+    [Fact]
+    public void AReplyCutShortDoesNotStopTheNextOneBeingRead()
+    {
+        var transmitter = new Scripted();
+        transmitter.Answer([Fragments(LongReply)[0]]);
+        transmitter.Answer(Fragments("{\"OR\":\"GSI\",\"KVP\":{\"240\":\"72\"}}"));
+        using var client = new HeadsetClient(transport: transmitter);
+
+        Assert.Empty(client.ReadCategory("Prm", Window));
+        Assert.Equal("72", client.ReadCategory("GSI", Slow)["240"].GetString());
+    }
+
+    /// <summary>Long enough for the reads of a few repeated reports however coarse the machine's sleeps.</summary>
+    private static readonly TimeSpan Slow = TimeSpan.FromMilliseconds(1000);
+
+    /// <summary>A reply that takes three reports, as the Atlas Air's Prm reply does.</summary>
+    private const string LongReply =
+        "{\"OR\":\"Prm\",\"KVP\":{\"c00\":\"50\",\"c10\":\"1\",\"c20\":\"2\",\"c30\":\"3\",\"c40\":\"4\",\"c50\":\"5\",\"c60\":\"6\",\"c70\":\"7\",\"c80\":\"8\"}}";
+
+    /// <summary>A reply split into reports of at most 59 bytes, the first one given <paramref name="repeatFirst"/> more times, as an Atlas Air's transmitter hands back its last report while the next is on its way.</summary>
+    private static List<byte[]> Fragments(string json, int repeatFirst = 0)
+    {
+        var bytes = Encoding.ASCII.GetBytes(json);
+        var reports = new List<byte[]>();
+        for (int at = 0; at < bytes.Length; at += 59)
+        {
+            var payload = bytes.AsSpan(at, Math.Min(59, bytes.Length - at));
+            var report = new byte[62];
+            report[0] = Core.Hid.HidControl.InReportId;
+            report[1] = (byte)payload.Length;
+            payload.CopyTo(report.AsSpan(3));
+            reports.Add(report);
+        }
+        reports.InsertRange(1, Enumerable.Repeat(reports[0], repeatFirst));
+        return reports;
+    }
+
+    /// <summary>A transmitter that answers each request in turn with the reports given for it, then empty reports.</summary>
+    private sealed class Scripted : Core.Hid.IHidTransport
+    {
+        private readonly Queue<List<byte[]>> _answers = new();
+        private readonly Queue<byte[]> _waiting = new();
+
+        public ushort ProductId => 0x225E;
+
+        public string Name => "";
+
+        public void Answer(List<byte[]> reports) => _answers.Enqueue(reports);
+
+        public string Describe() => "scripted";
+
+        public void SendOutput(ReadOnlySpan<byte> report)
+        {
+            _waiting.Clear();
+            if (_answers.TryDequeue(out var reports))
+                foreach (var each in reports) _waiting.Enqueue((byte[])each.Clone());
+        }
+
+        public byte[] GetInput(byte reportId = Core.Hid.HidControl.InReportId) =>
+            _waiting.TryDequeue(out var report) ? report : new byte[62];
+
+        public void Dispose() { }
+    }
+
     /// <summary>A transmitter that answers the reads after a request with the same notification, five times, as an Atlas Air's did while a request waited.</summary>
     /// <remarks>Few enough to be read within the wait however coarse the machine's sleeps: about 15 ms each on some Windows machines.</remarks>
     private sealed class Repeating(string json) : Core.Hid.IHidTransport

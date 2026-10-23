@@ -536,6 +536,12 @@
   <data name="State_FallbackOff" xml:space="preserve">
     <value>Still not connecting? Press CrossPlay, or switch the headset off and on.</value>
   </data>
+  <data name="State_WhatStopped" xml:space="preserve">
+    <value>The headset's transmitter has stopped answering.</value>
+  </data>
+  <data name="State_FixStopped" xml:space="preserve">
+    <value>Unplug it and plug it back in.</value>
+  </data>
   <data name="State_WhatOffOnCable" xml:space="preserve">
     <value>Your headset is off.</value>
   </data>
