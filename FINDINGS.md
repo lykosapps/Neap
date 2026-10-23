@@ -957,6 +957,26 @@ Only the first recording turns it white. Joining a Discord call while
 another application already had the microphone open left the ring purple
 *(confirmed by the owner)*.
 
+**What the dock is sent when the ring turns white** *(seen on the wire, USB
+capture of the dock alone, 23 October 2026, ring colours read by the owner)*.
+Opening the headset's microphone sends the dock two requests and nothing
+else: the microphone's streaming interface set to its working setting, and
+the sampling frequency 48 kHz. The ring was white a few seconds later.
+Closing the microphone sends the interface back to its idle setting, and the
+ring stayed white.
+
+Setting the format again did not turn it purple in two tries, once with the
+microphone closed and once with it open, with nothing else playing. In both,
+the dock saw the playback stream stop, then start at the old rate for under
+40 ms and stop again, and never a playback stream at 96 kHz after the step.
+A silent stream opened on the headset sent the dock nothing at all. A
+playback stream of an inaudible tone, not captured, left the ring white
+too. The ring had turned purple by itself in an earlier gap, with no capture
+running and an unknown program playing, so the white state does not last for
+ever. Not known: whether the dock's ring follows the last stream to start,
+what turns it purple apart from the owner's confirmed cases with Discord and
+Teams playing, and whether the sound changes while it is white.
+
 **The Charging Dock can go silent at 96 kHz.** Windows was mixing at
 96 kHz, playing to the dock at a healthy level, with the sound link at 2,
 and nothing was heard; 48 kHz played, and so did the Sound dialog's own
