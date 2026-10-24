@@ -11,12 +11,17 @@ public readonly record struct BatteryReading(int Percent, bool Charging, bool Se
 /// With the settings out of reach, a transmitter answers with the last value
 /// it holds for a headset it can no longer reach, and a stale number is worse
 /// than none. Switched off on its cable, the headset still answers, for
-/// charging, so the reading is real there and the one worth seeing.
+/// charging, so the reading is real there and the one worth seeing. A number
+/// outside 0 to 100 is not a charge: a headset has been seen reporting 250 as
+/// it came on.
 /// </remarks>
 public static class Battery
 {
     /// <summary>Key 0x240: the battery's charge, as a percentage.</summary>
     public const int Key = 0x240;
+
+    /// <summary>Whether <paramref name="percent"/> can be a charge.</summary>
+    public static bool IsPercentage(int percent) => percent is >= 0 and <= 100;
 
     /// <param name="status">The headset's state.</param>
     /// <param name="percent">The reported charge, or null if none has been reported.</param>
@@ -25,7 +30,7 @@ public static class Battery
     /// <returns>The reading, or null when there is none worth showing.</returns>
     /// <remarks>A reading that is rising on power is not settling: only a fall is.</remarks>
     public static BatteryReading? Of(HeadsetStatus status, int? percent, int? power, bool falling = false) =>
-        (status.Link == Link.Connected || status.SwitchedOff) && percent is { } charge
+        (status.Link == Link.Connected || status.SwitchedOff) && percent is { } charge && IsPercentage(charge)
             ? new BatteryReading(charge, power == 1, falling && power != 1)
             : null;
 }

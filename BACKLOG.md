@@ -105,6 +105,10 @@ to GitHub, these become issues.
 
 ## Features
 
+- **Superhuman Hearing in the mini panel** (24 October, asked for on Reddit
+  by a 0.3.0 user). The power button turns it on and off too easily, so it
+  gets left in the wrong state; a tile would show and change it without
+  opening the window.
 - **Fewer words in the messages the state audit left long** (23 October):
   the routing notices, up to 26 words; the Linux access messages, about 45;
   and the folded sections' titles, such as "The audio format, power,

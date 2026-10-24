@@ -346,6 +346,11 @@ public sealed class HeadsetService : IDisposable
     private void NoteBattery(JsonElement? was, JsonElement now)
     {
         if (!TryRead(now, out int percent)) return;
+        if (!Core.Connection.Battery.IsPercentage(percent))
+        {
+            AppLog.Write($"battery: headset reported {percent}%, which is not a charge, so it is not shown");
+            return;
+        }
         _batteryTrend.Add(DateTimeOffset.UtcNow, percent);
         AppLog.Write(was is JsonElement e && TryRead(e, out int before)
             ? $"battery: headset {percent}% (was {before}%)"

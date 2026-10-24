@@ -19,6 +19,15 @@ public class BatteryTests
         Assert.Null(Battery.Of(new HeadsetStatus(Link.Connected, Route.ChargingDock, "", ""), null, 1));
 
     [Theory]
+    [InlineData(0, true)]
+    [InlineData(100, true)]
+    [InlineData(101, false)]
+    [InlineData(250, false)]
+    [InlineData(-1, false)]
+    public void OnlyANumberFromZeroToAHundredIsACharge(int percent, bool shown) =>
+        Assert.Equal(shown, Battery.Of(new HeadsetStatus(Link.Connected, Route.ChargingDock, "", ""), percent, 0) is not null);
+
+    [Theory]
     [InlineData(1, true)]
     [InlineData(0, false)]
     [InlineData(null, false)]

@@ -264,7 +264,7 @@
     <value>On your keyboard</value>
   </data>
   <data name="Controls_ModeButton.Description" xml:space="preserve">
-    <value>The button beside the power switch.</value>
+    <value>The button above the volume dial.</value>
   </data>
   <data name="Controls_ModeButton.Title" xml:space="preserve">
     <value>Mode button</value>
@@ -1785,7 +1785,7 @@
     <value>Activate the headset's licence in the Dolby Access app, then choose Dolby Atmos again. The licence needs the headset's Dolby Atmos driver, which Swarm II installs.</value>
   </data>
   <data name="Spatial_DolbyEqualizerNote" xml:space="preserve">
-    <value>Turn off the equaliser in the Dolby Access app, so it doesn't double up with the headset's own.</value>
+    <value>The Dolby Access app has its own equaliser, which applies on top of the headset's.</value>
   </data>
   <data name="State_MixWithDial" xml:space="preserve">
     <value>Use the dial.</value>

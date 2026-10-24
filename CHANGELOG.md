@@ -11,6 +11,16 @@ and date.
 
 ## Unreleased
 
+### Fixed
+
+- The battery no longer shows more than 100%. A headset switched back on
+  was seen reporting 250%; a number that is not a charge is left out until
+  the next real one.
+- On Controls, the Mode button is described as "The button above the volume
+  dial", where it said beside the power switch.
+- With Dolby Atmos on, the note says Dolby Access's equaliser applies on top
+  of the headset's, rather than telling you to turn it off.
+
 ## 0.3.0 — 2026-10-24
 
 **A redesigned Neap for the Stealth Pro II.**

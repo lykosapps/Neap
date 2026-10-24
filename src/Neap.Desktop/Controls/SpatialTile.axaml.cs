@@ -47,8 +47,8 @@ namespace Neap.Desktop.Controls;
 /// </para>
 /// <para>
 /// Dolby Access has its own equaliser, which Neap cannot see or change, so
-/// while Dolby Atmos is on a line says to turn it off there, rather
-/// than let it silently double up with the headset's own equaliser.
+/// while Dolby Atmos is on a line says it applies on top of the headset's,
+/// rather than leave anyone puzzled by two equalisers at once.
 /// </para>
 /// </remarks>
 public partial class SpatialTile : UserControl
@@ -198,8 +198,8 @@ public partial class SpatialTile : UserControl
             // Atmos driver, which Swarm II installs; say so rather than
             // leave it looking simply absent. Dolby Access has its own
             // equaliser, separate from the headset's; say so while Dolby
-            // Atmos is on, since it is easy to end up with both applying an
-            // equaliser at once. A format with no segment is said too.
+            // Atmos is on, since both apply at once. A format with no
+            // segment is said too.
             bool needsDriver = panel.Offered.Count > 0 && !panel.Offered.Contains(SpatialFormat.DolbyAtmos);
             bool dolbyOn = panel.Active == SpatialFormat.DolbyAtmos;
             string? note = panel.Active is null && panel.Unrecognised ? Strings.Get("Spatial_Unrecognised")
