@@ -14,7 +14,8 @@ is in 0.2.1.7 for the testers to confirm.
   updated 20 March 2026.
 - **Testers:** one on Windows, one on Linux (CachyOS), on
   [issue 1](https://github.com/lykosapps/Neap/issues/1).
-- **Latest test build:** 0.2.1.8, published 23 October 2026.
+- **Latest test build:** 0.2.1.9, published 24 October 2026: main with the
+  Atlas Air turned on, in one commit under the tag.
 - **SP2Tools:** the questions and answers are in its
   `knowledge/iceman-neap-asks.md`, the findings in
   `side-session-notes/iceman-re/`. All are read from the firmware; none has
@@ -139,7 +140,9 @@ From the quick start guide. Neap describes them; it doesn't set them.
       once in the same recording; the loudness boost; the light at start; which
       boom position mutes; and the checks never answered (equalisers, a custom
       preset, auto shut-off, the volume's mute, profiles with different mixes).
-- [ ] Linux tester, next test build: start Neap by hand with the headset on,
+- [x] Publish test build 0.2.1.9: the Linux drops, the replug asked for on
+      Home, and `SAF` no longer watched.
+- [ ] Linux tester, 0.2.1.9: start Neap by hand with the headset on,
       follow what Home asks, then leave it ten minutes while recording.
 - [ ] Ask the Windows tester to check the equalisers, a custom preset and
       auto shut-off.
