@@ -16,6 +16,9 @@ Recording only listens. It doesn't change anything on your headset.
 - Close Swarm II completely. Only one app can talk to the headset at a time.
   If its icon is by the clock (click the small arrow there to check),
   right-click it and quit.
+- On Linux there is no Swarm II to close. If Neap shows **Allow access**,
+  choose it. If Neap asks you to unplug the transmitter and plug it back in,
+  do that first.
 - Switch your headset on and connect it the way you normally do.
 
 ## Record
