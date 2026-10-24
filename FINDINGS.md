@@ -7,7 +7,13 @@ one Windows 11 PC, unless marked:
 - *(measured)*: observed directly, usually both ways.
 - *(inferred)*: follows from measurements but was not observed on its own.
 - *(research)*: from Turtle Beach's documentation, Swarm II's files, or other
-  public sources.
+  public sources, or read from the firmware.
+
+SP2Tools, a separate project that takes the headset's firmware apart, is
+cited by its fact numbers (F001 onwards). Its facts say whether they were
+seen on the wire, proven on the headset, or only read from Swarm II's code or
+the firmware. Anything that writes to the chip's storage or its flash is
+marked as a risk where it appears.
 
 The settings registry in `src/Neap.Core/Settings/Registry.cs` is the
 authoritative list of keys. This document explains them.
@@ -65,9 +71,17 @@ Only `229B`, `229D` and `229E` have been plugged in here *(measured)*. The
 Xbox and PC editions are different hardware and their transmitters are not
 interchangeable *(research)*.
 
+The firmware is one family for every edition *(research, SP2Tools F084, read
+from the firmware)*: a stored product id picks which one the device behaves
+as, and the Charging Dock's table of names lists a PC dock `22A1` that
+Swarm II's catalogue does not. The Xbox headset's firmware package is the
+one named for the PC transmitter, `2288`.
+
 ### The Atlas Air
 
-Neap's first other headset. An owner's recording from Neap 0.2.0, sent on
+Neap's first other headset, built on a single Airoha AB1565 chip, which
+Turtle Beach's firmware calls ICEMAN *(research, SP2Tools F110 and F111)*.
+An owner's recording from Neap 0.2.0, sent on
 GitHub issue 1, shows it on transmitter `225E`, reporting itself as `2260`
 at `0x110`, firmware 6.163.1646.0, with all four transmitter slots empty. It
 answered for the same settings under the Stealth Pro II's keys, with nothing
@@ -191,7 +205,13 @@ Dock. SP2Tools proved on that dock that it answers only if something has been
 reading report 7 since it was plugged in, and gives empty reports otherwise,
 which is what the Linux tester's transmitter gives. So Neap on Linux restarts
 a silent transmitter once per plug-in (USBDEVFS_RESET) while reading it
-throughout *(a test, not yet seen to work on an Atlas Air)*.
+throughout. On the Atlas Air the restart has never brought it back: the
+tester's restarts of 20, 21 and 23 October read only empty reports, a length
+byte of 0 with old bytes left after it, and the ~445 reports earlier restarts
+seemed to read were one old report handed back again. Unplugging the
+transmitter and plugging it back in, with Neap already running, put it right
+at once *(measured, on the tester's PC, 23 October)*. Neap 0.2.1.9 therefore
+asks for the replug when its one restart brings nothing back.
 
 Lent to Linux (WSL, kernel 6.18, usbipd) and read by Neap a minute after it
 was plugged in, the owner's Stealth Pro II Charging Dock (`229B`) answered in
@@ -215,12 +235,29 @@ Its questions and answers are in SP2Tools' `knowledge/iceman-neap-asks.md`.
 - **Linux silence:** the transmitter answers a read only while its USB state
   is "configured". A bus event that is not followed by the host setting it up
   again can leave every reply empty until a reset; a USB suspend is the most
-  likely such event, not yet proven (F115). Nothing in the transmitter powers
-  the headset off, so the switch-off after a reset is probably the headset's
-  own reaction (F118).
+  likely such event, not yet proven (F115).
+- **Why a restart switches the headset off:** the transmitter can tell the
+  headset to switch off, which it does with a tone three seconds later unless
+  a phone is connected over Bluetooth (F124, which corrects F117 and F118:
+  an earlier reading found no such message). The headset also switches
+  itself off after 300 seconds with no link, whatever auto shut-off says, as
+  "Never" stops only the idle timer, and on a low battery. Nothing switches
+  it back on but its own button. Which of these a restart sets off is not
+  known: off in about three seconds is the message, about five minutes the
+  timer. Neap's Linux access rule has set `power/control` to
+  `on` for Turtle Beach's USB devices since 22 October, so the system never
+  suspends them. In an Ubuntu 24.04 VM with the Stealth Pro II's Charging
+  Dock passed through, Neap stayed connected for ten minutes idle under that
+  rule with no restart *(measured, 23 October)*; the VM kept the dock awake
+  even without the rule, so whether the rule stops a real PC suspending a
+  transmitter is still to be seen.
 - **Link question:** RACE `0x9931` is answered by the transmitter itself, 1
   while the headset is linked and 0 while not, so an answer proves the
-  channel works whatever the headset is doing (F115).
+  channel works whatever the headset is doing (F115). Neap asks it before
+  restarting a silent transmitter and leaves one that answers 0 alone, since
+  a restart switched the headset off as it came back. On the tester's PC,
+  started by hand, the transmitter gave no answer to it; started with the PC,
+  it answered 0 until the headset came on *(measured, 23 October)*.
 - **Transmitter light:** the transmitter has no settings of its own to read,
   so a read of the light gets nothing; RACE `0x0006` operation 3 gives the
   level it shows, 0 to 100 (F116).
@@ -247,18 +284,21 @@ Its questions and answers are in SP2Tools' `knowledge/iceman-neap-asks.md`.
   to `0x14C0`, `0x1640`, `0x1650`, `0x1900` to `0x1980`) is in no group, so
   it can be written but not read back.
 - **Sensitivity:** `0x610` is a gain in the headset, which the transmitter
-  sets from the PC's microphone level (F120).
+  sets from the PC's microphone level (F120). At 48% it is about 10 dB
+  louder than the steps either side of it.
 - **Voice prompts:** `0xC00` has 16 steps, -58.5 dB to -15.5 dB; above 15 is
   15, and 50 as shipped is the top step, which is why the tester heard no
   change above about 20 (F120). `0xC10` is the tones' level, held only until a
   restart.
 - **Volume:** `0x260` is the wheel, in steps of 6; `0x2A0` is the PC's level
   coming back from it, so the two move apart for a moment on a fast turn
-  (F120).
+  (F120). `0x2A0` at 0 is -74 dB, not silence.
 - **Loudness boost:** the same RACE `0x000A` command, parameter and stock
   level (-12 dB) as the Stealth Pro II (F114).
 - **Game and chat mix:** the `0x500` to `0x540` group is Swarm II's own flags,
-  and the headset mixes game and chat only for an Xbox (F121). Chat Boost,
+  and the headset mixes game and chat only for an Xbox (F121). The headset
+  sets `0x500` back to 0 at every connect and reports `0x510` only while
+  `0x500` is not 0, so an app writes 1 there after each connect. Chat Boost,
   `0x270`, is a flag with no sound stage behind it (F121).
 - **Superhuman Hearing:** `0x800` to `0x820` drive the headset's own sound
   processing; `0x830` is the same switch while on Bluetooth. A change to an
@@ -384,6 +424,24 @@ Total length is the argument's length plus 27; inner length is plus 23. The
 tag is `B7` before `set_kvp` and `61 00` before a read verb; what it
 encodes is not known.
 
+The top bit of the total length's second byte is a relay flag, not part of
+the length. Set (`0x80`), a Charging Dock or transmitter passes the frame on
+to the headset; clear, the transmitter answers it itself. Swarm II's own
+frames carry it (`06 08 80 ..`). Neap sets it on the RACE commands meant for
+the headset, such as the loudness boost, when it talks through a dock or
+transmitter, and clears it on the cable and for the questions the
+transmitter answers itself, such as the link question *(seen on the wire, and proven through the dock,
+SP2Tools F022)*.
+
+Inside RACE, Turtle Beach's settings run as CoAP requests *(research, read
+from the Atlas Air's firmware, SP2Tools F119 and F125)*: a key is the
+resource number times 16, a group the headset does not have is answered
+"not found", which reaches the PC as no reply at all, and `set_kvp` names
+only the key, so a write works whatever group it belongs to. On the Stealth
+Pro II the settings are served by the second chip in the headset, the
+AB1571, and the dock reaches it over Airoha's own radio link *(research,
+SP2Tools' firmware map)*.
+
 ### Replies
 
 Replies and notifications arrive on report 7 with the same framing, RACE type
@@ -392,6 +450,21 @@ one. Long replies continue in further reports that carry raw continuation
 bytes with no RACE header, split anywhere, including mid-string, and
 unrelated notifications interleave with them. Accumulate payloads and consume
 only what parses.
+
+A transmitter read before it has anything new hands back its last report
+again *(measured, the Atlas Air's transmitter on Windows and on Linux)*. One
+signal report came back 4,998 times in under a second while Neap read the
+headset's inputs several times a second. On Linux the first part of the
+long `Prm` reply came back as the "reply" to the `TX` and `NG` reads after
+it, byte for byte, and each copy read as the start of another reply that
+never closed, so every heartbeat after it seemed unanswered. So a report the
+same as the one before is taken once, and a reply left unfinished is dropped
+when the next request goes out. Whether the Stealth Pro II's transmitters do
+the same is not known; Neap treats every transmitter alike.
+
+On Linux an empty report has a length byte of 0 and may still carry old
+bytes after it *(measured)*. The length, not the buffer, says whether a
+report holds anything.
 
 A reply to a read names its category; a pushed update says `UP`:
 
@@ -456,7 +529,7 @@ matched to anything. Key numbers are hex; values travel as decimal strings.
 
 | Key | Meaning |
 |---|---|
-| `0x220` | a name the headset keeps, "My Headset" from the factory; no recording shows Swarm II changing it. Neap shows the USB product string instead |
+| `0x220` | a name the headset keeps, "My Headset" from the factory; no recording shows Swarm II changing it. Neap shows the USB product string of the device it talks through instead: "Stealth Pro II Xbox" from the white Xbox Charging Dock, "Stealth Pro II Xbox Headset" from the headset on its cable *(measured)* |
 | `0x230` | the wireless sound link: 2 while a transmitter sends the headset sound, 0 while none does. See [Connection state](#connection-state) |
 | `0x240` | battery, percent |
 | `0x250` | charging: 1 while the battery is filling *(measured; see below)* |
@@ -511,13 +584,24 @@ against chat there: `0x510` is an input to the PC's mix, not a mix itself. It
 does act where two streams really arrive: on Xbox, and with Bluetooth audio
 alongside 2.4 GHz *(inferred)*.
 
+In the firmware the mix is a stored setting of its own (NVKey `0x6054`,
+0 to 100, 50 at the centre), and each turn of the wheel is also sent to the
+PC as an unasked RACE `0x2E10` message *(research, SP2Tools F079, read from
+the firmware)*. The firmware already beeps as the wheel crosses the centre,
+but only on its Xbox path, never on a PC's.
+
+`0x520` and `0x530` are not identified; a write to either makes the headset
+beep *(proven on the headset, SP2Tools)*.
+
 ### Settings that belong to Windows
 
 `0x2A0` and `0x610` look like headset settings and are not *(measured both
 ways, for both)*. Move the Windows level and the headset reports the new
 number within a second. Write the headset key and only the reported number
 moves: nothing sounds different, and Windows puts its own value back. Change
-these through the Windows endpoint.
+these through the Windows endpoint. The Windows level reaches the dock as a
+standard USB audio volume request, about 1 dB a step *(seen on the wire and
+proven on the headset, SP2Tools)*.
 
 Swarm II's "Audio Master Volume" switch is the Windows endpoint's mute
 *(research: Turtle Beach's support pages; confirmed by two captures in which
@@ -726,6 +810,15 @@ So with the cable in, the cable is the only right place for sound, calls and
 the microphone. Not yet tried: whether the Dock's sound also cuts out the
 cable's, and all of this with the USB Transmitter.
 
+SP2Tools found the opposite with the headset on its cable and the dock not
+in use: the control channel answered everything, but the headset's sound
+device and media keys never started, so it could not play *(proven on the
+same headset, SP2Tools F065)*. Its explanation is that the Xbox headset
+needs the Xbox's sign-in handshake for sound, which the dock's security chip
+gives and a plain PC does not *(inferred, F066)*. The two fit if the dock
+being plugged in, or having been, is what lets the cable play; which it is
+has not been tried.
+
 Once, the Dock was unplugged while the headset was on its cable with music
 playing. The wireless sound link went to 0, Neap carried on over the cable,
 and Windows kept sound and microphone on the cable with the music reaching
@@ -882,9 +975,15 @@ live only in Swarm II's own `STEALTH_PRO_II.ini` *(research)*.
   every volume key on the machine, or a signed HID filter driver.
 - **The chat wheel** reports on the control channel, as `0x510`, through the
   transmitter carrying the headset's settings. The wheel turns smoothly,
-  without notches, and the count stops at 0 and 100. At an ordinary pace it
+  without notches, and the count stops at 0 and 100, where further turning
+  reports nothing more *(measured)*. At an ordinary pace it
   reports every 0.1 to 0.2 s in steps of five or ten; turned fast, a single
   reading jumps 20 to 30 (40 straight to 70, 70 to 40, 35 to 65) *(measured)*.
+- **The Mode button** is key `0x7F` in the firmware's table of keys. Its
+  stock job turns noise cancellation on and off, and the headset plays a
+  rising tone as it goes on and a falling one as it goes off; a change of
+  level alone plays nothing *(research, SP2Tools F085 and F087, read from
+  the firmware)*.
 - **The Bluetooth button** drives the headset's own radio and sends nothing
   to the PC, short or long press. It is not remappable.
 - **The headset keeps a record of its inputs,** which the PC can read: RACE
@@ -910,6 +1009,13 @@ live only in Swarm II's own `STEALTH_PRO_II.ini` *(research)*.
 Each transmitter's USB descriptor offers one playback endpoint, two channels,
 and no other mode *(measured)*. The headset receives audio already mixed, so a
 game and chat mix on a PC has to be made on the PC.
+
+The Charging Dock's firmware does hold a second playback stream (stereo,
+24-bit, 48 or 96 kHz), switched off in every mode the dock starts in. A RACE
+command turns it on until the dock is next unplugged, and the dock rewrites
+its stored mode at every start, so keeping it would need a change to the
+dock's firmware *(research, SP2Tools F082 and F083, read from the firmware;
+never tried)*. Such a change would write the dock's flash: risky.
 
 Session volume does it with nothing in the audio path *(measured with a real
 Discord call and music playing together)*:
@@ -1072,17 +1178,45 @@ defaults, under `Data/Firmware/STEALTH_PRO_II/<vid_pid>/<version>/`
 *(research)*. Its `NVID_*` names are firmware storage and are a different
 namespace from the runtime keys above.
 
-Two findings make this layer a dead end for changing behaviour:
+Two early findings made this layer look like a dead end. Each holds only in
+part:
 
-- **These commands address the USB device you are plugged into.** They do
-  not pass through a transmitter to the headset. With only a transmitter
-  connected you are reading the transmitter's storage. The same key holds
-  507 bytes on the transmitter and 529 on the headset.
-- **Storage is an output, not an input.** Changing noise cancellation
-  normally updated its stored value within two seconds, both times. Writing
-  `NVID_TB_USR_WAKE_ON_MOTION` directly left the device reporting 0,
-  including after a power cycle. Writes are accepted, read back and survive
-  reboots, and change nothing.
+- **With the relay flag clear, these commands address the USB device you
+  are plugged into.** With only a transmitter connected you are reading the
+  transmitter's storage. The same key holds 507 bytes on the transmitter and
+  529 on the headset *(measured)*. With the flag set, RACE commands meant for
+  the headset reach it through the dock *(proven on the headset, SP2Tools
+  F022)*. On the Atlas Air, RACE `0x0A0C` says whether a stored value exists
+  at all *(research, read from its firmware)*.
+- **Many stored settings are outputs, not inputs.** Changing noise
+  cancellation normally updated its stored value within two seconds, both
+  times. Writing `NVID_TB_USR_WAKE_ON_MOTION` directly left the device
+  reporting 0, including after a power cycle: the write was accepted, read
+  back and survived reboots, and changed nothing *(measured)*. That holds for
+  wake on motion and the lights. The sound processing's levels are read: the
+  loudness level below changes the sound at once and is kept *(proven on the
+  headset)*. On the Atlas Air the user's settings are loaded from storage at
+  every start *(research, SP2Tools F122)*.
+
+**Any write here is kept by the headset**, through power cycles, and is put
+back only by writing the old value. Live writes to flash itself are refused:
+the firmware allows them only during an update *(proven on the headset,
+SP2Tools F039)*.
+
+### The loudness boost
+
+RACE `0x000A` reads and sets one of the headset's stored sound processing
+levels *(proven on the headset, SP2Tools F022; Neap's own reads and writes
+measured)*. The payload is an operation (0 set, 1 read), the parameter, and a
+float in decibels, big-endian. Parameter `0x00040000` is the playback input
+level, stored at NVKey `0x5008`: everything the headset plays passes it
+before the equaliser and Superhuman Hearing. It ships at -12 dB, which is the
+ceiling people hit when the headset is too quiet at full volume; the
+firmware takes -96 to +12 dB, keeps the level through power cycles, and
+answers on report 7 rather than as a settings notification. Neap offers up
+to +6 dB, in steps of 3 dB, and puts stock back by setting -12. A raised
+level with equaliser boosts on top can clip. It is a stored write, so it is
+low risk only because it can be put back.
 
 The LED pattern table (`NVID_APP_LED_PATTERN`, `0xF283`) is a header byte and
 11-byte records, one per light state: 48 on the headset, 46 on the
@@ -1091,20 +1225,26 @@ finding above proves nothing either way.
 
 ## What is not possible
 
-- **Changing what the lights do.** Only brightness is reachable. Swarm II has
-  no behaviour command, no category is lighting-related, a dozen guessed read
-  verbs are silent, and the firmware does not consume its stored LED table.
-  The decompressed firmware settles it *(research)*: a lighting task drives
-  the LEDs from connection state in code, with no settable input feeding it,
-  so e.g. the power-button LED's Bluetooth-only flash cannot be turned off by
-  any value. The only override is the chip's raw factory GPIO channel, which
-  is the same diagnostic back door behind the 2025 RACE vulnerabilities and
-  is off-limits here. What remains is modifying the firmware image, which
-  this project does not do.
+- **Changing what the lights do, through settings.** Only brightness is a
+  setting. Swarm II has no behaviour command, no category is
+  lighting-related, a dozen guessed read verbs are silent, and the firmware
+  does not consume its stored LED table: nothing reads `0xF283`, and the
+  patterns are a fixed table in the firmware's code *(research, SP2Tools F006
+  and F033)*. A lighting task drives the LEDs from connection state, so the
+  power-button LED's Bluetooth-only flash cannot be turned off by any value.
+  Two ways round it are known, neither in Neap. The power LED is a separate
+  colour chip, and RACE command 6, relayed through the dock, can hold it on
+  one colour, or read what it shows, until the headset is switched off: held
+  solid green, it stayed so through a disconnect *(proven on the headset,
+  SP2Tools F031 and F032; held in memory, nothing stored)*. And a firmware
+  edit can change a pattern: SP2Tools' edit turns the light off on a
+  disconnect *(proven on the headset, F071; risky, a flash write)*.
 - **Remapping the Bluetooth button.** See above.
 - **Hiding the Windows volume overlay** from the headset's wheel, at any
   reasonable cost.
-- **Switching Bluetooth from software.** No writable key found.
+- **Switching Bluetooth from software.** No writable key found. Swarm II's
+  table of one-press commands has a Bluetooth off, `0x16`, never tried
+  *(research, Swarm II's code)*.
 - **Muting the boom microphone on the headset, with its tone and red ring.**
   With the boom in, the arm is its only mute. Writing the arm's `0x600`
   changes nothing, a write to the built-in microphones' `0x650` is undone,
@@ -1118,8 +1258,8 @@ finding above proves nothing either way.
   headset's settings. Not tried, by the owner's choice: a mic mute is not
   worth a stored write. So with the boom in, Neap mutes in Windows.
 
-Studying Swarm II's copies is fine; sending anything down the update path is
-not.
+Neap never sends anything down Swarm II's update path; firmware updates stay
+with Swarm II.
 
 What a copy shows *(research, 4.107.703)*: each image is an Airoha update
 package. The first 4 KB is a plain header — a digest, the version, the chip
@@ -1129,15 +1269,23 @@ Airoha's Bluetooth-audio SDK for this chip family, the headset and
 transmitter built from Airoha's own reference designs. The earlier reading
 of this as encrypted was wrong; the high randomness was compression.
 
-This is still a dead end for changing behaviour, for the reasons already
-given: the settings the firmware stores are outputs, not inputs, and Neap
-writes no flash and never touches the update path. Being able to read the
-firmware explains *why* the headset behaves as it does; it does not give a
-way to change it. The one new fact worth keeping is that the chip carries a
-vendor diagnostic channel that can read and write its memory directly. It is
-the same channel behind the 2025 "RACE" Bluetooth headphone vulnerabilities
-across many brands. Neap stays away from it, which the no-flash rule already
-ensures.
+Reading the firmware explains why the headset behaves as it does. Since
+16 October changing it is no longer ruled out (DECISIONS.md), and SP2Tools
+has changed it on the owner's headset: the Mode button stepping through off,
+transparency and noise cancellation with a tone for each (F090), and the
+light going off on a disconnect (F071), both proven on the headset. They are
+written to flash through the chip's boot ROM with the headset in download
+mode (off, USB-C into the left ear cup), not through Swarm II's update path
+*(SP2Tools F014 and F064)*. **This is the riskiest thing done to the
+headset.** On 15 October an edit whose call jumped into flash that had not
+been written stopped the headset starting, until the boot ROM put it right
+(F008, F010, F014). So an edit's new code is written before the call that
+reaches it, and the call is taken out first (F127). Neap has screens for this
+held out of every release, and writes nothing yet.
+
+The chip also carries a vendor diagnostic channel that can read and write its
+memory directly, the same channel behind the 2025 "RACE" Bluetooth headphone
+vulnerabilities across many brands *(research)*. Neap stays away from it.
 
 A second pass in Ghidra on the headset's main-chip code *(research,
 4.107.703)* checked the lighting claim directly. The decompressed headset image
@@ -1151,12 +1299,13 @@ address. What it showed:
 - **The lighting task is event-driven.** It is registered as `TB LED Task`
   and waits on internal events; the lighting code logs under `TB_LED_LOG`.
   Which event lights which light was not traced.
-- **Inconclusive:** no call reads `NVID_APP_LED_PATTERN` (`0xF283`) with a
-  fixed key. That fits "nothing feeds it", but `NVID_TB_USR_TX2_LED_INTENSITY`
+- **No call reads `NVID_APP_LED_PATTERN` (`0xF283`)** with a fixed key. On
+  its own that did not settle it, as `NVID_TB_USR_TX2_LED_INTENSITY`
   (`0xF403`), which does change brightness, is also never read with a fixed
-  key, so the absence does not tell the two apart. Many reads build the key at
-  run time. The on-device test above (blanking the table changed nothing)
-  remains the stronger evidence.
+  key. SP2Tools has since settled it: nothing reads `0xF283` or any other
+  stored lighting key, the patterns are a fixed table in the firmware's code,
+  and nothing stored chooses a blink over a steady light *(research, SP2Tools
+  F006, F017 and F033)*.
 
 ### How Swarm II updates firmware
 
@@ -1204,12 +1353,19 @@ Facts that shape any attempt to copy it:
   own updater) was not traced.
 - **The dangerous part is the native library.** The transfer, apply and any
   checks sit behind about twenty native entry points. Nothing in the .NET
-  wrapper looked like a signature or checksum check, but the wrapper's code
-  was read as call lists, not decompiled, so that is not established.
-  Whether the device refuses a damaged or foreign image is unknown.
+  wrapper looked like a signature or checksum check *(research)*.
+- **The headset accepts a changed image.** Its update checks only that the
+  image agrees with itself: a version different from the one installed, and
+  a minor number at most one above the one built in *(proven on the headset,
+  SP2Tools F003)*. The header holds a plain SHA-256, not a signature, and the
+  boot loader checks nothing at start *(research, F030)*. The Atlas Air's
+  packages are the same: compressed, not encrypted or signed *(F110)*.
+- **A headset that will not start can be revived without Swarm II,** through
+  the chip's boot ROM over the left ear cup's USB-C *(proven on the owner's
+  headset, SP2Tools F014)*. Risky in itself: it writes flash directly.
 - **Unresolved:** what the native library sends on the wire, how it recovers a
-  transfer cut halfway, and whether a transmitter or headset left half-updated
-  can be revived without Swarm II.
+  transfer cut halfway, and whether a transmitter left half-updated can be
+  revived.
 
 ## Pitfalls
 
@@ -1297,3 +1453,10 @@ match the ten days of Swarm logs under *Transmitter slots*, where it stayed at 1
    bank's (not exercised: there were no custom microphone presets).
 6. Whether the Charging Dock's slot reports the spare battery live while
    the headset is on another transmitter; see *Transmitter slots*.
+7. Whether the headset can play over its cable with no dock plugged in; see
+   *Over the USB-C cable*.
+8. Which of the headset's switch-off triggers a Linux restart of the Atlas
+   Air's transmitter sets off; see *The Atlas Air*.
+9. Whether the Windows volume can fall out of step with the headset after
+   the PC sleeps. Reported, and not reproduced on a PC with only S3 sleep
+   *(SP2Tools F054)*.
