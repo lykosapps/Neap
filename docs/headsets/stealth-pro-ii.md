@@ -14,7 +14,7 @@ and its battery warnings.
   updated 7 October 2026. The owner's headset is the Xbox edition, so check
   the Xbox article for any differences.
 - **Testers:** the owner, on Windows and on a Steam Deck (SteamOS, desktop mode).
-- **Latest release:** 0.2.1.
+- **Latest release:** 0.3.0, 24 October 2026.
 
 ## Connection
 
@@ -22,7 +22,7 @@ and its battery warnings.
 |---|---|---|---|
 | Windows | Yes: Charging Dock, USB Transmitter and USB-C cable | Confirmed | Once, unplugging the Charging Dock with the cable in left the headset silent until it was switched off and on. Repeat it to learn whether it always does. On the cable alone the chat wheel reaches nothing, read or sent, with `0x500` at 0 or 1; the dial and keys still move the mix. |
 | Linux, Steam Deck | Yes, after the one-time access rule | Confirmed | — |
-| Linux, other systems | Only against the pretend headset | Untried | A tester with another system. |
+| Linux, other systems | Yes, in an Ubuntu 24.04 VM with the Charging Dock passed through from Windows, under the access rule: ten minutes idle with no restart, and a change of noise cancellation read back | Seen in a VM | A real Linux PC, to show the rule keeps the transmitter from being suspended; the VM never suspended it. |
 
 ## Features
 
@@ -50,7 +50,7 @@ system tried with a real headset.
 | Active noise cancellation, level | Listed | Yes | Has | Confirmed | Confirmed | `0x760` | — |
 | Chat Boost (Bold, Dynamic, Active) | Listed, Waves driver only | Only with Neap's own sound processing | Missing | — | — | Waves software on the PC | Decide whether Neap should do it. |
 | Waves 3D (Games, Music, Movies) | Listed, Waves driver only | Only with Neap's own sound processing | Missing | — | — | Waves software on the PC | Not planned unless Neap does its own sound processing. |
-| High Bandwidth Audio (24-bit, 96 kHz) | Listed | Yes | Has | Confirmed | Missing | The PC's audio format | Neap also puts the dock back into high resolution after an app has used the mic. Linux has no format choice yet. |
+| High Bandwidth Audio (24-bit, 96 kHz) | Listed | Yes | Has | Confirmed | Missing | The PC's audio format | The dock's ring turns white once an app opens the microphone and purple again when anything plays at 96 kHz. Neap's switch to put it back at once is out of 0.3.0 (DECISIONS.md, 23 October). Linux has no format choice yet. |
 | Spatial sound | Not listed | Yes, on Windows | Has | Confirmed | Missing | Windows | Windows only. |
 
 ### Microphone
@@ -97,7 +97,7 @@ system tried with a real headset.
 | Voice prompt for each transmitter (none, 1–4) | Listed | Unknown: not yet found | Missing | — | — | Unknown | Turtle Beach's article lists it under Charging Hub. Find where it's kept. |
 | Voice prompt volume | Listed; mobile app only since June 2026 | Yes | Has | Confirmed | Confirmed | `0x2D0` | Swarm II's desktop app has had it switched off since 1.0.0.47. |
 | Dock light brightness, two lights | Listed | Yes | Has | Confirmed | Confirmed | `0x401`, `0x402` | — |
-| Firmware updates | Listed | Yes, but Neap never writes firmware | Not planned | — | — | — | Neap never writes firmware. |
+| Firmware updates | Listed | Yes, but Neap leaves updates to Swarm II | Not planned | — | — | — | Neap never updates the firmware. SP2Tools' firmware edits have a page in Neap, kept out of every release until Neap's own writer is proven on a headset (DECISIONS.md, 22 October); a firmware write is the riskiest thing Neap could do. |
 
 ### Swarm II's own settings
 
@@ -149,6 +149,21 @@ system tried with a real headset.
 
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
+
+- 2026-10-23 — Owner's headset on the white Xbox dock. The dock names
+  itself "Stealth Pro II Xbox", and the headset on its cable "Stealth Pro II
+  Xbox Headset"; Neap's title now shows that name. On the cable alone the
+  chat wheel sends and changes nothing, with `0x500` at 0 or 1. Once,
+  unplugging the dock with the cable in left the headset silent until it was
+  switched off and on. A USB capture of the dock showed its ring turns white
+  when a microphone stream starts and purple again only when playback
+  starts at 96 kHz. In an Ubuntu VM with the dock passed through, Neap
+  stayed connected for ten minutes under the access rule; handed back to
+  Windows, the dock's ring blinked purple until the dock was replugged.
+- 2026-10-23 — Headset checks 5, 7 and 24 to 29 passed through the Charging
+  Dock with the try-it copy; the chat wheel stuck at the middle after a quick
+  turn through it, fixed the same day. Both dock light sliders kept through a
+  drag.
 
 - 2026-10-22 — Owner's headset, edited firmware, Neap recording of one full
   Mode button cycle: four presses gave three reports, all `0x750`. The step

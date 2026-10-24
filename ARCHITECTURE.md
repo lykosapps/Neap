@@ -43,8 +43,9 @@ is true: Core has a Windows class and a Linux class behind one interface
 (`IHidTransport`, `IMicrophoneListener`, `IPlayback`, the route and volume
 sources), chosen by `OperatingSystem`; or the feature exists on one system
 only and says so, through `Unsupported`, so a screen leaves the control out
-rather than show one that does nothing. Today that is spatial sound, the audio
-format and the dock's ring, which are Windows' alone.
+rather than show one that does nothing. Today that is spatial sound and the
+audio format, which are Windows' alone. Linux alone needs an access rule
+and a way back for a silent transmitter, below.
 
 On Linux the pieces are:
 
@@ -53,7 +54,16 @@ On Linux the pieces are:
   needed. Linux gives it to root unless a udev rule says otherwise, so a
   refusal is told apart from an absent headset (`AccessDeniedException`) and
   the app can install the rule once, through the system's own password prompt
-  (`HeadsetAccess`, `Hid/UdevRule.cs`).
+  (`HeadsetAccess`, `Hid/UdevRule.cs`). The rule also keeps Turtle Beach's
+  USB devices from being suspended, and an older rule, which still gives
+  access, is noticed by its text and offered again.
+- **A silent transmitter** is one that opens and gives only empty reports.
+  Neap first asks it whether a headset is linked (`Hid/LinkInquiry.cs`), a
+  question the transmitter answers itself. One that says no is left alone;
+  one that says nothing, or yes and then nothing else, is reset once per
+  plug-in (`Hid/SilentRestarts.cs`, `HidrawTransport.Restart`), and if it is
+  still silent Home asks the person to unplug it and plug it back in, which a
+  program cannot do.
 - **Sound** goes through `libpulse`, which PulseAudio and PipeWire both
   speak (`Audio/Pulse`). An application is its streams, grouped by program,
   the way Windows groups sessions.
@@ -89,6 +99,54 @@ each one and asks, and the first that answers wins. Anything that talks to
 the hardware goes through it, including the probe, which spent one session
 reading four empty transmitter slots off a headset that was sitting there
 connected.
+
+A second rule of the same kind: a transmitter read before it has anything
+new hands back its last report again, thousands of times a second if asked
+that often. `HeadsetClient` takes a report the same as the one before only
+once, and drops a reply left unfinished when the next request goes out, or
+one repeated fragment reads as the start of every reply after it.
+
+### Headsets Neap knows
+
+`HeadsetModels.cs` lists each headset: its USB product ids, the words in
+its speakers' and microphone's names, what it has of what Neap does, the
+groups of settings it lacks, and where it keeps a setting the Stealth Pro II
+keeps elsewhere. Screens offer only what the model has, so a second headset
+is a new entry and a few keys, not new screens. A model is shipped only
+once its testers have confirmed what Neap does on it
+(`HeadsetModels.AtlasAirReleased`). The title shows the USB product string
+of the device Neap talks through, the name the firmware gives it, and falls
+back to the model's name.
+
+### Pretend mode
+
+`Pretend/` is a Stealth Pro II, or with `--atlas` an Atlas Air, with no
+hardware behind it: it answers the protocol from state it keeps, refuses
+what the real headset would, and records every frame. `--pretend` runs the
+whole app against it, with its own settings folder and no reach into the
+system's audio or the sign-in shortcut, which is how the screen checks run
+without a headset and beside the owner's own copy.
+
+### Recordings
+
+A recording (`Diagnostics/Recording.cs`) is what a tester sends: what the
+headset, its transmitters and the system showed at the start and the end,
+everything the headset said and every change Neap asked for in between, in
+time order, and the app log. It works for a headset Neap does not yet know
+as well as one it does. `Diagnostics/Redaction.cs` blanks the serial number,
+radio addresses, account and PC names before it is saved, since a bug report
+can be public.
+
+### Firmware edits
+
+`Firmware/FirmwareEdit.cs` holds the rules for putting SP2Tools' firmware
+edits on a headset: which edits fit the firmware on the chip, which
+sections of flash a set of ticked edits needs written, and in what order,
+so a write stopped at any point leaves a headset that starts. It is built
+and tested against the pretend headset, and kept out of every release
+(`FirmwareEdit.Released`) until Neap's own writer is proven on a real
+headset. It is the one part of Neap that would write anything but a
+setting, and the riskiest: a firmware edit once stopped a headset starting.
 
 ### Knowing what state the headset is in
 

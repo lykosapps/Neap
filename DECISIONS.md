@@ -42,6 +42,38 @@
   it, and its latest fix has had no reply.
 - **Revisit when:** the testers confirm 0.2.1.8 or a later test build.
 
+## 2026-10-23 — The headset is called what its firmware calls it
+
+- **Options:** the name the headset keeps at `0x220`; the model's name;
+  the USB product string of the device Neap talks through, as given or with
+  words taken off.
+- **Chosen:** the USB product string, as given, and the model's name where
+  none is given. Through the white Xbox dock that is "Stealth Pro II Xbox";
+  on the cable alone it is "Stealth Pro II Xbox Headset".
+- **Why:** every headset reports "My Headset" at `0x220` until renamed, and
+  no way to rename it has been seen, so it named nothing. The product string
+  is the name Windows and a phone show. The owner chose to show it whole
+  rather than trim it to match across devices.
+- **Revisit if:** a way to rename the headset is found, or a tester's device
+  gives a name that reads badly.
+
+## 2026-10-22 — On Linux, Neap's access rule also keeps transmitters awake
+
+- **Options:** rely on Neap's one restart of a silent transmitter; have the
+  access rule stop the system suspending Turtle Beach's USB devices too.
+- **Chosen:** the rule sets `power/control` to `on` for them, and Neap
+  offers the new rule wherever an older one is installed. Before restarting a
+  silent transmitter, Neap asks it whether a headset is linked, and leaves
+  one that says no alone.
+- **Why:** SP2Tools read in the Atlas Air's firmware that its transmitter
+  drops every reply once its USB state is lost, with a suspend the likely
+  cause, and only a reset brings it back (F115). The reset switched the
+  tester's headset off as it came back, so a transmitter that never sleeps
+  is better than one that is reset. An older rule still gives access, so
+  nothing else would notice it.
+- **Revisit when:** a real Linux PC shows whether the rule keeps a
+  transmitter answering; the VM tried so far never suspended it.
+
 ## 2026-10-22 — Firmware edits wait for a later release
 
 - **Options:** ship the Firmware page behind its Settings switch in the
@@ -560,6 +592,11 @@
   for a web page. The two lists have to be kept the same.
 
 ## 2026-10-05 — Firmware is studied from Swarm II's files, never the headset
+
+Replaced on 16 October by "The firmware rules are lifted". Its reading that
+the images are signed and encrypted was wrong: they are compressed, carry a
+plain checksum, and the headset accepts a changed one (FINDINGS.md, *How
+Swarm II updates firmware*).
 
 - **Options:** read the firmware off the headset's chip; study the copies
   Swarm II already installs; leave firmware alone entirely.
