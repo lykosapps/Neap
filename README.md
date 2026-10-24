@@ -35,7 +35,7 @@ from inside a game: Ctrl + Alt + Page Down, Page Up and Home, all
 rebindable. On Windows, a meter for each side shows chat speaking and the
 game's sound as you set it.
 
-![Home, with the game and chat dial, a chat app chosen, and tiles for the microphone, noise control and equaliser.](docs/screenshots/mix.png)
+![Home, with the game and chat dial, a chat app chosen, and cards for the microphone, noise cancellation and equaliser.](docs/screenshots/mix.png)
 
 ### A mini panel for mid-game
 
@@ -53,7 +53,7 @@ transparency mode of its own; transparency is noise cancellation at zero,
 which lets the room in. The Mode button steps through all three while Neap
 is running.
 
-![The Audio page, with noise control set to noise cancellation and how much of the room it blocks.](docs/screenshots/audio.png)
+![The Audio page, with noise cancellation on and how much of the room it blocks.](docs/screenshots/audio.png)
 
 ### An equaliser you can tune by ear
 
@@ -70,7 +70,7 @@ is running.
 
 ### Profiles for each game
 
-Save your whole setup under a name, from noise control to both equalisers.
+Save your whole setup under a name, from noise cancellation to both equalisers.
 Give a profile one or more games, and it comes on when one of them starts,
 then goes back to your default when it closes. A call app such as Teams can
 switch only while it's using the microphone, so its profile is on for calls.

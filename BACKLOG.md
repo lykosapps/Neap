@@ -7,12 +7,6 @@ to GitHub, these become issues.
 
 ## Next, after 0.2.0 (released 8 October)
 
-- **Before 0.3.0 is tagged: run part K of the headset checks again, with
-  the headset as Windows' sound output.** On 23 October it ran with sound
-  going to the PC's own speakers, so the keys had nothing to move and that
-  one check failed; the rest passed. It presses real keys, so it runs on the
-  screen when nobody is at the machine: `tools\ui\run.ps1 hardware -Parts K`.
-
 - **The Charging Dock's ring: can a microphone be stopped turning it white?
   A desk investigation, with no device touched.** "Keep high-resolution
   audio" was taken out of 0.3.0 (DECISIONS.md, 23 October). A USB capture

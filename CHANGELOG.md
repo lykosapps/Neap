@@ -38,52 +38,40 @@ and date.
 
 ### Added
 
-- On its cable alone, where the headset sends nothing from its chat wheel,
-  the mix says so, with what still moves it.
-- With a headset whose settings Neap only reads, Home says so, rather than
-  leaving its controls greyed out without a word.
-- The mini panel has spatial sound: Off, Windows Sonic or Dolby Atmos,
-  whichever the system offers. It is left out where the system has none, and
-  folds away with the headset's settings when the headset is away.
-- A switch on the Settings page turns the mini panel on or off. It is on by
-  default; when it is off, a click on the icon by the clock opens the window,
-  and "Mini panel" is left off the icon's menu.
-- The game and chat card shows live levels: a meter for each side beside the
-  dial, with the level the mix sets, so you can see chat speaking and the
-  game's sound as you set the mix. It reads each app's own level, so it follows
-  the mix. Windows only; it stops when the window is behind and is left out
-  when animation is off. When the headset's chat wheel moves the dial, the dial
-  now glides to its place.
-- A click on Neap's icon by the clock opens a mini panel for mid-game: the
-  game and chat mix, mute for the microphone, noise cancellation and the
-  equaliser preset, with the headset's name and battery above them, and its
-  state when something is wrong. It
-  closes on Escape or when you click elsewhere. The window is now "Open Neap"
-  on the icon's menu, and on the panel.
+- A mini panel for mid-game. A click on Neap's icon by the clock opens it:
+  the headset's name and battery, the game and chat mix as a slim slider,
+  tiles for the microphone, noise cancellation and spatial sound, and the
+  equaliser preset. A press turns a tile off, or back on the way it was last
+  on, and the arrow in its corner lists its choices. Spatial sound offers
+  what the system has, and is left out where it has none. The panel closes
+  on Escape or a click elsewhere, and "Open Neap", on it and on the icon's
+  menu, opens the window. A switch in Settings turns the panel off; a click
+  on the icon then opens the window.
+- Live levels for the mix. On Windows, the game and chat card shows a meter
+  for each side beside the dial, with the level the mix sets, so you can see
+  chat speaking and the game's sound as you set the mix. The meters stop
+  while the window is behind, and are left out when animation is off. When
+  the chat wheel moves the dial, the dial glides to its place.
+- A loudness boost on the Audio page raises the Stealth Pro II's own level,
+  so everything through the dock plays louder, for when the headset is too
+  quiet even at full volume. It starts at +0 dB, is saved on the headset, and
+  only the Stealth Pro II shows it.
 - The equaliser is easier to try things on. Points show they can be dragged:
   a resize cursor, a halo and a larger point under the pointer, and a bubble
   with the value while one is moved. The curve takes the keyboard, with Left
   and Right to choose a band and Up and Down to move it, and Shift for a
   bigger step. Compare plays the headset flat for as long as you hold it and
   puts your curve back when you let go. Undo and Redo, or Ctrl+Z and Ctrl+Y,
-  step back through the edits made to the curve since the page was opened.
-- The Neap mark and name sit at the top of the menu, above the profile
-  switcher, at the menu's left edge; the window's title is no longer written
-  over them. When the menu is icons only, just the mark shows.
-- Every tile on Home has the same layout: icon and switch on top,
-  then the name, then its state, so names line up across a row. On Game and
-  chat, Keyboard shortcuts moves up beside the title.
-- The equaliser curve grows with the window and shows a dB scale, preset
-  names stay on one line, and the part of your curve the headset can't reach
-  is shaded grey and named in the legend.
-- A max loudness boost on the Audio page raises the Stealth Pro II's own level,
-  so everything through the dock plays louder — for when the headset is too
-  quiet even at full volume. It starts at +0 dB until you move it, is saved on
-  the headset, and is for the Stealth Pro II only: other headsets don't show it.
+  step back through the edits made since the page was opened. The curve
+  grows with the window and shows a dB scale, and the part of your curve the
+  headset can't reach is shaded grey and named in the legend.
 - An app given to a profile can switch to it only while it's using the
   microphone, rather than whenever it's open. A profile for Teams calls comes
   on as a call starts, and the default comes back when it ends.
-- The game and chat mix on Home links to its keyboard shortcuts.
+- On its cable alone, where the headset sends nothing from its chat wheel,
+  the mix says so, with what still moves it.
+- With a headset whose settings Neap only reads, Home says so, rather than
+  leaving its controls greyed out without a word.
 - A recording lists each change Neap sends to the headset beside what the
   headset says, and says why when a change wasn't sent.
 - What's new is always in Settings, beside Neap's version. With no update
@@ -91,15 +79,70 @@ and date.
 
 ### Changed
 
-- The headset is called what its firmware calls it, the name the system
-  and a phone show, such as "Stealth Pro II Xbox", rather than "My Headset".
-  Where the firmware gives no name, it is called by its model.
-- What Neap says about the headset's state is shorter throughout: off or
-  out of range, no sound, settings out of reach, nothing plugged in, the
-  sections that fold away, and what still moves the mix without the wheel.
+- A flatter, calmer look. Neutral grey grounds, with one deeper ground in
+  the dark theme; cards, rows, tiles, buttons, fields and switches without
+  outlines or gradients, each a gentle step of fill from what it sits on;
+  smaller text, tighter rows and even spacing on every page, so more of each
+  page fits on screen. Neap's ultraviolet accent marks only what is on,
+  chosen or playing, so a tile that is on is a soft violet tint. High
+  contrast keeps every outline, and the keyboard focus ring is as clear as
+  before.
+- The app's text is set in Figtree, and the name beside the mark in Outfit.
+  Both are carried inside the app, so Windows and Linux show the same
+  letters.
+- The app icon is redrawn as a split half moon over one wave, and the icon by
+  the clock is its own simpler drawing that follows a light or dark taskbar
+  on Windows.
+- The menu and the page each run the full height of the window, and the menu
+  starts in the title bar's row, with the Neap mark and name at its top and
+  the profile switcher under them. When the menu is icons only, just the mark
+  and one profile icon show. The headset's status and the update bar sit at
+  the top of the page.
+- Home is redesigned. The headset's readings run across the top, with how it
+  is connected, such as "Through the USB Transmitter". The game and chat mix
+  is one shorter card, with a Keyboard shortcuts link; before any chat app is
+  chosen, its dial shows faded, with the question about chat apps below it.
+  Every other card works the same way: on or off is a switch at the top
+  right, and the card is tinted while it is on; a choice among a few is a row
+  of segments under the name, such as Off, Cancelling and Transparency for
+  noise cancellation, or Off, Windows Sonic and Dolby Atmos for spatial
+  sound. Superhuman Hearing gets a switch, with its sound (Legacy, Footsteps
+  or Gunshots) under the name, and the equaliser card a preset choice.
+- Audio holds what you hear and your microphone in two sections, with noise
+  cancellation, Superhuman Hearing and spatial sound as choices you can see
+  at once, a link from each section to its equaliser, and every slider
+  ending at the same edge. The microphone settings live here, and Microphone
+  has left the menu.
+- The equalisers have a page of their own, Equaliser, with a Game and a
+  Microphone tab, and Home's equaliser card opens it. Your presets sit beside
+  a larger curve, with names on one line, and the test tone is folded away
+  until it is wanted. Discard shows only once the curve has been edited, and
+  a saved preset's delete button only on the row you point at, focus or have
+  chosen. Saving or deleting a preset takes about half the time.
+- On Controls, each job for the Mode button and the lower dial is a full-width
+  row you can press anywhere, the chosen one tinted. The dial's first job is
+  named Microphone monitoring volume.
+- On Profiles, the profile in use has a soft tint and says "In use" under its
+  name, following a switch from the menu or by an app starting as it
+  happens, and New profile sits beside the page's title. A screen reader
+  hears each profile's apps, and whether it is in use, on the button that
+  changes its apps.
+- Sliders are the system toolkit's own, in Neap's colours: a white thumb in
+  the dark theme and a purple one in light. The value beside each slider
+  shows it while dragged.
+- The headset is called what its firmware calls it, the name the system and
+  a phone show, such as "Stealth Pro II Xbox", rather than "My Headset".
+  Where the firmware gives no name, it is called by its model, and a headset
+  Neap doesn't recognise, or none at all, is simply "Headset".
+- What Neap says is shorter and clearer throughout, with Noise cancellation,
+  Strength, Noise reduction, Loudness boost and Microphone monitoring as
+  names, and every failure says what to do next.
 - When your system sends sound to a device the headset isn't listening on,
   Home's connection line says there's no sound, as the title bar does,
   rather than naming the transmitter.
+- A microphone muted in Windows while the headset itself is live, as Neap's
+  switch does with the boom microphone in, says "Muted on this PC", so
+  nobody waits for the headset's tone or red ring.
 - "Keep high-resolution audio" is gone from the Device page, for now. It
   restarted the headset's sound to turn the Charging Dock's ring purple again
   after an app used the microphone, and that only works while something is
@@ -107,108 +150,16 @@ and date.
   white until something plays, then turns purple by itself. Windows keeps
   sending the same format while the ring is white, and the ring is the only
   change seen.
-- The game and chat card on Home is shorter: a smaller dial, with each side's
-  level and meter beside it and the choice of chat apps under them.
-- Home's cards and the Device page's transmitters are set out so no row ends
-  with one card stretched across it.
-- Spatial sound and the loudness boost have icons of their own, instead of the
-  volume's speaker.
-- Home's headset card says "Through the USB Transmitter" rather than repeating
-  "Connected" from the top of the window, and the Audio page's link to the
-  equaliser takes the same arrow as every other link.
-- A microphone muted in Windows while the headset itself is live, as Neap's
-  switch does with the boom microphone in, says "Muted on this PC", so
-  nobody waits for the headset's tone or red ring. A tile in the mini panel
-  wraps a long state to a second line instead of cutting it off.
-- Sliders are the system toolkit's own, in Neap's colours: a white thumb in
-  the dark theme and a purple one in light. They no longer show their value
-  in a bubble while dragged; the value beside each slider shows it.
-- The mini panel is smaller and quicker: a slim game and chat slider in
-  place of the dial, and tiles for the microphone, noise cancellation and
-  spatial sound. A press turns a tile off, or back on the way it was last
-  on, and the arrow in its corner lists its choices.
 - "Help support another headset" says it's for Turtle Beach headsets that
   work with Swarm II, as the GitHub form and the guide now do: Neap talks to a
   headset the way Swarm II does, so it can't support others.
-- The app's text is set in Figtree, and the name beside the mark in Outfit.
-  Both are carried inside the app, so Windows and Linux show the same
-  letters.
-- The menu and the page each run the full height of the window, so the edge
-  between them reaches the top, and the menu starts in the title bar's row.
-  The headset's status and the update bar sit at the top of the page.
-- On Profiles, the profile in use now has a soft tint and says "In use" under
-  its name, and a screen reader hears it on the button that changes its apps.
-  It follows a switch from the menu, or by an app starting, as it happens.
-- Every card on Home works the same way. On or off is a switch at the top
-  right, and the card is tinted while it is on; a choice among a few is a row
-  of segments under the name. Spatial sound now shows Off, Windows Sonic and
-  Dolby Atmos in view instead of opening a list, and Superhuman Hearing gets
-  a switch with its sound (Legacy, Footsteps or Gunshots) under the name,
-  faded until it is on. The microphone is a card with a switch too, instead of
-  a tile you press anywhere.
-- On Profiles, a screen reader hears each profile's apps, and when they switch,
-  on the button that changes them.
-- Deleting or saving an equaliser preset updates the list in about half the
-  time, and the Delete and Cancel buttons are disabled while it runs.
-- In a narrow window, a switch that drops under its name now starts where the
-  name does, instead of floating in the middle of the row.
-- Before any chat app is chosen, Home and the mini panel show the game and
-  chat dial faded and disabled, with the question about chat apps below it,
-  rather than leaving the dial out, so it is clear what the card is for.
-- Buttons, drop-downs, fields, tabs, switches and tiles lose their outlines for
-  a flat, softer look: each is a gentle step of fill from what it sits on, and
-  icons and dividing lines are quieter. The keyboard focus ring is unchanged,
-  and high contrast keeps every outline. A tile that is on, such as the
-  microphone on Home, is a soft violet tint rather than solid violet, and the
-  panels set into a card, such as the chat app list, are a lighter grey in the
-  light theme.
-- On the Equaliser page, Discard shows only once the curve has been edited, and a saved preset's delete button shows only on the row you point at, focus or have chosen.
-- On Controls, each job for the Mode button and the lower dial is a full-width row you can press anywhere, the chosen one tinted, and the two cards are the same height. The dial's first job is named Microphone monitoring volume.
-- Audio's sliders all end at the same edge, with Master volume's mute beside the slider's line instead of shortening it.
-- Start when you sign in says why when it can't be changed, as in a practice run.
-- Home is redesigned: the headset's readings across the top, Game and chat
-  as one card with a Keyboard shortcuts link, and tiles that show how they
-  work, such as a switch for the microphone, Off, Cancelling and
-  Transparency for noise cancellation, and a preset choice on the equaliser.
-- Audio holds what you hear and your microphone in two sections, with noise
-  cancellation, Superhuman Hearing and spatial sound as choices you can see
-  at once, and a link from each section to its equaliser.
-- The Equaliser page lists your presets beside a larger curve, with Game and
-  Microphone as tabs and the test tone folded away until it is wanted.
-- Clearer words: Noise cancellation, Strength, Noise reduction, Loudness
-  boost and Microphone monitoring, and every failure says what to do next.
-- The profile switcher sits at the top of the left menu, and becomes one
-  profile icon when the menu shows icons only.
-- The equalisers have a page of their own, Equaliser, with a Game and a
-  Microphone tab. Home's equaliser tile opens it.
-- The microphone settings are on the Audio page, and Microphone has left the
-  menu.
-- A stronger look: an ultraviolet accent in both themes, and in the dark
-  theme a deeper, single ground behind everything.
-- In a small window, such as the Steam Deck's, text, rows and the menu step
-  up a size so they are easier to read and touch.
-- The app icon is redrawn as a split half moon over one wave, and the icon by
-  the clock is its own simpler drawing that follows a light or dark taskbar
-  on Windows.
-- A calmer, more compact look: neutral grey backgrounds in place of the
-  violet-tinted ones, flat panels without gradients or outlines, smaller
-  text and tighter rows, so more of each page fits on screen. Neap's violet
-  now marks only what is on, chosen or playing.
-- The menu on the left has a softer chosen-place highlight, and shows a ring around
-  the place the keyboard is on. Pages sit slightly closer to the edges.
-- Cards, rows and tiles are flat, and tiles are shorter. In high contrast,
-  cards, rows and tiles have an outline so their edges stay visible.
-- Buttons, switches, boxes and sliders are more compact, switches and boxes
-  are easier to see when off, and the mute button follows the theme,
-  including high contrast.
-- The game and chat dial is flatter and a little smaller, and its keyboard
-  focus ring is easier to see in the light theme.
+- On a small screen, such as the Steam Deck's, text, rows, switches, sliders
+  and the menu step up a size so they are easier to read and touch.
 - Dialogs and the update banner share the app's spacing, a dialog's main
   button uses the accent colour, and long dialog headings wrap instead of
   being cut off.
-- Every page uses the same even spacing. On Home the headset summary and the
-  quick settings sit on cards like the mix, the loudness boost on Audio takes
-  half the height, and the Profiles page puts New profile beside its title.
+- Start when you sign in says why when it can't be changed, as in a practice
+  run.
 
 ### Fixed
 
@@ -253,10 +204,13 @@ and date.
   open or close it.
 - The microphone follows the headset through every way it mutes: the boom
   arm while the boom microphone is in, the mute button while it is out, and
-  the boom being plugged in or taken out while connected. Neap's own switch
-  mutes on the headset with the boom out, and in Windows with it in. Before,
-  the switch did nothing with the boom in, and a mute left on the built-in
-  microphones showed as muted after the boom went back in.
+  the boom being plugged in or taken out while connected. A mute by the
+  button mutes the PC too, and the microphone card says "Muted on the
+  headset". Neap's own switch mutes the headset itself, with its tone, while
+  the boom is out, and Windows while it is in. Before, Neap followed only
+  the boom arm, so the PC stayed live; the switch did nothing with the boom
+  in; and a mute left on the built-in microphones showed as muted after the
+  boom went back in.
 - Button text sits in the middle of its button; it sat a little high.
 - A click anywhere along a slider moves it there. Before, only dragging the
   handle moved it.
@@ -264,21 +218,9 @@ and date.
   turning bold, which pushed the text around them.
 - The line that shows the equaliser reading its presets, and a profile being
   saved, moves again. It stays still when animation is off in Windows.
-- The window and the mini panel keep their usual sizes on a large screen.
-  Switches, sliders and the mini panel grew to the touch size whenever the
-  window was made small; they now grow only on a small screen, such as the
-  Steam Deck's, and a slider's handle stays round at every size.
 - The microphone meter on the Audio page moves as soon as the page opens.
   It could stay still until you switched away and back or opened the page
-  again: Neap could take itself to be behind other windows after the mini
-  panel, and the meter could let the microphone go as the page opened. The
-  game and chat dial's live levels and the equaliser's test tone start the
-  same way, and are kept from the second of these too.
-- With the boom microphone off, muting with the headset's button now mutes
-  the microphone on the PC too, and the microphone card says "Muted on the
-  headset". Neap's own microphone switch mutes the headset itself, with its
-  tone, the same as the button. Before, Neap followed only the boom arm, so
-  the PC stayed live, and its switch muted only Windows.
+  again.
 - Sliders move in whole steps, so they no longer shake as they are dragged,
   and never show a number past the slider's end.
 - If the headset muted the PC's microphone, by its arm or by being switched
@@ -293,15 +235,12 @@ and date.
 - A screen reader now announces noise cancellation, the Mode button, the lower
   dial and Superhuman Hearing's sound as named groups of options, instead of
   leaving the group's name out.
-- A headset Neap doesn't recognise now shows simply as "Headset", rather than
-  as "Stealth Pro II".
 - The volume and microphone sliders no longer jump back while they are moved.
   The headset reports each level a moment late, and a late report pulled the
   slider back, then forward again. They now leave the headset's reports alone
   for a moment after a change.
 - A profile saved on one headset no longer shows as changed on another that
   lacks some of its settings, and saving over it keeps them.
-- With nothing connected, Home says "Headset" rather than "Stealth Pro II".
 - On Linux, a headset that seems to say nothing is also listened for where
   Linux keeps what the headset sends unasked. If it still says nothing, the
   log says what arrived there.
@@ -317,9 +256,8 @@ and date.
 - Settings and recordings show a test build's full version, such as
   0.2.1.1, rather than the release it follows.
 - When a transmitter opens but the headset gives no answer, the log and any
-  recording say so, rather than leaving "Quiet" unexplained.
-- When a transmitter opens and the headset gives no answer, the log says what
-  was tried, and the first ask after Neap starts waits longer, in case the
+  recording say so and what was tried, rather than leaving "Quiet"
+  unexplained, and the first ask after Neap starts waits longer, in case the
   answer is only slow.
 - Neap no longer changes the settings of a headset it doesn't know, as it
   always said it wouldn't. It only reads them.
