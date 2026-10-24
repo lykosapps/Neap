@@ -9,23 +9,23 @@ the models, not this file.
 - **—** — not offered on this headset: either it does not have it, or what it does is
   not yet known. Each headset's file in `docs/headsets` says which.
 
-| Function | Stealth Pro II |
-|---|---|
-| Battery | Yes |
-| Master volume | Yes |
-| Voice prompts | Yes |
-| Noise cancellation | Yes |
-| Superhuman Hearing | Yes |
-| Game equaliser | Yes |
-| Microphone | Yes |
-| Mic monitoring | Yes |
-| AI noise reduction | Yes |
-| Noise gate | Yes |
-| Microphone equaliser | Yes |
-| Mode button | Yes |
-| Lower dial | Yes |
-| Chat wheel | Yes |
-| Lights | Yes |
-| Auto shut-off | Yes |
-| Wake on motion | Yes |
-| Max loudness boost | Yes |
+| Function | Stealth Pro II | Atlas Air |
+|---|---|---|
+| Battery | Yes | Yes |
+| Master volume | Yes | Yes |
+| Voice prompts | Yes | Yes |
+| Noise cancellation | Yes | — |
+| Superhuman Hearing | Yes | Yes |
+| Game equaliser | Yes | Yes |
+| Microphone | Yes | Yes |
+| Mic monitoring | Yes | Yes |
+| AI noise reduction | Yes | — |
+| Noise gate | Yes | Offered |
+| Microphone equaliser | Yes | Yes |
+| Mode button | Yes | — |
+| Lower dial | Yes | — |
+| Chat wheel | Yes | — |
+| Lights | Yes | Offered |
+| Auto shut-off | Yes | Yes |
+| Wake on motion | Yes | — |
+| Max loudness boost | Yes | — |

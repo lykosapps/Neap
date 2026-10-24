@@ -230,7 +230,7 @@ public static class HeadsetModels
     /// does not know the Atlas Air: its hardware, speakers and microphone are
     /// those of a headset Neap has no support for.
     /// </remarks>
-    public const bool AtlasAirReleased = false;
+    public const bool AtlasAirReleased = true;
 
     public static readonly IReadOnlyList<HeadsetModel> All = AtlasAirReleased ? [StealthProII, AtlasAir] : [StealthProII];
 
