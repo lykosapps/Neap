@@ -66,13 +66,27 @@ parametric mode with every adjustment in use.
 
 - **One process at a time.** Only one program can usefully hold the
   headset's control channel. Close Swarm II and this app before using the
-  probe.
+  probe. Any other tool reading the control channel takes replies meant for
+  Neap, so stop Neap before using one, or log from inside Neap.
 - **Prove which device you are talking to.** A transmitter answers questions
   about a headset it can no longer reach, with stale values. The probe's `who`
   command asks each one separately.
+- **A repeated report is not a new answer.** A transmitter read before it has
+  anything new hands back its last report again. Count a reply once, and on
+  Linux go by a report's length byte, not by what is left in its buffer.
+- **A transmitter can stop answering until it is replugged.** One plugged in
+  with nothing reading it, or suspended by the system, can give only empty
+  reports. A reset sometimes brings it back; unplugging it and plugging it
+  back in with Neap already running always has so far.
 - **Never write a transmitter slot's base address** (0x400, 0x420, 0x440,
   0x460). Writing one once left a headset selected onto the wrong
   transmitter. See FINDINGS.md.
+- **Anything the headset keeps is a risk.** A setting written through the
+  registry is put back by writing the old value. A stored setting written
+  beneath the protocol (FINDINGS.md, *The firmware layer*), the loudness
+  boost's level among them, survives a restart, and a firmware edit can stop
+  the headset starting at all: one did. Back up first, know how to put it
+  back, and ask the headset's owner before trying either.
 
 ## Performance budgets
 
@@ -168,7 +182,11 @@ in front, signing out and updating from an installed copy stay by hand.
    says Neap is not allowed to use the headset, with no "switch it on" cards.
    **Allow access** asks for the password once, installs the rule, and the
    headset appears without replugging. Where the system has no password
-   prompt, the button copies the command to run.
+   prompt, the button copies the command to run. With an older rule
+   installed, Neap offers the current one. With the transmitter plugged in
+   long before Neap starts, Neap connects, or, if its one restart brings
+   nothing back, Home asks for the transmitter to be unplugged and plugged
+   back in, and the headset appears once it is.
 9. **Shortcuts.** With the switch on, and a game or any program in front, the
    three keys move the mix (Linux: an X program; a native Wayland one is out
    of reach). A key another program holds shows its trouble beside it.
