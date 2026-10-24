@@ -11,13 +11,7 @@ and date.
 
 ## Unreleased
 
-### Fixed
-
-- On Linux, when a transmitter stays silent after Neap has restarted it,
-  Home asks you to unplug it and plug it back in. It used to say the headset
-  was off or out of range, though switching it on could not help.
-
-## 0.3.0 — 2026-10-23
+## 0.3.0 — 2026-10-24
 
 **A redesigned Neap for the Stealth Pro II.**
 
@@ -250,6 +244,9 @@ and date.
   that is only switched off is no reason to ask.
 - On Linux, a transmitter that answers but has no headset linked to it is no
   longer restarted. The restart switched the headset off as it came back.
+- On Linux, when a transmitter stays silent after Neap has restarted it,
+  Home asks you to unplug it and plug it back in. It used to say the headset
+  was off or out of range, though switching it on could not help.
 - Choosing which apps carry chat now opens in a dropdown over the page,
   instead of an in-card list that grew and shrank. The card keeps one height,
   so the game and chat dial and the settings below it no longer jump as you
