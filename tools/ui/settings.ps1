@@ -86,9 +86,20 @@ if ($Parts.Contains('A')) {
                 Test-Contrast $bitmap $status 'the status line'
                 Test-Contrast $bitmap (Find-Text 'Problems and other headsets') 'Problems and other headsets'
                 Test-ContrastBesideControl $bitmap (Find-Named 'Start when you sign in') 'the name of Start when you sign in'
-                Test-Contrast $bitmap (Find-Text 'Free software under the GNU GPL, version 3 or later, with no warranty. Not affiliated with or endorsed by Turtle Beach.') 'the licence line'
             }
             finally { $bitmap.Dispose() }
+
+            # The licence line ends a page taller than the window, so it is scrolled into view
+            # (the page's ScrollViewer is not itself an element; each line offers ScrollItem),
+            # measured in a new picture, and the page scrolled back to its title.
+            $licence = Find-Text 'Free software under the GNU GPL, version 3 or later, with no warranty. Not affiliated with or endorsed by Turtle Beach.'
+            $licence.GetCurrentPattern([System.Windows.Automation.ScrollItemPattern]::Pattern).ScrollIntoView()
+            Wait-Stable { (Get-Box (Find-Text 'Problems and other headsets')).Y } | Out-Null
+            $bitmap = Save-Shot "settings-licence-$theme" -Top 700
+            try { Test-Contrast $bitmap (Find-Text $licence.Current.Name) 'the licence line' }
+            finally { $bitmap.Dispose() }
+            (Find-Text 'Settings').GetCurrentPattern([System.Windows.Automation.ScrollItemPattern]::Pattern).ScrollIntoView()
+            Wait-Stable { (Get-Box (Find-Text 'Settings')).Y } | Out-Null
 
             Resize 625 800
             $name = Find-Text 'Neap'; $act = Find-Lowest 'Update and restart'; $rect = Get-NeapRect
