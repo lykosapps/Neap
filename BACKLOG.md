@@ -186,7 +186,3 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - Mode button presses that trigger actions on the PC.
 - Spot Swarm II running and offer to close it.
 - Bass and treble boost levels, if the headset turns out to have them.
-- A virtual-cable fallback, for older Windows or calls in a browser.
-- The Controls page drawing of the headset.
-- Unreachable states in the pretend headset.
-- The equaliser as one tab stop.
