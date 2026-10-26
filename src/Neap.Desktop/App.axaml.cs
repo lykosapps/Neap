@@ -20,11 +20,9 @@ public class App : Application
         // Someone who has asked their system for high contrast gets its
         // colours, and gets them as they change while the app is open. A
         // pretend run can be shown in either theme whatever the system is set to.
-        HighContrast.Install(this);
-        FluentKeys.Install(this);
-        ChooseTheme();
+        InstallThemes();
         if (Motion.Enabled) Styles.Add(new StyleInclude(new Uri("avares://Neap.Desktop/")) { Source = new Uri("avares://Neap.Desktop/Themes/Motion.axaml") });
-        if (PlatformSettings is { } settings) settings.ColorValuesChanged += (_, _) => ChooseTheme();
+        if (PlatformSettings is { } settings) settings.ColorValuesChanged += (_, _) => InstallThemes();
 
         AppLog.Write(Pretend.Active ? "started with the pretend headset" : Startup.LaunchedAtLogin ? "started at login" : "started");
 
@@ -41,6 +39,14 @@ public class App : Application
             desktop.Exit += (_, _) => AppServices.Stop();
         }
         base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>Reads the system's high-contrast colours again and picks the look to use.</summary>
+    private void InstallThemes()
+    {
+        HighContrast.Install(this);
+        FluentKeys.Install(this);
+        ChooseTheme();
     }
 
     /// <summary>Picks high contrast, or the theme a pretend run asked for, or the system's own.</summary>

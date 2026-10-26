@@ -42,11 +42,11 @@ to GitHub, these become issues.
 - With the cable in, unplugging the Charging Dock left the headset silent
   until it was switched off and on, while Neap showed it connected. Seen
   once. Needs the headset.
-- On Linux, a transmitter whose replies come only on its interrupt pipe can
-  read as silent for as long as it stays open, if one direct reply comes back
-  empty but not all zeros. From the 0.3.0 code review; not seen on a device.
 - Switching Windows into high contrast, or between high contrast themes,
-  while Neap is open keeps the colours Neap read when it started.
+  while Neap is open kept the colours Neap read when it started. Neap now
+  reads them again on each change (26 October), not yet seen: switch high
+  contrast themes with Neap open and check the colours follow. Then add a
+  line to the changelog and clear this one.
 - The game equaliser's Bands and Parametric choice may show neither as
   chosen after a headset change, as the hidden microphone panel's buttons
   share its group. From the 0.3.0 code review; not reproduced, as the page
