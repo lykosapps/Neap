@@ -42,9 +42,6 @@ to GitHub, these become issues.
 
 - **Screen reader on both systems.** Narrator on Windows and Orca on Linux
   have not been run on the new app.
-- **A screen reader cannot hear a profile's apps.** On the Profiles page,
-  the line under each profile listing its apps, and whether one switches
-  only on the microphone, never reaches a screen reader.
 - **The Linux AppImage on more than the Steam Deck.** GitHub builds it and the
   tests pass on Linux, but it was last run by hand before the late interface
   changes. Other distributions, a Wayland-only desktop, GNOME with its
@@ -65,8 +62,8 @@ to GitHub, these become issues.
 ## Bugs
 
 - The chat mix does not move when the wheel is turned, on the Windows app,
-  with the headset connected. Seen once; the conditions are not yet pinned
-  down. Needs the headset.
+  with the headset connected. Seen once; 0.3.0 fixed a wheel stuck at the
+  middle, which may be this. Check on the headset before closing.
 - After the headset's link dropped and came back several times, the profile
   spinner never finished and the microphone button could not be used. A
   second program asking the same transmitter at the same time may have caused
@@ -140,11 +137,6 @@ to GitHub, these become issues.
   refuses even to an administrator. Neap currently only asks the person to
   turn Dolby Access's equaliser off themselves, wherever Dolby Atmos is
   offered.
-- **Superhuman Hearing's type as buttons** rather than a drop-down, as the
-  Mode button's jobs are shown.
-- **Quick panel from the taskbar.** A small panel for mid-game controls (mix,
-  mute, noise control) without opening the window. Eventual; Home is its
-  model.
 - **Renaming the headset**, as Swarm II can. Neap neither shows nor changes
   the headset's name. Needs the headset: that the new name is kept, and
   where else it appears.
@@ -180,12 +172,10 @@ to GitHub, these become issues.
   Atlas Air share the Stealth Pro II's platform. Each needs an owner to
   capture its settings and run the checks, so ask for help once public.
   The 600 Gen 3 first. Screens need to show only what a headset has.
-- **Help add this headset.** When Neap finds a Turtle Beach headset it does
-  not support, it offers to read it and save the result, with the headset's
-  name and transmitter addresses removed and the contents shown before
-  anything is shared, then opens a filled-in GitHub issue to attach it to.
-  Later, a guided version that watches while the owner changes settings in
-  Swarm II, to match each value to its control.
+- **Help add this headset, guided.** Neap already records a headset it
+  does not support, shows what it found and opens a filled-in GitHub issue
+  (0.3.0). Still wanted: a version that watches while the owner changes
+  settings in Swarm II, to match each value to its control.
 
 ## Checks with the headset
 
