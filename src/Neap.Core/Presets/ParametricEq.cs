@@ -68,9 +68,10 @@ public enum ParametricStart
 /// moving a band.
 /// </para>
 /// <para>
-/// Neighbouring bands overlap, so what plays is the sum of all ten filters,
-/// not a line through the ten gains. Everything here is worked out from the
-/// filters themselves, so the curve shown is the curve heard.
+/// Neighbouring bands overlap, so the model's curve is the sum of all ten
+/// filters, not a line through the ten gains. It is the filter table's
+/// curve, not a measured one: the filter type is undocumented, and the
+/// firmware's compressor after the equaliser is left out (FINDINGS.md).
 /// </para>
 /// </remarks>
 public static class ParametricEq
