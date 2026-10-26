@@ -134,13 +134,8 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 - **The tray icon's menu** in light and dark, on screen.
 - **Does CrossPlay report its presses?** Unknown.
-- **A profile saved straight after opening Neap.** Open Neap, save a
-  profile from Home at once, switch to another and back: does the
-  equaliser come back, and does the bar stay un-Edited?
 - **The spare battery** on the Charging Dock's panel: out, in, and gone
   on the USB Transmitter.
-- **Two chat apps at once**, Discord and Teams say: both follow the chat
-  side, and clearing the last puts every volume back.
 - **The chat app list on screen** in light and high contrast, and the screen
   checks' new steps for it, which have not had a full run.
 - **The parametric curve heard, at the ends.** Measured from 60 Hz to
