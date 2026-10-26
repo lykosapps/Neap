@@ -182,10 +182,9 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 ## Ideas, not yet decided
 
-- Neap's own volume overlay. Windows' own cannot be hidden.
+- A chat mix overlay: a small on-screen display when the mix moves.
 - Mode button presses that trigger actions on the PC.
 - Spot Swarm II running and offer to close it.
-- Charging reminders.
 - Bass and treble boost levels, if the headset turns out to have them.
 - A virtual-cable fallback, for older Windows or calls in a browser.
 - The Controls page drawing of the headset.
