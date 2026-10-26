@@ -102,6 +102,14 @@ first and say how sure each finding is.
   matched to anything (see [FINDINGS.md](FINDINGS.md)); whether the charging
   flag means charging, or only powered by the cable; 32-bit audio formats
   are assumed to be floating point.
+- **Equaliser boosts with the loudness boost raised.** SP2Tools reads a
+  compressor and a level limit after the equaliser, and the loudness boost
+  raises the level going into it, which the firmware seems to keep 12 dB
+  down as room for equaliser boosts (read from the code, not proven). On a
+  headset with the boost raised, measure a bass boost and all ten bands at
+  +9 dB for compression or clipping, against the 28 September measurement
+  at stock. If it squashes, the loudness boost or the equaliser may need to
+  say so. Needs the headset and a recording microphone.
 - **Bass and treble boost levels**, if the headset turns out to have them.
 - **Dolby Access's own profiles from Neap** (parked). Offer Dolby Access's
   profiles (Game, Movie, Music, Voice) from Neap, and turn each one's own
