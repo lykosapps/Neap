@@ -12,6 +12,9 @@ to GitHub, these become issues.
   function, writes included. Before it is released, set its list of
   functions, and whether its settings may be changed, to what the testers
   confirmed on GitHub issue 1.
+  Also before it: unmuting from Neap before the headset's settings are read
+  throws away the mic monitoring level kept from the mute, so monitoring
+  stays at nothing.
 
 - **The Linux AppImage on more than the Steam Deck.** GitHub builds it and the
   tests pass on Linux, but it was last run by hand before the late interface
@@ -57,9 +60,6 @@ to GitHub, these become issues.
 - Before the firmware page is released: ticking an edit, or restoring a
   backup, rebuilds the list and drops keyboard focus; and progress is drawn
   from the writer's own thread, which a real writer would not allow.
-- Before the Atlas Air is released: unmuting from Neap before the headset's
-  settings are read throws away the mic monitoring level kept from the mute,
-  so monitoring stays at nothing.
 
 ### Known limits, recorded rather than fixed
 
