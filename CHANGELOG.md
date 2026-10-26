@@ -11,8 +11,39 @@ and date.
 
 ## Unreleased
 
+### Added
+
+- The mini panel has a Superhuman Hearing tile: a press turns it on or off,
+  and the arrow in its corner picks Legacy, Footsteps or Gunshots. It is
+  left out for a headset without it.
+- In Settings, you choose which controls the mini panel shows: the
+  microphone, noise cancellation, spatial sound, Superhuman Hearing and the
+  equaliser preset. The panel shows what it did before, without Superhuman
+  Hearing, until you choose. The mix is always there.
+
+### Changed
+
+- The notices about where the headset's sound goes, and the messages that
+  ask for access to the headset on Linux, are shorter, and the long heading
+  on the Device page is too.
+
 ### Fixed
 
+- A recording no longer lists a headset output's level every second when
+  two of its outputs have the same name; each is noted only when its own
+  level changes.
+- A recording lists a change to the loudness boost beside the other changes
+  Neap sends, and Neap sends it only to a headset known to take it.
+- On the game equaliser's bands view, the line shows what the headset plays,
+  not a line through the ten gains. Neighbouring bands overlap, so ten bands
+  at +9 dB play about +13.5 dB, and the plot now reaches high enough to show
+  it. The points stay on the gains you set.
+- A frequency typed in the parametric equaliser takes the unit the field
+  shows: "20" over "20 kHz" is 20 kHz, and "1,500 Hz" is 1500 Hz, not 20 Hz.
+- The note that the headset can't match a curve exactly now covers the very
+  top of the range, where a boost at 20 kHz is beyond the highest band.
+- The list of chat apps, and the apps on a profile, show a program Windows
+  gives no name for as words, "Ms Teams" rather than "ms-teams".
 - The battery no longer shows more than 100%. A headset switched back on
   was seen reporting 250%; a number that is not a charge is left out until
   the next real one.

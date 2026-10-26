@@ -86,6 +86,13 @@
   <data name="Mini_SpatialChoices" xml:space="preserve">
     <value>Spatial sound choices</value>
   </data>
+  <data name="Mini_HearingTile" xml:space="preserve">
+    <value>Hearing</value>
+    <comment>The Superhuman Hearing tile's name in the mini panel, a third of its width.</comment>
+  </data>
+  <data name="Mini_HearingChoices" xml:space="preserve">
+    <value>Superhuman Hearing sounds</value>
+  </data>
   <data name="Mini_Equaliser.Text" xml:space="preserve">
     <value>Equaliser</value>
   </data>
@@ -339,7 +346,7 @@
     <value>Device</value>
   </data>
   <data name="Device_Section.What" xml:space="preserve">
-    <value>The audio format, power, firmware, serial number and everything the headset reports</value>
+    <value>Audio format, power, firmware and everything the headset reports</value>
   </data>
   <data name="Device_PowerHeading.Text" xml:space="preserve">
     <value>Power</value>
@@ -473,6 +480,12 @@
   <data name="Settings_MiniPanel.Description" xml:space="preserve">
     <value>A click on the icon by the clock opens quick controls instead of the window.</value>
   </data>
+  <data name="Settings_MiniTiles.Header" xml:space="preserve">
+    <value>Controls in the mini panel</value>
+  </data>
+  <data name="Settings_MiniTiles.Description" xml:space="preserve">
+    <value>The mix is always there. Choose which of the others to show.</value>
+  </data>
   <data name="Settings_StartMinimised" xml:space="preserve">
     <value>Starts minimised, as this desktop has no notification area.</value>
   </data>
@@ -594,13 +607,13 @@
     <value>"{0}" for communications</value>
   </data>
   <data name="Routing_CableBoth" xml:space="preserve">
-    <value>Your headset is plugged in with its cable. It plays one source at a time, and sends your voice only over the cable.</value>
+    <value>Plugged in by cable, your headset plays one source at a time and sends your voice only over the cable.</value>
   </data>
   <data name="Routing_CableSound" xml:space="preserve">
-    <value>Your headset is plugged in with its cable and plays one source at a time, so sound sent to the {0} and to the cable won't play together.</value>
+    <value>Plugged in by cable, your headset plays one source at a time, so sound sent to the {0} and the cable won't play together.</value>
   </data>
   <data name="Routing_CableMicrophone" xml:space="preserve">
-    <value>Your headset is plugged in with its cable and sends your voice only over it, so nobody will hear you.</value>
+    <value>Plugged in by cable, your headset sends your voice only over it, so nobody will hear you.</value>
   </data>
   <data name="Routing_On" xml:space="preserve">
     <value>Your headset is on the {0}.</value>
@@ -615,10 +628,10 @@
     <value>Your headset is on the {0}, so nobody will hear you.</value>
   </data>
   <data name="Routing_OnUnplugged" xml:space="preserve">
-    <value>Your headset is on the {0}, which isn't plugged in. Press CrossPlay on the headset to switch it to the {1}.</value>
+    <value>Your headset is on the {0}, which isn't plugged in. Press CrossPlay to switch to the {1}.</value>
   </data>
   <data name="Routing_PressOrChoose" xml:space="preserve">
-    <value>Press CrossPlay on the headset to switch it to the {0}, or to stay on the {1}, choose {2} in Sound settings.</value>
+    <value>Press CrossPlay to switch to the {0}, or choose {2} in Sound settings to stay on the {1}.</value>
   </data>
   <data name="List_Separator" xml:space="preserve">
     <value>, </value>
@@ -981,7 +994,7 @@
     <value>Allow access</value>
   </data>
   <data name="Access_Manual" xml:space="preserve">
-    <value>Your system keeps the headset's controls to itself until it is told otherwise, and cannot ask for your password from here. Copy the command, run it in a terminal, then unplug the headset's transmitter and plug it in again.</value>
+    <value>Your system can't ask for your password here. Copy the command, run it in a terminal to allow access, then unplug the transmitter and plug it back in.</value>
   </data>
   <data name="Access_UpdateTitle" xml:space="preserve">
     <value>Neap's access to the headset needs updating</value>
@@ -993,13 +1006,13 @@
     <value>Update access</value>
   </data>
   <data name="Access_UpdateManual" xml:space="preserve">
-    <value>The transmitter has stopped answering. The newer access rule keeps it from being put to sleep, and your system cannot ask for your password from here. Copy the command, run it in a terminal, then unplug the headset's transmitter and plug it in again.</value>
+    <value>The transmitter has stopped answering. Your system can't ask for your password here: copy the command, run it in a terminal to update access, then unplug the transmitter and plug it back in.</value>
   </data>
   <data name="Access_Copy" xml:space="preserve">
     <value>Copy the command</value>
   </data>
   <data name="Access_Failed" xml:space="preserve">
-    <value>That did not work: {0} Copy the command and run it in a terminal instead, then unplug the headset's transmitter and plug it in again.</value>
+    <value>That did not work: {0} Copy the command and run it in a terminal instead, then unplug the transmitter and plug it back in.</value>
   </data>
   <data name="Section_WhyOff" xml:space="preserve">
     <value>Switch the headset on to change these.</value>

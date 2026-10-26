@@ -114,6 +114,9 @@ public sealed class AppSettings
     /// </remarks>
     [JsonPropertyName("mini_panel")] public bool MiniPanel { get; set; } = true;
 
+    /// <summary>The names of the controls the mini panel shows, or null while the person has not chosen; see <see cref="Core.MiniTiles"/>.</summary>
+    [JsonPropertyName("mini_tiles")] public List<string>? MiniTiles { get; set; }
+
     /// <summary>Whether Neap asks GitHub once a day for a newer version.</summary>
     /// <remarks>
     /// On by default: an app that never says it is out of date leaves people

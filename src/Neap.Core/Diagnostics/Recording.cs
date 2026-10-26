@@ -71,7 +71,7 @@ public sealed class Recording(string app, string system)
     private Snapshot? _start;
     private Snapshot? _end;
     private SoundSurvey? _lastSound;
-    private readonly Dictionary<(bool Output, string Name), SoundDevice> _levels = [];
+    private readonly Dictionary<(bool Output, string Name, int Nth), SoundDevice> _levels = [];
     private string? _lastFailed;
 
     /// <summary>Values met in the recording that identify one person's hardware: the serial number and the radio addresses.</summary>
@@ -119,8 +119,10 @@ public sealed class Recording(string app, string system)
     /// <summary>Notes a change Neap asked the headset for, and why it was not sent if it was not.</summary>
     public void Wrote(DateTime at, WriteAttempt write)
     {
-        string line = Value(write.Key.ToString("x", CultureInfo.InvariantCulture), write.Value,
-            write.Setting?.ToString("x", CultureInfo.InvariantCulture));
+        string line = write.Name is { } name
+            ? $"{"",-7} {name,-26} {write.Value}"
+            : Value(write.Key.ToString("x", CultureInfo.InvariantCulture), write.Value,
+                write.Setting?.ToString("x", CultureInfo.InvariantCulture));
         lock (_gate) Add(at, write.Refused is null ? $"write    {line}" : $"write    {line}  not sent: {write.Refused}");
     }
 
@@ -137,18 +139,38 @@ public sealed class Recording(string app, string system)
                 }
             _lastSound = sound;
             _lastFailed = null;
-            foreach (var device in sound.Devices)
+            var present = Keyed(sound.Devices);
+            foreach (var (key, device) in present)
             {
-                if (_levels.TryGetValue((device.Output, device.Name), out var was) && Steady(was) == Steady(device)) continue;
-                _levels[(device.Output, device.Name)] = device;
+                if (_levels.TryGetValue(key, out var was) && Steady(was) == Steady(device)) continue;
+                _levels[key] = device;
                 Add(at, $"sound    {Level(device)}");
             }
-            foreach (var gone in _levels.Values.Where(was => !sound.Devices.Any(d => d.Output == was.Output && d.Name == was.Name)).ToList())
+            foreach (var gone in _levels.Keys.Where(key => !present.ContainsKey(key)).ToList())
             {
-                _levels.Remove((gone.Output, gone.Name));
-                Add(at, $"sound    {Device(gone)}  no longer active");
+                Add(at, $"sound    {Device(_levels[gone])}  no longer active");
+                _levels.Remove(gone);
             }
         }
+    }
+
+    /// <summary>Each device under a key of its own, which a second device with the same name does not share.</summary>
+    /// <remarks>
+    /// A survey names no device by anything but its name, and two of the
+    /// headset's outputs can share one. Told apart by their order among those
+    /// of that name, each is compared with its own last reading rather than
+    /// with the other's, which would report both on every second.
+    /// </remarks>
+    private static Dictionary<(bool Output, string Name, int Nth), SoundDevice> Keyed(IReadOnlyList<SoundDevice> devices)
+    {
+        var keyed = new Dictionary<(bool, string, int), SoundDevice>();
+        foreach (var device in devices)
+        {
+            int nth = 0;
+            while (keyed.ContainsKey((device.Output, device.Name, nth))) nth++;
+            keyed[(device.Output, device.Name, nth)] = device;
+        }
+        return keyed;
     }
 
     /// <summary>Notes something that could not be read during the recording, once until a reading succeeds.</summary>

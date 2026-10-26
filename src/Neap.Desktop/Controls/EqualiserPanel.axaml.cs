@@ -79,6 +79,10 @@ public partial class EqualiserPanel : UserControl
 
     private readonly List<BandCell> _cells = new();
     private ScrollViewer? _scroller;
+
+    /// <summary>How many panels have been made, for each one's own group of mode buttons.</summary>
+    private static int _panels;
+
     private BankState? _state;
     private string? _confirmingDelete;
     private bool _folded;
@@ -101,6 +105,12 @@ public partial class EqualiserPanel : UserControl
     public EqualiserPanel()
     {
         InitializeComponent();
+        // A group of its own: both panels are on the page at once, and buttons
+        // sharing a group name are one choice, so the hidden panel's buttons
+        // would clear this panel's.
+        string group = $"EqualiserMode{++_panels}";
+        ModeBands.GroupName = group;
+        ModeParametric.GroupName = group;
         OverwriteButton.Content = Strings.Get("Equaliser_OverwriteAny");
         SaveButton.Content = Strings.Get("Equaliser_SaveAsNew");
         AutomationProperties.SetName(Presets, Strings.Get(Bank == Bank.Game ? "Equaliser_GamePresets" : "Equaliser_MicPresets"));
@@ -363,6 +373,7 @@ public partial class EqualiserPanel : UserControl
 
         Response.Minimum = PresetService.BandFloor;
         Response.Maximum = PresetService.BandCeiling;
+        Response.DrawsHeard = ParametricEq.Covers(Bank);
         Response.Frequencies = labels;
 
         Bands.ColumnDefinitions.Clear();

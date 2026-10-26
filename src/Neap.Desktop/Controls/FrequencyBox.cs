@@ -86,7 +86,7 @@ public sealed class FrequencyBox : UserControl
     /// <summary>Takes what was typed, or puts back what was there.</summary>
     private void Commit()
     {
-        if (FrequencyEntry.Parse(_box.Text ?? "") is double typed) Take(typed);
+        if (FrequencyEntry.Parse(_box.Text ?? "", _value) is double typed) Take(typed);
         else Show(_value);
     }
 

@@ -32,6 +32,14 @@ public static class Programs
     /// <summary>The process name of the program behind a process, "witcher3" for witcher3.exe; empty when unknown.</summary>
     public static string NameOf(uint pid) => PathOf(pid) is { } path ? Path.GetFileNameWithoutExtension(path) : "";
 
+    /// <summary>A program's process name as a person would read it: "ms-teams" as "Ms Teams", "Discord" as it is.</summary>
+    /// <remarks>For the list of apps when Windows gives no description; the process name itself is what the mix matches against.</remarks>
+    public static string Readable(string name)
+    {
+        var words = name.Split(['-', '_', ' '], StringSplitOptions.RemoveEmptyEntries);
+        return string.Join(' ', words.Select(w => char.ToUpperInvariant(w[0]) + w[1..]));
+    }
+
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern IntPtr OpenProcess(uint access, [MarshalAs(UnmanagedType.Bool)] bool inherit, uint pid);
 

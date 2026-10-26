@@ -96,7 +96,7 @@ internal sealed class WindowsPlayback : IPlayback
         {
             get
             {
-                string name = Program;
+                string name = Programs.Readable(Program);
                 if (Programs.PathOf(session.GetProcessID) is not { } path) return name;
                 try
                 {

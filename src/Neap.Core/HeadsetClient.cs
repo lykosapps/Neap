@@ -18,7 +18,8 @@ public class WritesDisabledException : Exception
 /// <param name="Value">The value as sent, or as asked for when it was not.</param>
 /// <param name="Refused">Why it was not sent, or null when it was.</param>
 /// <param name="Setting">The setting it was checked as, where the headset keeps that setting at <paramref name="Key"/>; see <see cref="HeadsetModels.CheckedAs"/>.</param>
-public sealed record WriteAttempt(int Key, string Value, string? Refused, int? Setting = null);
+/// <param name="Name">What the change is called, for one that is not a setting at a key, such as the loudness level; then <paramref name="Key"/> is zero.</param>
+public sealed record WriteAttempt(int Key, string Value, string? Refused, int? Setting = null, string? Name = null);
 
 /// <summary>
 /// Reads and writes headset settings. Reads are always allowed; a write needs
@@ -431,13 +432,34 @@ public sealed class HeadsetClient : IDisposable
     /// range. The headset sends no reply; confirm it with <see cref="ReadLoudness"/>.
     /// </summary>
     /// <exception cref="WritesDisabledException">The client is read-only.</exception>
+    /// <exception cref="InvalidOperationException">The headset is not one the command is known for.</exception>
+    /// <remarks>
+    /// The level is kept by the headset, so it is sent only to a headset known
+    /// to take it, as <see cref="Set"/> sends only a key known to be safe.
+    /// </remarks>
     public void SetLoudness(float db)
     {
-        if (!AllowWrites)
-            throw new WritesDisabledException("refusing to set the loudness level: this client is read-only");
-        _transport.SendOutput(LoudnessBoost.SetFrame(db, RelayThroughBase));
-        _lastSet = Stopwatch.GetTimestamp();
+        float level = LoudnessBoost.ClampLevel(db);
+        string value = string.Create(CultureInfo.InvariantCulture, $"{level:0.#} dB");
+        try
+        {
+            if (!AllowWrites)
+                throw new WritesDisabledException("refusing to set the loudness level: this client is read-only");
+            if (HeadsetModels.Of(ProductId) is not { HasLoudnessBoost: true })
+                throw new InvalidOperationException("refusing to set the loudness level: this headset is not known to take it");
+            _transport.SendOutput(LoudnessBoost.SetFrame(level, RelayThroughBase));
+            _lastSet = Stopwatch.GetTimestamp();
+        }
+        catch (Exception ex)
+        {
+            Wrote?.Invoke(new WriteAttempt(0, value, ex.Message, Name: LoudnessName));
+            throw;
+        }
+        Wrote?.Invoke(new WriteAttempt(0, value, null, Name: LoudnessName));
     }
+
+    /// <summary>What a recording calls the loudness level, which no setting key holds.</summary>
+    public const string LoudnessName = "loudness_level";
 
     /// <summary>Reads the gain the headset stores for mic monitoring, or null when it gives none; see <see cref="Sidetone"/>.</summary>
     public float? ReadSidetone(TimeSpan wait) =>

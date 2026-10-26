@@ -91,6 +91,11 @@
                     Icon="{StaticResource IconControls}">
                     <ToggleSwitch x:Name="MiniPanelSwitch" />
                 </c:SettingsCard>
+                <!-- Which controls the panel shows; their boxes are made in code, from the list Core keeps. -->
+                <c:SettingsCard
+                    x:Name="MiniTilesCard"
+                    loc:Uid.Value="Settings_MiniTiles"
+                    Icon="{StaticResource IconControls}" />
             </StackPanel>
 
             <TextBlock loc:Uid.Value="Settings_DiagnosticsHeading" Classes="sectionheader" />

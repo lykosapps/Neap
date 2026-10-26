@@ -107,6 +107,15 @@ public static class ParametricEq
     private static readonly double[] Judged =
         Enumerable.Range(0, 121).Select(i => 25 * Math.Pow(18000.0 / 25, i / 120.0)).ToArray();
 
+    /// <summary>
+    /// The frequencies a miss is judged at: twelve to the octave across the
+    /// whole plot, so a boost the bands cannot reach at the very top or bottom
+    /// is said, though the fit leaves those ends alone.
+    /// </summary>
+    private static readonly double[] Reached =
+        Enumerable.Range(0, 121).Select(i => Adjustment.LowestFrequency
+            * Math.Pow((double)Adjustment.HighestFrequency / Adjustment.LowestFrequency, i / 120.0)).ToArray();
+
     private const int Rounds = 8;
 
     /// <summary>What one peaking filter does at a frequency, in decibels.</summary>
@@ -142,6 +151,32 @@ public static class ParametricEq
         for (int i = 0; i < Centres.Count && i < bands.Count; i++)
             sum += Peak(Centres[i], bands[i] / 10.0, BandQ, frequency);
         return sum;
+    }
+
+    /// <summary>The frequency at a place across the band view, where band 0 sits at 0 and each band is one place further on.</summary>
+    /// <remarks>The band view spaces its bands evenly, and the centres are an octave apart, so the places run along a logarithmic scale.</remarks>
+    /// <param name="place">Where, in bands: 0 is the first band's centre and a fraction is between two.</param>
+    public static double FrequencyAtPlace(double place) =>
+        Centres[0] * Math.Pow(Centres[^1] / Centres[0], place / (Centres.Count - 1));
+
+    /// <summary>What the headset plays across the band view, in tenths of a decibel, at evenly spaced places from the plot's left edge to its right.</summary>
+    /// <remarks>
+    /// The view gives each of the bands an equal column with its centre in the
+    /// middle, so the first place is half a column before the first band and
+    /// the last half a column after the last.
+    /// </remarks>
+    /// <param name="bands">The ten band gains, in tenths.</param>
+    /// <param name="samples">How many places to work out, at least two.</param>
+    public static double[] HeardAcross(IReadOnlyList<int> bands, int samples)
+    {
+        int count = Math.Max(2, samples);
+        var heard = new double[count];
+        for (int k = 0; k < count; k++)
+        {
+            double place = -0.5 + (double)k / (count - 1) * bands.Count;
+            heard[k] = Heard(bands, FrequencyAtPlace(place)) * 10;
+        }
+        return heard;
     }
 
     /// <summary>What the adjustments ask for at a frequency, in decibels.</summary>
@@ -274,7 +309,7 @@ public static class ParametricEq
 
     /// <summary>The furthest, in decibels, the headset's curve lands from the one asked for.</summary>
     public static double Miss(IReadOnlyList<Adjustment> adjustments, IReadOnlyList<int> bands) =>
-        Judged.Max(f => Math.Abs(Asked(adjustments, f) - Heard(bands, f)));
+        Reached.Max(f => Math.Abs(Asked(adjustments, f) - Heard(bands, f)));
 
     /// <summary>Whether the headset misses the curve asked for by enough to hear, and so enough to say.</summary>
     public static bool FallsShort(IReadOnlyList<Adjustment> adjustments, IReadOnlyList<int> bands) =>

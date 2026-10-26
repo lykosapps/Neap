@@ -321,7 +321,7 @@ public sealed class ProfileService : IDisposable
 
     /// <summary>What a person would call an assigned app, or its process name if it was never seen running.</summary>
 #pragma warning disable CA1822
-    public string DisplayName(string app) => AppSettings.Current.AppNames.GetValueOrDefault(app, app);
+    public string DisplayName(string app) => AppSettings.Current.AppNames.GetValueOrDefault(app, Programs.Readable(app));
 #pragma warning restore CA1822
 
     /// <summary>Takes an app away from whichever profile it is assigned to.</summary>

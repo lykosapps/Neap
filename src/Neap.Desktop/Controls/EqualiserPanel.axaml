@@ -96,12 +96,10 @@
                                 <RadioButton
                                     x:Name="ModeBands"
                                     loc:Uid.Value="Equaliser_ModeBands"
-                                    GroupName="EqualiserMode"
                                     Theme="{StaticResource SegmentButton}" />
                                 <RadioButton
                                     x:Name="ModeParametric"
                                     loc:Uid.Value="Equaliser_ModeParametric"
-                                    GroupName="EqualiserMode"
                                     Theme="{StaticResource SegmentButton}">
                                     <!--
                                         Asked first, in place, when choosing Parametric would

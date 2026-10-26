@@ -21,6 +21,34 @@ public partial class SettingsPage : UserControl
     private double _stackedGap;
     private bool _beside;
 
+    /// <summary>A box for each control the mini panel can show, ticked for those it does.</summary>
+    private static StackPanel MiniTileChoices()
+    {
+        var chosen = Core.MiniTiles.Chosen(AppSettings.Current.MiniTiles).ToHashSet();
+        var boxes = new StackPanel();
+        foreach (var (tile, word) in new[]
+        {
+            (Core.MiniTile.Microphone, "Quick_Microphone.Text"),
+            (Core.MiniTile.NoiseCancellation, "Mini_Noise"),
+            (Core.MiniTile.SpatialSound, "Quick_Spatial.Text"),
+            (Core.MiniTile.SuperhumanHearing, "Quick_Shh.Text"),
+            (Core.MiniTile.EqualiserPreset, "Quick_Preset.Text"),
+        })
+        {
+            var box = new CheckBox { Content = Strings.Get(word), IsChecked = chosen.Contains(tile) };
+            box.IsCheckedChanged += (_, _) =>
+            {
+                if (box.IsChecked == true) chosen.Add(tile);
+                else chosen.Remove(tile);
+                var saved = Core.MiniTiles.ToSave(chosen);
+                AppSettings.Update(s => s.MiniTiles = [.. saved]);
+                AppLog.Write($"mini panel: shows {(saved.Count == 0 ? "only the mix" : string.Join(", ", saved))}");
+            };
+            boxes.Children.Add(box);
+        }
+        return boxes;
+    }
+
     public SettingsPage()
     {
         InitializeComponent();
@@ -34,6 +62,8 @@ public partial class SettingsPage : UserControl
         if (!TrayAvailability.Exists) StartCard.Description = Strings.Get("Settings_StartMinimised");
 
         MiniCard.IsVisible = TrayAvailability.Exists;
+        MiniTilesCard.Below = MiniTileChoices();
+        MiniTilesCard.IsVisible = TrayAvailability.Exists && AppSettings.Current.MiniPanel;
         Advanced.IsVisible = Core.Firmware.FirmwareEdit.Released;
 
         _painting = true;
@@ -62,6 +92,7 @@ public partial class SettingsPage : UserControl
             if (_painting) return;
             bool on = MiniPanelSwitch.IsChecked == true;
             AppSettings.Update(s => s.MiniPanel = on);
+            MiniTilesCard.IsVisible = on;
             AppLog.Write(on ? "mini panel: on, a click on the icon opens it" : "mini panel: off, a click on the icon opens the window");
             (TopLevel.GetTopLevel(this) as MainWindow)?.MiniPanelSettingChanged();
         };

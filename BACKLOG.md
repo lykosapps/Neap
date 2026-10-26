@@ -13,50 +13,9 @@ group only; a line that touches two says so in its text.
 
 Needs only the code and the tests. Safe to do in one go.
 
-### The mini panel
-- **Superhuman Hearing in the mini panel, and a choice of which tiles show**
-  (24 October, asked for on Reddit by a 0.3.0 user; the choice added 26
-  October). The power button turns it on and off too easily, so it gets left
-  in the wrong state; a tile would show and change it without opening the
-  window. Which tiles the panel shows is the person's choice in Settings,
-  for every tile (microphone, noise cancellation, spatial sound, equaliser
-  preset and this one), not only the new one.
-
-### What Neap says
-- **Fewer words in the messages the state audit left long** (23 October):
-  the routing notices, up to 26 words; the Linux access messages, about 45;
-  and the folded sections' titles, such as "The audio format, power,
-  firmware, serial number and everything the headset reports".
-- The chat app list names an app by its program file, such as "ms-teams",
-  when Windows gives no display name.
-
-### The equaliser
-- The band view draws a smooth line through the ten gains, not what plays.
-  Neighbouring bands overlap, so ten bands at +9 dB play about +13.5 dB.
-  The parametric view already draws what plays.
-- Typing "20" in the parametric frequency field gives 20 Hz, even over
-  "20 kHz", and "1,500 Hz" gives 20 Hz.
-- The parametric "can't match this exactly" note ignores the range above
-  18 kHz, where a boost at 20 kHz misses by about 8 dB on the plot.
-- The game equaliser's Bands and Parametric choice may show neither as
-  chosen after a headset change, as the hidden microphone panel's buttons
-  share its group. From the 0.3.0 code review; not reproduced, as the page
-  drawn in parametric mode showed it chosen.
-
 ### Recordings and what Core guarantees
-- A session recording writes both outputs every second when two of the
-  headset's outputs share a name. Whether Windows gives them the same name
-  is not confirmed.
-- A loudness boost write is missing from a session recording's list of
-  writes, and nothing in Core keeps it to headsets where the command is
-  known; only the screen hides the control.
 - Volumes are polled rather than followed by event.
 - The mix dial's size is fixed.
-
-### Before the firmware page is released
-- Ticking an edit, or restoring a backup, rebuilds the list and drops
-  keyboard focus; and progress is drawn from the writer's own thread, which
-  a real writer would not allow.
 
 ## 2. A screen sitting on Windows
 

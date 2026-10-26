@@ -248,6 +248,37 @@ public class PretendHeadsetTests
         Assert.Equal(Core.Audio.LoudnessBoost.StockDb, client!.ReadLoudness(TimeSpan.FromSeconds(1)));
     }
 
+    [Fact]
+    public void TheLoudnessLevelIsSetOnAHeadsetThatTakesItAndSaidToTheRecording()
+    {
+        var headset = new PretendHeadset();
+        using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
+        var attempts = new List<WriteAttempt>();
+        client.Wrote += attempts.Add;
+
+        client.SetLoudness(-6f);
+
+        Assert.Equal(-6f, headset.LoudnessDb);
+        var attempt = Assert.Single(attempts);
+        Assert.Null(attempt.Refused);
+        Assert.Equal(HeadsetClient.LoudnessName, attempt.Name);
+        Assert.Equal("-6 dB", attempt.Value);
+    }
+
+    [Fact]
+    public void TheLoudnessLevelIsNotSentToAHeadsetItIsNotKnownFor()
+    {
+        var headset = new PretendHeadset(atlas: true);
+        using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
+        var attempts = new List<WriteAttempt>();
+        client.Wrote += attempts.Add;
+
+        Assert.Throws<InvalidOperationException>(() => client.SetLoudness(-6f));
+
+        Assert.Equal(Core.Audio.LoudnessBoost.StockDb, headset.LoudnessDb);
+        Assert.NotNull(Assert.Single(attempts).Refused);
+    }
+
     /// <summary>As one owner's recording showed it at the start.</summary>
     [Fact]
     public void AnAtlasAirAnswersAsOneOwnersDid()

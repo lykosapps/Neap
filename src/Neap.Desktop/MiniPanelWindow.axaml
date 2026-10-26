@@ -23,8 +23,9 @@
     </Window.Styles>
 
     <!--
-        The things changed mid-game: the mix, the microphone, noise
-        cancellation, spatial sound and the equaliser preset. A card, as Home's are, drawn
+        The things changed mid-game: the mix, then the controls the person
+        chose to show, from the microphone, noise cancellation, spatial sound,
+        Superhuman Hearing and the equaliser preset. A card, as Home's are, drawn
         in a window of its own so it can sit by the notification area and
         go away when it loses focus.
     -->
@@ -113,33 +114,36 @@
                 but the panel is for the headset in use, so it folds away with
                 the headset's settings rather than standing alone.
             -->
-            <c:HeadsetSection Explain="False" Spacing="{StaticResource NeapSpaceS}">
-                <UniformGrid Rows="1" ColumnSpacing="{StaticResource NeapSpaceS}">
-                    <c:MicTile AsTile="True" />
-                    <c:QuickTile x:Name="NoiseTile" />
-                    <c:SpatialTile AsTile="True" />
-                </UniformGrid>
+            <Panel x:Name="TilesArea">
+                <c:HeadsetSection Explain="False" Spacing="{StaticResource NeapSpaceS}">
+                    <UniformGrid x:Name="Tiles" ColumnSpacing="{StaticResource NeapSpaceS}" RowSpacing="{StaticResource NeapSpaceS}">
+                        <c:MicTile x:Name="Mic" AsTile="True" />
+                        <c:QuickTile x:Name="NoiseTile" />
+                        <c:SpatialTile x:Name="Spatial" AsTile="True" />
+                        <c:QuickTile x:Name="HearingTile" />
+                    </UniformGrid>
 
-                <Border Classes="quickrow">
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource NeapSpaceS}">
-                        <PathIcon
-                            Classes="quickicon"
-                            VerticalAlignment="Center"
-                            AutomationProperties.AccessibilityView="Raw"
-                            Data="{StaticResource IconEqualiser}" />
-                        <TextBlock
-                            Grid.Column="1"
-                            loc:Uid.Value="Mini_Equaliser"
-                            Classes="quicktitle"
-                            VerticalAlignment="Center" />
-                        <c:PresetChoice
-                            x:Name="Preset"
-                            Grid.Column="2"
-                            MaxWidth="170"
-                            loc:Uid.Value="Quick_PresetPicker" />
-                    </Grid>
-                </Border>
-            </c:HeadsetSection>
+                    <Border x:Name="PresetRow" Classes="quickrow">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource NeapSpaceS}">
+                            <PathIcon
+                                Classes="quickicon"
+                                VerticalAlignment="Center"
+                                AutomationProperties.AccessibilityView="Raw"
+                                Data="{StaticResource IconEqualiser}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                loc:Uid.Value="Mini_Equaliser"
+                                Classes="quicktitle"
+                                VerticalAlignment="Center" />
+                            <c:PresetChoice
+                                x:Name="Preset"
+                                Grid.Column="2"
+                                MaxWidth="170"
+                                loc:Uid.Value="Quick_PresetPicker" />
+                        </Grid>
+                    </Border>
+                </c:HeadsetSection>
+            </Panel>
         </StackPanel>
     </Border>
 </Window>

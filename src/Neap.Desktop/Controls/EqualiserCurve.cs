@@ -20,7 +20,12 @@ namespace Neap.Desktop.Controls;
 /// back where the preset has it.
 /// </para>
 /// <para>
-/// The curve never overshoots: see <see cref="ResponseCurve"/>.
+/// With <see cref="DrawsHeard"/> the line is what the headset plays, the sum
+/// of its ten overlapping filters (<see cref="ParametricEq.HeardAcross"/>),
+/// which runs past the gains where neighbouring bands are raised together;
+/// the points stay on the gains, which are what a drag sets, and the plot is
+/// taller than the gains' range to hold it. Otherwise the line is a smooth
+/// one through the gains that never overshoots: see <see cref="ResponseCurve"/>.
 /// </para>
 /// <para>
 /// A press anywhere in a band's column grabs that band, so a point does not
@@ -72,6 +77,15 @@ public sealed class EqualiserCurve : UserControl
     public int Minimum { get; set; } = -90;
     public int Maximum { get; set; } = 90;
     public IReadOnlyList<string> Frequencies { get; set; } = [];
+
+    /// <summary>Whether the line is what the headset plays rather than a line through the gains; see <see cref="ParametricEq.Covers"/>.</summary>
+    public bool DrawsHeard { get; set; }
+
+    /// <summary>How far past the gains' range the plot reaches when it draws what is heard, as a share of it.</summary>
+    private const double HeardReach = 1.5;
+
+    private int ViewMinimum => DrawsHeard ? (int)(Minimum * HeardReach) : Minimum;
+    private int ViewMaximum => DrawsHeard ? (int)(Maximum * HeardReach) : Maximum;
 
     /// <summary>Raised as a band is dragged, with its index and new value in tenths of a dB.</summary>
     public event Action<int, int>? BandChanged;
@@ -214,7 +228,7 @@ public sealed class EqualiserCurve : UserControl
 
     private double X(int index) => ResponseCurve.X(index, _live.Length, _canvas.Bounds.Width);
 
-    private double Y(double tenths) => ResponseCurve.Y(tenths, Minimum, Maximum, PlotTop, PlotBottom);
+    private double Y(double tenths) => ResponseCurve.Y(tenths, ViewMinimum, ViewMaximum, PlotTop, PlotBottom);
 
     private void Plot()
     {
@@ -235,13 +249,14 @@ public sealed class EqualiserCurve : UserControl
         }
 
         var points = _live.Select((v, i) => new Point(X(i), Y(v))).ToArray();
-        _curve.Data = CurveGeometry.Through(points);
-        _area.Data = CurveGeometry.Through(points, closeAt: Y(0));
+        var drawn = Drawn(_live, points);
+        _curve.Data = CurveGeometry.Through(drawn);
+        _area.Data = CurveGeometry.Through(drawn, closeAt: Y(0));
 
         bool edited = _stored is not null && !_stored.SequenceEqual(_live);
         _ghost.IsVisible = edited;
         if (edited)
-            _ghost.Data = CurveGeometry.Through(_stored!.Select((v, i) => new Point(X(i), Y(v))).ToArray());
+            _ghost.Data = CurveGeometry.Through(Drawn(_stored!, _stored!.Select((v, i) => new Point(X(i), Y(v))).ToArray()));
 
         double column = width / _live.Length;
         for (int i = 0; i < _live.Length; i++)
@@ -267,6 +282,17 @@ public sealed class EqualiserCurve : UserControl
             ToolTip.SetTip(_rings[i], Strings.Format("Equaliser_PutBack", Db.Text(_stored[i])));
         }
         Highlight();
+    }
+
+    /// <summary>The points the line runs through: the bands' own, or a sample of what the headset plays across the plot.</summary>
+    private IReadOnlyList<Point> Drawn(int[] gains, Point[] bands)
+    {
+        if (!DrawsHeard) return bands;
+        double width = _canvas.Bounds.Width;
+        double[] heard = ParametricEq.HeardAcross(gains, Math.Max(2, (int)(width / 4)));
+        return heard.Select((tenths, k) => new Point(
+            width * k / (heard.Length - 1),
+            Y(Math.Clamp(tenths, ViewMinimum, ViewMaximum)))).ToArray();
     }
 
     // -- showing which point can be moved ------------------------------------
@@ -376,7 +402,7 @@ public sealed class EqualiserCurve : UserControl
     {
         if (_dragging < 0 || _dragging >= _live.Length) return;
         double down = args.GetPosition(_canvas).Y - _pressedAt;
-        int tenths = ResponseCurve.Dragged(_pressed, down, Minimum, Maximum, PlotBottom - PlotTop);
+        int tenths = Math.Clamp(ResponseCurve.Dragged(_pressed, down, ViewMinimum, ViewMaximum, PlotBottom - PlotTop), Minimum, Maximum);
         if (_live[_dragging] == tenths) return;
         BandChanged?.Invoke(_dragging, tenths);
     }

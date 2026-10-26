@@ -100,6 +100,16 @@ public class RecordingTests
     }
 
     [Fact]
+    public void ALoudnessWriteIsKeptByName()
+    {
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values()));
+        recording.Wrote(Start.AddSeconds(1), new WriteAttempt(0, "-6 dB", null, Name: "loudness_level"));
+
+        Assert.Matches(@"^14:32:01\.0  write\s+loudness_level\s+-6 dB$", Section(Written(recording), "During")[0]);
+    }
+
+    [Fact]
     public void ASlotThatGaveNoAnswerIsNotCalledEmpty()
     {
         var recording = new Recording("Neap", "10");
@@ -133,6 +143,28 @@ public class RecordingTests
         Assert.Contains("46%  peak 0.120", during[1], StringComparison.Ordinal);
         Assert.Contains("46%  peak 0.000", during[2], StringComparison.Ordinal);
         Assert.Equal("14:32:06.0  sound    output Headset (Charging Dock) [Charging Dock 229B]  no longer active", during[3]);
+    }
+
+    [Fact]
+    public void TwoDevicesWithOneNameAreEachNotedOnlyWhenTheirOwnLevelChanges()
+    {
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values()));
+        var first = Sound.Devices[0];
+        var second = first with { Percent = 70 };
+        SoundSurvey With(SoundDevice one, SoundDevice two) => Sound with { Devices = [one, two] };
+
+        recording.Sampled(Start.AddSeconds(1), With(first, second));
+        recording.Sampled(Start.AddSeconds(2), With(first, second));
+        recording.Sampled(Start.AddSeconds(3), With(first, second with { Percent = 71 }));
+        recording.Sampled(Start.AddSeconds(4), With(first, second with { Percent = 71 }));
+
+        string[] during = Section(Written(recording), "During");
+
+        Assert.Equal(3, during.Length);
+        Assert.Contains("45%", during[0], StringComparison.Ordinal);
+        Assert.Contains("70%", during[1], StringComparison.Ordinal);
+        Assert.Contains("71%", during[2], StringComparison.Ordinal);
     }
 
     [Fact]

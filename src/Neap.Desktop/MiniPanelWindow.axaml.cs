@@ -18,14 +18,20 @@ using Neap.Desktop.Controls;
 namespace Neap.Desktop;
 
 /// <summary>
-/// The mini panel: the five things changed mid-game, in a small window by the
+/// The mini panel: the things changed mid-game, in a small window by the
 /// notification area that goes away when it loses focus.
 /// </summary>
 /// <remarks>
 /// <para>
-/// The mix, the microphone, noise cancellation, spatial sound and the equaliser preset are
-/// the controls Home has, with the same logic behind them; this only lays
-/// them out small. <see cref="MiniPanel"/> decides where it sits.
+/// The mix, the microphone, noise cancellation, spatial sound, Superhuman
+/// Hearing and the equaliser preset are the controls Home has, with the same
+/// logic behind them; this only lays them out small. <see cref="MiniPanel"/>
+/// decides where it sits.
+/// </para>
+/// <para>
+/// The mix is always shown. The rest are the ones the person chose in
+/// Settings, read when the panel opens, since it is made anew each time;
+/// <see cref="MiniTiles"/> decides what is shown and how they are set out.
 /// </para>
 /// <para>
 /// It closes on Escape and when another window takes focus, as the system's
@@ -43,7 +49,11 @@ public partial class MiniPanelWindow : Window
     /// <summary>The gap kept between the panel and the edge of the work area, in device-independent pixels.</summary>
     private const double EdgeGap = 12;
 
+    private static readonly SettingKey HearingOn = Registry.ByName["superhuman_hearing"];
+    private static readonly SettingKey HearingSound = Registry.ByName["shh_preset"];
+
     private readonly MainWindow? _main;
+    private readonly IReadOnlySet<MiniTile> _chosen = MiniTiles.Chosen(AppSettings.Current.MiniTiles);
     private readonly BatteryMeter _battery = new("caption");
     private IDisposable? _recheck;
     private bool _painting;
@@ -84,6 +94,14 @@ public partial class MiniPanelWindow : Window
         {
             var noise = AppServices.Noise;
             if (noise.CanChoose && noise.Mode is { } mode) noise.Choose(QuickToggle.Press(mode, NoiseMode.Off, noise.LastOn));
+        };
+
+        HearingTile.Icon = (Geometry)Application.Current!.FindResource("IconHearing")!;
+        HearingTile.Describe(Strings.Get("Mini_HearingTile"), Strings.Get("Quick_Shh.Text"), Strings.Get("Mini_HearingChoices"));
+        HearingTile.Pressed += () =>
+        {
+            // Turned on when the headset has not said what it is.
+            if (CanWrite(HearingOn)) AppServices.Headset.SetKey(HearingOn.Key, Hearing() == 1 ? 0 : 1);
         };
     }
 
@@ -186,7 +204,8 @@ public partial class MiniPanelWindow : Window
         else StopRechecking();
         BatteryHolder.IsVisible = headset.Battery is not null && headset.Status.Link == Link.Connected;
 
-        NoiseTile.IsVisible = HeadsetModels.Shows(headset.Model, Feature.NoiseControl);
+        PaintTiles();
+        PaintHearing();
 
         // The state line only when something is wrong: connected, the battery says enough.
         var status = headset.Status;
@@ -213,6 +232,51 @@ public partial class MiniPanelWindow : Window
             AutomationProperties.SetHelpText(Dial, Strings.Format("Mix_Levels", lean, MixLevels.Game(mix), MixLevels.Chat(mix)));
         }
         finally { _painting = false; }
+    }
+
+    /// <summary>Shows the tiles the person chose, where the headset has them, and sets them out.</summary>
+    private void PaintTiles()
+    {
+        var headset = AppServices.Headset;
+        Mic.IsVisible = _chosen.Contains(MiniTile.Microphone);
+        NoiseTile.IsVisible = _chosen.Contains(MiniTile.NoiseCancellation) && HeadsetModels.Shows(headset.Model, Feature.NoiseControl);
+        Spatial.IsVisible = _chosen.Contains(MiniTile.SpatialSound) && Platform.Current.Spatial.Supported;
+        HearingTile.IsVisible = _chosen.Contains(MiniTile.SuperhumanHearing) && HeadsetModels.Shows(headset.Model, HearingOn.Name);
+        PresetRow.IsVisible = _chosen.Contains(MiniTile.EqualiserPreset);
+
+        int shown = Tiles.Children.Count(tile => tile.IsVisible);
+        Tiles.IsVisible = shown > 0;
+        Tiles.Columns = MiniTiles.Columns(shown);
+        TilesArea.IsVisible = shown > 0 || PresetRow.IsVisible;
+    }
+
+    /// <summary>Gets Superhuman Hearing's value, or null where the headset has not reported it.</summary>
+    private static int? Hearing() => AppServices.Headset.TryGetNumber(HearingOn.Name, out int on) ? on : null;
+
+    /// <summary>Gets whether a setting can be changed: one Neap writes, on a headset whose settings it changes.</summary>
+    private static bool CanWrite(SettingKey key) => key.Writable && !AppServices.Headset.ReadOnly;
+
+    /// <summary>Gets whether the headset has reported a setting, or has it where Neap cannot yet read it, so it can still be tried.</summary>
+    private static bool Readable(SettingKey key) =>
+        AppServices.Headset.TryGetNumber(key.Name, out _) || HeadsetModels.Unread(AppServices.Headset.Model, key.Name);
+
+    /// <summary>Shows Superhuman Hearing on its tile: on with its sound, or off, and its sounds in the tile's list while it is on.</summary>
+    /// <remarks>The list is left off while Superhuman Hearing is, as the sounds are on Home, since a sound means nothing then.</remarks>
+    private void PaintHearing()
+    {
+        var headset = AppServices.Headset;
+        int? on = Hearing();
+        int? sound = headset.TryGetNumber(HearingSound.Name, out int heard) ? heard : null;
+
+        string state = on is null ? Strings.Get("Reading_None")
+            : on != 1 ? Strings.Get("Switch_Off")
+            : sound is { } chosen ? OptionNames.For(HearingSound, chosen)
+            : Strings.Get("Switch_On");
+        HearingTile.Show(on == 1, state, CanWrite(HearingOn) && Readable(HearingOn));
+        HearingTile.Offer(
+            (HearingSound.Options ?? new Dictionary<int, string>()).Keys.Select(option =>
+                (OptionNames.For(HearingSound, option), option == sound, (Action)(() => headset.SetKey(HearingSound.Key, option)))),
+            on == 1 && CanWrite(HearingSound) && Readable(HearingSound));
     }
 
     /// <summary>Shows noise control on its tile: on in either of its two ways, and both ways and off in its list.</summary>

@@ -1,9 +1,13 @@
 using System.Globalization;
+using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Neap.Core.Firmware;
 using Neap.Desktop.Controls;
 
@@ -98,8 +102,10 @@ public partial class FirmwarePage : UserControl
         EditsCard.IsVisible = edits.Count > 0;
         NoEdits.IsVisible = edits.Count == 0;
 
-        EditList.Children.Clear();
-        foreach (var edit in edits) EditList.Children.Add(Row(edit));
+        Refill(EditList, () =>
+        {
+            foreach (var edit in edits) EditList.Children.Add(Row(edit));
+        });
 
         PlanText.Text = PlanWords(plan);
         BlockersText.Text = string.Join(" ", blockers.Select(BlockerWords));
@@ -110,10 +116,32 @@ public partial class FirmwarePage : UserControl
         StockButton.IsEnabled = free && !stock.Nothing
             && FirmwareEdit.Blockers(stock.Changing, firmware.Readiness).Count == 0;
 
-        BackupList.Children.Clear();
         var backups = FirmwareEditService.Backups;
-        foreach (var backup in backups) BackupList.Children.Add(BackupRow(backup, free));
+        Refill(BackupList, () =>
+        {
+            foreach (var backup in backups) BackupList.Children.Add(BackupRow(backup, free));
+        });
         NoBackups.IsVisible = backups.Count == 0;
+    }
+
+    /// <summary>Draws a list again, leaving the keyboard focus on the same row if it can still take it.</summary>
+    /// <remarks>
+    /// A tick or a restore redraws the list it is in, which would otherwise
+    /// drop the focus from under the keyboard.
+    /// </remarks>
+    private void Refill(Panel list, Action fill)
+    {
+        var focused = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() as Visual;
+        int row = focused is null
+            ? -1
+            : list.Children.ToList().FindIndex(child => ReferenceEquals(child, focused) || focused.GetVisualAncestors().Contains(child));
+        list.Children.Clear();
+        fill();
+        if (row < 0 || row >= list.Children.Count) return;
+        list.Children[row].GetVisualDescendants().Prepend(list.Children[row])
+            .OfType<InputElement>()
+            .FirstOrDefault(element => element.Focusable && element.IsEffectivelyEnabled)
+            ?.Focus(NavigationMethod.Tab);
     }
 
     /// <summary>An edit's tick, with what it does, how much it risks and whether it is on.</summary>
@@ -201,8 +229,14 @@ public partial class FirmwarePage : UserControl
         PaintRun(running: false);
     }
 
+    /// <remarks>The writer reports from its own thread, and the card can be changed only from this one.</remarks>
     private void Report(ApplyProgress progress)
     {
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            Dispatcher.UIThread.Post(() => Report(progress));
+            return;
+        }
         _progress = progress;
         PaintRun(running: true);
     }
