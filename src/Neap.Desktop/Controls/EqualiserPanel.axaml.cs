@@ -373,7 +373,6 @@ public partial class EqualiserPanel : UserControl
 
         Response.Minimum = PresetService.BandFloor;
         Response.Maximum = PresetService.BandCeiling;
-        Response.DrawsHeard = ParametricEq.Covers(Bank);
         Response.Frequencies = labels;
 
         Bands.ColumnDefinitions.Clear();

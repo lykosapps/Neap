@@ -34,10 +34,6 @@ and date.
   level changes.
 - A recording lists a change to the loudness boost beside the other changes
   Neap sends, and Neap sends it only to a headset known to take it.
-- On the game equaliser's bands view, the line shows what the headset plays,
-  not a line through the ten gains. Neighbouring bands overlap, so ten bands
-  at +9 dB play about +13.5 dB, and the plot now reaches high enough to show
-  it. The points stay on the gains you set.
 - A frequency typed in the parametric equaliser takes the unit the field
   shows: "20" over "20 kHz" is 20 kHz, and "1,500 Hz" is 1500 Hz, not 20 Hz.
 - The note that the headset can't match a curve exactly now covers the very

@@ -153,32 +153,6 @@ public static class ParametricEq
         return sum;
     }
 
-    /// <summary>The frequency at a place across the band view, where band 0 sits at 0 and each band is one place further on.</summary>
-    /// <remarks>The band view spaces its bands evenly, and the centres are an octave apart, so the places run along a logarithmic scale.</remarks>
-    /// <param name="place">Where, in bands: 0 is the first band's centre and a fraction is between two.</param>
-    public static double FrequencyAtPlace(double place) =>
-        Centres[0] * Math.Pow(Centres[^1] / Centres[0], place / (Centres.Count - 1));
-
-    /// <summary>What the headset plays across the band view, in tenths of a decibel, at evenly spaced places from the plot's left edge to its right.</summary>
-    /// <remarks>
-    /// The view gives each of the bands an equal column with its centre in the
-    /// middle, so the first place is half a column before the first band and
-    /// the last half a column after the last.
-    /// </remarks>
-    /// <param name="bands">The ten band gains, in tenths.</param>
-    /// <param name="samples">How many places to work out, at least two.</param>
-    public static double[] HeardAcross(IReadOnlyList<int> bands, int samples)
-    {
-        int count = Math.Max(2, samples);
-        var heard = new double[count];
-        for (int k = 0; k < count; k++)
-        {
-            double place = -0.5 + (double)k / (count - 1) * bands.Count;
-            heard[k] = Heard(bands, FrequencyAtPlace(place)) * 10;
-        }
-        return heard;
-    }
-
     /// <summary>What the adjustments ask for at a frequency, in decibels.</summary>
     public static double Asked(IReadOnlyList<Adjustment> adjustments, double frequency)
     {

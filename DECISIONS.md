@@ -1,5 +1,25 @@
 # Decisions
 
+## 2026-10-26 — The band view draws a line through the gains, not the model's sum
+
+- **Options:** draw what the filter model says the ten bands play together;
+  draw it faintly behind a line through the gains; draw only the line
+  through the gains, as before.
+- **Chosen:** only the line through the gains, on the gains' own ±9 dB scale.
+- **Why:** the model's sum overstates on the headset. With all ten bands at
+  +9 dB the model says +11 to +13.5 dB, and the headset measured +8 to
+  +11 dB, about 2.6 dB lower at every frequency (FINDINGS.md, 28 September).
+  That gap is the size of the effect the line would show, and the setup's
+  own error is about 2 dB, so the line through the gains is as close to
+  what plays as the model is. SP2Tools reads a compressor and a level limit
+  after the equaliser in the firmware's audio chain (read from the code, not
+  proven on the headset), which would hold big summed boosts down, so what
+  plays then depends on how loud the sound is, not on the gains alone. The
+  parametric view keeps the model, whose fitted curves measured within
+  about 1 dB.
+- **Revisit if:** a sealed measurement settles how much neighbouring bands
+  add up to.
+
 ## 2026-10-23 — "Keep high-resolution audio" is out of 0.3.0
 
 - **Options:** keep it as it was; keep it but skip the reset when nothing is

@@ -26,39 +26,6 @@ public class ParametricEqTests
     }
 
     [Fact]
-    public void ThePlacesRunFromTheFirstBandToTheLast()
-    {
-        Assert.Equal(ParametricEq.Centres[0], ParametricEq.FrequencyAtPlace(0), 6);
-        Assert.Equal(ParametricEq.Centres[9], ParametricEq.FrequencyAtPlace(9), 6);
-        Assert.Equal(ParametricEq.Centres[0] * Math.Sqrt(ParametricEq.Centres[9] / ParametricEq.Centres[0]),
-            ParametricEq.FrequencyAtPlace(4.5), 6);
-    }
-
-    [Fact]
-    public void FlatBandsPlayFlatAcrossTheView() =>
-        Assert.All(ParametricEq.HeardAcross(new int[10], 50), tenths => Assert.Equal(0, tenths, 6));
-
-    [Fact]
-    public void TheViewIsDrawnFromTheFiltersNotThroughTheGains()
-    {
-        // All ten at +9 dB play about +13.5 dB in the middle, not +9.
-        var heard = ParametricEq.HeardAcross(Enumerable.Repeat(90, 10).ToArray(), 101);
-        Assert.InRange(heard.Max(), 125, 145);
-    }
-
-    [Fact]
-    public void OneBandPeaksAtItsOwnColumn()
-    {
-        var bands = new int[10];
-        bands[5] = 60;
-        // 101 places a tenth of a column apart, the first half a column before band 0.
-        var heard = ParametricEq.HeardAcross(bands, 101);
-        double place = -0.5 + Array.IndexOf(heard, heard.Max()) * 0.1;
-        Assert.Equal(5, place, 0.15);
-        Assert.InRange(heard.Max(), 55, 60.01);
-    }
-
-    [Fact]
     public void NoAdjustmentsFitFlat() =>
         Assert.All(ParametricEq.Fit([]), band => Assert.Equal(0, band));
 
