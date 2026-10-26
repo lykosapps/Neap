@@ -14,7 +14,17 @@ group only; a line that touches two says so in its text.
 Needs only the code and the tests. Safe to do in one go.
 
 ### Recordings and what Core guarantees
-- Volumes are polled rather than followed by event.
+- Volumes are polled rather than followed by event: looked at on 26 October and
+  kept, not a small change. The mix's two-second pass (`SessionMix`) is what
+  catches an application that starts and a volume changed outside Neap, and it
+  also restores volumes after a device switch and looks for chat on the other
+  outputs. Windows events would mean session-created notifications on the
+  headset device plus a volume callback on every session, each arriving on a
+  COM thread and needing registering and unregistering as devices and sessions
+  come and go; the Pulse client runs its own loop only when asked, so a
+  subscription would need a standing loop. A poll stays as the safety net, so
+  the pass would still run, only less often. Revisit only if the idle wakeups
+  are measured as a problem.
 - The mix dial's size is fixed.
 
 ## 2. A screen sitting on Windows
