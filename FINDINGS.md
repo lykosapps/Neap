@@ -669,7 +669,13 @@ the codes are not documented. The game path's input level control
 (`0x5008`) sits at −12 dB, which reads as headroom for the equaliser's
 boosts. The equaliser's own level (`0x5003`) is 0 dB.
 
-Measured on the headset *(measured, 28 Sep 2026)*: tones played through the
+**Not trusted (owner, 26 October 2026):** the measurement below was a desk
+microphone held to the ear cup with no known seal, not a professional
+setup. It is kept as a record only; nothing in Neap rests on it. What the
+equaliser plays is known only from the filter table above and the model
+built on it *(research)*, not from any measurement.
+
+Measured on the headset *(measured, 28 Sep 2026; not trusted, see above)*: tones played through the
 game bank, recorded by a separate microphone against the sealed ear cup,
 and compared with the flat preset, so the microphone's and the cup's own
 response cancel. The recording held from about 60 Hz to 6 kHz; the

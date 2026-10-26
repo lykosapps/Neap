@@ -48,11 +48,12 @@ Needs the headset on the Windows app, and the owner present. Run
 - **Does CrossPlay report its presses?** Unknown.
 - **The spare battery** on the Charging Dock's panel: out, in, and gone
   on the USB Transmitter.
-- **The parametric curve heard, at the ends.** Measured from 60 Hz to
-  6 kHz on 28 Sep (see FINDINGS.md); below and above that the recording
-  microphone's own processing cut the signal. Still owed: the same
-  measurement with that processing off, to cover the lowest and top bands,
-  and whether the most boost the bands allow together distorts.
+- **What the equaliser plays, measured properly.** Nothing about it has a
+  trusted measurement: the 28 September one used a desk microphone on an
+  unsealed ear cup (FINDINGS.md). Wanted, with a sealed, calibrated setup:
+  one band at a time against the filter model, all ten bands raised
+  together, the parametric view's fitted curves, and whether the most boost
+  the bands allow distorts.
 - **Settling time.** After a few more battery swaps, read the app log's
   battery lines and tighten the rule that shows "Settling…". Also see the
   headset's own bolt on its USB-C cable.
@@ -107,8 +108,8 @@ first and say how sure each finding is.
   raises the level going into it, which the firmware seems to keep 12 dB
   down as room for equaliser boosts (read from the code, not proven). On a
   headset with the boost raised, measure a bass boost and all ten bands at
-  +9 dB for compression or clipping, against the 28 September measurement
-  at stock. If it squashes, the loudness boost or the equaliser may need to
+  +9 dB for compression or clipping, against the same at stock, with the
+  sealed setup above. If it squashes, the loudness boost or the equaliser may need to
   say so. Needs the headset and a recording microphone.
 - **Bass and treble boost levels**, if the headset turns out to have them.
 - **Dolby Access's own profiles from Neap** (parked). Offer Dolby Access's
