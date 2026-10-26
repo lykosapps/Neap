@@ -103,6 +103,24 @@ first and say how sure each finding is.
   matched to anything (see [FINDINGS.md](FINDINGS.md)); whether the charging
   flag means charging, or only powered by the cable; 32-bit audio formats
   are assumed to be floating point.
+- **A fully parametric equaliser, by rewriting the headset's filter table**
+  (26 October). Each band's type, frequency, Q and gain live in a stored
+  table (key `0x500B` for the game bank; microphone `0x5059`, earcup
+  correction `0x500A`) that the running firmware does not let us change, only
+  each band's gain. Rewriting it by flash would allow bands at any frequency
+  and width, low and high shelves, an exact parametric view, and tuning of
+  the microphone and sidetone banks. It is a flash change with the headset
+  off and the cable in, not a live slider. SP2Tools' flasher and BootROM
+  recovery are proven, the earlier brick is fixed and recoverable (its
+  `RUNBOOK.md`), and Neap has a hidden firmware page with edits and backups
+  that could hold it. Not known: where the table sits in flash, whether the
+  firmware re-reads it after boot, and whether it accepts any Q and type.
+  In stages, each safe before the next: (1) read-only, find the table in
+  flash and read it back from a live headset, a job for SP2Tools; (2) one
+  reversible test, change a single band's frequency or Q, confirm by
+  reading it back and by ear with Neap's test tone, then revert; (3) only if
+  that works, design it. Each write needs the owner's go-ahead. Needs the
+  headset.
 - **Equaliser boosts with the loudness boost raised.** SP2Tools reads a
   compressor and a level limit after the equaliser, and the loudness boost
   raises the level going into it, which the firmware seems to keep 12 dB
