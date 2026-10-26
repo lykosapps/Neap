@@ -119,11 +119,8 @@ to GitHub, these become issues.
   as Alpine. Also in-app updates: today Neap says a newer version is out and
   opens the page, and an AppImage can be updated in place with a delta
   update tool (AppImageUpdate).
-- **Global shortcuts that reach native Wayland programs.** The keys work while
-  an X program (most games) is in front; the desktop portal for global
-  shortcuts would reach the rest, when the desktops people use support it.
-- **Other Swarm II headsets.** The Stealth 600 Gen 3, 700 Gen 3, 500 and
-  Atlas Air share the Stealth Pro II's platform. Each needs an owner to
+- **Other Swarm II headsets.** The Stealth 600 Gen 3, 700 Gen 3 and 500
+  share the Stealth Pro II's platform (the Atlas Air has its own line above). Each needs an owner to
   capture its settings and run the checks, so ask for help once public.
   The 600 Gen 3 first. Screens need to show only what a headset has.
 - **Help add this headset, guided.** Neap already records a headset it
