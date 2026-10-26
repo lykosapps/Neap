@@ -23,6 +23,8 @@ and date.
 
 ### Changed
 
+- The mix dial on the Home page grows a little in a wider card, from its
+  old size to a little larger, and the words on it keep their size.
 - On the parametric equaliser, the solid line is called "Closest the headset
   gets" rather than "What you'll hear", as it is worked out from the
   headset's filters, not measured.

@@ -25,7 +25,6 @@ Needs only the code and the tests. Safe to do in one go.
   subscription would need a standing loop. A poll stays as the safety net, so
   the pass would still run, only less often. Revisit only if the idle wakeups
   are measured as a problem.
-- The mix dial's size is fixed.
 
 ## 2. A screen sitting on Windows
 

@@ -18,23 +18,26 @@
             Disabled until chat apps are chosen, so the card shows what it is
             for before the question beside it is answered.
         -->
-        <Viewbox
+        <Grid
             x:Name="DialArea"
             Width="{StaticResource NeapDialShown}"
             Height="{StaticResource NeapDialShown}"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             Classes="mixdial">
-            <Grid>
+            <Viewbox>
                 <c:GameChatDial x:Name="Dial" loc:Uid.Value="Mix_Dial" />
-                <TextBlock
-                    x:Name="LeanText"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    FontWeight="SemiBold"
-                    IsHitTestVisible="False" />
-            </Grid>
-        </Viewbox>
+            </Viewbox>
+            <!-- Outside the scaled dial, so its words keep their size as the dial changes. -->
+            <TextBlock
+                x:Name="LeanText"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontWeight="SemiBold"
+                IsHitTestVisible="False"
+                TextAlignment="Center"
+                TextWrapping="Wrap" />
+        </Grid>
 
         <StackPanel
             x:Name="Side"

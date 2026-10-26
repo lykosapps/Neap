@@ -29,7 +29,7 @@
         for, and faded well below its working contrast, so it plainly cannot
         be turned yet.
     -->
-    <Style Selector="Viewbox.mixdial:disabled">
+    <Style Selector="Grid.mixdial:disabled">
         <Setter Property="Opacity" Value="0.35" />
     </Style>
 

@@ -75,7 +75,8 @@ public partial class MixPanel : UserControl
 
     /// <summary>
     /// Puts the dial beside the panel's own column when there is room, and
-    /// above it when there is not.
+    /// above it when there is not, at the size <see cref="DialSizing"/> gives
+    /// for the width.
     /// </summary>
     private void Arrange()
     {
@@ -87,6 +88,11 @@ public partial class MixPanel : UserControl
         Grid.SetColumn(Side, stacked ? 0 : 1);
         Grid.SetColumnSpan(Side, stacked ? 2 : 1);
         Grid.SetColumnSpan(DialArea, stacked ? 2 : 1);
+
+        double size = DialSizing.Fit(Layout.Bounds.Width, beside);
+        DialArea.Width = size;
+        DialArea.Height = size;
+        LeanText.MaxWidth = DialSizing.CapWidth(size);
     }
 
     /// <summary>
