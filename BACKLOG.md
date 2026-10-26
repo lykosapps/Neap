@@ -119,17 +119,6 @@ to GitHub, these become issues.
   as Alpine. Also in-app updates: today Neap says a newer version is out and
   opens the page, and an AppImage can be updated in place with a delta
   update tool (AppImageUpdate).
-- **A shared connection to the sound server on Linux.** Neap opens a fresh
-  connection to the sound server for every question, about every five seconds
-  while idle. One long-lived connection would do, with the caution that calls
-  then queue if the server stalls. Measure on the Deck first (processor and
-  battery); not yet measured.
-- **Give a hidden app's memory back on Linux.** Windows hands back what a
-  hidden app is not using; the Linux build keeps what its runtime holds.
-  Measure on the Deck before building anything.
-- **Faster start-up.** The new app starts in about 1.5 seconds against the old
-  app's 0.8 on the same PC. Compiling it ahead of time would cut that at the
-  cost of a bigger download; measure before and after.
 - **Global shortcuts that reach native Wayland programs.** The keys work while
   an X program (most games) is in front; the desktop portal for global
   shortcuts would reach the rest, when the desktops people use support it.
