@@ -49,7 +49,9 @@ to GitHub, these become issues.
   while Neap is open kept the colours Neap read when it started. Neap now
   reads them again on each change (26 October), not yet seen: switch high
   contrast themes with Neap open and check the colours follow. Then add a
-  line to the changelog and clear this one.
+  line to the changelog and clear this one. While in high contrast, also
+  look at the update banner, the notes dialog, the Settings card and the
+  Profiles page, which have not been seen there.
 - The game equaliser's Bands and Parametric choice may show neither as
   chosen after a headset change, as the hidden microphone panel's buttons
   share its group. From the 0.3.0 code review; not reproduced, as the page
@@ -153,24 +155,11 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 ## Tooling and release
 
-- High contrast has still not been seen on the update banner, the notes dialog,
-  the Settings card or the Profiles page.
-
 - Sign the download, so Windows does not warn about it. The updater should
   check the signature too.
 - Updater, nice to have: a limit on how big a download may be and how long
   it may take, and a way to cancel it.
-- A package update pass before each release. The new app's packages were
-  set on 7 Oct (Avalonia 12.1.3, H.NotifyIcon 2.4.1).
-- An ARM build.
 - A read-through by an experienced .NET developer before release.
-- A trademark search for the name.
-- Screen checks pull Neap to the front, so they can't run while someone uses
-  the machine.
-- Pretend mode can't show spatial sound, a missing Dolby licence or a second
-  transmitter, so a change to any of those can only be checked on the headset.
-- Pretend mode has no high-contrast option, and the screen check never uses
-  the spatial sound tile.
 
 ## Smaller code items
 
