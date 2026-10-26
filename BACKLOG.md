@@ -134,10 +134,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 - **The tray icon's menu** in light and dark, on screen.
 - **Does CrossPlay report its presses?** Unknown.
-- **The lights:** the USB Transmitter's second light, and the lights while
-  sound and settings are on different transmitters.
-- **The mix's edge cases:** an app with several audio sessions, the chat app
-  not running yet, and Discord restarting mid-call.
 - **A profile saved straight after opening Neap.** Open Neap, save a
   profile from Home at once, switch to another and back: does the
   equaliser come back, and does the bar stay un-Edited?
