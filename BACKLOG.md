@@ -7,41 +7,12 @@ to GitHub, these become issues.
 
 ## Next, after 0.3.0 (released 24 October)
 
-- **The Charging Dock's ring: can a microphone be stopped turning it white?
-  A desk investigation, with no device touched.** "Keep high-resolution
-  audio" was taken out of 0.3.0 (DECISIONS.md, 23 October). A USB capture
-  shows the dock turns the ring white when the PC starts the microphone
-  stream (48 kHz) and purple only when a playback stream starts at 96 kHz
-  (FINDINGS.md, "What the dock is sent when the ring turns white"). To find
-  out: which code in the dock's firmware turns a stream start into a ring
-  colour; whether any setting stops a microphone start changing it (SP2Tools
-  has two unproven candidates: the LED mode byte, NVKey `0xF607`, and the
-  RAM-only kvp `0x20`); and whether it is only a flash patch, which has no
-  proven recovery for the dock. SP2Tools has no map of the dock's ring code
-  and its dock image and Ghidra project were not in its folder on 23 October,
-  so they have to be found or rebuilt first. Rate every option before
-  touching the device. If the feature returns: reset only while something is
-  playing, and reword its text to what is known. Windows keeps sending
-  24-bit 96 kHz to the dock while the ring is white; not known: whether the
-  dock's radio link to the headset changes with it. Needs the headset only
-  to check what the desk work finds.
+- **The Atlas Air is held back until its testers confirm it.** 0.3.0 left it
+  out (DECISIONS.md, 23 October); its test build, 0.2.1.9, has every
+  function, writes included. Before it is released, set its list of
+  functions, and whether its settings may be changed, to what the testers
+  confirmed on GitHub issue 1.
 
-- **Before the next public release: the Atlas Air carries only what its
-  tester confirmed.** Its test build has every function, writes included
-  (see DECISIONS.md). Before a release, set its list of functions, and
-  whether its settings may be changed, to what the tester confirmed on
-  GitHub issue 1.
-
-- **The max loudness boost, what is left to check.** Confirmed on one Stealth
-  Pro II through the dock (17 October): louder at +6 dB, kept across a power
-  cycle, back to stock at +0 (`tools\ui\run.ps1 hardware -Parts WVZ`). Still
-  to check: distortion and loudness above +6 dB, up to the +18 dB cap (the
-  headset at +6 dB), with the equaliser or Superhuman Hearing up; and the
-  headset wired by USB-C and through the USB Transmitter.
-  Other headsets are never sent the command. Needs the headset. GitHub issue 6.
-
-- **Screen reader on both systems.** Narrator on Windows and Orca on Linux
-  have not been run on the new app.
 - **The Linux AppImage on more than the Steam Deck.** GitHub builds it and the
   tests pass on Linux, but it was last run by hand before the late interface
   changes. Other distributions, a Wayland-only desktop, GNOME with its
@@ -49,25 +20,20 @@ to GitHub, these become issues.
   refused" system (a Deck that already has the rule cannot show it) are
   untested.
 - **Seen on screen, not yet:** the drop-down fade, the flyout lists on the
-  profile bar and spatial sound after their fix, the low, charging and weaker
-  signal colours on Home, and the narrowest layout with the menu folded.
+  profile bar and spatial sound after their fix, the low and weaker
+  signal colours on Home (charging and strong were seen on 26 October), and the narrowest layout with the menu folded.
 - **Settling time.** After a few more battery swaps, read the app log's
   battery lines and tighten the rule that shows "Settling…". Also see the
   headset's own bolt on its USB-C cable.
-- **Interface leftovers.** The New profile button could sit at the right and
-  drop under the note in a narrow window; the Default profile row has a few
-  pixels more room below its drop-down than above it; Delete on a profile is
-  not drawn as destructive.
+- **Interface leftovers.** The Default profile row has a few pixels more room
+  below its drop-down than above it; Delete on a profile is a plain icon,
+  not drawn as destructive (it asks for confirmation first).
 
 ## Bugs
 
 - The chat mix does not move when the wheel is turned, on the Windows app,
   with the headset connected. Seen once; 0.3.0 fixed a wheel stuck at the
   middle, which may be this. Check on the headset before closing.
-- After the headset's link dropped and came back several times, the profile
-  spinner never finished and the microphone button could not be used. A
-  second program asking the same transmitter at the same time may have caused
-  the drops; not yet reproduced without one. Needs the headset.
 - Neap showed the headset as off for 30 hours, over restarts of Neap and the
   PC and a switch off and on, while sound played through the Charging Dock.
   Only unplugging the dock and plugging it back in brought it back. Whether
