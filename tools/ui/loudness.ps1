@@ -3,16 +3,18 @@
 Checks the loudness boost control on the Audio page in pretend mode: that
 it shows for the Stealth Pro II with its boost on the slider and the headset's
 level apart from it, in the slider's help text, and that on the Atlas Air it
-is not there at all.
+is not there at all. A recording started in Settings lists the boost's writes.
 
 .DESCRIPTION
 Run through run.ps1. Launches the published app in pretend mode on the Audio
-page, once as the Stealth Pro II and once as the Atlas Air.
+page, once as the Stealth Pro II and once as the Atlas Air; then once more to
+record a change of the boost and read the saved file.
 
 .PARAMETER Parts
-Which parts to run: A the Stealth Pro II, B the Atlas Air. Both by default.
+Which parts to run: A the Stealth Pro II, B the Atlas Air, C a recording of
+the boost being changed. All by default.
 #>
-param([string]$Parts = 'AB')
+param([string]$Parts = 'ABC')
 
 . "$PSScriptRoot\Ui.ps1"
 
@@ -73,6 +75,45 @@ if ($Parts.Contains('B')) {
         Check ($null -eq (Find-SliderNamed $row)) 'no slider'
         Check ($null -eq (Find-Named $caution)) 'and no hearing caution'
         Save-Shot 'loudness-atlas' -Whole | ForEach-Object { $_.Dispose() }
+    }
+    finally { Stop-NeapPretend }
+}
+
+if ($Parts.Contains('C')) {
+    Section 'a recording lists the loudness boost writes'
+    # A practice run saves its recordings in its own folder, so any file there is this run's.
+    $folder = Join-Path $env:LOCALAPPDATA 'Neap\Pretend'
+    Start-NeapPretend -Page settings -Flags @()
+    try {
+        Wait-Until { $null -ne (Find-Named 'Start') } 10 | Out-Null
+        $start = Find-Named 'Start'
+        Check ($null -ne $start) 'Settings offers to start a recording'
+        Press $start
+        Check (Wait-Until { $null -ne (Find-Named 'Stop and save') } 5) 'a recording is under way'
+
+        # The page is changed from inside the app, so the window stays where it is.
+        Send-Pretend 'page audio' | Out-Null
+        Set-NeapSize 1400 1200 'Master volume'
+        Wait-Until { $null -ne (Find-SliderNamed $row) } 10 | Out-Null
+        $slider = Find-SliderNamed $row
+        $rv = $null
+        if ($slider -and $slider.TryGetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern, [ref]$rv)) { $rv.SetValue(6) }
+        Check ($null -ne $rv -and (Wait-Until { $slider.Current.HelpText -eq 'Headset level: -6 dB' } 5)) 'the boost is changed to +6 dB, and the headset follows'
+
+        Send-Pretend 'page settings' | Out-Null
+        Wait-Until { $null -ne (Find-Named 'Stop and save') } 10 | Out-Null
+        Press (Find-Named 'Stop and save')
+        # The card's line is the button's help text, not a text of its own, so the file is waited for.
+        Check (Wait-Until { $null -ne (Get-ChildItem $folder -Filter '*.txt' -File -ErrorAction SilentlyContinue | Select-Object -First 1) } 30) 'the recording is saved'
+        Start-Sleep -Milliseconds 500
+
+        $file = Get-ChildItem $folder -Filter '*.txt' -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime | Select-Object -Last 1
+        Check ($null -ne $file) 'the saved file is in the practice run''s folder'
+        if ($file) {
+            $lines = @(Get-Content $file.FullName | Where-Object { $_ -match '^\S+\s+write\s+loudness_level\s' })
+            $lines | ForEach-Object { Note $_.Trim() }
+            Check ($lines.Count -ge 1) 'the recording lists the loudness boost write'
+        }
     }
     finally { Stop-NeapPretend }
 }
