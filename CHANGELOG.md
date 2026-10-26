@@ -23,6 +23,9 @@ and date.
 
 ### Changed
 
+- On the parametric equaliser, the solid line is called "Closest the headset
+  gets" rather than "What you'll hear", as it is worked out from the
+  headset's filters, not measured.
 - The notices about where the headset's sound goes, and the messages that
   ask for access to the headset on Linux, are shorter, and the long heading
   on the Device page is too.

@@ -1571,10 +1571,10 @@
     <value>Out of reach</value>
   </data>
   <data name="Parametric_Heard.Text" xml:space="preserve">
-    <value>What you'll hear</value>
+    <value>Closest the headset gets</value>
   </data>
   <data name="Parametric_Miss.Text" xml:space="preserve">
-    <value>The headset can't match this exactly. The solid line is what you'll hear.</value>
+    <value>The headset can't match this exactly. The solid line is the closest it gets.</value>
   </data>
   <data name="Parametric_Add.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Add an adjustment</value>
