@@ -110,14 +110,23 @@ first and say how sure each finding is.
   each band's gain. Rewriting it by flash would allow bands at any frequency
   and width, low and high shelves, an exact parametric view, and tuning of
   the microphone and sidetone banks. It is a flash change with the headset
-  off and the cable in, not a live slider. SP2Tools' flasher and BootROM
+  off and the cable in. **It must be highly usable: adjusting a band must
+  be live, as a gain slider is, with no flash for each adjustment.** A flash
+  is acceptable once at most, to install something that makes later changes
+  live (such as a patch adding a frequency and Q handler), and the first
+  thing to find out is whether the DSP already takes frequency, Q and type
+  live beside the gain (the brief is `knowledge
+eap-asks-live-parametric-eq.md`
+  in SP2Tools). SP2Tools' flasher and BootROM
   recovery are proven, the earlier brick is fixed and recoverable (its
   `RUNBOOK.md`), and Neap has a hidden firmware page with edits and backups
   that could hold it. Not known: where the table sits in flash, whether the
   firmware re-reads it after boot, and whether it accepts any Q and type.
-  In stages, each safe before the next: (1) read-only, find the table in
-  flash and read it back from a live headset, a job for SP2Tools; (2) one
-  reversible test, change a single band's frequency or Q, confirm by
+  In stages, each safe before the next: (1) read-only, a desk job for
+  SP2Tools: find a live route (frequency, Q and type parameters beside the
+  gain, or a RAM table that can be written live), failing that the smallest
+  one-time patch that makes it live, and where the table sits in flash;
+  (2) one reversible test, change a single band's frequency or Q, confirm by
   reading it back and by ear with Neap's test tone, then revert; (3) only if
   that works, design it. Each write needs the owner's go-ahead. Needs the
   headset.
