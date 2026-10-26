@@ -180,13 +180,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 - The chat app list names an app by its program file, such as "ms-teams",
   when Windows gives no display name.
 
-## Last in line
-
-- **Other languages.** Lowest priority. The settings' option names are in
-  the resource file now. The transmitters' names (Charging Dock, USB
-  Transmitter, Headset) are still written into Core, where the rules for
-  what a screen says pick them, so they are next.
-
 ## Ideas, not yet decided
 
 - Neap's own volume overlay. Windows' own cannot be hidden.
