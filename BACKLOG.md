@@ -113,13 +113,12 @@ to GitHub, these become issues.
 - **Gaming Mode on the Steam Deck.** Neap runs in desktop mode only. Wanted:
   the mix, the chat wheel and the headset's controls working while a game
   runs in Gaming Mode, with no window to open. Needs the Deck.
-- **More ways to get it on Linux.** Flatpak, `.deb` and `.rpm` packages
-  (a package would install the headset rule, so the password prompt is never
-  needed), an Arm build, and one for musl distributions such as Alpine. On
-  request.
-- **In-app updates on Linux.** Today Neap says a newer version is out and
-  opens the page. An AppImage can be updated in place with a delta update tool
-  (AppImageUpdate); worth doing if people ask.
+- **Linux packages and updates, on request.** Flatpak, `.deb` and `.rpm`
+  packages (a package would install the headset rule, so the password
+  prompt is never needed), an Arm build, and one for musl distributions such
+  as Alpine. Also in-app updates: today Neap says a newer version is out and
+  opens the page, and an AppImage can be updated in place with a delta
+  update tool (AppImageUpdate).
 - **A shared connection to the sound server on Linux.** Neap opens a fresh
   connection to the sound server for every question, about every five seconds
   while idle. One long-lived connection would do, with the caution that calls
