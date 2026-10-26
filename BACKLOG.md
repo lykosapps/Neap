@@ -5,7 +5,7 @@ and the commit that did it says so. Each line says what is wrong or wanted,
 not how to fix it. Items needing the headset say so. When the project moves
 to GitHub, these become issues.
 
-## Next, after 0.2.0 (released 8 October)
+## Next, after 0.3.0 (released 24 October)
 
 - **The Charging Dock's ring: can a microphone be stopped turning it white?
   A desk investigation, with no device touched.** "Keep high-resolution
@@ -47,7 +47,10 @@ to GitHub, these become issues.
   only on the microphone, never reaches a screen reader.
 - **The Linux AppImage on more than the Steam Deck.** GitHub builds it and the
   tests pass on Linux, but it was last run by hand before the late interface
-  changes. Other distributions and a Wayland-only desktop are untested.
+  changes. Other distributions, a Wayland-only desktop, GNOME with its
+  notification-area extension, an Orca pass, and a real "headset access
+  refused" system (a Deck that already has the rule cannot show it) are
+  untested.
 - **Seen on screen, not yet:** the drop-down fade, the flyout lists on the
   profile bar and spatial sound after their fix, the low, charging and weaker
   signal colours on Home, and the narrowest layout with the menu folded.
@@ -58,8 +61,6 @@ to GitHub, these become issues.
   drop under the note in a narrow window; the Default profile row has a few
   pixels more room below its drop-down than above it; Delete on a profile is
   not drawn as destructive.
-- **Updating from 0.1.0 and from 0.2.0 on an installed copy** has not been
-  run against a real release; the first update will be the test.
 
 ## Bugs
 
@@ -161,9 +162,6 @@ to GitHub, these become issues.
 - **In-app updates on Linux.** Today Neap says a newer version is out and
   opens the page. An AppImage can be updated in place with a delta update tool
   (AppImageUpdate); worth doing if people ask.
-- **Linux checks not yet done.** A screen reader (Orca) pass, a Wayland-only
-  desktop, GNOME with its notification-area extension, and a real "headset
-  access refused" system, which a Deck that already has the rule cannot show.
 - **A shared connection to the sound server on Linux.** Neap opens a fresh
   connection to the sound server for every question, about every five seconds
   while idle. One long-lived connection would do, with the caution that calls
@@ -200,7 +198,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   connection state, the wheel, the Mode button, hearing a mode or a format,
   a game in front for the shortcuts, a real sign-out, saving and deleting
   equaliser presets, and updating from an installed copy.
-- **High contrast.** The fixes for it have not been seen on screen.
 - **The tray icon's menu** in light and dark, on screen.
 - **Does CrossPlay report its presses?** Unknown.
 - **The lights:** the USB Transmitter's second light, and the lights while
@@ -239,19 +236,13 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
 ## Tooling and release
 
-- **Publishing 0.2.0.** GitHub has only 0.1.0. The old local `v0.2.0` tag was
-  deleted on 8 Oct; tag 0.2.0 on the final commit of `main`, set the date in
-  the changelog to that day, and the workflow builds from the tag.
 - High contrast has still not been seen on the update banner, the notes dialog,
   the Settings card or the Profiles page.
 
-- Build, tests and formatting required on every pull request, once on GitHub.
 - Sign the download, so Windows does not warn about it. The updater should
   check the signature too.
 - Updater, nice to have: a limit on how big a download may be and how long
   it may take, and a way to cancel it.
-- Publish on GitHub: the repository named "neap", private vulnerability
-  reporting on, main only, and a first real CI run.
 - A package update pass before each release. The new app's packages were
   set on 7 Oct (Avalonia 12.1.3, H.NotifyIcon 2.4.1).
 - An ARM build.
