@@ -132,21 +132,10 @@ to GitHub, these become issues.
 
 The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
 
-- **The rest of the hardware list**, on the new app. `run.ps1 hardware` has
-  covered noise control, the audio format, the mix and its shortcuts,
-  recovery after the app is ended, the spare battery's reading and starting
-  at sign-in (7 Oct). Still by hand: unplugging and switching to see each
-  connection state, the wheel, the Mode button, hearing a mode or a format,
-  a game in front for the shortcuts, a real sign-out, saving and deleting
-  equaliser presets, and updating from an installed copy.
 - **The tray icon's menu** in light and dark, on screen.
 - **Does CrossPlay report its presses?** Unknown.
 - **The lights:** the USB Transmitter's second light, and the lights while
   sound and settings are on different transmitters.
-- **Settings while presets load.** Open the Microphone page and change a
-  setting at once: it takes effect within about a second. Every saved
-  preset is still listed on both equaliser pages, many times over: a read
-  now waits a moment after a write, and a lost read would hide a preset.
 - **The mix's edge cases:** an app with several audio sessions, the chat app
   not running yet, and Discord restarting mid-call.
 - **A profile saved straight after opening Neap.** Open Neap, save a
@@ -158,10 +147,6 @@ The checks themselves are in [CONTRIBUTING.md](CONTRIBUTING.md). Owed:
   side, and clearing the last puts every volume back.
 - **The chat app list on screen** in light and high contrast, and the screen
   checks' new steps for it, which have not had a full run.
-- **96 kHz through calls.** The Charging Dock went silent at 96 kHz until
-  unplugged, after many format resets. With one reset per call, use 96 kHz
-  for a few days of calls: does it stay audible? If it goes silent again,
-  the log names the apps behind each reset.
 - **The parametric curve heard, at the ends.** Measured from 60 Hz to
   6 kHz on 28 Sep (see FINDINGS.md); below and above that the recording
   microphone's own processing cut the signal. Still owed: the same
