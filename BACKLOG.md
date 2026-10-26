@@ -80,9 +80,6 @@ to GitHub, these become issues.
   the routing notices, up to 26 words; the Linux access messages, about 45;
   and the folded sections' titles, such as "The audio format, power,
   firmware, serial number and everything the headset reports".
-- **Say when the headset's settings ride on a transmitter that isn't
-  carrying its sound.** With sound on one transmitter and settings on
-  another, nothing tells you that unplugging the second loses the settings.
 - **Move the headset between PCs without switching it off and on.**
   *High priority.* The headset keeps its settings on the transmitter it was
   switched on with, and CrossPlay moves only its sound, so after moving
