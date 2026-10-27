@@ -1,5 +1,29 @@
 # Decisions
 
+## 2026-10-27 — The Stealth Pro II gets a true parametric equaliser, and follows a phone's gains
+
+- **Options:** keep the fitted Parametric mode beside a true one; replace it on
+  this headset; and, for the phone app's gain edits, put Neap's shape back,
+  or follow the phone's gains and show them.
+- **Chosen:** on the Stealth Pro II the true parametric equaliser (ten bands,
+  each with a type, frequency, width and gain, changed live) replaces the
+  fitted mode, and the user picks between it and the ten-band equaliser.
+  The shape stays on the headset when Neap closes, so it plays over Bluetooth
+  too; only choosing the ten-band equaliser puts the stock frequencies,
+  widths and types back. When another app, such as the phone app, changes the
+  gains, Neap keeps its frequencies, widths and types, takes the new gains
+  into its saved shape and shows them.
+- **Why:** SP2Tools proved live frequency, width, type and gain changes on
+  the headset, wired and through the dock, and Bluetooth audio passes through
+  the game equaliser (owner). The phone app saves a preset by deleting it and
+  writing it again, so it edits the same ten bands (seen over the cable,
+  27 October). Neap cannot block it while closed, so one rule that holds
+  whether or not Neap is running is easier to trust than a block that works
+  only while it runs.
+- **Revisit if:** the phone app also writes the equaliser when it connects
+  (not yet checked), or the Mode button's preset step turns out to move the
+  bands, which Neap would then have to block.
+
 ## 2026-10-26 — The band view draws a line through the gains, not the model's sum
 
 - **Options:** draw what the filter model says the ten bands play together;
