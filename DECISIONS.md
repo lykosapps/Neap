@@ -8,10 +8,12 @@
 - **Chosen:** only the line through the gains, on the gains' own ±9 dB scale.
 - **Why:** what the bands play together is not known. The filter model
   says neighbouring bands add up past the gains, but it rests on an
-  undocumented filter type, and SP2Tools reads a compressor and a level
-  limit after the equaliser (read from the code, not proven) that would
-  hold big summed boosts down, so what plays would also depend on how loud
-  the sound is. The only measurement, on 28 September, was a desk
+  undocumented filter type (SP2Tools has since read the type codes from
+  the firmware: 4 is peaking, 6 and 7 are shelves), and SP2Tools reads an
+  active compressor after the equaliser (read from the code, not proven)
+  that squashes a loud tone by about 4, 7 and 10 dB at +6, +9 and +12 dB of
+  boost, so what plays also depends on how loud the sound is, and a boost
+  mostly raises compression, not level. The only measurement, on 28 September, was a desk
   microphone held to an unsealed ear cup and is not trusted (FINDINGS.md).
   The line through the gains shows what was set and claims nothing about
   what is heard. The parametric view still draws from the model, as the

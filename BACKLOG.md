@@ -112,41 +112,51 @@ first and say how sure each finding is.
   matched to anything (see [FINDINGS.md](FINDINGS.md)); whether the charging
   flag means charging, or only powered by the cable; 32-bit audio formats
   are assumed to be floating point.
-- **A fully parametric equaliser, by rewriting the headset's filter table**
-  (26 October). Each band's type, frequency, Q and gain live in a stored
-  table (key `0x500B` for the game bank; microphone `0x5059`, earcup
-  correction `0x500A`) that the running firmware does not let us change, only
-  each band's gain. Rewriting it by flash would allow bands at any frequency
-  and width, low and high shelves, an exact parametric view, and tuning of
-  the microphone and sidetone banks. It is a flash change with the headset
-  off and the cable in. **It must be highly usable: adjusting a band must
-  be live, as a gain slider is, with no flash for each adjustment.** A flash
-  is acceptable once at most, to install something that makes later changes
-  live (such as a patch adding a frequency and Q handler), and the first
-  thing to find out is whether the DSP already takes frequency, Q and type
-  live beside the gain (the brief is `knowledge
-eap-asks-live-parametric-eq.md`
-  in SP2Tools). SP2Tools' flasher and BootROM
-  recovery are proven, the earlier brick is fixed and recoverable (its
-  `RUNBOOK.md`), and Neap has a hidden firmware page with edits and backups
-  that could hold it. Not known: where the table sits in flash, whether the
-  firmware re-reads it after boot, and whether it accepts any Q and type.
-  In stages, each safe before the next: (1) read-only, a desk job for
-  SP2Tools: find a live route (frequency, Q and type parameters beside the
-  gain, or a RAM table that can be written live), failing that the smallest
-  one-time patch that makes it live, and where the table sits in flash;
-  (2) one reversible test, change a single band's frequency or Q, confirm by
-  reading it back and by ear with Neap's test tone, then revert; (3) only if
-  that works, design it. Each write needs the owner's go-ahead. Needs the
-  headset.
-- **Equaliser boosts with the loudness boost raised.** SP2Tools reads a
-  compressor and a level limit after the equaliser, and the loudness boost
-  raises the level going into it, which the firmware seems to keep 12 dB
-  down as room for equaliser boosts (read from the code, not proven). On a
-  headset with the boost raised, measure a bass boost and all ten bands at
+- **A fully parametric equaliser, live.** Each of the game bank's ten bands
+  has a type, frequency, Q and gain; Neap sets only the gain. SP2Tools read
+  the firmware (27 October, answers in `knowledge
+eap-answers-live-parametric-eq.md`
+  there) and found that **live frequency, Q and type already exist** over the
+  same route as the loudness boost, so no flash is needed: ten bands at most,
+  frequency 15 to 48000 Hz, Q 0.1 to 10, gain up to ±20 dB in the firmware
+  (Swarm II's ±9 dB is the interface's), and types for peaking, notch, low
+  and high shelf, low and high pass. Read from the code, not yet tried.
+  Things Neap must handle: every change is saved in the headset (so Neap
+  restores the stock frequency, Q and type itself, as Swarm II's presets keep
+  gains only); no firmware check stops a frequency past half the sample rate
+  (clamp below it); one 186-byte save per change (coalesce dragging, pace
+  updates); a stock flag makes a gain write re-send all ten bands through a
+  matrix tuned for the stock centres (write gain first and frequency last,
+  or clear the flag once); and it applies live only while a game stream is
+  open. Next: the first safe reads and one one-band test (SP2Tools `W9`:
+  read band 5, set +6 dB then 3000 Hz, check with a tone sweep, revert),
+  which needs the owner's go-ahead, the headset wired with a game stream
+  open, and Neap closed. Then design it: a band editor on the Equaliser page
+  with a way back to stock.
+- **Equaliser boosts with the loudness boost raised.** SP2Tools reads an
+  active compressor after the equaliser (threshold −10 dB, ratio 100:1,
+  make-up +7 dB, live over the same route) that squashes a 0 dBFS tone by
+  about 4, 7 and 10 dB at +6, +9 and +12 dB of boost, so a boost mostly
+  raises compression, not level (read from the code, not proven), and the
+  loudness boost raises the level going into it. On a headset with the
+  boost raised, measure a bass boost and all ten bands at
   +9 dB for compression or clipping, against the same at stock, with the
   sealed setup above. If it squashes, the loudness boost or the equaliser may need to
   say so. Needs the headset and a recording microphone.
+- **Game and chat mix in the dock, natively.** Neap mixes in software today
+  (per-app volumes). The dock's firmware has a second stereo playback
+  function, off in every mode it runs, that would show Windows separate Game
+  and Chat endpoints, so any chat app could play to Chat and the wheel would
+  set a mix ratio, with no app list and no polling. Not known: whether the
+  dock sends that second stream to the headset and mixes it (its chat-mix
+  code is gated to Xbox), and whether the dock can keep its USB identity
+  while doing it, which Neap needs to find it. The live switch changes the
+  identity and undoes itself at a power cycle; a lasting one is a 2-byte dock
+  flash patch. SP2Tools has both parked (`W1` the live test, `W2` the patch).
+  The brief is `knowledge
+eap-asks-dock-chat-mix.md` there: desk questions
+  first, then the one experiment when the owner chooses it. Needs the
+  headset and dock, with Neap closed for the test.
 - **Bass and treble boost levels**, if the headset turns out to have them.
 - **Dolby Access's own profiles from Neap** (parked). Offer Dolby Access's
   profiles (Game, Movie, Music, Voice) from Neap, and turn each one's own
