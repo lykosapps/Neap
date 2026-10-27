@@ -7,16 +7,19 @@
   has moved) and offer the fix later; or make clearing that correction part of
   turning parametric on. For other headsets: keep the fitted mode, or take it away.
 - **Chosen:** the correction is cleared as part of enabling parametric. The
-  Equaliser page shows Parametric switched off, with a way to the Firmware
-  page, where the user turns it on; the page says that Swarm II's own presets
-  then play louder in the mids (up to about 5 dB for several boosts together).
+  Equaliser page shows Parametric switched off, with a way to Settings, where
+  the "Firmware edits" switch is highlighted; turning it on shows the Firmware
+  page, where the user turns parametric on, and the page says that Swarm II's
+  own presets then play louder in the mids (up to about 5 dB for several
+  boosts together). The Settings switch stays. The Firmware page ships in
+  0.3.0 cut down to that one item and its Restore; flash edits stay held back.
   The fitted Parametric mode is taken away from every other headset.
 - **Why:** the owner's call: a parametric equaliser that is slightly wrong
   until a later step would be confusing, and the fitted mode is not truly
   parametric.
-- **Changes:** "Firmware edits wait for a later release" (22 October). The
-  Firmware page and its writer must now ship for parametric to be usable, and
-  the page's opt-in in Settings can no longer hide the way to it.
+- **Changes:** "Firmware edits wait for a later release" (22 October), for the
+  settings-record write only: flash edits still wait. The Settings switch can
+  no longer be hidden for a Stealth Pro II.
 - **Revisit if:** clearing the correction proves hard to undo from the backup,
   or the headset can be made exact without writing to its settings record.
 
