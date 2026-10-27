@@ -179,6 +179,8 @@ was confirmed.
   the code, not yet seen on the wire). Neap now asks which firmware a headset
   has, since the headset reports the same version either way.
 
+- 2026-10-27 — Phone app and the game equaliser, on the headset over the cable: Turtle Beach's phone app saves a custom game preset by deleting it and writing it again, so its gain edits land on the same ten game bands Neap sets (seen: band 2 of a custom preset moved, `0x1610` read the preset's name afterwards, the Bluetooth bank `0x1640` unchanged). Bluetooth audio passes through the game equaliser (owner). Assumed, not tried: choosing a different preset on the phone changes the preset and all ten gains, and leaves each band's frequency, width and type as they were.
+
 - 2026-10-17 — Turtle Beach's PC article read: the feature list above. It
   adds a per-transmitter voice prompt (none, 1–4) and lists wake on motion in
   the desktop app.
