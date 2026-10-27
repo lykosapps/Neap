@@ -2091,6 +2091,63 @@
   <data name="Parametric_StartFrom" xml:space="preserve">
     <value>Start from</value>
   </data>
+  <data name="Parametric_ImportFilters" xml:space="preserve">
+    <value>Import filters…</value>
+  </data>
+  <data name="FilterImport_Title" xml:space="preserve">
+    <value>Import filters</value>
+  </data>
+  <data name="FilterImport_Field" xml:space="preserve">
+    <value>Filters</value>
+  </data>
+  <data name="FilterImport_Example" xml:space="preserve">
+    <value>Filter 1: ON PK Fc 105 Hz Gain -2.5 dB Q 0.7</value>
+  </data>
+  <data name="FilterImport_OpenFile" xml:space="preserve">
+    <value>Open file…</value>
+  </data>
+  <data name="FilterImport_FileType" xml:space="preserve">
+    <value>Text files</value>
+  </data>
+  <data name="FilterImport_Apply" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="FilterImport_NothingFits" xml:space="preserve">
+    <value>No filters here that the headset can use.</value>
+  </data>
+  <data name="FilterImport_SetsOne" xml:space="preserve">
+    <value>Sets 1 band and turns the rest off.</value>
+  </data>
+  <data name="FilterImport_SetsSome" xml:space="preserve">
+    <value>Sets {0} bands and turns the rest off.</value>
+  </data>
+  <data name="FilterImport_SetsAll" xml:space="preserve">
+    <value>Sets all ten bands.</value>
+  </data>
+  <data name="FilterImport_GainHeld" xml:space="preserve">
+    <value>A gain of {0} dB is held to {1} dB.</value>
+  </data>
+  <data name="FilterImport_PreampNotUsed" xml:space="preserve">
+    <value>The preamp of {0} dB is not used. Set the level with Loudness boost.</value>
+  </data>
+  <data name="FilterImport_NotUsed" xml:space="preserve">
+    <value>Not used</value>
+  </data>
+  <data name="FilterImport_SwitchedOff" xml:space="preserve">
+    <value>{0}: switched off.</value>
+  </data>
+  <data name="FilterImport_TypeNotOnHeadset" xml:space="preserve">
+    <value>{0}: the headset has no {1} filter.</value>
+  </data>
+  <data name="FilterImport_PastTenth" xml:space="preserve">
+    <value>{0}: past the tenth band.</value>
+  </data>
+  <data name="FilterImport_NotUnderstood" xml:space="preserve">
+    <value>{0}: not understood.</value>
+  </data>
+  <data name="FilterImport_CannotRead" xml:space="preserve">
+    <value>{0} could not be read as a filter file.</value>
+  </data>
   <data name="Parametric_ShapeFlat" xml:space="preserve">
     <value>Flat</value>
   </data>
