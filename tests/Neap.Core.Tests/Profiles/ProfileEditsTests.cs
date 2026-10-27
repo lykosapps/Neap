@@ -1,5 +1,6 @@
 using Neap.Core.Audio;
 using Neap.Core.Connection;
+using Neap.Core.Presets;
 using Neap.Core.Profiles;
 using Neap.Core.Settings;
 
@@ -30,6 +31,29 @@ public class ProfileEditsTests
     [Fact]
     public void ASavedPresetThatIsNowUnnamedIsAnEdit() =>
         Assert.True(ProfileEdits.IsEdited(With("Bass Boost", "Clarity"), With(null, "Clarity")));
+
+    private static ParametricShape Shape(double gain) =>
+        ParametricShape.Of([.. StockBands.Game.Select((band, i) => i == 2 ? band with { Gain = gain } : band)]);
+
+    [Fact]
+    public void TheSameParametricShapeIsNotEdited() =>
+        Assert.False(ProfileEdits.IsEdited(With("Bass Boost", "Clarity") with { GameShape = Shape(3) },
+            With("Bass Boost", "Clarity") with { GameShape = Shape(3) }));
+
+    [Theory]
+    [InlineData(3.5)]
+    [InlineData(null)]
+    public void AMovedShapeOrTheTenBandsInsteadIsEdited(double? gain) =>
+        Assert.True(ProfileEdits.IsEdited(With("Bass Boost", "Clarity") with { GameShape = Shape(3) },
+            With("Bass Boost", "Clarity") with { GameShape = gain is double g ? Shape(g) : null }));
+
+    [Fact]
+    public void AHeadsetWithNoParametricEqualiserKeepsTheProfilesShape()
+    {
+        var saved = With("Bass Boost", "Clarity") with { GameShape = Shape(3) };
+        Assert.Equal(Shape(3), ProfileEdits.Keeping(OnAnAtlasAir(), saved, HeadsetModels.AtlasAir).GameShape);
+        Assert.Null(ProfileEdits.Keeping(With("Bass Boost", "Clarity"), saved, HeadsetModels.StealthProII).GameShape);
+    }
 
     /// <summary>An Atlas Air has no noise cancellation, AI noise reduction, dial or Mode button, and reads them as nothing.</summary>
     private static ProfileSettings OnAnAtlasAir(int autoShutoff = 0) => new(

@@ -138,7 +138,9 @@ public sealed class ProfileService : IDisposable
             monitoring, AppServices.Presets.State(Bank.Game)?.Baseline?.Name,
             AppServices.Presets.State(Bank.Mic)?.Baseline?.Name, format, autoShutoff,
             new ModeChoice(modeFunction, AppServices.Noise.Cycling), dial,
-            ProfileGate.HoldsMix(model) && AppServices.Mix.Running ? AppServices.Mix.Mix : null), Active?.Settings, model);
+            ProfileGate.HoldsMix(model) && AppServices.Mix.Running ? AppServices.Mix.Mix : null,
+            model is { HasParametricBands: true } && AppSettings.Current.ParametricOn && ParametricService.Active
+                ? ParametricShape.Of(ParametricService.Saved) : null), Active?.Settings, model);
     }
 
     private static async Task<(BankState Game, BankState Mic)> EnsureBanks() => (
@@ -208,6 +210,16 @@ public sealed class ProfileService : IDisposable
             await AppServices.Presets.Select(Bank.Mic, micPreset);
 
         var model = _headset.Model;
+        if (model is { HasParametricBands: true })
+        {
+            // The ten bands' preset is chosen first in either case, so leaving
+            // the Parametric mode plays its gains.
+            if (s.GameShape is { } shape && AppSettings.Current.ParametricOn) AppServices.Parametric.Use(shape);
+            else if (s.GameShape is not null) missing = [.. missing, Strings.Get("Profile_ParametricOff")];
+            else if (ParametricService.Active)
+                AppServices.Parametric.UseBands(AppServices.Presets.LiveBands(Bank.Game) ?? new int[BandWrites.Bands]);
+        }
+
         void Set(string name, int value)
         {
             if (ProfileGate.Holds(model, name)) _headset.Set(name, value);
@@ -355,7 +367,8 @@ public sealed class ProfileService : IDisposable
         s.NoiseMode, s.NoiseLevel, s.SuperhumanHearing, s.ShhPreset, s.ShhLevel,
         s.NoiseGate, s.NoiseGateThreshold, s.AiNoiseReduction, s.MicMonitoring,
         s.GamePreset, s.MicPreset, s.Spatial, s.AutoShutoff,
-        new ModeChoice(s.ModeButtonFunction, s.ModeButtonCycles), s.DialFunction, s.Mix));
+        new ModeChoice(s.ModeButtonFunction, s.ModeButtonCycles), s.DialFunction, s.Mix,
+        s.GameShape is { } shape ? new ParametricShape(shape) : null));
 
     private static AppSettings.StoredProfile ToStored(Profile profile) => new()
     {
@@ -380,5 +393,6 @@ public sealed class ProfileService : IDisposable
         ModeButtonCycles = profile.Settings.ModeButton.Cycles,
         DialFunction = profile.Settings.DialFunction,
         Mix = profile.Settings.Mix,
+        GameShape = profile.Settings.GameShape is { } shape ? [.. shape.Bands] : null,
     };
 }

@@ -203,6 +203,21 @@ public sealed class AppSettings
     [JsonPropertyName("parametric_shape")]
     public List<StoredBand> ParametricShape { get; set; } = new();
 
+    /// <summary>The parametric shapes the person saved under names, in the order saved.</summary>
+    [JsonPropertyName("parametric_presets")]
+    public List<StoredParametricPreset> ParametricPresets { get; set; } = new();
+
+    /// <summary>The name of the parametric preset the shape came from, or null when it came from none.</summary>
+    [JsonPropertyName("parametric_preset")]
+    public string? ParametricPresetName { get; set; }
+
+    /// <summary>A parametric preset as stored. <see cref="ParametricService"/> is the only reader and writer.</summary>
+    public sealed class StoredParametricPreset
+    {
+        [JsonPropertyName("name")] public string Name { get; set; } = "";
+        [JsonPropertyName("bands")] public List<StoredBand> Bands { get; set; } = new();
+    }
+
     /// <summary>
     /// The preset each bank was left on an edit of.
     /// </summary>
@@ -264,6 +279,7 @@ public sealed class AppSettings
         [JsonPropertyName("mode_button_cycles")] public bool ModeButtonCycles { get; set; }
         [JsonPropertyName("dial_function")] public int DialFunction { get; set; }
         [JsonPropertyName("mix")] public int? Mix { get; set; }
+        [JsonPropertyName("game_shape")] public List<StoredBand>? GameShape { get; set; }
         [JsonPropertyName("assigned_apps")] public List<string> AssignedApps { get; set; } = new();
         [JsonPropertyName("microphone_apps")] public List<string> MicrophoneApps { get; set; } = new();
     }

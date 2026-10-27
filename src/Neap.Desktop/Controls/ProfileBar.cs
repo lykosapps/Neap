@@ -262,6 +262,8 @@ public sealed class ProfileBar : UserControl
         AppServices.Headset.StatusChanged += OnStatusChanged;
         // A profile holds the mix on a headset with no chat wheel.
         AppServices.Mix.Changed += Reread;
+        // And the parametric equaliser's mode and shape.
+        AppServices.Parametric.Changed += Reread;
         Paint();
         await AppServices.Profiles.Refresh();
     }
@@ -274,6 +276,7 @@ public sealed class ProfileBar : UserControl
         AppServices.Headset.Changed -= Reread;
         AppServices.Headset.StatusChanged -= OnStatusChanged;
         AppServices.Mix.Changed -= Reread;
+        AppServices.Parametric.Changed -= Reread;
     }
 
     private async void Reread() => await AppServices.Profiles.Refresh();

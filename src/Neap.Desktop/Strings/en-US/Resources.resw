@@ -2235,4 +2235,37 @@
   <data name="Equaliser_ParametricOpenFirmware" xml:space="preserve">
     <value>Open firmware</value>
   </data>
+  <data name="ParametricPreset_None" xml:space="preserve">
+    <value>No preset</value>
+  </data>
+  <data name="ParametricPreset_Edited" xml:space="preserve">
+    <value>{0}, edited</value>
+  </data>
+  <data name="ParametricPreset_Picker" xml:space="preserve">
+    <value>Parametric preset: {0}</value>
+  </data>
+  <data name="ParametricPreset_NoneSaved" xml:space="preserve">
+    <value>No saved presets yet</value>
+  </data>
+  <data name="ParametricPreset_SaveName" xml:space="preserve">
+    <value>Save over the preset</value>
+  </data>
+  <data name="ParametricPreset_Rename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="ParametricPreset_SaveTitle" xml:space="preserve">
+    <value>Save as a new preset</value>
+  </data>
+  <data name="ParametricPreset_RenameTitle" xml:space="preserve">
+    <value>Rename {0}</value>
+  </data>
+  <data name="ParametricPreset_DeleteTitle" xml:space="preserve">
+    <value>Delete {0}?</value>
+  </data>
+  <data name="ParametricPreset_DeleteBody" xml:space="preserve">
+    <value>The shape on screen stays as it is.</value>
+  </data>
+  <data name="Profile_ParametricOff" xml:space="preserve">
+    <value>the parametric shape, as Parametric is off</value>
+  </data>
 </root>

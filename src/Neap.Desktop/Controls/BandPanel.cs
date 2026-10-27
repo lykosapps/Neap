@@ -58,6 +58,7 @@ public sealed class BandPanel : UserControl
     private readonly BandValueBox _gainBox = new() { Width = 96 };
 
     private readonly Row[] _rows = new Row[BandWrites.Bands];
+    private readonly ParametricPresetBar _presets;
 
     private readonly Stack<List<ParametricBand>> _undoStack = new();
     private readonly Stack<List<ParametricBand>> _redoStack = new();
@@ -69,6 +70,7 @@ public sealed class BandPanel : UserControl
 
     public BandPanel()
     {
+        _presets = new ParametricPresetBar(() => _bands, bands => Replace(bands, keepSelection: false));
         Content = Build();
         Wire();
     }
@@ -77,15 +79,19 @@ public sealed class BandPanel : UserControl
     {
         base.OnLoaded(e);
         AppServices.Headset.LoudnessChanged += PaintLevel;
-        Show(ParametricService.Saved);
+        AppServices.Parametric.ShapeChanged += ShowSaved;
+        ShowSaved();
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
         AppServices.Headset.LoudnessChanged -= PaintLevel;
+        AppServices.Parametric.ShapeChanged -= ShowSaved;
         _tone.Stop();
     }
+
+    private void ShowSaved() => Show(ParametricService.Saved);
 
     // A tone left playing behind a hidden panel is a tone nobody can stop.
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -150,7 +156,7 @@ public sealed class BandPanel : UserControl
         table.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
         for (int band = 0; band < BandWrites.Bands; band++) _rows[band] = AddRow(table, band);
 
-        return new StackPanel { Spacing = Space.M, Children = { tools, _level, _curve, _tone, editor, table } };
+        return new StackPanel { Spacing = Space.M, Children = { _presets, tools, _level, _curve, _tone, editor, table } };
     }
 
     private static void Column(Grid grid, int at, TextBlock label, BandDial dial, BandValueBox box)
@@ -313,7 +319,11 @@ public sealed class BandPanel : UserControl
         Paint();
     }
 
-    private void Send() => AppServices.Parametric.Set(_bands);
+    private void Send()
+    {
+        AppServices.Parametric.Set(_bands);
+        _presets.Paint();
+    }
 
     // -- painting ----------------------------------------------------------
 
@@ -328,6 +338,7 @@ public sealed class BandPanel : UserControl
             PaintValues();
             PaintHistory();
             PaintLevel();
+            _presets.Paint();
         }
         finally { _painting = false; }
     }

@@ -214,6 +214,7 @@ public partial class EqualiserPanel : UserControl
         base.OnLoaded(e);
         AppServices.Headset.Changed += Paint;
         AppServices.Parametric.Reset += Paint;
+        AppServices.Parametric.ShapeChanged += Paint;
         ShowWaiting(Wait.Reading);
         BuildBands();
         await Reload();
@@ -258,6 +259,7 @@ public partial class EqualiserPanel : UserControl
         base.OnUnloaded(e);
         AppServices.Headset.Changed -= Paint;
         AppServices.Parametric.Reset -= Paint;
+        AppServices.Parametric.ShapeChanged -= Paint;
         AppServices.Headset.StatusChanged -= OnStatusChanged;
         StopCompare();
     }

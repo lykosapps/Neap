@@ -1,5 +1,22 @@
 # Decisions
 
+## 2026-10-28 — Parametric shapes are saved as Neap's presets, and a profile holds the shape itself
+
+- **Options:** named parametric presets on the Equaliser page with profiles
+  that remember them; profiles only, each holding the shape on screen; or
+  named presets only, with profiles holding the ten-band preset as before.
+- **Chosen:** both. Parametric presets are saved in Neap's settings, with no
+  limit, and chosen, saved over, renamed and deleted from a bar above the
+  editor. A profile remembers whether the game equaliser was in Parametric
+  and, if so, the ten bands themselves; switching to it puts them back and
+  names the preset they match.
+- **Why:** the owner's call. The headset keeps gains only, so the presets
+  have to be Neap's. Holding the shape by value keeps a profile working after
+  its preset is renamed or deleted, and a profile saved while the shape was
+  unsaved still brings it back.
+- **Revisit if:** profiles need to follow later edits to a preset rather than
+  keep the shape they were saved with.
+
 ## 2026-10-27 — One level control: the loudness boost, extended below stock
 
 - **Options:** a separate Level control on the equaliser page; the existing

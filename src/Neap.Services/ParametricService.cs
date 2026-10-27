@@ -21,6 +21,7 @@ public sealed class ParametricService
     private static readonly TimeSpan Pace = TimeSpan.FromMilliseconds(100);
 
     private readonly HeadsetService _headset;
+    private readonly IUiThread _ui = Platform.Current.Ui;
     private readonly BandSender _sender = new();
     private volatile IReadOnlyList<ParametricBand>? _wanted;
     private int _queued;
@@ -35,6 +36,11 @@ public sealed class ParametricService
 
     /// <summary>Starts sending the saved shape each time the headset connects, while parametric is on.</summary>
     public void Watch() => _headset.StatusChanged += OnStatus;
+
+    /// <summary>The mode or the saved shape changed, so a profile may now read as edited. Raised on the UI thread.</summary>
+    public event Action? Changed;
+
+    private void Announce() => _ui.Post(() => Changed?.Invoke());
 
     /// <summary>Parametric was found reset by Swarm II and turned off. Raised on the UI thread.</summary>
     public event Action? Reset;
@@ -99,7 +105,12 @@ public sealed class ParametricService
             Interlocked.Exchange(ref _queued, 0);
             var latest = _wanted!;
             _sender.Send(latest, client.SetBand, () => Thread.Sleep(Pace));
-            if (Volatile.Read(ref _queued) == 0) AppSettings.Update(settings => settings.ParametricShape = [.. latest.Select(StoredBand.Of)]);
+            if (Volatile.Read(ref _queued) == 0)
+            {
+                AppSettings.Update(settings => settings.ParametricShape = [.. latest.Select(StoredBand.Of)]);
+                Announce();
+            }
+
             return true;
         });
 
@@ -122,6 +133,7 @@ public sealed class ParametricService
     {
         AppSettings.Update(settings => settings.ParametricActive = true);
         Set(StoredBand.Bands(AppSettings.Current.ParametricShape) ?? StockBands.FromGains(heard));
+        Announce();
     }
 
     /// <summary>Goes back to the ten bands: the stock frequencies, widths and filters, with the gains of the ten-band curve that was set.</summary>
@@ -131,8 +143,79 @@ public sealed class ParametricService
         AppSettings.Update(settings => settings.ParametricActive = false);
         _wanted = StockBands.WithGains(heard);
         Send();
+        Announce();
     }
 
     /// <summary>Forgets what the headset holds, so the next shape is sent whole.</summary>
     public void Forget() => _sender.Forget();
+
+    // -- saved presets -----------------------------------------------------
+
+    /// <summary>The shape or the mode was changed from outside the Equaliser page, by a profile. Raised on the thread that changed it.</summary>
+    public event Action? ShapeChanged;
+
+    /// <summary>The parametric shapes saved under names, in the order saved.</summary>
+    public static IReadOnlyList<ParametricPreset> Presets =>
+        [.. AppSettings.Current.ParametricPresets.Select(p => new ParametricPreset(p.Name, new ParametricShape(p.Bands)))];
+
+    /// <summary>The preset the shape came from, or null when it came from none.</summary>
+    public static ParametricPreset? Baseline => ParametricPresets.Find(Presets, AppSettings.Current.ParametricPresetName);
+
+    /// <summary>Marks a preset as the one the shape comes from, or none with null; the bands are the caller's to set.</summary>
+    /// <param name="name">The preset's name, or null.</param>
+    public static void Choose(string? name) => AppSettings.Update(settings => settings.ParametricPresetName = name);
+
+    /// <summary>Saves the bands under a name, as a new preset or over the one with that name, and marks it as the one in use.</summary>
+    /// <param name="name">The name.</param>
+    /// <param name="bands">The ten bands.</param>
+    public static void Save(string name, IReadOnlyList<ParametricBand> bands)
+    {
+        StorePresets(ParametricPresets.Saved(Presets, name, ParametricShape.Of(bands)));
+        Choose(ParametricPresets.Find(Presets, name)?.Name);
+    }
+
+    /// <summary>Renames the preset in use.</summary>
+    /// <param name="name">Its new name.</param>
+    public static void Rename(string name)
+    {
+        if (Baseline is not { } preset) return;
+        StorePresets(ParametricPresets.Renamed(Presets, preset.Name, name));
+        Choose(name.Trim());
+    }
+
+    /// <summary>Deletes the preset in use, leaving the shape as it is with no preset behind it.</summary>
+    public static void Delete()
+    {
+        if (Baseline is not { } preset) return;
+        StorePresets(ParametricPresets.Without(Presets, preset.Name));
+        Choose(null);
+    }
+
+    private static void StorePresets(IReadOnlyList<ParametricPreset> presets) => AppSettings.Update(settings =>
+        settings.ParametricPresets = [.. presets.Select(p => new AppSettings.StoredParametricPreset { Name = p.Name, Bands = [.. p.Shape.Bands] })]);
+
+    /// <summary>Puts a profile's shape on the headset in the Parametric mode, naming the preset it matches, if any.</summary>
+    /// <param name="shape">The shape.</param>
+    public void Use(ParametricShape shape)
+    {
+        if (StoredBand.Bands(shape.Bands) is not { } bands)
+        {
+            AppLog.Write("parametric: a profile's shape is not ten bands the headset has, so it was not sent");
+            return;
+        }
+
+        Choose(ParametricPresets.Matching(Presets, shape)?.Name);
+        AppSettings.Update(settings => settings.ParametricActive = true);
+        Set(bands);
+        AppSettings.Update(settings => settings.ParametricShape = [.. shape.Bands]);
+        ShapeChanged?.Invoke();
+    }
+
+    /// <summary>Goes back to the ten bands for a profile that holds them.</summary>
+    /// <param name="heard">The ten gains of the ten-band curve, in tenths of a decibel.</param>
+    public void UseBands(IReadOnlyList<int> heard)
+    {
+        Leave(heard);
+        ShapeChanged?.Invoke();
+    }
 }

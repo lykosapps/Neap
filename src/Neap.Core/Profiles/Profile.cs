@@ -1,6 +1,7 @@
 using Neap.Core.Audio;
 using Neap.Core.Connection;
 using Neap.Core.Diagnostics;
+using Neap.Core.Presets;
 using Neap.Core.Settings;
 
 namespace Neap.Core.Profiles;
@@ -17,6 +18,11 @@ namespace Neap.Core.Profiles;
 /// The game/chat mix is held only on a headset with no chat wheel, where
 /// nothing on the headset owns it; see <see cref="ProfileGate.HoldsMix"/>.
 /// <see cref="Mix"/> is null for a profile that holds none.
+/// </para>
+/// <para>
+/// <see cref="GameShape"/> is the parametric equaliser's shape when the game
+/// equaliser was in its Parametric mode, held by value so the profile does
+/// not depend on a saved preset staying, or null for the ten-band equaliser.
 /// </para>
 /// </remarks>
 public sealed record ProfileSettings(
@@ -35,7 +41,8 @@ public sealed record ProfileSettings(
     int AutoShutoff,
     ModeChoice ModeButton,
     int DialFunction,
-    int? Mix = null);
+    int? Mix = null,
+    ParametricShape? GameShape = null);
 
 /// <summary>A profile, saved under a name the person chose, with the apps that switch to it.</summary>
 /// <param name="Id">What the profile is known by, whatever it is called.</param>
@@ -110,6 +117,7 @@ public static class ProfileEdits
             ModeButton = Holds("mode_button_function") ? live.ModeButton : active.ModeButton,
             DialFunction = Holds("dial_function") ? live.DialFunction : active.DialFunction,
             Mix = ProfileGate.HoldsMix(model) ? live.Mix : active.Mix,
+            GameShape = model is { HasParametricBands: true } ? live.GameShape : active.GameShape,
         };
     }
 }
