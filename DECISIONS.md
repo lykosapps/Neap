@@ -1,5 +1,25 @@
 # Decisions
 
+## 2026-10-27 — Parametric is enabled from the Firmware page, and only the Stealth Pro II has it
+
+- **Options:** ship parametric at once with the headset's stock gain correction
+  left on (about 2 dB of error at the edges of a boost, faint dips where a band
+  has moved) and offer the fix later; or make clearing that correction part of
+  turning parametric on. For other headsets: keep the fitted mode, or take it away.
+- **Chosen:** the correction is cleared as part of enabling parametric. The
+  Equaliser page shows Parametric switched off, with a way to the Firmware
+  page, where the user turns it on; the page says that Swarm II's own presets
+  then play louder in the mids (up to about 5 dB for several boosts together).
+  The fitted Parametric mode is taken away from every other headset.
+- **Why:** the owner's call: a parametric equaliser that is slightly wrong
+  until a later step would be confusing, and the fitted mode is not truly
+  parametric.
+- **Changes:** "Firmware edits wait for a later release" (22 October). The
+  Firmware page and its writer must now ship for parametric to be usable, and
+  the page's opt-in in Settings can no longer hide the way to it.
+- **Revisit if:** clearing the correction proves hard to undo from the backup,
+  or the headset can be made exact without writing to its settings record.
+
 ## 2026-10-27 — The Stealth Pro II gets a true parametric equaliser, and follows a phone's gains
 
 - **Options:** keep the fitted Parametric mode beside a true one; replace it on
