@@ -122,6 +122,30 @@ public sealed class GameEqRecord
         return new GameEqRecord(copy);
     }
 
+    /// <summary>The same record with the ten bands' filter, frequency, width and gain set, and the rest unchanged.</summary>
+    /// <remarks>The sample rate in each band is left as it is: the firmware overwrites it with the live stream's.</remarks>
+    /// <param name="bands">The ten bands.</param>
+    public GameEqRecord WithBands(IReadOnlyList<ParametricBand> bands)
+    {
+        if (bands.Count != BandWrites.Bands) throw new ArgumentException($"expected {BandWrites.Bands} bands, got {bands.Count}", nameof(bands));
+        var copy = (byte[])_bytes.Clone();
+        for (int band = 0; band < bands.Count; band++)
+        {
+            var at = copy.AsSpan(HeaderLength + (band * BandLength), BandLength);
+            var held = bands[band].Held();
+            BinaryPrimitives.WriteSingleLittleEndian(at, (float)held.Hertz);
+            BinaryPrimitives.WriteSingleLittleEndian(at[4..], (float)held.Q);
+            BinaryPrimitives.WriteSingleLittleEndian(at[8..], (float)held.Gain);
+            BinaryPrimitives.WriteUInt16LittleEndian(at[16..], (ushort)held.Type);
+        }
+
+        return Parse(copy) ?? throw new ArgumentException("the bands do not make a record the headset would hold", nameof(bands));
+    }
+
+    /// <summary>The record as the stock bands would have it: stock frequencies, widths and filters, this record's gains, the correction back on.</summary>
+    public GameEqRecord ReturnedToStock() =>
+        WithBands([.. Bands.Select((band, i) => StockBands.Game[i] with { Gain = band.Gain })]).WithGainCorrection(true);
+
     /// <summary>Whether another record is the same byte for byte.</summary>
     /// <param name="other">The record to compare.</param>
     public bool Matches(GameEqRecord other) => _bytes.AsSpan().SequenceEqual(other._bytes);
