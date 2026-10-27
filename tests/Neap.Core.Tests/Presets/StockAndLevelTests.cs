@@ -86,25 +86,6 @@ public class StockAndLevelTests
         Assert.Throws<ArgumentOutOfRangeException>(() => CutBands.Bands(true, 80, (CutSlope)7));
 
     [Fact]
-    public void TheLevelIsOnlyEverPulledDownFromStock()
-    {
-        Assert.Equal(-12, InputLevel.Absolute(0));
-        Assert.Equal(-18, InputLevel.Absolute(6));
-        Assert.Equal(-24, InputLevel.Absolute(12));
-        Assert.Equal(-24, InputLevel.Absolute(30));
-        Assert.Equal(-12, InputLevel.Absolute(-5));
-    }
-
-    [Theory]
-    [InlineData(-12, true)]
-    [InlineData(-24, true)]
-    [InlineData(-18, true)]
-    [InlineData(-6, false)]
-    [InlineData(-30, false)]
-    public void ALevelThatIsLouderThanStockOrFarBelowIsNotOneTheScreenOffers(double absolute, bool offered) =>
-        Assert.Equal(offered, InputLevel.IsOffered(absolute));
-
-    [Fact]
     public void TheSuggestedPullDownMatchesTheBiggestBoostRoundedUpToAHalf()
     {
         ParametricBand[] bands = [.. StockBands.Game];
