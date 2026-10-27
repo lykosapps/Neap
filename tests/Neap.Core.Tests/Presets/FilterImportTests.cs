@@ -29,7 +29,7 @@ public class FilterImportTests
     {
         var result = FilterImport.Parse(Example);
         Assert.Equal(-3.0, result.PreampDb);
-        Assert.Contains(result.Notes, note => note.Contains("preamp", StringComparison.Ordinal));
+        Assert.Equal(4, result.Bands.Count);
     }
 
     [Fact]
@@ -48,9 +48,9 @@ public class FilterImportTests
 
         Assert.Single(result.Bands);
         Assert.Equal(3, result.NotImported.Count);
-        Assert.Contains("switched off", result.NotImported[0], StringComparison.Ordinal);
-        Assert.Contains("AP", result.NotImported[1], StringComparison.Ordinal);
-        Assert.Contains("not understood", result.NotImported[2], StringComparison.Ordinal);
+        Assert.Equal(new SkippedLine("Filter 1: OFF PK Fc 100 Hz Gain 3 dB Q 1", SkipReason.SwitchedOff, "PK"), result.NotImported[0]);
+        Assert.Equal(new SkippedLine("Filter 3: ON AP Fc 300 Hz Gain 0 dB Q 1", SkipReason.TypeNotOnHeadset, "AP"), result.NotImported[1]);
+        Assert.Equal(new SkippedLine("some words", SkipReason.NotUnderstood, string.Empty), result.NotImported[2]);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class FilterImportTests
 
         Assert.Equal(10, result.Bands.Count);
         Assert.Equal(2, result.NotImported.Count);
-        Assert.All(result.NotImported, line => Assert.Contains("more than ten", line, StringComparison.Ordinal));
+        Assert.All(result.NotImported, line => Assert.Equal(SkipReason.PastTenth, line.Reason));
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class FilterImportTests
     {
         var result = FilterImport.Parse("Filter 1: ON PK Fc 100 Hz Gain 18 dB Q 1");
         Assert.Equal(12, result.Bands[0].Gain);
-        Assert.Contains(result.Notes, note => note.Contains("held to", StringComparison.Ordinal));
+        Assert.Equal([new HeldGain(18, 12)], result.HeldGains);
     }
 
     [Fact]

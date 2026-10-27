@@ -210,6 +210,13 @@ public sealed class BandPanel : UserControl
             menu.Items.Add(item);
         }
 
+        var import = new MenuItem { Header = Strings.Get("Parametric_ImportFilters") };
+        import.Click += async (_, _) =>
+        {
+            if (await FilterImportDialog.Ask(this) is { } bands) Replace(bands, keepSelection: false);
+        };
+        menu.Items.Add(new Separator());
+        menu.Items.Add(import);
         return menu;
     }
 

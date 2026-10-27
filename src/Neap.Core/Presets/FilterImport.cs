@@ -3,13 +3,33 @@ using System.Text.RegularExpressions;
 
 namespace Neap.Core.Presets;
 
+/// <summary>Why a line of a filter file was not used.</summary>
+public enum SkipReason
+{
+    NotUnderstood,
+    SwitchedOff,
+    TypeNotOnHeadset,
+    PastTenth,
+}
+
+/// <summary>A line of a filter file that was not used.</summary>
+/// <param name="Line">The line as it was, trimmed.</param>
+/// <param name="Reason">Why it was not used.</param>
+/// <param name="Type">The filter type the line asked for, in capitals; empty when the line was not understood.</param>
+public sealed record SkippedLine(string Line, SkipReason Reason, string Type);
+
+/// <summary>A gain past the headset's limit, and the gain it was held to.</summary>
+/// <param name="From">The gain the file asked for, in dB.</param>
+/// <param name="To">The gain used, in dB.</param>
+public sealed record HeldGain(double From, double To);
+
 /// <summary>What reading a file of filters came to.</summary>
 /// <param name="Bands">The filters that fit, in the order they came, at most ten.</param>
 /// <param name="NotImported">The lines that were not used, each with its reason.</param>
-/// <param name="Notes">What changed on the way: gains held to the limit, and a preamp not used.</param>
+/// <param name="HeldGains">The gains past the limit, each held to it.</param>
 /// <param name="PreampDb">The preamp the file asked for, or null when it gave none.</param>
 public sealed record FilterImportResult(
-    IReadOnlyList<ParametricBand> Bands, IReadOnlyList<string> NotImported, IReadOnlyList<string> Notes, double? PreampDb)
+    IReadOnlyList<ParametricBand> Bands, IReadOnlyList<SkippedLine> NotImported, IReadOnlyList<HeldGain> HeldGains, double? PreampDb)
 {
     /// <summary>The ten bands to set: the filters that fit, then the rest not in use at their stock frequencies.</summary>
     public IReadOnlyList<ParametricBand> ToTen() =>
@@ -29,6 +49,9 @@ public sealed record FilterImportResult(
 /// </remarks>
 public static partial class FilterImport
 {
+    /// <summary>The most text read from a filter file; a longer file is not one.</summary>
+    public const int MostCharacters = 65536;
+
     private static readonly Dictionary<string, BandType> Types = new(StringComparer.OrdinalIgnoreCase)
     {
         ["PK"] = BandType.Peaking,
@@ -49,8 +72,8 @@ public static partial class FilterImport
     public static FilterImportResult Parse(string text)
     {
         var bands = new List<ParametricBand>();
-        var skipped = new List<string>();
-        var notes = new List<string>();
+        var skipped = new List<SkippedLine>();
+        var held = new List<HeldGain>();
         double? preamp = null;
 
         foreach (string raw in text.Split('\n'))
@@ -66,22 +89,22 @@ public static partial class FilterImport
 
             if (FilterLine().Match(line) is not { Success: true } match)
             {
-                skipped.Add($"{line} (not understood)");
+                skipped.Add(new SkippedLine(line, SkipReason.NotUnderstood, string.Empty));
                 continue;
             }
 
-            if (!match.Groups[1].Value.Equals("ON", StringComparison.OrdinalIgnoreCase)) { skipped.Add($"{line} (switched off)"); continue; }
-            if (!Types.TryGetValue(match.Groups[2].Value, out var type)) { skipped.Add($"{line} (type {match.Groups[2].Value.ToUpperInvariant()} is not one the headset has)"); continue; }
-            if (bands.Count >= BandWrites.Bands) { skipped.Add($"{line} (more than ten bands)"); continue; }
+            string written = match.Groups[2].Value.ToUpperInvariant();
+            if (!match.Groups[1].Value.Equals("ON", StringComparison.OrdinalIgnoreCase)) { skipped.Add(new SkippedLine(line, SkipReason.SwitchedOff, written)); continue; }
+            if (!Types.TryGetValue(written, out var type)) { skipped.Add(new SkippedLine(line, SkipReason.TypeNotOnHeadset, written)); continue; }
+            if (bands.Count >= BandWrites.Bands) { skipped.Add(new SkippedLine(line, SkipReason.PastTenth, written)); continue; }
 
             double gain = match.Groups[4].Success ? Number(match.Groups[4].Value) : 0;
-            if (Math.Abs(gain) > ParametricBand.MostGain) notes.Add($"A gain of {gain:0.#} dB was held to {Math.Sign(gain) * ParametricBand.MostGain:+0;-0} dB.");
+            if (Math.Abs(gain) > ParametricBand.MostGain) held.Add(new HeldGain(gain, Math.Sign(gain) * ParametricBand.MostGain));
             double q = match.Groups[5].Success ? Number(match.Groups[5].Value) : DefaultQ(type);
             bands.Add(new ParametricBand(type, Number(match.Groups[3].Value), q, gain, true).Held());
         }
 
-        if (preamp is { } level) notes.Add($"The file's preamp of {level:0.#} dB is not used. Set the level with the Loudness boost.");
-        return new FilterImportResult(bands, skipped, notes, preamp);
+        return new FilterImportResult(bands, skipped, held, preamp);
     }
 
     /// <summary>The width a filter takes when the file gives none: a bell and a notch an octave, the rest the flat one.</summary>
