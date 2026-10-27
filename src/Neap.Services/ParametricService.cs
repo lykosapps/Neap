@@ -29,8 +29,9 @@ public sealed class ParametricService
 
     public ParametricService(HeadsetService headset) => _headset = headset;
 
-    /// <summary>The ten bands as the person last left them, or the stock bands before they have made any.</summary>
-    public static IReadOnlyList<ParametricBand> Saved => StoredBand.Bands(AppSettings.Current.ParametricShape) ?? StockBands.Game;
+    /// <summary>The ten bands as the person last left them, or flat, none in use, before they have made any.</summary>
+    public static IReadOnlyList<ParametricBand> Saved =>
+        StoredBand.Bands(AppSettings.Current.ParametricShape) ?? [.. StockBands.Game.Select(band => band with { InUse = false })];
 
     /// <summary>Starts sending the saved shape each time the headset connects, while parametric is on.</summary>
     public void Watch() => _headset.StatusChanged += OnStatus;
@@ -39,7 +40,7 @@ public sealed class ParametricService
     {
         bool connected = status.Link == Link.Connected;
         if (!connected) _sender.Forget();
-        else if (!_wasConnected && AppSettings.Current.ParametricOn && _headset.Model is { HasParametricBands: true })
+        else if (!_wasConnected && AppSettings.Current.ParametricActive && _headset.Model is { HasParametricBands: true })
             Set(Saved);
         _wasConnected = connected;
     }
@@ -49,6 +50,12 @@ public sealed class ParametricService
     public void Set(IReadOnlyList<ParametricBand> bands)
     {
         _wanted = bands;
+        Send();
+    }
+
+    /// <summary>Sends the shape waiting, unless a job already is on its way to.</summary>
+    private void Send()
+    {
         if (Interlocked.Exchange(ref _queued, 1) == 1) return;
 
         var job = _headset.Post(client =>
@@ -68,6 +75,26 @@ public sealed class ParametricService
             if (failed.Exception?.GetBaseException() is { } ex)
                 AppLog.Write($"parametric: the bands were not all sent: {ex.Message}");
         }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+    }
+
+    /// <summary>Whether the equaliser is in its Parametric mode.</summary>
+    public static bool Active => AppSettings.Current.ParametricActive;
+
+    /// <summary>Goes into the Parametric mode, sending the saved shape, or the curve already heard when there is none.</summary>
+    /// <param name="heard">The ten gains of the ten-band curve now heard, in tenths of a decibel.</param>
+    public void Enter(IReadOnlyList<int> heard)
+    {
+        AppSettings.Update(settings => settings.ParametricActive = true);
+        Set(StoredBand.Bands(AppSettings.Current.ParametricShape) ?? StockBands.FromGains(heard));
+    }
+
+    /// <summary>Goes back to the ten bands: the stock frequencies, widths and filters, with the gains of the ten-band curve that was set.</summary>
+    /// <param name="heard">The ten gains of the ten-band curve, in tenths of a decibel.</param>
+    public void Leave(IReadOnlyList<int> heard)
+    {
+        AppSettings.Update(settings => settings.ParametricActive = false);
+        _wanted = StockBands.WithGains(heard);
+        Send();
     }
 
     /// <summary>Forgets what the headset holds, so the next shape is sent whole.</summary>

@@ -183,6 +183,10 @@ public sealed class AppSettings
     [JsonPropertyName("parametric_on")]
     public bool ParametricOn { get; set; }
 
+    /// <summary>Whether the equaliser is in its Parametric mode, so the saved shape is what the headset plays.</summary>
+    [JsonPropertyName("parametric_active")]
+    public bool ParametricActive { get; set; }
+
     /// <summary>The firmware the headset had when parametric was turned on, so a later update can be told; null when it is off.</summary>
     [JsonPropertyName("parametric_firmware")]
     public string? ParametricFirmware { get; set; }

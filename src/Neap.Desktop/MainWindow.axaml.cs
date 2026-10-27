@@ -112,7 +112,7 @@ public partial class MainWindow : Window
     /// </remarks>
     public void FirmwareSettingChanged()
     {
-        bool wanted = (Core.Firmware.FirmwareEdit.Released && AppSettings.Current.ShowFirmwareEdits)
+        bool wanted = ((Core.Firmware.FirmwareEdit.Released || Core.Firmware.FirmwareEdit.ParametricReleased) && AppSettings.Current.ShowFirmwareEdits)
             || (Pretend.Active && Pretend.Page == "firmware");
         bool listed = Places.Items.Contains(FirmwareNav);
         if (wanted && !listed) Places.Items.Add(FirmwareNav);

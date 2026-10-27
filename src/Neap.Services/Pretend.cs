@@ -1,6 +1,5 @@
 using System.Text.Json.Nodes;
 using Neap.Core;
-using Neap.Core.Presets;
 using Neap.Core.Pretend;
 using Neap.Core.Updates;
 
@@ -61,7 +60,7 @@ public static class Pretend
     /// <summary>With <see cref="Flag"/>, shows the app in high contrast whatever the system is set to.</summary>
     public const string HighContrastFlag = "--highcontrast";
 
-    /// <summary>With <see cref="Flag"/>, opens the game equaliser in parametric mode with <see cref="SampleAdjustments"/>.</summary>
+    /// <summary>With <see cref="Flag"/>, opens the game equaliser in the true parametric mode, turned on.</summary>
     public const string ParametricFlag = "--parametric";
 
     /// <summary>With <see cref="Flag"/>, pretends to be an Atlas Air rather than a Stealth Pro II.</summary>
@@ -166,16 +165,8 @@ public static class Pretend
         : double.TryParse(After(ScrolledFlag), out double pixels) ? pixels
         : double.PositiveInfinity;
 
-    /// <summary>
-    /// Whether the game equaliser opens in parametric mode, with every
-    /// adjustment in use, so a script sees its fullest layout without
-    /// operating it.
-    /// </summary>
+    /// <summary>Whether the game equaliser opens in the true parametric mode, turned on, so a script sees it without operating anything.</summary>
     public static bool Parametric { get; } = Active && Given(ParametricFlag);
-
-    /// <summary>The adjustments <see cref="ParametricFlag"/> opens with: the most allowed, one too narrow for the bands to match.</summary>
-    public static IReadOnlyList<Adjustment> SampleAdjustments { get; } =
-        [new(100, 30, 20), new(1000, -15, 15), new(4900, -40, 10), new(12000, 25, 15)];
 
     /// <summary>The notes <see cref="UpdateFlag"/>'s release carries, shaped as the release workflow writes them.</summary>
     private const string SampleNotes = """

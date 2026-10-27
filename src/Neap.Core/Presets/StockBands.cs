@@ -18,6 +18,20 @@ public static class StockBands
     public static IReadOnlyList<ParametricBand> Game { get; } =
         [.. Hertz.Select(hertz => new ParametricBand(BandType.Peaking, hertz, Q, 0, true))];
 
+    /// <summary>The stock bands with the gains a ten-band preset holds, each in use.</summary>
+    /// <remarks>What the headset plays when the ten-band equaliser has the preset, which is where the parametric equaliser leaves it.</remarks>
+    /// <param name="tenths">The ten gains, in tenths of a decibel.</param>
+    public static IReadOnlyList<ParametricBand> WithGains(IReadOnlyList<int> tenths)
+    {
+        if (tenths.Count != Game.Count) throw new ArgumentException($"expected {Game.Count} gains, got {tenths.Count}", nameof(tenths));
+        return [.. Game.Select((band, i) => (band with { Gain = tenths[i] / 10.0 }).Held())];
+    }
+
+    /// <summary>The stock bands with a preset's gains, a band in use only where it has one: the parametric equaliser's first shape, the curve already heard.</summary>
+    /// <param name="tenths">The ten gains, in tenths of a decibel.</param>
+    public static IReadOnlyList<ParametricBand> FromGains(IReadOnlyList<int> tenths) =>
+        [.. WithGains(tenths).Select(band => band with { InUse = band.Gain != 0 })];
+
     /// <summary>Whether each band has its stock filter, frequency and width, whatever its gain.</summary>
     /// <param name="bands">The ten bands to compare.</param>
     public static bool Match(IReadOnlyList<ParametricBand> bands)

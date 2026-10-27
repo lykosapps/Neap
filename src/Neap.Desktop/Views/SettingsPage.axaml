@@ -131,7 +131,7 @@
             -->
             <StackPanel x:Name="Advanced">
                 <TextBlock loc:Uid.Value="Settings_AdvancedHeading" Classes="sectionheader" />
-                <c:SettingsCard loc:Uid.Value="Settings_FirmwareEdits" Icon="{StaticResource IconWarning}">
+                <c:SettingsCard x:Name="FirmwareCard" loc:Uid.Value="Settings_FirmwareEdits" Icon="{StaticResource IconWarning}">
                     <ToggleSwitch x:Name="FirmwareSwitch" />
                 </c:SettingsCard>
             </StackPanel>

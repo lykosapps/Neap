@@ -142,11 +142,6 @@ public sealed class PresetService
             };
             _banks[bank] = state;
             AdoptBaseline(state);
-            if (Pretend.Parametric && ParametricEq.Covers(bank) && !IsParametric(bank))
-            {
-                await UseParametric(bank);
-                SetAdjustments(bank, Pretend.SampleAdjustments);
-            }
             return state;
         }
         finally { _reading.Remove(bank); }

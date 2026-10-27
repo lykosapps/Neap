@@ -62,6 +62,7 @@ public sealed class ParametricSetup
                 {
                     settings.ParametricOn = on;
                     settings.ParametricFirmware = on ? build : null;
+                    if (!on) settings.ParametricActive = false;
                 });
                 _bands.Forget();
             }

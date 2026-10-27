@@ -100,26 +100,7 @@
                                 <RadioButton
                                     x:Name="ModeParametric"
                                     loc:Uid.Value="Equaliser_ModeParametric"
-                                    Theme="{StaticResource SegmentButton}">
-                                    <!--
-                                        Asked first, in place, when choosing Parametric would
-                                        change what is heard, with the safe answer focused.
-                                    -->
-                                    <FlyoutBase.AttachedFlyout>
-                                        <Flyout>
-                                            <StackPanel MaxWidth="280" Spacing="{StaticResource NeapSpaceM}">
-                                                <TextBlock x:Name="ParametricQuestion" />
-                                                <StackPanel
-                                                    HorizontalAlignment="Right"
-                                                    Orientation="Horizontal"
-                                                    Spacing="{StaticResource NeapSpaceS}">
-                                                    <Button x:Name="ParametricYes" loc:Uid.Value="Equaliser_ParametricYes" />
-                                                    <Button x:Name="ParametricNo" loc:Uid.Value="Equaliser_ParametricNo" />
-                                                </StackPanel>
-                                            </StackPanel>
-                                        </Flyout>
-                                    </FlyoutBase.AttachedFlyout>
-                                </RadioButton>
+                                    Theme="{StaticResource SegmentButton}" />
                             </StackPanel>
                         </Border>
 
@@ -216,10 +197,25 @@
                         Parametric and the curve take the whole width of the
                         card, so they line up with the choice of mode above them.
                     -->
-                    <c:ParametricPanel
+                    <c:BandPanel
                         x:Name="Parametric"
                         HorizontalAlignment="Stretch"
                         IsVisible="False" />
+
+                    <!--
+                        Parametric chosen before it is turned on: what it needs
+                        and the way to turn it on, in place of the editor.
+                    -->
+                    <StackPanel
+                        x:Name="ParametricOff"
+                        Spacing="{StaticResource NeapSpaceM}"
+                        IsVisible="False">
+                        <TextBlock loc:Uid.Value="Equaliser_ParametricOff" TextWrapping="Wrap" />
+                        <Button
+                            x:Name="ParametricOpenSettings"
+                            loc:Uid.Value="Equaliser_ParametricOpenSettings"
+                            HorizontalAlignment="Left" />
+                    </StackPanel>
 
                     <!--
                         The curve and the readouts share one width and one set

@@ -64,7 +64,7 @@ public partial class SettingsPage : UserControl
         MiniCard.IsVisible = TrayAvailability.Exists;
         MiniTilesCard.Below = MiniTileChoices();
         MiniTilesCard.IsVisible = TrayAvailability.Exists && AppSettings.Current.MiniPanel;
-        Advanced.IsVisible = Core.Firmware.FirmwareEdit.Released;
+        Advanced.IsVisible = Core.Firmware.FirmwareEdit.Released || Core.Firmware.FirmwareEdit.ParametricReleased || Pretend.Active;
 
         _painting = true;
         MiniPanelSwitch.IsChecked = AppSettings.Current.MiniPanel;
@@ -154,6 +154,14 @@ public partial class SettingsPage : UserControl
 
         _stackedGap = NeapCard.RowSpacing;
         NeapCard.SizeChanged += (_, e) => OnCardSizeChanged(e.NewSize.Width);
+    }
+
+    /// <summary>Points out the Firmware edits switch, for a person sent here to turn it on, and puts the keyboard on it.</summary>
+    public void MarkFirmwareSwitch()
+    {
+        FirmwareCard.Classes.Add("marked");
+        FirmwareCard.BringIntoView();
+        FirmwareSwitch.Focus(Avalonia.Input.NavigationMethod.Tab);
     }
 
     protected override void OnLoaded(RoutedEventArgs e)

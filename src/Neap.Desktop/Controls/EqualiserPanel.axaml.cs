@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
@@ -153,8 +152,6 @@ public partial class EqualiserPanel : UserControl
         };
         Response.DragStarted += () => _dragFrom = _current;
         Response.DragEnded += EndDrag;
-        Parametric.DragStarted += () => _dragFrom = _current;
-        Parametric.DragEnded += EndDrag;
         Response.BandNudged += (index, tenths) =>
             Edit(() => AppServices.Presets.SetBand(Bank, index, tenths), $"band{index}");
         Response.BandReverted += index => Edit(() => AppServices.Presets.RevertBand(Bank, index));
@@ -168,57 +165,39 @@ public partial class EqualiserPanel : UserControl
         ModeBands.IsCheckedChanged += (_, _) =>
         {
             if (_painting || ModeBands.IsChecked != true) return;
+            if (ParametricService.Active) AppServices.Parametric.Leave(AppServices.Presets.LiveBands(Bank) ?? new int[BandWrites.Bands]);
+            _parametricWanted = false;
             AppServices.Presets.UseBands(Bank);
             ClearHistory();
+            Paint();
         };
-        ModeParametric.IsCheckedChanged += async (_, _) =>
+        ModeParametric.IsCheckedChanged += (_, _) =>
         {
             if (_painting || ModeParametric.IsChecked != true) return;
-            if (AppServices.Presets.ParametricChange(Bank) is { } change)
-            {
-                AskBeforeParametric(change);
-                return;
-            }
-            await AppServices.Presets.UseParametric(Bank);
+            _parametricWanted = true;
+            if (AppSettings.Current.ParametricOn)
+                AppServices.Parametric.Enter(AppServices.Presets.LiveBands(Bank) ?? new int[BandWrites.Bands]);
             ClearHistory();
-        };
-        var confirm = FlyoutBase.GetAttachedFlyout(ModeParametric)!;
-        confirm.Opened += (_, _) => ParametricNo.Focus();
-        ParametricNo.Click += (_, _) => confirm.Hide();
-        ParametricYes.Click += async (_, _) =>
-        {
-            confirm.Hide();
-            await AppServices.Presets.UseParametric(Bank);
-            ClearHistory();
-        };
-        Parametric.Changed += burst =>
-        {
-            var before = _current;
             Paint();
-            if (_dragFrom is null) Record(before, burst);
         };
+        ParametricOpenSettings.Click += (_, _) => OpenFirmwareSetting();
     }
 
-    /// <summary>
-    /// Asks first, in place, when choosing Parametric would change what is
-    /// heard, with the safe answer focused; see the flyout on the button.
-    /// </summary>
-    private void AskBeforeParametric(ParametricStart change)
+    /// <summary>Opens Settings with the Firmware edits switch pointed out, which is where Parametric is turned on from.</summary>
+    private void OpenFirmwareSetting()
     {
-        ParametricQuestion.Text = Strings.Get(change == ParametricStart.Reopen
-            ? "Equaliser_ParametricReopens" : "Equaliser_ParametricStartsFlat");
-        FlyoutBase.ShowAttachedFlyout(ModeParametric);
-
-        // Set back to Bands once this click has finished changing the
-        // group's own selection: done from inside it, the group loses track
-        // and shows neither as chosen.
-        Dispatcher.UIThread.Post(() =>
-        {
-            _painting = true;
-            ModeBands.IsChecked = true;
-            _painting = false;
-        });
+        if (TopLevel.GetTopLevel(this) is not MainWindow window) return;
+        window.Open("settings");
+        Dispatcher.UIThread.Post(() => (window.CurrentPage as Views.SettingsPage)?.MarkFirmwareSwitch());
     }
+
+    /// <summary>Whether Parametric was chosen, as a choice to be made good once it is turned on.</summary>
+    private bool _parametricWanted;
+
+    /// <summary>Whether this panel offers the true parametric equaliser: the Stealth Pro II's game bank, once it is in the release.</summary>
+    private bool ParametricOffered =>
+        Bank == Bank.Game && AppServices.Headset.Model is { HasParametricBands: true }
+        && (Core.Firmware.FirmwareEdit.ParametricReleased || Pretend.Active);
 
     /// <summary>Which of the headset's equalisers this panel shapes.</summary>
     public Bank Bank
@@ -324,7 +303,7 @@ public partial class EqualiserPanel : UserControl
         // Hidden only while waiting, never blinked on a repaint: hiding the
         // parametric panel stops its test tone.
         if (waiting) Parametric.IsVisible = false;
-        Mode.IsVisible = !waiting && ParametricEq.Covers(Bank);
+        Mode.IsVisible = !waiting && ParametricOffered;
     }
 
     /// <summary>
@@ -341,14 +320,13 @@ public partial class EqualiserPanel : UserControl
         if (_scroller is null || EditorCard.Bounds.Height <= 0) return;
         if (EditorCard.TranslatePoint(default, _scroller) is not { } at) return;
 
-        double now = Parametric.IsVisible ? Parametric.CurveHeight : Response.Height;
+        double now = Response.Height;
         double around = EditorCard.Bounds.Height - now;
         double top = at.Y + _scroller.Offset.Y;
         double height = Math.Clamp(_scroller.Viewport.Height - Space.XL - top - around, CurveLeast, CurveMost);
         if (Math.Abs(height - now) < 0.5) return;
 
         Response.Height = height;
-        Parametric.CurveHeight = height;
     }
 
     /// <summary>Puts the presets beside the editor when there is room for both, and above it when there is not.</summary>
@@ -770,14 +748,18 @@ public partial class EqualiserPanel : UserControl
         // draw where each band was before it was moved.
         Response.Show(live, _state.Baseline?.Bands.ToArray());
 
-        bool parametric = AppServices.Presets.IsParametric(Bank);
+        bool parametric = ParametricOffered && (ParametricService.Active || _parametricWanted);
+        bool on = AppSettings.Current.ParametricOn;
         _painting = true;
         ModeBands.IsChecked = !parametric;
         ModeParametric.IsChecked = parametric;
         _painting = false;
         Curve.IsVisible = !parametric;
-        Parametric.IsVisible = parametric;
-        if (parametric) Parametric.Paint();
+        Parametric.IsVisible = parametric && on;
+        ParametricOff.IsVisible = parametric && !on;
+        PresetsCard.IsVisible = !parametric;
+        Actions.IsVisible = !parametric;
+        Grid.SetColumnSpan(EditorCard, parametric ? 2 : 1);
 
         bool edited = AppServices.Presets.IsEdited(Bank);
         Draft.IsVisible = _state.Baseline is null;
@@ -933,12 +915,9 @@ public partial class EqualiserPanel : UserControl
     /// <summary>Dims the curve and says the headset is playing flat, or puts it back.</summary>
     private void ShowFlat(bool flat)
     {
-        bool parametric = Parametric.IsVisible;
         Response.Opacity = flat ? 0.35 : 1;
         Response.IsHitTestVisible = !flat;
-        FlatCaption.IsVisible = flat && !parametric;
-        Parametric.Flat = flat && parametric;
-        Parametric.IsHitTestVisible = !flat;
+        FlatCaption.IsVisible = flat;
     }
 
     private void PaintSlotStates(bool edited)

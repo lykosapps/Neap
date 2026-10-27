@@ -131,6 +131,14 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     /// </remarks>
     public const bool Released = false;
 
+    /// <summary>Whether the parametric equaliser, and the cut-down Firmware page that turns it on, are in this release of Neap.</summary>
+    /// <remarks>
+    /// Off until the equaliser screen, its way in from the Equaliser page and
+    /// its checks on a headset are done. While it is off, only a pretend run
+    /// shows the equaliser's Parametric choice and the page.
+    /// </remarks>
+    public const bool ParametricReleased = false;
+
     /// <summary>The size of a section of flash, the least that is written at once.</summary>
     public const int SectorSize = 0x1000;
 

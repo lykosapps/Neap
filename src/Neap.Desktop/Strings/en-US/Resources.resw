@@ -129,18 +129,6 @@
   <data name="Equaliser_OverwriteYes.Content" xml:space="preserve">
     <value>Replace</value>
   </data>
-  <data name="Equaliser_ParametricStartsFlat" xml:space="preserve">
-    <value>Parametric starts from a flat curve, so what you hear changes now.</value>
-  </data>
-  <data name="Equaliser_ParametricReopens" xml:space="preserve">
-    <value>Parametric goes back to this preset as saved, so what you hear changes now.</value>
-  </data>
-  <data name="Equaliser_ParametricYes.Content" xml:space="preserve">
-    <value>Switch</value>
-  </data>
-  <data name="Equaliser_ParametricNo.Content" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
   <data name="Equaliser_OverwriteNo.Content" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -2153,5 +2141,158 @@
   </data>
   <data name="Firmware_SaidNotChangedAndNotPutBack" xml:space="preserve">
     <value>The change didn't go through, and the earlier settings could not be put back. Press Restore.</value>
+  </data>
+  <data name="Parametric_BandCurveName" xml:space="preserve">
+    <value>Equaliser curve</value>
+  </data>
+  <data name="Parametric_BandCurveHelp" xml:space="preserve">
+    <value>Drag a point to set a band's frequency and gain. Scroll over it to set its width. The arrow keys move the chosen band, Page Up and Page Down choose another, and Delete switches it off.</value>
+  </data>
+  <data name="Parametric_Undo" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Parametric_Redo" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="Parametric_HearPlain" xml:space="preserve">
+    <value>Hear without changes</value>
+  </data>
+  <data name="Parametric_StartFrom" xml:space="preserve">
+    <value>Start from</value>
+  </data>
+  <data name="Parametric_ShapeFlat" xml:space="preserve">
+    <value>Flat</value>
+  </data>
+  <data name="Parametric_ShapeCutMud" xml:space="preserve">
+    <value>Cut mud</value>
+  </data>
+  <data name="Parametric_ShapeVoiceClarity" xml:space="preserve">
+    <value>Voice clarity</value>
+  </data>
+  <data name="Parametric_ShapeTameHarshness" xml:space="preserve">
+    <value>Tame harshness</value>
+  </data>
+  <data name="Parametric_ShapeAddBass" xml:space="preserve">
+    <value>Add bass</value>
+  </data>
+  <data name="Parametric_ShapeCutRumble" xml:space="preserve">
+    <value>Cut rumble</value>
+  </data>
+  <data name="Parametric_ShapeTameSibilance" xml:space="preserve">
+    <value>Tame sibilance</value>
+  </data>
+  <data name="Parametric_ShapeQuietListening" xml:space="preserve">
+    <value>Quiet listening</value>
+  </data>
+  <data name="Parametric_ShapeAddTreble" xml:space="preserve">
+    <value>Add treble</value>
+  </data>
+  <data name="Parametric_BandTitle" xml:space="preserve">
+    <value>Band {0}</value>
+  </data>
+  <data name="Parametric_InUse" xml:space="preserve">
+    <value>In use</value>
+  </data>
+  <data name="Parametric_TypeLabel" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Parametric_ResetBand" xml:space="preserve">
+    <value>Reset band</value>
+  </data>
+  <data name="Parametric_TypeBell" xml:space="preserve">
+    <value>Bell</value>
+  </data>
+  <data name="Parametric_TypeLowShelf" xml:space="preserve">
+    <value>Low shelf</value>
+  </data>
+  <data name="Parametric_TypeHighShelf" xml:space="preserve">
+    <value>High shelf</value>
+  </data>
+  <data name="Parametric_TypeLowCut" xml:space="preserve">
+    <value>Low cut</value>
+  </data>
+  <data name="Parametric_TypeHighCut" xml:space="preserve">
+    <value>High cut</value>
+  </data>
+  <data name="Parametric_TypeNotch" xml:space="preserve">
+    <value>Notch</value>
+  </data>
+  <data name="Parametric_FrequencyLabel" xml:space="preserve">
+    <value>Frequency</value>
+  </data>
+  <data name="Parametric_CutoffLabel" xml:space="preserve">
+    <value>Cutoff</value>
+  </data>
+  <data name="Parametric_CornerLabel" xml:space="preserve">
+    <value>Corner</value>
+  </data>
+  <data name="Parametric_WidthLabel" xml:space="preserve">
+    <value>Width (Q)</value>
+  </data>
+  <data name="Parametric_SlopeLabel" xml:space="preserve">
+    <value>Slope (Q)</value>
+  </data>
+  <data name="Parametric_ResonanceLabel" xml:space="preserve">
+    <value>Resonance (Q)</value>
+  </data>
+  <data name="Parametric_GainLabel" xml:space="preserve">
+    <value>Gain</value>
+  </data>
+  <data name="Parametric_HintBell" xml:space="preserve">
+    <value>Width is {0} octaves.</value>
+  </data>
+  <data name="Parametric_HintShelf" xml:space="preserve">
+    <value>Frequency is where the shelf turns. Slope sets how sharply it turns.</value>
+  </data>
+  <data name="Parametric_HintCut" xml:space="preserve">
+    <value>The headset gives a cut 12 dB an octave. Raise resonance for a bump at the cutoff. A cut has no gain.</value>
+  </data>
+  <data name="Parametric_HintNotch" xml:space="preserve">
+    <value>A notch removes a narrow band. Width is {0} octaves. A notch has no gain.</value>
+  </data>
+  <data name="Parametric_ColBand" xml:space="preserve">
+    <value>Band</value>
+  </data>
+  <data name="Parametric_ColInUse" xml:space="preserve">
+    <value>In use</value>
+  </data>
+  <data name="Parametric_ColFilter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Parametric_ColHz" xml:space="preserve">
+    <value>Frequency</value>
+  </data>
+  <data name="Parametric_ColQ" xml:space="preserve">
+    <value>Q</value>
+  </data>
+  <data name="Parametric_ColDb" xml:space="preserve">
+    <value>Gain</value>
+  </data>
+  <data name="Parametric_RowInUse" xml:space="preserve">
+    <value>Band {0} in use</value>
+  </data>
+  <data name="Parametric_RowFilter" xml:space="preserve">
+    <value>Band {0} filter</value>
+  </data>
+  <data name="Parametric_RowFrequency" xml:space="preserve">
+    <value>Band {0} frequency</value>
+  </data>
+  <data name="Parametric_RowWidth" xml:space="preserve">
+    <value>Band {0} width</value>
+  </data>
+  <data name="Parametric_RowGain" xml:space="preserve">
+    <value>Band {0} gain</value>
+  </data>
+  <data name="Parametric_LevelNotice" xml:space="preserve">
+    <value>Boosts this large are limited by the headset at this level.</value>
+  </data>
+  <data name="Parametric_LevelLower" xml:space="preserve">
+    <value>Lower level by {0} dB</value>
+  </data>
+  <data name="Equaliser_ParametricOff.Text" xml:space="preserve">
+    <value>Parametric needs firmware edits turned on.</value>
+  </data>
+  <data name="Equaliser_ParametricOpenSettings.Content" xml:space="preserve">
+    <value>Open settings</value>
   </data>
 </root>
