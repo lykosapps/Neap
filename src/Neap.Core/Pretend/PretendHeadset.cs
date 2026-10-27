@@ -110,18 +110,25 @@ public sealed class PretendHeadset : IDeviceSource
     /// <summary>The game equaliser's ten bands as the headset holds them, from the stock table until they are set.</summary>
     private readonly ParametricBand[] _bands = [.. StockBands.Game];
 
+    /// <summary>The game equaliser's stored record, as shipped until it is written.</summary>
+    private GameEqRecord _record = GameEqRecord.Shipped;
+
+    /// <summary>The frame of a stored-record write that has begun and is waiting for its later reports.</summary>
+    private List<byte>? _recordFrame;
+
     /// <summary>The product id of the device it is opened through: the Charging Dock, or the Atlas Air's transmitter.</summary>
     private readonly ushort _product;
 
+    /// <param name="wired">Be reached over the headset's own cable, not through a dock.</param>
     /// <param name="atlas">
     /// Be an Atlas Air, as one owner's recording showed it: through its own
     /// transmitter, with no transmitter slots in use, no answer for the game
     /// and chat mix, its volume mirrored at 0x260 with 0x2a0 at 100, 0x290 at
     /// 1 on its transmitter, and 0x620 turning on and off with the mute.
     /// </param>
-    public PretendHeadset(bool atlas = false)
+    public PretendHeadset(bool atlas = false, bool wired = false)
     {
-        _product = atlas ? AtlasTransmitterProduct : DockProduct;
+        _product = atlas ? AtlasTransmitterProduct : wired ? HeadsetProduct : DockProduct;
         _values = Defaults();
         _game[0] = new Preset(PresetStore.FirstCustomId, "Night Raid",
             new[] { 30, 20, 0, -10, 0, 10, 30, 40, 30, 20 }, Bank.Game, true);
@@ -204,6 +211,9 @@ public sealed class PretendHeadset : IDeviceSource
 
     /// <summary>The game equaliser's bands as the headset currently holds them.</summary>
     public IReadOnlyList<ParametricBand> Bands { get { lock (_gate) return [.. _bands]; } }
+
+    /// <summary>The game equaliser's stored record as the headset currently holds it.</summary>
+    public GameEqRecord Record { get { lock (_gate) return _record; } }
 
     /// <summary>Every frame sent, in order.</summary>
     public IReadOnlyList<byte[]> Sent
@@ -356,7 +366,10 @@ public sealed class PretendHeadset : IDeviceSource
         lock (_gate)
         {
             _sent.Add(frame);
-            if (IsLoudnessCommand(frame))
+            if (StoredRecord(frame))
+            {
+            }
+            else if (IsLoudnessCommand(frame))
                 Loudness(frame);
             else if (_atlas && IsLightRead(frame))
                 ReplyLight();
@@ -418,6 +431,58 @@ public sealed class PretendHeadset : IDeviceSource
         var refusal = new PretendRefusal(Convert.ToHexString(frame), reason);
         _refusals.Add(refusal);
         _unraised.Add(refusal);
+    }
+
+    // -- the stored record (RACE commands 0x0A00 and 0x0A01) -----------------
+
+    /// <summary>Takes in a report of a stored-record read or write, and says whether it was one.</summary>
+    /// <remarks>A write arrives in several reports, so the later ones are taken as its continuation.</remarks>
+    private bool StoredRecord(byte[] report)
+    {
+        int length = report[1];
+        if (_recordFrame is not null)
+        {
+            _recordFrame.AddRange(report.AsSpan(3, length).ToArray());
+            FinishRecordWrite();
+            return true;
+        }
+
+        bool race = report.Length >= 9 && report[0] == Frames.OutReportId && report[3] == Frames.RaceStart && report[4] == Frames.RaceCommand;
+        int command = race ? report[7] | (report[8] << 8) : 0;
+        if (command == NvKey.WriteCommand)
+        {
+            _recordFrame = [.. report.AsSpan(3, length).ToArray()];
+            FinishRecordWrite();
+            return true;
+        }
+
+        if (command != NvKey.ReadCommand || BinaryPrimitives.ReadUInt16LittleEndian(report.AsSpan(9, 2)) != GameEqRecord.Key)
+            return false;
+
+        if (_on)
+        {
+            var reply = new List<byte> { Frames.RaceStart, Frames.RaceReply, 0xBE, 0x00, 0x00, 0x0A, 0xBA, 0x00 };
+            reply.AddRange(_record.Bytes.ToArray());
+            Fragment([.. reply]);
+        }
+
+        return true;
+    }
+
+    /// <summary>Applies a stored-record write once all of its reports have arrived.</summary>
+    private void FinishRecordWrite()
+    {
+        var frame = _recordFrame!;
+        int total = 4 + (frame[2] | (frame[3] << 8));
+        if (frame.Count < total) return;
+
+        _recordFrame = null;
+        var payload = frame.GetRange(6, total - 6);
+        if (_on && BinaryPrimitives.ReadUInt16LittleEndian(payload.ToArray()) == GameEqRecord.Key
+            && GameEqRecord.Parse(payload.GetRange(2, payload.Count - 2).ToArray()) is { } record)
+        {
+            _record = record;
+        }
     }
 
     // -- the loudness command (a RACE command, not a set_kvp write) ----------

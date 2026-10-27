@@ -70,6 +70,21 @@ public class NvKeyTests
     }
 
     [Fact]
+    public void AReportHandedBackAgainIsTakenOnce()
+    {
+        var record = GameEqRecordTests.Record();
+        var reader = new NvKeyReader(GameEqRecord.Length);
+        foreach (var piece in Pieces(new byte[] { 0xBA, 0x00 }.Concat(record).ToArray()))
+        {
+            reader.Add(Input(piece));
+            reader.Add(Input(piece));
+            reader.Add(Input(piece));
+        }
+
+        Assert.Equal(record, reader.Record(GameEqRecord.Header));
+    }
+
+    [Fact]
     public void ReportsThatAreNotInputReportsAreIgnored()
     {
         var reader = new NvKeyReader(GameEqRecord.Length);

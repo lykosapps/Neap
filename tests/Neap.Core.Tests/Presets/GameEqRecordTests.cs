@@ -8,21 +8,12 @@ public class GameEqRecordTests
     /// <summary>The first band as SP2Tools read it from one headset: 31.5 Hz, Q 1.4142, no gain, 96000, filter 4.</summary>
     private const string FirstBandAsRead = "0000fc41" + "8104b53f" + "00000000" + "0080bb47" + "0400";
 
-    /// <summary>A record made the way the headset holds it: flat octave bells, the gain correction on.</summary>
+    /// <summary>The shipped record as bytes, with every band set to a filter code and the gain correction on or off.</summary>
     internal static byte[] Record(bool correction = true, ushort type = 4)
     {
-        var bytes = new byte[GameEqRecord.Length];
-        GameEqRecord.Header.CopyTo(bytes);
+        var bytes = GameEqRecord.Shipped.Bytes.ToArray();
         for (int band = 0; band < 10; band++)
-        {
-            var at = bytes.AsSpan(4 + (band * 18), 18);
-            BinaryPrimitives.WriteSingleLittleEndian(at, (float)StockBands.Game[band].Hertz);
-            BinaryPrimitives.WriteSingleLittleEndian(at[4..], (float)StockBands.Q);
-            BinaryPrimitives.WriteSingleLittleEndian(at[8..], 0f);
-            BinaryPrimitives.WriteSingleLittleEndian(at[12..], 96000f);
-            BinaryPrimitives.WriteUInt16LittleEndian(at[16..], type);
-        }
-
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(4 + (band * 18) + 16), type);
         bytes[184] = correction ? (byte)1 : (byte)0;
         return bytes;
     }
@@ -50,8 +41,12 @@ public class GameEqRecordTests
     }
 
     [Fact]
-    public void TheShippedRecordMatchesTheStockTable() =>
-        Assert.True(StockBands.Match(GameEqRecord.Parse(Record())!.Bands));
+    public void TheShippedRecordIsTheStockBandsWithTheCorrectionOn()
+    {
+        Assert.True(StockBands.Match(GameEqRecord.Shipped.Bands));
+        Assert.True(GameEqRecord.Shipped.GainCorrectionOn);
+        Assert.NotNull(GameEqRecord.Parse(GameEqRecord.Shipped.Bytes));
+    }
 
     [Fact]
     public void ClearingTheCorrectionChangesThatByteAndNoOther()

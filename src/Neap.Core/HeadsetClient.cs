@@ -444,7 +444,7 @@ public sealed class HeadsetClient : IDisposable
         string value = string.Create(CultureInfo.InvariantCulture, $"{level:0.#} dB");
         SendDsp(LoudnessName, value, "the loudness level",
             HeadsetModels.Of(ProductId) is { HasLoudnessBoost: true },
-            () => LoudnessBoost.SetFrame(level, RelayThroughBase));
+            () => _transport.SendOutput(LoudnessBoost.SetFrame(level, RelayThroughBase)));
     }
 
     /// <summary>What a recording calls the loudness level, which no setting key holds.</summary>
@@ -478,11 +478,78 @@ public sealed class HeadsetClient : IDisposable
         string value = string.Create(CultureInfo.InvariantCulture, $"{write.Value:0.####}");
         SendDsp($"parametric_band_{write.Band}_{write.Parameter}".ToLowerInvariant(), value, "a parametric band",
             HeadsetModels.Of(ProductId) is { HasParametricBands: true },
-            () => BandFrames.SetFrame(write, RelayThroughBase));
+            () => _transport.SendOutput(BandFrames.SetFrame(write, RelayThroughBase)));
+    }
+
+    /// <summary>Whether the headset is reached over its own cable, where its stored record can be read and written.</summary>
+    /// <remarks>The record's frames are proven over the cable only; through a dock they are untried.</remarks>
+    public bool OnCable => !RelayThroughBase;
+
+    /// <summary>How long to listen for a stored record, and how many times to ask.</summary>
+    /// <remarks>About half of single reads get no reply, so a missing one is asked again.</remarks>
+    private static readonly TimeSpan RecordWait = TimeSpan.FromSeconds(2);
+
+    private const int RecordTries = 3;
+
+    /// <summary>The pause between the reports of a long write.</summary>
+    private static readonly TimeSpan BetweenReports = TimeSpan.FromMilliseconds(10);
+
+    /// <summary>What a recording calls a write of the game equaliser's stored record.</summary>
+    public const string GameEqRecordName = "game_eq_record";
+
+    /// <summary>
+    /// Reads the game equaliser's stored record, or null when the headset gives
+    /// none or one Neap does not understand.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The headset is not reached over its cable.</exception>
+    public GameEqRecord? ReadGameEqRecord()
+    {
+        if (!OnCable) throw new InvalidOperationException("the game equaliser's record is read only over the cable");
+        for (int attempt = 0; attempt < RecordTries; attempt++)
+        {
+            var reader = new NvKeyReader(GameEqRecord.Length);
+            foreach (var report in NvKey.ReadReports(GameEqRecord.Key, GameEqRecord.Length, relayThroughBase: false))
+                _transport.SendOutput(report);
+
+            var clock = Stopwatch.StartNew();
+            while (clock.Elapsed < RecordWait)
+            {
+                var input = _transport.GetInput();
+                reader.Add(input);
+                if (reader.Record(GameEqRecord.Header) is { } bytes) return GameEqRecord.Parse(bytes);
+                foreach (var evt in Ingest(input))
+                    if (evt.Kind == "UP") _setAside.Add(evt);
+                Thread.Sleep(4);
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Writes the game equaliser's whole stored record. The headset keeps it;
+    /// confirm it by reading it back.
+    /// </summary>
+    /// <param name="record">The record to write.</param>
+    /// <exception cref="WritesDisabledException">The client is read-only.</exception>
+    /// <exception cref="InvalidOperationException">The headset is not one the record is known for, or is not reached over its cable.</exception>
+    public void WriteGameEqRecord(GameEqRecord record)
+    {
+        string value = record.GainCorrectionOn ? "gain correction on" : "gain correction off";
+        SendDsp(GameEqRecordName, value, "the game equaliser's record",
+            OnCable && HeadsetModels.Of(ProductId) is { HasParametricBands: true },
+            () =>
+            {
+                foreach (var report in NvKey.WriteReports(GameEqRecord.Key, record.Bytes, relayThroughBase: false))
+                {
+                    _transport.SendOutput(report);
+                    Thread.Sleep(BetweenReports);
+                }
+            });
     }
 
     /// <summary>Sends a stored sound parameter to a headset known to take it, and tells the log either way.</summary>
-    private void SendDsp(string name, string value, string what, bool headsetTakesIt, Func<byte[]> frame)
+    private void SendDsp(string name, string value, string what, bool headsetTakesIt, Action send)
     {
         try
         {
@@ -490,7 +557,7 @@ public sealed class HeadsetClient : IDisposable
                 throw new WritesDisabledException($"refusing to set {what}: this client is read-only");
             if (!headsetTakesIt)
                 throw new InvalidOperationException($"refusing to set {what}: this headset is not known to take it");
-            _transport.SendOutput(frame());
+            send();
             _lastSet = Stopwatch.GetTimestamp();
         }
         catch (Exception ex)

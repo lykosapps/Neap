@@ -39,6 +39,30 @@ public sealed class GameEqRecord
 
     private GameEqRecord(byte[] bytes) => _bytes = bytes;
 
+    /// <summary>The record as the headset ships it: flat octave bells at the stock frequencies, the gain correction on.</summary>
+    public static GameEqRecord Shipped { get; } = BuildShipped();
+
+    /// <summary>The sample rate the shipped record carries; the firmware overwrites it with the live stream's.</summary>
+    private const float ShippedSampleRate = 48000f;
+
+    private static GameEqRecord BuildShipped()
+    {
+        var bytes = new byte[Length];
+        Header.CopyTo(bytes);
+        for (int band = 0; band < BandWrites.Bands; band++)
+        {
+            var at = bytes.AsSpan(HeaderLength + (band * BandLength), BandLength);
+            BinaryPrimitives.WriteSingleLittleEndian(at, (float)StockBands.Game[band].Hertz);
+            BinaryPrimitives.WriteSingleLittleEndian(at[4..], (float)StockBands.Q);
+            BinaryPrimitives.WriteSingleLittleEndian(at[8..], 0f);
+            BinaryPrimitives.WriteSingleLittleEndian(at[12..], ShippedSampleRate);
+            BinaryPrimitives.WriteUInt16LittleEndian(at[16..], (ushort)BandType.Peaking);
+        }
+
+        bytes[FlagOffset] = 1;
+        return new GameEqRecord(bytes);
+    }
+
     /// <summary>The record's first four bytes, as a reply's reader looks for them.</summary>
     public static ReadOnlySpan<byte> Header => [0x0A, 0x00, 0x00, 0x00];
 

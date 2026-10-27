@@ -79,12 +79,15 @@ public static class NvKey
 /// <remarks>
 /// The record comes back in pieces among notifications that are not for it, so
 /// every input report's data is joined in order and the record is looked for
-/// by its length and its first bytes.
+/// by its length and its first bytes. A read of the input report hands back
+/// the latest one again until a new one arrives, so a report identical to the
+/// one before it is taken as that repeat.
 /// </remarks>
 public sealed class NvKeyReader
 {
     private readonly ushort _length;
     private readonly List<byte> _stream = [];
+    private byte[]? _last;
 
     /// <param name="length">How many bytes the record is.</param>
     public NvKeyReader(ushort length) => _length = length;
@@ -94,6 +97,8 @@ public sealed class NvKeyReader
     public void Add(ReadOnlySpan<byte> report)
     {
         if (report.Length < 3 || report[0] != Frames.InReportId) return;
+        if (_last is not null && report.SequenceEqual(_last)) return;
+        _last = report.ToArray();
         int length = Math.Min(report[1] | ((report[2] & 0x7F) << 8), report.Length - 3);
         _stream.AddRange(report.Slice(3, length).ToArray());
     }
