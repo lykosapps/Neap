@@ -27,6 +27,8 @@ public static class AppServices
     public static MicFollowsHeadset MicFollow { get; private set; } = null!;
     public static UpdateService Updates { get; private set; } = null!;
     public static FirmwareEditService Firmware { get; private set; } = null!;
+    public static ParametricService Parametric { get; private set; } = null!;
+    public static ParametricSetup ParametricOn { get; private set; } = null!;
 
     /// <summary>Where the headset's transmitters are looked for.</summary>
     public static IDeviceSource Devices { get; } = (IDeviceSource?)Pretend.Headset ?? SystemDevices.Instance;
@@ -49,6 +51,9 @@ public static class AppServices
         Noise = new NoiseService(Headset);
         Firmware = new FirmwareEditService(Headset, Pretend.Firmware);
         Presets = new PresetService(Headset);
+        Parametric = new ParametricService(Headset);
+        Parametric.Watch();
+        ParametricOn = new ParametricSetup(Headset, Parametric);
         Profiles = new ProfileService(Headset);
         AutoSwitch = Pretend.Windows is { } windows
             ? new AutoSwitchService(Profiles, Headset, windows.Programs, windows.Recording)

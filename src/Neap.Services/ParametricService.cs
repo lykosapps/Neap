@@ -1,3 +1,4 @@
+using Neap.Core.Connection;
 using Neap.Core.Presets;
 
 namespace Neap.Services;
@@ -10,7 +11,9 @@ namespace Neap.Services;
 /// Only the latest shape is ever waiting to be sent, as with the loudness
 /// boost: a point dragged across the curve asks for many shapes and the headset
 /// is given the last of them. What the headset holds is forgotten whenever it
-/// connects or goes, so the saved shape is sent whole again.
+/// connects or goes, so the saved shape is sent whole again, when parametric is
+/// on. The shape is saved in the app's settings once it stops changing, so it
+/// is there to send again after an update from Swarm II puts the stock bands back.
 /// </remarks>
 public sealed class ParametricService
 {
@@ -22,7 +25,24 @@ public sealed class ParametricService
     private volatile IReadOnlyList<ParametricBand>? _wanted;
     private int _queued;
 
+    private bool _wasConnected;
+
     public ParametricService(HeadsetService headset) => _headset = headset;
+
+    /// <summary>The ten bands as the person last left them, or the stock bands before they have made any.</summary>
+    public static IReadOnlyList<ParametricBand> Saved => StoredBand.Bands(AppSettings.Current.ParametricShape) ?? StockBands.Game;
+
+    /// <summary>Starts sending the saved shape each time the headset connects, while parametric is on.</summary>
+    public void Watch() => _headset.StatusChanged += OnStatus;
+
+    private void OnStatus(HeadsetStatus status)
+    {
+        bool connected = status.Link == Link.Connected;
+        if (!connected) _sender.Forget();
+        else if (!_wasConnected && AppSettings.Current.ParametricOn && _headset.Model is { HasParametricBands: true })
+            Set(Saved);
+        _wasConnected = connected;
+    }
 
     /// <summary>Asks for the ten bands to be sent, replacing any shape still waiting.</summary>
     /// <param name="bands">The ten bands.</param>
@@ -34,7 +54,9 @@ public sealed class ParametricService
         var job = _headset.Post(client =>
         {
             Interlocked.Exchange(ref _queued, 0);
-            _sender.Send(_wanted!, client.SetBand, () => Thread.Sleep(Pace));
+            var latest = _wanted!;
+            _sender.Send(latest, client.SetBand, () => Thread.Sleep(Pace));
+            if (Volatile.Read(ref _queued) == 0) AppSettings.Update(settings => settings.ParametricShape = [.. latest.Select(StoredBand.Of)]);
             return true;
         });
 

@@ -17,6 +17,12 @@ public enum SwitchOutcome
 
     /// <summary>The write was sent but reading the record back did not show it.</summary>
     NotConfirmed,
+
+    /// <summary>The headset is not reached over its own cable, where the record is read and written, so nothing was sent.</summary>
+    NeedsCable,
+
+    /// <summary>Neap only reads this headset, so nothing was sent.</summary>
+    ReadOnly,
 }
 
 /// <summary>What happened, and whether the record the headset had before was put back.</summary>

@@ -179,6 +179,23 @@ public sealed class AppSettings
 
     public void ClearShortcuts() => MixHotkeyKeys.Clear();
 
+    /// <summary>Whether the true parametric equaliser has been turned on from the Firmware page.</summary>
+    [JsonPropertyName("parametric_on")]
+    public bool ParametricOn { get; set; }
+
+    /// <summary>The firmware the headset had when parametric was turned on, so a later update can be told; null when it is off.</summary>
+    [JsonPropertyName("parametric_firmware")]
+    public string? ParametricFirmware { get; set; }
+
+    /// <summary>The ten bands as the person last left them, or none before they have made any.</summary>
+    /// <remarks>
+    /// Kept here because the headset holds a shape only as far as its own
+    /// bands go, and an update or recovery from Swarm II puts the stock bands
+    /// back; this is what is sent again.
+    /// </remarks>
+    [JsonPropertyName("parametric_shape")]
+    public List<StoredBand> ParametricShape { get; set; } = new();
+
     /// <summary>
     /// The parametric adjustments behind each preset saved from the
     /// parametric equaliser, by bank and then by preset name, each as
