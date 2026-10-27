@@ -12,12 +12,40 @@
 
             <!-- What an edit risks, said once at the top, so every action below is read with it. -->
             <TextBlock
+                x:Name="Intro"
                 loc:Uid.Value="Firmware_Intro"
                 MaxWidth="760"
                 HorizontalAlignment="Left"
                 Classes="secondary" />
 
             <c:HeadsetNotice />
+
+            <!--
+                The parametric equaliser: the one firmware change that is here
+                while the flash edits are held back. It changes a settings
+                record, not the firmware, and only over the cable.
+            -->
+            <TextBlock loc:Uid.Value="Firmware_ParametricHeading" Classes="sectionheader" />
+            <Border x:Name="ParametricCard" Classes="card">
+                <StackPanel Spacing="{StaticResource NeapSpaceM}">
+                    <StackPanel Spacing="{StaticResource NeapSpaceXS}">
+                        <TextBlock loc:Uid.Value="Firmware_ParametricBody" TextWrapping="Wrap" />
+                        <TextBlock x:Name="ParametricState" Classes="bodystrong" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
+                        <Button x:Name="TurnOnButton" loc:Uid.Value="Firmware_ParametricTurnOn" Classes="accent" />
+                        <Button x:Name="RestoreButton" loc:Uid.Value="Firmware_ParametricRestore" />
+                    </StackPanel>
+                    <TextBlock
+                        x:Name="ParametricSaid"
+                        AutomationProperties.LiveSetting="Polite"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+            <TextBlock x:Name="ParametricNotHere" loc:Uid.Value="Firmware_ParametricNotHere" Classes="secondary" />
+
+            <!-- The flash edits, held back from this release: see FirmwareEdit.Released. -->
+            <StackPanel x:Name="FlashEdits">
 
             <!-- A headset this build cannot write is still shown: what fits it and what is on it. -->
             <c:Notice
@@ -98,6 +126,8 @@
                 Classes="caption secondary" />
             <StackPanel x:Name="BackupList" Spacing="{StaticResource NeapSpaceXS}" />
             <TextBlock x:Name="NoBackups" loc:Uid.Value="Firmware_NoBackups" Classes="secondary" />
+
+            </StackPanel>
 
         </StackPanel>
     </c:PageView>

@@ -1,3 +1,4 @@
+using Neap.Core.Connection;
 using Neap.Core.Presets;
 
 namespace Neap.Services;
@@ -39,11 +40,15 @@ public sealed class ParametricSetup
     /// <summary>Puts the stock bands and the gain correction back, keeping the gains.</summary>
     public Task<SwitchResult> Restore() => Run("restore the stock equaliser", false, change => change.ReturnToStock());
 
-    private Task<SwitchResult> Run(string what, bool on, Func<GainCorrectionSwitch, SwitchResult> change) =>
-        _headset.Post(client =>
+    private Task<SwitchResult> Run(string what, bool on, Func<GainCorrectionSwitch, SwitchResult> change)
+    {
+        // A job posted with no headset connected would wait for one, so it is answered here.
+        if (_headset.Status.Link is Link.Absent or Link.Connecting) return Task.FromResult(Said(what, new SwitchResult(SwitchOutcome.NeedsCable)));
+
+        return _headset.Post(client =>
         {
-            if (_headset.ReadOnly) return Said(what, new SwitchResult(SwitchOutcome.ReadOnly));
             if (!client.OnCable) return Said(what, new SwitchResult(SwitchOutcome.NeedsCable));
+            if (_headset.ReadOnly) return Said(what, new SwitchResult(SwitchOutcome.ReadOnly));
 
             var result = change(new GainCorrectionSwitch(
                 client.ReadGameEqRecord,
@@ -63,6 +68,7 @@ public sealed class ParametricSetup
 
             return Said(what, result);
         });
+    }
 
     private static SwitchResult Said(string what, SwitchResult result)
     {

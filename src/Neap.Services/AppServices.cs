@@ -46,7 +46,7 @@ public static class AppServices
 
         AudioRoute = new AudioRoute();
         Ring = Platform.Current.CreateRing(AudioRoute);
-        Headset = new HeadsetService(Devices, cabled: () => AudioRoute.Cable.Length > 0);
+        Headset = new HeadsetService(Devices, cabled: () => Pretend.Wired || AudioRoute.Cable.Length > 0);
         Mix = new MixService(Headset);
         Noise = new NoiseService(Headset);
         Firmware = new FirmwareEditService(Headset, Pretend.Firmware);
