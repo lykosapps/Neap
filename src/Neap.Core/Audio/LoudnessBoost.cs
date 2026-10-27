@@ -44,6 +44,14 @@ public static class LoudnessBoost
     /// </remarks>
     public const float MaxBoostDb = 18f;
 
+    /// <summary>The lowest boost the controls offer, 12 dB below stock, so the equaliser's boosts can be given room.</summary>
+    /// <remarks>
+    /// A level lower than stock is a quieter headset, not a louder one, so
+    /// offering it is safe; going lower than this gains no more room than the
+    /// equaliser's largest boost can need.
+    /// </remarks>
+    public const float MinBoostDb = -12f;
+
     /// <summary>The step the boost controls take, in decibels.</summary>
     public const float StepDb = 3f;
 

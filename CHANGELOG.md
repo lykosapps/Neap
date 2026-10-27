@@ -23,6 +23,9 @@ and date.
 
 ### Changed
 
+- The loudness boost goes below the headset's normal level as well as above
+  it, down to 12 dB lower, so there is room for an equaliser boost without
+  the headset squashing it.
 - The mix dial on the Home page grows a little in a wider card, from its
   old size to a little larger, and the words on it keep their size.
 - On the parametric equaliser, the solid line is called "Closest the headset

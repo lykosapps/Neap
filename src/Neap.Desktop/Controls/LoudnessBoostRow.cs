@@ -76,6 +76,7 @@ public sealed class LoudnessBoostRow : SettingsCard
         _built = true;
 
         _slider = NeapControls.Slider();
+        _slider.Minimum = LoudnessBoostLook.MinBoostDb;
         _slider.Maximum = LoudnessBoostLook.MaxBoostDb;
         _slider.TickFrequency = LoudnessBoostLook.StepDb;
         _slider.IsSnapToTickEnabled = true;

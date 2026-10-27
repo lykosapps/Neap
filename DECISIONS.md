@@ -1,5 +1,21 @@
 # Decisions
 
+## 2026-10-27 — One level control: the loudness boost, extended below stock
+
+- **Options:** a separate Level control on the equaliser page; the existing
+  loudness boost extended below stock, with the equaliser advising.
+- **Chosen:** the loudness boost goes from 12 dB below stock to 18 dB above,
+  in 3 dB steps. The equaliser page shows a notice and a "Lower level by"
+  button only when its biggest boost at the current level would reach the
+  headset's compressor (-10 dB); nothing changes the level on its own.
+- **Why:** the boost and a separate Level would both set the headset's one
+  input level and fight over it. A person who raised the level for a quiet
+  headset may want the squash, so the equaliser advises and never decides.
+  Lowering from stock is the safe direction (SP2Tools); the reach of the
+  compressor is SP2Tools' arithmetic and has not been listened to.
+- **Revisit if:** listening shows the notice fires when nothing is squashed,
+  or the name "Loudness boost" misleads on a negative value.
+
 ## 2026-10-27 — Parametric is enabled from the Firmware page, and only the Stealth Pro II has it
 
 - **Options:** ship parametric at once with the headset's stock gain correction

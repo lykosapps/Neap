@@ -42,6 +42,7 @@ if ($Parts.Contains('A')) {
         $rv = $null
         if ($slider -and $slider.TryGetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern, [ref]$rv)) {
             Check ($rv.Current.Maximum -eq 18) 'the slider tops out at +18 dB'
+            Check ($rv.Current.Minimum -eq -12) 'the slider bottoms out at -12 dB, below the headset''s normal level'
             $rv.SetValue(18)
         }
         Check (Wait-Until { (Get-Texts) -contains '+18 dB' } 5) 'at the top the slider reads +18 dB'
@@ -55,6 +56,9 @@ if ($Parts.Contains('A')) {
             Check ($rv.Current.Value -eq 18) "after a quick sweep the slider stays at +18 dB (it is at +$($rv.Current.Value))"
             Check ($slider.Current.HelpText -eq 'Headset level: +6 dB') 'and the headset level settles at +6 dB'
         }
+        if ($rv) { $rv.SetValue(-12) }
+        Check (Wait-Until { (Get-Texts) -contains '-12 dB' } 5) 'at the bottom the slider reads -12 dB'
+        Check (Wait-Until { $slider.Current.HelpText -eq 'Headset level: -24 dB' } 5) 'and the headset level reads -24 dB'
         if ($rv) { $rv.SetValue(0) }
         Check (Wait-Until { $slider.Current.HelpText -eq 'Headset level: -12 dB' } 5) 'back at +0 the headset level reads -12 dB again'
 

@@ -2,7 +2,7 @@ using Neap.Core.Presets;
 
 namespace Neap.Core.Tests.Presets;
 
-public class StockAndLevelTests
+public class StockAndCutTests
 {
     [Fact]
     public void TheStockBandsAreTheTenOctaveBellsAtTheHeadsetsFrequencies()
@@ -84,38 +84,4 @@ public class StockAndLevelTests
     [Fact]
     public void ASlopeThatDoesNotExistIsRefused() =>
         Assert.Throws<ArgumentOutOfRangeException>(() => CutBands.Bands(true, 80, (CutSlope)7));
-
-    [Fact]
-    public void TheSuggestedPullDownMatchesTheBiggestBoostRoundedUpToAHalf()
-    {
-        ParametricBand[] bands = [.. StockBands.Game];
-        bands[3] = bands[3] with { Gain = 3.2 };
-        bands[6] = bands[6] with { Gain = -5 };
-        Assert.Equal(3.5, InputLevel.Suggested(bands));
-    }
-
-    [Fact]
-    public void NothingIsSuggestedWithoutABoost()
-    {
-        ParametricBand[] bands = [.. StockBands.Game];
-        bands[0] = bands[0] with { Gain = -4 };
-        Assert.Equal(0, InputLevel.Suggested(bands));
-    }
-
-    [Fact]
-    public void ABandThatIsOffOrHasNoGainAddsNothingToTheSuggestion()
-    {
-        ParametricBand[] bands = [.. StockBands.Game];
-        bands[1] = bands[1] with { Gain = 9, InUse = false };
-        bands[2] = new ParametricBand(BandType.LowCut, 80, 0.7, 9, true);
-        Assert.Equal(0, InputLevel.Suggested(bands));
-    }
-
-    [Fact]
-    public void TheSuggestionNeverGoesPastWhatIsOffered()
-    {
-        ParametricBand[] bands = [.. StockBands.Game];
-        bands[4] = bands[4] with { Gain = 20 };
-        Assert.Equal(InputLevel.MostPullDown, InputLevel.Suggested(bands));
-    }
 }
