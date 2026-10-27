@@ -28,18 +28,18 @@ public class BandWritesTests
 
     [Fact]
     public void NothingIsSentWhenNothingChanged() =>
-        Assert.Empty(BandWrites.Plan(Flat(), Flat(), 48000));
+        Assert.Empty(BandWrites.Plan(Flat(), Flat()));
 
     [Fact]
     public void EverythingIsSentWhenWhatTheHeadsetHoldsIsNotKnown() =>
-        Assert.Equal(40, BandWrites.Plan(null, Flat(), 48000).Count);
+        Assert.Equal(40, BandWrites.Plan(null, Flat()).Count);
 
     [Fact]
     public void OnlyTheChangedParameterIsSent()
     {
         var wanted = Flat();
         wanted[5] = wanted[5] with { Gain = 4 };
-        var writes = BandWrites.Plan(Flat(), wanted, 48000);
+        var writes = BandWrites.Plan(Flat(), wanted);
         Assert.Equal([new BandWrite(5, BandParameter.Gain, 4)], writes);
     }
 
@@ -48,7 +48,7 @@ public class BandWritesTests
     {
         var wanted = Flat();
         wanted[5] = wanted[5] with { Gain = 4, Hertz = 3000 };
-        var writes = BandWrites.Plan(Flat(), wanted, 48000);
+        var writes = BandWrites.Plan(Flat(), wanted);
         Assert.Equal([BandParameter.Gain, BandParameter.Frequency], writes.Select(write => write.Parameter));
     }
 
@@ -57,7 +57,7 @@ public class BandWritesTests
     {
         var wanted = Flat();
         wanted[2] = new ParametricBand(BandType.LowShelf, 125, 0.7, 4, true);
-        var writes = BandWrites.Plan(Flat(), wanted, 48000);
+        var writes = BandWrites.Plan(Flat(), wanted);
         Assert.Equal(
             [BandParameter.Type, BandParameter.Q, BandParameter.Gain],
             writes.Select(write => write.Parameter));
@@ -70,7 +70,7 @@ public class BandWritesTests
         on[3] = on[3] with { Gain = 5 };
         var off = Flat();
         off[3] = on[3] with { InUse = false };
-        var writes = BandWrites.Plan(on, off, 48000);
+        var writes = BandWrites.Plan(on, off);
         Assert.Equal(
             [new BandWrite(3, BandParameter.Type, (double)BandType.Bypass), new BandWrite(3, BandParameter.Gain, 0)],
             writes);
@@ -83,25 +83,25 @@ public class BandWritesTests
         off[3] = off[3] with { Gain = 5, InUse = false };
         var on = Flat();
         on[3] = off[3] with { InUse = true };
-        var writes = BandWrites.Plan(off, on, 48000);
+        var writes = BandWrites.Plan(off, on);
         Assert.Equal(
             [new BandWrite(3, BandParameter.Type, (double)BandType.Peaking), new BandWrite(3, BandParameter.Gain, 5)],
             writes);
     }
 
     [Fact]
-    public void AFrequencyIsHeldBelowTheSampleRateBeforeItIsCompared()
+    public void AFrequencyIsHeldInsideTheLimitBeforeItIsCompared()
     {
         var wanted = Flat();
         wanted[9] = wanted[9] with { Hertz = 30000 };
-        var writes = BandWrites.Plan(Flat(), wanted, 44100);
-        Assert.Equal(new BandWrite(9, BandParameter.Frequency, (float)(0.45 * 44100)), Assert.Single(writes));
+        var writes = BandWrites.Plan(Flat(), wanted);
+        Assert.Equal(new BandWrite(9, BandParameter.Frequency, (float)ParametricBand.HighestHertz), Assert.Single(writes));
     }
 
     [Fact]
     public void AnythingButTenBandsIsRefused()
     {
-        Assert.Throws<ArgumentException>(() => BandWrites.Plan(null, Flat()[..9], 48000));
-        Assert.Throws<ArgumentException>(() => BandWrites.Plan(Flat()[..9], Flat(), 48000));
+        Assert.Throws<ArgumentException>(() => BandWrites.Plan(null, Flat()[..9]));
+        Assert.Throws<ArgumentException>(() => BandWrites.Plan(Flat()[..9], Flat()));
     }
 }

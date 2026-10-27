@@ -107,6 +107,9 @@ public sealed class PretendHeadset : IDeviceSource
     /// <summary>The playback loudness level the headset holds, in decibels; the Atlas Air does not answer for it.</summary>
     private float _loudnessDb = LoudnessBoost.StockDb;
 
+    /// <summary>The game equaliser's ten bands as the headset holds them, from the stock table until they are set.</summary>
+    private readonly ParametricBand[] _bands = [.. StockBands.Game];
+
     /// <summary>The product id of the device it is opened through: the Charging Dock, or the Atlas Air's transmitter.</summary>
     private readonly ushort _product;
 
@@ -198,6 +201,9 @@ public sealed class PretendHeadset : IDeviceSource
 
     /// <summary>The playback loudness level the headset currently holds, in decibels.</summary>
     public float LoudnessDb { get { lock (_gate) return _loudnessDb; } }
+
+    /// <summary>The game equaliser's bands as the headset currently holds them.</summary>
+    public IReadOnlyList<ParametricBand> Bands { get { lock (_gate) return [.. _bands]; } }
 
     /// <summary>Every frame sent, in order.</summary>
     public IReadOnlyList<byte[]> Sent
@@ -436,18 +442,53 @@ public sealed class PretendHeadset : IDeviceSource
         // The Atlas Air's stored monitoring gain is only ever read, as its firmware has it (F120).
         if (param == Sidetone.GainParam && _atlas && op != SetOp)
             ReplyLevel(param, Sidetone.GainFor(int.Parse(_values[0x630], CultureInfo.InvariantCulture)));
+        if (!_atlas && BandWrites.TryParse(param, out int band, out var parameter))
+        {
+            Band(op, param, band, parameter, BinaryPrimitives.ReadUInt32BigEndian(frame.AsSpan(15, 4)));
+            return;
+        }
+
         if (param != LoudnessBoost.InputLevelParam) return;
 
         if (op == SetOp) _loudnessDb = LoudnessBoost.ClampLevel(value);
         else ReplyLevel(param, _loudnessDb);
     }
 
+    /// <summary>Applies or answers one game band's parameter, as SP2Tools found the Stealth Pro II does.</summary>
+    private void Band(ushort op, uint param, int band, BandParameter parameter, uint raw)
+    {
+        var held = _bands[band];
+        if (op != SetOp)
+        {
+            ReplyRaw(param, parameter switch
+            {
+                BandParameter.Type => (uint)held.Type,
+                BandParameter.Frequency => BitConverter.SingleToUInt32Bits((float)held.Hertz),
+                BandParameter.Q => BitConverter.SingleToUInt32Bits((float)held.Q),
+                _ => BitConverter.SingleToUInt32Bits((float)held.Gain),
+            });
+            return;
+        }
+
+        float number = BitConverter.UInt32BitsToSingle(raw);
+        _bands[band] = parameter switch
+        {
+            BandParameter.Type => held with { Type = (BandType)raw },
+            BandParameter.Frequency => held with { Hertz = number },
+            BandParameter.Q => held with { Q = number },
+            _ => held with { Gain = number },
+        };
+    }
+
     /// <summary>Queues the reply to a read of the command: the parameter, then its level.</summary>
-    private void ReplyLevel(uint param, float db)
+    private void ReplyLevel(uint param, float db) => ReplyRaw(param, BitConverter.SingleToUInt32Bits(db));
+
+    /// <summary>Queues the reply to a read of the command: the parameter, then its raw value.</summary>
+    private void ReplyRaw(uint param, uint raw)
     {
         var payload = new byte[8];
         BinaryPrimitives.WriteUInt32BigEndian(payload, param);
-        BinaryPrimitives.WriteSingleBigEndian(payload.AsSpan(4), db);
+        BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(4), raw);
 
         int inner = 2 + payload.Length;
         var message = new byte[4 + inner];

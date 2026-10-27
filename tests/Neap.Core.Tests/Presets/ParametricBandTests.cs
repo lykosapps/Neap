@@ -38,21 +38,16 @@ public class ParametricBandTests
     [Fact]
     public void ValuesAreHeldInsideTheirRanges()
     {
-        var held = new ParametricBand(BandType.Peaking, 5, 50, -30, true).Held(48000);
+        var held = new ParametricBand(BandType.Peaking, 5, 50, -30, true).Held();
         Assert.Equal(ParametricBand.LowestHertz, held.Hertz);
         Assert.Equal(ParametricBand.HighestQ, held.Q);
         Assert.Equal(-ParametricBand.MostGain, held.Gain);
     }
 
     [Fact]
-    public void AFrequencyStaysWellBelowHalfTheSampleRate()
+    public void ATopFrequencyStaysBelowHalfTheLowestSampleRateInUse()
     {
-        Assert.Equal(20000, ParametricBand.HighestHertzFor(48000));
-        Assert.Equal(0.45 * 44100, ParametricBand.HighestHertzFor(44100), 6);
-        Assert.Equal(0.45 * 44100, Bell(30000).Held(44100).Hertz, 6);
+        Assert.Equal(19500, Bell(30000).Held().Hertz);
+        Assert.True(ParametricBand.HighestHertz < 0.45 * 44100);
     }
-
-    [Fact]
-    public void ASampleRateThatCannotBeRightIsRefused() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => ParametricBand.HighestHertzFor(0));
 }

@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text.Json;
 using Neap.Core.Audio;
 using Neap.Core.Hid;
+using Neap.Core.Presets;
 using Neap.Core.Protocol;
 using Neap.Core.Settings;
 
@@ -441,25 +442,64 @@ public sealed class HeadsetClient : IDisposable
     {
         float level = LoudnessBoost.ClampLevel(db);
         string value = string.Create(CultureInfo.InvariantCulture, $"{level:0.#} dB");
-        try
-        {
-            if (!AllowWrites)
-                throw new WritesDisabledException("refusing to set the loudness level: this client is read-only");
-            if (HeadsetModels.Of(ProductId) is not { HasLoudnessBoost: true })
-                throw new InvalidOperationException("refusing to set the loudness level: this headset is not known to take it");
-            _transport.SendOutput(LoudnessBoost.SetFrame(level, RelayThroughBase));
-            _lastSet = Stopwatch.GetTimestamp();
-        }
-        catch (Exception ex)
-        {
-            Wrote?.Invoke(new WriteAttempt(0, value, ex.Message, Name: LoudnessName));
-            throw;
-        }
-        Wrote?.Invoke(new WriteAttempt(0, value, null, Name: LoudnessName));
+        SendDsp(LoudnessName, value, "the loudness level",
+            HeadsetModels.Of(ProductId) is { HasLoudnessBoost: true },
+            () => LoudnessBoost.SetFrame(level, RelayThroughBase));
     }
 
     /// <summary>What a recording calls the loudness level, which no setting key holds.</summary>
     public const string LoudnessName = "loudness_level";
+
+    /// <summary>How long to wait for a band's reply before giving up.</summary>
+    /// <remarks>A dock sends no reply, so a missing one is not proof the set did not land.</remarks>
+    private static readonly TimeSpan BandWait = TimeSpan.FromMilliseconds(700);
+
+    /// <summary>
+    /// Reads one game equaliser band's frequency, width, gain or filter, or
+    /// null when the headset gives no valid reply.
+    /// </summary>
+    /// <param name="band">The band, counted from zero.</param>
+    /// <param name="parameter">What to read.</param>
+    /// <param name="wait">How long to wait for the reply; a short while when not given.</param>
+    public double? ReadBand(int band, BandParameter parameter, TimeSpan? wait = null) =>
+        Exchange(BandFrames.ReadFrame(band, parameter, RelayThroughBase),
+            report => BandFrames.ValueInReply(report, band, parameter), wait ?? BandWait);
+
+    /// <summary>
+    /// Sets one game equaliser band's frequency, width, gain or filter. The
+    /// headset keeps the change and sends no reply; confirm it with
+    /// <see cref="ReadBand"/> where the headset answers.
+    /// </summary>
+    /// <param name="write">The band, the parameter and its value.</param>
+    /// <exception cref="WritesDisabledException">The client is read-only.</exception>
+    /// <exception cref="InvalidOperationException">The headset is not one the command is known for.</exception>
+    public void SetBand(BandWrite write)
+    {
+        string value = string.Create(CultureInfo.InvariantCulture, $"{write.Value:0.####}");
+        SendDsp($"parametric_band_{write.Band}_{write.Parameter}".ToLowerInvariant(), value, "a parametric band",
+            HeadsetModels.Of(ProductId) is { HasParametricBands: true },
+            () => BandFrames.SetFrame(write, RelayThroughBase));
+    }
+
+    /// <summary>Sends a stored sound parameter to a headset known to take it, and tells the log either way.</summary>
+    private void SendDsp(string name, string value, string what, bool headsetTakesIt, Func<byte[]> frame)
+    {
+        try
+        {
+            if (!AllowWrites)
+                throw new WritesDisabledException($"refusing to set {what}: this client is read-only");
+            if (!headsetTakesIt)
+                throw new InvalidOperationException($"refusing to set {what}: this headset is not known to take it");
+            _transport.SendOutput(frame());
+            _lastSet = Stopwatch.GetTimestamp();
+        }
+        catch (Exception ex)
+        {
+            Wrote?.Invoke(new WriteAttempt(0, value, ex.Message, Name: name));
+            throw;
+        }
+        Wrote?.Invoke(new WriteAttempt(0, value, null, Name: name));
+    }
 
     /// <summary>Reads the gain the headset stores for mic monitoring, or null when it gives none; see <see cref="Sidetone"/>.</summary>
     public float? ReadSidetone(TimeSpan wait) =>

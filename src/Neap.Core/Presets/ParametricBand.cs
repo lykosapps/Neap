@@ -49,14 +49,18 @@ public enum BandType
 public readonly record struct ParametricBand(BandType Type, double Hertz, double Q, double Gain, bool InUse)
 {
     public const double LowestHertz = 20;
-    public const double HighestHertz = 20000;
+
+    /// <summary>The highest frequency a band may be set to.</summary>
+    /// <remarks>
+    /// The filter maths follow the live stream's rate, and the firmware does
+    /// not check a frequency against it. 19.5 kHz sits below 0.45 of the lowest
+    /// rate the game path runs at, 44.1 kHz over Bluetooth.
+    /// </remarks>
+    public const double HighestHertz = 19500;
+
     public const double LowestQ = 0.1;
     public const double HighestQ = 10;
     public const double MostGain = 12;
-
-    /// <summary>How far up the sample rate a frequency may go.</summary>
-    /// <remarks>The firmware does not check, and a frequency near half the rate misbehaves.</remarks>
-    private const double SampleRateShare = 0.45;
 
     /// <summary>Whether the filter has a gain, so the screen offers one.</summary>
     public bool UsesGain => Type is BandType.Peaking or BandType.LowShelf or BandType.HighShelf;
@@ -67,19 +71,10 @@ public readonly record struct ParametricBand(BandType Type, double Hertz, double
     /// <summary>The gain to send: the band's own when it is in use and has one, else zero.</summary>
     public double WireGain => InUse && UsesGain ? Gain : 0;
 
-    /// <summary>The highest frequency a band may be set to at a sample rate.</summary>
-    /// <param name="sampleRate">The game stream's sample rate, in hertz.</param>
-    public static double HighestHertzFor(int sampleRate)
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThan(sampleRate, 1000);
-        return Math.Min(HighestHertz, SampleRateShare * sampleRate);
-    }
-
     /// <summary>The same band with every value inside its range.</summary>
-    /// <param name="sampleRate">The game stream's sample rate, in hertz.</param>
-    public ParametricBand Held(int sampleRate) => this with
+    public ParametricBand Held() => this with
     {
-        Hertz = Math.Clamp(Hertz, LowestHertz, HighestHertzFor(sampleRate)),
+        Hertz = Math.Clamp(Hertz, LowestHertz, HighestHertz),
         Q = Math.Clamp(Q, LowestQ, HighestQ),
         Gain = Math.Clamp(Gain, -MostGain, MostGain),
     };

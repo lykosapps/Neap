@@ -29,21 +29,35 @@ internal static class DspParameter
     public static byte[] SetFrame(uint parameter, float db, bool relayThroughBase) =>
         Frames.Command(CommandId, Payload(SetOp, parameter, db), relayThroughBase);
 
+    /// <summary>A frame that sets a parameter to a raw 32-bit value, for one that is not a float.</summary>
+    public static byte[] SetFrame(uint parameter, uint raw, bool relayThroughBase) =>
+        Frames.Command(CommandId, Payload(SetOp, parameter, raw), relayThroughBase);
+
     /// <summary>The level in a reply for a parameter, or null when the report is not one.</summary>
     public static float? LevelInReply(ReadOnlySpan<byte> report, uint parameter)
     {
-        var payload = Frames.CommandReply(report, CommandId);
-        if (payload.Length != 8 || BinaryPrimitives.ReadUInt32BigEndian(payload) != parameter) return null;
-        float db = BinaryPrimitives.ReadSingleBigEndian(payload[4..]);
+        if (RawInReply(report, parameter) is not { } raw) return null;
+        float db = BitConverter.UInt32BitsToSingle(raw);
         return float.IsFinite(db) ? db : null;
     }
 
-    private static byte[] Payload(ushort op, uint parameter, float db)
+    /// <summary>The raw 32-bit value in a reply for a parameter, or null when the report is not one.</summary>
+    public static uint? RawInReply(ReadOnlySpan<byte> report, uint parameter)
+    {
+        var payload = Frames.CommandReply(report, CommandId);
+        if (payload.Length != 8 || BinaryPrimitives.ReadUInt32BigEndian(payload) != parameter) return null;
+        return BinaryPrimitives.ReadUInt32BigEndian(payload[4..]);
+    }
+
+    private static byte[] Payload(ushort op, uint parameter, float db) =>
+        Payload(op, parameter, BitConverter.SingleToUInt32Bits(db));
+
+    private static byte[] Payload(ushort op, uint parameter, uint raw)
     {
         var payload = new byte[10];
         BinaryPrimitives.WriteUInt16BigEndian(payload, op);
         BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(2), parameter);
-        BinaryPrimitives.WriteSingleBigEndian(payload.AsSpan(6), db);
+        BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(6), raw);
         return payload;
     }
 }

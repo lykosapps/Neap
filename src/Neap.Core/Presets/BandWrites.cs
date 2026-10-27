@@ -36,6 +36,17 @@ public static class BandWrites
         return GameBank | (uint)(band << 4) | (toSoundNow ? ToSoundNow : 0) | (uint)parameter;
     }
 
+    /// <summary>The band and parameter an id names, or false when it is not one of the game bands'.</summary>
+    /// <param name="id">The parameter id, with or without bit 3.</param>
+    /// <param name="band">The band, counted from zero.</param>
+    /// <param name="parameter">What the id names.</param>
+    public static bool TryParse(uint id, out int band, out BandParameter parameter)
+    {
+        band = (int)((id >> 4) & 0xF);
+        parameter = (BandParameter)(id & 0x7);
+        return (id & 0xFFFFFF00) == GameBank && band < Bands && Enum.IsDefined(parameter);
+    }
+
     /// <summary>The writes that bring the headset from what it holds to what is wanted.</summary>
     /// <remarks>
     /// Anything unchanged is left out, as every changed write is saved in the
@@ -46,9 +57,8 @@ public static class BandWrites
     /// </remarks>
     /// <param name="held">What the headset is known to hold, or null when that is not known and everything is sent.</param>
     /// <param name="wanted">The ten bands wanted.</param>
-    /// <param name="sampleRate">The game stream's sample rate, in hertz.</param>
     public static IReadOnlyList<BandWrite> Plan(
-        IReadOnlyList<ParametricBand>? held, IReadOnlyList<ParametricBand> wanted, int sampleRate)
+        IReadOnlyList<ParametricBand>? held, IReadOnlyList<ParametricBand> wanted)
     {
         if (wanted.Count != Bands) throw new ArgumentException($"expected {Bands} bands, got {wanted.Count}", nameof(wanted));
         if (held is not null && held.Count != Bands) throw new ArgumentException($"expected {Bands} bands, got {held.Count}", nameof(held));
@@ -56,8 +66,8 @@ public static class BandWrites
         var writes = new List<BandWrite>();
         for (int band = 0; band < Bands; band++)
         {
-            var next = wanted[band].Held(sampleRate);
-            ParametricBand? was = held?[band].Held(sampleRate);
+            var next = wanted[band].Held();
+            ParametricBand? was = held?[band].Held();
             Add(writes, band, BandParameter.Type, (double)next.WireType, was is null ? null : (double)was.Value.WireType);
             Add(writes, band, BandParameter.Q, (float)next.Q, was is null ? null : (float)was.Value.Q);
             Add(writes, band, BandParameter.Gain, (float)next.WireGain, was is null ? null : (float)was.Value.WireGain);

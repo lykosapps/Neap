@@ -69,6 +69,14 @@ public sealed record HeadsetModel(
     /// </remarks>
     public bool HasLoudnessBoost { get; init; }
 
+    /// <summary>Whether its game equaliser's bands can be set live, each with a filter, frequency, width and gain; see <see cref="Audio.BandFrames"/>.</summary>
+    /// <remarks>
+    /// Proven on the Stealth Pro II by SP2Tools, wired and through the dock.
+    /// Each change is saved in the headset, so a headset is sent one only where
+    /// that is known.
+    /// </remarks>
+    public bool HasParametricBands { get; init; }
+
     /// <summary>Whether its mic monitoring is turned down while the app has the microphone muted; see <see cref="Settings.MonitoringWhileMuted"/>.</summary>
     public bool QuietsMonitoringWhileMuted { get; init; }
 
@@ -138,6 +146,7 @@ public static class HeadsetModels
         [FixedControl.VolumeWheel, FixedControl.FlipToMute, FixedControl.CrossPlay, FixedControl.BluetoothButton])
     {
         HasLoudnessBoost = true,
+        HasParametricBands = true,
     };
 
     /// <summary>The Atlas Air, from one owner's recording and Turtle Beach's support pages for it, in testing.</summary>
