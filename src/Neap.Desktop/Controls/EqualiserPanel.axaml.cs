@@ -342,9 +342,17 @@ public partial class EqualiserPanel : UserControl
         _beside = beside;
 
         Layout.ColumnDefinitions = beside ? new ColumnDefinitions("200,*") : new ColumnDefinitions("*");
-        Grid.SetColumn(EditorCard, beside ? 1 : 0);
-        Grid.SetRow(EditorCard, beside ? 0 : 1);
-        Layout.RowSpacing = beside ? 0 : Space.S;
+        PlaceEditor();
+    }
+
+    /// <summary>Puts the editor beside or below the presets, or across the whole width when the presets are hidden.</summary>
+    private void PlaceEditor()
+    {
+        bool alone = !PresetsCard.IsVisible;
+        Grid.SetColumn(EditorCard, _beside && !alone ? 1 : 0);
+        Grid.SetColumnSpan(EditorCard, _beside && alone ? 2 : 1);
+        Grid.SetRow(EditorCard, _beside || alone ? 0 : 1);
+        Layout.RowSpacing = _beside || alone ? 0 : Space.S;
     }
 
     // -- the bands ---------------------------------------------------------
@@ -765,7 +773,7 @@ public partial class EqualiserPanel : UserControl
         if (parametric && !on) PaintParametricOff();
         PresetsCard.IsVisible = !parametric;
         Actions.IsVisible = !parametric;
-        Grid.SetColumnSpan(EditorCard, parametric ? 2 : 1);
+        PlaceEditor();
 
         bool edited = AppServices.Presets.IsEdited(Bank);
         Draft.IsVisible = _state.Baseline is null;
