@@ -190,6 +190,10 @@ public sealed class AppSettings
     [JsonPropertyName("parametric_firmware")]
     public string? ParametricFirmware { get; set; }
 
+    /// <summary>Whether Swarm II reset the headset's equaliser and so turned parametric off, until it is turned on or restored again.</summary>
+    [JsonPropertyName("parametric_reset")]
+    public bool ParametricReset { get; set; }
+
     /// <summary>The ten bands as the person last left them, or none before they have made any.</summary>
     /// <remarks>
     /// Kept here because the headset holds a shape only as far as its own

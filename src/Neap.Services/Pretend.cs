@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using Neap.Core;
+using Neap.Core.Presets;
 using Neap.Core.Pretend;
 using Neap.Core.Updates;
 
@@ -62,6 +63,9 @@ public static class Pretend
 
     /// <summary>With <see cref="Flag"/>, opens the game equaliser in the true parametric mode, turned on.</summary>
     public const string ParametricFlag = "--parametric";
+
+    /// <summary>With <see cref="ParametricFlag"/> and <see cref="WiredFlag"/>, has the headset's stored equaliser as Swarm II puts it back after a firmware flash.</summary>
+    public const string SwarmResetFlag = "--swarm-reset";
 
     /// <summary>With <see cref="Flag"/>, pretends to be an Atlas Air rather than a Stealth Pro II.</summary>
     public const string AtlasFlag = PretendHeadset.AtlasFlag;
@@ -213,7 +217,18 @@ public static class Pretend
         return at >= 0 && at + 1 < args.Count ? args[at + 1] : null;
     }
 
-    public static PretendHeadset? Headset { get; } = Active ? new PretendHeadset(atlas: Given(AtlasFlag), wired: Given(WiredFlag)) { Refusing = Given(NoAccessFlag) } : null;
+    /// <summary>
+    /// The pretend headset. With <see cref="ParametricFlag"/> its stored
+    /// equaliser has the gain correction off, as parametric turned on leaves
+    /// it, unless <see cref="SwarmResetFlag"/> asks for it as Swarm II puts it back.
+    /// </summary>
+    public static PretendHeadset? Headset { get; } = Active
+        ? new PretendHeadset(atlas: Given(AtlasFlag), wired: Given(WiredFlag))
+        {
+            Refusing = Given(NoAccessFlag),
+            Record = GameEqRecord.Shipped.WithGainCorrection(!Given(ParametricFlag) || Given(SwarmResetFlag)),
+        }
+        : null;
 
     public static PretendWindows? Windows { get; } = Active ? new PretendWindows(Headset) : null;
 

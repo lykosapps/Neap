@@ -36,13 +36,49 @@ public sealed class ParametricService
     /// <summary>Starts sending the saved shape each time the headset connects, while parametric is on.</summary>
     public void Watch() => _headset.StatusChanged += OnStatus;
 
+    /// <summary>Parametric was found reset by Swarm II and turned off. Raised on the UI thread.</summary>
+    public event Action? Reset;
+
     private void OnStatus(HeadsetStatus status)
     {
         bool connected = status.Link == Link.Connected;
         if (!connected) _sender.Forget();
-        else if (!_wasConnected && AppSettings.Current.ParametricActive && _headset.Model is { HasParametricBands: true })
-            Set(Saved);
+        else if (!_wasConnected && AppSettings.Current.ParametricOn && _headset.Model is { HasParametricBands: true })
+            CheckThenSend();
         _wasConnected = connected;
+    }
+
+    /// <summary>Turns parametric off if Swarm II has reset the headset's equaliser, or else sends the saved shape.</summary>
+    /// <remarks>
+    /// After a reset the gains are no longer exact, so the shape is not sent
+    /// until parametric is turned on again.
+    /// </remarks>
+    private async void CheckThenSend()
+    {
+        string? firmware = _headset.Values.TryGetValue("130", out var value) ? value.GetString() : null;
+        bool reset;
+        try
+        {
+            reset = await _headset.Post(client => ParametricOff.ResetBySwarm(
+                AppSettings.Current.ParametricFirmware, firmware,
+                client.OnCable ? client.ReadGameEqRecord()?.GainCorrectionOn : null));
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"parametric: could not check for a reset by Swarm II: {ex.Message}");
+            return;
+        }
+
+        if (reset)
+        {
+            AppLog.Write($"parametric: turned off, as Swarm II reset the headset's equaliser (firmware {firmware ?? "unknown"})");
+            AppSettings.Update(settings => (settings.ParametricOn, settings.ParametricFirmware, settings.ParametricReset) = (false, null, true));
+            Reset?.Invoke();
+        }
+        else if (AppSettings.Current.ParametricActive)
+        {
+            Set(Saved);
+        }
     }
 
     /// <summary>Asks for the ten bands to be sent, replacing any shape still waiting.</summary>

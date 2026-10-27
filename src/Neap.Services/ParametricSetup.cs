@@ -17,7 +17,8 @@ namespace Neap.Services;
 /// </para>
 /// <para>
 /// The bands Neap sent are forgotten after either, so the saved shape is sent
-/// whole the next time.
+/// whole the next time; turning on in the Parametric mode sends it at once, as
+/// after a reset by Swarm II the headset holds the stock bands.
 /// </para>
 /// </remarks>
 public sealed class ParametricSetup
@@ -62,9 +63,11 @@ public sealed class ParametricSetup
                 {
                     settings.ParametricOn = on;
                     settings.ParametricFirmware = on ? build : null;
+                    settings.ParametricReset = false;
                     if (!on) settings.ParametricActive = false;
                 });
                 _bands.Forget();
+                if (on && ParametricService.Active) _bands.Set(ParametricService.Saved);
             }
 
             return Said(what, result);

@@ -125,3 +125,13 @@ plugged in again; the headset's lights read as before throughout.
     II, allow Neap's access rule when it asks. Leave the headset idle for ten
     minutes, then change a setting: the headset answers without Neap
     restarting the transmitter.
+
+## Parametric equaliser
+
+31. **Reset by Swarm II:** with parametric on and a shape you can hear, close
+    Neap, update or Recover the headset in Swarm II (this rewrites its
+    firmware: the owner decides), then open Neap with the cable in. The
+    Equaliser page says Swarm II reset the equaliser and Parametric is off,
+    and the sound is the stock equaliser's. Turn it on again from the
+    Firmware page: the shape plays again. Through the dock, a new firmware
+    version alone shows the same.

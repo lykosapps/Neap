@@ -212,8 +212,8 @@ public sealed class PretendHeadset : IDeviceSource
     /// <summary>The game equaliser's bands as the headset currently holds them.</summary>
     public IReadOnlyList<ParametricBand> Bands { get { lock (_gate) return [.. _bands]; } }
 
-    /// <summary>The game equaliser's stored record as the headset currently holds it.</summary>
-    public GameEqRecord Record { get { lock (_gate) return _record; } }
+    /// <summary>The game equaliser's stored record as the headset currently holds it; set to start from another.</summary>
+    public GameEqRecord Record { get { lock (_gate) return _record; } init => _record = value; }
 
     /// <summary>Every frame sent, in order.</summary>
     public IReadOnlyList<byte[]> Sent

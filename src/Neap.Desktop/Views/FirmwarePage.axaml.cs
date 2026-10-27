@@ -72,6 +72,7 @@ public partial class FirmwarePage : UserControl
         AppServices.Headset.Changed += Paint;
         AppServices.Headset.Changed += PaintParametric;
         AppServices.Headset.StatusChanged += OnStatus;
+        AppServices.Parametric.Reset += PaintParametric;
         Paint();
         PaintParametric();
         await AppServices.Firmware.ReadMark();
@@ -84,6 +85,7 @@ public partial class FirmwarePage : UserControl
         AppServices.Headset.Changed -= Paint;
         AppServices.Headset.Changed -= PaintParametric;
         AppServices.Headset.StatusChanged -= OnStatus;
+        AppServices.Parametric.Reset -= PaintParametric;
     }
 
     private void OnStatus(Core.Connection.HeadsetStatus status)
@@ -99,7 +101,10 @@ public partial class FirmwarePage : UserControl
         bool has = AppServices.Headset.Model?.HasParametricBands ?? AppServices.Headset.Status.Link != Core.Connection.Link.Connected;
         ParametricCard.IsVisible = has;
         ParametricNotHere.IsVisible = !has;
-        ParametricState.Text = Strings.Get(AppSettings.Current.ParametricOn ? "Firmware_ParametricIsOn" : "Firmware_ParametricIsOff");
+        var settings = AppSettings.Current;
+        ParametricState.Text = Strings.Get(settings.ParametricOn ? "Firmware_ParametricIsOn"
+            : settings.ParametricReset ? "Firmware_ParametricWasReset"
+            : "Firmware_ParametricIsOff");
     }
 
     /// <summary>Asks before changing the headset's stored equaliser, then does it and says how it went.</summary>

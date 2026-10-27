@@ -9,12 +9,13 @@ Run through run.ps1. The page is out of the menu until firmware edits are
 released, and a practice run opens on it all the same. Part A is the Stealth
 Pro II through its dock, which cannot be changed; part B is the headset on its
 own cable, which turns parametric on and restores stock; part C is an Atlas
-Air, which has no parametric equaliser.
+Air, which has no parametric equaliser; part D is a headset Swarm II has reset,
+which turns parametric off until it is turned on again.
 
 .PARAMETER Parts
-Which parts to run: A through the dock, B on the cable, C an Atlas Air. All by default.
+Which parts to run: A through the dock, B on the cable, C an Atlas Air, D reset by Swarm II. All by default.
 #>
-param([string]$Parts = 'ABC')
+param([string]$Parts = 'ABCD')
 
 . "$PSScriptRoot\Ui.ps1"
 
@@ -73,6 +74,26 @@ if ($Parts.Contains('C')) {
     try {
         Check (Wait-Until { (Get-Texts) -contains 'The parametric equaliser is for the Stealth Pro II.' } 15) 'it says the equaliser is for the Stealth Pro II'
         Check ($null -eq (Find-Named 'Turn on')) 'and has no Turn on button'
+    }
+    finally { Stop-NeapPretend }
+}
+
+if ($Parts.Contains('D')) {
+    Section 'a headset Swarm II has reset: parametric turns off until turned on again'
+    $reset = "Swarm II reset the headset's equaliser, so Parametric is off. Turn it on again to use it."
+    Start-NeapPretend -Page equaliser -Flags @('--parametric', '--wired', '--swarm-reset')
+    try {
+        Check (Wait-Until { (Get-Texts) -contains $reset } 15) 'the Equaliser page says Swarm II reset it'
+        Check ($null -ne (Find-Named 'Open settings')) 'and offers the way to turn it on'
+        Save-Shot 'equaliser-parametric-reset' | ForEach-Object { $_.Dispose() }
+    }
+    finally { Stop-NeapPretend }
+
+    Start-NeapPretend -Page firmware -Flags @('--parametric', '--wired', '--swarm-reset')
+    try {
+        Check (Wait-Until { (Get-Texts) -contains "Swarm II reset the headset's equaliser, so parametric is off." } 15) 'the Firmware page says Swarm II reset it'
+        Confirm-Change 'Turn on' 'Turn on the parametric equaliser?'
+        Check (Wait-Until { (Get-Texts) -contains 'Parametric is on.' } 15) 'turning it on again says parametric is on'
     }
     finally { Stop-NeapPretend }
 }

@@ -203,18 +203,15 @@
                         IsVisible="False" />
 
                     <!--
-                        Parametric chosen before it is turned on: what it needs
-                        and the way to turn it on, in place of the editor.
+                        Parametric chosen while it is off: why, and the way to
+                        turn it on, in place of the editor.
                     -->
                     <StackPanel
                         x:Name="ParametricOff"
                         Spacing="{StaticResource NeapSpaceM}"
                         IsVisible="False">
-                        <TextBlock loc:Uid.Value="Equaliser_ParametricOff" TextWrapping="Wrap" />
-                        <Button
-                            x:Name="ParametricOpenSettings"
-                            loc:Uid.Value="Equaliser_ParametricOpenSettings"
-                            HorizontalAlignment="Left" />
+                        <TextBlock x:Name="ParametricOffText" TextWrapping="Wrap" />
+                        <Button x:Name="ParametricTurnOnWay" HorizontalAlignment="Left" />
                     </StackPanel>
 
                     <!--

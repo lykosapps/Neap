@@ -2031,6 +2031,9 @@
   <data name="Firmware_ParametricIsOff" xml:space="preserve">
     <value>Parametric is off.</value>
   </data>
+  <data name="Firmware_ParametricWasReset" xml:space="preserve">
+    <value>Swarm II reset the headset's equaliser, so parametric is off.</value>
+  </data>
   <data name="Firmware_ParametricTurnOnTitle" xml:space="preserve">
     <value>Turn on the parametric equaliser?</value>
   </data>
@@ -2217,10 +2220,19 @@
   <data name="Parametric_LevelLower" xml:space="preserve">
     <value>Lower level by {0} dB</value>
   </data>
-  <data name="Equaliser_ParametricOff.Text" xml:space="preserve">
+  <data name="Equaliser_ParametricNeedsFirmwareEdits" xml:space="preserve">
     <value>Parametric needs firmware edits turned on.</value>
   </data>
-  <data name="Equaliser_ParametricOpenSettings.Content" xml:space="preserve">
+  <data name="Equaliser_ParametricTurnOnFromFirmware" xml:space="preserve">
+    <value>Parametric is off. Turn it on from the Firmware page.</value>
+  </data>
+  <data name="Equaliser_ParametricResetBySwarm" xml:space="preserve">
+    <value>Swarm II reset the headset's equaliser, so Parametric is off. Turn it on again to use it.</value>
+  </data>
+  <data name="Equaliser_ParametricOpenSettings" xml:space="preserve">
     <value>Open settings</value>
+  </data>
+  <data name="Equaliser_ParametricOpenFirmware" xml:space="preserve">
+    <value>Open firmware</value>
   </data>
 </root>

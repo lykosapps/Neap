@@ -179,13 +179,17 @@ public partial class EqualiserPanel : UserControl
             ClearHistory();
             Paint();
         };
-        ParametricOpenSettings.Click += (_, _) => OpenFirmwareSetting();
+        ParametricTurnOnWay.Click += (_, _) => OpenTurnOnWay();
     }
 
-    /// <summary>Opens Settings with the Firmware edits switch pointed out, which is where Parametric is turned on from.</summary>
-    private void OpenFirmwareSetting()
+    /// <summary>
+    /// Opens the Firmware page, where Parametric is turned on, or Settings with
+    /// the Firmware edits switch pointed out when that page is not shown.
+    /// </summary>
+    private void OpenTurnOnWay()
     {
         if (TopLevel.GetTopLevel(this) is not MainWindow window) return;
+        if (AppSettings.Current.ShowFirmwareEdits && window.Open("firmware")) return;
         window.Open("settings");
         Dispatcher.UIThread.Post(() => (window.CurrentPage as Views.SettingsPage)?.MarkFirmwareSwitch());
     }
@@ -209,6 +213,7 @@ public partial class EqualiserPanel : UserControl
     {
         base.OnLoaded(e);
         AppServices.Headset.Changed += Paint;
+        AppServices.Parametric.Reset += Paint;
         ShowWaiting(Wait.Reading);
         BuildBands();
         await Reload();
@@ -252,6 +257,7 @@ public partial class EqualiserPanel : UserControl
     {
         base.OnUnloaded(e);
         AppServices.Headset.Changed -= Paint;
+        AppServices.Parametric.Reset -= Paint;
         AppServices.Headset.StatusChanged -= OnStatusChanged;
         StopCompare();
     }
@@ -756,6 +762,7 @@ public partial class EqualiserPanel : UserControl
         Curve.IsVisible = !parametric;
         Parametric.IsVisible = parametric && on;
         ParametricOff.IsVisible = parametric && !on;
+        if (parametric && !on) PaintParametricOff();
         PresetsCard.IsVisible = !parametric;
         Actions.IsVisible = !parametric;
         Grid.SetColumnSpan(EditorCard, parametric ? 2 : 1);
@@ -783,6 +790,21 @@ public partial class EqualiserPanel : UserControl
         PaintSlotStates(edited);
         _current = AppServices.Presets.Snapshot(Bank);
         PaintHistory();
+    }
+
+    /// <summary>Says why Parametric is off and names the way to turn it on.</summary>
+    private void PaintParametricOff()
+    {
+        bool shown = AppSettings.Current.ShowFirmwareEdits;
+        ParametricOffText.Text = Strings.Get(Core.Presets.ParametricOff.Say(AppSettings.Current.ParametricReset, shown) switch
+        {
+            ParametricOffSaying.ResetBySwarm => "Equaliser_ParametricResetBySwarm",
+            ParametricOffSaying.TurnOnFromFirmware => "Equaliser_ParametricTurnOnFromFirmware",
+            _ => "Equaliser_ParametricNeedsFirmwareEdits",
+        });
+        string way = Strings.Get(shown ? "Equaliser_ParametricOpenFirmware" : "Equaliser_ParametricOpenSettings");
+        ParametricTurnOnWay.Content = way;
+        AutomationProperties.SetName(ParametricTurnOnWay, way);
     }
 
     // -- undo and redo -----------------------------------------------------
