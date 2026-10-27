@@ -61,8 +61,8 @@
 
         <!--
             The equaliser is not on or off, so its card is never tinted. It names
-            the preset it is on and says when that preset comes from
-            adjustments, in a drop-down to pick one directly. Tuning is a
+            the preset it is on and says when the equaliser is parametric,
+            in a drop-down to pick one directly. Tuning is a
             sit-down job, so the way to the equaliser is a link under it.
         -->
         <Border

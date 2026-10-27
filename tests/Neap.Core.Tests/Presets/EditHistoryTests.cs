@@ -7,7 +7,7 @@ public class EditHistoryTests
     private static readonly DateTime T0 = new(2026, 10, 17, 9, 0, 0, DateTimeKind.Utc);
 
     private static EqualiserSnapshot Bands(int first, int? preset = null) =>
-        new([first, 0, 0, 0, 0, 0, 0, 0, 0, 0], null, preset);
+        new([first, 0, 0, 0, 0, 0, 0, 0, 0, 0], preset);
 
     [Fact]
     public void AFreshHistoryHasNothingToUndoOrRedo()
@@ -111,19 +111,6 @@ public class EditHistoryTests
 
         Assert.Equal(2, history.Undo()!.BaselineId);
         Assert.Equal(3, history.Redo()!.BaselineId);
-    }
-
-    [Fact]
-    public void AdjustmentsAreComparedAsWellAsBands()
-    {
-        var a = new EqualiserSnapshot(new int[10], [new Adjustment(1000, 30, 10)], null);
-        var b = new EqualiserSnapshot(new int[10], [new Adjustment(1000, 40, 10)], null);
-        var history = new EditHistory();
-
-        history.Record(a, b, T0);
-
-        Assert.True(history.CanUndo);
-        Assert.True(a.Matches(history.Undo()!));
     }
 
     [Fact]

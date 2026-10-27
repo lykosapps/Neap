@@ -33,6 +33,7 @@ public sealed class BandPanel : UserControl
         [BandType.Peaking, BandType.LowShelf, BandType.HighShelf, BandType.LowCut, BandType.HighCut, BandType.Notch];
 
     private readonly BandCurve _curve = new() { Height = 300, HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly ToneStrip _tone = new();
     private readonly Button _undo = new();
     private readonly Button _redo = new();
     private readonly ToggleButton _plain = new();
@@ -83,6 +84,14 @@ public sealed class BandPanel : UserControl
     {
         base.OnUnloaded(e);
         AppServices.Headset.LoudnessChanged -= PaintLevel;
+        _tone.Stop();
+    }
+
+    // A tone left playing behind a hidden panel is a tone nobody can stop.
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == IsVisibleProperty && !IsVisible) _tone.Stop();
     }
 
     /// <summary>Draws a set of bands everywhere, without sending them.</summary>
@@ -141,7 +150,7 @@ public sealed class BandPanel : UserControl
         table.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
         for (int band = 0; band < BandWrites.Bands; band++) _rows[band] = AddRow(table, band);
 
-        return new StackPanel { Spacing = Space.M, Children = { tools, _level, _curve, editor, table } };
+        return new StackPanel { Spacing = Space.M, Children = { tools, _level, _curve, _tone, editor, table } };
     }
 
     private static void Column(Grid grid, int at, TextBlock label, BandDial dial, BandValueBox box)
@@ -209,6 +218,11 @@ public sealed class BandPanel : UserControl
         _curve.Changing += Keep;
         _curve.BandsChanged += bands => { _bands = [.. bands]; Send(); PaintValues(); };
         _curve.Chosen += Choose;
+        _tone.Moved += hertz => _curve.ToneHertz = hertz;
+        _tone.Marked += (hertz, boost) =>
+        {
+            if (BandEditing.FirstFree(_bands) is >= 0 and var free) Change(free, ToneSweep.Bell(hertz, boost));
+        };
         _plain.IsCheckedChanged += (_, _) => { _curve.Muted = _plain.IsChecked == true; };
         _undo.Click += (_, _) => Walk(_undoStack, _redoStack);
         _redo.Click += (_, _) => Walk(_redoStack, _undoStack);
@@ -310,6 +324,7 @@ public sealed class BandPanel : UserControl
         {
             _curve.Bands = _bands;
             _curve.Selected = _selected;
+            _tone.CanMark = BandEditing.FirstFree(_bands) >= 0;
             PaintValues();
             PaintHistory();
             PaintLevel();

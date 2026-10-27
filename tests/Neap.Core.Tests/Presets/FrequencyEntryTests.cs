@@ -22,12 +22,12 @@ public class FrequencyEntryTests
     [InlineData("1,500", 0, 1500)]
     [InlineData("12,500 Hz", 0, 12500)]
     [InlineData("1,5 kHz", 0, 1500)]
-    [InlineData("20", 20000, 20000)]
+    [InlineData("19", 19500, 19000)]
     [InlineData("16", 15800, 16000)]
     [InlineData("500", 15800, 500)]
     [InlineData("4900", 15800, 4900)]
     [InlineData("20", 500, 20)]
-    [InlineData("20 Hz", 20000, 20)]
+    [InlineData("20 Hz", 19500, 20)]
     public void ReadsTheUnitTheFieldShowed(string typed, double shown, double hertz) =>
         Assert.Equal(hertz, FrequencyEntry.Parse(typed, shown)!.Value, 6);
 

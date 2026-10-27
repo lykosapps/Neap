@@ -1552,57 +1552,6 @@
   <data name="Equaliser_ModeParametric.Content" xml:space="preserve">
     <value>Parametric</value>
   </data>
-  <data name="Parametric_Asked.Text" xml:space="preserve">
-    <value>Your curve</value>
-  </data>
-  <data name="Parametric_Gap.Text" xml:space="preserve">
-    <value>Out of reach</value>
-  </data>
-  <data name="Parametric_Heard.Text" xml:space="preserve">
-    <value>Closest the headset gets</value>
-  </data>
-  <data name="Parametric_Miss.Text" xml:space="preserve">
-    <value>The headset can't match this exactly. The solid line is the closest it gets.</value>
-  </data>
-  <data name="Parametric_Add.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Add an adjustment</value>
-  </data>
-  <data name="Parametric_AddLabel.Text" xml:space="preserve">
-    <value>Add</value>
-  </data>
-  <data name="Parametric_Empty.Text" xml:space="preserve">
-    <value>Add an adjustment to shape the sound.</value>
-  </data>
-  <data name="Parametric_Frequency.Text" xml:space="preserve">
-    <value>Frequency</value>
-  </data>
-  <data name="Parametric_FrequencySlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Frequency</value>
-  </data>
-  <data name="Parametric_FrequencyField.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Frequency, typed</value>
-  </data>
-  <data name="Parametric_Gain.Text" xml:space="preserve">
-    <value>Gain</value>
-  </data>
-  <data name="Parametric_GainSlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Gain in decibels</value>
-  </data>
-  <data name="Parametric_Width.Text" xml:space="preserve">
-    <value>Width</value>
-  </data>
-  <data name="Parametric_WidthSlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Width in octaves</value>
-  </data>
-  <data name="Parametric_Narrowest.Text" xml:space="preserve">
-    <value>Narrowest possible</value>
-  </data>
-  <data name="Parametric_Wide.Text" xml:space="preserve">
-    <value>Wide</value>
-  </data>
-  <data name="Parametric_SentExpander.Header" xml:space="preserve">
-    <value>Sent to the headset</value>
-  </data>
   <data name="Tone_Title.Header" xml:space="preserve">
     <value>Test tone</value>
   </data>
@@ -1614,18 +1563,6 @@
   </data>
   <data name="Parametric_Decibels" xml:space="preserve">
     <value>{0} dB</value>
-  </data>
-  <data name="Parametric_Octaves" xml:space="preserve">
-    <value>{0} octaves</value>
-  </data>
-  <data name="Parametric_Chip" xml:space="preserve">
-    <value>{0} · {1}</value>
-  </data>
-  <data name="Parametric_ChipName" xml:space="preserve">
-    <value>Adjustment {0}, {1}</value>
-  </data>
-  <data name="Parametric_RemoveNamed" xml:space="preserve">
-    <value>Remove adjustment {0}</value>
   </data>
   <data name="Tone_Sweep" xml:space="preserve">
     <value>Sweep</value>
@@ -1823,15 +1760,6 @@
   </data>
   <data name="Equaliser_CurveHelp" xml:space="preserve">
     <value>Left and Right choose a band. Up and Down change it.</value>
-  </data>
-  <data name="Parametric_CurveName" xml:space="preserve">
-    <value>Adjustments curve</value>
-  </data>
-  <data name="Parametric_CurveHelp" xml:space="preserve">
-    <value>Up and Down change the gain. Left and Right change the frequency.</value>
-  </data>
-  <data name="Parametric_Bubble" xml:space="preserve">
-    <value>{0}, {1} dB</value>
   </data>
   <data name="Main_NavFirmware.Content" xml:space="preserve">
     <value>Firmware</value>

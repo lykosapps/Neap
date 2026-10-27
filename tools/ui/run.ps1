@@ -45,7 +45,7 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 # at a time, so they never overlap.
 if ($Check -eq 'all') {
     $worst = 0
-    foreach ($name in 'banner', 'notes', 'settings', 'profiles', 'mini', 'parametric', 'firmware') {
+    foreach ($name in 'banner', 'notes', 'settings', 'profiles', 'mini', 'parametric-screen', 'parametric-on', 'firmware') {
         Write-Host "### $name"
         # A check that stops on an error fails, and the next one still runs.
         try { & $PSCommandPath $name -TimeoutSeconds $TimeoutSeconds; $code = $LASTEXITCODE }

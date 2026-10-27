@@ -83,9 +83,9 @@
 
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="{StaticResource NeapSpaceM}">
                         <!--
-                            How the curve is shaped: band by band, or by
-                            adjustments fitted to the bands. Only the game
-                            bank has the second.
+                            How the curve is shaped: band by band, or, on
+                            the Stealth Pro II's game bank, by a true
+                            parametric equaliser.
                         -->
                         <Border
                             x:Name="Mode"

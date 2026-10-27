@@ -17,7 +17,8 @@ namespace Neap.Desktop.Controls;
 /// <remarks>
 /// <para>
 /// It names the preset the headset is on, or, for a curve moved since, the
-/// preset it came from as edited. A preset made from adjustments is marked.
+/// preset it came from as edited. The Parametric tag shows while the true
+/// parametric equaliser is the mode in use.
 /// </para>
 /// <para>
 /// It is disabled, with a dash, until the presets have been read from the
@@ -114,14 +115,12 @@ public sealed class PresetChoice : Button
         PaintPreset();
     }
 
-    /// <summary>A preset in the list: its name, marked when it was made from adjustments, and its curve beside it.</summary>
+    /// <summary>A preset in the list: its name and its curve beside it.</summary>
     private static ListBoxItem Item(Preset preset)
     {
-        bool parametric = PresetService.MadeParametrically(preset);
         var name = new StackPanel { Orientation = Orientation.Horizontal };
         name.Spacing = Space.S;
         name.Children.Add(new TextBlock { Text = preset.Name, VerticalAlignment = VerticalAlignment.Center });
-        if (parametric) name.Children.Add(ParametricMark());
 
         var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
         row.ColumnSpacing = Space.L;
@@ -131,12 +130,11 @@ public sealed class PresetChoice : Button
         row.Children.Add(curve);
 
         var item = new ListBoxItem { Content = row, Tag = preset, Classes = { "preset" } };
-        AutomationProperties.SetName(item,
-            parametric ? Strings.Format("Quick_PresetParametric", preset.Name) : preset.Name);
+        AutomationProperties.SetName(item, preset.Name);
         return item;
     }
 
-    /// <summary>The tag that says a preset was made from adjustments.</summary>
+    /// <summary>The tag that says the equaliser is parametric.</summary>
     private static Border ParametricMark() => new()
     {
         Classes = { "tag" },
@@ -167,7 +165,7 @@ public sealed class PresetChoice : Button
             PresetShown.Unsaved => Strings.Get("Quick_PresetUnsaved"),
             _ => name,
         };
-        bool parametric = AppServices.Presets.IsParametric(Bank.Game);
+        bool parametric = ParametricService.Active;
         _tag.IsVisible = parametric;
         AutomationProperties.SetItemStatus(this,
             parametric ? Strings.Format("Quick_PresetParametric", _name.Text) : _name.Text);

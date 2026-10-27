@@ -16,7 +16,7 @@ Who it's for: see [USERS.md](USERS.md).
   Serves noise control, levels and microphone settings: the occasional
   changes, on one page.
 - **Equaliser** — the game and microphone equalisers, one tab each: presets
-  beside a large curve, bands or parametric adjustments, and the test tone.
+  beside a large curve, bands or, on the Stealth Pro II, a true parametric equaliser with its test tone.
   Serves tuning sound, which is done occasionally and at length, and needs
   more room than a card on another page.
 - **Controls** — what the Mode button and lower dial are assigned to, a

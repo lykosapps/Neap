@@ -2,22 +2,17 @@ namespace Neap.Core.Presets;
 
 /// <summary>Everything an undo has to put back for one equaliser bank.</summary>
 /// <param name="Bands">The ten gains, in tenths of a decibel.</param>
-/// <param name="Adjustments">The parametric adjustments shaping them, or null when the bands are.</param>
 /// <param name="BaselineId">The preset the curve is a variation of, or null when it is no preset's.</param>
-public sealed record EqualiserSnapshot(
-    IReadOnlyList<int> Bands, IReadOnlyList<Adjustment>? Adjustments, int? BaselineId)
+public sealed record EqualiserSnapshot(IReadOnlyList<int> Bands, int? BaselineId)
 {
     public bool Matches(EqualiserSnapshot other) =>
-        BaselineId == other.BaselineId
-        && Bands.SequenceEqual(other.Bands)
-        && (Adjustments is null ? other.Adjustments is null : other.Adjustments?.SequenceEqual(Adjustments) == true);
+        BaselineId == other.BaselineId && Bands.SequenceEqual(other.Bands);
 }
 
 /// <summary>The curve edits made on one bank in this session, to undo and redo.</summary>
 /// <remarks>
 /// <para>
-/// A step is a completed edit: a drag, a typed value, an adjustment added or
-/// removed, a preset chosen. Each is recorded with the curve before and after,
+/// A step is a completed edit: a drag, a typed value, a preset chosen. Each is recorded with the curve before and after,
 /// so undoing and redoing never has to work out a difference.
 /// </para>
 /// <para>

@@ -33,7 +33,7 @@ public static partial class FrequencyEntry
             return null;
         bool unitTyped = lower.Contains('k', StringComparison.Ordinal) || lower.Contains("hz", StringComparison.Ordinal);
         bool kilo = lower.Contains('k', StringComparison.Ordinal)
-                    || (!unitTyped && (shown >= 1000 ? value * 1000 <= Adjustment.HighestFrequency : value < Adjustment.LowestFrequency));
+                    || (!unitTyped && (shown >= 1000 ? value * 1000 <= ParametricBand.HighestHertz : value < ParametricBand.LowestHertz));
         return kilo ? value * 1000 : value;
     }
 

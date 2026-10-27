@@ -92,7 +92,6 @@ internal static class HighContrast
         Brush("NeapInsetBrush", p.Window);
         Brush("NeapQuietHoverBrush", p.Window);
         Brush("NeapPresetHoverBrush", p.Window);
-        Brush("NeapCurveGapBrush", p.Gray);
         Brush("NeapPresetSelectedBrush", p.Window);
         // A chosen list item or option keeps the text colour, so it is not filled in the highlight.
         Brush("NeapSelectedBrush", p.Window);

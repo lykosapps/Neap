@@ -28,9 +28,9 @@ and date.
   the headset squashing it.
 - The mix dial on the Home page grows a little in a wider card, from its
   old size to a little larger, and the words on it keep their size.
-- On the parametric equaliser, the solid line is called "Closest the headset
-  gets" rather than "What you'll hear", as it is worked out from the
-  headset's filters, not measured.
+- The parametric equaliser, which fitted up to four adjustments to the ten
+  bands, is removed from every headset, with its test tone. A true parametric
+  equaliser for the Stealth Pro II is being built and is not in this release.
 - The notices about where the headset's sound goes, and the messages that
   ask for access to the headset on Linux, are shorter, and the long heading
   on the Device page is too.
@@ -42,10 +42,6 @@ and date.
   level changes.
 - A recording lists a change to the loudness boost beside the other changes
   Neap sends, and Neap sends it only to a headset known to take it.
-- A frequency typed in the parametric equaliser takes the unit the field
-  shows: "20" over "20 kHz" is 20 kHz, and "1,500 Hz" is 1500 Hz, not 20 Hz.
-- The note that the headset can't match a curve exactly now covers the very
-  top of the range, where a boost at 20 kHz is beyond the highest band.
 - The list of chat apps, and the apps on a profile, show a program Windows
   gives no name for as words, "Ms Teams" rather than "ms-teams".
 - The battery no longer shows more than 100%. A headset switched back on

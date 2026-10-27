@@ -46,7 +46,7 @@ namespace Neap.Desktop.Controls;
 /// </para>
 /// <para>
 /// Undo and Redo step through the edits made to the curve since the page
-/// was opened: each drag, typed value, adjustment added or removed, preset
+/// was opened: each drag, typed value, preset
 /// chosen or discarded is one step, and a burst of slider or key edits is
 /// one. They go back through the same writes an edit uses. The steps are
 /// forgotten on choosing the other bank, saving, deleting, starting a new
@@ -167,7 +167,6 @@ public partial class EqualiserPanel : UserControl
             if (_painting || ModeBands.IsChecked != true) return;
             if (ParametricService.Active) AppServices.Parametric.Leave(AppServices.Presets.LiveBands(Bank) ?? new int[BandWrites.Bands]);
             _parametricWanted = false;
-            AppServices.Presets.UseBands(Bank);
             ClearHistory();
             Paint();
         };

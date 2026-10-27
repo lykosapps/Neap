@@ -57,16 +57,10 @@ is running.
 
 ### An equaliser you can tune by ear
 
-- **Parametric equaliser** for game audio: up to four adjustments, fitted to
-  the headset's ten bands, with a plot of what you'll actually hear.
-- **Test tone.** Find a frequency that stands out, then cut or boost it on
-  the spot.
 - **Try things freely.** Drag the points or use the keyboard, hold Compare
   to hear the headset flat, and undo any change.
 - **Presets stored on the headset**, for game and microphone, so they also
   appear in the phone app and survive uninstalling everything.
-
-![The parametric equaliser, with four adjustments and the test tone.](docs/screenshots/equaliser.png)
 
 ### Profiles for each game
 

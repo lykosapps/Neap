@@ -59,8 +59,8 @@ own.
 To look at a screen while somebody works, launch it on that screen instead:
 `Neap.exe --pretend --behind --page audio` opens behind every window and
 never comes forward. The tags are `home`, `audio`, `mic`, `controls`,
-`device` and `settings`. Add `--parametric` to open the game equaliser in
-parametric mode with every adjustment in use.
+`device` and `settings`. Add `--parametric` with `--wired` to open the
+Stealth Pro II's game equaliser in its parametric mode, turned on.
 
 ## Working with the hardware
 

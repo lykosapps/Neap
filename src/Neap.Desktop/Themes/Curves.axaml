@@ -51,44 +51,7 @@
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
-    <!-- The parametric curve asked for, and the gap between it and the curve heard. -->
-    <Style Selector="Path.curveasked">
-        <Setter Property="Stroke" Value="{DynamicResource NeapTextSecondaryBrush}" />
-        <Setter Property="StrokeThickness" Value="1.5" />
-    </Style>
-    <Style Selector="Path.curvegap">
-        <Setter Property="Fill" Value="{DynamicResource NeapCurveGapBrush}" />
-    </Style>
-
-    <!-- A parametric adjustment's numbered point: filled when it is the one the fields show. -->
-    <Style Selector="Ellipse.curvehandle">
-        <Setter Property="Fill" Value="{DynamicResource NeapGroundBrush}" />
-        <Setter Property="Stroke" Value="{DynamicResource NeapGameBrush}" />
-        <Setter Property="StrokeThickness" Value="1.5" />
-    </Style>
-    <Style Selector="Ellipse.curvehandle.chosen">
-        <Setter Property="Fill" Value="{DynamicResource NeapGameBrush}" />
-        <Setter Property="Stroke" Value="{DynamicResource NeapGroundBrush}" />
-    </Style>
-    <Style Selector="TextBlock.handlenumber">
-        <Setter Property="Foreground" Value="{DynamicResource NeapGameTextBrush}" />
-        <Setter Property="FontSize" Value="{StaticResource NeapFontLabel}" />
-        <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="TextAlignment" Value="Center" />
-        <Setter Property="TextWrapping" Value="NoWrap" />
-    </Style>
-    <Style Selector="TextBlock.handlenumber.chosen">
-        <Setter Property="Foreground" Value="{DynamicResource NeapGroundBrush}" />
-    </Style>
-
-    <!-- The test tone's line and dot, and the tag above them with its frequency. -->
-    <Style Selector="Line.curvetoneline">
-        <Setter Property="Stroke" Value="{DynamicResource NeapTextBrush}" />
-        <Setter Property="StrokeThickness" Value="1.5" />
-    </Style>
-    <Style Selector="Ellipse.curvetonedot">
-        <Setter Property="Fill" Value="{DynamicResource NeapTextBrush}" />
-    </Style>
+    <!-- The tag above the test tone's line, with its frequency. -->
     <Style Selector="Border.curvetonetag">
         <Setter Property="Background" Value="{DynamicResource NeapTextBrush}" />
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusTag}" />
