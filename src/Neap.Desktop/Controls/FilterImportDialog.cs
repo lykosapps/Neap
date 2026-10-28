@@ -19,9 +19,14 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 internal static class FilterImportDialog
 {
-    /// <summary>Asks for filters, and gives the ten bands to set, or null when the dialog was cancelled.</summary>
+    /// <summary>The ten bands an import sets, and the name of the file they came from, if one was opened.</summary>
+    /// <param name="Bands">The ten bands.</param>
+    /// <param name="Source">The file's name without its extension, or null for pasted text.</param>
+    public sealed record Imported(IReadOnlyList<ParametricBand> Bands, string? Source);
+
+    /// <summary>Asks for filters, and gives what to set, or null when the dialog was cancelled.</summary>
     /// <param name="over">The control asking, whose window the dialog opens over.</param>
-    public static async Task<IReadOnlyList<ParametricBand>?> Ask(Control over)
+    public static async Task<Imported?> Ask(Control over)
     {
         var field = new TextBox
         {
@@ -47,6 +52,7 @@ internal static class FilterImportDialog
         };
 
         var result = FilterImport.Parse(string.Empty);
+        string? source = null;
 
         void Judge()
         {
@@ -72,19 +78,21 @@ internal static class FilterImportDialog
         field.TextChanged += (_, _) => Judge();
         open.Click += async (_, _) =>
         {
-            if (await ReadFile(dialog) is { } text) field.Text = text;
+            if (await ReadFile(dialog) is not { } file) return;
+            field.Text = file.Text;
+            source = file.Name;
         };
         Judge();
         dialog.Opened += (_, _) => field.Focus();
 
         if (!await dialog.ShowAsync(over)) return null;
         AppLog.Write($"parametric: imported {result.Bands.Count} filters; {result.NotImported.Count} lines not used");
-        return result.ToTen();
+        return new Imported(result.ToTen(), source);
     }
 
     /// <summary>Asks for a text file and reads it, saying on screen when it cannot.</summary>
-    /// <returns>The file's text, or null when none was chosen or it could not be read.</returns>
-    private static async Task<string?> ReadFile(NeapDialog dialog)
+    /// <returns>The file's text and its name without the extension, or null when none was chosen or it could not be read.</returns>
+    private static async Task<(string Text, string Name)?> ReadFile(NeapDialog dialog)
     {
         var picked = await dialog.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
@@ -99,7 +107,7 @@ internal static class FilterImportDialog
             using var reader = new StreamReader(stream);
             var buffer = new char[FilterImport.MostCharacters + 1];
             int read = await reader.ReadBlockAsync(buffer);
-            if (read <= FilterImport.MostCharacters) return new string(buffer, 0, read);
+            if (read <= FilterImport.MostCharacters) return (new string(buffer, 0, read), Path.GetFileNameWithoutExtension(picked[0].Name));
             AppLog.Write($"parametric: {picked[0].Name} is too long to be a filter file");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

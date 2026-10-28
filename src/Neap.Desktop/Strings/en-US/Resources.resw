@@ -2295,6 +2295,9 @@
   <data name="ParametricPreset_None" xml:space="preserve">
     <value>No preset</value>
   </data>
+  <data name="ParametricPreset_ImportedFrom" xml:space="preserve">
+    <value>Imported from {0}</value>
+  </data>
   <data name="ParametricPreset_Edited" xml:space="preserve">
     <value>{0}, edited</value>
   </data>

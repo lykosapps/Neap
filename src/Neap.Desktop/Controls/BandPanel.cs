@@ -212,14 +212,20 @@ public sealed class BandPanel : UserControl
         {
             var item = new MenuItem { Header = Strings.Get(ShapeKey(shape)) };
             var chosen = shape;
-            item.Click += (_, _) => Replace(StartingShapes.Bands(chosen), keepSelection: false);
+            item.Click += (_, _) =>
+            {
+                _presets.CameFrom(null);
+                Replace(StartingShapes.Bands(chosen), keepSelection: false);
+            };
             menu.Items.Add(item);
         }
 
         var import = new MenuItem { Header = Strings.Get("Parametric_ImportFilters") };
         import.Click += async (_, _) =>
         {
-            if (await FilterImportDialog.Ask(this) is { } bands) Replace(bands, keepSelection: false);
+            if (await FilterImportDialog.Ask(this) is not { } imported) return;
+            _presets.CameFrom(imported.Source);
+            Replace(imported.Bands, keepSelection: false);
         };
         menu.Items.Add(new Separator());
         menu.Items.Add(import);

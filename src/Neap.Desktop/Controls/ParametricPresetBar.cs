@@ -27,6 +27,9 @@ public sealed class ParametricPresetBar : UserControl
     private readonly Button _rename = new();
     private readonly Button _delete = new();
 
+    /// <summary>The file an imported shape came from, shown and offered as its name until it is saved or replaced.</summary>
+    private string? _source;
+
     /// <summary>The names the picker lists, so it is filled again only when they change.</summary>
     private string? _listed;
 
@@ -58,12 +61,22 @@ public sealed class ParametricPresetBar : UserControl
         };
     }
 
+    /// <summary>Notes the file the next shape comes from, or none with null.</summary>
+    /// <remarks>An imported shape stands apart from any preset until it is saved; any other shape is an edit of the preset in use.</remarks>
+    /// <param name="source">The file's name, or null.</param>
+    public void CameFrom(string? source)
+    {
+        _source = source;
+        if (source is not null) ParametricService.Choose(null);
+    }
+
     /// <summary>Shows the preset the shape came from, whether it has been edited, and what can be done.</summary>
     public void Paint()
     {
         var baseline = ParametricService.Baseline;
         var can = ParametricPresets.Actions(ParametricShape.Of(_bands()), baseline);
-        string shown = baseline is null ? Strings.Get("ParametricPreset_None")
+        string shown = baseline is null && _source is not null ? Strings.Format("ParametricPreset_ImportedFrom", _source)
+            : baseline is null ? Strings.Get("ParametricPreset_None")
             : can.Edited ? Strings.Format("ParametricPreset_Edited", baseline.Name)
             : baseline.Name;
         _picker.Content = shown;
@@ -106,6 +119,7 @@ public sealed class ParametricPresetBar : UserControl
             return;
         }
 
+        _source = null;
         ParametricService.Choose(preset.Name);
         _replace(bands);
     }
@@ -119,8 +133,9 @@ public sealed class ParametricPresetBar : UserControl
 
     private async Task SaveAsNew()
     {
-        string name = await AskForName(Strings.Get("ParametricPreset_SaveTitle"), string.Empty, renaming: null);
+        string name = await AskForName(Strings.Get("ParametricPreset_SaveTitle"), _source ?? string.Empty, renaming: null);
         if (name.Length == 0) return;
+        _source = null;
         ParametricService.Save(name, _bands());
         Paint();
     }
