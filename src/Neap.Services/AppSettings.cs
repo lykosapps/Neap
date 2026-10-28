@@ -219,7 +219,11 @@ public sealed class AppSettings
     public bool ParametricTakenOver { get; set; }
 
     /// <summary>The parametric shapes the person saved under names, in the order saved.</summary>
-    [JsonPropertyName("parametric_presets")]
+    /// <remarks>
+    /// Not "parametric_presets": versions up to 0.3.0 store something else
+    /// under that name, and a file they wrote has to load here.
+    /// </remarks>
+    [JsonPropertyName("parametric_shape_presets")]
     public List<StoredParametricPreset> ParametricPresets { get; set; } = new();
 
     /// <summary>The name of the parametric preset the shape came from, or null when it came from none.</summary>
@@ -359,6 +363,10 @@ public sealed class AppSettings
         }
     }
 
+    /// <remarks>
+    /// A file that can't be read is copied aside before the defaults are used,
+    /// as the next change saves over it.
+    /// </remarks>
     private static AppSettings Load()
     {
         if (!File.Exists(Path)) return new AppSettings();
@@ -366,6 +374,16 @@ public sealed class AppSettings
         catch (Exception ex)
         {
             AppLog.Write($"could not read the app's settings, so it starts from its defaults: {ex.Message}");
+            string kept = Path + ".unreadable";
+            try
+            {
+                File.Copy(Path, kept, overwrite: true);
+                AppLog.Write($"the settings that could not be read are kept in {kept}");
+            }
+            catch (Exception copyEx) when (copyEx is IOException or UnauthorizedAccessException)
+            {
+                AppLog.Write($"could not keep the settings that could not be read: {copyEx.Message}");
+            }
             return new AppSettings();
         }
     }

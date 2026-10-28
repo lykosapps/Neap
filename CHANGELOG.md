@@ -61,6 +61,9 @@ and date.
 - Updating works from a copy built by hand, which runs as Neap.Desktop.exe.
   It said it couldn't update, because it looked in the download for its own
   file name rather than the Neap.exe a release has.
+- Settings Neap can't read are kept as app-settings.json.unreadable beside
+  the settings file, and the log says so, rather than being replaced by the
+  defaults with no copy.
 - In high contrast, a slider's track is drawn in the text colour, not the
   colour Windows uses for what is switched off, so a slider that works no
   longer looks disabled.
