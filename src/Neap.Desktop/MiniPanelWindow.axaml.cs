@@ -73,6 +73,11 @@ public partial class MiniPanelWindow : Window
         OpenNeap.Click += (_, _) => OpenWindow(null);
         ChooseApps.Click += (_, _) => OpenWindow("home");
         Preset.Flyout!.Closed += (_, _) => CloseIfAway();
+        Preset.EqualiserAsked += () =>
+        {
+            OpenWindow("equaliser");
+            (_main?.CurrentPage as Views.EqualiserPage)?.ShowGame();
+        };
         Activated += (_, _) => WindowPresence.Set(this, true);
         Closed += (_, _) => WindowPresence.Set(this, false);
         Deactivated += (_, _) =>
