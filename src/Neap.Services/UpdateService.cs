@@ -43,7 +43,14 @@ public sealed class UpdateService : IDisposable
 
     private static string Work => Path.Combine(Folder, ".update");
 
-    private static string ExeName => Path.GetFileName(Environment.ProcessPath) ?? AppInfo.Name + ".exe";
+    /// <summary>The program in a release's zip, and the one started after the swap.</summary>
+    /// <remarks>
+    /// The release names it, not the running copy: a copy published by hand is
+    /// Neap.Desktop.exe, and the zip has no file of that name. Its
+    /// Neap.Desktop.exe stays beside the new Neap.exe and starts the new
+    /// version too, as both only start Neap.Desktop.dll.
+    /// </remarks>
+    private const string ExeName = "Neap.exe";
 
     private readonly IDisposable _due;
 

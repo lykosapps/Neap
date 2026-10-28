@@ -58,6 +58,9 @@ and date.
   for calls but another device is the default, as when the speakers play
   everything else. Before, the list was empty and the mix did nothing,
   without saying why.
+- Updating works from a copy built by hand, which runs as Neap.Desktop.exe.
+  It said it couldn't update, because it looked in the download for its own
+  file name rather than the Neap.exe a release has.
 - In high contrast, a slider's track is drawn in the text colour, not the
   colour Windows uses for what is switched off, so a slider that works no
   longer looks disabled.
