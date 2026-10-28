@@ -7,7 +7,6 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Neap.Core.Connection;
 using Neap.Core.Presets;
-using Path = Avalonia.Controls.Shapes.Path;
 
 namespace Neap.Desktop.Controls;
 
@@ -33,8 +32,6 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public sealed class PresetChoice : Button
 {
-    private const double ListCurveWidth = 72, ListCurveHeight = 22;
-
     private readonly TextBlock _name = new() { VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
     private readonly Border _tag = ParametricMark();
     private readonly ListBox _list = new() { MinWidth = 260 };
@@ -223,44 +220,16 @@ public sealed class PresetChoice : Button
 
     /// <summary>A ten-band preset in the list: its name and its curve beside it.</summary>
     private static ListBoxItem BandsItem(Preset preset) =>
-        Item(preset.Name, preset, Curve(preset.Bands, PresetService.BandFloor, PresetService.BandCeiling));
+        PresetListItems.Of(preset.Name, preset, preset.Bands, PresetService.BandFloor, PresetService.BandCeiling);
 
     /// <summary>A parametric preset in the list: its name, and its curve beside it when its bands are ones the headset has.</summary>
-    private static ListBoxItem ParametricItem(ParametricPreset preset)
-    {
-        const int most = (int)(ParametricBand.MostGain * 10);
-        var bands = StoredBand.Bands(preset.Shape.Bands);
-        return Item(preset.Name, preset, bands is null ? null : Curve(PresetPickerLook.Curve(bands, -most, most), -most, most));
-    }
-
-    private static ListBoxItem Item(string name, object preset, Path? curve)
-    {
-        var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
-        row.ColumnSpacing = Space.L;
-        row.Children.Add(new TextBlock { Text = name, VerticalAlignment = VerticalAlignment.Center });
-        if (curve is not null)
-        {
-            Grid.SetColumn(curve, 1);
-            row.Children.Add(curve);
-        }
-
-        var item = new ListBoxItem { Content = row, Tag = preset, Classes = { "preset" } };
-        AutomationProperties.SetName(item, name);
-        return item;
-    }
+    private static ListBoxItem ParametricItem(ParametricPreset preset) =>
+        PresetListItems.Of(preset.Name, preset, StoredBand.Bands(preset.Shape.Bands));
 
     /// <summary>The tag that says the equaliser is parametric.</summary>
     private static Border ParametricMark() => new()
     {
         Classes = { "tag" },
         Child = new TextBlock { Text = Strings.Get("Quick_Parametric") },
-    };
-
-    private static Path Curve(IReadOnlyList<int> levels, int floor, int ceiling) => new()
-    {
-        Width = ListCurveWidth,
-        Height = ListCurveHeight,
-        Data = CurveGeometry.Of(levels, ListCurveWidth, ListCurveHeight, floor, ceiling),
-        Classes = { "minicurve" },
     };
 }

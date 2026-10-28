@@ -29,11 +29,7 @@ function Find-Choice([string]$Name) { Find-InPopup $Name ([System.Windows.Automa
 function Get-Shown { (Find-Named 'Equaliser preset').Current.ItemStatus }
 function Test-Shown([string]$Status) { Wait-Until { (Get-Shown) -eq $Status } 6 }
 
-function Choose-Shape([string]$Shape) {
-    Open-Menu (Find-Named 'Start from')
-    Wait-Until { $null -ne (Get-Popups | Where-Object { $_.Current.Name -eq $Shape }) } 4 | Out-Null
-    Press (Get-Popups | Where-Object { $_.Current.Name -eq $Shape } | Select-Object -First 1)
-}
+function Choose-Shape([string]$Shape) { Choose-Parametric $Shape }
 
 # Saves the shape on screen as a new parametric preset.
 function Save-As([string]$Name) {

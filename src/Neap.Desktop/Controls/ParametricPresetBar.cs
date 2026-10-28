@@ -1,51 +1,96 @@
+using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Avalonia.Media;
 using Neap.Core.Presets;
 
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// The parametric equaliser's saved presets: which one the shape came from,
-/// and choosing, saving, renaming and deleting them.
+/// Where the parametric equaliser's shape comes from: one picker that lists
+/// the saved presets, the starting shapes and the way to import filters, with
+/// saving, renaming and deleting beside it.
 /// </summary>
 /// <remarks>
+/// <para>
+/// A saved preset, a starting shape and an import each put a whole shape on
+/// the curve, so they are one list, built as Home's preset choice is, each
+/// row with its curve beside it. The face names the preset, with the same
+/// Edited tag the ten-band equaliser uses once the shape has moved.
+/// </para>
+/// <para>
 /// The presets are Neap's own, kept in its settings rather than on the
 /// headset, so there is no limit on how many. The rules are
 /// <see cref="ParametricPresets"/>'; the bands belong to the
-/// <see cref="BandPanel"/> this sits in, which is given a chosen preset's
-/// bands as one change that Undo can take back.
+/// <see cref="BandPanel"/> this sits in, which is given a chosen shape as one
+/// change that Undo can take back.
+/// </para>
 /// </remarks>
 public sealed class ParametricPresetBar : UserControl
 {
+    /// <summary>The row that opens the import dialog.</summary>
+    private static readonly object ImportRow = new();
+
     private readonly Func<IReadOnlyList<ParametricBand>> _bands;
     private readonly Action<IReadOnlyList<ParametricBand>> _replace;
 
-    private readonly Button _picker = new() { MinWidth = 180, HorizontalContentAlignment = HorizontalAlignment.Left };
-    private readonly Button _save = new();
-    private readonly Button _saveAsNew = new();
-    private readonly Button _rename = new();
-    private readonly Button _delete = new();
+    private readonly Button _picker = new() { MinWidth = 240, HorizontalContentAlignment = HorizontalAlignment.Stretch };
+    private readonly TextBlock _name = new() { VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+    private readonly Border _edited = new() { Classes = { "edited" }, IsVisible = false };
+    private readonly ListBox _list = new() { MinWidth = 280 };
+    private readonly Flyout _flyout;
+    private readonly Button _save = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
+    private readonly Button _saveAsNew = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
+    private readonly Button _more = new() { Classes = { "quiet", "iconbutton" } };
+    private readonly MenuItem _rename = new();
+    private readonly MenuItem _delete = new();
+    private bool _painting;
 
     /// <summary>The file an imported shape came from, shown and offered as its name until it is saved or replaced.</summary>
     private string? _source;
 
-    /// <summary>The names the picker lists, so it is filled again only when they change.</summary>
+    /// <summary>What the picker lists, so it is filled again only when that changes.</summary>
     private string? _listed;
 
     /// <param name="bands">The bands on screen.</param>
-    /// <param name="replace">Puts a chosen preset's bands on screen and on the headset.</param>
+    /// <param name="replace">Puts a chosen shape on screen and on the headset.</param>
     public ParametricPresetBar(Func<IReadOnlyList<ParametricBand>> bands, Action<IReadOnlyList<ParametricBand>> replace)
     {
         _bands = bands;
         _replace = replace;
 
+        _edited.Child = new TextBlock { Text = Strings.Get("ParametricPreset_EditedTag") };
+        var chevron = new PathIcon { Data = (Geometry)Application.Current!.FindResource("IconChevronDown")!, Classes = { "choicearrow" } };
+        AutomationProperties.SetAccessibilityView(chevron, AccessibilityView.Raw);
+        Grid.SetColumn(_edited, 1);
+        Grid.SetColumn(chevron, 2);
+        _picker.Content = new Grid
+        {
+            ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"),
+            ColumnSpacing = Space.S,
+            Children = { _name, _edited, chevron },
+        };
+        AutomationProperties.SetName(_list, Strings.Get("ParametricPreset_ListName"));
+        _flyout = new Flyout { Placement = PlacementMode.BottomEdgeAlignedLeft, Content = _list };
+        _picker.Flyout = _flyout;
+        _list.SelectionChanged += (_, _) => Chosen();
+
         _save.Content = Strings.Get("Dialog_Save");
-        _saveAsNew.Content = Strings.Get("Equaliser_SaveAsNew");
-        _rename.Content = Strings.Get("ParametricPreset_Rename");
-        _delete.Content = Strings.Get("Equaliser_Delete");
         AutomationProperties.SetName(_save, Strings.Get("ParametricPreset_SaveName"));
-        _picker.Flyout = new MenuFlyout();
+        _saveAsNew.Content = Strings.Get("Equaliser_SaveAsNew");
+        _rename.Header = Strings.Get("ParametricPreset_Rename");
+        _delete.Header = Strings.Get("Equaliser_Delete");
+        _more.Content = new PathIcon
+        {
+            Width = Space.Icon,
+            Height = Space.Icon,
+            Data = (Geometry)Application.Current!.FindResource("IconMore")!,
+        };
+        string more = Strings.Get("ParametricPreset_More");
+        AutomationProperties.SetName(_more, more);
+        ToolTip.SetTip(_more, more);
+        _more.Flyout = new MenuFlyout { Items = { _rename, _delete } };
 
         _save.Click += (_, _) => SaveOver();
         _saveAsNew.Click += async (_, _) => await SaveAsNew();
@@ -57,9 +102,12 @@ public sealed class ParametricPresetBar : UserControl
             Orientation = Orientation.Horizontal,
             ItemSpacing = Space.S,
             LineSpacing = Space.S,
-            Children = { _picker, _save, _saveAsNew, _rename, _delete },
+            Children = { _picker, _save, _saveAsNew, _more },
         };
     }
+
+    /// <summary>Import filters was chosen from the list; the panel asks for them.</summary>
+    public event Action? ImportAsked;
 
     /// <summary>Notes the file the next shape comes from, or none with null.</summary>
     /// <remarks>An imported shape stands apart from any preset until it is saved; any other shape is an edit of the preset in use.</remarks>
@@ -75,39 +123,67 @@ public sealed class ParametricPresetBar : UserControl
     {
         var baseline = ParametricService.Baseline;
         var can = ParametricPresets.Actions(ParametricShape.Of(_bands()), baseline);
-        string shown = baseline is null && _source is not null ? Strings.Format("ParametricPreset_ImportedFrom", _source)
+        _name.Text = baseline is null && _source is not null ? Strings.Format("ParametricPreset_ImportedFrom", _source)
             : baseline is null ? Strings.Get("ParametricPreset_None")
-            : can.Edited ? Strings.Format("ParametricPreset_Edited", baseline.Name)
             : baseline.Name;
-        _picker.Content = shown;
-        AutomationProperties.SetName(_picker, Strings.Format("ParametricPreset_Picker", shown));
+        _edited.IsVisible = can.Edited;
+        AutomationProperties.SetName(_picker, Strings.Format("ParametricPreset_Picker",
+            can.Edited ? Strings.Format("ParametricPreset_Edited", baseline!.Name) : _name.Text));
         _save.IsEnabled = can.Save;
+        _save.Classes.Set("accent", can.Save);
         _rename.IsEnabled = can.Rename;
         _delete.IsEnabled = can.Delete;
-        FillPicker();
+        _more.IsEnabled = can.Rename || can.Delete;
+        FillList();
     }
 
-    private void FillPicker()
+    /// <summary>Lists the saved presets, then the starting shapes, then the way to import filters.</summary>
+    private void FillList()
     {
         var presets = ParametricService.Presets;
-        string names = string.Join('\n', presets.Select(p => p.Name));
-        if (names == _listed) return;
-        _listed = names;
+        string listed = string.Join('\n', presets.Select(p => $"{p.Name}\t{p.Shape.GetHashCode()}"));
+        if (listed == _listed) return;
+        _listed = listed;
 
-        var menu = (MenuFlyout)_picker.Flyout!;
-        menu.Items.Clear();
-        if (presets.Count == 0)
+        _painting = true;
+        try
         {
-            menu.Items.Add(new MenuItem { Header = Strings.Get("ParametricPreset_NoneSaved"), IsEnabled = false });
-            return;
+            _list.Items.Clear();
+            foreach (var preset in presets) _list.Items.Add(PresetListItems.Of(preset.Name, preset, StoredBand.Bands(preset.Shape.Bands)));
+            _list.Items.Add(new ListBoxItem
+            {
+                Content = new TextBlock { Text = Strings.Get("ParametricPreset_NewFrom"), Classes = { "label" } },
+                IsEnabled = false,
+                Focusable = false,
+            });
+            foreach (var shape in Enum.GetValues<StartingShape>())
+                _list.Items.Add(PresetListItems.Of(Strings.Get(ShapeKey(shape)), shape, StartingShapes.Bands(shape)));
+            _list.Items.Add(PresetListItems.Of(Strings.Get("Parametric_ImportFilters"), ImportRow, null));
         }
+        finally { _painting = false; }
+    }
 
-        foreach (var preset in presets)
+    /// <summary>Puts what was chosen from the list on the curve, and leaves the list with nothing chosen, so the same row can be chosen again.</summary>
+    private void Chosen()
+    {
+        if (_painting || _list.SelectedItem is not ListBoxItem { Tag: { } chosen }) return;
+        _flyout.Hide();
+        _painting = true;
+        _list.SelectedItem = null;
+        _painting = false;
+
+        switch (chosen)
         {
-            var item = new MenuItem { Header = preset.Name };
-            var chosen = preset;
-            item.Click += (_, _) => Choose(chosen);
-            menu.Items.Add(item);
+            case ParametricPreset preset:
+                Choose(preset);
+                break;
+            case StartingShape shape:
+                CameFrom(null);
+                _replace(StartingShapes.Bands(shape));
+                break;
+            default:
+                ImportAsked?.Invoke();
+                break;
         }
     }
 
@@ -123,6 +199,19 @@ public sealed class ParametricPresetBar : UserControl
         AppServices.Parametric.Choose(preset.Name);
         _replace(bands);
     }
+
+    private static string ShapeKey(StartingShape shape) => shape switch
+    {
+        StartingShape.CutMud => "Parametric_ShapeCutMud",
+        StartingShape.VoiceClarity => "Parametric_ShapeVoiceClarity",
+        StartingShape.TameHarshness => "Parametric_ShapeTameHarshness",
+        StartingShape.AddBass => "Parametric_ShapeAddBass",
+        StartingShape.CutRumble => "Parametric_ShapeCutRumble",
+        StartingShape.TameSibilance => "Parametric_ShapeTameSibilance",
+        StartingShape.QuietListening => "Parametric_ShapeQuietListening",
+        StartingShape.AddTreble => "Parametric_ShapeAddTreble",
+        _ => "Parametric_ShapeFlat",
+    };
 
     private void SaveOver()
     {

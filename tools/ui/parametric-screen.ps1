@@ -67,9 +67,9 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
 
         if ($Parts.Contains('C')) {
             Section "importing filters in $theme"
-            Open-Menu (Find-Named 'Start from')
-            Check (Wait-Until { @(Get-Popups | Where-Object { $_.Current.Name -eq $importItem }).Count -gt 0 } 4) 'Start from offers Import filters'
-            Press (Get-Popups | Where-Object { $_.Current.Name -eq $importItem } | Select-Object -First 1)
+            Press (Find-ParametricPicker)
+            Check (Wait-Until { $null -ne (Find-ListRow $importItem) } 4) 'the preset picker offers Import filters'
+            Press (Find-ListRow $importItem)
             Check (Wait-Until { $null -ne (Find-Dialog 'Import filters') } 5) 'it opens the import dialog'
             $dialog = Find-Dialog 'Import filters'
             if (-not $dialog) { continue }

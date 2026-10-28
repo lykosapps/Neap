@@ -29,13 +29,7 @@ function Find-Anywhere([string]$Name, $Type = [System.Windows.Automation.Control
     }
 }
 
-function Find-Item([string]$Name) { Get-Popups | Where-Object { $_.Current.Name -eq $Name } | Select-Object -First 1 }
-
-function Choose-Shape([string]$Shape) {
-    Open-Menu (Find-Named 'Start from')
-    Wait-Until { $null -ne (Find-Item $Shape) } 4 | Out-Null
-    Press (Find-Item $Shape)
-}
+function Choose-Shape([string]$Shape) { Choose-Parametric $Shape }
 
 function Test-Picker([string]$Shows) { Wait-Until { $null -ne (Find-Named "Parametric preset: $Shows") } 4 }
 
@@ -56,7 +50,7 @@ if ($Parts.Contains('A')) {
         Set-NeapSize 1400 1500 'Equaliser'
         Check (Wait-Until { $null -ne (Find-Named 'Equaliser curve') } 20) 'the editor is there'
         Check (Test-Picker 'No preset') 'it starts with no preset'
-        Check (-not (Find-Named 'Rename').Current.IsEnabled) 'with nothing to rename'
+        Check (-not (Find-Named 'More preset actions').Current.IsEnabled) 'with nothing to rename or delete'
 
         Choose-Shape 'Add bass'
         Press (Find-Named 'Save as new')
@@ -68,17 +62,17 @@ if ($Parts.Contains('A')) {
         Check (Test-Picker 'Bassy, edited') 'a change shows the preset as edited'
         Check ((Find-Named 'Save over the preset').Current.IsEnabled) 'and it can be saved over'
 
-        Open-Menu (Find-Named 'Parametric preset: Bassy, edited')
-        Check (Wait-Until { $null -ne (Find-Item 'Bassy') } 4) 'the picker lists it'
-        Press (Find-Item 'Bassy')
+        Press (Find-Named 'Parametric preset: Bassy, edited')
+        Check (Wait-Until { $null -ne (Find-ListRow 'Bassy') } 4) 'the picker lists it'
+        Press (Find-ListRow 'Bassy')
         Check (Test-Picker 'Bassy') 'choosing it puts its shape back'
         Check ((Find-Named 'Undo').Current.IsEnabled) 'as a change Undo can take back'
 
-        Press (Find-Named 'Rename')
+        Press-PresetAction 'Rename'
         Save-Name 'Bass'
         Check (Test-Picker 'Bass') 'renaming shows the new name'
 
-        Press (Find-Named 'Delete')
+        Press-PresetAction 'Delete'
         Check (Wait-Until { $null -ne (Find-Anywhere 'Cancel') } 5) 'deleting asks first'
         Press (Find-Anywhere 'Delete')
         Check (Test-Picker 'No preset') 'deleting leaves no preset'

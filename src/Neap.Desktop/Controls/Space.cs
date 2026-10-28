@@ -28,5 +28,8 @@ internal static class Space
     /// <summary>Gets the gap between sections of a page.</summary>
     public static double XL => Get("NeapSpaceXL");
 
+    /// <summary>Gets the size of an icon beside a control's words, or in place of them.</summary>
+    public static double Icon => Get("NeapIconRow");
+
     private static double Get(string key) => (double)Application.Current!.FindResource(key)!;
 }

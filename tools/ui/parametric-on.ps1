@@ -45,13 +45,13 @@ function Open-Equaliser([string[]]$Flags) {
     Wait-Until { $null -ne (Find-Named 'Parametric') } 20 | Out-Null
 }
 
-function Test-Editor { Wait-Until { $null -ne (Find-Named 'Start from') } 10 }
+function Test-Editor { Wait-Until { $null -ne (Find-Named 'All bands') } 10 }
 
 if ($Parts.Contains('A')) {
     Section 'through the Charging Dock: choosing Parametric asks, then turns it on'
     Open-Equaliser @()
     try {
-        Check ($null -eq (Find-Named 'Start from')) 'it starts on the ten bands'
+        Check ($null -eq (Find-Named 'All bands')) 'it starts on the ten bands'
         Press (Find-Named 'Parametric')
         Answer-Dialog $on 'Turn on'
         Check (Test-Editor) 'the parametric editor opens'
@@ -67,7 +67,7 @@ if ($Parts.Contains('B')) {
         Press (Find-Named 'Parametric')
         Answer-Dialog $on 'Cancel'
         Check (Wait-Until { $null -eq (Find-Dialog $on) } 4) 'the dialog closes'
-        Check ($null -eq (Find-Named 'Start from') -and $null -eq (Find-Named 'Parametric is off.')) 'the ten bands are shown, with nothing about Parametric'
+        Check ($null -eq (Find-Named 'All bands') -and $null -eq (Find-Named 'Parametric is off.')) 'the ten bands are shown, with nothing about Parametric'
     }
     finally { Stop-NeapPretend }
 }
@@ -79,7 +79,7 @@ if ($Parts.Contains('C')) {
         Check (Test-Editor) 'the editor is open'
         Press (Find-Named 'Turn off')
         Answer-Dialog $off 'Turn off'
-        Check (Wait-Until { $null -eq (Find-Named 'Start from') } 8) 'it goes back to the ten bands'
+        Check (Wait-Until { $null -eq (Find-Named 'All bands') } 8) 'it goes back to the ten bands'
     }
     finally { Stop-NeapPretend }
 }
@@ -106,7 +106,7 @@ if ($Parts.Contains('E')) {
         Press (Find-Named 'Parametric')
         Answer-Dialog $on 'Turn on'
         Check (Wait-Until { (Get-Texts) -contains "The headset's battery is low. Charge it, then try again." } 6) 'it says the battery is low'
-        Check ($null -eq (Find-Named 'Start from')) 'and the editor does not open'
+        Check ($null -eq (Find-Named 'All bands')) 'and the editor does not open'
         Check ($null -ne (Find-Named 'Turn on')) 'with a button to try again'
     }
     finally { Stop-NeapPretend }
@@ -137,14 +137,12 @@ if ($Parts.Contains('G')) {
     Open-Equaliser @('--parametric')
     try {
         Check (Test-Editor) 'the editor is open'
-        Open-Menu (Find-Named 'Start from')
-        $item = Wait-Until { $null -ne (Get-Popups | Where-Object { $_.Current.Name -eq 'Add bass' }) } 4
-        Press (Get-Popups | Where-Object { $_.Current.Name -eq 'Add bass' } | Select-Object -First 1)
+        Choose-Parametric 'Add bass'
         Start-Sleep -Seconds 2
         $before = @(1..10 | ForEach-Object { Get-Field "Band $_ gain" }) -join ' '
         Note "the shape: $before"
         Press (Find-Named 'Bands')
-        Check (Wait-Until { $null -eq (Find-Named 'Start from') } 5) 'the ten bands are shown'
+        Check (Wait-Until { $null -eq (Find-Named 'All bands') } 5) 'the ten bands are shown'
         Start-Sleep -Seconds 2
         Press (Find-Named 'Parametric')
         Check (Test-Editor) 'Parametric opens again'

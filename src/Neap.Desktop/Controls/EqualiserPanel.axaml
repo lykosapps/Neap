@@ -185,6 +185,13 @@
                                 HorizontalContentAlignment="Center"
                                 IsEnabled="False" />
                         </WrapPanel>
+
+                        <!-- The parametric editor's own Compare, Undo, Redo and Turn off, in the same place. -->
+                        <ContentControl
+                            x:Name="ParametricTools"
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            IsVisible="False" />
                     </Grid>
 
                     <!-- Only when Compare could not change what is heard. -->

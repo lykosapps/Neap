@@ -382,3 +382,34 @@ function Test-Contrast($Bitmap, $Element, [string]$What, [double]$Needs = 4.5) {
     $ratio = Get-ContrastRatio $colours.Text $colours.Ground
     Check ($ratio -ge $Needs) ("{0}: contrast {1}:1 (needs {2}:1)" -f $What, $ratio, $Needs)
 }
+
+# The parametric equaliser's preset picker, whatever it names.
+function Find-ParametricPicker {
+    @(Search { $script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Button))) }) |
+        Where-Object { $_.Current.Name -like 'Parametric preset:*' -and -not $_.Current.IsOffscreen } | Select-Object -First 1
+}
+
+# A row of a list open over the window, which is a window of its own.
+function Find-ListRow([string]$Name) {
+    $both = New-Object System.Windows.Automation.AndCondition((New-Condition NameProperty $Name), (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::ListItem)))
+    foreach ($window in $A::RootElement.FindAll($Scope::Children, (New-Condition ProcessIdProperty ([int]$script:Proc.Id)))) {
+        $found = $window.FindFirst($Scope::Descendants, $both)
+        if ($found) { return $found }
+    }
+}
+
+# Opens the parametric picker and chooses a row: a saved preset, a starting shape or Import filters.
+function Choose-Parametric([string]$Name) {
+    Press (Find-ParametricPicker)
+    if (Wait-Until { $null -ne (Find-ListRow $Name) } 4) { Press (Find-ListRow $Name) }
+    else { Write-Host "  note  the picker has no row called '$Name'" }
+}
+
+# Chooses Rename or Delete from the parametric preset's More menu.
+function Press-PresetAction([string]$Name) {
+    Press (Find-Named 'More preset actions')
+    if (Wait-Until { $null -ne (Get-Popups | Where-Object { $_.Current.Name -eq $Name }) } 4) {
+        Press (Get-Popups | Where-Object { $_.Current.Name -eq $Name } | Select-Object -First 1)
+    }
+}
+

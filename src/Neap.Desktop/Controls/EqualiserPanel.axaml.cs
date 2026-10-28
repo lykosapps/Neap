@@ -185,6 +185,7 @@ public partial class EqualiserPanel : UserControl
         };
         ParametricTurnOn.Click += async (_, _) => await TurnParametricOn(askedFromMode: false);
         Parametric.TurnOffAsked += async () => await TurnParametricOff();
+        ParametricTools.Content = Parametric.Tools;
     }
 
     private void EnterParametric()
@@ -851,6 +852,7 @@ public partial class EqualiserPanel : UserControl
         _painting = false;
         Curve.IsVisible = !parametric;
         Parametric.IsVisible = parametric && on;
+        ParametricTools.IsVisible = parametric && on;
         ParametricOff.IsVisible = parametric && !on;
         if (parametric && !on) PaintParametricOff();
         PresetsCard.IsVisible = !parametric;

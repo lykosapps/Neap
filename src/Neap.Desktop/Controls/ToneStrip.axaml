@@ -99,7 +99,6 @@
                 x:Name="ToneTrouble"
                 Classes="secondary"
                 IsVisible="False" />
-            <TextBlock loc:Uid.Value="Tone_HowTo" Classes="caption secondary" />
         </StackPanel>
     </Expander>
 </UserControl>
