@@ -67,7 +67,7 @@ public sealed class ParametricPresetBar : UserControl
     public void CameFrom(string? source)
     {
         _source = source;
-        if (source is not null) ParametricService.Choose(null);
+        if (source is not null) AppServices.Parametric.Choose(null);
     }
 
     /// <summary>Shows the preset the shape came from, whether it has been edited, and what can be done.</summary>
@@ -120,14 +120,14 @@ public sealed class ParametricPresetBar : UserControl
         }
 
         _source = null;
-        ParametricService.Choose(preset.Name);
+        AppServices.Parametric.Choose(preset.Name);
         _replace(bands);
     }
 
     private void SaveOver()
     {
         if (ParametricService.Baseline is not { } preset) return;
-        ParametricService.Save(preset.Name, _bands());
+        AppServices.Parametric.Save(preset.Name, _bands());
         Paint();
     }
 
@@ -136,7 +136,7 @@ public sealed class ParametricPresetBar : UserControl
         string name = await AskForName(Strings.Get("ParametricPreset_SaveTitle"), _source ?? string.Empty, renaming: null);
         if (name.Length == 0) return;
         _source = null;
-        ParametricService.Save(name, _bands());
+        AppServices.Parametric.Save(name, _bands());
         Paint();
     }
 
@@ -145,7 +145,7 @@ public sealed class ParametricPresetBar : UserControl
         if (ParametricService.Baseline is not { } preset) return;
         string name = await AskForName(Strings.Format("ParametricPreset_RenameTitle", preset.Name), preset.Name, renaming: preset.Name);
         if (name.Length == 0) return;
-        ParametricService.Rename(name);
+        AppServices.Parametric.Rename(name);
         Paint();
     }
 
@@ -160,7 +160,7 @@ public sealed class ParametricPresetBar : UserControl
             CloseButtonText = Strings.Get("Dialog_Cancel"),
         }.ShowAsync(this);
         if (!go) return;
-        ParametricService.Delete();
+        AppServices.Parametric.Delete();
         Paint();
     }
 

@@ -224,13 +224,18 @@ public sealed class ParametricService
     public static ParametricPreset? Baseline => ParametricPresets.Find(Presets, AppSettings.Current.ParametricPresetName);
 
     /// <summary>Marks a preset as the one the shape comes from, or none with null; the bands are the caller's to set.</summary>
+    /// <remarks>Every change to the presets passes through here, so announcing it here repaints any picker that is open.</remarks>
     /// <param name="name">The preset's name, or null.</param>
-    public static void Choose(string? name) => AppSettings.Update(settings => settings.ParametricPresetName = name);
+    public void Choose(string? name)
+    {
+        AppSettings.Update(settings => settings.ParametricPresetName = name);
+        Announce();
+    }
 
     /// <summary>Saves the bands under a name, as a new preset or over the one with that name, and marks it as the one in use.</summary>
     /// <param name="name">The name.</param>
     /// <param name="bands">The ten bands.</param>
-    public static void Save(string name, IReadOnlyList<ParametricBand> bands)
+    public void Save(string name, IReadOnlyList<ParametricBand> bands)
     {
         StorePresets(ParametricPresets.Saved(Presets, name, ParametricShape.Of(bands)));
         Choose(ParametricPresets.Find(Presets, name)?.Name);
@@ -238,7 +243,7 @@ public sealed class ParametricService
 
     /// <summary>Renames the preset in use.</summary>
     /// <param name="name">Its new name.</param>
-    public static void Rename(string name)
+    public void Rename(string name)
     {
         if (Baseline is not { } preset) return;
         StorePresets(ParametricPresets.Renamed(Presets, preset.Name, name));
@@ -246,7 +251,7 @@ public sealed class ParametricService
     }
 
     /// <summary>Deletes the preset in use, leaving the shape as it is with no preset behind it.</summary>
-    public static void Delete()
+    public void Delete()
     {
         if (Baseline is not { } preset) return;
         StorePresets(ParametricPresets.Without(Presets, preset.Name));
