@@ -27,10 +27,9 @@ public static class StockBands
         return [.. Game.Select((band, i) => (band with { Gain = tenths[i] / 10.0 }).Held())];
     }
 
-    /// <summary>The stock bands with a preset's gains, a band in use only where it has one: the parametric equaliser's first shape, the curve already heard.</summary>
-    /// <param name="tenths">The ten gains, in tenths of a decibel.</param>
-    public static IReadOnlyList<ParametricBand> FromGains(IReadOnlyList<int> tenths) =>
-        [.. WithGains(tenths).Select(band => band with { InUse = band.Gain != 0 })];
+    /// <summary>The stock bands, none in use: a flat equaliser, the parametric equaliser's first shape.</summary>
+    /// <remarks>A band not in use is sent as a bypass, so nothing of a ten-band preset is left playing beneath it.</remarks>
+    public static IReadOnlyList<ParametricBand> Flat { get; } = [.. Game.Select(band => band with { InUse = false })];
 
     /// <summary>Whether each band has its stock filter, frequency and width, whatever its gain.</summary>
     /// <param name="bands">The ten bands to compare.</param>

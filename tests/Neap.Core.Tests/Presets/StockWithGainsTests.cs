@@ -17,12 +17,15 @@ public class StockWithGainsTests
     }
 
     [Fact]
-    public void TheFirstParametricShapeUsesOnlyTheBandsThatHaveAGain()
+    public void TheFlatShapeSentWholeBypassesEveryBand()
     {
-        var bands = StockBands.FromGains(MudCut);
+        var writes = BandWrites.Plan(null, StockBands.Flat);
 
-        Assert.Equal([false, true, true, true, false, false, false, true, false, true], bands.Select(band => band.InUse));
-        Assert.Equal(-2.5, bands[2].Gain);
+        Assert.All(Enumerable.Range(0, BandWrites.Bands), band =>
+        {
+            Assert.Contains(new BandWrite(band, BandParameter.Type, (double)BandType.Bypass), writes);
+            Assert.Contains(new BandWrite(band, BandParameter.Gain, 0), writes);
+        });
     }
 
     [Fact]

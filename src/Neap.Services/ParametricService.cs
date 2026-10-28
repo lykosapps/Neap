@@ -40,9 +40,9 @@ public sealed class ParametricService
 
     public ParametricService(HeadsetService headset) => _headset = headset;
 
-    /// <summary>The ten bands as the person last left them, or flat, none in use, before they have made any.</summary>
+    /// <summary>The ten bands as the person last left them, or flat before they have made any.</summary>
     public static IReadOnlyList<ParametricBand> Saved =>
-        StoredBand.Bands(AppSettings.Current.ParametricShape) ?? [.. StockBands.Game.Select(band => band with { InUse = false })];
+        StoredBand.Bands(AppSettings.Current.ParametricShape) ?? StockBands.Flat;
 
     /// <summary>Starts sending the saved shape each time the headset connects, while parametric is on, and following another app's gains.</summary>
     public void Watch()
@@ -188,13 +188,18 @@ public sealed class ParametricService
     /// <summary>Whether the equaliser is in its Parametric mode.</summary>
     public static bool Active => AppSettings.Current.ParametricActive;
 
-    /// <summary>Goes into the Parametric mode, sending the saved shape, or the curve already heard when there is none.</summary>
-    /// <param name="heard">The ten gains of the ten-band curve now heard, in tenths of a decibel.</param>
-    public void Enter(IReadOnlyList<int> heard)
+    /// <summary>Goes into the Parametric mode, sending the whole saved shape, or a flat one when there is none.</summary>
+    /// <remarks>
+    /// All ten bands are sent, whatever Neap last sent: the ten-band
+    /// equaliser changes the same bands' gains, so a band thought unchanged
+    /// would keep a ten-band preset's gain beneath the shape.
+    /// </remarks>
+    public void Enter()
     {
         AppSettings.Update(settings => settings.ParametricActive = true);
         if (ReportedGains() is { } reported) AppSettings.Update(settings => settings.ParametricSeenGains = [.. reported]);
-        Set(StoredBand.Bands(AppSettings.Current.ParametricShape) ?? StockBands.FromGains(heard));
+        _sender.Forget();
+        Set(Saved);
         Announce();
     }
 
@@ -273,6 +278,7 @@ public sealed class ParametricService
 
         Choose(ParametricPresets.Matching(Presets, shape)?.Name);
         AppSettings.Update(settings => settings.ParametricActive = true);
+        _sender.Forget();
         Set(bands);
         AppSettings.Update(settings => settings.ParametricShape = [.. shape.Bands]);
         ShapeChanged?.Invoke();

@@ -189,7 +189,7 @@ public partial class EqualiserPanel : UserControl
 
     private void EnterParametric()
     {
-        AppServices.Parametric.Enter(AppServices.Presets.LiveBands(Bank) ?? new int[BandWrites.Bands]);
+        AppServices.Parametric.Enter();
         Paint();
     }
 
