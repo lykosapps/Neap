@@ -105,6 +105,14 @@ public sealed class PretendControl : IDisposable
     /// </remarks>
     public Func<string, bool>? Press { get; set; }
 
+    /// <summary>Gets or sets what gives the colours of the text at a point on the screen, in physical pixels: the text's own colour and what is behind it, each as drawn over what lies beneath, or null when no text is there.</summary>
+    /// <remarks>
+    /// A picture of small text never shows its true colour: its strokes are
+    /// thinner than a pixel and their edges are blended, so the darkest pixel
+    /// reads lighter than the text is. This says what the text is drawn in.
+    /// </remarks>
+    public Func<int, int, JsonNode?>? Colours { get; set; }
+
     /// <summary>Starts answering on the pipe, one script at a time.</summary>
     public void Start() => _serving ??= Task.Run(Serve);
 
@@ -201,6 +209,8 @@ public sealed class PretendControl : IDisposable
                 ("mini", 1) => Done(OpenMini ?? throw new ArgumentException("there is no window to open the mini panel from")),
                 ("press", >= 2) => (Press ?? throw new ArgumentException("there is no window to press in"))(Rest(line))
                     ? "ok" : throw new ArgumentException($"nothing called '{Rest(line)}' to press"),
+                ("colours", 3) => (Colours ?? throw new ArgumentException("there is no window to read colours in"))(
+                    int.Parse(words[1], CultureInfo.InvariantCulture), int.Parse(words[2], CultureInfo.InvariantCulture)),
                 _ => throw new ArgumentException($"not a command: '{line}'"),
             };
             return new JsonObject { ["ok"] = true, ["result"] = result }.ToJsonString();

@@ -14,6 +14,10 @@ behind everything and the keyboard is left alone: it can run while somebody
 uses the machine. That Windows delivers a real Tab press to the app is left
 to a person, once before a release.
 
+Contrast is read from a picture of the window. Small text never shows its
+true colour there, so a reading under 4.5:1 is put to the app, which says the
+colours the text is drawn in and over, and that decides it.
+
 What this cannot see: how a screen reader reads a page, high contrast, and
 text enlarged in Windows. Those need a person, and are listed in the report.
 
@@ -179,9 +183,21 @@ function Test-Page([string]$Page, [string]$Theme) {
         if ($texts.Count -lt $all.Count) { Note "$($all.Count - $texts.Count) pieces of text lie outside the window and are not measured" }
         $low = 0
         foreach ($text in $texts) {
-            $colours = Get-BoxColours $bitmap $text.Current.BoundingRectangle $origin
+            $box = $text.Current.BoundingRectangle
+            $colours = Get-BoxColours $bitmap $box $origin
             $ratio = Get-ContrastRatio $colours.Text $colours.Ground
-            if ($ratio -lt 4.5) { $low++; Note ("contrast {0}:1 on '{1}'" -f $ratio, $text.Current.Name) }
+            if ($ratio -ge 4.5) { continue }
+            # Small text never shows its true colour in a picture, as its
+            # edges blend into what is behind it, so a short reading is put to
+            # the app, which says what the text is drawn in and over.
+            $drawn = Invoke-Pretend ('colours {0} {1}' -f [int]($box.X + $box.Width / 2), [int]($box.Y + $box.Height / 2))
+            if ($drawn) {
+                $declared = Get-ContrastRatio ([System.Drawing.ColorTranslator]::FromHtml($drawn.fore)) ([System.Drawing.ColorTranslator]::FromHtml($drawn.back))
+                if ($declared -ge 4.5) { Note ("'{0}' reads {1}:1 in the picture; it is drawn {2} on {3}, {4}:1" -f $text.Current.Name, $ratio, $drawn.fore, $drawn.back, $declared); continue }
+                $ratio = $declared
+            }
+            $low++
+            Note ("contrast {0}:1 on '{1}'" -f $ratio, $text.Current.Name)
         }
         Check ($low -eq 0) "all $($texts.Count) pieces of text are 4.5:1 or better"
     }
