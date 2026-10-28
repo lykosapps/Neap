@@ -20,20 +20,25 @@ param([string]$Parts = 'ABCDEF')
 $message = 'Version 9.9.9 is available.'
 $buttons = "What's new", 'Update and restart', 'Not now', 'More options'
 
-# Name, width and height in physical pixels, and what the banner should show
-# there: wide, with its three controls, or compact, with the menu.
+# Name, width and height in the app's own pixels, and what the banner should
+# show there: wide, with its three controls, or compact, with the menu. They
+# are scaled to the desktop the check runs on, as the banner's threshold is in
+# the app's pixels: a desktop of its own runs at 100%, the owner's at 125%.
 $sizes = @(
-    @('desktop', 1920, 1000, 'wide'),
-    @('laptop', 1536, 820, 'wide'),
+    @('desktop', 1536, 800, 'wide'),
+    @('laptop', 1229, 656, 'wide'),
     # The banner spans the page column, beside the menu's icons at these
     # widths, so it turns compact when the window is about 65 pixels wider
     # than the banner's own threshold.
-    @('edge', 990, 700, 'wide'),
-    @('mid', 960, 700, 'compact'),
-    @('narrow', 625, 700, 'compact')
+    @('edge', 792, 560, 'wide'),
+    @('mid', 768, 560, 'compact'),
+    @('narrow', 500, 560, 'compact')
 )
 
-function Resize([int]$Width, [int]$Height) { Set-NeapSize $Width $Height $message }
+function Resize([int]$Width, [int]$Height) {
+    $scale = [NeapUi]::GetDpiForWindow($script:Handle) / 96
+    Set-NeapSize ([int]($Width * $scale)) ([int]($Height * $scale)) $message
+}
 
 function Get-Shown { $buttons | Where-Object { Test-Present (Find-Named $_) } }
 
@@ -100,7 +105,7 @@ if ($Parts.Contains('A') -or $Parts.Contains('B') -or $Parts.Contains('D') -or $
 
             if ($Parts.Contains('B')) {
                 Section 'the menus'
-                Resize 625 700
+                Resize 500 560
                 $more = Find-Named 'More options'
                 Open-Menu $more
                 Wait-Until { @(Get-Popups).Count -ge 3 } 4 | Out-Null
@@ -114,7 +119,7 @@ if ($Parts.Contains('A') -or $Parts.Contains('B') -or $Parts.Contains('D') -or $
                 Press (Find-Id 'CloseButton')
                 Wait-Until { (Get-Texts) -notcontains "What's new in Neap 9.9.9" } 4 | Out-Null
 
-                Resize 1536 820
+                Resize 1229 656
                 $notNow = Find-Named 'Not now'
                 Open-Menu $notNow
                 Wait-Until { @(Get-Popups).Count -ge 2 } 4 | Out-Null
@@ -137,11 +142,11 @@ if ($Parts.Contains('A') -or $Parts.Contains('B') -or $Parts.Contains('D') -or $
                 # focus with it. So it is tried again, three times at most.
                 $judged = $false
                 for ($try = 1; $try -le 3 -and -not $judged; $try++) {
-                    Resize 1536 820
+                    Resize 1229 656
                     $notes = Find-Named "What's new"
                     $notes.SetFocus()
                     $hadFocus = Wait-Until { $notes.Current.HasKeyboardFocus } 2
-                    Resize 625 700
+                    Resize 500 560
                     if ([NeapUi]::GetForegroundWindow() -ne $script:Handle) {
                         Note "try ${try}: another window came to the front while the window narrowed"
                         continue
@@ -157,7 +162,7 @@ if ($Parts.Contains('A') -or $Parts.Contains('B') -or $Parts.Contains('D') -or $
 
             if ($Parts.Contains('D')) {
                 Section 'a simulated update'
-                foreach ($size in @(@(1536, 820), @(625, 700))) {
+                foreach ($size in @(@(1229, 656), @(500, 560))) {
                     Resize $size[0] $size[1]
                     Write-Host ("-- width {0}" -f $size[0])
                     $act = Find-Named 'Update and restart'
@@ -197,7 +202,7 @@ if ($Parts.Contains('A') -or $Parts.Contains('B') -or $Parts.Contains('D') -or $
 
 if ($Parts.Contains('C')) {
     Section 'putting it away, from the menu, across a restart'
-    foreach ($case in @(@('Remind me tomorrow', 1536, 820, 'Not now'), @('Skip this version', 625, 700, 'More options'))) {
+    foreach ($case in @(@('Remind me tomorrow', 1229, 656, 'Not now'), @('Skip this version', 500, 560, 'More options'))) {
         Start-NeapPretend
         try {
             Wait-Until { Test-Present (Find-Named $message) } 15 | Out-Null
