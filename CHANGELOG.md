@@ -37,6 +37,9 @@ and date.
 
 ### Fixed
 
+- In high contrast, a slider's track is drawn in the text colour, not the
+  colour Windows uses for what is switched off, so a slider that works no
+  longer looks disabled.
 - A recording no longer lists a headset output's level every second when
   two of its outputs have the same name; each is noted only when its own
   level changes.

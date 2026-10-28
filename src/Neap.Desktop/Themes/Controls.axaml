@@ -26,7 +26,7 @@
         mix, has no side that is more, so neither side of the thumb is filled.
     -->
     <Style Selector="Slider.balance /template/ RepeatButton#PART_DecreaseButton">
-        <Setter Property="Background" Value="{DynamicResource NeapDialTrackBrush}" />
+        <Setter Property="Background" Value="{DynamicResource NeapControlTrackBrush}" />
     </Style>
 
     <!--

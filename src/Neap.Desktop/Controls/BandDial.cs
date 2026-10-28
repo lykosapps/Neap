@@ -54,6 +54,7 @@ public sealed class BandDial : RangeBase
     public static readonly StyledProperty<double> DefaultValueProperty =
         AvaloniaProperty.Register<BandDial, double>(nameof(DefaultValue));
 
+    private Path? _track;
     private Path? _valueArc;
     private Line? _pointer;
     private Ellipse? _focusRing;
@@ -108,27 +109,39 @@ public sealed class BandDial : RangeBase
         {
             Draw();
         }
+        else if (change.Property == IsEffectivelyEnabledProperty)
+        {
+            Colour();
+        }
+    }
+
+    /// <summary>Takes the colours for a dial that works, or the theme's colours for one that is off.</summary>
+    private void Colour()
+    {
+        if (_track is null || _valueArc is null || _pointer is null) return;
+        bool on = IsEffectivelyEnabled;
+        _track.Bind(Shape.StrokeProperty, _track.GetResourceObservable(on ? "NeapControlTrackBrush" : "NeapDialTrackBrush"));
+        _valueArc.Bind(Shape.StrokeProperty, _valueArc.GetResourceObservable(on ? "NeapAccentFillBrush" : "NeapTextDisabledBrush"));
+        _pointer.Bind(Shape.StrokeProperty, _pointer.GetResourceObservable(on ? "NeapTextBrush" : "NeapTextDisabledBrush"));
     }
 
     private Canvas Build()
     {
         var canvas = new Canvas { Width = Size, Height = Size, Background = Brushes.Transparent };
-        var track = new Path { Data = Arc(StartAngle, StartAngle + SweepAngle), StrokeThickness = 5, StrokeLineCap = PenLineCap.Round };
-        track.Bind(Shape.StrokeProperty, track.GetResourceObservable("NeapDialTrackBrush"));
+        _track = new Path { Data = Arc(StartAngle, StartAngle + SweepAngle), StrokeThickness = 5, StrokeLineCap = PenLineCap.Round };
         _valueArc = new Path { StrokeThickness = 5, StrokeLineCap = PenLineCap.Round };
-        _valueArc.Bind(Shape.StrokeProperty, _valueArc.GetResourceObservable("NeapAccentFillBrush"));
         var knob = new Ellipse { Width = 36, Height = 36, StrokeThickness = 1 };
         knob.Bind(Shape.FillProperty, knob.GetResourceObservable("NeapKnobBrush"));
         knob.Bind(Shape.StrokeProperty, knob.GetResourceObservable("NeapKnobEdgeBrush"));
         Canvas.SetLeft(knob, Centre - 18);
         Canvas.SetTop(knob, Centre - 18);
         _pointer = new Line { StrokeThickness = 3, StrokeLineCap = PenLineCap.Round };
-        _pointer.Bind(Shape.StrokeProperty, _pointer.GetResourceObservable("NeapTextBrush"));
         _focusRing = new Ellipse { Width = Size - 2, Height = Size - 2, StrokeThickness = 2, IsVisible = false };
         _focusRing.Bind(Shape.StrokeProperty, _focusRing.GetResourceObservable("NeapAccentFillBrush"));
         Canvas.SetLeft(_focusRing, 1);
         Canvas.SetTop(_focusRing, 1);
-        canvas.Children.AddRange([track, _valueArc, knob, _pointer, _focusRing]);
+        canvas.Children.AddRange([_track, _valueArc, knob, _pointer, _focusRing]);
+        Colour();
         Draw();
         return canvas;
     }

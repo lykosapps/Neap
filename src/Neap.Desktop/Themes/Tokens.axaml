@@ -45,6 +45,8 @@
             <SolidColorBrush x:Key="NeapChatBrush" Color="#E6E8EC" />
             <SolidColorBrush x:Key="NeapChatTextBrush" Color="#E6E8EC" />
             <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#1FFFFFFF" />
+            <!-- The track of a control that is dragged, a slider or a dial: the dial track's colour here; high contrast sets it apart. -->
+            <SolidColorBrush x:Key="NeapControlTrackBrush" Color="#1FFFFFFF" />
             <!-- A slider's thumb: white on the dark ground. -->
             <SolidColorBrush x:Key="NeapSliderThumbBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#12FFFFFF" />
@@ -130,6 +132,7 @@
             <SolidColorBrush x:Key="NeapChatBrush" Color="#15171C" />
             <SolidColorBrush x:Key="NeapChatTextBrush" Color="#15171C" />
             <SolidColorBrush x:Key="NeapDialTrackBrush" Color="#17000000" />
+            <SolidColorBrush x:Key="NeapControlTrackBrush" Color="#17000000" />
             <!-- A slider's thumb: the accent, since a white one would vanish on the light cards. -->
             <SolidColorBrush x:Key="NeapSliderThumbBrush" Color="#6D4AFF" />
             <SolidColorBrush x:Key="NeapMeterUnlitBrush" Color="#0F000000" />

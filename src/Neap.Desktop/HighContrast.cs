@@ -75,6 +75,11 @@ internal static class HighContrast
         Brush("NeapChatBrush", p.Text);
         Brush("NeapChatTextBrush", p.Text);
         Brush("NeapDialTrackBrush", p.Gray);
+        // A slider's or a dial's track is in the text colour, not the system's
+        // colour for what is switched off, which would make a control that
+        // works look as if it does not. The empty part of a meter or of the
+        // mix ring keeps that colour: it is off, and its lit part is the text.
+        Brush("NeapControlTrackBrush", p.Text);
         Brush("NeapMeterUnlitBrush", p.Gray);
         Brush("NeapTextBrush", p.Text);
         Brush("NeapTextSecondaryBrush", p.Text);
