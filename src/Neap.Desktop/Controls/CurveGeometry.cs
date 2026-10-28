@@ -42,13 +42,13 @@ internal static class CurveGeometry
         return geometry;
     }
 
-    /// <summary>A preset's bands fitted into a box of this size, for the small curve beside its name.</summary>
-    public static PathGeometry Of(IReadOnlyList<int> bands, double width, double height)
+    /// <summary>A preset's levels, in tenths of a decibel between a floor and a ceiling, fitted into a box of this size, for the small curve beside its name.</summary>
+    public static PathGeometry Of(IReadOnlyList<int> levels, double width, double height, int floor, int ceiling)
     {
         const double pad = 2;
-        var points = bands.Select((b, i) => new Point(
-            ResponseCurve.X(i, bands.Count, width),
-            ResponseCurve.Y(b, PresetService.BandFloor, PresetService.BandCeiling, pad, height - pad))).ToList();
+        var points = levels.Select((level, i) => new Point(
+            ResponseCurve.X(i, levels.Count, width),
+            ResponseCurve.Y(level, floor, ceiling, pad, height - pad))).ToList();
         return Through(points);
     }
 }

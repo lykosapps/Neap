@@ -62,12 +62,16 @@ public partial class QuickSettings : UserControl
         _shhSound = new SettingLink(ShhSounds, () => ShhSoundSetting,
             key => NeapControls.FillSegments(ShhModes, key, _shhSound!.Write), PaintShhSound);
 
-        EqualiserLink.Click += (_, _) =>
-        {
-            if (TopLevel.GetTopLevel(this) is not MainWindow window) return;
-            window.Open("equaliser");
-            (window.CurrentPage as Views.EqualiserPage)?.ShowGame();
-        };
+        EqualiserLink.Click += (_, _) => OpenEqualiser();
+        PresetPicker.EqualiserAsked += OpenEqualiser;
+    }
+
+    /// <summary>Opens the Equaliser page on its Game tab.</summary>
+    private void OpenEqualiser()
+    {
+        if (TopLevel.GetTopLevel(this) is not MainWindow window) return;
+        window.Open("equaliser");
+        (window.CurrentPage as Views.EqualiserPage)?.ShowGame();
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
