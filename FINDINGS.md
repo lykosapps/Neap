@@ -664,8 +664,13 @@ Q, gain, sample rate) and a 16-bit type:
 | `0x5059` mic GEQ | ten of type 4 | 100 Hz to 6.3 kHz, Q 2.167, 16 kHz |
 | `0x500A` headphone compensation | fixed | 120 Hz type 6 +1.5 dB Q 0.5; 300 Hz +3 Q 0.7; 4.2 kHz +2 Q 1.7; 5.5 kHz type 7 −2.2 Q 0.7 |
 
-Type 4 is taken to be a peaking filter, and 6 and 7 low and high shelves;
-the codes are not documented. The game path's input level control
+Type 4 is a peaking filter, and 6 and 7 low and high shelves; SP2Tools
+later read every code from the firmware: 0 bypass, 1 low pass, 2 high pass,
+3 band pass, 4 peaking, 5 notch, 6 low shelf, 7 high shelf, 8 all-pass, and
+9 and 10 first-order low and high pass *(research)*. The game table as the
+headset stores it, `0x500B`, is 186 bytes: a 4-byte header, 18 bytes per
+band (the four floats, then the type), and 2 flag bytes, of which byte 184
+turns the stock gain correction on (1) or off (0). The game path's input level control
 (`0x5008`) sits at −12 dB, which reads as headroom for the equaliser's
 boosts. The equaliser's own level (`0x5003`) is 0 dB.
 

@@ -112,27 +112,17 @@ first and say how sure each finding is.
   matched to anything (see [FINDINGS.md](FINDINGS.md)); whether the charging
   flag means charging, or only powered by the cable; 32-bit audio formats
   are assumed to be floating point.
-- **A fully parametric equaliser, live.** Each of the game bank's ten bands
-  has a type, frequency, Q and gain; Neap sets only the gain. SP2Tools read
-  the firmware (27 October, answers in `knowledge
-eap-answers-live-parametric-eq.md`
-  there) and found that **live frequency, Q and type already exist** over the
-  same route as the loudness boost, so no flash is needed: ten bands at most,
-  frequency 15 to 48000 Hz, Q 0.1 to 10, gain up to ±20 dB in the firmware
-  (Swarm II's ±9 dB is the interface's), and types for peaking, notch, low
-  and high shelf, low and high pass. Read from the code, not yet tried.
-  Things Neap must handle: every change is saved in the headset (so Neap
-  restores the stock frequency, Q and type itself, as Swarm II's presets keep
-  gains only); no firmware check stops a frequency past half the sample rate
-  (clamp below it); one 186-byte save per change (coalesce dragging, pace
-  updates); a stock flag makes a gain write re-send all ten bands through a
-  matrix tuned for the stock centres (write gain first and frequency last,
-  or clear the flag once); and it applies live only while a game stream is
-  open. Next: the first safe reads and one one-band test (SP2Tools `W9`:
-  read band 5, set +6 dB then 3000 Hz, check with a tone sweep, revert),
-  which needs the owner's go-ahead, the headset wired with a game stream
-  open, and Neap closed. Then design it: a band editor on the Equaliser page
-  with a way back to stock.
+- **A fully parametric equaliser, live.** Built for the Stealth Pro II and
+  held back from releases (`FirmwareEdit.ParametricReleased` is off); see
+  DECISIONS.md, 27 and 28 October. Each of the game bank's ten bands has a
+  filter, frequency, width and gain, set live over the loudness boost's route,
+  after the headset's stock gain correction is cleared over the cable from
+  the Firmware page. Neap keeps its own presets, imports Equalizer APO and
+  AutoEq filters, lets a profile hold a shape, follows another app's gain
+  changes, and turns parametric off when Swarm II resets the headset. All of
+  it runs in practice runs only. Left: the headset checks (HEADSET-CHECKS.md),
+  the cable record write on Linux, and whether the Mode button's preset step
+  moves the bands (if it does, Neap must block it or follow it).
 - **Equaliser boosts with the loudness boost raised.** SP2Tools reads an
   active compressor after the equaliser (threshold −10 dB, ratio 100:1,
   make-up +7 dB, live over the same route) that squashes a 0 dBFS tone by

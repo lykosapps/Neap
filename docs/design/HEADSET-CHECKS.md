@@ -135,3 +135,10 @@ plugged in again; the headset's lights read as before throughout.
     and the sound is the stock equaliser's. Turn it on again from the
     Firmware page: the shape plays again. Through the dock, a new firmware
     version alone shows the same.
+32. **Another app's gain:** in Parametric, with a band in use, change that
+    band's gain in the phone app. Neap's table and curve take the new gain
+    and keep the band's filter, frequency and width, and the sound matches.
+    Do it again with Neap closed, then open Neap: it follows the change.
+33. **Mode button, preset step:** set the Mode button to step through game
+    presets, then press it while in Parametric. Note whether the bands move.
+    If they do, Neap must block the step or follow it.
