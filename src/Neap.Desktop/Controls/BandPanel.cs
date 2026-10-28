@@ -38,6 +38,7 @@ public sealed class BandPanel : UserControl
     private readonly Button _redo = new();
     private readonly ToggleButton _plain = new();
     private readonly Button _shapes = new();
+    private readonly Button _turnOff = new();
     private readonly Border _level = new() { IsVisible = false };
     private readonly TextBlock _levelText = new() { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
     private readonly Button _levelLower = new();
@@ -67,6 +68,9 @@ public sealed class BandPanel : UserControl
     private bool _painting;
 
     private sealed record Row(CheckBox InUse, ComboBox Type, BandValueBox Hertz, BandValueBox Q, BandValueBox Gain, Border Frame);
+
+    /// <summary>The person asked to turn Parametric off, which the page asks about and does.</summary>
+    public event Action? TurnOffAsked;
 
     public BandPanel()
     {
@@ -117,6 +121,7 @@ public sealed class BandPanel : UserControl
         _redo.Content = Strings.Get("Parametric_Redo");
         _plain.Content = Strings.Get("Parametric_HearPlain");
         _shapes.Content = Strings.Get("Parametric_StartFrom");
+        _turnOff.Content = Strings.Get("Parametric_TurnOff");
         _reset.Content = Strings.Get("Parametric_ResetBand");
         _inUse.Content = Strings.Get("Parametric_InUse");
         foreach (var type in Types) _type.Items.Add(new ComboBoxItem { Content = Strings.Get(TypeKey(type)), Tag = type });
@@ -129,7 +134,7 @@ public sealed class BandPanel : UserControl
         AutomationProperties.SetName(_inUse, Strings.Get("Parametric_InUse"));
 
         _shapes.Flyout = ShapesMenu();
-        var tools = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, Children = { _plain, _shapes, _undo, _redo } };
+        var tools = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, Children = { _plain, _shapes, _undo, _redo, _turnOff } };
 
         _level.Classes.Add("card");
         _level.Child = new StackPanel { Spacing = Space.S, Children = { _levelText, _levelLower } };
@@ -246,6 +251,7 @@ public sealed class BandPanel : UserControl
         _undo.Click += (_, _) => Walk(_undoStack, _redoStack);
         _redo.Click += (_, _) => Walk(_redoStack, _undoStack);
         _levelLower.Click += (_, _) => LowerLevel();
+        _turnOff.Click += (_, _) => TurnOffAsked?.Invoke();
 
         _inUse.IsCheckedChanged += (_, _) => { if (!_painting) Change(_selected, _bands[_selected] with { InUse = _inUse.IsChecked == true }); };
         _type.SelectionChanged += (_, _) => { if (!_painting && _type.SelectedItem is ComboBoxItem { Tag: BandType t }) Change(_selected, BandEditing.WithType(_bands[_selected], t)); };

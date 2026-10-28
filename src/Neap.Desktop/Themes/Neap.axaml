@@ -114,12 +114,6 @@
             <Style Selector="^.open">
                 <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInsetTop}" />
             </Style>
-
-            <!-- Pointed out by another page: the row it sent the person here for. -->
-            <Style Selector="^.marked">
-                <Setter Property="BorderBrush" Value="{DynamicResource NeapAccentFillBrush}" />
-                <Setter Property="BorderThickness" Value="2" />
-            </Style>
         </ControlTheme>
     </Styles.Resources>
 

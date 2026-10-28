@@ -170,29 +170,109 @@ public partial class EqualiserPanel : UserControl
             ClearHistory();
             Paint();
         };
-        ModeParametric.IsCheckedChanged += (_, _) =>
+        ModeParametric.IsCheckedChanged += async (_, _) =>
         {
             if (_painting || ModeParametric.IsChecked != true) return;
             _parametricWanted = true;
-            if (AppSettings.Current.ParametricOn)
-                AppServices.Parametric.Enter(AppServices.Presets.LiveBands(Bank) ?? new int[BandWrites.Bands]);
+            ParametricSaid.Text = string.Empty;
             ClearHistory();
-            Paint();
+            if (AppSettings.Current.ParametricOn) EnterParametric();
+            else
+            {
+                Paint();
+                await TurnParametricOn(askedFromMode: true);
+            }
         };
-        ParametricTurnOnWay.Click += (_, _) => OpenTurnOnWay();
+        ParametricTurnOn.Click += async (_, _) => await TurnParametricOn(askedFromMode: false);
+        Parametric.TurnOffAsked += async () => await TurnParametricOff();
     }
 
-    /// <summary>
-    /// Opens the Firmware page, where Parametric is turned on, or Settings with
-    /// the Firmware edits switch pointed out when that page is not shown.
-    /// </summary>
-    private void OpenTurnOnWay()
+    private void EnterParametric()
     {
-        if (TopLevel.GetTopLevel(this) is not MainWindow window) return;
-        if (AppSettings.Current.ShowFirmwareEdits && window.Open("firmware")) return;
-        window.Open("settings");
-        Dispatcher.UIThread.Post(() => (window.CurrentPage as Views.SettingsPage)?.MarkFirmwareSwitch());
+        AppServices.Parametric.Enter(AppServices.Presets.LiveBands(Bank) ?? new int[BandWrites.Bands]);
+        Paint();
     }
+
+    /// <summary>Asks before clearing the headset's gain correction, then does it and says how it went.</summary>
+    /// <remarks>
+    /// Declined straight after choosing Parametric, the choice goes back to
+    /// the ten bands, as nothing changed. Anything that goes wrong is said in
+    /// the panel, beside the button that tries again.
+    /// </remarks>
+    /// <param name="askedFromMode">Whether Parametric was just chosen, rather than the panel's button pressed.</param>
+    private async Task TurnParametricOn(bool askedFromMode)
+    {
+        if (!await Ask("Parametric_TurnOnTitle", "Parametric_TurnOnBody", "Parametric_TurnOn"))
+        {
+            if (askedFromMode)
+            {
+                _parametricWanted = false;
+                Paint();
+            }
+
+            return;
+        }
+
+        ParametricTurnOn.IsEnabled = false;
+        try
+        {
+            var result = await AppServices.ParametricOn.TurnOn();
+            if (result.Outcome is SwitchOutcome.Done or SwitchOutcome.AlreadyDone)
+            {
+                ParametricSaid.Text = string.Empty;
+                if (_parametricWanted) EnterParametric();
+                return;
+            }
+
+            ParametricSaid.Text = Strings.Get(Saying(SwitchLook.Say(result, turningOn: true)));
+        }
+        finally
+        {
+            ParametricTurnOn.IsEnabled = true;
+            Paint();
+        }
+    }
+
+    /// <summary>Asks before putting the stock bands and gain correction back, then does it and goes back to the ten bands.</summary>
+    private async Task TurnParametricOff()
+    {
+        if (!await Ask("Parametric_TurnOffTitle", "Parametric_TurnOffBody", "Parametric_TurnOff")) return;
+
+        var result = await AppServices.ParametricOn.Restore();
+        if (result.Outcome is SwitchOutcome.Done or SwitchOutcome.AlreadyDone)
+        {
+            AppServices.Parametric.Leave(AppServices.Presets.LiveBands(Bank) ?? new int[BandWrites.Bands]);
+            _parametricWanted = false;
+            ClearHistory();
+            Paint();
+            return;
+        }
+
+        await Complain(Strings.Get("Parametric_TurnOffTitle"), Strings.Get(Saying(SwitchLook.Say(result, turningOn: false))));
+    }
+
+    private async Task<bool> Ask(string heading, string body, string act) => await new NeapDialog
+    {
+        Heading = Strings.Get(heading),
+        Body = new TextBlock { MaxWidth = 440, Text = Strings.Get(body), TextWrapping = Avalonia.Media.TextWrapping.Wrap },
+        PrimaryButtonText = Strings.Get(act),
+        CloseButtonText = Strings.Get("Dialog_Cancel"),
+    }.ShowAsync(this);
+
+    /// <summary>The words for what turning Parametric on or off came to.</summary>
+    private static string Saying(SwitchSaying saying) => saying switch
+    {
+        SwitchSaying.TurnedOn => "Parametric_SaidTurnedOn",
+        SwitchSaying.RestoredStock => "Parametric_SaidRestoredStock",
+        SwitchSaying.WasAlreadyOn => "Parametric_SaidWasAlreadyOn",
+        SwitchSaying.WasAlreadyStock => "Parametric_SaidWasAlreadyStock",
+        SwitchSaying.CouldNotRead => "Parametric_SaidCouldNotRead",
+        SwitchSaying.NoHeadset => "Parametric_SaidNoHeadset",
+        SwitchSaying.LowBattery => "Parametric_SaidLowBattery",
+        SwitchSaying.ReadOnly => "Parametric_SaidReadOnly",
+        SwitchSaying.NotChangedAndPutBack => "Parametric_SaidNotChangedAndPutBack",
+        _ => "Parametric_SaidNotChangedAndNotPutBack",
+    };
 
     /// <summary>Whether Parametric was chosen, as a choice to be made good once it is turned on.</summary>
     private bool _parametricWanted;
@@ -802,20 +882,11 @@ public partial class EqualiserPanel : UserControl
         PaintHistory();
     }
 
-    /// <summary>Says why Parametric is off and names the way to turn it on.</summary>
-    private void PaintParametricOff()
-    {
-        bool shown = AppSettings.Current.ShowFirmwareEdits;
-        ParametricOffText.Text = Strings.Get(Core.Presets.ParametricOff.Say(AppSettings.Current.ParametricReset, shown) switch
-        {
-            ParametricOffSaying.ResetBySwarm => "Equaliser_ParametricResetBySwarm",
-            ParametricOffSaying.TurnOnFromFirmware => "Equaliser_ParametricTurnOnFromFirmware",
-            _ => "Equaliser_ParametricNeedsFirmwareEdits",
-        });
-        string way = Strings.Get(shown ? "Equaliser_ParametricOpenFirmware" : "Equaliser_ParametricOpenSettings");
-        ParametricTurnOnWay.Content = way;
-        AutomationProperties.SetName(ParametricTurnOnWay, way);
-    }
+    /// <summary>Says why Parametric is off; the button beside it turns it on.</summary>
+    private void PaintParametricOff() =>
+        ParametricOffText.Text = Strings.Get(Core.Presets.ParametricOff.Say(AppSettings.Current.ParametricReset) == ParametricOffSaying.ResetBySwarm
+            ? "Equaliser_ParametricResetBySwarm"
+            : "Parametric_IsOff");
 
     // -- undo and redo -----------------------------------------------------
 

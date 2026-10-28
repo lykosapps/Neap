@@ -1,5 +1,28 @@
 # Decisions
 
+## 2026-10-28 — Parametric is turned on from the Equaliser page, through the dock or the cable
+
+- **Options:** keep turning it on from the Firmware page over the cable;
+  have Neap switch to the cable for that moment when both are connected; or
+  turn it on from the Equaliser page on whichever connection is in use.
+- **Chosen:** choosing Parametric on the Equaliser page asks once, then
+  clears the gain correction, through the dock or the cable; declining goes
+  back to the ten bands. Turn off, in the Parametric editor, puts the stock
+  correction and bands back. The switch is refused when the headset's battery
+  is under 10% and it is not charging. The Firmware page keeps only the
+  firmware edits (the Mode button's transparency step and the light), which
+  write the firmware and need its warnings.
+- **Why:** the owner asked for the most convenient way. A test build read and
+  wrote the record through the dock on the owner's headset (headset tracker,
+  28 October), so the cable is not needed. The write changes a stored setting,
+  not the firmware, and the same record is written on every band change.
+  Power lost mid-write is the one case not traced, so a low battery is not
+  risked.
+- **Changes:** "Parametric is enabled from the Firmware page" (27 October):
+  the Settings switch and the Firmware page are no longer the way in.
+- **Revisit if:** a write through the dock is ever seen to land wrong, or a
+  headset is found that does not pass the record's reply back.
+
 ## 2026-10-28 — Parametric shapes are saved as Neap's presets, and a profile holds the shape itself
 
 - **Options:** named parametric presets on the Equaliser page with profiles

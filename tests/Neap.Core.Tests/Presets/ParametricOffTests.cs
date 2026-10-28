@@ -21,10 +21,8 @@ public class ParametricOffTests
         Assert.False(ParametricOff.ResetBySwarm(whenOn, now, correctionOn));
 
     [Theory]
-    [InlineData(true, true, ParametricOffSaying.ResetBySwarm)]
-    [InlineData(true, false, ParametricOffSaying.ResetBySwarm)]
-    [InlineData(false, true, ParametricOffSaying.TurnOnFromFirmware)]
-    [InlineData(false, false, ParametricOffSaying.NeedsFirmwareEdits)]
-    public void EachStateHasItsSaying(bool reset, bool firmwareEditsShown, ParametricOffSaying expected) =>
-        Assert.Equal(expected, ParametricOff.Say(reset, firmwareEditsShown));
+    [InlineData(true, ParametricOffSaying.ResetBySwarm)]
+    [InlineData(false, ParametricOffSaying.IsOff)]
+    public void EachStateHasItsSaying(bool reset, ParametricOffSaying expected) =>
+        Assert.Equal(expected, ParametricOff.Say(reset));
 }

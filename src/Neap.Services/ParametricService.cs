@@ -81,7 +81,7 @@ public sealed class ParametricService
         {
             reset = await _headset.Post(client => ParametricOff.ResetBySwarm(
                 AppSettings.Current.ParametricFirmware, firmware,
-                client.OnCable ? client.ReadGameEqRecord()?.GainCorrectionOn : null));
+                client.ReadGameEqRecord()?.GainCorrectionOn));
         }
         catch (Exception ex)
         {

@@ -130,11 +130,10 @@ plugged in again; the headset's lights read as before throughout.
 
 31. **Reset by Swarm II:** with parametric on and a shape you can hear, close
     Neap, update or Recover the headset in Swarm II (this rewrites its
-    firmware: the owner decides), then open Neap with the cable in. The
-    Equaliser page says Swarm II reset the equaliser and Parametric is off,
-    and the sound is the stock equaliser's. Turn it on again from the
-    Firmware page: the shape plays again. Through the dock, a new firmware
-    version alone shows the same.
+    firmware: the owner decides), then open Neap, on the dock or the cable.
+    The Equaliser page says Swarm II reset the equaliser and Parametric is
+    off, and the sound is the stock equaliser's. Press Turn on there: the
+    shape plays again.
 32. **Another app's gain:** in Parametric, with a band in use, change that
     band's gain in the phone app. Neap's table and curve take the new gain
     and keep the band's filter, frequency and width, and the sound matches.
@@ -142,3 +141,7 @@ plugged in again; the headset's lights read as before throughout.
 33. **Mode button, preset step:** set the Mode button to step through game
     presets, then press it while in Parametric. Note whether the bands move.
     If they do, Neap must block the step or follow it.
+34. **Turn on and off from the Equaliser page, through the dock:** with only
+    the dock connected, choose Parametric, confirm, and shape a band; then
+    press Turn off. Each says nothing is wrong, the sound follows, and Swarm
+    II's presets play as before after Turn off.

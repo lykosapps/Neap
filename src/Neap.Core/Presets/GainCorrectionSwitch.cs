@@ -1,3 +1,5 @@
+using Neap.Core.Connection;
+
 namespace Neap.Core.Presets;
 
 /// <summary>What turning the gain correction off or back on came to.</summary>
@@ -18,8 +20,11 @@ public enum SwitchOutcome
     /// <summary>The write was sent but reading the record back did not show it.</summary>
     NotConfirmed,
 
-    /// <summary>The headset is not reached over its own cable, where the record is read and written, so nothing was sent.</summary>
-    NeedsCable,
+    /// <summary>No headset is connected, so nothing was sent.</summary>
+    NoHeadset,
+
+    /// <summary>The headset's battery is too low to risk the write, so nothing was sent.</summary>
+    LowBattery,
 
     /// <summary>Neap only reads this headset, so nothing was sent.</summary>
     ReadOnly,
@@ -43,12 +48,27 @@ public readonly record struct SwitchResult(SwitchOutcome Outcome, bool BackupRes
 /// asked is undone from the copy.
 /// </para>
 /// <para>
-/// Reading back through a transmitter can answer from memory, so this is for
-/// the headset reached over its own cable, where SP2Tools proved the write.
+/// The write is proven over the cable (SP2Tools) and through the Charging
+/// Dock (28 October 2026), where the record read back before the write was the
+/// headset's own curve, not one a transmitter keeps.
 /// </para>
 /// </remarks>
 public sealed class GainCorrectionSwitch
 {
+    /// <summary>The lowest battery, as a percentage, at which the record is written when the headset is not charging.</summary>
+    public const int LowestBattery = 10;
+
+    /// <summary>Whether the battery allows the write: charging, at <see cref="LowestBattery"/> or above, or not known.</summary>
+    /// <remarks>
+    /// The headset keeps its old record until a new one is written whole, but
+    /// what it does after losing power part way through is not known, so a
+    /// battery about to run out is not risked. A reading not yet known does not
+    /// stop the switch, as a connected headset reports one within moments.
+    /// </remarks>
+    /// <param name="battery">The headset's battery, or null when it has not been read.</param>
+    public static bool BatteryAllows(BatteryReading? battery) =>
+        battery is not { } reading || reading.Charging || reading.Percent >= LowestBattery;
+
     private readonly Func<GameEqRecord?> _read;
     private readonly Action<GameEqRecord> _write;
     private readonly Action<GameEqRecord> _keepBackup;

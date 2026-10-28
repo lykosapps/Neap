@@ -54,19 +54,17 @@ public class PretendRecordTests
     }
 
     [Fact]
-    public void ThroughADockTheRecordIsNeitherReadNorWritten()
+    public void ThroughADockTheRecordIsReadAndWrittenToo()
     {
         var headset = new PretendHeadset();
         using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
-        var attempts = new List<WriteAttempt>();
-        client.Wrote += attempts.Add;
+        var cleared = GameEqRecord.Shipped.WithGainCorrection(false);
 
-        Assert.False(client.OnCable);
-        Assert.Throws<InvalidOperationException>(client.ReadGameEqRecord);
-        Assert.Throws<InvalidOperationException>(() => client.WriteGameEqRecord(GameEqRecord.Shipped.WithGainCorrection(false)));
+        Assert.True(client.ReadGameEqRecord()!.Matches(GameEqRecord.Shipped));
+        client.WriteGameEqRecord(cleared);
 
-        Assert.True(headset.Record.Matches(GameEqRecord.Shipped));
-        Assert.NotNull(Assert.Single(attempts).Refused);
+        Assert.True(headset.Record.Matches(cleared));
+        Assert.True(client.ReadGameEqRecord()!.Matches(cleared));
     }
 
     [Fact]

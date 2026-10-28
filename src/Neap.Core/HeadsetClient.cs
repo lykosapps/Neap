@@ -481,10 +481,6 @@ public sealed class HeadsetClient : IDisposable
             () => _transport.SendOutput(BandFrames.SetFrame(write, RelayThroughBase)));
     }
 
-    /// <summary>Whether the headset is reached over its own cable, where its stored record can be read and written.</summary>
-    /// <remarks>The record's frames are proven over the cable only; through a dock they are untried.</remarks>
-    public bool OnCable => !RelayThroughBase;
-
     /// <summary>How long to listen for a stored record, and how many times to ask.</summary>
     /// <remarks>About half of single reads get no reply, so a missing one is asked again.</remarks>
     private static readonly TimeSpan RecordWait = TimeSpan.FromSeconds(2);
@@ -501,14 +497,13 @@ public sealed class HeadsetClient : IDisposable
     /// Reads the game equaliser's stored record, or null when the headset gives
     /// none or one Neap does not understand.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The headset is not reached over its cable.</exception>
+    /// <remarks>Proven over the cable and through the Charging Dock, which passes the reply back.</remarks>
     public GameEqRecord? ReadGameEqRecord()
     {
-        if (!OnCable) throw new InvalidOperationException("the game equaliser's record is read only over the cable");
         for (int attempt = 0; attempt < RecordTries; attempt++)
         {
             var reader = new NvKeyReader(GameEqRecord.Length);
-            foreach (var report in NvKey.ReadReports(GameEqRecord.Key, GameEqRecord.Length, relayThroughBase: false))
+            foreach (var report in NvKey.ReadReports(GameEqRecord.Key, GameEqRecord.Length, RelayThroughBase))
                 _transport.SendOutput(report);
 
             var clock = Stopwatch.StartNew();
@@ -532,15 +527,15 @@ public sealed class HeadsetClient : IDisposable
     /// </summary>
     /// <param name="record">The record to write.</param>
     /// <exception cref="WritesDisabledException">The client is read-only.</exception>
-    /// <exception cref="InvalidOperationException">The headset is not one the record is known for, or is not reached over its cable.</exception>
+    /// <exception cref="InvalidOperationException">The headset is not one the record is known for.</exception>
     public void WriteGameEqRecord(GameEqRecord record)
     {
         string value = record.GainCorrectionOn ? "gain correction on" : "gain correction off";
         SendDsp(GameEqRecordName, value, "the game equaliser's record",
-            OnCable && HeadsetModels.Of(ProductId) is { HasParametricBands: true },
+            HeadsetModels.Of(ProductId) is { HasParametricBands: true },
             () =>
             {
-                foreach (var report in NvKey.WriteReports(GameEqRecord.Key, record.Bytes, relayThroughBase: false))
+                foreach (var report in NvKey.WriteReports(GameEqRecord.Key, record.Bytes, RelayThroughBase))
                 {
                     _transport.SendOutput(report);
                     Thread.Sleep(BetweenReports);

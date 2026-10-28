@@ -131,11 +131,11 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     /// </remarks>
     public const bool Released = false;
 
-    /// <summary>Whether the parametric equaliser, and the cut-down Firmware page that turns it on, are in this release of Neap.</summary>
+    /// <summary>Whether the parametric equaliser is in this release of Neap.</summary>
     /// <remarks>
-    /// Off until the equaliser screen, its way in from the Equaliser page and
-    /// its checks on a headset are done. While it is off, only a pretend run
-    /// shows the equaliser's Parametric choice and the page.
+    /// Off until its checks on a headset are done. While it is off, only a
+    /// pretend run shows the equaliser's Parametric choice. It is turned on
+    /// from the Equaliser page; it writes a stored setting, not the firmware.
     /// </remarks>
     public const bool ParametricReleased = false;
 

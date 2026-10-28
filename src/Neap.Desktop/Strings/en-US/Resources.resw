@@ -2004,75 +2004,6 @@
   <data name="Firmware_RestoreWarning" xml:space="preserve">
     <value>You'll switch the headset off and plug a USB-C cable into its left ear cup. Neap writes the section as the backup holds it, and the headset checks the write.</value>
   </data>
-  <data name="Firmware_ParametricHeading.Text" xml:space="preserve">
-    <value>Parametric equaliser</value>
-  </data>
-  <data name="Firmware_ParametricBody.Text" xml:space="preserve">
-    <value>Each band plays exactly what you set. Needs the headset connected with its USB-C cable.</value>
-  </data>
-  <data name="Firmware_ParametricNotHere.Text" xml:space="preserve">
-    <value>The parametric equaliser is for the Stealth Pro II.</value>
-  </data>
-  <data name="Firmware_ParametricTurnOn.Content" xml:space="preserve">
-    <value>Turn on</value>
-  </data>
-  <data name="Firmware_ParametricTurnOn" xml:space="preserve">
-    <value>Turn on</value>
-  </data>
-  <data name="Firmware_ParametricRestore.Content" xml:space="preserve">
-    <value>Restore</value>
-  </data>
-  <data name="Firmware_ParametricRestore" xml:space="preserve">
-    <value>Restore</value>
-  </data>
-  <data name="Firmware_ParametricIsOn" xml:space="preserve">
-    <value>Parametric is on.</value>
-  </data>
-  <data name="Firmware_ParametricIsOff" xml:space="preserve">
-    <value>Parametric is off.</value>
-  </data>
-  <data name="Firmware_ParametricWasReset" xml:space="preserve">
-    <value>Swarm II reset the headset's equaliser, so parametric is off.</value>
-  </data>
-  <data name="Firmware_ParametricTurnOnTitle" xml:space="preserve">
-    <value>Turn on the parametric equaliser?</value>
-  </data>
-  <data name="Firmware_ParametricTurnOnBody" xml:space="preserve">
-    <value>Swarm II's own presets will play louder in the mids, by up to about 5 dB for several boosts together. Neap saves a copy of the headset's equaliser settings first, checks the result, and puts them back if anything doesn't match.</value>
-  </data>
-  <data name="Firmware_ParametricRestoreTitle" xml:space="preserve">
-    <value>Restore the stock equaliser?</value>
-  </data>
-  <data name="Firmware_ParametricRestoreBody" xml:space="preserve">
-    <value>The ten bands go back to their stock frequencies and widths, and Swarm II's presets play as they did. Your gains are kept.</value>
-  </data>
-  <data name="Firmware_SaidTurnedOn" xml:space="preserve">
-    <value>Parametric is on.</value>
-  </data>
-  <data name="Firmware_SaidRestoredStock" xml:space="preserve">
-    <value>Back to the stock equaliser.</value>
-  </data>
-  <data name="Firmware_SaidWasAlreadyOn" xml:space="preserve">
-    <value>Parametric was already on.</value>
-  </data>
-  <data name="Firmware_SaidWasAlreadyStock" xml:space="preserve">
-    <value>The equaliser was already stock.</value>
-  </data>
-  <data name="Firmware_SaidCouldNotRead" xml:space="preserve">
-    <value>The headset gave no settings to read. Try again.</value>
-  </data>
-  <data name="Firmware_SaidNeedsCable" xml:space="preserve">
-    <value>Connect the headset with its USB-C cable, then try again.</value>
-  </data>
-  <data name="Firmware_SaidReadOnly" xml:space="preserve">
-    <value>Neap can only read this headset.</value>
-  </data>
-  <data name="Firmware_SaidNotChangedAndPutBack" xml:space="preserve">
-    <value>The change didn't go through, and the headset's settings were put back.</value>
-  </data>
-  <data name="Firmware_SaidNotChangedAndNotPutBack" xml:space="preserve">
-    <value>The change didn't go through, and the earlier settings could not be put back. Press Restore.</value>
-  </data>
   <data name="Parametric_BandCurveName" xml:space="preserve">
     <value>Equaliser curve</value>
   </data>
@@ -2277,20 +2208,62 @@
   <data name="Parametric_LevelLower" xml:space="preserve">
     <value>Lower level by {0} dB</value>
   </data>
-  <data name="Equaliser_ParametricNeedsFirmwareEdits" xml:space="preserve">
-    <value>Parametric needs firmware edits turned on.</value>
+  <data name="Parametric_IsOff" xml:space="preserve">
+    <value>Parametric is off.</value>
   </data>
-  <data name="Equaliser_ParametricTurnOnFromFirmware" xml:space="preserve">
-    <value>Parametric is off. Turn it on from the Firmware page.</value>
+  <data name="Parametric_TurnOn.Content" xml:space="preserve">
+    <value>Turn on</value>
+  </data>
+  <data name="Parametric_TurnOn" xml:space="preserve">
+    <value>Turn on</value>
+  </data>
+  <data name="Parametric_TurnOff" xml:space="preserve">
+    <value>Turn off</value>
+  </data>
+  <data name="Parametric_TurnOnTitle" xml:space="preserve">
+    <value>Turn on the parametric equaliser?</value>
+  </data>
+  <data name="Parametric_TurnOnBody" xml:space="preserve">
+    <value>Swarm II's own presets will play louder in the mids, by up to about 5 dB for several boosts together. Neap saves a copy of the headset's equaliser settings first, checks the result, and puts them back if anything doesn't match.</value>
+  </data>
+  <data name="Parametric_TurnOffTitle" xml:space="preserve">
+    <value>Turn off the parametric equaliser?</value>
+  </data>
+  <data name="Parametric_TurnOffBody" xml:space="preserve">
+    <value>The ten bands go back to their stock frequencies and widths, and Swarm II's presets play as they did. Your gains and saved shapes are kept.</value>
+  </data>
+  <data name="Parametric_SaidTurnedOn" xml:space="preserve">
+    <value>Parametric is on.</value>
+  </data>
+  <data name="Parametric_SaidRestoredStock" xml:space="preserve">
+    <value>Parametric is off.</value>
+  </data>
+  <data name="Parametric_SaidWasAlreadyOn" xml:space="preserve">
+    <value>Parametric was already on.</value>
+  </data>
+  <data name="Parametric_SaidWasAlreadyStock" xml:space="preserve">
+    <value>The equaliser was already stock.</value>
+  </data>
+  <data name="Parametric_SaidCouldNotRead" xml:space="preserve">
+    <value>The headset gave no settings to read. Try again.</value>
+  </data>
+  <data name="Parametric_SaidNoHeadset" xml:space="preserve">
+    <value>Connect the headset, then try again.</value>
+  </data>
+  <data name="Parametric_SaidLowBattery" xml:space="preserve">
+    <value>The headset's battery is low. Charge it, then try again.</value>
+  </data>
+  <data name="Parametric_SaidReadOnly" xml:space="preserve">
+    <value>Neap can only read this headset.</value>
+  </data>
+  <data name="Parametric_SaidNotChangedAndPutBack" xml:space="preserve">
+    <value>The change didn't go through, and the headset's settings were put back.</value>
+  </data>
+  <data name="Parametric_SaidNotChangedAndNotPutBack" xml:space="preserve">
+    <value>The change didn't go through, and the earlier settings could not be put back. Try again.</value>
   </data>
   <data name="Equaliser_ParametricResetBySwarm" xml:space="preserve">
-    <value>Swarm II reset the headset's equaliser, so Parametric is off. Turn it on again to use it.</value>
-  </data>
-  <data name="Equaliser_ParametricOpenSettings" xml:space="preserve">
-    <value>Open settings</value>
-  </data>
-  <data name="Equaliser_ParametricOpenFirmware" xml:space="preserve">
-    <value>Open firmware</value>
+    <value>Swarm II reset the headset's equaliser, so Parametric is off.</value>
   </data>
   <data name="ParametricPreset_None" xml:space="preserve">
     <value>No preset</value>

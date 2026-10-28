@@ -1,3 +1,4 @@
+using Neap.Core.Connection;
 using Neap.Core.Presets;
 
 namespace Neap.Core.Tests.Presets;
@@ -154,4 +155,16 @@ public class GainCorrectionSwitchTests
         Assert.All(differing, i => Assert.InRange((i - 4) % 18, 8, 11));
         Assert.Equal(GameEqRecord.Shipped.GainCorrectionOn, edited.GainCorrectionOn);
     }
+
+    [Theory]
+    [InlineData(9, false, false)]
+    [InlineData(9, true, true)]
+    [InlineData(10, false, true)]
+    [InlineData(80, false, true)]
+    public void ALowBatteryStopsTheWriteUnlessItIsCharging(int percent, bool charging, bool allowed) =>
+        Assert.Equal(allowed, GainCorrectionSwitch.BatteryAllows(new BatteryReading(percent, charging)));
+
+    [Fact]
+    public void ABatteryNotYetReadDoesNotStopIt() =>
+        Assert.True(GainCorrectionSwitch.BatteryAllows(null));
 }

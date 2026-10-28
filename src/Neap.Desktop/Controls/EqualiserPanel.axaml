@@ -211,7 +211,14 @@
                         Spacing="{StaticResource NeapSpaceM}"
                         IsVisible="False">
                         <TextBlock x:Name="ParametricOffText" TextWrapping="Wrap" />
-                        <Button x:Name="ParametricTurnOnWay" HorizontalAlignment="Left" />
+                        <Button
+                            x:Name="ParametricTurnOn"
+                            loc:Uid.Value="Parametric_TurnOn"
+                            HorizontalAlignment="Left" />
+                        <TextBlock
+                            x:Name="ParametricSaid"
+                            AutomationProperties.LiveSetting="Polite"
+                            TextWrapping="Wrap" />
                     </StackPanel>
 
                     <!--

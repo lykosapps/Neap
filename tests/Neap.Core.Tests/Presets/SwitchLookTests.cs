@@ -10,7 +10,8 @@ public class SwitchLookTests
     [InlineData(SwitchOutcome.AlreadyDone, true, SwitchSaying.WasAlreadyOn)]
     [InlineData(SwitchOutcome.AlreadyDone, false, SwitchSaying.WasAlreadyStock)]
     [InlineData(SwitchOutcome.CouldNotRead, true, SwitchSaying.CouldNotRead)]
-    [InlineData(SwitchOutcome.NeedsCable, false, SwitchSaying.NeedsCable)]
+    [InlineData(SwitchOutcome.NoHeadset, false, SwitchSaying.NoHeadset)]
+    [InlineData(SwitchOutcome.LowBattery, true, SwitchSaying.LowBattery)]
     [InlineData(SwitchOutcome.ReadOnly, true, SwitchSaying.ReadOnly)]
     public void EachResultHasItsOwnSaying(SwitchOutcome outcome, bool turningOn, SwitchSaying expected) =>
         Assert.Equal(expected, SwitchLook.Say(new SwitchResult(outcome), turningOn));

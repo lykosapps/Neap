@@ -116,12 +116,13 @@ first and say how sure each finding is.
   held back from releases (`FirmwareEdit.ParametricReleased` is off); see
   DECISIONS.md, 27 and 28 October. Each of the game bank's ten bands has a
   filter, frequency, width and gain, set live over the loudness boost's route,
-  after the headset's stock gain correction is cleared over the cable from
-  the Firmware page. Neap keeps its own presets, imports Equalizer APO and
+  after the headset's stock gain correction is cleared, which choosing
+  Parametric on the Equaliser page does, through the dock or the cable.
+  Neap keeps its own presets, imports Equalizer APO and
   AutoEq filters, lets a profile hold a shape, follows another app's gain
   changes, and turns parametric off when Swarm II resets the headset. All of
   it runs in practice runs only. Left: the headset checks (HEADSET-CHECKS.md),
-  the cable record write on Linux, and whether the Mode button's preset step
+  the record write on Linux, and whether the Mode button's preset step
   moves the bands (if it does, Neap must block it or follow it).
 - **Equaliser boosts with the loudness boost raised.** SP2Tools reads an
   active compressor after the equaliser (threshold −10 dB, ratio 100:1,

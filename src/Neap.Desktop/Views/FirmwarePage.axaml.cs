@@ -9,7 +9,6 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Neap.Core.Firmware;
-using Neap.Core.Presets;
 using Neap.Desktop.Controls;
 
 namespace Neap.Desktop.Views;
@@ -52,8 +51,6 @@ public partial class FirmwarePage : UserControl
         InitializeComponent();
         ApplyButton.Click += async (_, _) => await AskToApply(Wanted.ToHashSet(), restoringStock: false);
         StockButton.Click += async (_, _) => await AskToApply([], restoringStock: true);
-        TurnOnButton.Click += async (_, _) => await ChangeParametric(turningOn: true);
-        RestoreButton.Click += async (_, _) => await ChangeParametric(turningOn: false);
         FlashEdits.IsVisible = FirmwareEdit.Released || Pretend.Active;
         Intro.IsVisible = FirmwareEdit.Released || Pretend.Active;
         CancelButton.Click += (_, _) => _stopping?.Cancel();
@@ -70,11 +67,8 @@ public partial class FirmwarePage : UserControl
         base.OnLoaded(e);
         AppServices.Firmware.Changed += Paint;
         AppServices.Headset.Changed += Paint;
-        AppServices.Headset.Changed += PaintParametric;
         AppServices.Headset.StatusChanged += OnStatus;
-        AppServices.Parametric.Reset += PaintParametric;
         Paint();
-        PaintParametric();
         await AppServices.Firmware.ReadMark();
     }
 
@@ -83,76 +77,10 @@ public partial class FirmwarePage : UserControl
         base.OnUnloaded(e);
         AppServices.Firmware.Changed -= Paint;
         AppServices.Headset.Changed -= Paint;
-        AppServices.Headset.Changed -= PaintParametric;
         AppServices.Headset.StatusChanged -= OnStatus;
-        AppServices.Parametric.Reset -= PaintParametric;
     }
 
-    private void OnStatus(Core.Connection.HeadsetStatus status)
-    {
-        Paint();
-        PaintParametric();
-    }
-
-    /// <summary>Shows the parametric card for a headset that has it, and says whether it is on.</summary>
-    /// <remarks>A headset that is connected and does not have it, or is not one Neap knows, gets one plain line in its place. With none connected the card shows, as it is the one that could.</remarks>
-    private void PaintParametric()
-    {
-        bool has = AppServices.Headset.Model?.HasParametricBands ?? AppServices.Headset.Status.Link != Core.Connection.Link.Connected;
-        ParametricCard.IsVisible = has;
-        ParametricNotHere.IsVisible = !has;
-        var settings = AppSettings.Current;
-        ParametricState.Text = Strings.Get(settings.ParametricOn ? "Firmware_ParametricIsOn"
-            : settings.ParametricReset ? "Firmware_ParametricWasReset"
-            : "Firmware_ParametricIsOff");
-    }
-
-    /// <summary>Asks before changing the headset's stored equaliser, then does it and says how it went.</summary>
-    private async Task ChangeParametric(bool turningOn)
-    {
-        bool go = await new NeapDialog
-        {
-            Heading = Strings.Get(turningOn ? "Firmware_ParametricTurnOnTitle" : "Firmware_ParametricRestoreTitle"),
-            Body = new TextBlock
-            {
-                MaxWidth = 440,
-                Text = Strings.Get(turningOn ? "Firmware_ParametricTurnOnBody" : "Firmware_ParametricRestoreBody"),
-                TextWrapping = TextWrapping.Wrap,
-            },
-            PrimaryButtonText = Strings.Get(turningOn ? "Firmware_ParametricTurnOn" : "Firmware_ParametricRestore"),
-            CloseButtonText = Strings.Get("Dialog_Cancel"),
-        }.ShowAsync(this);
-        if (!go) return;
-
-        TurnOnButton.IsEnabled = false;
-        RestoreButton.IsEnabled = false;
-        ParametricSaid.Text = string.Empty;
-        try
-        {
-            var result = await (turningOn ? AppServices.ParametricOn.TurnOn() : AppServices.ParametricOn.Restore());
-            ParametricSaid.Text = Strings.Get(Saying(SwitchLook.Say(result, turningOn)));
-        }
-        finally
-        {
-            TurnOnButton.IsEnabled = true;
-            RestoreButton.IsEnabled = true;
-            PaintParametric();
-        }
-    }
-
-    /// <summary>The words for what a change came to.</summary>
-    private static string Saying(SwitchSaying saying) => saying switch
-    {
-        SwitchSaying.TurnedOn => "Firmware_SaidTurnedOn",
-        SwitchSaying.RestoredStock => "Firmware_SaidRestoredStock",
-        SwitchSaying.WasAlreadyOn => "Firmware_SaidWasAlreadyOn",
-        SwitchSaying.WasAlreadyStock => "Firmware_SaidWasAlreadyStock",
-        SwitchSaying.CouldNotRead => "Firmware_SaidCouldNotRead",
-        SwitchSaying.NeedsCable => "Firmware_SaidNeedsCable",
-        SwitchSaying.ReadOnly => "Firmware_SaidReadOnly",
-        SwitchSaying.NotChangedAndPutBack => "Firmware_SaidNotChangedAndPutBack",
-        _ => "Firmware_SaidNotChangedAndNotPutBack",
-    };
+    private void OnStatus(Core.Connection.HeadsetStatus status) => Paint();
 
     /// <summary>The edits ticked: as set by the person, or else what is on.</summary>
     private IReadOnlySet<FirmwareEdit> Wanted =>

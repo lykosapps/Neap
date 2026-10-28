@@ -10,8 +10,9 @@ namespace Neap.Services;
 /// <remarks>
 /// <para>
 /// The work is <see cref="GainCorrectionSwitch"/>'s. This runs it on the
-/// headset's own thread, only where the headset is reached over its cable and
-/// can be written to, keeps a copy of the record first, says each outcome in
+/// headset's own thread, over the cable or through the dock, only where the
+/// headset can be written to and its battery allows it, keeps a copy of the
+/// record first, says each outcome in
 /// the app log, and remembers in the app's settings that parametric is on, and
 /// which firmware the headset had when it was, so a later update can be told.
 /// </para>
@@ -44,11 +45,11 @@ public sealed class ParametricSetup
     private Task<SwitchResult> Run(string what, bool on, Func<GainCorrectionSwitch, SwitchResult> change)
     {
         // A job posted with no headset connected would wait for one, so it is answered here.
-        if (_headset.Status.Link is Link.Absent or Link.Connecting) return Task.FromResult(Said(what, new SwitchResult(SwitchOutcome.NeedsCable)));
+        if (_headset.Status.Link is Link.Absent or Link.Connecting) return Task.FromResult(Said(what, new SwitchResult(SwitchOutcome.NoHeadset)));
+        if (!GainCorrectionSwitch.BatteryAllows(_headset.Battery)) return Task.FromResult(Said(what, new SwitchResult(SwitchOutcome.LowBattery)));
 
         return _headset.Post(client =>
         {
-            if (!client.OnCable) return Said(what, new SwitchResult(SwitchOutcome.NeedsCable));
             if (_headset.ReadOnly) return Said(what, new SwitchResult(SwitchOutcome.ReadOnly));
 
             var result = change(new GainCorrectionSwitch(
