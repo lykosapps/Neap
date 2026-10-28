@@ -48,6 +48,11 @@ public class ProfileEditsTests
             With("Bass Boost", "Clarity") with { GameShape = gain is double g ? Shape(g) : null }));
 
     [Fact]
+    public void InParametricTheTenBandPresetIsNotAnEdit() =>
+        Assert.False(ProfileEdits.IsEdited(With("Bass Boost", "Clarity") with { GameShape = Shape(3) },
+            With("Vocal Boost", "Clarity") with { GameShape = Shape(3) }));
+
+    [Fact]
     public void AHeadsetWithNoParametricEqualiserKeepsTheProfilesShape()
     {
         var saved = With("Bass Boost", "Clarity") with { GameShape = Shape(3) };

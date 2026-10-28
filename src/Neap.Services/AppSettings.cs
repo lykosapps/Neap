@@ -203,6 +203,10 @@ public sealed class AppSettings
     [JsonPropertyName("parametric_shape")]
     public List<StoredBand> ParametricShape { get; set; } = new();
 
+    /// <summary>The ten bands' gain settings, in decibels, as the headset last reported them, so a change by another app can be told.</summary>
+    [JsonPropertyName("parametric_seen_gains")]
+    public List<double> ParametricSeenGains { get; set; } = new();
+
     /// <summary>The parametric shapes the person saved under names, in the order saved.</summary>
     [JsonPropertyName("parametric_presets")]
     public List<StoredParametricPreset> ParametricPresets { get; set; } = new();

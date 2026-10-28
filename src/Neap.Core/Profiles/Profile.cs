@@ -82,11 +82,14 @@ public static class ProfileEdits
     /// preset the profile never saved, because the equaliser had not been read
     /// when it was, is not something the person can have changed.
     /// </summary>
-    /// <remarks>The same goes for a mix the profile never saved.</remarks>
+    /// <remarks>
+    /// The same goes for a mix the profile never saved, and for the ten-band
+    /// preset while both are in the Parametric mode, where it is not what is heard.
+    /// </remarks>
     public static bool IsEdited(ProfileSettings saved, ProfileSettings live) =>
         saved with
         {
-            GamePreset = saved.GamePreset ?? live.GamePreset,
+            GamePreset = saved.GameShape is not null && live.GameShape is not null ? live.GamePreset : saved.GamePreset ?? live.GamePreset,
             MicPreset = saved.MicPreset ?? live.MicPreset,
             Mix = saved.Mix ?? live.Mix,
         } != live;

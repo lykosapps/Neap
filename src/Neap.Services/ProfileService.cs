@@ -204,21 +204,24 @@ public sealed class ProfileService : IDisposable
         var missing = ProfileCheck.Missing(s, game.Presets.Select(p => p.Name).ToList(),
             mic.Presets.Select(p => p.Name).ToList());
 
-        if (s.GamePreset is { } gp && game.Presets.FirstOrDefault(p => p.Name == gp) is { } gamePreset)
-            await AppServices.Presets.Select(Bank.Game, gamePreset);
-        if (s.MicPreset is { } mp && mic.Presets.FirstOrDefault(p => p.Name == mp) is { } micPreset)
-            await AppServices.Presets.Select(Bank.Mic, micPreset);
-
+        // A profile's parametric shape is what is heard, so its ten-band
+        // preset is not chosen: that would change the gains the Parametric
+        // mode follows from other apps. Without one, Parametric is left
+        // before the preset is chosen, for the same reason.
         var model = _headset.Model;
+        bool shapeHeard = model is { HasParametricBands: true } && s.GameShape is not null && AppSettings.Current.ParametricOn;
         if (model is { HasParametricBands: true })
         {
-            // The ten bands' preset is chosen first in either case, so leaving
-            // the Parametric mode plays its gains.
-            if (s.GameShape is { } shape && AppSettings.Current.ParametricOn) AppServices.Parametric.Use(shape);
+            if (shapeHeard) AppServices.Parametric.Use(s.GameShape!);
             else if (s.GameShape is not null) missing = [.. missing, Strings.Get("Profile_ParametricOff")];
             else if (ParametricService.Active)
                 AppServices.Parametric.UseBands(AppServices.Presets.LiveBands(Bank.Game) ?? new int[BandWrites.Bands]);
         }
+
+        if (!shapeHeard && s.GamePreset is { } gp && game.Presets.FirstOrDefault(p => p.Name == gp) is { } gamePreset)
+            await AppServices.Presets.Select(Bank.Game, gamePreset);
+        if (s.MicPreset is { } mp && mic.Presets.FirstOrDefault(p => p.Name == mp) is { } micPreset)
+            await AppServices.Presets.Select(Bank.Mic, micPreset);
 
         void Set(string name, int value)
         {

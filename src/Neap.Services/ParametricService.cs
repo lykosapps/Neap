@@ -8,12 +8,22 @@ namespace Neap.Services;
 /// asked for and no more often than the headset's DSP can take them.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Only the latest shape is ever waiting to be sent, as with the loudness
 /// boost: a point dragged across the curve asks for many shapes and the headset
 /// is given the last of them. What the headset holds is forgotten whenever it
 /// connects or goes, so the saved shape is sent whole again, when parametric is
 /// on. The shape is saved in the app's settings once it stops changing, so it
 /// is there to send again after an update from Swarm II puts the stock bands back.
+/// </para>
+/// <para>
+/// Another app, such as the phone app or Swarm II, changes only the ten bands'
+/// gain settings, which Neap's own parametric writes never touch. So a change
+/// to them while the Parametric mode is in use is another app's, and the shape
+/// takes the new gains (<see cref="GainFollow"/>). The gains last seen are kept
+/// in the settings, so a change made while Neap was closed is followed when the
+/// headset next connects.
+/// </para>
 /// </remarks>
 public sealed class ParametricService
 {
@@ -34,8 +44,12 @@ public sealed class ParametricService
     public static IReadOnlyList<ParametricBand> Saved =>
         StoredBand.Bands(AppSettings.Current.ParametricShape) ?? [.. StockBands.Game.Select(band => band with { InUse = false })];
 
-    /// <summary>Starts sending the saved shape each time the headset connects, while parametric is on.</summary>
-    public void Watch() => _headset.StatusChanged += OnStatus;
+    /// <summary>Starts sending the saved shape each time the headset connects, while parametric is on, and following another app's gains.</summary>
+    public void Watch()
+    {
+        _headset.StatusChanged += OnStatus;
+        _headset.Changed += OnValues;
+    }
 
     /// <summary>The mode or the saved shape changed, so a profile may now read as edited. Raised on the UI thread.</summary>
     public event Action? Changed;
@@ -83,8 +97,55 @@ public sealed class ParametricService
         }
         else if (AppSettings.Current.ParametricActive)
         {
-            Set(Saved);
+            Set(Followed(Saved));
         }
+    }
+
+    /// <summary>Takes another app's change to the gains into the shape, while the Parametric mode is in use.</summary>
+    private void OnValues()
+    {
+        if (!_wasConnected) return;
+        var mine = _wanted ?? Saved;
+        var bands = Followed(mine);
+        if (!ReferenceEquals(bands, mine)) Set(bands);
+    }
+
+    /// <summary>
+    /// The bands with any gain another app changed since Neap last looked, or
+    /// the same bands when none was. Keeps the gains seen either way, and saves
+    /// and announces a changed shape.
+    /// </summary>
+    /// <param name="mine">The ten bands Neap holds.</param>
+    private IReadOnlyList<ParametricBand> Followed(IReadOnlyList<ParametricBand> mine)
+    {
+        if (ReportedGains() is not { } reported) return mine;
+        var seen = AppSettings.Current.ParametricSeenGains;
+        if (seen.Count == reported.Length && seen.SequenceEqual(reported)) return mine;
+        AppSettings.Update(settings => settings.ParametricSeenGains = [.. reported]);
+
+        bool following = AppSettings.Current.ParametricOn && Active && _headset.Model is { HasParametricBands: true };
+        if (!following || seen.Count != reported.Length) return mine;
+        var result = GainFollow.Follow(mine, seen, reported);
+        if (!result.Changed) return mine;
+
+        AppLog.Write($"parametric: another app changed the gain of band {string.Join(", ", result.ChangedBands.Select(band => band + 1))}, and the shape follows it");
+        AppSettings.Update(settings => settings.ParametricShape = [.. result.Bands.Select(StoredBand.Of)]);
+        _ui.Post(() => ShapeChanged?.Invoke());
+        return result.Bands;
+    }
+
+    /// <summary>The ten bands' gain settings as the headset reports them, in decibels, or null before all are read.</summary>
+    private double[]? ReportedGains()
+    {
+        var keys = PresetStore.Game.Bands;
+        var gains = new double[keys.Count];
+        for (int i = 0; i < gains.Length; i++)
+        {
+            if (!_headset.TryGetNumberByKey(keys[i], out int tenths)) return null;
+            gains[i] = tenths / 10.0;
+        }
+
+        return gains;
     }
 
     /// <summary>Asks for the ten bands to be sent, replacing any shape still waiting.</summary>
@@ -132,6 +193,7 @@ public sealed class ParametricService
     public void Enter(IReadOnlyList<int> heard)
     {
         AppSettings.Update(settings => settings.ParametricActive = true);
+        if (ReportedGains() is { } reported) AppSettings.Update(settings => settings.ParametricSeenGains = [.. reported]);
         Set(StoredBand.Bands(AppSettings.Current.ParametricShape) ?? StockBands.FromGains(heard));
         Announce();
     }

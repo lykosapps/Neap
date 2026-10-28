@@ -17,7 +17,8 @@ public sealed record GainFollowResult(IReadOnlyList<ParametricBand> Bands, IRead
 /// Swarm II writes only gains, set for its own fixed bands. Neap cannot stop
 /// it while closed, so one rule holds either way: the last change wins, and
 /// what the headset reports is what Neap shows. A band that is off, or whose
-/// filter has no gain, is not heard to change, so it is left alone.
+/// filter has no gain, is not heard to change, so it is left alone, and so is
+/// a band already at the gain reported.
 /// </remarks>
 public static class GainFollow
 {
@@ -41,7 +42,9 @@ public static class GainFollow
         {
             if (Math.Abs(reported[band] - lastSeen[band]) <= Tolerance) continue;
             if (!bands[band].InUse || !bands[band].UsesGain) continue;
-            bands[band] = bands[band] with { Gain = Math.Clamp(reported[band], -ParametricBand.MostGain, ParametricBand.MostGain) };
+            double gain = Math.Clamp(reported[band], -ParametricBand.MostGain, ParametricBand.MostGain);
+            if (Math.Abs(gain - bands[band].Gain) <= Tolerance) continue;
+            bands[band] = bands[band] with { Gain = gain };
             changed.Add(band);
         }
 

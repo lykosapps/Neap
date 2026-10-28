@@ -85,6 +85,16 @@ public class GainFollowTests
     }
 
     [Fact]
+    public void ABandAlreadyAtTheReportedGainIsNotAChange()
+    {
+        var mine = Mine();
+        mine[4] = mine[4] with { Gain = 4 };
+        var reported = Gains();
+        reported[4] = 4;
+        Assert.False(GainFollow.Follow(mine, Gains(), reported).Changed);
+    }
+
+    [Fact]
     public void AnythingButTenOfEachIsRefused()
     {
         Assert.Throws<ArgumentException>(() => GainFollow.Follow(Mine()[..9], Gains(), Gains()));
