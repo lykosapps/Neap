@@ -190,8 +190,7 @@ public sealed class BandCurve : UserControl
 
     private void Label(string text, double x, double y, HorizontalAlignment alignment)
     {
-        var label = new TextBlock { Text = text, FontSize = 11, IsHitTestVisible = false, HorizontalAlignment = alignment };
-        Use(label, TextBlock.ForegroundProperty, "NeapTextSecondaryBrush");
+        var label = new TextBlock { Text = text, Classes = { "caption", "secondary" }, IsHitTestVisible = false, HorizontalAlignment = alignment };
         Canvas.SetLeft(label, x);
         Canvas.SetTop(label, y);
         _labels.Add(label);

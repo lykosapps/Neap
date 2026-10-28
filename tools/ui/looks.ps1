@@ -23,7 +23,8 @@ $out = Join-Path $root 'TestResults\ui'
 New-Item -ItemType Directory -Force -Path $out | Out-Null
 $fails = 0
 
-$pages = 'home', 'audio', 'equaliser', 'controls', 'profiles', 'device', 'settings'
+# "parametric" is the Equaliser page in its Parametric mode, turned on.
+$pages = 'home', 'audio', 'equaliser', 'parametric', 'controls', 'profiles', 'device', 'settings'
 $themes = @(
     @{ Part = 'D'; Name = 'dark'; Flags = @('--dark') }
     @{ Part = 'L'; Name = 'light'; Flags = @('--light') }
@@ -35,7 +36,8 @@ foreach ($theme in $themes | Where-Object { $Parts.Contains($_.Part) }) {
     foreach ($page in $pages) {
         $file = Join-Path $out "looks-$($theme.Name)-$page.png"
         Remove-Item $file -ErrorAction SilentlyContinue
-        $arguments = @('--pretend', '--behind', '--page', $page) + $theme.Flags + @('--wait', '15', '--snapshot', "`"$file`"")
+        $opens = if ($page -eq 'parametric') { @('--page', 'equaliser', '--parametric', '--wired') } else { @('--page', $page) }
+        $arguments = @('--pretend', '--behind') + $opens + $theme.Flags + @('--wait', '15', '--snapshot', "`"$file`"")
         $proc = Start-Process $exe -ArgumentList $arguments -PassThru
         if (-not $proc.WaitForExit(90000)) { Stop-Process -Id $proc.Id -Force; Write-Host "  FAIL  $page did not finish its picture"; $fails++; continue }
         if (Test-Path $file) { Write-Host "  ok    $page" } else { Write-Host "  FAIL  $page made no picture"; $fails++ }

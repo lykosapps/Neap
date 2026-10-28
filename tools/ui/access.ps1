@@ -19,8 +19,10 @@ text enlarged in Windows. Those need a person, and are listed in the report.
 
 .PARAMETER Parts
 Which pages to run, as a comma-separated list. All of them by default.
+"parametric" is the Equaliser page in its Parametric mode, which needs a
+launch of its own with Parametric turned on.
 #>
-param([string]$Parts = 'home,audio,equaliser,controls,profiles,device,settings')
+param([string]$Parts = 'home,audio,equaliser,controls,profiles,device,settings,parametric')
 
 . "$PSScriptRoot\Ui.ps1"
 
@@ -243,22 +245,30 @@ function Test-Page([string]$Page, [string]$Theme) {
     Check ($front -eq [IntPtr]::Zero -or $A::FromHandle($front).Current.ProcessId -ne $script:Proc.Id) 'the window stayed behind other windows'
 }
 
-$pages = @($Parts.Split(',') | ForEach-Object { $_.Trim() })
+$wanted = @($Parts.Split(',') | ForEach-Object { $_.Trim() })
+$launches = @(@{ Pages = @($wanted | Where-Object { $_ -ne 'parametric' }); Flags = @('--update') })
+if ($wanted -contains 'parametric') { $launches += @{ Pages = @('parametric'); Flags = @('--update', '--parametric', '--wired') } }
 foreach ($theme in 'dark', 'light') {
-    Start-NeapPretend -Theme $theme -Page $pages[0]
-    Connect-Pretend
-    try {
-        # The simulated update's banner arrives a moment after launch and moves
-        # everything below it, so no page is walked until it is there.
-        Wait-Until { Test-Present (Find-Named 'Update and restart') } 15 | Out-Null
-        foreach ($page in $pages) {
-            # Wide again after the last page's narrow window, so the rail is there to open the next.
-            Set-NeapSize 1536 1000 'Home' | Out-Null
-            if ($page -ne $pages[0]) { Open-PageBehind $page }
-            Test-Page $page $theme
+    foreach ($launch in $launches | Where-Object { $_.Pages.Count -gt 0 }) {
+        $pages = $launch.Pages
+        $first = if ($pages[0] -eq 'parametric') { 'equaliser' } else { $pages[0] }
+        Start-NeapPretend -Theme $theme -Page $first -Flags $launch.Flags
+        Connect-Pretend
+        try {
+            # The simulated update's banner arrives a moment after launch and moves
+            # everything below it, so no page is walked until it is there.
+            Wait-Until { Test-Present (Find-Named 'Update and restart') } 15 | Out-Null
+            foreach ($page in $pages) {
+                # Wide again after the last page's narrow window, so the rail is there to open the next.
+                Set-NeapSize 1536 1000 'Home' | Out-Null
+                if ($page -ne $pages[0]) { Open-PageBehind $page }
+                # The editor shows only once the headset's presets are read, a moment after the page opens.
+                if ($page -eq 'parametric' -and -not (Wait-Until { Test-Present (Find-Named 'Equaliser curve') } 30)) { Check $false 'the parametric editor opened' }
+                Test-Page $page $theme
+            }
         }
+        finally { $script:Pipe.Stream.Dispose(); Stop-NeapPretend }
     }
-    finally { $script:Pipe.Stream.Dispose(); Stop-NeapPretend }
 }
 Write-Host "$script:Fails failures"
 exit $script:Fails
