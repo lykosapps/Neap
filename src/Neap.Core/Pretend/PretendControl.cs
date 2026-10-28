@@ -186,6 +186,8 @@ public sealed class PretendControl : IDisposable
                 ("reads", 1) => new JsonObject(_headset.Reads.Select(r => KeyValuePair.Create(r.Key, (JsonNode?)r.Value))),
                 ("clear", 1) => Done(_headset.ClearRecord),
                 ("value", 2) => _headset.Value(Key(words[1])),
+                ("bands", 1) => new JsonArray(_headset.Bands
+                    .Select(b => (JsonNode)new JsonObject { ["type"] = b.Type.ToString(), ["hertz"] = b.Hertz, ["gain"] = b.Gain }).ToArray()),
                 ("report", 3) => Done(() => _headset.Report(Key(words[1]), words[2])),
                 ("on", 1) => Done(() => _headset.On = true),
                 ("off", 1) => Done(() => _headset.On = false),

@@ -33,7 +33,11 @@ public sealed class ParametricService
     private readonly HeadsetService _headset;
     private readonly IUiThread _ui = Platform.Current.Ui;
     private readonly BandSender _sender = new();
-    private volatile IReadOnlyList<ParametricBand>? _wanted;
+    /// <summary>Bands to send, and whether they are the person's shape, to be saved, rather than flat for Compare or the ten bands on leaving.</summary>
+    private sealed record Wanted(IReadOnlyList<ParametricBand> Bands, bool Shape);
+
+    private volatile Wanted? _wanted;
+    private volatile bool _comparing;
     private int _queued;
 
     private bool _wasConnected;
@@ -104,8 +108,8 @@ public sealed class ParametricService
     /// <summary>Takes another app's change to the gains into the shape, while the Parametric mode is in use.</summary>
     private void OnValues()
     {
-        if (!_wasConnected) return;
-        var mine = _wanted ?? Saved;
+        if (!_wasConnected || _comparing) return;
+        var mine = _wanted is { Shape: true } wanted ? wanted.Bands : Saved;
         var bands = Followed(mine);
         if (!ReferenceEquals(bands, mine)) Set(bands);
     }
@@ -152,7 +156,18 @@ public sealed class ParametricService
     /// <param name="bands">The ten bands.</param>
     public void Set(IReadOnlyList<ParametricBand> bands)
     {
-        _wanted = bands;
+        _wanted = new Wanted(bands, Shape: true);
+        Send();
+    }
+
+    /// <summary>Plays flat in place of the shape while Compare is held, or the shape again when it is let go.</summary>
+    /// <remarks>Flat is never saved as the shape, and gains another app changes are not followed while it plays.</remarks>
+    /// <param name="flat">Whether Compare is held.</param>
+    /// <param name="shape">The ten bands on screen, played again when Compare is let go.</param>
+    public void Compare(bool flat, IReadOnlyList<ParametricBand> shape)
+    {
+        _comparing = flat;
+        _wanted = flat ? new Wanted(StockBands.Flat, Shape: false) : new Wanted(shape, Shape: true);
         Send();
     }
 
@@ -165,10 +180,10 @@ public sealed class ParametricService
         {
             Interlocked.Exchange(ref _queued, 0);
             var latest = _wanted!;
-            _sender.Send(latest, client.SetBand, () => Thread.Sleep(Pace));
-            if (Volatile.Read(ref _queued) == 0)
+            _sender.Send(latest.Bands, client.SetBand, () => Thread.Sleep(Pace));
+            if (latest.Shape && Volatile.Read(ref _queued) == 0)
             {
-                AppSettings.Update(settings => settings.ParametricShape = [.. latest.Select(StoredBand.Of)]);
+                AppSettings.Update(settings => settings.ParametricShape = [.. latest.Bands.Select(StoredBand.Of)]);
                 Announce();
             }
 
@@ -208,7 +223,8 @@ public sealed class ParametricService
     public void Leave(IReadOnlyList<int> heard)
     {
         AppSettings.Update(settings => settings.ParametricActive = false);
-        _wanted = StockBands.WithGains(heard);
+        _comparing = false;
+        _wanted = new Wanted(StockBands.WithGains(heard), Shape: false);
         Send();
         Announce();
     }

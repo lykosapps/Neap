@@ -145,3 +145,9 @@ plugged in again; the headset's lights read as before throughout.
     the dock connected, choose Parametric, confirm, and shape a band; then
     press Turn off. Each says nothing is wrong, the sound follows, and Swarm
     II's presets play as before after Turn off.
+35. **Compare in Parametric:** with a shape you can hear, hold Compare. The
+    headset plays flat and the curve is drawn muted; let go and the shape
+    plays again. Hold it and switch to another window: the shape comes back.
+36. **Bands and back:** in Parametric with a shape, switch to Bands, then back
+    to Parametric. The sound matches the screen each time, with nothing of
+    the Bands preset under the shape.

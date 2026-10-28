@@ -36,7 +36,9 @@ public sealed class BandPanel : UserControl
     private readonly ToneStrip _tone = new();
     private readonly Button _undo = new();
     private readonly Button _redo = new();
-    private readonly ToggleButton _plain = new();
+    private readonly Button _compare = new() { Classes = { "quiet" } };
+    private bool _comparing;
+    private Window? _window;
     private readonly Button _shapes = new();
     private readonly Button _turnOff = new();
     private readonly Border _level = new() { IsVisible = false };
@@ -93,15 +95,35 @@ public sealed class BandPanel : UserControl
         AppServices.Headset.LoudnessChanged -= PaintLevel;
         AppServices.Parametric.ShapeChanged -= ShowSaved;
         _tone.Stop();
+        StopCompare();
     }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        _window = TopLevel.GetTopLevel(this) as Window;
+        if (_window is not null) _window.Deactivated += OnWindowDeactivated;
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        if (_window is not null) _window.Deactivated -= OnWindowDeactivated;
+        _window = null;
+        StopCompare();
+    }
+
+    private void OnWindowDeactivated(object? sender, EventArgs e) => StopCompare();
 
     private void ShowSaved() => Show(ParametricService.Saved);
 
-    // A tone left playing behind a hidden panel is a tone nobody can stop.
+    // A tone left playing, or Compare left holding flat, behind a hidden panel is one nobody can stop.
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == IsVisibleProperty && !IsVisible) _tone.Stop();
+        if (change.Property != IsVisibleProperty || IsVisible) return;
+        _tone.Stop();
+        StopCompare();
     }
 
     /// <summary>Draws a set of bands everywhere, without sending them.</summary>
@@ -119,7 +141,8 @@ public sealed class BandPanel : UserControl
     {
         _undo.Content = Strings.Get("Parametric_Undo");
         _redo.Content = Strings.Get("Parametric_Redo");
-        _plain.Content = Strings.Get("Parametric_HearPlain");
+        _compare.Content = Strings.Get("Parametric_Compare");
+        ToolTip.SetTip(_compare, Strings.Get("Parametric_CompareTip"));
         _shapes.Content = Strings.Get("Parametric_StartFrom");
         _turnOff.Content = Strings.Get("Parametric_TurnOff");
         _reset.Content = Strings.Get("Parametric_ResetBand");
@@ -134,7 +157,7 @@ public sealed class BandPanel : UserControl
         AutomationProperties.SetName(_inUse, Strings.Get("Parametric_InUse"));
 
         _shapes.Flyout = ShapesMenu();
-        var tools = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, Children = { _plain, _shapes, _undo, _redo, _turnOff } };
+        var tools = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, Children = { _compare, _shapes, _undo, _redo, _turnOff } };
 
         _level.Classes.Add("card");
         _level.Child = new StackPanel { Spacing = Space.S, Children = { _levelText, _levelLower } };
@@ -247,7 +270,7 @@ public sealed class BandPanel : UserControl
         {
             if (BandEditing.FirstFree(_bands) is >= 0 and var free) Change(free, ToneSweep.Bell(hertz, boost));
         };
-        _plain.IsCheckedChanged += (_, _) => { _curve.Muted = _plain.IsChecked == true; };
+        WireCompare();
         _undo.Click += (_, _) => Walk(_undoStack, _redoStack);
         _redo.Click += (_, _) => Walk(_redoStack, _undoStack);
         _levelLower.Click += (_, _) => LowerLevel();
@@ -270,6 +293,47 @@ public sealed class BandPanel : UserControl
         _frequencyBox.Stepped += (direction, large) => Change(_selected, BandEditing.Nudged(_bands[_selected], direction * (large ? 12 : 1), 0, fine: false));
         _gainBox.Stepped += (direction, large) => Change(_selected, BandEditing.Nudged(_bands[_selected], 0, direction * (large ? 6 : 1), fine: false));
         _widthBox.Stepped += (direction, large) => Change(_selected, BandEditing.Widened(_bands[_selected], -direction * (large ? 5 : 1), fine: false));
+    }
+
+    // -- compare -----------------------------------------------------------
+
+    /// <summary>Holds Compare while the button is pressed, by pointer or by Space or Enter, as the ten-band equaliser's Compare does.</summary>
+    private void WireCompare()
+    {
+        // The button handles its own presses, which is not a reason to miss one.
+        _compare.AddHandler(PointerPressedEvent, (_, e) =>
+        {
+            if (e.GetCurrentPoint(_compare).Properties.IsLeftButtonPressed) StartCompare();
+        }, RoutingStrategies.Tunnel, handledEventsToo: true);
+        _compare.AddHandler(PointerReleasedEvent, (_, _) => StopCompare(), RoutingStrategies.Bubble, handledEventsToo: true);
+        _compare.PointerCaptureLost += (_, _) => StopCompare();
+        _compare.AddHandler(KeyDownEvent, (_, e) =>
+        {
+            if (e.Key is Avalonia.Input.Key.Space or Avalonia.Input.Key.Enter) StartCompare();
+        }, RoutingStrategies.Bubble, handledEventsToo: true);
+        _compare.AddHandler(KeyUpEvent, (_, e) =>
+        {
+            if (e.Key is Avalonia.Input.Key.Space or Avalonia.Input.Key.Enter) StopCompare();
+        }, RoutingStrategies.Bubble, handledEventsToo: true);
+        _compare.LostFocus += (_, _) => StopCompare();
+    }
+
+    /// <summary>Plays flat on the headset and draws the curve muted, until let go.</summary>
+    private void StartCompare()
+    {
+        if (_comparing) return;
+        _comparing = true;
+        _curve.Muted = true;
+        AppServices.Parametric.Compare(flat: true, _bands);
+    }
+
+    /// <summary>Puts the shape back on the headset. Safe to call whenever.</summary>
+    private void StopCompare()
+    {
+        if (!_comparing) return;
+        _comparing = false;
+        _curve.Muted = false;
+        AppServices.Parametric.Compare(flat: false, _bands);
     }
 
     // -- changes -----------------------------------------------------------

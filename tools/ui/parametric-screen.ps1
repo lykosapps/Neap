@@ -60,7 +60,7 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Check ($null -ne (Find-Named 'Equaliser curve')) 'the curve is there, with a name'
             Check ($null -ne (Find-Named 'Band 1 frequency')) 'the chosen band has a frequency to set'
             Check ($null -ne (Find-Named 'Band 10 gain')) 'the table reaches the tenth band'
-            Check ($null -ne (Find-Named 'Hear without changes')) 'it offers to hear without the changes'
+            Check ($null -ne (Find-Named 'Compare')) 'it offers Compare, to hear it flat'
             Check ($null -ne (Find-Named 'Test tone')) 'the test tone is there, folded'
             Save-Shot "parametric-$theme" -Whole | ForEach-Object { $_.Dispose() }
         }

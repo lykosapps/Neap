@@ -2016,8 +2016,11 @@
   <data name="Parametric_Redo" xml:space="preserve">
     <value>Redo</value>
   </data>
-  <data name="Parametric_HearPlain" xml:space="preserve">
-    <value>Hear without changes</value>
+  <data name="Parametric_Compare" xml:space="preserve">
+    <value>Compare</value>
+  </data>
+  <data name="Parametric_CompareTip" xml:space="preserve">
+    <value>Hold to hear it flat</value>
   </data>
   <data name="Parametric_StartFrom" xml:space="preserve">
     <value>Start from</value>
