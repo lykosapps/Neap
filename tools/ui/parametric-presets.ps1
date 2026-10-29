@@ -16,19 +16,6 @@ param([string]$Parts = 'AB')
 
 . "$PSScriptRoot\Ui.ps1"
 
-# A dialog or a popup is a window of its own, listed inside the main one or
-# beside it, so one is searched before the main window's own controls.
-function Find-Anywhere([string]$Name, $Type = [System.Windows.Automation.ControlType]::Button) {
-    $both = New-Object System.Windows.Automation.AndCondition((New-Condition NameProperty $Name), (New-Condition ControlTypeProperty $Type))
-    $windows = @($A::RootElement.FindAll($Scope::Children, (New-Condition ProcessIdProperty ([int]$script:Proc.Id)))) +
-        @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Window))))
-    $others = $windows | Where-Object { [IntPtr]$_.Current.NativeWindowHandle -ne $script:Handle }
-    foreach ($window in @($others) + @($script:Window)) {
-        $found = $window.FindAll($Scope::Descendants, $both) | Where-Object { -not $_.Current.IsOffscreen } | Select-Object -First 1
-        if ($found) { return $found }
-    }
-}
-
 function Choose-Shape([string]$Shape) { Choose-Parametric $Shape }
 
 function Test-Picker([string]$Shows) { Wait-Until { $null -ne (Find-Named "Parametric preset: $Shows") } 4 }
@@ -50,7 +37,11 @@ if ($Parts.Contains('A')) {
         Set-NeapSize 1400 1500 'Equaliser'
         Check (Wait-Until { $null -ne (Find-Named 'Equaliser curve') } 20) 'the editor is there'
         Check (Test-Picker 'No preset') 'it starts with no preset'
-        Check (-not (Find-Named 'More preset actions').Current.IsEnabled) 'with nothing to rename or delete'
+        Open-Menu (Find-Named 'More preset actions')
+        Check (Wait-Until { $null -ne (Get-Popups | Where-Object { $_.Current.Name -eq 'Rename' }) } 4) 'More offers Rename'
+        Check (-not (Get-Popups | Where-Object { $_.Current.Name -eq 'Rename' } | Select-Object -First 1).Current.IsEnabled) 'with nothing to rename'
+        Check ((Get-Popups | Where-Object { $_.Current.Name -eq "Import preset$([char]0x2026)" } | Select-Object -First 1).Current.IsEnabled) 'and Import preset on'
+        Close-Menu (Find-Named 'More preset actions')
 
         Choose-Shape 'Add bass'
         Press (Find-Named 'Save as new')

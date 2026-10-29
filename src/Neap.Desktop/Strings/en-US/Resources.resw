@@ -2310,9 +2310,6 @@
   <data name="Profile_ParametricOff" xml:space="preserve">
     <value>the parametric shape, as Parametric is off</value>
   </data>
-  <data name="Curves_Button" xml:space="preserve">
-    <value>Curves</value>
-  </data>
   <data name="Curves_Measured" xml:space="preserve">
     <value>Show measured response</value>
   </data>
@@ -2333,9 +2330,6 @@
   </data>
   <data name="Curves_BuiltInTargetName" xml:space="preserve">
     <value>5128 DF + Tilt</value>
-  </data>
-  <data name="Curves_Remove" xml:space="preserve">
-    <value>Remove {0}</value>
   </data>
   <data name="Curves_AutoEq" xml:space="preserve">
     <value>Auto-EQ</value>
@@ -2381,5 +2375,23 @@
   </data>
   <data name="ParametricPreset_Import" xml:space="preserve">
     <value>Import preset…</value>
+  </data>
+  <data name="Curves_MeasuredList" xml:space="preserve">
+    <value>Measurements</value>
+  </data>
+  <data name="Curves_TargetList" xml:space="preserve">
+    <value>Targets</value>
+  </data>
+  <data name="Curves_HideMeasured" xml:space="preserve">
+    <value>Hide measured response</value>
+  </data>
+  <data name="Curves_HideTarget" xml:space="preserve">
+    <value>Hide target</value>
+  </data>
+  <data name="Curves_Hidden" xml:space="preserve">
+    <value>{0}, hidden</value>
+  </data>
+  <data name="Curves_None" xml:space="preserve">
+    <value>none</value>
   </data>
 </root>

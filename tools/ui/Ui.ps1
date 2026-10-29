@@ -383,10 +383,26 @@ function Test-Contrast($Bitmap, $Element, [string]$What, [double]$Needs = 4.5) {
     Check ($ratio -ge $Needs) ("{0}: contrast {1}:1 (needs {2}:1)" -f $What, $ratio, $Needs)
 }
 
-# The parametric equaliser's preset picker, whatever it names.
-function Find-ParametricPicker {
+# A button on the page whose name matches a pattern, such as a chooser's face, which names what it has chosen.
+function Find-ButtonLike([string]$Like) {
     @(Search { $script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Button))) }) |
-        Where-Object { $_.Current.Name -like 'Parametric preset:*' -and -not $_.Current.IsOffscreen } | Select-Object -First 1
+        Where-Object { $_.Current.Name -like $Like -and -not $_.Current.IsOffscreen } | Select-Object -First 1
+}
+
+# The parametric equaliser's preset picker, whatever it names.
+function Find-ParametricPicker { Find-ButtonLike 'Parametric preset:*' }
+
+# A dialog or a popup is a window of its own, listed inside the main one or
+# beside it, so one is searched before the main window's own controls.
+function Find-Anywhere([string]$Name, $Type = [System.Windows.Automation.ControlType]::Button) {
+    $both = New-Object System.Windows.Automation.AndCondition((New-Condition NameProperty $Name), (New-Condition ControlTypeProperty $Type))
+    $windows = @($A::RootElement.FindAll($Scope::Children, (New-Condition ProcessIdProperty ([int]$script:Proc.Id)))) +
+        @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Window))))
+    $others = $windows | Where-Object { [IntPtr]$_.Current.NativeWindowHandle -ne $script:Handle }
+    foreach ($window in @($others) + @($script:Window)) {
+        $found = $window.FindAll($Scope::Descendants, $both) | Where-Object { -not $_.Current.IsOffscreen } | Select-Object -First 1
+        if ($found) { return $found }
+    }
 }
 
 # A row of a list open over the window, which is a window of its own.

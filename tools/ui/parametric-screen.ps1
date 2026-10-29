@@ -12,7 +12,7 @@ Nothing here changes a real headset.
 
 .PARAMETER Parts
 Which parts to run: A dark, B light, C import filters in both themes, D Auto-EQ in
-dark, E the test tone open and the Curves menu's items, in both themes. All
+dark, E the test tone open and the curves' lists, in both themes. All
 by default.
 #>
 param([string]$Parts = 'ABCDE')
@@ -116,19 +116,17 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
 
         if ($Parts.Contains('D') -and $theme -eq 'dark') {
             Section 'Auto-EQ'
-            $texts = Get-Texts
-            Check (@($texts | Where-Object { $_ -like 'Measured: Stealth Pro II, ANC o*, B&K 5128' }).Count -eq 1) 'the key names the built-in measurement'
-            Check ($texts -contains 'Target: 5128 DF + Tilt') 'and the built-in target by its name'
-            Check ($null -ne (Find-Named 'Curves')) 'it offers Curves, to show, hide or load them'
-            Open-Menu (Find-Named 'Curves')
-            Start-Sleep -Milliseconds 400
-            Send-Pretend 'press Show target' | Out-Null
-            Check (Wait-Until { (Get-Texts) -notcontains 'Target: 5128 DF + Tilt' } 3) 'hiding the target takes it from the key'
+            Check ($null -ne (Find-ButtonLike 'Measured: Stealth Pro II, ANC o*, B&K 5128')) 'the key names the built-in measurement, and chooses it'
+            Check ($null -ne (Find-ButtonLike 'Target: 5128 DF + Tilt')) 'and the built-in target by its name'
+            Open-Menu (Find-ButtonLike 'Target: *')
+            Check (Wait-Until { $null -ne (Find-Anywhere 'Hide target') } 4) 'the target list offers Hide target'
+            Press (Find-Anywhere 'Hide target')
+            Check (Wait-Until { $null -ne (Find-ButtonLike 'Target: 5128 DF + Tilt, hidden') } 3) 'hiding the target says so on its line in the key'
             $autoEq = Find-Named 'Auto-EQ'
             Check ($autoEq -and $autoEq.Current.IsEnabled) 'Auto-EQ stays on with the target hidden'
             Press $autoEq
             Check (Wait-Until { $null -ne (Find-Named 'Band 4 gain') } 10) 'Auto-EQ sets bands'
-            Check ((Get-Texts) -contains 'Target: 5128 DF + Tilt') 'and shows the target it fitted to'
+            Check (Wait-Until { $null -eq (Find-ButtonLike 'Target: *, hidden') } 3) 'and shows the target it fitted to'
             Check ((Get-Texts) -contains 'With your changes') 'and the measurement with the bands added'
             $hertz = @(1..10 | Where-Object { Find-Named "Band $_ gain" } | ForEach-Object { Get-Hertz (Get-FrequencyShown $_) })
             Check ((($hertz | Sort-Object) -join ',') -eq ($hertz -join ',')) "in order of frequency: $($hertz -join ', ')"
@@ -147,13 +145,18 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Check (Wait-Until { $null -ne (Find-Named 'Test tone frequency') } 4) 'the test tone opens'
             Save-Shot "parametric-tone-$theme" -Whole | ForEach-Object { $_.Dispose() }
             Close-Menu $tone
-            $curves = Find-Named 'Curves'
-            Open-Menu $curves
-            Wait-Until { @(Get-Popups).Count -ge 6 } 4 | Out-Null
-            $items = @(Get-Popups | ForEach-Object { $_.Current.Name })
-            $wanted = 'Show measured response', 'Stealth Pro II, ANC o*, B&K 5128', "Load measurement$([char]0x2026)", 'Show target', '5128 DF + Tilt', "Load target$([char]0x2026)"
-            Check ($items.Count -eq $wanted.Count -and @(0..($wanted.Count - 1) | Where-Object { $items[$_] -notlike $wanted[$_] }).Count -eq 0) "the Curves menu lists, in order: $($items -join ', ')"
-            Close-Menu $curves
+            foreach ($curve in @(@('Measured', 'measurement', 'Hide measured response'), @('Target', 'target', 'Hide target'))) {
+                $face = Find-ButtonLike "$($curve[0]): *"
+                $builtIn = $face.Current.Name.Substring($curve[0].Length + 2)
+                Open-Menu $face
+                Check (Wait-Until { $null -ne (Find-ListRow $builtIn) } 4) "the $($curve[1]) list has the built-in one, $builtIn"
+                $row = Find-ListRow $builtIn
+                Check ($row -and $row.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) 'selected, as it is in use'
+                Check ($null -ne (Find-Anywhere "Load $($curve[1])$([char]0x2026)")) "with Load $($curve[1]) above the list"
+                Check ($null -ne (Find-Anywhere $curve[2])) "and $($curve[2])"
+                Close-Menu $face
+                Wait-Until { $null -eq (Find-ListRow $builtIn) } 3 | Out-Null
+            }
         }
     }
     finally { Stop-NeapPretend }

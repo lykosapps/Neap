@@ -110,6 +110,8 @@ public sealed class BandPanel : UserControl
             Header = Strings.Get("Audio_LoudnessBoost.Header"),
             Icon = (Avalonia.Media.Geometry)Application.Current!.FindResource("IconBoost")!,
         };
+        // On the equaliser's card, a row's own ground would vanish in light; the inset the test tone and dials sit on shows in every theme.
+        _preGain.Bind(BackgroundProperty, _preGain.GetResourceObservable("NeapInsetBrush"));
         Tools = new WrapPanel
         {
             HorizontalAlignment = HorizontalAlignment.Right,

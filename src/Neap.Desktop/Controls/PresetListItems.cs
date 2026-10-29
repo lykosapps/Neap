@@ -7,7 +7,7 @@ using Path = Avalonia.Controls.Shapes.Path;
 namespace Neap.Desktop.Controls;
 
 /// <summary>A row in a list of presets: the name, and the preset's curve beside it.</summary>
-/// <remarks>Shared by Home's preset choice and the parametric equaliser's, so a preset looks the same wherever it is chosen.</remarks>
+/// <remarks>The curve is shared by Home's preset choice and the parametric equaliser's, so a preset looks the same wherever it is chosen.</remarks>
 internal static class PresetListItems
 {
     private const double CurveWidth = 72, CurveHeight = 22;
@@ -24,13 +24,7 @@ internal static class PresetListItems
         row.Children.Add(new TextBlock { Text = name, VerticalAlignment = VerticalAlignment.Center });
         if (levels is not null)
         {
-            var curve = new Path
-            {
-                Width = CurveWidth,
-                Height = CurveHeight,
-                Data = CurveGeometry.Of(levels, CurveWidth, CurveHeight, floor, ceiling),
-                Classes = { "minicurve" },
-            };
+            var curve = Preview(levels, floor, ceiling);
             Grid.SetColumn(curve, 1);
             row.Children.Add(curve);
         }
@@ -48,5 +42,21 @@ internal static class PresetListItems
     {
         const int most = (int)(ParametricBand.MostGain * 10);
         return Of(name, tag, bands is null ? null : PresetPickerLook.Curve(bands, -most, most), -most, most);
+    }
+
+    /// <summary>A preset's small curve, in tenths of a decibel between a floor and a ceiling.</summary>
+    public static Path Preview(IReadOnlyList<int> levels, int floor, int ceiling) => new()
+    {
+        Width = CurveWidth,
+        Height = CurveHeight,
+        Data = CurveGeometry.Of(levels, CurveWidth, CurveHeight, floor, ceiling),
+        Classes = { "minicurve" },
+    };
+
+    /// <summary>Parametric bands' small curve, drawn across the parametric equaliser's full range, or null for no bands.</summary>
+    public static Path? Preview(IReadOnlyList<ParametricBand>? bands)
+    {
+        const int most = (int)(ParametricBand.MostGain * 10);
+        return bands is null ? null : Preview(PresetPickerLook.Curve(bands, -most, most), -most, most);
     }
 }

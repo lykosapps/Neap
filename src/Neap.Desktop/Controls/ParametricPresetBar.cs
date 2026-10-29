@@ -1,11 +1,8 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Threading;
-using Avalonia.VisualTree;
 using Neap.Core.Presets;
 
 namespace Neap.Desktop.Controls;
@@ -17,10 +14,11 @@ namespace Neap.Desktop.Controls;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A saved preset, a starting shape and an import each put a whole shape on
-/// the curve, so they are one list, built as Home's preset choice is, each
-/// row with its curve beside it. The face names the preset, with the same
-/// Edited tag the ten-band equaliser uses once the shape has moved.
+/// A saved preset and a starting shape each put a whole shape on the curve,
+/// so they are one <see cref="Chooser"/>, each row with its curve beside it.
+/// The face names the preset, with the same Edited tag the ten-band equaliser
+/// uses once the shape has moved; an edited preset is not shown selected, so
+/// choosing it again puts its shape back.
 /// </para>
 /// <para>
 /// The presets are Neap's own, kept in its settings rather than on the
@@ -32,26 +30,16 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public sealed class ParametricPresetBar : UserControl
 {
-    /// <summary>The width of a row's delete button, as on the ten-band equaliser's rows.</summary>
-    private const double RemoveWidth = 32;
-
     private readonly Func<IReadOnlyList<ParametricBand>> _bands;
     private readonly Action<IReadOnlyList<ParametricBand>> _replace;
 
-    private readonly Button _picker = new() { MinWidth = 240, HorizontalContentAlignment = HorizontalAlignment.Stretch };
-    private readonly TextBlock _name = new() { VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
-    private readonly Border _edited = new() { Classes = { "edited" }, IsVisible = false };
-    private readonly ListBox _list = new() { MinWidth = 280 };
-    private readonly Flyout _flyout;
+    private readonly Chooser _picker = new(Strings.Get("ParametricPreset_ListName")) { MinWidth = 240 };
+    private readonly Border _edited = new() { Classes = { "edited" } };
     private readonly Button _save = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Button _saveAsNew = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Button _more = new() { Classes = { "quiet", "iconbutton" } };
     private readonly MenuItem _rename = new();
     private readonly MenuItem _import = new();
-    private bool _painting;
-
-    /// <summary>The saved preset whose row is asking Delete or Cancel, or null.</summary>
-    private string? _confirming;
 
     /// <summary>The file an imported shape came from, shown and offered as its name until it is saved or replaced.</summary>
     private string? _source;
@@ -67,33 +55,12 @@ public sealed class ParametricPresetBar : UserControl
         _replace = replace;
 
         _edited.Child = new TextBlock { Text = Strings.Get("ParametricPreset_EditedTag") };
-        var chevron = new PathIcon { Data = (Geometry)Application.Current!.FindResource("IconChevronDown")!, Classes = { "choicearrow" } };
-        AutomationProperties.SetAccessibilityView(chevron, AccessibilityView.Raw);
-        Grid.SetColumn(_edited, 1);
-        Grid.SetColumn(chevron, 2);
-        _picker.Content = new Grid
+        _picker.Chosen += Chosen;
+        _picker.Deleted += deleted =>
         {
-            ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"),
-            ColumnSpacing = Space.S,
-            Children = { _name, _edited, chevron },
+            AppServices.Parametric.Delete(((ParametricPreset)deleted).Name);
+            Paint();
         };
-        AutomationProperties.SetName(_list, Strings.Get("ParametricPreset_ListName"));
-        _flyout = new Flyout { Placement = PlacementMode.BottomEdgeAlignedLeft, Content = _list };
-        _picker.Flyout = _flyout;
-        _list.SelectionChanged += (_, _) => Chosen();
-        _list.KeyDown += (_, e) =>
-        {
-            if (e.Key != Key.Delete || (e.Source as Control)?.FindAncestorOfType<ListBoxItem>(includeSelf: true) is not { Tag: ParametricPreset preset }) return;
-            e.Handled = true;
-            AskToDelete(preset.Name);
-        };
-        _flyout.Closed += (_, _) =>
-        {
-            if (_confirming is null) return;
-            _confirming = null;
-            FillList();
-        };
-
         _save.Content = Strings.Get("Dialog_Save");
         AutomationProperties.SetName(_save, Strings.Get("ParametricPreset_SaveName"));
         _saveAsNew.Content = Strings.Get("Equaliser_SaveAsNew");
@@ -141,52 +108,47 @@ public sealed class ParametricPresetBar : UserControl
     {
         var baseline = ParametricService.Baseline;
         var can = ParametricPresets.Actions(ParametricShape.Of(_bands()), baseline);
-        _name.Text = baseline is null && _source is not null ? Strings.Format("ParametricPreset_ImportedFrom", _source)
+        string name = baseline is null && _source is not null ? Strings.Format("ParametricPreset_ImportedFrom", _source)
             : baseline is null ? Strings.Get("ParametricPreset_None")
             : baseline.Name;
-        _edited.IsVisible = can.Edited;
-        AutomationProperties.SetName(_picker, Strings.Format("ParametricPreset_Picker",
-            can.Edited ? Strings.Format("ParametricPreset_Edited", baseline!.Name) : _name.Text));
+        _picker.Show(name,
+            Strings.Format("ParametricPreset_Picker", can.Edited ? Strings.Format("ParametricPreset_Edited", baseline!.Name) : name),
+            tag: can.Edited ? _edited : null);
         _save.IsEnabled = can.Save;
         _save.Classes.Set("accent", can.Save);
         _rename.IsEnabled = can.Rename;
-        FillList();
+        FillList(can.Edited ? null : baseline);
     }
 
-    /// <summary>Lists the saved presets, then the starting shapes.</summary>
-    private void FillList()
+    /// <summary>Lists the saved presets, the one in use selected, then the starting shapes.</summary>
+    /// <param name="inUse">The preset to show selected, or null.</param>
+    private void FillList(ParametricPreset? inUse)
     {
         var presets = ParametricService.Presets;
-        string listed = $"{_confirming}\n" + string.Join('\n', presets.Select(p => $"{p.Name}\t{p.Shape.GetHashCode()}"));
+        string listed = $"{inUse?.Name}\n" + string.Join('\n', presets.Select(p => $"{p.Name}\t{p.Shape.GetHashCode()}"));
         if (listed == _listed) return;
         _listed = listed;
 
-        _painting = true;
-        try
+        var items = new List<ChooserItem>();
+        foreach (var preset in presets)
         {
-            _list.Items.Clear();
-            foreach (var preset in presets) _list.Items.Add(preset.Name == _confirming ? Confirm(preset) : Removable(preset));
-            _list.Items.Add(new ListBoxItem
+            items.Add(new ChooserItem(preset.Name, preset)
             {
-                Content = new TextBlock { Text = Strings.Get("ParametricPreset_NewFrom"), Classes = { "label" } },
-                IsEnabled = false,
-                Focusable = false,
+                Preview = PresetListItems.Preview(StoredBand.Bands(preset.Shape.Bands)),
+                Chosen = preset.Name == inUse?.Name,
+                Deletable = true,
             });
-            foreach (var shape in Enum.GetValues<StartingShape>())
-                _list.Items.Add(PresetListItems.Of(Strings.Get(ShapeKey(shape)), shape, StartingShapes.Bands(shape)));
         }
-        finally { _painting = false; }
+
+        items.Add(ChooserItem.Heading(Strings.Get("ParametricPreset_NewFrom")));
+        foreach (var shape in Enum.GetValues<StartingShape>())
+            items.Add(new ChooserItem(Strings.Get(ShapeKey(shape)), shape) { Preview = PresetListItems.Preview(StartingShapes.Bands(shape)) });
+        _picker.List(items);
     }
 
-    /// <summary>Puts what was chosen from the list on the curve, and leaves the list with nothing chosen, so the same row can be chosen again.</summary>
-    private void Chosen()
+    /// <summary>Puts what was chosen from the list on the curve.</summary>
+    private void Chosen(object chosen)
     {
-        if (_painting || _list.SelectedItem is not ListBoxItem { Tag: { } chosen }) return;
-        _flyout.Hide();
-        _painting = true;
-        _list.SelectedItem = null;
-        _painting = false;
-
         switch (chosen)
         {
             case ParametricPreset preset:
@@ -198,69 +160,6 @@ public sealed class ParametricPresetBar : UserControl
                 break;
         }
     }
-
-    /// <summary>A saved preset's row, with the ten-band equaliser's delete button at its end, shown when the row is pointed at or focused.</summary>
-    private ListBoxItem Removable(ParametricPreset preset)
-    {
-        var item = PresetListItems.Of(preset.Name, preset, StoredBand.Bands(preset.Shape.Bands));
-        var remove = new Button
-        {
-            Content = new PathIcon { Width = 12, Height = 12, Data = (Geometry)Application.Current!.FindResource("IconClose")! },
-            Classes = { "remove" },
-            Width = RemoveWidth,
-        };
-        string name = Strings.Format("Equaliser_DeleteNamed", preset.Name);
-        AutomationProperties.SetName(remove, name);
-        ToolTip.SetTip(remove, name);
-        remove.Click += (_, _) => AskToDelete(preset.Name);
-        Grid.SetColumn(remove, 1);
-        var row = (Control)item.Content!;
-        item.Content = null;
-        item.Content = new Grid
-        {
-            ColumnDefinitions = new ColumnDefinitions("*,Auto"),
-            ColumnSpacing = Space.XS,
-            Classes = { "slot" },
-            Children = { row, remove },
-        };
-        return item;
-    }
-
-    /// <summary>The row of a preset about to be deleted: Delete and Cancel in its place, with no dialog, as the ten-band equaliser asks.</summary>
-    private ListBoxItem Confirm(ParametricPreset preset)
-    {
-        var delete = new Button { Content = Strings.Get("Equaliser_Delete") };
-        var cancel = new Button { Content = Strings.Get("Dialog_Cancel") };
-        // The keyboard lands on the safe choice, not the destructive one.
-        cancel.AttachedToVisualTree += (_, _) => Dispatcher.UIThread.Post(() => cancel.Focus());
-        AutomationProperties.SetName(delete, Strings.Format("Equaliser_DeleteNamed", preset.Name));
-        AutomationProperties.SetName(cancel, Strings.Format("Equaliser_KeepNamed", preset.Name));
-        delete.Click += (_, _) =>
-        {
-            _confirming = null;
-            AppServices.Parametric.Delete(preset.Name);
-            Paint();
-        };
-        cancel.Click += (_, _) =>
-        {
-            _confirming = null;
-            FillList();
-        };
-        return new ListBoxItem
-        {
-            Content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, Children = { delete, cancel } },
-            Classes = { "preset" },
-            Focusable = false,
-        };
-    }
-
-    /// <summary>Turns a saved preset's row into Delete and Cancel.</summary>
-    /// <remarks>Posted, so the button pressed is not taken out of the list while its press is still being handled.</remarks>
-    private void AskToDelete(string name) => Dispatcher.UIThread.Post(() =>
-    {
-        _confirming = name;
-        FillList();
-    });
 
     private void Choose(ParametricPreset preset)
     {

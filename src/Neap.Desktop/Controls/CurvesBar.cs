@@ -12,9 +12,9 @@ using Neap.Core.Settings;
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// What the parametric curve is drawn against: a measured response and a
-/// target, each chosen from the built-in one and the files loaded, and each
-/// shown or hidden, with a key to the lines and the way to Auto-EQ.
+/// The key to the parametric curve's lines, where the measured response and
+/// the target are each chosen, loaded, shown or hidden, beside the way to
+/// Auto-EQ.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -25,7 +25,10 @@ namespace Neap.Desktop.Controls;
 /// beside the built-in ones and read again when chosen.
 /// </para>
 /// <para>
-/// Hiding a curve keeps the choice, and Auto-EQ uses the chosen curves whether
+/// The measurement and the target are each a <see cref="Chooser"/> named by
+/// its line in the key, so the key, the choice and showing or hiding are one
+/// control per curve. Hiding a curve keeps the choice, and Auto-EQ uses the
+/// chosen curves whether
 /// or not they are shown, so it is offered whenever there is a measurement.
 /// Every curve is lined up at 1 kHz, as the measurement sites do, so the gap
 /// between measurement and target is what the bands would have to change.
@@ -35,24 +38,30 @@ public sealed class CurvesBar : UserControl
 {
     private const long MostBytes = 1_000_000;
 
-    private readonly DropDownButton _curves = new();
-    private readonly MenuFlyout _menu = new();
+    private readonly Chooser _measured = new(Strings.Get("Curves_MeasuredList"));
+    private readonly Chooser _target = new(Strings.Get("Curves_TargetList"));
+    private readonly Line _measuredSwatch = Swatch(new Line { StrokeThickness = 1.5, StrokeDashArray = [1, 2.5] }, "NeapTextTertiaryBrush");
+    private readonly Line _targetSwatch = Swatch(new Line { StrokeThickness = 1.5, StrokeDashArray = [5, 4] }, "NeapTextSecondaryBrush");
+    private readonly Button _loadMeasured = new() { Content = Strings.Get("Curves_LoadMeasured") };
+    private readonly Button _loadTarget = new() { Content = Strings.Get("Curves_LoadTarget") };
+    private readonly Button _showMeasured = new();
+    private readonly Button _showTarget = new();
     private readonly Button _autoEq = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
-    private readonly StackPanel _keyMeasured;
     private readonly StackPanel _keyHeard;
-    private readonly StackPanel _keyTarget;
-    private readonly TextBlock _keyTargetText = new() { VerticalAlignment = VerticalAlignment.Center, Classes = { "caption", "secondary" } };
-    private readonly TextBlock _keyMeasuredText = new() { VerticalAlignment = VerticalAlignment.Center, Classes = { "caption", "secondary" } };
 
     /// <summary>What each chosen curve was made from, so it is read and lined up again only when that changes.</summary>
     private object? _measuredFrom, _targetFrom;
 
     private bool _withChanges;
 
+    /// <summary>How faint a hidden curve's line is in the key.</summary>
+    private const double HiddenOpacity = 0.35;
+
+    /// <summary>The tag of the built-in curve's row, which has no file.</summary>
+    private static readonly object BuiltInTag = new();
+
     public CurvesBar()
     {
-        _curves.Content = Strings.Get("Curves_Button");
-        _curves.Flyout = _menu;
         _autoEq.Content = Strings.Get("Curves_AutoEq");
         _autoEq.Click += (_, _) =>
         {
@@ -61,14 +70,32 @@ public sealed class CurvesBar : UserControl
             Change(settings => (settings.ParametricShowMeasured, settings.ParametricShowTarget) = (true, true));
         };
 
-        _keyMeasured = Key(new Line { StrokeThickness = 1.5, StrokeDashArray = [1, 2.5] }, "NeapTextTertiaryBrush", _keyMeasuredText);
-        _keyHeard = Key(new Line { StrokeThickness = 2 }, "NeapTextBrush", new TextBlock { Text = Strings.Get("Curves_KeyHeard"), VerticalAlignment = VerticalAlignment.Center, Classes = { "caption", "secondary" } });
-        _keyTarget = Key(new Line { StrokeThickness = 1.5, StrokeDashArray = [5, 4] }, "NeapTextSecondaryBrush", _keyTargetText);
+        foreach (bool measurement in new[] { true, false })
+        {
+            var chooser = measurement ? _measured : _target;
+            chooser.Actions(measurement ? _loadMeasured : _loadTarget, measurement ? _showMeasured : _showTarget);
+            chooser.Chosen += chosen => Choose(measurement, chosen as AppSettings.StoredCurve);
+            chooser.Deleted += deleted => Change(settings =>
+            {
+                string name = ((AppSettings.StoredCurve)deleted).Name;
+                Files(settings, measurement).RemoveAll(f => Same(f.Name, name));
+                if (ChosenFile(settings, measurement) is null) SetChosen(settings, measurement, null);
+            });
+        }
 
-        var key = new WrapPanel { ItemSpacing = Space.L, LineSpacing = Space.XS, VerticalAlignment = VerticalAlignment.Center, Children = { _keyMeasured, _keyHeard, _keyTarget } };
-        var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, Children = { _curves, _autoEq } };
-        Grid.SetColumn(actions, 1);
-        Content = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M, Children = { key, actions } };
+        _loadMeasured.Click += async (_, _) => await Load(measurement: true);
+        _loadTarget.Click += async (_, _) => await Load(measurement: false);
+        _showMeasured.Click += (_, _) => Change(settings => settings.ParametricShowMeasured = !settings.ParametricShowMeasured);
+        _showTarget.Click += (_, _) => Change(settings => settings.ParametricShowTarget = !settings.ParametricShowTarget);
+
+        var heard = Swatch(new Line { StrokeThickness = 2 }, "NeapTextBrush");
+        var heardText = new TextBlock { Text = Strings.Get("Curves_KeyHeard"), VerticalAlignment = VerticalAlignment.Center, Classes = { "caption", "secondary" } };
+        _keyHeard = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, VerticalAlignment = VerticalAlignment.Center, Children = { heard, heardText } };
+
+        var key = new WrapPanel { ItemSpacing = Space.M, LineSpacing = Space.XS, VerticalAlignment = VerticalAlignment.Center, Children = { _measured, _keyHeard, _target } };
+        Grid.SetColumn(_autoEq, 1);
+        _autoEq.VerticalAlignment = VerticalAlignment.Top;
+        Content = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M, Children = { key, _autoEq } };
     }
 
     /// <summary>What is shown changed: a curve shown, hidden or chosen, or the noise cancellation that picks the built-in measurement.</summary>
@@ -117,7 +144,7 @@ public sealed class CurvesBar : UserControl
 
     private void OnStatus(HeadsetStatus status) => Paint();
 
-    /// <summary>Reads the chosen curves when they changed, names them in the key and the menu, and says so.</summary>
+    /// <summary>Reads the chosen curves when they changed, names them in the key and its lists, and says so.</summary>
     public void Paint()
     {
         var settings = AppSettings.Current;
@@ -136,74 +163,39 @@ public sealed class CurvesBar : UserControl
         }
 
         _autoEq.IsVisible = ChosenMeasured is not null;
-        _keyMeasured.IsVisible = Measured is not null;
         _keyHeard.IsVisible = _withChanges;
-        _keyTarget.IsVisible = Target is not null;
-        _keyMeasuredText.Text = Strings.Format("Curves_KeyMeasuredNamed", ChosenName(settings, measurement: true));
-        _keyTargetText.Text = Strings.Format("Curves_KeyTarget", ChosenName(settings, measurement: false));
-        FillMenu();
+        PaintChooser(settings, measurement: true);
+        PaintChooser(settings, measurement: false);
         Changed?.Invoke();
     }
 
-    /// <summary>Lists, for the measurement and then the target: Show, each curve to choose from, Load, and Remove for a chosen file.</summary>
-    /// <remarks>Filled whenever the choices change, not as the menu opens, so a screen reader finds the items in the menu it opens.</remarks>
-    private void FillMenu()
+    /// <summary>Names a curve's chooser by its line and the chosen curve, dimmed when hidden, and lists the built-in one and the files to choose from.</summary>
+    private void PaintChooser(AppSettings settings, bool measurement)
     {
-        _menu.Items.Clear();
-        Section(measurement: true);
-        _menu.Items.Add(new Separator());
-        Section(measurement: false);
-    }
+        var chooser = measurement ? _measured : _target;
+        bool shown = measurement ? settings.ParametricShowMeasured : settings.ParametricShowTarget;
+        bool has = (measurement ? ChosenMeasured : ChosenTarget) is not null;
+        string text = Strings.Format(measurement ? "Curves_KeyMeasuredNamed" : "Curves_KeyTarget",
+            has ? ChosenName(settings, measurement) : Strings.Get("Curves_None"));
+        var swatch = measurement ? _measuredSwatch : _targetSwatch;
+        swatch.Opacity = shown && has ? 1 : HiddenOpacity;
+        chooser.Show(text, shown || !has ? text : Strings.Format("Curves_Hidden", text), lead: swatch);
 
-    private void Section(bool measurement)
-    {
-        var settings = AppSettings.Current;
-        var files = Files(settings, measurement);
+        var show = measurement ? _showMeasured : _showTarget;
+        show.Content = Strings.Get(measurement ? (shown ? "Curves_HideMeasured" : "Curves_Measured") : (shown ? "Curves_HideTarget" : "Curves_Target"));
+        show.IsEnabled = has;
+
         var chosen = ChosenFile(settings, measurement);
-        string group = measurement ? "measurement" : "target";
-
-        var show = new MenuItem
-        {
-            Header = Strings.Get(measurement ? "Curves_Measured" : "Curves_Target"),
-            ToggleType = MenuItemToggleType.CheckBox,
-            IsChecked = measurement ? settings.ParametricShowMeasured : settings.ParametricShowTarget,
-            IsEnabled = (measurement ? ChosenMeasured : ChosenTarget) is not null,
-        };
-        show.Click += (_, _) => Change(s =>
-        {
-            if (measurement) s.ParametricShowMeasured = !s.ParametricShowMeasured;
-            else s.ParametricShowTarget = !s.ParametricShowTarget;
-        });
-        _menu.Items.Add(show);
-
-        if (BuiltIn(measurement) is not null) _menu.Items.Add(Choice(BuiltInName(measurement), group, chosen is null, () => Choose(measurement, null)));
-        foreach (var file in files) _menu.Items.Add(Choice(file.Name, group, file == chosen, () => Choose(measurement, file.Name)));
-
-        var load = new MenuItem { Header = Strings.Get(measurement ? "Curves_LoadMeasured" : "Curves_LoadTarget") };
-        load.Click += async (_, _) => await Load(measurement);
-        _menu.Items.Add(load);
-
-        if (chosen is null) return;
-        var remove = new MenuItem { Header = Strings.Format("Curves_Remove", chosen.Name) };
-        remove.Click += (_, _) => Change(s =>
-        {
-            Files(s, measurement).RemoveAll(f => Same(f.Name, chosen.Name));
-            SetChosen(s, measurement, null);
-        });
-        _menu.Items.Add(remove);
-    }
-
-    private static MenuItem Choice(string name, string group, bool chosen, Action choose)
-    {
-        var item = new MenuItem { Header = name, ToggleType = MenuItemToggleType.Radio, GroupName = group, IsChecked = chosen };
-        item.Click += (_, _) => choose();
-        return item;
+        var items = new List<ChooserItem>();
+        if (BuiltIn(measurement) is not null) items.Add(new ChooserItem(BuiltInName(measurement), BuiltInTag) { Chosen = chosen is null });
+        foreach (var file in Files(settings, measurement)) items.Add(new ChooserItem(file.Name, file) { Chosen = file == chosen, Deletable = true });
+        chooser.List(items);
     }
 
     /// <summary>Chooses a loaded curve, or the built-in one with null, and shows it.</summary>
-    private void Choose(bool measurement, string? name) => Change(s =>
+    private void Choose(bool measurement, AppSettings.StoredCurve? file) => Change(s =>
     {
-        SetChosen(s, measurement, name);
+        SetChosen(s, measurement, file?.Name);
         if (measurement) s.ParametricShowMeasured = true;
         else s.ParametricShowTarget = true;
     });
@@ -308,7 +300,7 @@ public sealed class CurvesBar : UserControl
             files.RemoveAll(f => Same(f.Name, name));
             files.Add(new AppSettings.StoredCurve { Name = name, Text = text });
         });
-        Choose(measurement, name);
+        Choose(measurement, Files(AppSettings.Current, measurement).First(f => Same(f.Name, name)));
         AppLog.Write($"parametric: loaded {(measurement ? "a measurement" : "a target")}, {name}, of {read.Curve.Points.Count} points");
     }
 
@@ -318,14 +310,16 @@ public sealed class CurvesBar : UserControl
         await ProfileDialogs.Complain(this, title, Strings.Format("Curves_NotLoaded", name, why));
     }
 
-    /// <summary>One entry in the key: a short line in a curve's colour and dashes, and its name.</summary>
-    private static StackPanel Key(Line swatch, string brush, TextBlock name)
+    /// <summary>A short line in a curve's colour and dashes, as the curve is drawn, for its entry in the key.</summary>
+    private static Line Swatch(Line swatch, string brush)
     {
-        swatch.StartPoint = new Point(0, 0);
-        swatch.EndPoint = new Point(20, 0);
+        // A height of its own, as a flat line has none and would be given no room inside a button.
+        (swatch.Width, swatch.Height) = (20, 8);
+        swatch.StartPoint = new Point(0, 4);
+        swatch.EndPoint = new Point(20, 4);
         swatch.VerticalAlignment = VerticalAlignment.Center;
         swatch.Bind(Shape.StrokeProperty, swatch.GetResourceObservable(brush));
         AutomationProperties.SetAccessibilityView(swatch, AccessibilityView.Raw);
-        return new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, Children = { swatch, name } };
+        return swatch;
     }
 }
