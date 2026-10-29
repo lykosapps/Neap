@@ -146,7 +146,14 @@ internal sealed class ChoiceList
     private Control Row(Choice choice)
     {
         if (choice.Tag is null) return new TextBlock { Text = choice.Name, Classes = { "label" } };
-        var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"), ColumnSpacing = Space.S, Classes = { "slot" } };
+        // Every row keeps the delete button's room when any row has one, so the previews line up down the list.
+        var room = _choices.Any(c => c.Deletable) ? new GridLength(DeleteWidth) : GridLength.Auto;
+        var row = new Grid
+        {
+            ColumnDefinitions = { new(GridLength.Star), new(GridLength.Auto), new(room) },
+            ColumnSpacing = Space.S,
+            Classes = { "slot" },
+        };
         row.Children.Add(new TextBlock { Text = choice.Name, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis });
         if (choice.Preview?.Invoke() is { } preview)
         {

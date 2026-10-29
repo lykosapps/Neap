@@ -19,7 +19,7 @@ param([string]$Parts = 'ABC')
 . "$PSScriptRoot\Ui.ps1"
 
 $row = 'Pre-gain'
-$caution = 'Turn it up slowly to protect your hearing.'
+$about = 'The level the headset applies before its equaliser.'
 
 function Find-SliderNamed([string]$Name) {
     @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Slider)))) |
@@ -35,9 +35,9 @@ if ($Parts.Contains('A')) {
         $control = Find-Named $row
         Check ($null -ne $control) "the '$row' control is on the Audio page"
         Check ((Get-Texts) -contains '+0 dB') 'the slider starts at +0 dB'
-        Check ((Get-Texts) -contains $caution) 'the hearing caution shows with it'
+        Check ((Find-SliderNamed $row).Current.HelpText -like "$about *") 'its slider says what the pre-gain is, for a screen reader'
         $slider = Find-SliderNamed $row
-        Check ($slider -and $slider.Current.HelpText -eq 'Headset level: -12 dB') 'the headset level reads -12 dB, apart from the slider'
+        Check ($slider -and $slider.Current.HelpText -like '*Headset level: -12 dB') 'the headset level reads -12 dB, apart from the slider'
 
         $rv = $null
         if ($slider -and $slider.TryGetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern, [ref]$rv)) {
@@ -46,7 +46,7 @@ if ($Parts.Contains('A')) {
             $rv.SetValue(18)
         }
         Check (Wait-Until { (Get-Texts) -contains '+18 dB' } 5) 'at the top the slider reads +18 dB'
-        Check (Wait-Until { $slider.Current.HelpText -eq 'Headset level: +6 dB' } 5) 'and the headset level reads +6 dB'
+        Check (Wait-Until { $slider.Current.HelpText -like '*Headset level: +6 dB' } 5) 'and the headset level reads +6 dB'
 
         # A quick sweep up from the bottom, as a drag does, then a pause: the
         # slider stays where it was left rather than bouncing back to a step it passed.
@@ -54,13 +54,13 @@ if ($Parts.Contains('A')) {
             foreach ($step in 0, 3, 6, 9, 12, 15, 18) { $rv.SetValue($step); Start-Sleep -Milliseconds 40 }
             Start-Sleep -Seconds 3
             Check ($rv.Current.Value -eq 18) "after a quick sweep the slider stays at +18 dB (it is at +$($rv.Current.Value))"
-            Check ($slider.Current.HelpText -eq 'Headset level: +6 dB') 'and the headset level settles at +6 dB'
+            Check ($slider.Current.HelpText -like '*Headset level: +6 dB') 'and the headset level settles at +6 dB'
         }
         if ($rv) { $rv.SetValue(-12) }
         Check (Wait-Until { (Get-Texts) -contains '-12 dB' } 5) 'at the bottom the slider reads -12 dB'
-        Check (Wait-Until { $slider.Current.HelpText -eq 'Headset level: -24 dB' } 5) 'and the headset level reads -24 dB'
+        Check (Wait-Until { $slider.Current.HelpText -like '*Headset level: -24 dB' } 5) 'and the headset level reads -24 dB'
         if ($rv) { $rv.SetValue(0) }
-        Check (Wait-Until { $slider.Current.HelpText -eq 'Headset level: -12 dB' } 5) 'back at +0 the headset level reads -12 dB again'
+        Check (Wait-Until { $slider.Current.HelpText -like '*Headset level: -12 dB' } 5) 'back at +0 the headset level reads -12 dB again'
 
         Save-Shot 'loudness-stealth' -Whole | ForEach-Object { $_.Dispose() }
     }
@@ -77,7 +77,7 @@ if ($Parts.Contains('B')) {
         Check ($null -ne (Find-Named 'Master volume')) 'the Audio page is up for the Atlas Air'
         Check (-not ((Get-Texts) -contains $row)) "there is no '$row' row"
         Check ($null -eq (Find-SliderNamed $row)) 'no slider'
-        Check ($null -eq (Find-Named $caution)) 'and no hearing caution'
+        Check ($null -eq (Find-SliderNamed $row)) 'and no pre-gain row'
         Save-Shot 'loudness-atlas' -Whole | ForEach-Object { $_.Dispose() }
     }
     finally { Stop-NeapPretend }
@@ -102,7 +102,7 @@ if ($Parts.Contains('C')) {
         $slider = Find-SliderNamed $row
         $rv = $null
         if ($slider -and $slider.TryGetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern, [ref]$rv)) { $rv.SetValue(6) }
-        Check ($null -ne $rv -and (Wait-Until { $slider.Current.HelpText -eq 'Headset level: -6 dB' } 5)) 'the boost is changed to +6 dB, and the headset follows'
+        Check ($null -ne $rv -and (Wait-Until { $slider.Current.HelpText -like '*Headset level: -6 dB' } 5)) 'the boost is changed to +6 dB, and the headset follows'
 
         Send-Pretend 'page settings' | Out-Null
         Wait-Until { $null -ne (Find-Named 'Stop and save') } 10 | Out-Null

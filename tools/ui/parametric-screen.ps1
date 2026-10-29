@@ -123,10 +123,13 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Press (Find-ListRow 'None')
             Check (Wait-Until { (Get-BoxChoice (Find-Box 'Target')) -eq 'None' } 3) 'choosing None says so on its line in the key'
             $autoEq = Find-Named 'Auto-EQ'
-            Check ($autoEq -and $autoEq.Current.IsEnabled) 'Auto-EQ stays on with the target hidden'
-            Press $autoEq
+            Check ($autoEq -and -not $autoEq.Current.IsEnabled) 'Auto-EQ is off with the target hidden'
+            Open-Menu (Find-Box 'Target')
+            Wait-Until { $null -ne (Find-ListRow '5128 DF + Tilt') } 4 | Out-Null
+            Press (Find-ListRow '5128 DF + Tilt')
+            Check (Wait-Until { (Find-Named 'Auto-EQ').Current.IsEnabled } 3) 'and on again with both shown'
+            Press (Find-Named 'Auto-EQ')
             Check (Wait-Until { $null -ne (Find-Named 'Band 4 gain') } 10) 'Auto-EQ sets bands'
-            Check (Wait-Until { (Get-BoxChoice (Find-Box 'Target')) -eq '5128 DF + Tilt' } 3) 'and shows the target it fitted to'
             Check ((Get-Texts) -contains 'With your changes') 'and the measurement with the bands added'
             $hertz = @(1..10 | Where-Object { Find-Named "Band $_ gain" } | ForEach-Object { Get-Hertz (Get-FrequencyShown $_) })
             Check ((($hertz | Sort-Object) -join ',') -eq ($hertz -join ',')) "in order of frequency: $($hertz -join ', ')"
@@ -149,6 +152,8 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
                 $face = Find-Box $curve[0]
                 $builtIn = Get-BoxChoice $face
                 Open-Menu $face
+                Start-Sleep -Milliseconds 400
+                Save-ListShot "parametric-list-$($curve[1])-$theme"
                 Check (Wait-Until { $null -ne (Find-ListRow $builtIn) } 4) "the $($curve[1]) list has the built-in one, $builtIn"
                 $row = Find-ListRow $builtIn
                 Check ($row -and $row.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) 'selected, as it is in use'

@@ -395,6 +395,13 @@ function Get-BoxChoice($Box) {
     @($Box.GetCurrentPattern([System.Windows.Automation.SelectionPattern]::Pattern).Current.GetSelection()) | ForEach-Object { $_.Current.Name } | Select-Object -First 1
 }
 
+# A picture of the list open over the window, which the app draws, as a list is
+# a window of its own that a picture of the main window leaves out.
+function Save-ListShot([string]$Name) {
+    $file = [System.IO.Path]::GetFullPath((Join-Path $script:Out "$Name.png"))
+    try { Send-Pretend "picture $file" | Out-Null } catch { Note "no picture of the open list for ${Name}: $($_.Exception.Message)" }
+}
+
 # The parametric equaliser's preset picker, whatever it names.
 function Find-ParametricPicker { Find-Box 'Parametric preset:*' }
 

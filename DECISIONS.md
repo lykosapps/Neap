@@ -1,5 +1,19 @@
 # Decisions
 
+## 2026-10-30 — Both built-in measurements are plain choices, and Auto-EQ needs both curves shown
+
+- **Chosen:** the Measured list offers the Stealth Pro II with noise
+  cancellation off and with it on as two rows, off by default, and no longer
+  follows the headset's setting. Auto-EQ is on only while a measurement and a
+  target are both shown, with a tip saying so while it is off. Pre-gain's
+  row says what it is, the level the headset applies before its equaliser,
+  in place of its hearing caution, and the boost warning names no figure.
+- **Why:** the owner, testing on the headset: a list the person chooses
+  from needs no rule behind it, Auto-EQ fitting to a hidden curve was
+  unexpected, and the warning's figure and the caution's mark read as more
+  alarming than they are. This replaces the parts of 29 October's entries
+  that say otherwise.
+
 ## 2026-10-29 — Curves are chosen from lists, Auto-EQ uses the chosen ones, and filters import as a preset
 
 - **Chosen:** the Curves menu lists the built-in measurement and target by

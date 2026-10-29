@@ -1,5 +1,3 @@
-using Neap.Core.Settings;
-
 namespace Neap.Core.Response;
 
 /// <summary>The measurements and the target Neap carries, so a curve can be shown before any file is loaded.</summary>
@@ -11,9 +9,8 @@ namespace Neap.Core.Response;
 /// made for the same head, so the gap between the two means what it shows.
 /// </para>
 /// <para>
-/// Noise cancellation changes the bass the headset plays, so the measurement
-/// shown follows the setting; Transparency has no measurement of its own and
-/// is shown with cancellation off, the nearer of the two.
+/// Noise cancellation changes the bass the headset plays, so there is one
+/// measurement with it off and one with it on, and the person chooses which.
 /// </para>
 /// </remarks>
 public static class BuiltInCurves
@@ -25,11 +22,11 @@ public static class BuiltInCurves
     /// <summary>The target carried: the 5128 diffuse field with a tilt.</summary>
     public static FrequencyResponse Target => Tilt.Value;
 
-    /// <summary>The measurement for a headset in a noise cancellation mode, or null for a headset Neap has none of.</summary>
+    /// <summary>The measurement of a headset with noise cancellation off or on, or null for a headset Neap has none of.</summary>
     /// <param name="model">The headset.</param>
-    /// <param name="mode">Its noise cancellation, or null when not known.</param>
-    public static FrequencyResponse? Measured(HeadsetModel? model, NoiseMode? mode) =>
-        model == HeadsetModels.StealthProII ? (mode == NoiseMode.Cancelling ? AncOn : AncOff).Value : null;
+    /// <param name="cancelling">Whether noise cancellation was on.</param>
+    public static FrequencyResponse? Measured(HeadsetModel? model, bool cancelling) =>
+        model == HeadsetModels.StealthProII ? (cancelling ? AncOn : AncOff).Value : null;
 
     private static FrequencyResponse Load(string name)
     {

@@ -113,6 +113,9 @@ public sealed class PretendControl : IDisposable
     /// </remarks>
     public Func<int, int, JsonNode?>? Colours { get; set; }
 
+    /// <summary>Gets or sets what saves a picture of the list open over a window to a file, saying whether one is open.</summary>
+    public Func<string, bool>? Picture { get; set; }
+
     /// <summary>Starts answering on the pipe, one script at a time.</summary>
     public void Start() => _serving ??= Task.Run(Serve);
 
@@ -211,6 +214,8 @@ public sealed class PretendControl : IDisposable
                 ("mini", 1) => Done(OpenMini ?? throw new ArgumentException("there is no window to open the mini panel from")),
                 ("press", >= 2) => (Press ?? throw new ArgumentException("there is no window to press in"))(Rest(line))
                     ? "ok" : throw new ArgumentException($"nothing called '{Rest(line)}' to press"),
+                ("picture", >= 2) => (Picture ?? throw new ArgumentException("there is no window to picture a list in"))(Rest(line))
+                    ? "ok" : throw new ArgumentException("no list is open to picture"),
                 ("colours", 3) => (Colours ?? throw new ArgumentException("there is no window to read colours in"))(
                     int.Parse(words[1], CultureInfo.InvariantCulture), int.Parse(words[2], CultureInfo.InvariantCulture)),
                 _ => throw new ArgumentException($"not a command: '{line}'"),

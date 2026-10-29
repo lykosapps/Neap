@@ -27,7 +27,7 @@ and date.
   box, as the equaliser's own lists are: what is in use is chosen, with an
   Edited tag once it has been changed, and a preset you made can be deleted
   from the list, with Delete and Cancel in its place.
-- Loudness boost is now called Pre-gain, since it sets the level the
+- Loudness boost is now called Pre-gain, and says what it is: the level the
   headset applies before its equaliser. It goes below the headset's normal
   level as well as above it, down to 12 dB lower, so there is room for an
   equaliser boost without the headset squashing it.

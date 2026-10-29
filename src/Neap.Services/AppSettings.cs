@@ -231,9 +231,13 @@ public sealed class AppSettings
     [JsonPropertyName("parametric_measurements")]
     public List<StoredCurve> ParametricMeasurements { get; set; } = [];
 
-    /// <summary>The name of the loaded measurement in use, or null for the built-in one.</summary>
+    /// <summary>The name of the loaded measurement in use, or null for a built-in one.</summary>
     [JsonPropertyName("parametric_measurement_name")]
     public string? ParametricMeasurementName { get; set; }
+
+    /// <summary>Whether the built-in measurement in use is the one with noise cancellation on.</summary>
+    [JsonPropertyName("parametric_measured_anc_on")]
+    public bool ParametricMeasuredAncOn { get; set; }
 
     /// <summary>The targets the person loaded, kept beside the built-in one.</summary>
     [JsonPropertyName("parametric_targets")]

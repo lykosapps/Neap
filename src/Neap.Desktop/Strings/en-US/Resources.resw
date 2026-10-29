@@ -1090,8 +1090,8 @@
   <data name="LoudnessBoost_Level" xml:space="preserve">
     <value>Headset level: {0} dB</value>
   </data>
-  <data name="LoudnessBoost_Caution" xml:space="preserve">
-    <value>Turn it up slowly to protect your hearing.</value>
+  <data name="LoudnessBoost_About" xml:space="preserve">
+    <value>The level the headset applies before its equaliser.</value>
   </data>
   <data name="Equaliser_Open" xml:space="preserve">
     <value>Open</value>
@@ -2185,7 +2185,7 @@
     <value>Boosts this large are squashed by the headset at this pre-gain.</value>
   </data>
   <data name="Parametric_LevelLower" xml:space="preserve">
-    <value>Lower pre-gain by {0} dB</value>
+    <value>Lower pre-gain</value>
   </data>
   <data name="Parametric_IsOff" xml:space="preserve">
     <value>Parametric is off.</value>
@@ -2366,5 +2366,8 @@
   </data>
   <data name="Curves_TargetLabel" xml:space="preserve">
     <value>Target</value>
+  </data>
+  <data name="Curves_AutoEqNeeds" xml:space="preserve">
+    <value>Choose a measurement and a target to use Auto-EQ.</value>
   </data>
 </root>

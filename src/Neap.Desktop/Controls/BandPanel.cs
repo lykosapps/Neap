@@ -626,7 +626,7 @@ public sealed class BandPanel : UserControl
         _level.IsOpen = squashes;
         if (!squashes) return;
         _lowerBy = LevelHeadroom.LowerBy(reading.LevelDb, _bands);
-        _level.ActionText = Strings.Format("Parametric_LevelLower", _lowerBy.ToString("0.#", CultureInfo.CurrentCulture));
+        _level.ActionText = Strings.Get("Parametric_LevelLower");
     }
 
     private void LowerLevel()

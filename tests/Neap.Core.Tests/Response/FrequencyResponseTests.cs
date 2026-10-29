@@ -1,5 +1,4 @@
 using Neap.Core.Response;
-using Neap.Core.Settings;
 
 namespace Neap.Core.Tests.Response;
 
@@ -78,11 +77,11 @@ public class FrequencyResponseTests
     {
         Assert.NotNull(BuiltInCurves.Target);
         Assert.True(BuiltInCurves.Target.Points.Count >= FrequencyResponse.FewestPoints);
-        var off = BuiltInCurves.Measured(HeadsetModels.StealthProII, NoiseMode.Off);
-        var on = BuiltInCurves.Measured(HeadsetModels.StealthProII, NoiseMode.Cancelling);
+        var off = BuiltInCurves.Measured(HeadsetModels.StealthProII, cancelling: false);
+        var on = BuiltInCurves.Measured(HeadsetModels.StealthProII, cancelling: true);
         Assert.NotNull(off);
+        Assert.NotNull(on);
         Assert.NotSame(off, on);
-        Assert.Same(off, BuiltInCurves.Measured(HeadsetModels.StealthProII, NoiseMode.Transparency));
-        Assert.Null(BuiltInCurves.Measured(HeadsetModels.AtlasAir, NoiseMode.Off));
+        Assert.Null(BuiltInCurves.Measured(HeadsetModels.AtlasAir, cancelling: false));
     }
 }

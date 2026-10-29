@@ -7,7 +7,6 @@ using Avalonia.Layout;
 using Avalonia.Platform.Storage;
 using Neap.Core.Connection;
 using Neap.Core.Response;
-using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
 
@@ -20,17 +19,17 @@ namespace Neap.Desktop.Controls;
 /// <para>
 /// Neap carries a measurement of the Stealth Pro II, with noise cancellation
 /// off and on, and a target made for the same measuring head
-/// (<see cref="BuiltInCurves"/>); the built-in measurement follows the
-/// headset's noise cancellation. Files loaded are kept in the app's settings
-/// beside the built-in ones and read again when chosen.
+/// (<see cref="BuiltInCurves"/>), listed as plain choices. Files loaded are
+/// kept in the app's settings beside the built-in ones and read again when
+/// chosen.
 /// </para>
 /// <para>
 /// The measurement and the target are each a <see cref="ComboBox"/> beside its
 /// line in the key (<see cref="ChoiceList"/>), listing None, the built-in
 /// curve, the files loaded and Load, so the key, the choice and showing or
-/// hiding are one control per curve. None keeps the choice behind it, and
-/// Auto-EQ uses the chosen curves whether or not they are shown, so it is
-/// offered whenever there is a measurement.
+/// hiding are one control per curve. None keeps the choice behind it. Auto-EQ
+/// fits the measurement shown to the target shown, so it is on only while both
+/// are, and its tip says so while it is off.
 /// Every curve is lined up at 1 kHz, as the measurement sites do, so the gap
 /// between measurement and target is what the bands would have to change.
 /// </para>
@@ -44,6 +43,7 @@ public sealed class CurvesBar : UserControl
     private readonly Line _measuredSwatch = Swatch(new Line { StrokeThickness = 1.5, StrokeDashArray = [1, 2.5] }, "NeapTextTertiaryBrush");
     private readonly Line _targetSwatch = Swatch(new Line { StrokeThickness = 1.5, StrokeDashArray = [5, 4] }, "NeapTextSecondaryBrush");
     private readonly Button _autoEq = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
+    private readonly TextBlock _autoEqTip = new() { Text = Strings.Get("Curves_AutoEqNeeds"), TextWrapping = Avalonia.Media.TextWrapping.Wrap, MaxWidth = 260 };
     private readonly StackPanel _keyHeard;
 
     /// <summary>What each chosen curve was made from, so it is read and lined up again only when that changes.</summary>
@@ -51,8 +51,11 @@ public sealed class CurvesBar : UserControl
 
     private bool _withChanges;
 
-    /// <summary>The tag of the built-in curve's row, which has no file.</summary>
+    /// <summary>The tag of the built-in target's row, which has no file.</summary>
     private static readonly object BuiltInTag = new();
+
+    /// <summary>The tags of the built-in measurements' rows, with noise cancellation off and on.</summary>
+    private static readonly object AncOffTag = new(), AncOnTag = new();
 
     /// <summary>The tag of the None row, which hides the curve.</summary>
     private static readonly object NoneTag = new();
@@ -71,10 +74,9 @@ public sealed class CurvesBar : UserControl
         _autoEq.Content = Strings.Get("Curves_AutoEq");
         _autoEq.Click += (_, _) =>
         {
-            if (ChosenMeasured is not { } measured || ChosenTarget is not { } target) return;
-            AutoEqAsked?.Invoke(measured, target);
-            Change(settings => (settings.ParametricShowMeasured, settings.ParametricShowTarget) = (true, true));
+            if (Measured is { } measured && Target is { } target) AutoEqAsked?.Invoke(measured, target);
         };
+        ToolTip.SetShowOnDisabled(_autoEq, true);
 
         _measuredChoices = new ChoiceList(_measured);
         _targetChoices = new ChoiceList(_target);
@@ -86,6 +88,7 @@ public sealed class CurvesBar : UserControl
             {
                 if (chosen == NoneTag) Change(settings => Show(settings, measurement, false));
                 else if (chosen == LoadTag) await Load(measurement);
+                else if (chosen == AncOffTag || chosen == AncOnTag) Change(settings => settings.ParametricMeasuredAncOn = chosen == AncOnTag);
                 else Choose(measurement, chosen as AppSettings.StoredCurve);
             };
             choices.Deleted += deleted => Change(settings =>
@@ -112,10 +115,10 @@ public sealed class CurvesBar : UserControl
         Content = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M, Children = { key, _autoEq } };
     }
 
-    /// <summary>What is shown changed: a curve shown, hidden or chosen, or the noise cancellation that picks the built-in measurement.</summary>
+    /// <summary>What is shown changed: a curve shown, hidden or chosen, or the headset that picks the built-in measurements.</summary>
     public event Action? Changed;
 
-    /// <summary>Auto-EQ was asked for, with the chosen measurement and target.</summary>
+    /// <summary>Auto-EQ was asked for, with the measurement and target shown.</summary>
     public event Action<FrequencyResponse, FrequencyResponse>? AutoEqAsked;
 
     /// <summary>The measurement chosen, lined up at 1 kHz, shown or not; null when there is none.</summary>
@@ -144,7 +147,6 @@ public sealed class CurvesBar : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        AppServices.Noise.Changed += Paint;
         AppServices.Headset.StatusChanged += OnStatus;
         Paint();
     }
@@ -152,7 +154,6 @@ public sealed class CurvesBar : UserControl
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
-        AppServices.Noise.Changed -= Paint;
         AppServices.Headset.StatusChanged -= OnStatus;
     }
 
@@ -167,37 +168,40 @@ public sealed class CurvesBar : UserControl
         if (!ReferenceEquals(measuredFrom, _measuredFrom))
         {
             _measuredFrom = measuredFrom;
-            ChosenMeasured = Read(measuredFrom, BuiltIn(measurement: true));
+            ChosenMeasured = Read(measuredFrom, BuiltIn(settings, measurement: true));
         }
 
         if (!ReferenceEquals(targetFrom, _targetFrom))
         {
             _targetFrom = targetFrom;
-            ChosenTarget = Read(targetFrom, BuiltIn(measurement: false));
+            ChosenTarget = Read(targetFrom, BuiltIn(settings, measurement: false));
         }
 
         _autoEq.IsVisible = ChosenMeasured is not null;
+        _autoEq.IsEnabled = Measured is not null && Target is not null;
+        ToolTip.SetTip(_autoEq, _autoEq.IsEnabled ? null : _autoEqTip);
         _keyHeard.IsVisible = _withChanges;
         PaintChooser(settings, measurement: true);
         PaintChooser(settings, measurement: false);
         Changed?.Invoke();
     }
 
-    /// <summary>Lists a curve's rows: None, the built-in one, the files loaded and Load, with the one shown as the box's choice.</summary>
+    /// <summary>Lists a curve's rows: None, the built-in ones, the files loaded and Load, with the one shown as the box's choice.</summary>
     private void PaintChooser(AppSettings settings, bool measurement)
     {
         bool shown = (measurement ? settings.ParametricShowMeasured : settings.ParametricShowTarget)
             && (measurement ? ChosenMeasured : ChosenTarget) is not null;
         var chosen = ChosenFile(settings, measurement);
-        string? builtIn = BuiltIn(measurement) is null ? null : BuiltInName(measurement);
+        var builtIns = BuiltIns(measurement);
+        object? builtInChosen = !measurement ? BuiltInTag : settings.ParametricMeasuredAncOn ? AncOnTag : AncOffTag;
         var files = Files(settings, measurement);
-        string listed = $"{shown}\t{chosen?.Name}\t{builtIn}\n" + string.Join('\n', files.Select(f => f.Name));
+        string listed = $"{shown}\t{chosen?.Name}\t{builtIns.Count}\t{(builtInChosen == AncOnTag)}\n" + string.Join('\n', files.Select(f => f.Name));
         if (listed == (measurement ? _measuredListed : _targetListed)) return;
         if (measurement) _measuredListed = listed;
         else _targetListed = listed;
 
         var items = new List<Choice> { new(Strings.Get("Curves_None"), NoneTag) { Chosen = !shown } };
-        if (builtIn is not null) items.Add(new Choice(builtIn, BuiltInTag) { Chosen = shown && chosen is null });
+        foreach (var (name, tag) in builtIns) items.Add(new Choice(name, tag) { Chosen = shown && chosen is null && tag == builtInChosen });
         foreach (var file in files) items.Add(new Choice(file.Name, file) { Chosen = shown && file == chosen, Deletable = true });
         items.Add(new Choice(Strings.Get(measurement ? "Curves_LoadMeasured" : "Curves_LoadTarget"), LoadTag));
         (measurement ? _measuredChoices : _targetChoices).Show(items);
@@ -211,7 +215,7 @@ public sealed class CurvesBar : UserControl
         return new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, Children = { swatch, name, box } };
     }
 
-    /// <summary>Chooses a loaded curve, or the built-in one with null, and shows it.</summary>
+    /// <summary>Chooses a loaded curve, or a built-in one with null, and shows it.</summary>
     private void Choose(bool measurement, AppSettings.StoredCurve? file) => Change(s =>
     {
         SetChosen(s, measurement, file?.Name);
@@ -233,7 +237,7 @@ public sealed class CurvesBar : UserControl
     private static List<AppSettings.StoredCurve> Files(AppSettings settings, bool measurement) =>
         measurement ? settings.ParametricMeasurements : settings.ParametricTargets;
 
-    /// <summary>The loaded curve in use, or null for the built-in one.</summary>
+    /// <summary>The loaded curve in use, or null for a built-in one.</summary>
     private static AppSettings.StoredCurve? ChosenFile(AppSettings settings, bool measurement)
     {
         string? name = measurement ? settings.ParametricMeasurementName : settings.ParametricTargetName;
@@ -246,16 +250,19 @@ public sealed class CurvesBar : UserControl
         else settings.ParametricTargetName = name;
     }
 
-    /// <summary>What the chosen curve is made from: its file, or the built-in curve.</summary>
+    /// <summary>What the chosen curve is made from: its file, or the built-in curve chosen.</summary>
     private static object? From(AppSettings settings, bool measurement) =>
-        (object?)ChosenFile(settings, measurement) ?? BuiltIn(measurement);
+        (object?)ChosenFile(settings, measurement) ?? BuiltIn(settings, measurement);
 
-    private static FrequencyResponse? BuiltIn(bool measurement) =>
-        measurement ? BuiltInCurves.Measured(AppServices.Headset.Model, AppServices.Noise.Mode) : BuiltInCurves.Target;
+    /// <summary>The built-in curve chosen: the measurement with noise cancellation off or on, or the target.</summary>
+    private static FrequencyResponse? BuiltIn(AppSettings settings, bool measurement) =>
+        measurement ? BuiltInCurves.Measured(AppServices.Headset.Model, settings.ParametricMeasuredAncOn) : BuiltInCurves.Target;
 
-    private static string BuiltInName(bool measurement) => Strings.Get(!measurement ? "Curves_BuiltInTargetName"
-        : AppServices.Noise.Mode == NoiseMode.Cancelling ? "Curves_BuiltInMeasuredAncOn"
-        : "Curves_BuiltInMeasuredAncOff");
+    /// <summary>The built-in rows: the headset's two measurements, or the target.</summary>
+    private static List<(string Name, object Tag)> BuiltIns(bool measurement) =>
+        !measurement ? [(Strings.Get("Curves_BuiltInTargetName"), BuiltInTag)]
+        : BuiltInCurves.Measured(AppServices.Headset.Model, cancelling: false) is null ? []
+        : [(Strings.Get("Curves_BuiltInMeasuredAncOff"), AncOffTag), (Strings.Get("Curves_BuiltInMeasuredAncOn"), AncOnTag)];
 
     /// <summary>A chosen curve, lined up at 1 kHz: its file read again, or the built-in one when the file no longer reads.</summary>
     private static FrequencyResponse? Read(object? from, FrequencyResponse? builtIn)

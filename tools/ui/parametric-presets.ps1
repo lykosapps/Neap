@@ -55,6 +55,7 @@ if ($Parts.Contains('A')) {
 
         Open-Menu (Find-Named 'Parametric preset: Bassy, edited')
         Check (Wait-Until { $null -ne (Find-ListRow 'Bassy') } 4) 'the picker lists it'
+        Save-ListShot 'parametric-list-presets'
         Check ((Find-ListRow 'Bassy').GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) 'selected while edited, as every list shows what is in use'
         Close-Menu (Find-ParametricPicker)
         Press (Find-Named 'Save over the preset')
@@ -68,6 +69,7 @@ if ($Parts.Contains('A')) {
         Check (Wait-Until { $null -ne (Find-Anywhere 'Delete Bass') } 4) 'the row offers to delete the preset'
         Press (Find-Anywhere 'Delete Bass')
         Check (Wait-Until { $null -ne (Find-Anywhere 'Keep Bass') } 4) 'deleting asks first, on the row'
+        Save-ListShot 'parametric-list-confirm'
         Save-Shot 'parametric-presets-delete' -Whole | ForEach-Object { $_.Dispose() }
         Press (Find-Anywhere 'Delete Bass')
         Check (Test-Picker 'No preset') 'deleting leaves no preset'

@@ -306,10 +306,10 @@ Protect-RealRun {
         Section 'what the headset holds for the loudness level'
         Use-Page 'audio' {
             # The level is the slider's help text, so it is read from there.
-            Wait-Until { $null -ne (Find-Slider 'Pre-gain') -and (Find-Slider 'Pre-gain').Current.HelpText -like 'Headset level:*' } 10 | Out-Null
+            Wait-Until { $null -ne (Find-Slider 'Pre-gain') -and (Find-Slider 'Pre-gain').Current.HelpText -like '*Headset level:*' } 10 | Out-Null
             $level = (Find-Slider 'Pre-gain').Current.HelpText
             Note "read on a fresh launch: $level"
-            if ($null -ne $boost) { Check ($level -eq ('Headset level: {0} dB' -f (-12 + $boost))) "the headset kept +$boost dB" }
+            if ($null -ne $boost) { Check ($level -like ('*Headset level: {0} dB' -f (-12 + $boost))) "the headset kept +$boost dB" }
         }
     }
 
