@@ -85,9 +85,9 @@ reads "Settling…" until its reading steadies.
 
 - **The microphone follows the headset.** Muted by the boom arm or the mute
   button, it is muted on the PC too, and unmuted with it.
-- **Louder than the headset's maximum.** A loudness boost on the Audio page
-  raises the headset's own level, for when it is too quiet even at full
-  volume.
+- **Louder than the headset's maximum.** Pre-gain on the Audio page raises
+  the level the headset applies before its equaliser, for when it is too
+  quiet even at full volume.
 - **Clear status.** Connected, no sound, off or out of range, each with
   what still works and the one thing to do.
 - **Catches the wrong device.** When your system sends sound or the

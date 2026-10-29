@@ -50,7 +50,7 @@ never cute, never alarmed and never blames anyone.
   it is needed (see 4).
 - **Lead with the word that matters.** "Battery 76%", "Toward chat".
 - **The model or the reason goes in the state, not the label.** Write
-  "Loudness boost", and show "Stealth Pro II only" only where it isn't
+  "Pre-gain", and show "Stealth Pro II only" only where it isn't
   available.
 
 ## 4. Help text earns its place

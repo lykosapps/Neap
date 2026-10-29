@@ -101,7 +101,7 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             $field.GetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern).SetValue($sample)
             $said = { @($dialog.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Text))) | ForEach-Object { $_.Current.Name }) }
             Check (Wait-Until { (& $said) -contains 'Sets 2 bands and turns the rest off.' } 4) 'it says how many bands it sets'
-            Check ((& $said) -contains 'The preamp of -6.2 dB is not used. Set the level with Loudness boost.') 'it says the preamp is not used'
+            Check ((& $said) -contains 'The preamp of -6.2 dB is not used. Set it with Pre-gain.') 'it says the preamp is not used'
             Check ((& $said) -contains 'Filter 3: ON AP Fc 300 Hz Gain 0 dB Q 1: the headset has no AP filter.') 'it lists the line it does not use, and why'
             Check ($import.Current.IsEnabled) 'Import is on once a filter fits'
             Save-DialogShot $dialog "parametric-import-$theme"
@@ -134,6 +134,9 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Check ((($hertz | Sort-Object) -join ',') -eq ($hertz -join ',')) "in order of frequency: $($hertz -join ', ')"
             Check (@($hertz | Where-Object { $_ -gt 10000 }).Count -eq 0) 'none above 10 kHz'
             Check ((Find-Named 'Undo').Current.IsEnabled) 'Auto-EQ can be undone'
+            Check ($null -ne (Find-Named 'Pre-gain')) 'the page shows the pre-gain'
+            Check (@(Find-All 'Pre-gain' | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Slider }).Count -eq 1) 'as a slider'
+            Note "the boost warning: $(if ((Get-Texts) -contains 'Boosts this large are squashed by the headset at this pre-gain.') { 'shown under the pre-gain' } else { 'not shown at this pre-gain' })"
             Save-Shot 'parametric-autoeq-dark' -Whole | ForEach-Object { $_.Dispose() }
         }
 

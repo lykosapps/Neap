@@ -297,8 +297,8 @@ Protect-RealRun {
         if ($null -ne $boost) {
             Section "setting the loudness boost to +$boost dB"
             Use-Page 'audio' {
-                Wait-Until { $null -ne (Find-Slider 'Loudness boost') } 10 | Out-Null
-                $slider = Find-Slider 'Loudness boost'
+                Wait-Until { $null -ne (Find-Slider 'Pre-gain') } 10 | Out-Null
+                $slider = Find-Slider 'Pre-gain'
                 Check ($null -ne $slider) 'the boost is on the Audio page'
                 if ($slider) { $slider.GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).SetValue([double]$boost); Start-Sleep -Seconds 3 }
             }
@@ -306,8 +306,8 @@ Protect-RealRun {
         Section 'what the headset holds for the loudness level'
         Use-Page 'audio' {
             # The level is the slider's help text, so it is read from there.
-            Wait-Until { $null -ne (Find-Slider 'Loudness boost') -and (Find-Slider 'Loudness boost').Current.HelpText -like 'Headset level:*' } 10 | Out-Null
-            $level = (Find-Slider 'Loudness boost').Current.HelpText
+            Wait-Until { $null -ne (Find-Slider 'Pre-gain') -and (Find-Slider 'Pre-gain').Current.HelpText -like 'Headset level:*' } 10 | Out-Null
+            $level = (Find-Slider 'Pre-gain').Current.HelpText
             Note "read on a fresh launch: $level"
             if ($null -ne $boost) { Check ($level -eq ('Headset level: {0} dB' -f (-12 + $boost))) "the headset kept +$boost dB" }
         }

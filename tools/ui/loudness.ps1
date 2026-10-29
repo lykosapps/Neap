@@ -18,7 +18,7 @@ param([string]$Parts = 'ABC')
 
 . "$PSScriptRoot\Ui.ps1"
 
-$row = 'Loudness boost'
+$row = 'Pre-gain'
 $caution = 'Turn it up slowly to protect your hearing.'
 
 function Find-SliderNamed([string]$Name) {

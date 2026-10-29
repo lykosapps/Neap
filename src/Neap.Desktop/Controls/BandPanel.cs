@@ -54,6 +54,7 @@ public sealed class BandPanel : UserControl
     private Window? _window;
     private readonly Button _turnOff = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Notice _level = new() { Severity = Severity.Warning };
+    private readonly LoudnessBoostRow _preGain;
     private double _lowerBy;
 
     private readonly Grid _main = new() { ColumnSpacing = Space.L, RowSpacing = Space.L };
@@ -103,6 +104,12 @@ public sealed class BandPanel : UserControl
     public BandPanel()
     {
         _presets = new ParametricPresetBar(() => _bands, bands => Replace(bands, keepSelection: false));
+        // The same row as the Audio page's; the warning that a boost would be squashed goes under it, by the level it depends on.
+        _preGain = new LoudnessBoostRow
+        {
+            Header = Strings.Get("Audio_LoudnessBoost.Header"),
+            Icon = (Avalonia.Media.Geometry)Application.Current!.FindResource("IconBoost")!,
+        };
         Tools = new WrapPanel
         {
             HorizontalAlignment = HorizontalAlignment.Right,
@@ -230,7 +237,7 @@ public sealed class BandPanel : UserControl
 
         // The curve takes the whole width; the table and the chosen band's dials share the row under it.
         _main.Children.AddRange([all, _editor]);
-        return new StackPanel { Spacing = Space.L, Children = { _tone, _presets, _level, new StackPanel { Spacing = Space.S, Children = { _curvesBar, _curve } }, _main } };
+        return new StackPanel { Spacing = Space.L, Children = { _tone, _presets, new StackPanel { Spacing = Space.XS, Children = { _preGain, _level } }, new StackPanel { Spacing = Space.S, Children = { _curvesBar, _curve } }, _main } };
     }
 
     /// <summary>The table's label, with Add band at the end of its row.</summary>

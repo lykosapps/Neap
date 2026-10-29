@@ -220,7 +220,7 @@
     <value>Master volume</value>
   </data>
   <data name="Audio_LoudnessBoost.Header" xml:space="preserve">
-    <value>Loudness boost</value>
+    <value>Pre-gain</value>
   </data>
   <data name="Audio_HeadsetSection.What" xml:space="preserve">
     <value>Noise cancellation and Superhuman Hearing</value>
@@ -2053,7 +2053,7 @@
     <value>A gain of {0} dB is held to {1} dB.</value>
   </data>
   <data name="FilterImport_PreampNotUsed" xml:space="preserve">
-    <value>The preamp of {0} dB is not used. Set the level with Loudness boost.</value>
+    <value>The preamp of {0} dB is not used. Set it with Pre-gain.</value>
   </data>
   <data name="FilterImport_NotUsed" xml:space="preserve">
     <value>Not used</value>
@@ -2185,10 +2185,10 @@
     <value>Band {0} gain</value>
   </data>
   <data name="Parametric_LevelNotice" xml:space="preserve">
-    <value>Boosts this large are limited by the headset at this level.</value>
+    <value>Boosts this large are squashed by the headset at this pre-gain.</value>
   </data>
   <data name="Parametric_LevelLower" xml:space="preserve">
-    <value>Lower level by {0} dB</value>
+    <value>Lower pre-gain by {0} dB</value>
   </data>
   <data name="Parametric_IsOff" xml:space="preserve">
     <value>Parametric is off.</value>

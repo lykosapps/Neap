@@ -11,8 +11,9 @@ using Neap.Core.Audio;
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// A settings row that raises the headset's own playback level, so everything
-/// plays louder than the system volume alone allows.
+/// A settings row for the headset's pre-gain: the level it applies to what it
+/// plays before its equaliser, raised so everything plays louder than the
+/// system volume alone allows, or lowered to leave the equaliser room.
 /// </summary>
 /// <remarks>
 /// <para>
