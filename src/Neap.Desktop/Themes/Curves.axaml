@@ -97,7 +97,15 @@
     <Style Selector="Grid.slot:pointerover Grid.face, Grid.slot:focus-within Grid.face, Grid.slot.chosen Grid.face">
         <Setter Property="Margin" Value="0,0,32,0" />
     </Style>
-    <Style Selector="Grid.slot:pointerover > Button.remove, Grid.slot:focus-within > Button.remove, Grid.slot.chosen > Button.remove, ListBoxItem:focus Grid.slot > Button.remove">
+    <Style Selector="Grid.slot:pointerover > Button.remove, Grid.slot:focus-within > Button.remove, Grid.slot.chosen > Button.remove">
+        <Setter Property="Opacity" Value="1" />
+    </Style>
+    <!--
+        In a list box's row, the row itself says it is pointed at: the grid
+        inside has no ground of its own, so it is pointed at only over its
+        words, curve or button, and the button would blink in the gaps.
+    -->
+    <Style Selector="ComboBoxItem:pointerover Grid.slot > Button.remove, ComboBoxItem:selected Grid.slot > Button.remove, ComboBoxItem:focus Grid.slot > Button.remove">
         <Setter Property="Opacity" Value="1" />
     </Style>
 
