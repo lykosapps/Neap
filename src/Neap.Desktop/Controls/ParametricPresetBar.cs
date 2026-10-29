@@ -17,8 +17,8 @@ namespace Neap.Desktop.Controls;
 /// A saved preset and a starting shape each put a whole shape on the curve,
 /// so they are one <see cref="Chooser"/>, each row with its curve beside it.
 /// The face names the preset, with the same Edited tag the ten-band equaliser
-/// uses once the shape has moved; an edited preset is not shown selected, so
-/// choosing it again puts its shape back.
+/// uses once the shape has moved; choosing the preset again puts its shape
+/// back.
 /// </para>
 /// <para>
 /// The presets are Neap's own, kept in its settings rather than on the
@@ -117,7 +117,7 @@ public sealed class ParametricPresetBar : UserControl
         _save.IsEnabled = can.Save;
         _save.Classes.Set("accent", can.Save);
         _rename.IsEnabled = can.Rename;
-        FillList(can.Edited ? null : baseline);
+        FillList(baseline);
     }
 
     /// <summary>Lists the saved presets, the one in use selected, then the starting shapes.</summary>

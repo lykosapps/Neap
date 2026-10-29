@@ -55,9 +55,10 @@ if ($Parts.Contains('A')) {
 
         Press (Find-Named 'Parametric preset: Bassy, edited')
         Check (Wait-Until { $null -ne (Find-ListRow 'Bassy') } 4) 'the picker lists it'
-        Press (Find-ListRow 'Bassy')
-        Check (Test-Picker 'Bassy') 'choosing it puts its shape back'
-        Check ((Find-Named 'Undo').Current.IsEnabled) 'as a change Undo can take back'
+        Check ((Find-ListRow 'Bassy').GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) 'selected while edited, as every list shows what is in use'
+        Close-Menu (Find-ParametricPicker)
+        Press (Find-Named 'Save over the preset')
+        Check (Test-Picker 'Bassy') 'saving over it clears Edited'
 
         Press-PresetAction 'Rename'
         Save-Name 'Bass'

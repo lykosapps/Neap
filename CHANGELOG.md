@@ -23,6 +23,12 @@ and date.
 
 ### Changed
 
+- Every list you choose from works the same way: the profile list, the
+  equaliser preset on Home and in the mini panel, and the equaliser's own
+  lists. What is in use is selected, with an Edited tag once it has been
+  changed, and choosing it again puts it back as it was. A profile or a
+  preset you made can be deleted from its list, with Delete and Cancel in
+  its place.
 - Loudness boost is now called Pre-gain, since it sets the level the
   headset applies before its equaliser. It goes below the headset's normal
   level as well as above it, down to 12 dB lower, so there is room for an

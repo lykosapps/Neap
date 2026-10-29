@@ -119,14 +119,14 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Check ($null -ne (Find-ButtonLike 'Measured: Stealth Pro II, ANC o*, B&K 5128')) 'the key names the built-in measurement, and chooses it'
             Check ($null -ne (Find-ButtonLike 'Target: 5128 DF + Tilt')) 'and the built-in target by its name'
             Open-Menu (Find-ButtonLike 'Target: *')
-            Check (Wait-Until { $null -ne (Find-Anywhere 'Hide target') } 4) 'the target list offers Hide target'
-            Press (Find-Anywhere 'Hide target')
-            Check (Wait-Until { $null -ne (Find-ButtonLike 'Target: 5128 DF + Tilt, hidden') } 3) 'hiding the target says so on its line in the key'
+            Check (Wait-Until { $null -ne (Find-ListRow 'None') } 4) 'the target list offers None'
+            Press (Find-ListRow 'None')
+            Check (Wait-Until { $null -ne (Find-ButtonLike 'Target: None') } 3) 'choosing None says so on its line in the key'
             $autoEq = Find-Named 'Auto-EQ'
             Check ($autoEq -and $autoEq.Current.IsEnabled) 'Auto-EQ stays on with the target hidden'
             Press $autoEq
             Check (Wait-Until { $null -ne (Find-Named 'Band 4 gain') } 10) 'Auto-EQ sets bands'
-            Check (Wait-Until { $null -eq (Find-ButtonLike 'Target: *, hidden') } 3) 'and shows the target it fitted to'
+            Check (Wait-Until { $null -ne (Find-ButtonLike 'Target: 5128 DF + Tilt') } 3) 'and shows the target it fitted to'
             Check ((Get-Texts) -contains 'With your changes') 'and the measurement with the bands added'
             $hertz = @(1..10 | Where-Object { Find-Named "Band $_ gain" } | ForEach-Object { Get-Hertz (Get-FrequencyShown $_) })
             Check ((($hertz | Sort-Object) -join ',') -eq ($hertz -join ',')) "in order of frequency: $($hertz -join ', ')"
@@ -145,7 +145,7 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Check (Wait-Until { $null -ne (Find-Named 'Test tone frequency') } 4) 'the test tone opens'
             Save-Shot "parametric-tone-$theme" -Whole | ForEach-Object { $_.Dispose() }
             Close-Menu $tone
-            foreach ($curve in @(@('Measured', 'measurement', 'Hide measured response'), @('Target', 'target', 'Hide target'))) {
+            foreach ($curve in @(@('Measured', 'measurement'), @('Target', 'target'))) {
                 $face = Find-ButtonLike "$($curve[0]): *"
                 $builtIn = $face.Current.Name.Substring($curve[0].Length + 2)
                 Open-Menu $face
@@ -153,7 +153,7 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
                 $row = Find-ListRow $builtIn
                 Check ($row -and $row.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) 'selected, as it is in use'
                 Check ($null -ne (Find-Anywhere "Load $($curve[1])$([char]0x2026)")) "with Load $($curve[1]) above the list"
-                Check ($null -ne (Find-Anywhere $curve[2])) "and $($curve[2])"
+                Check ($null -ne (Find-ListRow 'None')) 'and None, to hide it'
                 Close-Menu $face
                 Wait-Until { $null -eq (Find-ListRow $builtIn) } 3 | Out-Null
             }

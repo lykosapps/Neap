@@ -380,12 +380,8 @@
         <Setter Property="Height" Value="24" />
         <Setter Property="AutomationProperties.AccessibilityView" Value="Raw" />
     </Style>
-    <!-- A chooser's arrow: a row's icon, and in the mini panel the size of its tiles' arrows, so its rows read as one set. After the icons, which it overrides. -->
-    <Style Selector="PathIcon.choicearrow">
-        <Setter Property="Width" Value="{StaticResource NeapIconRow}" />
-        <Setter Property="Height" Value="{StaticResource NeapIconRow}" />
-    </Style>
-    <Style Selector="Window.mini PathIcon.choicearrow">
+    <!-- A chooser's arrow in the mini panel: the size of its tiles' arrows, so its rows read as one set. -->
+    <Style Selector="Window.mini DropDownButton /template/ PathIcon#DropDownGlyph">
         <Setter Property="Width" Value="12" />
         <Setter Property="Height" Value="12" />
     </Style>

@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -14,6 +15,12 @@ namespace Neap.Desktop.Controls;
 /// <param name="Tag">What choosing the row chooses; null for a heading.</param>
 public sealed record ChooserItem(string Name, object? Tag)
 {
+    /// <summary>Drawn right after the name, such as a Default tag.</summary>
+    public Control? Badge { get; init; }
+
+    /// <summary>What a screen reader says of the row besides its name, such as what its badge says.</summary>
+    public string? Status { get; init; }
+
     /// <summary>Drawn at the row's end, such as a preset's curve.</summary>
     public Control? Preview { get; init; }
 
@@ -34,7 +41,20 @@ public sealed record ChooserItem(string Name, object? Tag)
 /// </summary>
 /// <remarks>
 /// <para>
-/// A row that can be deleted has the ten-band equaliser's delete button at its
+/// It is the dropdown button itself, so a page places, sizes and names it as
+/// any button, and its own chevron is the sign that it opens a list. Profiles,
+/// the equaliser presets on Home and in the mini panel, the parametric presets
+/// and the curves the parametric equaliser is drawn against all choose with it.
+/// </para>
+/// <para>
+/// Every list follows the same rules. The face names the choice, with the
+/// Edited tag once it has been changed since. The chosen row is selected,
+/// edited or not, and choosing it again puts it back as it was. Doing without
+/// is a row of its own, such as None, not an action. Above the list are only
+/// the actions that make a new choice, such as Load or New profile.
+/// </para>
+/// <para>
+/// A row the person made has the ten-band equaliser's delete button at its
 /// end, shown when the row is pointed at or focused, and asks Delete or Cancel
 /// in the row's place, with no dialog and the keyboard on Cancel. The Delete
 /// key does the same on a focused row, since a button inside a list is not
@@ -45,15 +65,15 @@ public sealed record ChooserItem(string Name, object? Tag)
 /// it when what it lists changes, not on every repaint.
 /// </para>
 /// </remarks>
-public sealed class Chooser : UserControl
+public class Chooser : DropDownButton
 {
     /// <summary>The width of a row's delete button, as on the ten-band equaliser's rows.</summary>
     private const double DeleteWidth = 32;
 
-    private readonly DropDownButton _face = new() { HorizontalAlignment = HorizontalAlignment.Stretch, HorizontalContentAlignment = HorizontalAlignment.Stretch };
-    private readonly ContentControl _lead = new() { VerticalAlignment = VerticalAlignment.Center, IsVisible = false };
+    // Spaced by margins rather than the grid's column spacing, which would leave a gap where there is no sample or tag.
+    private readonly ContentControl _lead = new() { VerticalAlignment = VerticalAlignment.Center, IsVisible = false, Margin = new Thickness(0, 0, Space.S, 0) };
     private readonly TextBlock _text = new() { VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
-    private readonly ContentControl _tag = new() { VerticalAlignment = VerticalAlignment.Center, IsVisible = false };
+    private readonly ContentControl _tag = new() { VerticalAlignment = VerticalAlignment.Center, IsVisible = false, Margin = new Thickness(Space.S, 0, 0, 0) };
     private readonly StackPanel _actions = new() { Classes = { "dialogflow" } };
     private readonly Border _actionsSection;
     private readonly ListBox _list = new();
@@ -65,32 +85,30 @@ public sealed class Chooser : UserControl
     /// <param name="listName">The list's name for a screen reader.</param>
     public Chooser(string listName)
     {
+        HorizontalContentAlignment = HorizontalAlignment.Stretch;
         Grid.SetColumn(_text, 1);
         Grid.SetColumn(_tag, 2);
-        _face.Content = new Grid
+        Content = new Grid
         {
             ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"),
-            ColumnSpacing = Space.S,
             Children = { _lead, _text, _tag },
         };
-        _face.Flyout = _flyout = new Flyout { Placement = PlacementMode.BottomEdgeAlignedLeft };
+        Flyout = _flyout = new Flyout { Placement = PlacementMode.BottomEdgeAlignedLeft };
         AutomationProperties.SetName(_list, listName);
         _actionsSection = new Border { Classes = { "underlined", "profileactions" }, Child = _actions, IsVisible = false };
         _flyout.Content = new StackPanel { Classes = { "profilemenu" }, Children = { _actionsSection, _list } };
 
         _list.SelectionChanged += (_, _) =>
         {
-            if (_filling || _list.SelectedItem is not ListBoxItem { Tag: { } chosen }) return;
-            _flyout.Hide();
-            // Posted, as choosing usually lists the rows again, which cannot happen while the list is still selecting.
-            Dispatcher.UIThread.Post(() => Chosen?.Invoke(chosen));
+            if (!_filling && _list.SelectedItem is ListBoxItem { Tag: { } chosen }) Choose(chosen);
         };
         _list.KeyDown += (_, e) =>
         {
-            if (e.Key != Key.Delete || (e.Source as Control)?.FindAncestorOfType<ListBoxItem>(includeSelf: true) is not { Tag: { } tag }) return;
-            if (_items.FirstOrDefault(i => Equals(i.Tag, tag)) is not { Deletable: true }) return;
+            if ((e.Source as Control)?.FindAncestorOfType<ListBoxItem>(includeSelf: true) is not { Tag: { } tag } row) return;
+            if (e.Key == Key.Enter && row.IsSelected) Choose(tag);
+            else if (e.Key == Key.Delete && _items.FirstOrDefault(i => Equals(i.Tag, tag)) is { Deletable: true }) AskToDelete(tag);
+            else return;
             e.Handled = true;
-            AskToDelete(tag);
         };
         _flyout.Closed += (_, _) =>
         {
@@ -98,8 +116,6 @@ public sealed class Chooser : UserControl
             _confirming = null;
             Fill();
         };
-
-        Content = _face;
     }
 
     /// <summary>A row was chosen, with its tag.</summary>
@@ -108,29 +124,59 @@ public sealed class Chooser : UserControl
     /// <summary>A row's deletion was confirmed, with its tag.</summary>
     public event Action<object>? Deleted;
 
+    /// <summary>Where the list opens against the face.</summary>
+    public PlacementMode ListPlacement
+    {
+        get => _flyout.Placement;
+        set => _flyout.Placement = value;
+    }
+
+    /// <summary>Whether a row can be chosen now, such as while nothing else is being switched.</summary>
+    public bool ListEnabled
+    {
+        get => _list.IsEnabled;
+        set => _list.IsEnabled = value;
+    }
+
+    /// <summary>Whether the face's words are the small size, as in the side menu.</summary>
+    public bool SmallText
+    {
+        get => _text.Classes.Contains("caption");
+        set => _text.Classes.Set("caption", value);
+    }
+
+    /// <summary>What the face says.</summary>
+    public string? Text => _text.Text;
+
+    protected override Type StyleKeyOverride => typeof(DropDownButton);
+
     /// <summary>Names what is chosen on the face.</summary>
     /// <param name="text">What the face says.</param>
-    /// <param name="name">The face's name for a screen reader, which says what it chooses as well as what is chosen.</param>
+    /// <param name="name">The face's name for a screen reader, which says what it chooses as well as what is chosen; or null to leave the name it has.</param>
     /// <param name="lead">Drawn before the words, such as a line's sample in a key; or null.</param>
     /// <param name="tag">Drawn after the words, such as an Edited tag; or null.</param>
-    public void Show(string text, string name, Control? lead = null, Control? tag = null)
+    public void Show(string text, string? name = null, Control? lead = null, Control? tag = null)
     {
         _text.Text = text;
-        AutomationProperties.SetName(_face, name);
+        if (name is not null) AutomationProperties.SetName(this, name);
         (_lead.Content, _lead.IsVisible) = (lead, lead is not null);
         (_tag.Content, _tag.IsVisible) = (tag, tag is not null);
     }
 
-    /// <summary>Sets the actions above the list, or none.</summary>
-    /// <remarks>An action closes the list as it is pressed, as choosing a row does.</remarks>
-    public void Actions(params Button[] actions)
+    /// <summary>Sets what sits above the list, such as a note and the actions that make or change a choice, or nothing.</summary>
+    /// <remarks>A button there takes the list's width and closes the list as it is pressed, as choosing a row does.</remarks>
+    public void Actions(params Control[] actions)
     {
         _actions.Children.Clear();
         foreach (var action in actions)
         {
-            action.HorizontalAlignment = HorizontalAlignment.Stretch;
-            action.HorizontalContentAlignment = HorizontalAlignment.Left;
-            action.Click += (_, _) => _flyout.Hide();
+            if (action is Button button)
+            {
+                button.HorizontalAlignment = HorizontalAlignment.Stretch;
+                button.HorizontalContentAlignment = HorizontalAlignment.Left;
+                button.Click += (_, _) => _flyout.Hide();
+            }
+
             _actions.Children.Add(action);
         }
 
@@ -142,6 +188,28 @@ public sealed class Chooser : UserControl
     {
         _items = items;
         Fill();
+    }
+
+    /// <summary>Closes the list.</summary>
+    public void Close() => _flyout.Hide();
+
+    /// <summary>Closes the list and says what was chosen.</summary>
+    /// <remarks>
+    /// Posted, as choosing usually lists the rows again, which cannot happen
+    /// while the list is still selecting. The selection goes back to the row
+    /// given as chosen first, so a row that only acts, such as a starting
+    /// shape, is not left looking chosen when the rows are not listed again.
+    /// </remarks>
+    private void Choose(object chosen)
+    {
+        _flyout.Hide();
+        Dispatcher.UIThread.Post(() =>
+        {
+            _filling = true;
+            try { _list.SelectedIndex = _items.ToList().FindIndex(i => i.Chosen && i.Tag is not null); }
+            finally { _filling = false; }
+            Chosen?.Invoke(chosen);
+        });
     }
 
     private void Fill()
@@ -161,6 +229,7 @@ public sealed class Chooser : UserControl
             }
 
             _list.SelectedItem = chosen;
+            _list.IsVisible = _items.Count > 0;
         }
         finally { _filling = false; }
     }
@@ -172,16 +241,17 @@ public sealed class Chooser : UserControl
         Focusable = false,
     };
 
-    /// <summary>A row: its name, its preview, and its delete button when it has one.</summary>
+    /// <summary>A row: its name and badge, its preview, and its delete button when it has one.</summary>
     private ListBoxItem Row(ChooserItem item)
     {
         var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"), ColumnSpacing = Space.S, Classes = { "slot" } };
-        row.Children.Add(new TextBlock { Text = item.Name, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis });
+        var name = new TextBlock { Text = item.Name, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+        row.Children.Add(item.Badge is { } badge
+            ? new StackPanel { Classes = { "gaprow" }, Children = { name, Moved(badge) } }
+            : name);
         if (item.Preview is { } preview)
         {
-            // The list is drawn again while it asks Delete or Cancel, so the preview may still be in the row it was drawn in before.
-            (preview.Parent as Panel)?.Children.Remove(preview);
-            preview.Margin = new Thickness(Space.S, 0, 0, 0);
+            Moved(preview).Margin = new Thickness(Space.S, 0, 0, 0);
             Grid.SetColumn(preview, 1);
             row.Children.Add(preview);
         }
@@ -194,9 +264,9 @@ public sealed class Chooser : UserControl
                 Classes = { "remove" },
                 Width = DeleteWidth,
             };
-            string name = Strings.Format("Equaliser_DeleteNamed", item.Name);
-            AutomationProperties.SetName(delete, name);
-            ToolTip.SetTip(delete, name);
+            string deleteName = Strings.Format("Equaliser_DeleteNamed", item.Name);
+            AutomationProperties.SetName(delete, deleteName);
+            ToolTip.SetTip(delete, deleteName);
             delete.Click += (_, _) => AskToDelete(item.Tag!);
             Grid.SetColumn(delete, 2);
             row.Children.Add(delete);
@@ -204,7 +274,24 @@ public sealed class Chooser : UserControl
 
         var listItem = new ListBoxItem { Content = row, Tag = item.Tag, Classes = { "preset" } };
         AutomationProperties.SetName(listItem, item.Name);
+
+        // A press on the row already selected chooses it again, which selecting alone would not report.
+        bool wasSelected = false;
+        listItem.AddHandler(PointerPressedEvent, (_, _) => wasSelected = listItem.IsSelected, RoutingStrategies.Tunnel);
+        listItem.Tapped += (_, e) =>
+        {
+            if (!wasSelected || e.Source is Control source && source.FindAncestorOfType<Button>(includeSelf: true) is not null) return;
+            Choose(item.Tag!);
+        };
+        if (item.Status is { } status) AutomationProperties.SetItemStatus(listItem, status);
         return listItem;
+    }
+
+    /// <summary>A control given with a row, taken out of the row it was drawn in before, as the list is drawn again while it asks Delete or Cancel.</summary>
+    private static Control Moved(Control control)
+    {
+        (control.Parent as Panel)?.Children.Remove(control);
+        return control;
     }
 
     /// <summary>The row of one about to be deleted: Delete and Cancel in its place.</summary>

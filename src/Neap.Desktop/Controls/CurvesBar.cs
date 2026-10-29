@@ -44,8 +44,6 @@ public sealed class CurvesBar : UserControl
     private readonly Line _targetSwatch = Swatch(new Line { StrokeThickness = 1.5, StrokeDashArray = [5, 4] }, "NeapTextSecondaryBrush");
     private readonly Button _loadMeasured = new() { Content = Strings.Get("Curves_LoadMeasured") };
     private readonly Button _loadTarget = new() { Content = Strings.Get("Curves_LoadTarget") };
-    private readonly Button _showMeasured = new();
-    private readonly Button _showTarget = new();
     private readonly Button _autoEq = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly StackPanel _keyHeard;
 
@@ -54,11 +52,11 @@ public sealed class CurvesBar : UserControl
 
     private bool _withChanges;
 
-    /// <summary>How faint a hidden curve's line is in the key.</summary>
-    private const double HiddenOpacity = 0.35;
-
     /// <summary>The tag of the built-in curve's row, which has no file.</summary>
     private static readonly object BuiltInTag = new();
+
+    /// <summary>The tag of the None row, which hides the curve.</summary>
+    private static readonly object NoneTag = new();
 
     public CurvesBar()
     {
@@ -73,8 +71,12 @@ public sealed class CurvesBar : UserControl
         foreach (bool measurement in new[] { true, false })
         {
             var chooser = measurement ? _measured : _target;
-            chooser.Actions(measurement ? _loadMeasured : _loadTarget, measurement ? _showMeasured : _showTarget);
-            chooser.Chosen += chosen => Choose(measurement, chosen as AppSettings.StoredCurve);
+            chooser.Actions(measurement ? _loadMeasured : _loadTarget);
+            chooser.Chosen += chosen =>
+            {
+                if (chosen == NoneTag) Change(settings => Show(settings, measurement, false));
+                else Choose(measurement, chosen as AppSettings.StoredCurve);
+            };
             chooser.Deleted += deleted => Change(settings =>
             {
                 string name = ((AppSettings.StoredCurve)deleted).Name;
@@ -85,8 +87,6 @@ public sealed class CurvesBar : UserControl
 
         _loadMeasured.Click += async (_, _) => await Load(measurement: true);
         _loadTarget.Click += async (_, _) => await Load(measurement: false);
-        _showMeasured.Click += (_, _) => Change(settings => settings.ParametricShowMeasured = !settings.ParametricShowMeasured);
-        _showTarget.Click += (_, _) => Change(settings => settings.ParametricShowTarget = !settings.ParametricShowTarget);
 
         var heard = Swatch(new Line { StrokeThickness = 2 }, "NeapTextBrush");
         var heardText = new TextBlock { Text = Strings.Get("Curves_KeyHeard"), VerticalAlignment = VerticalAlignment.Center, Classes = { "caption", "secondary" } };
@@ -173,22 +173,16 @@ public sealed class CurvesBar : UserControl
     private void PaintChooser(AppSettings settings, bool measurement)
     {
         var chooser = measurement ? _measured : _target;
-        bool shown = measurement ? settings.ParametricShowMeasured : settings.ParametricShowTarget;
-        bool has = (measurement ? ChosenMeasured : ChosenTarget) is not null;
+        bool shown = (measurement ? settings.ParametricShowMeasured : settings.ParametricShowTarget)
+            && (measurement ? ChosenMeasured : ChosenTarget) is not null;
         string text = Strings.Format(measurement ? "Curves_KeyMeasuredNamed" : "Curves_KeyTarget",
-            has ? ChosenName(settings, measurement) : Strings.Get("Curves_None"));
-        var swatch = measurement ? _measuredSwatch : _targetSwatch;
-        swatch.Opacity = shown && has ? 1 : HiddenOpacity;
-        chooser.Show(text, shown || !has ? text : Strings.Format("Curves_Hidden", text), lead: swatch);
-
-        var show = measurement ? _showMeasured : _showTarget;
-        show.Content = Strings.Get(measurement ? (shown ? "Curves_HideMeasured" : "Curves_Measured") : (shown ? "Curves_HideTarget" : "Curves_Target"));
-        show.IsEnabled = has;
+            shown ? ChosenName(settings, measurement) : Strings.Get("Curves_None"));
+        chooser.Show(text, text, lead: measurement ? _measuredSwatch : _targetSwatch);
 
         var chosen = ChosenFile(settings, measurement);
-        var items = new List<ChooserItem>();
-        if (BuiltIn(measurement) is not null) items.Add(new ChooserItem(BuiltInName(measurement), BuiltInTag) { Chosen = chosen is null });
-        foreach (var file in Files(settings, measurement)) items.Add(new ChooserItem(file.Name, file) { Chosen = file == chosen, Deletable = true });
+        var items = new List<ChooserItem> { new(Strings.Get("Curves_None"), NoneTag) { Chosen = !shown } };
+        if (BuiltIn(measurement) is not null) items.Add(new ChooserItem(BuiltInName(measurement), BuiltInTag) { Chosen = shown && chosen is null });
+        foreach (var file in Files(settings, measurement)) items.Add(new ChooserItem(file.Name, file) { Chosen = shown && file == chosen, Deletable = true });
         chooser.List(items);
     }
 
@@ -196,9 +190,14 @@ public sealed class CurvesBar : UserControl
     private void Choose(bool measurement, AppSettings.StoredCurve? file) => Change(s =>
     {
         SetChosen(s, measurement, file?.Name);
-        if (measurement) s.ParametricShowMeasured = true;
-        else s.ParametricShowTarget = true;
+        Show(s, measurement, true);
     });
+
+    private static void Show(AppSettings settings, bool measurement, bool shown)
+    {
+        if (measurement) settings.ParametricShowMeasured = shown;
+        else settings.ParametricShowTarget = shown;
+    }
 
     private void Change(Action<AppSettings> change)
     {

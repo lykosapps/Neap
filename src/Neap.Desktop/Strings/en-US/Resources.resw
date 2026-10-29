@@ -1108,7 +1108,7 @@
   <data name="Volume_MuteTip" xml:space="preserve">
     <value>Mutes the headset. Turning the volume wheel unmutes it.</value>
   </data>
-  <data name="Quick_PresetList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+  <data name="Quick_PresetList" xml:space="preserve">
     <value>Equaliser presets</value>
   </data>
   <data name="Mic_Live" xml:space="preserve">
@@ -2310,12 +2310,6 @@
   <data name="Profile_ParametricOff" xml:space="preserve">
     <value>the parametric shape, as Parametric is off</value>
   </data>
-  <data name="Curves_Measured" xml:space="preserve">
-    <value>Show measured response</value>
-  </data>
-  <data name="Curves_Target" xml:space="preserve">
-    <value>Show target</value>
-  </data>
   <data name="Curves_LoadMeasured" xml:space="preserve">
     <value>Load measurement…</value>
   </data>
@@ -2382,16 +2376,7 @@
   <data name="Curves_TargetList" xml:space="preserve">
     <value>Targets</value>
   </data>
-  <data name="Curves_HideMeasured" xml:space="preserve">
-    <value>Hide measured response</value>
-  </data>
-  <data name="Curves_HideTarget" xml:space="preserve">
-    <value>Hide target</value>
-  </data>
-  <data name="Curves_Hidden" xml:space="preserve">
-    <value>{0}, hidden</value>
-  </data>
   <data name="Curves_None" xml:space="preserve">
-    <value>none</value>
+    <value>None</value>
   </data>
 </root>
