@@ -13,7 +13,7 @@ namespace Neap.Desktop.Controls;
 /// <summary>
 /// Where the parametric equaliser's shape comes from: one picker that lists
 /// the saved presets, each with a way to delete it, and the starting shapes,
-/// with saving and renaming beside it.
+/// with saving, renaming and importing beside it.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -47,6 +47,7 @@ public sealed class ParametricPresetBar : UserControl
     private readonly Button _saveAsNew = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Button _more = new() { Classes = { "quiet", "iconbutton" } };
     private readonly MenuItem _rename = new();
+    private readonly MenuItem _import = new();
     private bool _painting;
 
     /// <summary>The saved preset whose row is asking Delete or Cancel, or null.</summary>
@@ -106,11 +107,13 @@ public sealed class ParametricPresetBar : UserControl
         string more = Strings.Get("ParametricPreset_More");
         AutomationProperties.SetName(_more, more);
         ToolTip.SetTip(_more, more);
-        _more.Flyout = new MenuFlyout { Items = { _rename } };
+        _import.Header = Strings.Get("ParametricPreset_Import");
+        _more.Flyout = new MenuFlyout { Items = { _rename, _import } };
 
         _save.Click += (_, _) => SaveOver();
         _saveAsNew.Click += async (_, _) => await SaveAsNew();
         _rename.Click += async (_, _) => await Rename();
+        _import.Click += (_, _) => ImportAsked?.Invoke();
 
         Content = new WrapPanel
         {
@@ -120,6 +123,9 @@ public sealed class ParametricPresetBar : UserControl
             Children = { _picker, _save, _saveAsNew, _more },
         };
     }
+
+    /// <summary>Import preset was chosen; the panel asks for the filters.</summary>
+    public event Action? ImportAsked;
 
     /// <summary>Notes the file the next shape comes from, or none with null.</summary>
     /// <remarks>An imported shape stands apart from any preset until it is saved; any other shape is an edit of the preset in use.</remarks>
@@ -144,7 +150,6 @@ public sealed class ParametricPresetBar : UserControl
         _save.IsEnabled = can.Save;
         _save.Classes.Set("accent", can.Save);
         _rename.IsEnabled = can.Rename;
-        _more.IsEnabled = can.Rename;
         FillList();
     }
 

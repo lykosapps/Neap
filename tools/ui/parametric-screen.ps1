@@ -48,7 +48,7 @@ function Get-Hertz($Shown) {
     if ($text -match '([\d.,]+)\s*(k?)Hz') { [double]($Matches[1] -replace ',', '.') * $(if ($Matches[2]) { 1000 } else { 1 }) } else { 0 }
 }
 
-$importItem = "Import filters$([char]0x2026)"
+$importItem = "Import preset$([char]0x2026)"
 $sample = @(
     'Preamp: -6.2 dB'
     'Filter 1: ON PK Fc 105 Hz Gain -2.5 dB Q 0.7'
@@ -87,11 +87,11 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
 
         if ($Parts.Contains('C')) {
             Section "importing filters in $theme"
-            Open-Menu (Find-Named 'Curves')
+            Open-Menu (Find-Named 'More preset actions')
             Start-Sleep -Milliseconds 400
-            Check ($(try { Send-Pretend "press $importItem" | Out-Null; $true } catch { $false })) 'the Curves menu offers Import filters'
-            Check (Wait-Until { $null -ne (Find-Dialog 'Import filters') } 5) 'it opens the import dialog'
-            $dialog = Find-Dialog 'Import filters'
+            Check ($(try { Send-Pretend "press $importItem" | Out-Null; $true } catch { $false })) 'the preset menu offers Import preset'
+            Check (Wait-Until { $null -ne (Find-Dialog 'Import preset') } 5) 'it opens the import dialog'
+            $dialog = Find-Dialog 'Import preset'
             if (-not $dialog) { continue }
             $import = $dialog.FindFirst($Scope::Descendants, (New-Condition AutomationIdProperty 'PrimaryButton'))
             Check (-not $import.Current.IsEnabled) 'Import is off until there are filters'
@@ -106,7 +106,7 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Check ($import.Current.IsEnabled) 'Import is on once a filter fits'
             Save-DialogShot $dialog "parametric-import-$theme"
             Press $import
-            Check (Wait-Until { $null -eq (Find-Dialog 'Import filters') } 5) 'Import closes the dialog'
+            Check (Wait-Until { $null -eq (Find-Dialog 'Import preset') } 5) 'Import closes the dialog'
             Check (Wait-Until { (Get-FrequencyShown 1) -contains '105 Hz' } 4) 'the table shows band 1 at the imported 105 Hz'
             Check ((Get-FrequencyShown 2) -contains '8 kHz') 'and band 2 at the imported 8 kHz'
             Check ($null -eq (Find-Named 'Band 3 gain')) 'the bands past the import are not shown'
@@ -117,14 +117,19 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
         if ($Parts.Contains('D') -and $theme -eq 'dark') {
             Section 'Auto-EQ'
             $texts = Get-Texts
-            Check ($texts -contains 'Measured') 'the key names the built-in measurement'
-            Check ($texts -contains 'With your changes') 'and the measurement with the bands added'
-            Check ($texts -contains 'Target: diffuse field with tilt') 'and the built-in target'
+            Check (@($texts | Where-Object { $_ -like 'Measured: Stealth Pro II, ANC o*, B&K 5128' }).Count -eq 1) 'the key names the built-in measurement'
+            Check ($texts -contains 'Target: 5128 DF + Tilt') 'and the built-in target by its name'
             Check ($null -ne (Find-Named 'Curves')) 'it offers Curves, to show, hide or load them'
+            Open-Menu (Find-Named 'Curves')
+            Start-Sleep -Milliseconds 400
+            Send-Pretend 'press Show target' | Out-Null
+            Check (Wait-Until { (Get-Texts) -notcontains 'Target: 5128 DF + Tilt' } 3) 'hiding the target takes it from the key'
             $autoEq = Find-Named 'Auto-EQ'
-            Check ($autoEq -and $autoEq.Current.IsEnabled) 'Auto-EQ is on with a measurement and a target shown'
+            Check ($autoEq -and $autoEq.Current.IsEnabled) 'Auto-EQ stays on with the target hidden'
             Press $autoEq
             Check (Wait-Until { $null -ne (Find-Named 'Band 4 gain') } 10) 'Auto-EQ sets bands'
+            Check ((Get-Texts) -contains 'Target: 5128 DF + Tilt') 'and shows the target it fitted to'
+            Check ((Get-Texts) -contains 'With your changes') 'and the measurement with the bands added'
             $hertz = @(1..10 | Where-Object { Find-Named "Band $_ gain" } | ForEach-Object { Get-Hertz (Get-FrequencyShown $_) })
             Check ((($hertz | Sort-Object) -join ',') -eq ($hertz -join ',')) "in order of frequency: $($hertz -join ', ')"
             Check (@($hertz | Where-Object { $_ -gt 10000 }).Count -eq 0) 'none above 10 kHz'
@@ -141,10 +146,10 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Close-Menu $tone
             $curves = Find-Named 'Curves'
             Open-Menu $curves
-            Wait-Until { @(Get-Popups).Count -ge 5 } 4 | Out-Null
+            Wait-Until { @(Get-Popups).Count -ge 6 } 4 | Out-Null
             $items = @(Get-Popups | ForEach-Object { $_.Current.Name })
-            $wanted = 'Show measured response', "Load measurement$([char]0x2026)", 'Show target', "Load target$([char]0x2026)", $importItem
-            Check (($items -join '|') -eq ($wanted -join '|')) "the Curves menu lists, in order: $($items -join ', ')"
+            $wanted = 'Show measured response', 'Stealth Pro II, ANC o*, B&K 5128', "Load measurement$([char]0x2026)", 'Show target', '5128 DF + Tilt', "Load target$([char]0x2026)"
+            Check ($items.Count -eq $wanted.Count -and @(0..($wanted.Count - 1) | Where-Object { $items[$_] -notlike $wanted[$_] }).Count -eq 0) "the Curves menu lists, in order: $($items -join ', ')"
             Close-Menu $curves
         }
     }

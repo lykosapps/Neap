@@ -7,23 +7,26 @@ using Avalonia.Layout;
 using Avalonia.Platform.Storage;
 using Neap.Core.Connection;
 using Neap.Core.Response;
+using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// What the parametric curve is drawn against: the headset's measured
-/// response and a target, each shown or hidden and replaceable by a file, with
-/// a key to the lines, the way to Auto-EQ, and the way to import filters.
+/// What the parametric curve is drawn against: a measured response and a
+/// target, each chosen from the built-in one and the files loaded, and each
+/// shown or hidden, with a key to the lines and the way to Auto-EQ.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Neap carries a measurement of the Stealth Pro II, with noise cancellation
 /// off and on, and a target made for the same measuring head
-/// (<see cref="BuiltInCurves"/>); the measurement shown follows the headset's
-/// noise cancellation. A file loaded in place of either is kept in the app's
-/// settings and read again each time.
+/// (<see cref="BuiltInCurves"/>); the built-in measurement follows the
+/// headset's noise cancellation. Files loaded are kept in the app's settings
+/// beside the built-in ones and read again when chosen.
 /// </para>
 /// <para>
+/// Hiding a curve keeps the choice, and Auto-EQ uses the chosen curves whether
+/// or not they are shown, so it is offered whenever there is a measurement.
 /// Every curve is lined up at 1 kHz, as the measurement sites do, so the gap
 /// between measurement and target is what the bands would have to change.
 /// </para>
@@ -33,10 +36,7 @@ public sealed class CurvesBar : UserControl
     private const long MostBytes = 1_000_000;
 
     private readonly DropDownButton _curves = new();
-    private readonly MenuItem _showMeasured = new() { ToggleType = MenuItemToggleType.CheckBox };
-    private readonly MenuItem _showTarget = new() { ToggleType = MenuItemToggleType.CheckBox };
-    private readonly MenuItem _builtInMeasured = new();
-    private readonly MenuItem _builtInTarget = new();
+    private readonly MenuFlyout _menu = new();
     private readonly Button _autoEq = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly StackPanel _keyMeasured;
     private readonly StackPanel _keyHeard;
@@ -44,7 +44,7 @@ public sealed class CurvesBar : UserControl
     private readonly TextBlock _keyTargetText = new() { VerticalAlignment = VerticalAlignment.Center, Classes = { "caption", "secondary" } };
     private readonly TextBlock _keyMeasuredText = new() { VerticalAlignment = VerticalAlignment.Center, Classes = { "caption", "secondary" } };
 
-    /// <summary>What each shown curve was made from, so it is lined up again only when that changes.</summary>
+    /// <summary>What each chosen curve was made from, so it is read and lined up again only when that changes.</summary>
     private object? _measuredFrom, _targetFrom;
 
     private bool _withChanges;
@@ -52,34 +52,13 @@ public sealed class CurvesBar : UserControl
     public CurvesBar()
     {
         _curves.Content = Strings.Get("Curves_Button");
-        _showMeasured.Header = Strings.Get("Curves_Measured");
-        _showTarget.Header = Strings.Get("Curves_Target");
-        _builtInMeasured.Header = Strings.Get("Curves_BuiltInMeasured");
-        _builtInTarget.Header = Strings.Get("Curves_BuiltInTarget");
-        var loadMeasured = new MenuItem { Header = Strings.Get("Curves_LoadMeasured") };
-        var loadTarget = new MenuItem { Header = Strings.Get("Curves_LoadTarget") };
-        var import = new MenuItem { Header = Strings.Get("Parametric_ImportFilters") };
-        _curves.Flyout = new MenuFlyout
-        {
-            Items =
-            {
-                _showMeasured, loadMeasured, _builtInMeasured, new Separator(),
-                _showTarget, loadTarget, _builtInTarget, new Separator(),
-                import,
-            },
-        };
+        _curves.Flyout = _menu;
         _autoEq.Content = Strings.Get("Curves_AutoEq");
-
-        _showMeasured.Click += (_, _) => Change(settings => settings.ParametricShowMeasured = !settings.ParametricShowMeasured);
-        _showTarget.Click += (_, _) => Change(settings => settings.ParametricShowTarget = !settings.ParametricShowTarget);
-        _builtInMeasured.Click += (_, _) => Change(settings => settings.ParametricMeasurement = null);
-        _builtInTarget.Click += (_, _) => Change(settings => settings.ParametricTarget = null);
-        loadMeasured.Click += async (_, _) => await Load(measurement: true);
-        loadTarget.Click += async (_, _) => await Load(measurement: false);
-        import.Click += (_, _) => ImportAsked?.Invoke();
         _autoEq.Click += (_, _) =>
         {
-            if (Measured is { } measured && Target is { } target) AutoEqAsked?.Invoke(measured, target);
+            if (ChosenMeasured is not { } measured || ChosenTarget is not { } target) return;
+            AutoEqAsked?.Invoke(measured, target);
+            Change(settings => (settings.ParametricShowMeasured, settings.ParametricShowTarget) = (true, true));
         };
 
         _keyMeasured = Key(new Line { StrokeThickness = 1.5, StrokeDashArray = [1, 2.5] }, "NeapTextTertiaryBrush", _keyMeasuredText);
@@ -92,20 +71,23 @@ public sealed class CurvesBar : UserControl
         Content = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M, Children = { key, actions } };
     }
 
-    /// <summary>What is shown changed: a curve shown, hidden or replaced, or the noise cancellation that picks the measurement.</summary>
+    /// <summary>What is shown changed: a curve shown, hidden or chosen, or the noise cancellation that picks the built-in measurement.</summary>
     public event Action? Changed;
 
-    /// <summary>Import filters was chosen; the panel asks for them.</summary>
-    public event Action? ImportAsked;
-
-    /// <summary>Auto-EQ was asked for, with the measurement and target shown.</summary>
+    /// <summary>Auto-EQ was asked for, with the chosen measurement and target.</summary>
     public event Action<FrequencyResponse, FrequencyResponse>? AutoEqAsked;
 
-    /// <summary>The measurement shown, lined up at 1 kHz, or null when hidden or there is none.</summary>
-    public FrequencyResponse? Measured { get; private set; }
+    /// <summary>The measurement chosen, lined up at 1 kHz, shown or not; null when there is none.</summary>
+    public FrequencyResponse? ChosenMeasured { get; private set; }
 
-    /// <summary>The target shown, lined up at 1 kHz, or null when hidden or there is none.</summary>
-    public FrequencyResponse? Target { get; private set; }
+    /// <summary>The target chosen, lined up at 1 kHz, shown or not.</summary>
+    public FrequencyResponse? ChosenTarget { get; private set; }
+
+    /// <summary>The measurement drawn, or null when hidden or there is none.</summary>
+    public FrequencyResponse? Measured => AppSettings.Current.ParametricShowMeasured ? ChosenMeasured : null;
+
+    /// <summary>The target drawn, or null when hidden.</summary>
+    public FrequencyResponse? Target => AppSettings.Current.ParametricShowTarget ? ChosenTarget : null;
 
     /// <summary>Whether the curve draws the measurement with the bands added, so the key lists it only then.</summary>
     public bool WithChanges
@@ -135,46 +117,96 @@ public sealed class CurvesBar : UserControl
 
     private void OnStatus(HeadsetStatus status) => Paint();
 
-    /// <summary>Works out the curves shown, names them in the key, and says so if any changed.</summary>
+    /// <summary>Reads the chosen curves when they changed, names them in the key and the menu, and says so.</summary>
     public void Paint()
     {
         var settings = AppSettings.Current;
-        var builtIn = BuiltInCurves.Measured(AppServices.Headset.Model, AppServices.Noise.Mode);
-        object? measuredFrom = settings.ParametricShowMeasured ? (object?)settings.ParametricMeasurement ?? builtIn : null;
-        object? targetFrom = settings.ParametricShowTarget ? (object?)settings.ParametricTarget ?? BuiltInCurves.Target : null;
-        bool moved = !ReferenceEquals(measuredFrom, _measuredFrom) || !ReferenceEquals(targetFrom, _targetFrom);
-        if (moved)
+        var measuredFrom = From(settings, measurement: true);
+        var targetFrom = From(settings, measurement: false);
+        if (!ReferenceEquals(measuredFrom, _measuredFrom))
         {
-            (_measuredFrom, _targetFrom) = (measuredFrom, targetFrom);
-            Measured = Shown(measuredFrom, builtIn);
-            Target = Shown(targetFrom, BuiltInCurves.Target);
+            _measuredFrom = measuredFrom;
+            ChosenMeasured = Read(measuredFrom, BuiltIn(measurement: true));
         }
 
-        _showMeasured.IsChecked = settings.ParametricShowMeasured;
-        _showMeasured.IsEnabled = settings.ParametricMeasurement is not null || builtIn is not null;
-        _showTarget.IsChecked = settings.ParametricShowTarget;
-        _builtInMeasured.IsVisible = settings.ParametricMeasurement is not null;
-        _builtInTarget.IsVisible = settings.ParametricTarget is not null;
-        _autoEq.IsEnabled = Measured is not null && Target is not null;
+        if (!ReferenceEquals(targetFrom, _targetFrom))
+        {
+            _targetFrom = targetFrom;
+            ChosenTarget = Read(targetFrom, BuiltIn(measurement: false));
+        }
 
+        _autoEq.IsVisible = ChosenMeasured is not null;
         _keyMeasured.IsVisible = Measured is not null;
         _keyHeard.IsVisible = _withChanges;
         _keyTarget.IsVisible = Target is not null;
-        _keyMeasuredText.Text = settings.ParametricMeasurement is { } own
-            ? Strings.Format("Curves_KeyMeasuredNamed", own.Name)
-            : Strings.Get("Curves_KeyMeasured");
-        _keyTargetText.Text = Strings.Format("Curves_KeyTarget", settings.ParametricTarget?.Name ?? Strings.Get("Curves_BuiltInTargetName"));
-
-        if (moved) Changed?.Invoke();
+        _keyMeasuredText.Text = Strings.Format("Curves_KeyMeasuredNamed", ChosenName(settings, measurement: true));
+        _keyTargetText.Text = Strings.Format("Curves_KeyTarget", ChosenName(settings, measurement: false));
+        FillMenu();
+        Changed?.Invoke();
     }
 
-    /// <summary>A curve to show, lined up at 1 kHz: a stored file, or the built-in one when the file no longer reads.</summary>
-    private static FrequencyResponse? Shown(object? from, FrequencyResponse? builtIn) => from switch
+    /// <summary>Lists, for the measurement and then the target: Show, each curve to choose from, Load, and Remove for a chosen file.</summary>
+    /// <remarks>Filled whenever the choices change, not as the menu opens, so a screen reader finds the items in the menu it opens.</remarks>
+    private void FillMenu()
     {
-        AppSettings.StoredCurve stored => (Curve(stored) ?? builtIn)?.Aligned(),
-        FrequencyResponse curve => curve.Aligned(),
-        _ => null,
-    };
+        _menu.Items.Clear();
+        Section(measurement: true);
+        _menu.Items.Add(new Separator());
+        Section(measurement: false);
+    }
+
+    private void Section(bool measurement)
+    {
+        var settings = AppSettings.Current;
+        var files = Files(settings, measurement);
+        var chosen = ChosenFile(settings, measurement);
+        string group = measurement ? "measurement" : "target";
+
+        var show = new MenuItem
+        {
+            Header = Strings.Get(measurement ? "Curves_Measured" : "Curves_Target"),
+            ToggleType = MenuItemToggleType.CheckBox,
+            IsChecked = measurement ? settings.ParametricShowMeasured : settings.ParametricShowTarget,
+            IsEnabled = (measurement ? ChosenMeasured : ChosenTarget) is not null,
+        };
+        show.Click += (_, _) => Change(s =>
+        {
+            if (measurement) s.ParametricShowMeasured = !s.ParametricShowMeasured;
+            else s.ParametricShowTarget = !s.ParametricShowTarget;
+        });
+        _menu.Items.Add(show);
+
+        if (BuiltIn(measurement) is not null) _menu.Items.Add(Choice(BuiltInName(measurement), group, chosen is null, () => Choose(measurement, null)));
+        foreach (var file in files) _menu.Items.Add(Choice(file.Name, group, file == chosen, () => Choose(measurement, file.Name)));
+
+        var load = new MenuItem { Header = Strings.Get(measurement ? "Curves_LoadMeasured" : "Curves_LoadTarget") };
+        load.Click += async (_, _) => await Load(measurement);
+        _menu.Items.Add(load);
+
+        if (chosen is null) return;
+        var remove = new MenuItem { Header = Strings.Format("Curves_Remove", chosen.Name) };
+        remove.Click += (_, _) => Change(s =>
+        {
+            Files(s, measurement).RemoveAll(f => Same(f.Name, chosen.Name));
+            SetChosen(s, measurement, null);
+        });
+        _menu.Items.Add(remove);
+    }
+
+    private static MenuItem Choice(string name, string group, bool chosen, Action choose)
+    {
+        var item = new MenuItem { Header = name, ToggleType = MenuItemToggleType.Radio, GroupName = group, IsChecked = chosen };
+        item.Click += (_, _) => choose();
+        return item;
+    }
+
+    /// <summary>Chooses a loaded curve, or the built-in one with null, and shows it.</summary>
+    private void Choose(bool measurement, string? name) => Change(s =>
+    {
+        SetChosen(s, measurement, name);
+        if (measurement) s.ParametricShowMeasured = true;
+        else s.ParametricShowTarget = true;
+    });
 
     private void Change(Action<AppSettings> change)
     {
@@ -182,16 +214,49 @@ public sealed class CurvesBar : UserControl
         Paint();
     }
 
-    /// <summary>A stored curve read again, or null when there is none or it no longer reads.</summary>
-    private static FrequencyResponse? Curve(AppSettings.StoredCurve? stored)
+    private static List<AppSettings.StoredCurve> Files(AppSettings settings, bool measurement) =>
+        measurement ? settings.ParametricMeasurements : settings.ParametricTargets;
+
+    /// <summary>The loaded curve in use, or null for the built-in one.</summary>
+    private static AppSettings.StoredCurve? ChosenFile(AppSettings settings, bool measurement)
     {
-        if (stored is null) return null;
-        var read = FrequencyResponse.Read(stored.Text);
-        if (read.Curve is null) AppLog.Write($"parametric: the stored curve {stored.Name} no longer reads ({read.Problem}), so the built-in one is shown");
-        return read.Curve;
+        string? name = measurement ? settings.ParametricMeasurementName : settings.ParametricTargetName;
+        return name is null ? null : Files(settings, measurement).FirstOrDefault(f => Same(f.Name, name));
     }
 
-    /// <summary>Asks for a file, reads it as a frequency response, and keeps it in place of the built-in measurement or target.</summary>
+    private static void SetChosen(AppSettings settings, bool measurement, string? name)
+    {
+        if (measurement) settings.ParametricMeasurementName = name;
+        else settings.ParametricTargetName = name;
+    }
+
+    private static string ChosenName(AppSettings settings, bool measurement) =>
+        ChosenFile(settings, measurement)?.Name ?? BuiltInName(measurement);
+
+    /// <summary>What the chosen curve is made from: its file, or the built-in curve.</summary>
+    private static object? From(AppSettings settings, bool measurement) =>
+        (object?)ChosenFile(settings, measurement) ?? BuiltIn(measurement);
+
+    private static FrequencyResponse? BuiltIn(bool measurement) =>
+        measurement ? BuiltInCurves.Measured(AppServices.Headset.Model, AppServices.Noise.Mode) : BuiltInCurves.Target;
+
+    private static string BuiltInName(bool measurement) => Strings.Get(!measurement ? "Curves_BuiltInTargetName"
+        : AppServices.Noise.Mode == NoiseMode.Cancelling ? "Curves_BuiltInMeasuredAncOn"
+        : "Curves_BuiltInMeasuredAncOff");
+
+    /// <summary>A chosen curve, lined up at 1 kHz: its file read again, or the built-in one when the file no longer reads.</summary>
+    private static FrequencyResponse? Read(object? from, FrequencyResponse? builtIn)
+    {
+        if (from is not AppSettings.StoredCurve stored) return builtIn?.Aligned();
+        var read = FrequencyResponse.Read(stored.Text);
+        if (read.Curve is null) AppLog.Write($"parametric: the stored curve {stored.Name} no longer reads ({read.Problem}), so the built-in one is shown");
+        return (read.Curve ?? builtIn)?.Aligned();
+    }
+
+    private static bool Same(string a, string b) => string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Asks for a file, reads it as a frequency response, and keeps it beside the others, chosen and shown.</summary>
+    /// <remarks>A file with the name of one already loaded replaces it.</remarks>
     private async Task Load(bool measurement)
     {
         if (TopLevel.GetTopLevel(this)?.StorageProvider is not { } storage) return;
@@ -237,12 +302,13 @@ public sealed class CurvesBar : UserControl
             return;
         }
 
-        var stored = new AppSettings.StoredCurve { Name = name, Text = text };
         Change(settings =>
         {
-            if (measurement) (settings.ParametricMeasurement, settings.ParametricShowMeasured) = (stored, true);
-            else (settings.ParametricTarget, settings.ParametricShowTarget) = (stored, true);
+            var files = Files(settings, measurement);
+            files.RemoveAll(f => Same(f.Name, name));
+            files.Add(new AppSettings.StoredCurve { Name = name, Text = text });
         });
+        Choose(measurement, name);
         AppLog.Write($"parametric: loaded {(measurement ? "a measurement" : "a target")}, {name}, of {read.Curve.Points.Count} points");
     }
 

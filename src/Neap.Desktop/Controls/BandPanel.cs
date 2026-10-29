@@ -349,7 +349,7 @@ public sealed class BandPanel : UserControl
         _undo.Click += (_, _) => Walk(_undoStack, _redoStack);
         _redo.Click += (_, _) => Walk(_redoStack, _undoStack);
         _level.ActionInvoked += (_, _) => LowerLevel();
-        _curvesBar.ImportAsked += async () =>
+        _presets.ImportAsked += async () =>
         {
             if (await FilterImportDialog.Ask(this) is not { } imported) return;
             _presets.CameFrom(imported.Source);

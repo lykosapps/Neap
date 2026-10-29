@@ -227,13 +227,21 @@ public sealed class AppSettings
     [JsonPropertyName("parametric_show_target")]
     public bool ParametricShowTarget { get; set; } = true;
 
-    /// <summary>A measurement the person loaded in place of the built-in one, or null for the built-in one.</summary>
-    [JsonPropertyName("parametric_measurement")]
-    public StoredCurve? ParametricMeasurement { get; set; }
+    /// <summary>The measurements the person loaded, kept beside the built-in one.</summary>
+    [JsonPropertyName("parametric_measurements")]
+    public List<StoredCurve> ParametricMeasurements { get; set; } = [];
 
-    /// <summary>A target the person loaded in place of the built-in one, or null for the built-in one.</summary>
-    [JsonPropertyName("parametric_target")]
-    public StoredCurve? ParametricTarget { get; set; }
+    /// <summary>The name of the loaded measurement in use, or null for the built-in one.</summary>
+    [JsonPropertyName("parametric_measurement_name")]
+    public string? ParametricMeasurementName { get; set; }
+
+    /// <summary>The targets the person loaded, kept beside the built-in one.</summary>
+    [JsonPropertyName("parametric_targets")]
+    public List<StoredCurve> ParametricTargets { get; set; } = [];
+
+    /// <summary>The name of the loaded target in use, or null for the built-in one.</summary>
+    [JsonPropertyName("parametric_target_name")]
+    public string? ParametricTargetName { get; set; }
 
     /// <summary>A frequency response loaded from a file: its name and its text, read again each time it is shown.</summary>
     public sealed class StoredCurve

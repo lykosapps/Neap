@@ -1,5 +1,19 @@
 # Decisions
 
+## 2026-10-29 — Curves are chosen from lists, Auto-EQ uses the chosen ones, and filters import as a preset
+
+- **Chosen:** the Curves menu lists the built-in measurement and target by
+  their real names (the Stealth Pro II on a B&K 5128, with noise cancellation
+  on or off; 5128 DF + Tilt) beside every file loaded, with one chosen in
+  each and Show kept apart from the choice. Auto-EQ uses the chosen curves
+  whether or not they are shown, and shows both after it fits, so it is
+  never offered greyed out; a headset with no measurement has no Auto-EQ.
+  Importing Equalizer APO or AutoEq filters is "Import preset" in the
+  preset menu.
+- **Why:** the owner, on a test build: the built-in target was not named, a
+  target loaded replaced the last one, a greyed-out Auto-EQ did not say
+  why, and imported filters are a preset of bands, not a curve.
+
 ## 2026-10-29 — Parametric draws the headset's measurement and a target, and Auto-EQ fits one to the other
 
 - **Options:** the bands' curve alone; a measurement and a target drawn
