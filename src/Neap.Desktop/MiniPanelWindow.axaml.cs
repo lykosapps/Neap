@@ -72,7 +72,7 @@ public partial class MiniPanelWindow : Window
         };
         OpenNeap.Click += (_, _) => OpenWindow(null);
         ChooseApps.Click += (_, _) => OpenWindow("home");
-        Preset.Flyout!.Closed += (_, _) => CloseIfAway();
+        Preset.DropDownClosed += (_, _) => CloseIfAway();
         Preset.EqualiserAsked += () =>
         {
             OpenWindow("equaliser");
@@ -174,7 +174,7 @@ public partial class MiniPanelWindow : Window
     /// <summary>Closes the panel once focus has gone elsewhere, unless the presets are open, which hold it.</summary>
     private void CloseIfAway()
     {
-        if (Pretend.Mini || IsActive || Preset.Flyout!.IsOpen) return;
+        if (Pretend.Mini || IsActive || Preset.IsDropDownOpen) return;
         Close();
     }
 

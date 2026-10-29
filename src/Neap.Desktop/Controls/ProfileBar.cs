@@ -36,25 +36,26 @@ namespace Neap.Desktop.Controls;
 /// <para>
 /// New profile sits above the list of saved ones, not below: it answers the
 /// current settings, not a choice from the list, and its spot shouldn't
-/// depend on how many profiles happen to be saved. The face and the list are
-/// a <see cref="Chooser"/>, as every list Neap chooses from is.
+/// depend on how many profiles happen to be saved.
 /// </para>
 /// </remarks>
 public sealed class ProfileBar : UserControl
 {
-    private readonly Border _editedPill;
-    private readonly Chooser _face = new(Strings.Get("Profile_Bar"))
+    private readonly TextBlock _name = new()
     {
-        HorizontalAlignment = HorizontalAlignment.Stretch,
-        SmallText = true,
+        Classes = { "caption" },
+        TextTrimming = Avalonia.Media.TextTrimming.CharacterEllipsis,
+        TextWrapping = Avalonia.Media.TextWrapping.NoWrap,
     };
 
-    private readonly StackPanel _faceTags;
+    private readonly Border _editedPill;
+    private readonly DropDownButton _face;
     private readonly Button _icon;
     private readonly Ellipse _editedDot;
     private readonly Button _saveButton;
     private readonly Button _discardButton;
     private readonly Grid _editRow;
+    private readonly ListBox _list = new();
     private readonly ProgressBar _working = new() { Classes = { "busy" }, IsVisible = false, VerticalAlignment = VerticalAlignment.Center };
 
     private readonly TextBlock _notice = new()
@@ -77,6 +78,8 @@ public sealed class ProfileBar : UserControl
         IsVisible = false,
     };
 
+    private readonly Flyout _flyout;
+    private bool _building;
     private bool _busy;
     private bool _compact;
 
@@ -87,6 +90,7 @@ public sealed class ProfileBar : UserControl
         AutomationProperties.SetName(_working, Strings.Get("Profile_Working"));
         _editedPill = new Border { Classes = { "tag" }, Child = editedWord, IsVisible = false };
 
+        AutomationProperties.SetName(_list, Strings.Get("Profile_Bar"));
         _new.Content = Strings.Get("Profile_New");
 
         // Save always leads here: Discard is the one time it isn't the
@@ -116,24 +120,60 @@ public sealed class ProfileBar : UserControl
         // saved profiles to switch to: Save and Discard answer the Edited
         // mark on the face when there's something to answer; New profile is
         // always here, at a stable spot the list below can't push down.
-        _face.Actions(_notice, _editRow, _new);
-        _face.Flyout!.Opened += (_, _) =>
+        var actionsSection = new Border
+        {
+            Classes = { "underlined", "profileactions" },
+            Child = new StackPanel { Classes = { "dialogflow" }, Children = { _editRow, _new } },
+        };
+
+        _flyout = new Flyout
+        {
+            Placement = PlacementMode.BottomEdgeAlignedLeft,
+            Content = new StackPanel
+            {
+                Classes = { "profilemenu" },
+                Children = { _notice, actionsSection, _list },
+            },
+        };
+        _flyout.Opened += (_, _) =>
         {
             BuildList();
             Paint();
         };
 
-        _new.Click += async (_, _) => await ProfileDialogs.SaveCurrentAsNew(this);
-        _face.Chosen += async chosen => await ApplyChosen((Profile)chosen);
-        _face.Deleted += deleted =>
+        _new.Click += async (_, _) =>
         {
-            AppServices.Profiles.Delete(((Profile)deleted).Id);
-            BuildList();
+            _flyout.Hide();
+            await ProfileDialogs.SaveCurrentAsNew(this);
         };
 
-        // A chooser, a dropdown button: its chevron is the only hint, in the
-        // empty "No profile" state, that this is a menu and not a status label.
-        _faceTags = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, Children = { _editedPill, _working } };
+        _list.SelectionChanged += async (_, _) =>
+        {
+            if (_building) return;
+            if (_list.SelectedItem is not ListBoxItem { Tag: Profile chosen }) return;
+            _flyout.Hide();
+            await ApplyChosen(chosen);
+        };
+
+        // A grid, so the name shortens within whatever width Fit gives it.
+        var faceContent = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"), Classes = { "profileface" } };
+        Grid.SetColumn(_editedPill, 1);
+        Grid.SetColumn(_working, 2);
+        faceContent.Children.Add(_name);
+        faceContent.Children.Add(_editedPill);
+        faceContent.Children.Add(_working);
+
+        // A DropDownButton, not a plain Button: its built-in chevron is the
+        // only hint, in the empty "No profile" state, that this is a menu
+        // and not a status label.
+        _face = new DropDownButton
+        {
+            Flyout = _flyout,
+            Content = faceContent,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+        };
+        AutomationProperties.SetName(_face, Strings.Get("Profile_Bar"));
 
         // The icon shows the Edited mark as a dot on its corner.
         _editedDot = new Ellipse
@@ -149,7 +189,7 @@ public sealed class ProfileBar : UserControl
         double target = (double)Application.Current!.FindResource("NeapNavItemHeight")!;
         _icon = new Button
         {
-            Flyout = _face.Flyout,
+            Flyout = _flyout,
             Content = new Grid
             {
                 Children =
@@ -167,7 +207,7 @@ public sealed class ProfileBar : UserControl
 
         _saveButton.Click += (_, _) =>
         {
-            _face.Close();
+            _flyout.Hide();
             AppServices.Profiles.SaveOverActive();
             Paint();
             // The menu is already closing; keep focus on the face rather
@@ -175,7 +215,21 @@ public sealed class ProfileBar : UserControl
             Face.Focus();
         };
 
-        _discardButton.Click += async (_, _) => await Discard();
+        _discardButton.Click += async (_, _) =>
+        {
+            if (_busy) return;
+            _flyout.Hide();
+            _busy = true;
+            Paint();
+            try { await AppServices.Profiles.Discard(); }
+            catch (HeadsetUnavailableException ex) { await ProfileDialogs.Complain(this, Strings.Get("Profile_CouldNotSwitchTitle"), ex.Message); }
+            finally
+            {
+                _busy = false;
+                Paint();
+                Face.Focus();
+            }
+        };
 
         // What is waiting sits under the name it belongs to.
         AutomationProperties.SetAutomationId(_waiting, "profile_waiting");
@@ -233,21 +287,20 @@ public sealed class ProfileBar : UserControl
     {
         var active = AppServices.Profiles.Active;
         bool edited = AppServices.Profiles.IsEdited;
-        string name = active?.Name ?? Strings.Get("Profile_None");
-        _face.Show(name, tag: _faceTags);
+        _name.Text = active?.Name ?? Strings.Get("Profile_None");
         _editedPill.IsVisible = edited;
         _editRow.IsVisible = edited && active is not null;
         _face.IsVisible = !_compact;
         _icon.IsVisible = _compact;
         _editedDot.IsVisible = edited;
-        string status = edited ? $"{name}, {Strings.Get("Profile_Edited")}" : name;
+        string status = edited ? $"{_name.Text}, {Strings.Get("Profile_Edited")}" : _name.Text;
         AutomationProperties.SetItemStatus(_face, status);
         AutomationProperties.SetItemStatus(_icon, status);
-        AutomationProperties.SetName(_icon, name);
+        AutomationProperties.SetName(_icon, _name.Text);
 
         var ready = AppServices.Profiles.Ready;
         _working.IsVisible = _busy || ready == ProfileReadiness.Reading;
-        _face.ListEnabled = _new.IsEnabled = ready == ProfileReadiness.Ready && !_busy;
+        _list.IsEnabled = _new.IsEnabled = ready == ProfileReadiness.Ready && !_busy;
         _notice.Text = ready switch
         {
             ProfileReadiness.HeadsetNotAnswering => Strings.Get("Profile_NeedsHeadset"),
@@ -262,55 +315,47 @@ public sealed class ProfileBar : UserControl
 
         // The whole name, where the bar has shortened it, and in the icon what is waiting too. Only when it
         // changes: setting a tip on the button its list hangs from closes the list.
-        string tip = _compact && waiting is not null ? $"{name}. {_waiting.Text}" : name;
+        string tip = _compact && waiting is not null ? $"{_name.Text}. {_waiting.Text}" : _name.Text!;
         foreach (var button in new Button[] { _face, _icon })
             if (ToolTip.GetTip(button) as string != tip) ToolTip.SetTip(button, tip);
     }
 
-    /// <summary>Lists the saved profiles, the active one selected and the default one tagged.</summary>
     private void BuildList()
     {
-        string? activeId = AppServices.Profiles.ActiveId;
-        string? defaultId = AppServices.Profiles.DefaultId;
-        string tag = Strings.Get("Profile_DefaultTag");
-        _face.List([.. AppServices.Profiles.All.Select(profile => profile.Id == defaultId
-            ? new ChooserItem(profile.Name, profile)
-            {
-                Chosen = profile.Id == activeId,
-                Deletable = true,
-                Badge = new Border { Classes = { "tag" }, Child = new TextBlock { Text = tag } },
-                Status = tag,
-            }
-            : new ChooserItem(profile.Name, profile) { Chosen = profile.Id == activeId, Deletable = true })]);
-    }
-
-    /// <summary>Puts the active profile back on the headset as it was saved.</summary>
-    private async Task Discard()
-    {
-        if (_busy) return;
-        _face.Close();
-        _busy = true;
-        Paint();
-        try { await AppServices.Profiles.Discard(); }
-        catch (HeadsetUnavailableException ex) { await ProfileDialogs.Complain(this, Strings.Get("Profile_CouldNotSwitchTitle"), ex.Message); }
-        finally
+        _building = true;
+        try
         {
-            _busy = false;
-            Paint();
-            Face.Focus();
+            _list.Items.Clear();
+            string? activeId = AppServices.Profiles.ActiveId;
+            string? defaultId = AppServices.Profiles.DefaultId;
+            foreach (var profile in AppServices.Profiles.All)
+            {
+                var item = new ListBoxItem { Content = profile.Name, Tag = profile };
+                AutomationProperties.SetName(item, profile.Name);
+                if (profile.Id == defaultId)
+                {
+                    string tag = Strings.Get("Profile_DefaultTag");
+                    item.Content = new StackPanel
+                    {
+                        Classes = { "gaprow" },
+                        Children =
+                        {
+                            new TextBlock { Text = profile.Name, VerticalAlignment = VerticalAlignment.Center },
+                            new Border { Classes = { "tag" }, Child = new TextBlock { Text = tag } },
+                        },
+                    };
+                    AutomationProperties.SetItemStatus(item, tag);
+                }
+                _list.Items.Add(item);
+                if (profile.Id == activeId) _list.SelectedItem = item;
+            }
         }
+        finally { _building = false; }
     }
 
     private async Task ApplyChosen(Profile chosen)
     {
         if (_busy) return;
-
-        // The active profile chosen again puts it back as it was, as Discard does.
-        if (chosen.Id == AppServices.Profiles.ActiveId)
-        {
-            if (AppServices.Profiles.IsEdited) await Discard();
-            return;
-        }
 
         // Unsaved changes are the one thing switching loses for good.
         if (AppServices.Profiles.IsEdited && AppServices.Profiles.Active is { } leaving)

@@ -15,8 +15,8 @@
     Background="Transparent">
 
     <Window.Styles>
-        <!-- The preset picker sized to the panel's compact row; by name, as a chooser is styled as the dropdown button it is. -->
-        <Style Selector="DropDownButton#Preset">
+        <!-- The preset picker sized to the panel's compact row; by name, as it is styled as the ComboBox it is. -->
+        <Style Selector="ComboBox#Preset">
             <Setter Property="MinHeight" Value="0" />
             <Setter Property="Height" Value="28" />
         </Style>

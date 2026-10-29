@@ -383,14 +383,20 @@ function Test-Contrast($Bitmap, $Element, [string]$What, [double]$Needs = 4.5) {
     Check ($ratio -ge $Needs) ("{0}: contrast {1}:1 (needs {2}:1)" -f $What, $ratio, $Needs)
 }
 
-# A button on the page whose name matches a pattern, such as a chooser's face, which names what it has chosen.
-function Find-ButtonLike([string]$Like) {
-    @(Search { $script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Button))) }) |
+# A list box (ComboBox) on the page whose name matches a pattern.
+function Find-Box([string]$Like) {
+    @(Search { $script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::ComboBox))) }) |
         Where-Object { $_.Current.Name -like $Like -and -not $_.Current.IsOffscreen } | Select-Object -First 1
 }
 
+# The name of the row a list box has chosen, or nothing.
+function Get-BoxChoice($Box) {
+    if (-not $Box) { return }
+    @($Box.GetCurrentPattern([System.Windows.Automation.SelectionPattern]::Pattern).Current.GetSelection()) | ForEach-Object { $_.Current.Name } | Select-Object -First 1
+}
+
 # The parametric equaliser's preset picker, whatever it names.
-function Find-ParametricPicker { Find-ButtonLike 'Parametric preset:*' }
+function Find-ParametricPicker { Find-Box 'Parametric preset:*' }
 
 # A dialog or a popup is a window of its own, listed inside the main one or
 # beside it, so one is searched before the main window's own controls.
@@ -416,7 +422,7 @@ function Find-ListRow([string]$Name) {
 
 # Opens the parametric picker and chooses a row: a saved preset or a starting shape.
 function Choose-Parametric([string]$Name) {
-    Press (Find-ParametricPicker)
+    Open-Menu (Find-ParametricPicker)
     if (Wait-Until { $null -ne (Find-ListRow $Name) } 4) { Press (Find-ListRow $Name) }
     else { Write-Host "  note  the picker has no row called '$Name'" }
 }

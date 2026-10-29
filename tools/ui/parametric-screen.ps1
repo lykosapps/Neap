@@ -116,17 +116,17 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
 
         if ($Parts.Contains('D') -and $theme -eq 'dark') {
             Section 'Auto-EQ'
-            Check ($null -ne (Find-ButtonLike 'Measured: Stealth Pro II, ANC o*, B&K 5128')) 'the key names the built-in measurement, and chooses it'
-            Check ($null -ne (Find-ButtonLike 'Target: 5128 DF + Tilt')) 'and the built-in target by its name'
-            Open-Menu (Find-ButtonLike 'Target: *')
+            Check ((Get-BoxChoice (Find-Box 'Measured')) -like 'Stealth Pro II, ANC o*, B&K 5128') 'the key chooses the built-in measurement'
+            Check ((Get-BoxChoice (Find-Box 'Target')) -eq '5128 DF + Tilt') 'and the built-in target, by its name'
+            Open-Menu (Find-Box 'Target')
             Check (Wait-Until { $null -ne (Find-ListRow 'None') } 4) 'the target list offers None'
             Press (Find-ListRow 'None')
-            Check (Wait-Until { $null -ne (Find-ButtonLike 'Target: None') } 3) 'choosing None says so on its line in the key'
+            Check (Wait-Until { (Get-BoxChoice (Find-Box 'Target')) -eq 'None' } 3) 'choosing None says so on its line in the key'
             $autoEq = Find-Named 'Auto-EQ'
             Check ($autoEq -and $autoEq.Current.IsEnabled) 'Auto-EQ stays on with the target hidden'
             Press $autoEq
             Check (Wait-Until { $null -ne (Find-Named 'Band 4 gain') } 10) 'Auto-EQ sets bands'
-            Check (Wait-Until { $null -ne (Find-ButtonLike 'Target: 5128 DF + Tilt') } 3) 'and shows the target it fitted to'
+            Check (Wait-Until { (Get-BoxChoice (Find-Box 'Target')) -eq '5128 DF + Tilt' } 3) 'and shows the target it fitted to'
             Check ((Get-Texts) -contains 'With your changes') 'and the measurement with the bands added'
             $hertz = @(1..10 | Where-Object { Find-Named "Band $_ gain" } | ForEach-Object { Get-Hertz (Get-FrequencyShown $_) })
             Check ((($hertz | Sort-Object) -join ',') -eq ($hertz -join ',')) "in order of frequency: $($hertz -join ', ')"
@@ -146,13 +146,13 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Save-Shot "parametric-tone-$theme" -Whole | ForEach-Object { $_.Dispose() }
             Close-Menu $tone
             foreach ($curve in @(@('Measured', 'measurement'), @('Target', 'target'))) {
-                $face = Find-ButtonLike "$($curve[0]): *"
-                $builtIn = $face.Current.Name.Substring($curve[0].Length + 2)
+                $face = Find-Box $curve[0]
+                $builtIn = Get-BoxChoice $face
                 Open-Menu $face
                 Check (Wait-Until { $null -ne (Find-ListRow $builtIn) } 4) "the $($curve[1]) list has the built-in one, $builtIn"
                 $row = Find-ListRow $builtIn
                 Check ($row -and $row.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) 'selected, as it is in use'
-                Check ($null -ne (Find-Anywhere "Load $($curve[1])$([char]0x2026)")) "with Load $($curve[1]) above the list"
+                Check ($null -ne (Find-ListRow "Load $($curve[1])$([char]0x2026)")) "with Load $($curve[1]) as its last row"
                 Check ($null -ne (Find-ListRow 'None')) 'and None, to hide it'
                 Close-Menu $face
                 Wait-Until { $null -eq (Find-ListRow $builtIn) } 3 | Out-Null

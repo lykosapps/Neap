@@ -65,9 +65,8 @@ foreach ($theme in 'dark', 'light') {
         Open-Menu (Find-Named 'Equaliser preset')
         Check (Wait-Until { $null -ne (Find-InPopup 'No saved presets yet' ([System.Windows.Automation.ControlType]::Text)) } 4) 'its list says no preset is saved yet'
         Check ($null -eq (Find-Choice 'Bass Boost')) 'and offers no ten-band preset'
-        # Home has a link of the same name under the picker, so the list's own is found by its id.
-        $link = Find-InPopup 'PresetChoiceEqualiser' ([System.Windows.Automation.ControlType]::Button) 'AutomationIdProperty'
-        Check ($null -eq $link -or $link.Current.Name -eq 'Equaliser settings') 'named as the link under the picker'
+        # A row of the list, named as the link under the picker.
+        $link = Find-Choice 'Equaliser settings'
         Check ($null -ne $link) 'it offers the way to the equaliser'
         if ($link) { Press $link }
         Check (Wait-Until { $null -ne (Find-Named 'Equaliser curve') } 10) 'which opens the parametric equaliser'

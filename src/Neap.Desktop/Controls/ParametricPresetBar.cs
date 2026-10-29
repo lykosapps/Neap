@@ -15,10 +15,9 @@ namespace Neap.Desktop.Controls;
 /// <remarks>
 /// <para>
 /// A saved preset and a starting shape each put a whole shape on the curve,
-/// so they are one <see cref="Chooser"/>, each row with its curve beside it.
-/// The face names the preset, with the same Edited tag the ten-band equaliser
-/// uses once the shape has moved; choosing the preset again puts its shape
-/// back.
+/// so they are one <see cref="ComboBox"/>, each row with its curve beside it
+/// (<see cref="ChoiceList"/>). The box names the preset, with the same Edited
+/// tag the ten-band equaliser uses once the shape has moved.
 /// </para>
 /// <para>
 /// The presets are Neap's own, kept in its settings rather than on the
@@ -33,8 +32,8 @@ public sealed class ParametricPresetBar : UserControl
     private readonly Func<IReadOnlyList<ParametricBand>> _bands;
     private readonly Action<IReadOnlyList<ParametricBand>> _replace;
 
-    private readonly Chooser _picker = new(Strings.Get("ParametricPreset_ListName")) { MinWidth = 240 };
-    private readonly Border _edited = new() { Classes = { "edited" } };
+    private readonly ComboBox _picker = new() { MinWidth = 240 };
+    private readonly ChoiceList _choices;
     private readonly Button _save = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Button _saveAsNew = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Button _more = new() { Classes = { "quiet", "iconbutton" } };
@@ -54,9 +53,9 @@ public sealed class ParametricPresetBar : UserControl
         _bands = bands;
         _replace = replace;
 
-        _edited.Child = new TextBlock { Text = Strings.Get("ParametricPreset_EditedTag") };
-        _picker.Chosen += Chosen;
-        _picker.Deleted += deleted =>
+        _choices = new ChoiceList(_picker);
+        _choices.Chosen += Chosen;
+        _choices.Deleted += deleted =>
         {
             AppServices.Parametric.Delete(((ParametricPreset)deleted).Name);
             Paint();
@@ -111,39 +110,41 @@ public sealed class ParametricPresetBar : UserControl
         string name = baseline is null && _source is not null ? Strings.Format("ParametricPreset_ImportedFrom", _source)
             : baseline is null ? Strings.Get("ParametricPreset_None")
             : baseline.Name;
-        _picker.Show(name,
-            Strings.Format("ParametricPreset_Picker", can.Edited ? Strings.Format("ParametricPreset_Edited", baseline!.Name) : name),
-            tag: can.Edited ? _edited : null);
+        _picker.PlaceholderText = name;
+        AutomationProperties.SetName(_picker,
+            Strings.Format("ParametricPreset_Picker", can.Edited ? Strings.Format("ParametricPreset_Edited", baseline!.Name) : name));
         _save.IsEnabled = can.Save;
         _save.Classes.Set("accent", can.Save);
         _rename.IsEnabled = can.Rename;
-        FillList(baseline);
+        FillList(baseline, can.Edited);
     }
 
-    /// <summary>Lists the saved presets, the one in use selected, then the starting shapes.</summary>
-    /// <param name="inUse">The preset to show selected, or null.</param>
-    private void FillList(ParametricPreset? inUse)
+    /// <summary>Lists the saved presets, the one in use as the box's choice, then the starting shapes.</summary>
+    /// <param name="inUse">The preset in use, or null.</param>
+    /// <param name="edited">Whether the shape has moved since it was chosen.</param>
+    private void FillList(ParametricPreset? inUse, bool edited)
     {
         var presets = ParametricService.Presets;
-        string listed = $"{inUse?.Name}\n" + string.Join('\n', presets.Select(p => $"{p.Name}\t{p.Shape.GetHashCode()}"));
+        string listed = $"{inUse?.Name}\t{edited}\n" + string.Join('\n', presets.Select(p => $"{p.Name}\t{p.Shape.GetHashCode()}"));
         if (listed == _listed) return;
         _listed = listed;
 
-        var items = new List<ChooserItem>();
+        var items = new List<Choice>();
         foreach (var preset in presets)
         {
-            items.Add(new ChooserItem(preset.Name, preset)
+            items.Add(new Choice(preset.Name, preset)
             {
-                Preview = PresetListItems.Preview(StoredBand.Bands(preset.Shape.Bands)),
+                Preview = () => PresetListItems.Preview(StoredBand.Bands(preset.Shape.Bands)),
                 Chosen = preset.Name == inUse?.Name,
                 Deletable = true,
+                Badges = edited ? [Strings.Get("ParametricPreset_EditedTag")] : [],
             });
         }
 
-        items.Add(ChooserItem.Heading(Strings.Get("ParametricPreset_NewFrom")));
+        items.Add(Choice.Heading(Strings.Get("ParametricPreset_NewFrom")));
         foreach (var shape in Enum.GetValues<StartingShape>())
-            items.Add(new ChooserItem(Strings.Get(ShapeKey(shape)), shape) { Preview = PresetListItems.Preview(StartingShapes.Bands(shape)) });
-        _picker.List(items);
+            items.Add(new Choice(Strings.Get(ShapeKey(shape)), shape) { Preview = () => PresetListItems.Preview(StartingShapes.Bands(shape)) });
+        _choices.Show(items);
     }
 
     /// <summary>Puts what was chosen from the list on the curve.</summary>

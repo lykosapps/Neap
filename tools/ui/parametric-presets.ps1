@@ -53,7 +53,7 @@ if ($Parts.Contains('A')) {
         Check (Test-Picker 'Bassy, edited') 'a change shows the preset as edited'
         Check ((Find-Named 'Save over the preset').Current.IsEnabled) 'and it can be saved over'
 
-        Press (Find-Named 'Parametric preset: Bassy, edited')
+        Open-Menu (Find-Named 'Parametric preset: Bassy, edited')
         Check (Wait-Until { $null -ne (Find-ListRow 'Bassy') } 4) 'the picker lists it'
         Check ((Find-ListRow 'Bassy').GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) 'selected while edited, as every list shows what is in use'
         Close-Menu (Find-ParametricPicker)
@@ -64,7 +64,7 @@ if ($Parts.Contains('A')) {
         Save-Name 'Bass'
         Check (Test-Picker 'Bass') 'renaming shows the new name'
 
-        Press (Find-ParametricPicker)
+        Open-Menu (Find-ParametricPicker)
         Check (Wait-Until { $null -ne (Find-Anywhere 'Delete Bass') } 4) 'the row offers to delete the preset'
         Press (Find-Anywhere 'Delete Bass')
         Check (Wait-Until { $null -ne (Find-Anywhere 'Keep Bass') } 4) 'deleting asks first, on the row'

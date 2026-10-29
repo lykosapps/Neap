@@ -1108,9 +1108,6 @@
   <data name="Volume_MuteTip" xml:space="preserve">
     <value>Mutes the headset. Turning the volume wheel unmutes it.</value>
   </data>
-  <data name="Quick_PresetList" xml:space="preserve">
-    <value>Equaliser presets</value>
-  </data>
   <data name="Mic_Live" xml:space="preserve">
     <value>On</value>
   </data>
@@ -2256,9 +2253,6 @@
   <data name="ParametricPreset_EditedTag" xml:space="preserve">
     <value>Edited</value>
   </data>
-  <data name="ParametricPreset_ListName" xml:space="preserve">
-    <value>Parametric presets</value>
-  </data>
   <data name="ParametricPreset_More" xml:space="preserve">
     <value>More preset actions</value>
   </data>
@@ -2328,14 +2322,8 @@
   <data name="Curves_AutoEq" xml:space="preserve">
     <value>Auto-EQ</value>
   </data>
-  <data name="Curves_KeyMeasuredNamed" xml:space="preserve">
-    <value>Measured: {0}</value>
-  </data>
   <data name="Curves_KeyHeard" xml:space="preserve">
     <value>With your changes</value>
-  </data>
-  <data name="Curves_KeyTarget" xml:space="preserve">
-    <value>Target: {0}</value>
   </data>
   <data name="Curves_FileType" xml:space="preserve">
     <value>Frequency response</value>
@@ -2370,13 +2358,13 @@
   <data name="ParametricPreset_Import" xml:space="preserve">
     <value>Import preset…</value>
   </data>
-  <data name="Curves_MeasuredList" xml:space="preserve">
-    <value>Measurements</value>
-  </data>
-  <data name="Curves_TargetList" xml:space="preserve">
-    <value>Targets</value>
-  </data>
   <data name="Curves_None" xml:space="preserve">
     <value>None</value>
+  </data>
+  <data name="Curves_MeasuredLabel" xml:space="preserve">
+    <value>Measured</value>
+  </data>
+  <data name="Curves_TargetLabel" xml:space="preserve">
+    <value>Target</value>
   </data>
 </root>
