@@ -135,6 +135,12 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Check ((($hertz | Sort-Object) -join ',') -eq ($hertz -join ',')) "in order of frequency: $($hertz -join ', ')"
             Check (@($hertz | Where-Object { $_ -gt 10000 }).Count -eq 0) 'none above 10 kHz'
             Check ((Find-Named 'Undo').Current.IsEnabled) 'Auto-EQ can be undone'
+            foreach ($row in 'None', 'Stealth Pro II, ANC on, B&K 5128', 'Stealth Pro II, ANC off, B&K 5128') {
+                Open-Menu (Find-Box 'Measured')
+                Wait-Until { $null -ne (Find-ListRow $row) } 4 | Out-Null
+                Press (Find-ListRow $row)
+                Check (Wait-Until { (Get-BoxChoice (Find-Box 'Measured')) -eq $row } 3) "the measured list chooses $row"
+            }
             Check ($null -ne (Find-Named 'Pre-gain')) 'the page shows the pre-gain'
             Check (@(Find-All 'Pre-gain' | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Slider }).Count -eq 1) 'as a slider'
             Note "the boost warning: $(if ((Get-Texts) -contains 'Boosts this large are squashed by the headset at this pre-gain.') { 'shown under the pre-gain' } else { 'not shown at this pre-gain' })"

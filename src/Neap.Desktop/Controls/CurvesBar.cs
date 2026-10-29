@@ -88,8 +88,11 @@ public sealed class CurvesBar : UserControl
             {
                 if (chosen == NoneTag) Change(settings => Show(settings, measurement, false));
                 else if (chosen == LoadTag) await Load(measurement);
-                else if (chosen == AncOffTag || chosen == AncOnTag) Change(settings => settings.ParametricMeasuredAncOn = chosen == AncOnTag);
-                else Choose(measurement, chosen as AppSettings.StoredCurve);
+                else
+                {
+                    if (chosen == AncOffTag || chosen == AncOnTag) AppSettings.Update(settings => settings.ParametricMeasuredAncOn = chosen == AncOnTag);
+                    Choose(measurement, chosen as AppSettings.StoredCurve);
+                }
             };
             choices.Deleted += deleted => Change(settings =>
             {
