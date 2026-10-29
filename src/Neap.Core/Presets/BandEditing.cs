@@ -7,10 +7,14 @@ namespace Neap.Core.Presets;
 /// </remarks>
 /// <param name="Width">The plot's width.</param>
 /// <param name="Height">The plot's height.</param>
-public readonly record struct PlotScale(double Width, double Height)
+/// <param name="ShownDb">The decibels shown above and below zero: <see cref="CloseDb"/> for the bands alone, <see cref="WideDb"/> with a measurement or target.</param>
+public readonly record struct PlotScale(double Width, double Height, double ShownDb = PlotScale.CloseDb)
 {
-    /// <summary>The decibels shown above and below zero.</summary>
-    public const double ShownDb = 14;
+    /// <summary>The decibels shown above and below zero for the bands alone, just past their 12 dB.</summary>
+    public const double CloseDb = 14;
+
+    /// <summary>The decibels shown above and below zero with a measurement or target, which reach further than a band.</summary>
+    public const double WideDb = 20;
 
     private const double LowestHertz = 20;
     private const double HighestHertz = 20000;

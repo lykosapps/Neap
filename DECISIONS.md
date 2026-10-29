@@ -1,5 +1,28 @@
 # Decisions
 
+## 2026-10-29 — Parametric draws the headset's measurement and a target, and Auto-EQ fits one to the other
+
+- **Options:** the bands' curve alone; a measurement and a target drawn
+  behind it, from files only; or the same with a built-in pair, and Auto-EQ
+  to fit bands to the gap.
+- **Chosen:** the Parametric curve runs the full width, with the band's
+  dials beside the list of bands. Behind it, Neap draws the Stealth Pro II's
+  measured response (noise cancellation off, or on when it is on), that
+  response with the bands added, and a target: the B&K 5128 diffuse field
+  with a tilt. Each can be hidden, and either can be replaced by a file of
+  frequency and level lines. Auto-EQ fits up to ten bands to the gap, with
+  no boost above 6 dB and nothing fitted above 10 kHz, as one step that
+  Undo takes back.
+- **Why:** the owner asked to see how changes line up against the headset's
+  own sound and to work towards a target. A target only means something
+  against a measurement from the same head, so the built-in target is made
+  for the 5128 that measured the headset; Harman's curve is for another
+  head. The built-in data is plain numbers with no site's name in Neap;
+  other curves, such as a review site's, can be loaded by hand. Boosts stop
+  at 6 dB so a fit leaves the headset room before it squashes the sound,
+  and above 10 kHz a measurement depends too much on how the ear cup sits
+  to fit to.
+
 ## 2026-10-29 — Another app's ten-band change ends the Parametric mode
 
 - **Options:** keep following another app's gains into the parametric shape;

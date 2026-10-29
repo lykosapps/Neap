@@ -35,17 +35,18 @@ public sealed class BandPanel : UserControl
     /// <summary>How tall the curve is drawn.</summary>
     private const double CurveHeight = 300;
 
-    /// <summary>How wide the band's dials are when they sit beside the curve: three dials and their fields.</summary>
+    /// <summary>How wide the band's dials are when they sit beside the table: three dials and their fields.</summary>
     private const double EditorWidth = 360;
 
-    /// <summary>How wide the panel must be for the band's dials to sit beside the curve, leaving the curve room to read.</summary>
-    private const double BesideFrom = 780;
+    /// <summary>How wide the panel must be for the band's dials to sit beside the table, leaving its fields room to read.</summary>
+    private const double BesideFrom = 860;
 
     /// <summary>The width of a filter's drop-down, the same in the band's row and the table.</summary>
     private const double FilterWidth = 140;
 
     private readonly BandCurve _curve = new() { Height = CurveHeight, HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly ToneStrip _tone = new();
+    private readonly CurvesBar _curvesBar = new();
     private readonly Button _undo = new() { Classes = { "quiet", "iconbutton" }, IsEnabled = false };
     private readonly Button _redo = new() { Classes = { "quiet", "iconbutton" }, IsEnabled = false };
     private readonly Button _compare = new() { Classes = { "quiet" }, HorizontalContentAlignment = HorizontalAlignment.Center };
@@ -205,7 +206,6 @@ public sealed class BandPanel : UserControl
         head.Children.AddRange([_type, _remove]);
         _bandControls.Children.AddRange([_title, head, dials, _hint]);
         _editor.Child = new Panel { Children = { _bandControls, _empty } };
-        _main.Children.AddRange([_curve, _editor]);
 
         var table = new Grid { RowSpacing = Space.XS, ColumnSpacing = Space.S, ColumnDefinitions = new ColumnDefinitions("Auto,Auto,*,*,*,Auto") };
         string[] columns = ["Parametric_ColBand", "Parametric_ColFilter", "Parametric_ColHz", "Parametric_ColQ", "Parametric_ColDb"];
@@ -227,7 +227,9 @@ public sealed class BandPanel : UserControl
             Children = { AllBandsHead(), table },
         };
 
-        return new StackPanel { Spacing = Space.L, Children = { _tone, _presets, _level, _main, all } };
+        // The curve takes the whole width; the table and the chosen band's dials share the row under it.
+        _main.Children.AddRange([all, _editor]);
+        return new StackPanel { Spacing = Space.L, Children = { _tone, _presets, _level, new StackPanel { Spacing = Space.S, Children = { _curvesBar, _curve } }, _main } };
     }
 
     /// <summary>The table's label, with Add band at the end of its row.</summary>
@@ -256,7 +258,7 @@ public sealed class BandPanel : UserControl
         button.Content = drawn;
     }
 
-    /// <summary>Puts the band's dials beside the curve when there is room for both, and under it when there is not.</summary>
+    /// <summary>Puts the band's dials beside the table when there is room for both, and above it when there is not.</summary>
     private void Arrange()
     {
         bool beside = Bounds.Width >= BesideFrom;
@@ -264,8 +266,10 @@ public sealed class BandPanel : UserControl
         _beside = beside;
         _main.ColumnDefinitions = beside ? new ColumnDefinitions($"*,{EditorWidth}") : new ColumnDefinitions("*");
         _main.RowDefinitions = beside ? new RowDefinitions("Auto") : new RowDefinitions("Auto,Auto");
+        var all = _main.Children[0];
         Grid.SetColumn(_editor, beside ? 1 : 0);
-        Grid.SetRow(_editor, beside ? 0 : 1);
+        Grid.SetRow(_editor, 0);
+        Grid.SetRow(all, beside ? 0 : 1);
     }
 
     private static void Column(Grid grid, int at, TextBlock label, BandDial dial, BandValueBox box)
@@ -322,6 +326,15 @@ public sealed class BandPanel : UserControl
         _curve.BandsChanged += bands => { _bands = [.. bands]; Send(); PaintValues(); };
         _curve.Chosen += Choose;
         _tone.Moved += hertz => _curve.ToneHertz = hertz;
+        _curvesBar.Changed += () => (_curve.Measured, _curve.Target) = (_curvesBar.Measured, _curvesBar.Target);
+        _curvesBar.AutoEqAsked += async (measured, target) =>
+        {
+            var bands = await Task.Run(() => AutoEq.Fit(measured.Toward(target)));
+            int used = bands.Count(band => band.InUse);
+            AppLog.Write($"parametric: Auto-EQ set {used} bands");
+            if (used > 0) Replace(bands, keepSelection: false);
+            else await ProfileDialogs.Complain(this, Strings.Get("Curves_AutoEq"), Strings.Get("Curves_AutoEqNone"));
+        };
         _tone.Marked += (hertz, boost) =>
         {
             AddBand(ToneSweep.Bell(hertz, boost));

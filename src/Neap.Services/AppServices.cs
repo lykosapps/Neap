@@ -45,7 +45,7 @@ public static class AppServices
         Pretend.Start();
 
         // A practice run asked for the Parametric mode starts with it turned on, so a picture of it can be taken.
-        if (Pretend.Parametric) AppSettings.Update(settings => (settings.ParametricOn, settings.ParametricActive) = (true, true));
+        if (Pretend.Parametric) AppSettings.Update(settings => (settings.ParametricOn, settings.ParametricActive, settings.ParametricTakenOver) = (true, true, false));
 
         AudioRoute = new AudioRoute();
         Ring = Platform.Current.CreateRing(AudioRoute);

@@ -6,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Neap.Core.Presets;
+using Neap.Core.Response;
 using Path = Avalonia.Controls.Shapes.Path;
 
 namespace Neap.Desktop.Controls;
@@ -51,6 +52,11 @@ public sealed class BandCurve : UserControl
     private readonly Path _own = new() { Opacity = 0.28 };
     private readonly Path _curve = new() { StrokeThickness = 2.5, StrokeLineCap = PenLineCap.Round, StrokeJoin = PenLineJoin.Round };
     private readonly Line _tone = new() { StrokeThickness = 1, StrokeDashArray = [4, 4] };
+    private readonly Path _measuredLine = new() { StrokeThickness = 1.5, StrokeDashArray = [1, 2.5], StrokeJoin = PenLineJoin.Round, IsVisible = false };
+    private readonly Path _heardLine = new() { StrokeThickness = 2, StrokeJoin = PenLineJoin.Round, IsVisible = false };
+    private readonly Path _targetLine = new() { StrokeThickness = 1.5, StrokeDashArray = [5, 4], IsVisible = false };
+    private FrequencyResponse? _measured;
+    private FrequencyResponse? _target;
     private readonly List<Control> _labels = [];
     private readonly Ellipse[] _points = new Ellipse[BandWrites.Bands];
     private readonly TextBlock[] _numbers = new TextBlock[BandWrites.Bands];
@@ -78,7 +84,10 @@ public sealed class BandCurve : UserControl
         Use(_curve, Shape.StrokeProperty, "NeapAccentFillBrush");
         Use(_tone, Shape.StrokeProperty, "NeapTextSecondaryBrush");
         Use(_focusRing, Shape.StrokeProperty, "NeapTextBrush");
-        _canvas.Children.AddRange([_grid, _zero, _fill, _own, _curve, _tone, _focusRing]);
+        Use(_measuredLine, Shape.StrokeProperty, "NeapTextTertiaryBrush");
+        Use(_heardLine, Shape.StrokeProperty, "NeapTextBrush");
+        Use(_targetLine, Shape.StrokeProperty, "NeapTextSecondaryBrush");
+        _canvas.Children.AddRange([_grid, _zero, _targetLine, _measuredLine, _heardLine, _fill, _own, _curve, _tone, _focusRing]);
 
         for (int band = 0; band < _points.Length; band++)
         {
@@ -135,6 +144,28 @@ public sealed class BandCurve : UserControl
     }
 
     /// <summary>Whether the curve is being heard without its changes, so it is drawn flat and not applied.</summary>
+    /// <summary>The headset's measured response, lined up at 1 kHz, drawn as it is and with the bands added; or null for none.</summary>
+    public FrequencyResponse? Measured
+    {
+        get => _measured;
+        set
+        {
+            _measured = value;
+            Rebuild();
+        }
+    }
+
+    /// <summary>The response to work towards, lined up at 1 kHz; or null for none.</summary>
+    public FrequencyResponse? Target
+    {
+        get => _target;
+        set
+        {
+            _target = value;
+            Rebuild();
+        }
+    }
+
     public bool Muted
     {
         get => _muted;
@@ -150,7 +181,8 @@ public sealed class BandCurve : UserControl
     private static void Use(AvaloniaObject target, AvaloniaProperty<IBrush?> property, string key) =>
         target.Bind(property, ((StyledElement)target).GetResourceObservable(key));
 
-    private PlotScale Scale => new(Math.Max(Bounds.Width, 1), Math.Max(Bounds.Height, 1));
+    private PlotScale Scale => new(Math.Max(Bounds.Width, 1), Math.Max(Bounds.Height, 1),
+        _measured is null && _target is null ? PlotScale.CloseDb : PlotScale.WideDb);
 
     // -- drawing -----------------------------------------------------------
 
@@ -162,7 +194,8 @@ public sealed class BandCurve : UserControl
         _labels.Clear();
 
         var grid = new PathGeometry();
-        foreach (double db in new[] { -12.0, -6, 6, 12 })
+        double[] marks = scale.ShownDb > PlotScale.CloseDb ? [-18, -12, -6, 6, 12, 18] : [-12, -6, 6, 12];
+        foreach (double db in marks)
         {
             Line(grid, 0, scale.Y(db), scale.Width, scale.Y(db));
             Label($"{db:+0;-0} dB", 4, scale.Y(db) - 14, HorizontalAlignment.Left);
@@ -179,6 +212,35 @@ public sealed class BandCurve : UserControl
         Line(zero, 0, scale.Y(0), scale.Width, scale.Y(0));
         _zero.Data = zero;
         Draw();
+    }
+
+    /// <summary>Draws the measurement, the measurement with the bands added, which is what is heard, and the target.</summary>
+    private void DrawResponses(PlotScale scale, IReadOnlyList<ParametricBand> bands)
+    {
+        _measuredLine.IsVisible = _heardLine.IsVisible = _measured is not null;
+        _targetLine.IsVisible = _target is not null;
+        if (_measured is { } measured)
+        {
+            _measuredLine.Data = Through(scale, measured.At);
+            _heardLine.Data = Through(scale, hertz => measured.At(hertz) + BandResponse.TotalDb(bands, hertz));
+        }
+
+        if (_target is { } target) _targetLine.Data = Through(scale, target.At);
+    }
+
+    /// <summary>A line across the plot through a level at each frequency.</summary>
+    private static PathGeometry Through(PlotScale scale, Func<double, double> db)
+    {
+        var figure = new PathFigure { IsClosed = false, IsFilled = false };
+        for (int i = 0; i <= Samples; i++)
+        {
+            double x = scale.Width * i / Samples;
+            var at = new Point(x, scale.Y(db(scale.Hertz(x))));
+            if (i == 0) figure.StartPoint = at;
+            else figure.Segments!.Add(new LineSegment { Point = at });
+        }
+
+        return new PathGeometry { Figures = [figure] };
     }
 
     private static void Line(PathGeometry geometry, double x0, double y0, double x1, double y1)
@@ -237,6 +299,7 @@ public sealed class BandCurve : UserControl
         _own.IsVisible = showOwn;
         _own.Fill = new SolidColorBrush(BandColours[_selected]);
         _curve.StrokeDashArray = _muted ? [6, 5] : null;
+        DrawResponses(scale, bands);
 
         if (_toneHertz is double tone)
         {

@@ -2,7 +2,8 @@
 .SYNOPSIS
 Looks at the true parametric equaliser on the Equaliser page, in pretend mode:
 that the curve, the dials and the table of ten are there with names, takes
-pictures in both themes, and imports filters from pasted text.
+pictures in both themes, imports filters from pasted text, and fits bands
+with Auto-EQ.
 
 .DESCRIPTION
 Run through run.ps1. A practice run asked for Parametric opens the Stealth Pro II's
@@ -10,9 +11,10 @@ game equaliser in that mode with parametric turned on, and on its own cable.
 Nothing here changes a real headset.
 
 .PARAMETER Parts
-Which parts to run: A dark, B light, C import filters in both themes. All by default.
+Which parts to run: A dark, B light, C import filters in both themes, D Auto-EQ in
+dark. All by default.
 #>
-param([string]$Parts = 'ABC')
+param([string]$Parts = 'ABCD')
 
 . "$PSScriptRoot\Ui.ps1"
 
@@ -54,7 +56,7 @@ $sample = @(
 ) -join "`r`n"
 
 foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
-    if (-not $Parts.Contains($part[0]) -and -not $Parts.Contains('C')) { continue }
+    if (-not $Parts.Contains($part[0]) -and -not $Parts.Contains('C') -and -not ($Parts.Contains('D') -and $part[0] -eq 'A')) { continue }
     $theme = $part[1]
     Start-NeapPretend -Theme $theme -Page equaliser -Flags @('--parametric', '--wired')
     try {
@@ -109,6 +111,24 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Check ($null -eq (Find-Named 'Band 3 gain')) 'the bands past the import are not shown'
             Check ((Find-Named 'Undo').Current.IsEnabled) 'the import can be undone'
             Save-Shot "parametric-imported-$theme" -Whole | ForEach-Object { $_.Dispose() }
+        }
+
+        if ($Parts.Contains('D') -and $theme -eq 'dark') {
+            Section 'Auto-EQ'
+            $texts = Get-Texts
+            Check ($texts -contains 'Measured') 'the key names the built-in measurement'
+            Check ($texts -contains 'With your changes') 'and the measurement with the bands added'
+            Check ($texts -contains 'Target: diffuse field with tilt') 'and the built-in target'
+            Check ($null -ne (Find-Named 'Curves')) 'it offers Curves, to show, hide or load them'
+            $autoEq = Find-Named 'Auto-EQ'
+            Check ($autoEq -and $autoEq.Current.IsEnabled) 'Auto-EQ is on with a measurement and a target shown'
+            Press $autoEq
+            Check (Wait-Until { $null -ne (Find-Named 'Band 4 gain') } 10) 'Auto-EQ sets bands'
+            $hertz = @(1..10 | Where-Object { Find-Named "Band $_ gain" } | ForEach-Object { Get-Hertz (Get-FrequencyShown $_) })
+            Check ((($hertz | Sort-Object) -join ',') -eq ($hertz -join ',')) "in order of frequency: $($hertz -join ', ')"
+            Check (@($hertz | Where-Object { $_ -gt 10000 }).Count -eq 0) 'none above 10 kHz'
+            Check ((Find-Named 'Undo').Current.IsEnabled) 'Auto-EQ can be undone'
+            Save-Shot 'parametric-autoeq-dark' -Whole | ForEach-Object { $_.Dispose() }
         }
     }
     finally { Stop-NeapPretend }

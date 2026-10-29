@@ -2319,4 +2319,73 @@
   <data name="Profile_ParametricOff" xml:space="preserve">
     <value>the parametric shape, as Parametric is off</value>
   </data>
+  <data name="Curves_Button" xml:space="preserve">
+    <value>Curves</value>
+  </data>
+  <data name="Curves_Measured" xml:space="preserve">
+    <value>Measured response</value>
+  </data>
+  <data name="Curves_Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="Curves_LoadMeasured" xml:space="preserve">
+    <value>Load measurement…</value>
+  </data>
+  <data name="Curves_LoadTarget" xml:space="preserve">
+    <value>Load target…</value>
+  </data>
+  <data name="Curves_BuiltInMeasured" xml:space="preserve">
+    <value>Use the built-in measurement</value>
+  </data>
+  <data name="Curves_BuiltInTarget" xml:space="preserve">
+    <value>Use the built-in target</value>
+  </data>
+  <data name="Curves_BuiltInTargetName" xml:space="preserve">
+    <value>diffuse field with tilt</value>
+  </data>
+  <data name="Curves_AutoEq" xml:space="preserve">
+    <value>Auto-EQ</value>
+  </data>
+  <data name="Curves_KeyMeasured" xml:space="preserve">
+    <value>Measured</value>
+  </data>
+  <data name="Curves_KeyMeasuredNamed" xml:space="preserve">
+    <value>Measured: {0}</value>
+  </data>
+  <data name="Curves_KeyHeard" xml:space="preserve">
+    <value>With your changes</value>
+  </data>
+  <data name="Curves_KeyTarget" xml:space="preserve">
+    <value>Target: {0}</value>
+  </data>
+  <data name="Curves_FileType" xml:space="preserve">
+    <value>Frequency response</value>
+  </data>
+  <data name="Curves_LoadMeasuredTitle" xml:space="preserve">
+    <value>Load a measurement</value>
+  </data>
+  <data name="Curves_LoadTargetTitle" xml:space="preserve">
+    <value>Load a target</value>
+  </data>
+  <data name="Curves_NotLoaded" xml:space="preserve">
+    <value>{0} wasn't loaded: {1}</value>
+  </data>
+  <data name="Curves_TooBig" xml:space="preserve">
+    <value>the file is too large to be a frequency response.</value>
+  </data>
+  <data name="Curves_CannotOpen" xml:space="preserve">
+    <value>the file could not be opened.</value>
+  </data>
+  <data name="Curves_NoPoints" xml:space="preserve">
+    <value>no line in it has a frequency and a level.</value>
+  </data>
+  <data name="Curves_TooFewPoints" xml:space="preserve">
+    <value>it has too few points to draw.</value>
+  </data>
+  <data name="Curves_NotRising" xml:space="preserve">
+    <value>its frequencies don't rise from line to line.</value>
+  </data>
+  <data name="Curves_AutoEqNone" xml:space="preserve">
+    <value>The measurement is already close to the target, so Auto-EQ set no bands.</value>
+  </data>
 </root>

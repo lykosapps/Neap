@@ -17,5 +17,6 @@
   <ItemGroup>
     <!-- What's new, for the version that is running, read without asking GitHub. -->
     <EmbeddedResource Include="..\..\CHANGELOG.md" LogicalName="Neap.CHANGELOG.md" />
+    <EmbeddedResource Include="Response\Data\*.csv" LogicalName="Neap.Response.%(Filename).csv" />
   </ItemGroup>
 </Project>

@@ -219,6 +219,29 @@ public sealed class AppSettings
     [JsonPropertyName("parametric_preset")]
     public string? ParametricPresetName { get; set; }
 
+    /// <summary>Whether the parametric curve shows the headset's measured response, and the response with the bands added.</summary>
+    [JsonPropertyName("parametric_show_measured")]
+    public bool ParametricShowMeasured { get; set; } = true;
+
+    /// <summary>Whether the parametric curve shows the target.</summary>
+    [JsonPropertyName("parametric_show_target")]
+    public bool ParametricShowTarget { get; set; } = true;
+
+    /// <summary>A measurement the person loaded in place of the built-in one, or null for the built-in one.</summary>
+    [JsonPropertyName("parametric_measurement")]
+    public StoredCurve? ParametricMeasurement { get; set; }
+
+    /// <summary>A target the person loaded in place of the built-in one, or null for the built-in one.</summary>
+    [JsonPropertyName("parametric_target")]
+    public StoredCurve? ParametricTarget { get; set; }
+
+    /// <summary>A frequency response loaded from a file: its name and its text, read again each time it is shown.</summary>
+    public sealed class StoredCurve
+    {
+        [JsonPropertyName("name")] public string Name { get; set; } = "";
+        [JsonPropertyName("text")] public string Text { get; set; } = "";
+    }
+
     /// <summary>A parametric preset as stored. <see cref="ParametricService"/> is the only reader and writer.</summary>
     public sealed class StoredParametricPreset
     {
