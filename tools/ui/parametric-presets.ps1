@@ -72,10 +72,16 @@ if ($Parts.Contains('A')) {
         Save-Name 'Bass'
         Check (Test-Picker 'Bass') 'renaming shows the new name'
 
-        Press-PresetAction 'Delete'
-        Check (Wait-Until { $null -ne (Find-Anywhere 'Cancel') } 5) 'deleting asks first'
-        Press (Find-Anywhere 'Delete')
+        Press (Find-ParametricPicker)
+        Check (Wait-Until { $null -ne (Find-Anywhere 'Delete Bass') } 4) 'the row offers to delete the preset'
+        Press (Find-Anywhere 'Delete Bass')
+        Check (Wait-Until { $null -ne (Find-Anywhere 'Keep Bass') } 4) 'deleting asks first, on the row'
+        Save-Shot 'parametric-presets-delete' -Whole | ForEach-Object { $_.Dispose() }
+        Press (Find-Anywhere 'Delete Bass')
         Check (Test-Picker 'No preset') 'deleting leaves no preset'
+        Check ($null -ne (Find-ListRow 'Add bass')) 'the list stays open, as the ten-band list does'
+        Check ($null -eq (Find-ListRow 'Bass')) 'without the deleted preset'
+        Close-Menu (Find-ParametricPicker)
         Save-Shot 'parametric-presets' | ForEach-Object { $_.Dispose() }
     }
     finally { Stop-NeapPretend }

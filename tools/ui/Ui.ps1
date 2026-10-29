@@ -405,7 +405,7 @@ function Choose-Parametric([string]$Name) {
     else { Write-Host "  note  the picker has no row called '$Name'" }
 }
 
-# Chooses Rename or Delete from the parametric preset's More menu.
+# Chooses Rename from the parametric preset's More menu.
 function Press-PresetAction([string]$Name) {
     Press (Find-Named 'More preset actions')
     if (Wait-Until { $null -ne (Get-Popups | Where-Object { $_.Current.Name -eq $Name }) } 4) {

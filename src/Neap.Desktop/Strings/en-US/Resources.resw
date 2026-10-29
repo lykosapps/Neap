@@ -2310,12 +2310,6 @@
   <data name="ParametricPreset_RenameTitle" xml:space="preserve">
     <value>Rename {0}</value>
   </data>
-  <data name="ParametricPreset_DeleteTitle" xml:space="preserve">
-    <value>Delete {0}?</value>
-  </data>
-  <data name="ParametricPreset_DeleteBody" xml:space="preserve">
-    <value>The shape on screen stays as it is.</value>
-  </data>
   <data name="Profile_ParametricOff" xml:space="preserve">
     <value>the parametric shape, as Parametric is off</value>
   </data>

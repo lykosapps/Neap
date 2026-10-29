@@ -97,7 +97,7 @@
     <Style Selector="Grid.slot:pointerover Grid.face, Grid.slot:focus-within Grid.face, Grid.slot.chosen Grid.face">
         <Setter Property="Margin" Value="0,0,32,0" />
     </Style>
-    <Style Selector="Grid.slot:pointerover > Button.remove, Grid.slot:focus-within > Button.remove, Grid.slot.chosen > Button.remove">
+    <Style Selector="Grid.slot:pointerover > Button.remove, Grid.slot:focus-within > Button.remove, Grid.slot.chosen > Button.remove, ListBoxItem:focus Grid.slot > Button.remove">
         <Setter Property="Opacity" Value="1" />
     </Style>
 

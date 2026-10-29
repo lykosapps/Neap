@@ -97,8 +97,7 @@ public static class ParametricPresets
     public static ParametricPresetActions Actions(ParametricShape shape, ParametricPreset? baseline) =>
         new(Edited: baseline is not null && baseline.Shape != shape,
             Save: baseline is not null && baseline.Shape != shape,
-            Rename: baseline is not null,
-            Delete: baseline is not null);
+            Rename: baseline is not null);
 
     private static bool Same(string a, string b) =>
         string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
@@ -109,5 +108,4 @@ public static class ParametricPresets
 /// <param name="Edited">The shape has moved since its preset was chosen.</param>
 /// <param name="Save">The shape can be saved over its preset.</param>
 /// <param name="Rename">The preset can be renamed.</param>
-/// <param name="Delete">The preset can be deleted.</param>
-public readonly record struct ParametricPresetActions(bool Edited, bool Save, bool Rename, bool Delete);
+public readonly record struct ParametricPresetActions(bool Edited, bool Save, bool Rename);

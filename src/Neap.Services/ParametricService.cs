@@ -270,12 +270,14 @@ public sealed class ParametricService
         Choose(name.Trim());
     }
 
-    /// <summary>Deletes the preset in use, leaving the shape as it is with no preset behind it.</summary>
-    public void Delete()
+    /// <summary>Deletes a preset; when it is the one in use, the shape stays as it is with no preset behind it.</summary>
+    /// <param name="name">The preset's name.</param>
+    public void Delete(string name)
     {
-        if (Baseline is not { } preset) return;
-        StorePresets(ParametricPresets.Without(Presets, preset.Name));
-        Choose(null);
+        bool inUse = Baseline is { } chosen && ParametricPresets.Find([chosen], name) is not null;
+        StorePresets(ParametricPresets.Without(Presets, name));
+        if (inUse) Choose(null);
+        else Announce();
     }
 
     private static void StorePresets(IReadOnlyList<ParametricPreset> presets) => AppSettings.Update(settings =>

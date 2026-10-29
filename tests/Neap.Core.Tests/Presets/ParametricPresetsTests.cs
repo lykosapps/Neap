@@ -66,13 +66,13 @@ public class ParametricPresetsTests
 
     [Fact]
     public void WithNoPresetBehindItOnlySavingAsNewIsOffered() =>
-        Assert.Equal(new ParametricPresetActions(false, false, false, false), ParametricPresets.Actions(Shape(1), null));
+        Assert.Equal(new ParametricPresetActions(false, false, false), ParametricPresets.Actions(Shape(1), null));
 
     [Fact]
-    public void AnUnchangedPresetCanBeRenamedOrDeletedButNotSavedOver() =>
-        Assert.Equal(new ParametricPresetActions(false, false, true, true), ParametricPresets.Actions(Shape(3), Two[0]));
+    public void AnUnchangedPresetCanBeRenamedButNotSavedOver() =>
+        Assert.Equal(new ParametricPresetActions(false, false, true), ParametricPresets.Actions(Shape(3), Two[0]));
 
     [Fact]
     public void AnEditedPresetCanBeSavedOver() =>
-        Assert.Equal(new ParametricPresetActions(true, true, true, true), ParametricPresets.Actions(Shape(4), Two[0]));
+        Assert.Equal(new ParametricPresetActions(true, true, true), ParametricPresets.Actions(Shape(4), Two[0]));
 }
