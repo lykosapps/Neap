@@ -22,7 +22,10 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public partial class ToneStrip : UserControl
 {
-    /// <summary>The narrowest tone row that holds Cut here and Boost here beside the tone's other controls.</summary>
+    /// <summary>The narrowest tone row that holds every control on one line.</summary>
+    private const double OneRow = 740;
+
+    /// <summary>The narrowest tone row that holds Cut here and Boost here beside the tone's buttons and level.</summary>
     private const double MarksBeside = 540;
 
     private enum Tone { Off, Sweeping, Held }
@@ -102,16 +105,29 @@ public partial class ToneStrip : UserControl
     }
 
     /// <summary>
-    /// Puts Cut here and Boost here beside the tone's other controls when the
-    /// row has room for them, and on a row of their own under them when it
-    /// has not.
+    /// Puts every control on one line when the row has room; otherwise where
+    /// the tone is goes on a line of its own under the rest, and narrower
+    /// still, Cut here and Boost here go on a line between them.
     /// </summary>
     private void Arrange()
     {
-        bool beside = ToneRow.Bounds.Width >= MarksBeside;
-        Grid.SetRow(Marks, beside ? 0 : 1);
-        Grid.SetColumn(Marks, beside ? 2 : 0);
-        Grid.SetColumnSpan(Marks, beside ? 1 : ToneRow.ColumnDefinitions.Count);
+        double width = ToneRow.Bounds.Width;
+        bool oneRow = width >= OneRow, marksBeside = width >= MarksBeside;
+        int toneRow = oneRow ? 0 : marksBeside ? 1 : 2;
+        ToneRow.RowDefinitions = new RowDefinitions(string.Join(',', Enumerable.Repeat("Auto", toneRow + 1)));
+
+        Place(ToneSlider, toneRow, oneRow ? 2 : 0, oneRow ? 1 : 3);
+        Place(ToneText, toneRow, 3, 1);
+        if (oneRow) Place(Marks, 0, 4, 1);
+        else if (marksBeside) Place(Marks, 0, 2, 2);
+        else Place(Marks, 1, 0, ToneRow.ColumnDefinitions.Count);
+    }
+
+    private static void Place(Control control, int row, int column, int span)
+    {
+        Grid.SetRow(control, row);
+        Grid.SetColumn(control, column);
+        Grid.SetColumnSpan(control, span);
     }
 
     private async Task SweepOrHold()

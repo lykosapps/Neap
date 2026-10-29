@@ -13,7 +13,7 @@ namespace Neap.Desktop.Controls;
 /// <summary>
 /// What the parametric curve is drawn against: the headset's measured
 /// response and a target, each shown or hidden and replaceable by a file, with
-/// a key to the lines and the way to Auto-EQ.
+/// a key to the lines, the way to Auto-EQ, and the way to import filters.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -32,7 +32,7 @@ public sealed class CurvesBar : UserControl
 {
     private const long MostBytes = 1_000_000;
 
-    private readonly Button _curves = new();
+    private readonly DropDownButton _curves = new();
     private readonly MenuItem _showMeasured = new() { ToggleType = MenuItemToggleType.CheckBox };
     private readonly MenuItem _showTarget = new() { ToggleType = MenuItemToggleType.CheckBox };
     private readonly MenuItem _builtInMeasured = new();
@@ -47,6 +47,8 @@ public sealed class CurvesBar : UserControl
     /// <summary>What each shown curve was made from, so it is lined up again only when that changes.</summary>
     private object? _measuredFrom, _targetFrom;
 
+    private bool _withChanges;
+
     public CurvesBar()
     {
         _curves.Content = Strings.Get("Curves_Button");
@@ -56,9 +58,15 @@ public sealed class CurvesBar : UserControl
         _builtInTarget.Header = Strings.Get("Curves_BuiltInTarget");
         var loadMeasured = new MenuItem { Header = Strings.Get("Curves_LoadMeasured") };
         var loadTarget = new MenuItem { Header = Strings.Get("Curves_LoadTarget") };
+        var import = new MenuItem { Header = Strings.Get("Parametric_ImportFilters") };
         _curves.Flyout = new MenuFlyout
         {
-            Items = { _showMeasured, _showTarget, new Separator(), loadMeasured, loadTarget, _builtInMeasured, _builtInTarget },
+            Items =
+            {
+                _showMeasured, loadMeasured, _builtInMeasured, new Separator(),
+                _showTarget, loadTarget, _builtInTarget, new Separator(),
+                import,
+            },
         };
         _autoEq.Content = Strings.Get("Curves_AutoEq");
 
@@ -68,6 +76,7 @@ public sealed class CurvesBar : UserControl
         _builtInTarget.Click += (_, _) => Change(settings => settings.ParametricTarget = null);
         loadMeasured.Click += async (_, _) => await Load(measurement: true);
         loadTarget.Click += async (_, _) => await Load(measurement: false);
+        import.Click += (_, _) => ImportAsked?.Invoke();
         _autoEq.Click += (_, _) =>
         {
             if (Measured is { } measured && Target is { } target) AutoEqAsked?.Invoke(measured, target);
@@ -86,6 +95,9 @@ public sealed class CurvesBar : UserControl
     /// <summary>What is shown changed: a curve shown, hidden or replaced, or the noise cancellation that picks the measurement.</summary>
     public event Action? Changed;
 
+    /// <summary>Import filters was chosen; the panel asks for them.</summary>
+    public event Action? ImportAsked;
+
     /// <summary>Auto-EQ was asked for, with the measurement and target shown.</summary>
     public event Action<FrequencyResponse, FrequencyResponse>? AutoEqAsked;
 
@@ -94,6 +106,17 @@ public sealed class CurvesBar : UserControl
 
     /// <summary>The target shown, lined up at 1 kHz, or null when hidden or there is none.</summary>
     public FrequencyResponse? Target { get; private set; }
+
+    /// <summary>Whether the curve draws the measurement with the bands added, so the key lists it only then.</summary>
+    public bool WithChanges
+    {
+        get => _withChanges;
+        set
+        {
+            _withChanges = value;
+            _keyHeard.IsVisible = value;
+        }
+    }
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
@@ -130,11 +153,12 @@ public sealed class CurvesBar : UserControl
         _showMeasured.IsChecked = settings.ParametricShowMeasured;
         _showMeasured.IsEnabled = settings.ParametricMeasurement is not null || builtIn is not null;
         _showTarget.IsChecked = settings.ParametricShowTarget;
-        _builtInMeasured.IsEnabled = settings.ParametricMeasurement is not null;
-        _builtInTarget.IsEnabled = settings.ParametricTarget is not null;
+        _builtInMeasured.IsVisible = settings.ParametricMeasurement is not null;
+        _builtInTarget.IsVisible = settings.ParametricTarget is not null;
         _autoEq.IsEnabled = Measured is not null && Target is not null;
 
-        _keyMeasured.IsVisible = _keyHeard.IsVisible = Measured is not null;
+        _keyMeasured.IsVisible = Measured is not null;
+        _keyHeard.IsVisible = _withChanges;
         _keyTarget.IsVisible = Target is not null;
         _keyMeasuredText.Text = settings.ParametricMeasurement is { } own
             ? Strings.Format("Curves_KeyMeasuredNamed", own.Name)

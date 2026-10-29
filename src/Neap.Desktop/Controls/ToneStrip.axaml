@@ -10,95 +10,115 @@
         stands. Folding it stops it, since a tone playing behind a
         closed row is one nobody can stop.
     -->
-    <Expander
-        x:Name="ToneExpander"
-        loc:Uid.Value="Tone_Title"
-        HorizontalAlignment="Stretch"
-        HorizontalContentAlignment="Stretch">
-        <StackPanel Spacing="{StaticResource NeapSpaceS}">
-            <!--
-                One row when there is room, with Cut here and Boost here
-                beside the tone's other controls; under them when there
-                is not. See Arrange.
-            -->
-            <Grid
-                x:Name="ToneRow"
-                ColumnDefinitions="Auto,Auto,Auto,*,Auto,100"
-                ColumnSpacing="{StaticResource NeapSpaceS}"
-                RowDefinitions="Auto,Auto"
-                RowSpacing="{StaticResource NeapSpaceS}">
-                <Button
-                    x:Name="SweepButton"
-                    MinWidth="96">
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
-                        <PathIcon x:Name="SweepIcon" Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" />
-                        <TextBlock x:Name="SweepText" />
+    <!--
+        One inset panel behind the header and the open row, as the chosen
+        band's dials have, so the open row reads as part of the strip and not
+        as loose controls on the card.
+    -->
+    <Border
+        Background="{DynamicResource NeapInsetBrush}"
+        BorderBrush="{DynamicResource NeapCardStrokeBrush}"
+        BorderThickness="1"
+        ClipToBounds="True"
+        CornerRadius="{StaticResource NeapRadiusInset}">
+        <Expander
+            x:Name="ToneExpander"
+            loc:Uid.Value="Tone_Title"
+            HorizontalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            Background="Transparent">
+            <Expander.Resources>
+                <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="Transparent" />
+                <SolidColorBrush x:Key="ExpanderContentBackground" Color="Transparent" />
+                <Thickness x:Key="ExpanderContentPadding">16,0,16,12</Thickness>
+            </Expander.Resources>
+            <StackPanel Spacing="{StaticResource NeapSpaceS}">
+                <!--
+                    One row when there is room: the tone's buttons, where it
+                    is, Cut here and Boost here, and its level. Narrower, where
+                    it is goes on a row of its own, and narrower still, Cut
+                    here and Boost here too. See Arrange.
+                -->
+                <Grid
+                    x:Name="ToneRow"
+                    ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto,100"
+                    ColumnSpacing="{StaticResource NeapSpaceS}"
+                    RowSpacing="{StaticResource NeapSpaceS}">
+                    <Button
+                        x:Name="SweepButton"
+                        MinWidth="96"
+                        VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
+                            <PathIcon x:Name="SweepIcon" Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" />
+                            <TextBlock x:Name="SweepText" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        x:Name="StopButton"
+                        loc:Uid.Value="Tone_Stop"
+                        Grid.Column="1"
+                        VerticalAlignment="Center">
+                        <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconStop}" />
+                    </Button>
+                    <!--
+                        Where the tone is, across what width there is, so a
+                        pixel moves it a small step. An arrow key moves it
+                        about 1 %, Page Up and Page Down half an octave.
+                    -->
+                    <Slider
+                        x:Name="ToneSlider"
+                        loc:Uid.Value="Tone_Frequency"
+                        Grid.Column="2"
+                        VerticalAlignment="Center"
+                        LargeChange="100"
+                        Maximum="2000"
+                        Minimum="0"
+                        SmallChange="3" />
+                    <TextBlock
+                        x:Name="ToneText"
+                        Grid.Column="3"
+                        MinWidth="64"
+                        VerticalAlignment="Center"
+                        Classes="numeralstrong" />
+                    <StackPanel
+                        x:Name="Marks"
+                        Grid.Column="4"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="{StaticResource NeapSpaceS}">
+                        <Button x:Name="CutButton" loc:Uid.Value="Tone_Cut">
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
+                                <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconArrowDown}" />
+                                <TextBlock loc:Uid.Value="Tone_CutLabel" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="BoostButton" loc:Uid.Value="Tone_Boost">
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
+                                <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconArrowUp}" />
+                                <TextBlock loc:Uid.Value="Tone_BoostLabel" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
-                </Button>
-                <Button
-                    x:Name="StopButton"
-                    loc:Uid.Value="Tone_Stop"
-                    Grid.Column="1"
-                    VerticalAlignment="Stretch">
-                    <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconStop}" />
-                </Button>
-                <StackPanel
-                    x:Name="Marks"
-                    Grid.Column="2"
-                    Orientation="Horizontal"
-                    Spacing="{StaticResource NeapSpaceS}">
-                    <Button x:Name="CutButton" loc:Uid.Value="Tone_Cut">
-                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
-                            <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconArrowDown}" />
-                            <TextBlock loc:Uid.Value="Tone_CutLabel" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="BoostButton" loc:Uid.Value="Tone_Boost">
-                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
-                            <PathIcon Width="{StaticResource NeapIconRow}" Height="{StaticResource NeapIconRow}" Data="{StaticResource IconArrowUp}" />
-                            <TextBlock loc:Uid.Value="Tone_BoostLabel" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-                <PathIcon
-                    Grid.Column="4"
-                    Width="{StaticResource NeapIconRow}"
-                    Height="{StaticResource NeapIconRow}"
-                    VerticalAlignment="Center"
-                    Foreground="{DynamicResource NeapTextSecondaryBrush}"
-                    Data="{StaticResource IconVolume}" />
-                <Slider
-                    x:Name="LevelSlider"
-                    loc:Uid.Value="Tone_Level"
-                    Grid.Column="5"
-                    VerticalAlignment="Center"
-                    Maximum="100"
-                    Minimum="0" />
-            </Grid>
-            <!--
-                The tone frequency across the whole width, so a pixel
-                moves it a small step. An arrow key moves it about 1 %,
-                Page Up and Page Down half an octave.
-            -->
-            <Grid ColumnDefinitions="*,80" ColumnSpacing="{StaticResource NeapSpaceS}">
-                <Slider
-                    x:Name="ToneSlider"
-                    loc:Uid.Value="Tone_Frequency"
-                    VerticalAlignment="Center"
-                    LargeChange="100"
-                    Maximum="2000"
-                    Minimum="0"
-                    SmallChange="3" />
+                    <PathIcon
+                        Grid.Column="5"
+                        Width="{StaticResource NeapIconRow}"
+                        Height="{StaticResource NeapIconRow}"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource NeapTextSecondaryBrush}"
+                        Data="{StaticResource IconVolume}" />
+                    <Slider
+                        x:Name="LevelSlider"
+                        loc:Uid.Value="Tone_Level"
+                        Grid.Column="6"
+                        VerticalAlignment="Center"
+                        Maximum="100"
+                        Minimum="0" />
+                </Grid>
                 <TextBlock
-                    x:Name="ToneText"
-                    Grid.Column="1"
-                    VerticalAlignment="Center"
-                    Classes="numeralstrong" />
-            </Grid>
-            <TextBlock
-                x:Name="ToneTrouble"
-                Classes="secondary"
-                IsVisible="False" />
-        </StackPanel>
-    </Expander>
+                    x:Name="ToneTrouble"
+                    Classes="secondary"
+                    IsVisible="False" />
+            </StackPanel>
+        </Expander>
+    </Border>
 </UserControl>

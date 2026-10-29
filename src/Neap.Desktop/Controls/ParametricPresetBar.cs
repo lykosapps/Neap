@@ -29,9 +29,6 @@ namespace Neap.Desktop.Controls;
 /// </remarks>
 public sealed class ParametricPresetBar : UserControl
 {
-    /// <summary>The row that opens the import dialog.</summary>
-    private static readonly object ImportRow = new();
-
     private readonly Func<IReadOnlyList<ParametricBand>> _bands;
     private readonly Action<IReadOnlyList<ParametricBand>> _replace;
 
@@ -106,9 +103,6 @@ public sealed class ParametricPresetBar : UserControl
         };
     }
 
-    /// <summary>Import filters was chosen from the list; the panel asks for them.</summary>
-    public event Action? ImportAsked;
-
     /// <summary>Notes the file the next shape comes from, or none with null.</summary>
     /// <remarks>An imported shape stands apart from any preset until it is saved; any other shape is an edit of the preset in use.</remarks>
     /// <param name="source">The file's name, or null.</param>
@@ -137,7 +131,7 @@ public sealed class ParametricPresetBar : UserControl
         FillList();
     }
 
-    /// <summary>Lists the saved presets, then the starting shapes, then the way to import filters.</summary>
+    /// <summary>Lists the saved presets, then the starting shapes.</summary>
     private void FillList()
     {
         var presets = ParametricService.Presets;
@@ -158,7 +152,6 @@ public sealed class ParametricPresetBar : UserControl
             });
             foreach (var shape in Enum.GetValues<StartingShape>())
                 _list.Items.Add(PresetListItems.Of(Strings.Get(ShapeKey(shape)), shape, StartingShapes.Bands(shape)));
-            _list.Items.Add(PresetListItems.Of(Strings.Get("Parametric_ImportFilters"), ImportRow, null));
         }
         finally { _painting = false; }
     }
@@ -180,9 +173,6 @@ public sealed class ParametricPresetBar : UserControl
             case StartingShape shape:
                 CameFrom(null);
                 _replace(StartingShapes.Bands(shape));
-                break;
-            default:
-                ImportAsked?.Invoke();
                 break;
         }
     }

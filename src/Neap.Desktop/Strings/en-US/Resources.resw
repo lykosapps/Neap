@@ -2323,10 +2323,10 @@
     <value>Curves</value>
   </data>
   <data name="Curves_Measured" xml:space="preserve">
-    <value>Measured response</value>
+    <value>Show measured response</value>
   </data>
   <data name="Curves_Target" xml:space="preserve">
-    <value>Target</value>
+    <value>Show target</value>
   </data>
   <data name="Curves_LoadMeasured" xml:space="preserve">
     <value>Load measurement…</value>

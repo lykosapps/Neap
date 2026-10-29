@@ -166,6 +166,9 @@ public sealed class BandCurve : UserControl
         }
     }
 
+    /// <summary>Whether the measurement with the bands added is drawn: only when it differs from the measurement, with the bands changing the sound and Compare not held.</summary>
+    public bool ShowsHeard => _measured is not null && !_muted && BandResponse.ChangesSound(_bands);
+
     public bool Muted
     {
         get => _muted;
@@ -217,12 +220,14 @@ public sealed class BandCurve : UserControl
     /// <summary>Draws the measurement, the measurement with the bands added, which is what is heard, and the target.</summary>
     private void DrawResponses(PlotScale scale, IReadOnlyList<ParametricBand> bands)
     {
-        _measuredLine.IsVisible = _heardLine.IsVisible = _measured is not null;
+        _measuredLine.IsVisible = _measured is not null;
+        bool heard = ShowsHeard;
+        _heardLine.IsVisible = heard;
         _targetLine.IsVisible = _target is not null;
         if (_measured is { } measured)
         {
             _measuredLine.Data = Through(scale, measured.At);
-            _heardLine.Data = Through(scale, hertz => measured.At(hertz) + BandResponse.TotalDb(bands, hertz));
+            if (heard) _heardLine.Data = Through(scale, hertz => measured.At(hertz) + BandResponse.TotalDb(bands, hertz));
         }
 
         if (_target is { } target) _targetLine.Data = Through(scale, target.At);
@@ -298,7 +303,7 @@ public sealed class BandCurve : UserControl
         _own.Data = new PathGeometry { Figures = [own] };
         _own.IsVisible = showOwn;
         _own.Fill = new SolidColorBrush(BandColours[_selected]);
-        _curve.StrokeDashArray = _muted ? [6, 5] : null;
+        _curve.Opacity = _muted ? 0.45 : 1;
         DrawResponses(scale, bands);
 
         if (_toneHertz is double tone)

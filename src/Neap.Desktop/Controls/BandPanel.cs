@@ -207,7 +207,8 @@ public sealed class BandPanel : UserControl
         _bandControls.Children.AddRange([_title, head, dials, _hint]);
         _editor.Child = new Panel { Children = { _bandControls, _empty } };
 
-        var table = new Grid { RowSpacing = Space.XS, ColumnSpacing = Space.S, ColumnDefinitions = new ColumnDefinitions("Auto,Auto,*,*,*,Auto") };
+        // No row spacing: the grid would keep it for the hidden rows too, so each row keeps its own gap above it.
+        var table = new Grid { ColumnSpacing = Space.S, ColumnDefinitions = new ColumnDefinitions("Auto,Auto,*,*,*,Auto") };
         string[] columns = ["Parametric_ColBand", "Parametric_ColFilter", "Parametric_ColHz", "Parametric_ColQ", "Parametric_ColDb"];
         for (int c = 0; c < columns.Length; c++)
         {
@@ -306,6 +307,7 @@ public sealed class BandPanel : UserControl
         {
             Grid.SetRow(cells[c], at);
             Grid.SetColumn(cells[c], c);
+            cells[c].Margin = new Thickness(0, Space.XS, 0, 0);
             table.Children.Add(cells[c]);
         }
 
@@ -323,10 +325,14 @@ public sealed class BandPanel : UserControl
     private void Wire()
     {
         _curve.Changing += Keep;
-        _curve.BandsChanged += bands => { _bands = [.. bands]; Send(); PaintValues(); };
+        _curve.BandsChanged += bands => { _bands = [.. bands]; Send(); PaintValues(); PaintKey(); };
         _curve.Chosen += Choose;
         _tone.Moved += hertz => _curve.ToneHertz = hertz;
-        _curvesBar.Changed += () => (_curve.Measured, _curve.Target) = (_curvesBar.Measured, _curvesBar.Target);
+        _curvesBar.Changed += () =>
+        {
+            (_curve.Measured, _curve.Target) = (_curvesBar.Measured, _curvesBar.Target);
+            PaintKey();
+        };
         _curvesBar.AutoEqAsked += async (measured, target) =>
         {
             var bands = await Task.Run(() => AutoEq.Fit(measured.Toward(target)));
@@ -343,7 +349,7 @@ public sealed class BandPanel : UserControl
         _undo.Click += (_, _) => Walk(_undoStack, _redoStack);
         _redo.Click += (_, _) => Walk(_redoStack, _undoStack);
         _level.ActionInvoked += (_, _) => LowerLevel();
-        _presets.ImportAsked += async () =>
+        _curvesBar.ImportAsked += async () =>
         {
             if (await FilterImportDialog.Ask(this) is not { } imported) return;
             _presets.CameFrom(imported.Source);
@@ -399,6 +405,7 @@ public sealed class BandPanel : UserControl
         if (_comparing) return;
         _comparing = true;
         _curve.Muted = true;
+        PaintKey();
         AppServices.Parametric.Compare(flat: true, _bands);
     }
 
@@ -408,6 +415,7 @@ public sealed class BandPanel : UserControl
         if (!_comparing) return;
         _comparing = false;
         _curve.Muted = false;
+        PaintKey();
         AppServices.Parametric.Compare(flat: false, _bands);
     }
 
@@ -507,6 +515,9 @@ public sealed class BandPanel : UserControl
 
     // -- painting ----------------------------------------------------------
 
+    /// <summary>Lists the measurement with the bands added in the key only while the curve draws it.</summary>
+    private void PaintKey() => _curvesBar.WithChanges = _curve.ShowsHeard;
+
     private void Paint()
     {
         _painting = true;
@@ -514,6 +525,7 @@ public sealed class BandPanel : UserControl
         {
             _curve.Bands = _bands;
             _curve.Selected = _selected;
+            PaintKey();
             _tone.CanMark = BandEditing.FirstFree(_bands) >= 0;
             PaintValues();
             PaintHistory();

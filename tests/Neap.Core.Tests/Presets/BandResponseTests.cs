@@ -14,6 +14,24 @@ public class BandResponseTests
         Assert.Equal(gain, BandResponse.Db(Make(BandType.Peaking, gain: gain), 1000), 3);
 
     [Fact]
+    public void BandsAt0DbDoNotChangeTheSound()
+    {
+        Assert.False(BandResponse.ChangesSound([]));
+        Assert.False(BandResponse.ChangesSound([Make(BandType.Peaking), Make(BandType.LowShelf, 100), Make(BandType.HighShelf, 8000)]));
+    }
+
+    [Fact]
+    public void ABoostOrACutChangesTheSound()
+    {
+        Assert.True(BandResponse.ChangesSound([Make(BandType.Peaking, gain: 1)]));
+        Assert.True(BandResponse.ChangesSound([Make(BandType.LowCut, 80)]));
+    }
+
+    [Fact]
+    public void ABellAndItsOppositeCancel() =>
+        Assert.False(BandResponse.ChangesSound([Make(BandType.Peaking, gain: 4), Make(BandType.Peaking, gain: -4)]));
+
+    [Fact]
     public void ABellLeavesFarAwayFrequenciesAlone()
     {
         var bell = Make(BandType.Peaking, gain: 9);

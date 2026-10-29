@@ -398,7 +398,7 @@ function Find-ListRow([string]$Name) {
     }
 }
 
-# Opens the parametric picker and chooses a row: a saved preset, a starting shape or Import filters.
+# Opens the parametric picker and chooses a row: a saved preset or a starting shape.
 function Choose-Parametric([string]$Name) {
     Press (Find-ParametricPicker)
     if (Wait-Until { $null -ne (Find-ListRow $Name) } 4) { Press (Find-ListRow $Name) }

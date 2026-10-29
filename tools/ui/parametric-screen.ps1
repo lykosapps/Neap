@@ -12,9 +12,10 @@ Nothing here changes a real headset.
 
 .PARAMETER Parts
 Which parts to run: A dark, B light, C import filters in both themes, D Auto-EQ in
-dark. All by default.
+dark, E the test tone open and the Curves menu's items, in both themes. All
+by default.
 #>
-param([string]$Parts = 'ABCD')
+param([string]$Parts = 'ABCDE')
 
 . "$PSScriptRoot\Ui.ps1"
 
@@ -56,7 +57,7 @@ $sample = @(
 ) -join "`r`n"
 
 foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
-    if (-not $Parts.Contains($part[0]) -and -not $Parts.Contains('C') -and -not ($Parts.Contains('D') -and $part[0] -eq 'A')) { continue }
+    if (-not $Parts.Contains($part[0]) -and -not $Parts.Contains('C') -and -not $Parts.Contains('E') -and -not ($Parts.Contains('D') -and $part[0] -eq 'A')) { continue }
     $theme = $part[1]
     Start-NeapPretend -Theme $theme -Page equaliser -Flags @('--parametric', '--wired')
     try {
@@ -86,9 +87,9 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
 
         if ($Parts.Contains('C')) {
             Section "importing filters in $theme"
-            Press (Find-ParametricPicker)
-            Check (Wait-Until { $null -ne (Find-ListRow $importItem) } 4) 'the preset picker offers Import filters'
-            Press (Find-ListRow $importItem)
+            Open-Menu (Find-Named 'Curves')
+            Start-Sleep -Milliseconds 400
+            Check ($(try { Send-Pretend "press $importItem" | Out-Null; $true } catch { $false })) 'the Curves menu offers Import filters'
             Check (Wait-Until { $null -ne (Find-Dialog 'Import filters') } 5) 'it opens the import dialog'
             $dialog = Find-Dialog 'Import filters'
             if (-not $dialog) { continue }
@@ -129,6 +130,22 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Check (@($hertz | Where-Object { $_ -gt 10000 }).Count -eq 0) 'none above 10 kHz'
             Check ((Find-Named 'Undo').Current.IsEnabled) 'Auto-EQ can be undone'
             Save-Shot 'parametric-autoeq-dark' -Whole | ForEach-Object { $_.Dispose() }
+        }
+
+        if ($Parts.Contains('E')) {
+            Section "the open states in $theme, for a person to look over"
+            $tone = Find-Named 'Test tone'
+            Open-Menu $tone
+            Check (Wait-Until { $null -ne (Find-Named 'Test tone frequency') } 4) 'the test tone opens'
+            Save-Shot "parametric-tone-$theme" -Whole | ForEach-Object { $_.Dispose() }
+            Close-Menu $tone
+            $curves = Find-Named 'Curves'
+            Open-Menu $curves
+            Wait-Until { @(Get-Popups).Count -ge 5 } 4 | Out-Null
+            $items = @(Get-Popups | ForEach-Object { $_.Current.Name })
+            $wanted = 'Show measured response', "Load measurement$([char]0x2026)", 'Show target', "Load target$([char]0x2026)", $importItem
+            Check (($items -join '|') -eq ($wanted -join '|')) "the Curves menu lists, in order: $($items -join ', ')"
+            Close-Menu $curves
         }
     }
     finally { Stop-NeapPretend }

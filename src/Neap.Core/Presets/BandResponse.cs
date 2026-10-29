@@ -49,6 +49,22 @@ public static class BandResponse
         return total;
     }
 
+    /// <summary>Whether the bands together change the sound anywhere in hearing, by more than <see cref="AudibleDb"/>.</summary>
+    /// <remarks>Bands in use can still change nothing, such as bells and shelves at 0 dB, so it is the sum that is looked at, 24 times an octave.</remarks>
+    /// <param name="bands">The bands.</param>
+    public static bool ChangesSound(IReadOnlyList<ParametricBand> bands)
+    {
+        for (double hertz = 20; hertz <= 20000; hertz *= Math.Pow(2, 1.0 / 24))
+        {
+            if (Math.Abs(TotalDb(bands, hertz)) > AudibleDb) return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>The least change, in decibels, that counts as changing the sound.</summary>
+    public const double AudibleDb = 0.05;
+
     /// <summary>The filter's coefficients, divided through by the first, or zeros for a band that does nothing.</summary>
     private static (double B0, double B1, double B2, double A1, double A2) Coefficients(ParametricBand band)
     {
