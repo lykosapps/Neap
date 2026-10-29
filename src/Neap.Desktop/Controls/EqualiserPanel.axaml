@@ -200,6 +200,11 @@
                         Classes="secondary"
                         IsVisible="False" />
 
+                    <!-- Another app chose the ten bands while Parametric was in use: why the mode changed, and the way back. -->
+                    <c:Notice
+                        x:Name="TakenOverNotice"
+                        loc:Uid.Value="Equaliser_TakenOver" />
+
                     <!--
                         Parametric and the curve take the whole width of the
                         card, so they line up with the choice of mode above them.

@@ -19,10 +19,11 @@ namespace Neap.Services;
 /// <para>
 /// Another app, such as the phone app or Swarm II, changes only the ten bands'
 /// gain settings, which Neap's own parametric writes never touch. So a change
-/// to them while the Parametric mode is in use is another app's, and the shape
-/// takes the new gains (<see cref="GainFollow"/>). The gains last seen are kept
-/// in the settings, so a change made while Neap was closed is followed when the
-/// headset next connects.
+/// to them while the Parametric mode is in use is another app choosing the
+/// ten-band equaliser, and Neap goes back to it, keeping the shape
+/// (<see cref="OtherAppChange"/>). The gains last seen are kept in the
+/// settings, so a change made while Neap was closed is seen when the headset
+/// next connects.
 /// </para>
 /// </remarks>
 public sealed class ParametricService
@@ -99,43 +100,41 @@ public sealed class ParametricService
             AppSettings.Update(settings => (settings.ParametricOn, settings.ParametricFirmware, settings.ParametricReset) = (false, null, true));
             Reset?.Invoke();
         }
-        else if (AppSettings.Current.ParametricActive)
+        else if (AppSettings.Current.ParametricActive && !TakenOverByAnotherApp())
         {
-            Set(Followed(Saved));
+            Set(Saved);
         }
     }
 
-    /// <summary>Takes another app's change to the gains into the shape, while the Parametric mode is in use.</summary>
+    /// <summary>Another app changed the ten-band equaliser while the Parametric mode was in use, so Neap went back to it. Raised on the UI thread.</summary>
+    public event Action? TakenOver;
+
     private void OnValues()
     {
-        if (!_wasConnected || _comparing) return;
-        var mine = _wanted is { Shape: true } wanted ? wanted.Bands : Saved;
-        var bands = Followed(mine);
-        if (!ReferenceEquals(bands, mine)) Set(bands);
+        if (_wasConnected && !_comparing) TakenOverByAnotherApp();
     }
 
     /// <summary>
-    /// The bands with any gain another app changed since Neap last looked, or
-    /// the same bands when none was. Keeps the gains seen either way, and saves
-    /// and announces a changed shape.
+    /// Goes back to the ten-band equaliser, with the gains another app set,
+    /// when that app has changed them while the Parametric mode is in use. The
+    /// shape is kept, and the gains seen are noted either way.
     /// </summary>
-    /// <param name="mine">The ten bands Neap holds.</param>
-    private IReadOnlyList<ParametricBand> Followed(IReadOnlyList<ParametricBand> mine)
+    /// <returns>Whether it went back.</returns>
+    private bool TakenOverByAnotherApp()
     {
-        if (ReportedGains() is not { } reported) return mine;
+        if (ReportedGains() is not { } reported) return false;
         var seen = AppSettings.Current.ParametricSeenGains;
-        if (seen.Count == reported.Length && seen.SequenceEqual(reported)) return mine;
+        if (seen.Count == reported.Length && seen.SequenceEqual(reported)) return false;
         AppSettings.Update(settings => settings.ParametricSeenGains = [.. reported]);
 
-        bool following = AppSettings.Current.ParametricOn && Active && _headset.Model is { HasParametricBands: true };
-        if (!following || seen.Count != reported.Length) return mine;
-        var result = GainFollow.Follow(mine, seen, reported);
-        if (!result.Changed) return mine;
+        bool inUse = AppSettings.Current.ParametricOn && Active && _headset.Model is { HasParametricBands: true };
+        if (!inUse || !OtherAppChange.Changed(seen, reported)) return false;
 
-        AppLog.Write($"parametric: another app changed the gain of band {string.Join(", ", result.ChangedBands.Select(band => band + 1))}, and the shape follows it");
-        AppSettings.Update(settings => settings.ParametricShape = [.. result.Bands.Select(StoredBand.Of)]);
-        _ui.Post(() => ShapeChanged?.Invoke());
-        return result.Bands;
+        AppLog.Write("parametric: another app changed the ten-band equaliser, so Neap goes back to it and keeps the shape");
+        AppSettings.Update(settings => settings.ParametricTakenOver = true);
+        Leave([.. reported.Select(gain => (int)Math.Round(gain * 10))]);
+        TakenOver?.Invoke();
+        return true;
     }
 
     /// <summary>The ten bands' gain settings as the headset reports them, in decibels, or null before all are read.</summary>
@@ -211,7 +210,7 @@ public sealed class ParametricService
     /// </remarks>
     public void Enter()
     {
-        AppSettings.Update(settings => settings.ParametricActive = true);
+        AppSettings.Update(settings => (settings.ParametricActive, settings.ParametricTakenOver) = (true, false));
         if (ReportedGains() is { } reported) AppSettings.Update(settings => settings.ParametricSeenGains = [.. reported]);
         _sender.Forget();
         Set(Saved);

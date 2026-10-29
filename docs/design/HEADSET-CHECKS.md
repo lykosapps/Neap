@@ -134,10 +134,11 @@ plugged in again; the headset's lights read as before throughout.
     The Equaliser page says Swarm II reset the equaliser and Parametric is
     off, and the sound is the stock equaliser's. Press Turn on there: the
     shape plays again.
-32. **Another app's gain:** in Parametric, with a band in use, change that
-    band's gain in the phone app. Neap's table and curve take the new gain
-    and keep the band's filter, frequency and width, and the sound matches.
-    Do it again with Neap closed, then open Neap: it follows the change.
+32. **Another app's change:** in Parametric, change a slider or choose a
+    preset in the phone app. Neap switches to Bands, shows the phone's curve,
+    says another app changed the equaliser, and the sound matches the phone.
+    Back to Parametric brings the shape back. Do it again with Neap closed,
+    then open Neap: it shows the same.
 33. **Mode button, preset step:** set the Mode button to step through game
     presets, then press it while in Parametric. Note whether the bands move.
     If they do, Neap must block the step or follow it.

@@ -186,6 +186,7 @@ public partial class EqualiserPanel : UserControl
         ParametricTurnOn.Click += async (_, _) => await TurnParametricOn(askedFromMode: false);
         Parametric.TurnOffAsked += async () => await TurnParametricOff();
         ParametricTools.Content = Parametric.Tools;
+        TakenOverNotice.ActionInvoked += (_, _) => ModeParametric.IsChecked = true;
     }
 
     private void EnterParametric()
@@ -296,6 +297,7 @@ public partial class EqualiserPanel : UserControl
         AppServices.Headset.Changed += Paint;
         AppServices.Parametric.Reset += Paint;
         AppServices.Parametric.ShapeChanged += Paint;
+        AppServices.Parametric.TakenOver += Paint;
         ShowWaiting(Wait.Reading);
         BuildBands();
         await Reload();
@@ -341,6 +343,7 @@ public partial class EqualiserPanel : UserControl
         AppServices.Headset.Changed -= Paint;
         AppServices.Parametric.Reset -= Paint;
         AppServices.Parametric.ShapeChanged -= Paint;
+        AppServices.Parametric.TakenOver -= Paint;
         AppServices.Headset.StatusChanged -= OnStatusChanged;
         StopCompare();
     }
@@ -853,6 +856,7 @@ public partial class EqualiserPanel : UserControl
         Curve.IsVisible = !parametric;
         Parametric.IsVisible = parametric && on;
         ParametricTools.IsVisible = parametric && on;
+        TakenOverNotice.IsOpen = !parametric && ParametricOffered && AppSettings.Current.ParametricTakenOver;
         ParametricOff.IsVisible = parametric && !on;
         if (parametric && !on) PaintParametricOff();
         PresetsCard.IsVisible = !parametric;

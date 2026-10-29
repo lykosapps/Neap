@@ -119,7 +119,7 @@ first and say how sure each finding is.
   after the headset's stock gain correction is cleared, which choosing
   Parametric on the Equaliser page does, through the dock or the cable.
   Neap keeps its own presets, imports Equalizer APO and
-  AutoEq filters, lets a profile hold a shape, follows another app's gain
+  AutoEq filters, lets a profile hold a shape, gives way to another app's ten-band
   changes, and turns parametric off when Swarm II resets the headset. All of
   it runs in practice runs only. Left: the headset checks (HEADSET-CHECKS.md),
   the record write on Linux, and whether the Mode button's preset step

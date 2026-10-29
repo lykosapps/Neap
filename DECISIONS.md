@@ -1,5 +1,25 @@
 # Decisions
 
+## 2026-10-29 — Another app's ten-band change ends the Parametric mode
+
+- **Options:** keep following another app's gains into the parametric shape;
+  ignore them and put the shape back; or go back to the ten-band equaliser
+  with that app's gains and keep the shape.
+- **Chosen:** when the phone app, Swarm II or anything else changes the ten
+  bands' gains while Parametric is in use, Neap goes back to the ten-band
+  equaliser with those gains on the stock bands, keeps the parametric shape,
+  and says so on the Equaliser page with a way back to Parametric. A change
+  made while Neap was closed is seen when the headset next connects.
+- **Why:** on the owner's headset, choosing a phone preset that cuts the
+  treble came out as a treble boost: its gains, meant for fixed frequencies,
+  landed on parametric bands at other frequencies. A gain means nothing away
+  from its own frequency. One equaliser active at a time, the newest choice
+  winning, is the rule that holds whether or not Neap is running.
+- **Changes:** "follows a phone's gains" (27 October). The shape is no longer
+  changed by another app.
+- **Revisit if:** the headset's Mode button turns out to step presets in a way
+  people use with Parametric on, which this rule would also end.
+
 ## 2026-10-28 — Parametric is turned on from the Equaliser page, through the dock or the cable
 
 - **Options:** keep turning it on from the Firmware page over the cable;

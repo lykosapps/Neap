@@ -207,6 +207,10 @@ public sealed class AppSettings
     [JsonPropertyName("parametric_seen_gains")]
     public List<double> ParametricSeenGains { get; set; } = new();
 
+    /// <summary>Whether another app changed the ten-band equaliser while Parametric was in use, so Neap went back to it; said until Parametric is chosen again.</summary>
+    [JsonPropertyName("parametric_taken_over")]
+    public bool ParametricTakenOver { get; set; }
+
     /// <summary>The parametric shapes the person saved under names, in the order saved.</summary>
     [JsonPropertyName("parametric_presets")]
     public List<StoredParametricPreset> ParametricPresets { get; set; } = new();

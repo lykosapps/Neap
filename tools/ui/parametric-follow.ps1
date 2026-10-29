@@ -1,19 +1,20 @@
 <#
 .SYNOPSIS
-Checks that the parametric equaliser follows a gain another app changes, on
-the published app in pretend mode.
+Checks that the Parametric mode gives way to another app's ten-band
+equaliser, on the published app in pretend mode.
 
 .DESCRIPTION
-Run through run.ps1. The pretend headset, on Bass Boost at +5 dB for band 1,
-reports +2 dB for it, as the phone app or Swarm II would, and the band's gain
-in the table follows it while its filter and frequency stay. Nothing here
-changes a real headset.
+Run through run.ps1. With a shape in the Parametric mode, the pretend headset
+reports a new gain for band 1, as the phone app or Swarm II would. Neap goes
+back to the ten bands, says why, plays the other app's gains on the stock
+bands, and keeps the shape: Back to Parametric brings it back as it was.
+Nothing here changes a real headset.
 #>
 param([string]$Parts = 'A')
 
 . "$PSScriptRoot\Ui.ps1"
 
-# The gain shown in a band's field: the text box inside the named control.
+# The value in a band's field: the text box inside the named control.
 function Get-Field([string]$Name) {
     foreach ($element in Find-All $Name) {
         $edit = $element.FindFirst($Scope::Subtree, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Edit)))
@@ -22,23 +23,34 @@ function Get-Field([string]$Name) {
     }
 }
 
+$said = 'Another app changed the equaliser, so Neap switched to Bands. Your Parametric shape is kept.'
+
 if ($Parts.Contains('A')) {
-    Section 'another app changes a gain'
+    Section 'another app changes the ten-band equaliser'
     Start-NeapPretend -Page equaliser -Flags @('--parametric', '--wired')
     try {
         Set-NeapSize 1400 1500 'Equaliser'
-        Check (Wait-Until { $null -ne (Find-Named 'Band 1 in use') } 20) 'the table is there'
-        Press (Find-Named 'Band 1 in use')
-        Check (Wait-Until { (Get-Field 'Band 1 gain') -eq '0.0' } 4) 'band 1 is in use at 0 dB'
-        $frequency = Get-Field 'Band 1 frequency'
+        Check (Wait-Until { $null -ne (Find-Named 'All bands') } 20) 'the parametric editor is open'
+        Choose-Parametric 'Add bass'
+        Start-Sleep -Seconds 2
+        $shape = @(1..10 | ForEach-Object { Get-Field "Band $_ gain" }) -join ' '
+        Note "the shape: $shape"
 
         Send-Pretend 'report eq_band_1 20' | Out-Null
-        Check (Wait-Until { (Get-Field 'Band 1 gain') -eq '+2.0' } 6) 'band 1 follows the new gain of +2 dB'
-        Check ((Get-Field 'Band 1 frequency') -eq $frequency) "and keeps its frequency, $frequency"
+        Check (Wait-Until { (Get-Texts) -contains $said } 6) 'it says another app changed the equaliser'
+        Check ($null -eq (Find-Named 'All bands')) 'and shows the ten bands'
+        # The headset plays the other app's gains on the stock bands, nothing of the shape beneath them.
+        # The ten bands go a write at a time, paced, so they are waited for.
+        $stock = { $playing = @(Send-Pretend 'bands'); ($playing | Where-Object { $_.type -ne 'Peaking' }).Count -eq 0 -and [double]$playing[0].gain -eq 2 }
+        Check (Wait-Until $stock 8) "the headset plays the other app's gains on the stock bells"
+        Note ('playing: ' + ((@(Send-Pretend 'bands') | ForEach-Object { '{0} {1} {2}' -f $_.type, $_.hertz, $_.gain }) -join ' / '))
 
-        Send-Pretend 'report eq_band_2 -30' | Out-Null
-        Start-Sleep -Seconds 2
-        Check ((Get-Field 'Band 2 gain') -eq '0.0') 'a band not in use is left alone'
+        Press (Find-Named 'Back to Parametric')
+        Check (Wait-Until { $null -ne (Find-Named 'All bands') } 6) 'Back to Parametric opens the editor'
+        Start-Sleep -Seconds 1
+        $after = @(1..10 | ForEach-Object { Get-Field "Band $_ gain" }) -join ' '
+        Check ($after -eq $shape) "the shape is as it was: $after"
+        Check (-not ((Get-Texts) -contains $said)) 'and the note has gone'
     }
     finally { Stop-NeapPretend }
 }
