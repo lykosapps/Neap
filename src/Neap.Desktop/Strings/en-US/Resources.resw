@@ -2106,14 +2106,8 @@
   <data name="Parametric_BandTitle" xml:space="preserve">
     <value>Band {0}</value>
   </data>
-  <data name="Parametric_InUse" xml:space="preserve">
-    <value>In use</value>
-  </data>
   <data name="Parametric_TypeLabel" xml:space="preserve">
     <value>Filter</value>
-  </data>
-  <data name="Parametric_ResetBand" xml:space="preserve">
-    <value>Reset band</value>
   </data>
   <data name="Parametric_TypeBell" xml:space="preserve">
     <value>Bell</value>
@@ -2169,9 +2163,6 @@
   <data name="Parametric_ColBand" xml:space="preserve">
     <value>Band</value>
   </data>
-  <data name="Parametric_ColInUse" xml:space="preserve">
-    <value>In use</value>
-  </data>
   <data name="Parametric_ColFilter" xml:space="preserve">
     <value>Filter</value>
   </data>
@@ -2183,9 +2174,6 @@
   </data>
   <data name="Parametric_ColDb" xml:space="preserve">
     <value>Gain</value>
-  </data>
-  <data name="Parametric_RowInUse" xml:space="preserve">
-    <value>Band {0} in use</value>
   </data>
   <data name="Parametric_RowFilter" xml:space="preserve">
     <value>Band {0} filter</value>
@@ -2279,6 +2267,18 @@
   </data>
   <data name="ParametricPreset_NewFrom" xml:space="preserve">
     <value>New from</value>
+  </data>
+  <data name="Parametric_AddBand" xml:space="preserve">
+    <value>Add band</value>
+  </data>
+  <data name="Parametric_RemoveBand" xml:space="preserve">
+    <value>Remove band</value>
+  </data>
+  <data name="Parametric_RowRemove" xml:space="preserve">
+    <value>Remove band {0}</value>
+  </data>
+  <data name="Parametric_NoBands" xml:space="preserve">
+    <value>No bands yet. Double-click the curve or press Add band.</value>
   </data>
   <data name="Parametric_AllBands" xml:space="preserve">
     <value>All bands</value>

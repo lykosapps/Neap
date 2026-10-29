@@ -285,7 +285,7 @@ public sealed class ParametricService
     /// <param name="shape">The shape.</param>
     public void Use(ParametricShape shape)
     {
-        if (StoredBand.Bands(shape.Bands) is not { } bands)
+        if (StoredBand.Bands(shape.Bands) is not { } stored)
         {
             AppLog.Write("parametric: a profile's shape is not ten bands the headset has, so it was not sent");
             return;
@@ -294,6 +294,7 @@ public sealed class ParametricService
         Choose(ParametricPresets.Matching(Presets, shape)?.Name);
         AppSettings.Update(settings => settings.ParametricActive = true);
         _sender.Forget();
+        var bands = BandEditing.InOrder(stored);
         Set(bands);
         AppSettings.Update(settings => settings.ParametricShape = [.. shape.Bands]);
         ShapeChanged?.Invoke();

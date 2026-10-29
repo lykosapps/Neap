@@ -139,7 +139,8 @@ if ($Parts.Contains('G')) {
         Check (Test-Editor) 'the editor is open'
         Choose-Parametric 'Add bass'
         Start-Sleep -Seconds 2
-        $before = @(1..10 | ForEach-Object { Get-Field "Band $_ gain" }) -join ' '
+        # Only the bands in use have rows.
+        $before = @(1..10 | ForEach-Object { Get-Field "Band $_ gain" } | Where-Object { $_ }) -join ' '
         Note "the shape: $before"
         Press (Find-Named 'Bands')
         Check (Wait-Until { $null -eq (Find-Named 'All bands') } 5) 'the ten bands are shown'
@@ -147,11 +148,13 @@ if ($Parts.Contains('G')) {
         Press (Find-Named 'Parametric')
         Check (Test-Editor) 'Parametric opens again'
         Start-Sleep -Seconds 1
-        $after = @(1..10 | ForEach-Object { Get-Field "Band $_ gain" }) -join ' '
+        $after = @(1..10 | ForEach-Object { Get-Field "Band $_ gain" } | Where-Object { $_ }) -join ' '
         Check ($after -eq $before) "the shape on screen is as it was: $after"
-        # What the headset plays, not only what the screen shows: in use, a band plays its gain; off, it is a bypass.
-        $playing = @(Send-Pretend 'bands' | ForEach-Object { if ($_.type -eq 'Bypass') { '0.0' } else { '{0:+0.0;-0.0;0.0}' -f [double]$_.gain } }) -join ' '
-        Check ($playing -eq $before) "and the headset plays it: $playing"
+        # What the headset plays, not only what the screen shows: each band with a gain, in order, as the table lists them.
+        # All ten bands go a write at a time, paced, so the headset is given time to catch up.
+        $playing = { @(Send-Pretend 'bands' | Where-Object { $_.type -in 'Peaking', 'LowShelf', 'HighShelf' } | ForEach-Object { '{0:+0.0;-0.0;0.0}' -f [double]$_.gain }) -join ' ' }
+        $matched = Wait-Until { (& $playing) -eq $before } 8
+        Check $matched "and the headset plays it: $(& $playing)"
     }
     finally { Stop-NeapPretend }
 }

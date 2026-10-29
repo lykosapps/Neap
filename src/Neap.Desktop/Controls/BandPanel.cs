@@ -60,9 +60,11 @@ public sealed class BandPanel : UserControl
     private bool? _beside;
 
     private readonly TextBlock _title = new() { Classes = { "label" } };
-    private readonly CheckBox _inUse = new();
     private readonly ComboBox _type = new() { Width = FilterWidth };
-    private readonly Button _reset = new();
+    private readonly Button _remove = new();
+    private readonly Button _add = new();
+    private readonly StackPanel _bandControls = new() { Spacing = Space.M };
+    private readonly TextBlock _empty = new() { Classes = { "secondary" } };
     private readonly TextBlock _hint = new() { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
     private readonly TextBlock _frequencyLabel = new();
     private readonly TextBlock _widthLabel = new();
@@ -75,6 +77,9 @@ public sealed class BandPanel : UserControl
     private readonly BandValueBox _gainBox = new() { Width = 96 };
 
     private readonly Row[] _rows = new Row[BandWrites.Bands];
+
+    /// <summary>The table's column names, shown only once there is a band to name.</summary>
+    private readonly List<TextBlock> _columns = [];
     private readonly ParametricPresetBar _presets;
 
     private readonly Stack<List<ParametricBand>> _undoStack = new();
@@ -83,7 +88,10 @@ public sealed class BandPanel : UserControl
     private int _selected;
     private bool _painting;
 
-    private sealed record Row(CheckBox InUse, ComboBox Type, BandValueBox Hertz, BandValueBox Q, BandValueBox Gain, Border Frame);
+    private sealed record Row(Border Frame, ComboBox Type, BandValueBox Hertz, BandValueBox Q, BandValueBox Gain, Button Remove)
+    {
+        public Control[] Cells => [Frame, Type, Hertz, Q, Gain, Remove];
+    }
 
     /// <summary>The person asked to turn Parametric off, which the page asks about and does.</summary>
     public event Action? TurnOffAsked;
@@ -151,12 +159,12 @@ public sealed class BandPanel : UserControl
         StopCompare();
     }
 
-    /// <summary>Draws a set of bands everywhere, without sending them.</summary>
+    /// <summary>Draws a set of bands everywhere, in order, without sending them.</summary>
     /// <param name="bands">The ten bands.</param>
     public void Show(IReadOnlyList<ParametricBand> bands)
     {
-        _bands = [.. bands];
-        _selected = Math.Min(_selected, BandWrites.Bands - 1);
+        _bands = [.. BandEditing.InOrder(bands)];
+        if (!_bands[Math.Min(_selected, BandWrites.Bands - 1)].InUse) _selected = 0;
         Paint();
     }
 
@@ -169,14 +177,20 @@ public sealed class BandPanel : UserControl
         _compare.Content = Strings.Get("Parametric_Compare");
         ToolTip.SetTip(_compare, Strings.Get("Parametric_CompareTip"));
         _turnOff.Content = Strings.Get("Parametric_TurnOff");
-        _reset.Content = Strings.Get("Parametric_ResetBand");
-        _inUse.Content = Strings.Get("Parametric_InUse");
+        _remove.Content = Strings.Get("Parametric_RemoveBand");
+        _add.Content = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = Space.S,
+            Children = { Icon("IconAdd"), new TextBlock { Text = Strings.Get("Parametric_AddBand") } },
+        };
+        AutomationProperties.SetName(_add, Strings.Get("Parametric_AddBand"));
+        _empty.Text = Strings.Get("Parametric_NoBands");
         foreach (var type in Types) _type.Items.Add(new ComboBoxItem { Content = Strings.Get(TypeKey(type)), Tag = type });
         _hint.Classes.Add("caption");
         _hint.Classes.Add("secondary");
         _level.Message = Strings.Get("Parametric_LevelNotice");
         AutomationProperties.SetName(_type, Strings.Get("Parametric_TypeLabel"));
-        AutomationProperties.SetName(_inUse, Strings.Get("Parametric_InUse"));
 
         // Kept together at the left, whatever the width, so the dials sit under the band's own controls.
         var dials = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto"), ColumnSpacing = Space.XL, HorizontalAlignment = HorizontalAlignment.Left };
@@ -185,17 +199,16 @@ public sealed class BandPanel : UserControl
         Column(dials, 2, _gainLabel, _gainDial, _gainBox);
 
         // The band's own controls on one row, over the three dials.
-        var head = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto"), ColumnSpacing = Space.M };
+        var head = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,Auto"), ColumnSpacing = Space.M };
         _type.VerticalAlignment = VerticalAlignment.Center;
-        _inUse.VerticalAlignment = VerticalAlignment.Center;
-        Grid.SetColumn(_type, 1);
-        Grid.SetColumn(_reset, 2);
-        head.Children.AddRange([_inUse, _type, _reset]);
-        _editor.Child = new StackPanel { Spacing = Space.M, Children = { _title, head, dials, _hint } };
+        Grid.SetColumn(_remove, 1);
+        head.Children.AddRange([_type, _remove]);
+        _bandControls.Children.AddRange([_title, head, dials, _hint]);
+        _editor.Child = new Panel { Children = { _bandControls, _empty } };
         _main.Children.AddRange([_curve, _editor]);
 
-        var table = new Grid { RowSpacing = Space.XS, ColumnSpacing = Space.S, ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto,*,*,*") };
-        string[] columns = ["Parametric_ColBand", "Parametric_ColInUse", "Parametric_ColFilter", "Parametric_ColHz", "Parametric_ColQ", "Parametric_ColDb"];
+        var table = new Grid { RowSpacing = Space.XS, ColumnSpacing = Space.S, ColumnDefinitions = new ColumnDefinitions("Auto,Auto,*,*,*,Auto") };
+        string[] columns = ["Parametric_ColBand", "Parametric_ColFilter", "Parametric_ColHz", "Parametric_ColQ", "Parametric_ColDb"];
         for (int c = 0; c < columns.Length; c++)
         {
             var header = new TextBlock { Text = Strings.Get(columns[c]) };
@@ -203,6 +216,7 @@ public sealed class BandPanel : UserControl
             header.Classes.Add("secondary");
             Grid.SetColumn(header, c);
             table.Children.Add(header);
+            _columns.Add(header);
         }
 
         table.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
@@ -210,10 +224,25 @@ public sealed class BandPanel : UserControl
         var all = new StackPanel
         {
             Spacing = Space.S,
-            Children = { new TextBlock { Text = Strings.Get("Parametric_AllBands"), Classes = { "label" } }, table },
+            Children = { AllBandsHead(), table },
         };
 
         return new StackPanel { Spacing = Space.L, Children = { _tone, _presets, _level, _main, all } };
+    }
+
+    /// <summary>The table's label, with Add band at the end of its row.</summary>
+    private Grid AllBandsHead()
+    {
+        var label = new TextBlock { Text = Strings.Get("Parametric_AllBands"), Classes = { "label" }, VerticalAlignment = VerticalAlignment.Center };
+        Grid.SetColumn(_add, 1);
+        return new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), Children = { label, _add } };
+    }
+
+    private static PathIcon Icon(string key)
+    {
+        var icon = new PathIcon { Width = Space.Icon, Height = Space.Icon, Data = (Avalonia.Media.Geometry)Application.Current!.FindResource(key)! };
+        AutomationProperties.SetAccessibilityView(icon, AccessibilityView.Raw);
+        return icon;
     }
 
     /// <summary>Makes an icon button of Undo or Redo, as the ten-band equaliser's are, named for a screen reader and a tooltip.</summary>
@@ -222,14 +251,9 @@ public sealed class BandPanel : UserControl
         string name = Strings.Get(key);
         AutomationProperties.SetName(button, name);
         ToolTip.SetTip(button, name);
-        button.Content = new PathIcon
-        {
-            Width = Space.Icon,
-            Height = Space.Icon,
-            Data = (Avalonia.Media.Geometry)Application.Current!.FindResource(icon)!,
-            RenderTransform = mirrored ? new Avalonia.Media.ScaleTransform(-1, 1) : null,
-        };
-        AutomationProperties.SetAccessibilityView((PathIcon)button.Content, AccessibilityView.Raw);
+        var drawn = Icon(icon);
+        if (mirrored) drawn.RenderTransform = new Avalonia.Media.ScaleTransform(-1, 1);
+        button.Content = drawn;
     }
 
     /// <summary>Puts the band's dials beside the curve when there is room for both, and under it when there is not.</summary>
@@ -259,19 +283,21 @@ public sealed class BandPanel : UserControl
         table.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
         int at = band + 1;
         var number = new TextBlock { Text = (band + 1).ToString(CultureInfo.CurrentCulture), VerticalAlignment = VerticalAlignment.Center };
-        var inUse = new CheckBox { VerticalAlignment = VerticalAlignment.Center };
         var type = new ComboBox { Width = FilterWidth };
         foreach (var t in Types) type.Items.Add(new ComboBoxItem { Content = Strings.Get(TypeKey(t)), Tag = t });
         var hertz = new BandValueBox();
         var q = new BandValueBox();
         var gain = new BandValueBox();
-        AutomationProperties.SetName(inUse, Strings.Format("Parametric_RowInUse", band + 1));
         AutomationProperties.SetName(type, Strings.Format("Parametric_RowFilter", band + 1));
         AutomationProperties.SetName(hertz, Strings.Format("Parametric_RowFrequency", band + 1));
         AutomationProperties.SetName(q, Strings.Format("Parametric_RowWidth", band + 1));
         AutomationProperties.SetName(gain, Strings.Format("Parametric_RowGain", band + 1));
+        var remove = new Button { Classes = { "quiet", "iconbutton" }, Content = Icon("IconDelete") };
+        string removeName = Strings.Format("Parametric_RowRemove", band + 1);
+        AutomationProperties.SetName(remove, removeName);
+        ToolTip.SetTip(remove, removeName);
         var frame = new Border { Padding = new Thickness(0, 2), Child = number };
-        Control[] cells = [frame, inUse, type, hertz, q, gain];
+        Control[] cells = [frame, type, hertz, q, gain, remove];
         for (int c = 0; c < cells.Length; c++)
         {
             Grid.SetRow(cells[c], at);
@@ -280,14 +306,14 @@ public sealed class BandPanel : UserControl
         }
 
         int index = band;
-        inUse.IsCheckedChanged += (_, _) => { if (!_painting) Change(index, _bands[index] with { InUse = inUse.IsChecked == true }); };
+        remove.Click += (_, _) => RemoveBand(index);
         type.SelectionChanged += (_, _) => { if (!_painting && type.SelectedItem is ComboBoxItem { Tag: BandType t }) Change(index, BandEditing.WithType(_bands[index], t)); };
         hertz.Entered += text => Take(index, FrequencyEntry.Parse(text, _bands[index].Hertz), (b, v) => b with { Hertz = v });
         q.Entered += text => Take(index, BandEntry.Q(text), (b, v) => b with { Q = v });
         gain.Entered += text => Take(index, BandEntry.Gain(text), (b, v) => b with { Gain = v });
-        foreach (Control cell in new Control[] { inUse, type, hertz, q, gain })
+        foreach (Control cell in new Control[] { type, hertz, q, gain })
             cell.GotFocus += (_, _) => Choose(index);
-        return new Row(inUse, type, hertz, q, gain, frame);
+        return new Row(frame, type, hertz, q, gain, remove);
     }
 
     private void Wire()
@@ -298,7 +324,7 @@ public sealed class BandPanel : UserControl
         _tone.Moved += hertz => _curve.ToneHertz = hertz;
         _tone.Marked += (hertz, boost) =>
         {
-            if (BandEditing.FirstFree(_bands) is >= 0 and var free) Change(free, ToneSweep.Bell(hertz, boost));
+            AddBand(ToneSweep.Bell(hertz, boost));
         };
         WireCompare();
         _undo.Click += (_, _) => Walk(_undoStack, _redoStack);
@@ -312,9 +338,9 @@ public sealed class BandPanel : UserControl
         };
         _turnOff.Click += (_, _) => TurnOffAsked?.Invoke();
 
-        _inUse.IsCheckedChanged += (_, _) => { if (!_painting) Change(_selected, _bands[_selected] with { InUse = _inUse.IsChecked == true }); };
         _type.SelectionChanged += (_, _) => { if (!_painting && _type.SelectedItem is ComboBoxItem { Tag: BandType t }) Change(_selected, BandEditing.WithType(_bands[_selected], t)); };
-        _reset.Click += (_, _) => Change(_selected, BandEditing.Reset(_selected));
+        _remove.Click += (_, _) => RemoveBand(_selected);
+        _add.Click += (_, _) => AddBand(BandEditing.NewBand(_bands));
 
         _frequencyDial.Changing += Keep;
         _widthDial.Changing += Keep;
@@ -429,10 +455,32 @@ public sealed class BandPanel : UserControl
         Change(band, change(_bands[band], v) with { InUse = true });
     }
 
+    /// <summary>Adds a band, in its place by frequency, and chooses it: one change Undo can take back.</summary>
+    private void AddBand(ParametricBand band)
+    {
+        if (BandEditing.Added(_bands, band) is not { } added) return;
+        Keep();
+        _bands = [.. added.Bands];
+        _selected = added.At;
+        Send();
+        Paint();
+    }
+
+    /// <summary>Takes a band out of use, choosing the one now in its place: one change Undo can take back.</summary>
+    private void RemoveBand(int band)
+    {
+        Keep();
+        var (bands, chosen) = BandEditing.Removed(_bands, band);
+        _bands = [.. bands];
+        _selected = chosen;
+        Send();
+        Paint();
+    }
+
     private void Replace(IReadOnlyList<ParametricBand> bands, bool keepSelection)
     {
         Keep();
-        _bands = [.. bands];
+        _bands = [.. BandEditing.InOrder(bands)];
         if (!keepSelection) _selected = 0;
         Send();
         Paint();
@@ -478,8 +526,12 @@ public sealed class BandPanel : UserControl
             var band = _bands[_selected];
             bool cut = band.Type is BandType.LowCut or BandType.HighCut or BandType.GentleLowCut or BandType.GentleHighCut;
             bool shelf = band.Type is BandType.LowShelf or BandType.HighShelf;
+            int inUse = _bands.Count(b => b.InUse);
+            _bandControls.IsVisible = band.InUse;
+            _empty.IsVisible = inUse == 0;
+            _add.IsEnabled = inUse < BandWrites.Bands;
+            foreach (var column in _columns) column.IsVisible = inUse > 0;
             _title.Text = Strings.Format("Parametric_BandTitle", _selected + 1);
-            _inUse.IsChecked = band.InUse;
             _type.SelectedIndex = Array.IndexOf(Types, band.Type);
             _frequencyLabel.Text = Strings.Get(cut ? "Parametric_CutoffLabel" : shelf ? "Parametric_CornerLabel" : "Parametric_FrequencyLabel");
             _widthLabel.Text = Strings.Get(cut ? "Parametric_ResonanceLabel" : shelf ? "Parametric_SlopeLabel" : "Parametric_WidthLabel");
@@ -502,7 +554,7 @@ public sealed class BandPanel : UserControl
             {
                 var b = _bands[i];
                 var row = _rows[i];
-                row.InUse.IsChecked = b.InUse;
+                foreach (var cell in row.Cells) cell.IsVisible = b.InUse;
                 row.Type.SelectedIndex = Array.IndexOf(Types, b.Type);
                 row.Hertz.Show(FrequencyText.Of(b.Hertz));
                 row.Q.Show(b.Q.ToString("0.0#", CultureInfo.CurrentCulture));

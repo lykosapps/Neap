@@ -41,10 +41,10 @@ public class BandEditingTests
     }
 
     [Fact]
-    public void AnUnusedBandIsGrabbedAtZeroDecibels()
+    public void ABandNotInUseIsNotDrawnSoCannotBePressed()
     {
         ParametricBand[] bands = [Bell(1000, 5, inUse: false)];
-        Assert.Equal(0, Plot.Nearest(bands, Plot.X(1000), Plot.Y(0), 14));
+        Assert.Equal(-1, Plot.Nearest(bands, Plot.X(1000), Plot.Y(0), 14));
     }
 
     [Fact]
@@ -153,12 +153,46 @@ public class BandEditingTests
         Assert.Equal(-1, BandEditing.FirstFree([Bell(), Bell()]));
     }
 
+    private static IReadOnlyList<ParametricBand> Ten(params ParametricBand[] inUse) =>
+        [.. inUse, .. StockBands.Flat.Skip(inUse.Length)];
+
     [Fact]
-    public void ResettingABandPutsItBackToStockAndOff()
+    public void BandsInUseComeFirstInOrderOfFrequency()
     {
-        var reset = BandEditing.Reset(5);
-        Assert.Equal(StockBands.Game[5].Hertz, reset.Hertz);
-        Assert.False(reset.InUse);
-        Assert.Equal(0, reset.Gain);
+        var ordered = BandEditing.InOrder(Ten(Bell(300), Bell(180)));
+        Assert.Equal([180, 300], ordered.Where(b => b.InUse).Select(b => b.Hertz));
+        Assert.True(ordered[0].InUse && ordered[1].InUse && !ordered[2].InUse);
+    }
+
+    [Fact]
+    public void AnAddedBandGoesInItsPlaceByFrequency()
+    {
+        var (bands, at) = BandEditing.Added(Ten(Bell(100), Bell(1000)), Bell(400))!.Value;
+        Assert.Equal(1, at);
+        Assert.Equal([100, 400, 1000], bands.Where(b => b.InUse).Select(b => b.Hertz));
+    }
+
+    [Fact]
+    public void NoBandIsAddedWhenAllTenAreInUse() =>
+        Assert.Null(BandEditing.Added([.. Enumerable.Range(1, 10).Select(i => Bell(i * 100))], Bell(50)));
+
+    [Fact]
+    public void ARemovedBandLeavesTheOneAfterItChosen()
+    {
+        var (bands, chosen) = BandEditing.Removed(Ten(Bell(100), Bell(400), Bell(1000)), 1);
+        Assert.Equal([100, 1000], bands.Where(b => b.InUse).Select(b => b.Hertz));
+        Assert.Equal(1, chosen);
+        Assert.Equal(0, BandEditing.Removed(Ten(Bell(100), Bell(400)), 1).Chosen);
+        Assert.Equal(0, BandEditing.Removed(Ten(Bell(100)), 0).Chosen);
+    }
+
+    [Fact]
+    public void ANewBandFillsTheWidestGap()
+    {
+        Assert.InRange(BandEditing.NewBand(StockBands.Flat).Hertz, 600, 650);
+        var band = BandEditing.NewBand(Ten(Bell(30), Bell(60), Bell(120)));
+        Assert.InRange(band.Hertz, 1400, 1600);
+        Assert.True(band.InUse);
+        Assert.Equal(0, band.Gain);
     }
 }

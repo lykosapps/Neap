@@ -32,7 +32,8 @@ public readonly record struct PlotScale(double Width, double Height)
     /// <summary>The gain at a distance from the top, held to what a band may be set to.</summary>
     public double Gain(double y) => Math.Clamp((Height / 2 - y) / PerDb, -ParametricBand.MostGain, ParametricBand.MostGain);
 
-    /// <summary>The band whose point is nearest a press, within a distance, or -1 when none is.</summary>
+    /// <summary>The band in use whose point is nearest a press, within a distance, or -1 when none is.</summary>
+    /// <remarks>A band not in use is not drawn, so it cannot be pressed.</remarks>
     /// <param name="bands">The bands.</param>
     /// <param name="x">The press's distance from the left edge.</param>
     /// <param name="y">The press's distance from the top.</param>
@@ -45,7 +46,7 @@ public readonly record struct PlotScale(double Width, double Height)
         {
             double dx = X(bands[band].Hertz) - x, dy = Y(PointDb(bands[band])) - y;
             double distance = Math.Sqrt((dx * dx) + (dy * dy));
-            if (distance > nearest) continue;
+            if (!bands[band].InUse || distance > nearest) continue;
             nearest = distance;
             found = band;
         }
@@ -130,7 +131,51 @@ public static class BandEditing
     public static ParametricBand BellAt(PlotScale scale, double x, double y) =>
         (new ParametricBand(BandType.Peaking, scale.Hertz(x), StockBands.Q, Math.Round(scale.Gain(y) * 10) / 10, true)).Held();
 
-    /// <summary>A band put back to its stock frequency, width and filter, flat and not in use.</summary>
-    /// <param name="band">Which band, counted from zero.</param>
-    public static ParametricBand Reset(int band) => StockBands.Game[band] with { InUse = false };
+    /// <summary>The bands in use, in order of frequency, then the rest.</summary>
+    /// <remarks>
+    /// The headset plays its ten filters one after another, and filters of
+    /// this kind sound the same in any order, so ordering them changes
+    /// nothing heard. It keeps the numbers on the curve and in the table
+    /// rising from left to right whenever a whole shape is put on, or a band
+    /// added or removed. A band being dragged keeps its number until then.
+    /// Bands at the same frequency keep their order.
+    /// </remarks>
+    /// <param name="bands">The ten bands.</param>
+    public static IReadOnlyList<ParametricBand> InOrder(IReadOnlyList<ParametricBand> bands) =>
+        [.. bands.Where(band => band.InUse).OrderBy(band => band.Hertz), .. bands.Where(band => !band.InUse)];
+
+    /// <summary>The bands with one more in use, in order, and where it went; or null when all ten are.</summary>
+    /// <param name="bands">The ten bands.</param>
+    /// <param name="band">The band to add.</param>
+    public static (IReadOnlyList<ParametricBand> Bands, int At)? Added(IReadOnlyList<ParametricBand> bands, ParametricBand band)
+    {
+        int free = FirstFree(bands);
+        if (free < 0) return null;
+        var placed = bands.Select((b, i) => (Band: i == free ? band.Held() with { InUse = true } : b, New: i == free)).ToList();
+        var ordered = placed.Where(p => p.Band.InUse).OrderBy(p => p.Band.Hertz).Concat(placed.Where(p => !p.Band.InUse)).ToList();
+        return ([.. ordered.Select(p => p.Band)], ordered.FindIndex(p => p.New));
+    }
+
+    /// <summary>The bands with one taken out of use, in order, and which band to choose next: the one now in its place, or else the last.</summary>
+    /// <param name="bands">The ten bands.</param>
+    /// <param name="band">Which band to remove, counted from zero.</param>
+    public static (IReadOnlyList<ParametricBand> Bands, int Chosen) Removed(IReadOnlyList<ParametricBand> bands, int band)
+    {
+        var left = InOrder([.. bands.Select((b, i) => i == band ? b with { InUse = false } : b)]);
+        int inUse = left.Count(b => b.InUse);
+        return (left, Math.Max(0, Math.Min(band, inUse - 1)));
+    }
+
+    /// <summary>A bell at no gain for a band added by its button: in the middle of the widest gap the bands in use leave.</summary>
+    /// <remarks>The gaps are measured on the plot's scale, octaves, from 20 Hz to the highest frequency a band may have.</remarks>
+    /// <param name="bands">The ten bands.</param>
+    public static ParametricBand NewBand(IReadOnlyList<ParametricBand> bands)
+    {
+        double[] edges = [20, .. bands.Where(b => b.InUse).Select(b => b.Hertz).Order(), ParametricBand.HighestHertz];
+        int widest = 0;
+        for (int i = 1; i < edges.Length - 1; i++)
+            if (Math.Log(edges[i + 1] / edges[i]) > Math.Log(edges[widest + 1] / edges[widest])) widest = i;
+        double hertz = Math.Sqrt(edges[widest] * edges[widest + 1]);
+        return new ParametricBand(BandType.Peaking, hertz, StockBands.Q, 0, true).Held();
+    }
 }

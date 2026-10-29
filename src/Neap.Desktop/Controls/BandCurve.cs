@@ -253,7 +253,10 @@ public sealed class BandCurve : UserControl
             Canvas.SetTop(_points[band], y - (PointSize / 2));
             Canvas.SetLeft(_numbers[band], x - (PointSize / 2));
             Canvas.SetTop(_numbers[band], y - 8);
-            _points[band].Opacity = _bands[band].InUse && !_muted ? 1 : 0.45;
+            // A band not in use is not drawn: it is added on purpose, by a double press or Add band.
+            _points[band].IsVisible = _bands[band].InUse;
+            _numbers[band].IsVisible = _bands[band].InUse;
+            _points[band].Opacity = _muted ? 0.45 : 1;
             _points[band].StrokeThickness = band == _selected ? 4 : 2.5;
         }
 
@@ -274,8 +277,8 @@ public sealed class BandCurve : UserControl
 
         if (e.ClickCount == 2)
         {
-            if (hit >= 0) Change(hit, BandEditing.Reset(hit));
-            else if (BandEditing.FirstFree(_bands) is >= 0 and var free) Change(free, BandEditing.BellAt(Scale, x, y));
+            if (hit >= 0) Remove(hit);
+            else if (BandEditing.Added(_bands, BandEditing.BellAt(Scale, x, y)) is { } added) Reorder(added.Bands, added.At);
             e.Handled = true;
             return;
         }
@@ -321,6 +324,7 @@ public sealed class BandCurve : UserControl
         var at = e.GetPosition(_canvas);
         int band = Scale.Nearest(_bands, at.X, at.Y, Reach);
         if (band < 0) band = _selected;
+        if (!_bands[band].InUse) return;
         Choose(band);
         Change(band, BandEditing.Widened(_bands[band], Math.Sign(e.Delta.Y), e.KeyModifiers.HasFlag(KeyModifiers.Shift)));
         e.Handled = true;
@@ -331,16 +335,21 @@ public sealed class BandCurve : UserControl
     protected override void OnKeyDown(KeyEventArgs e)
     {
         bool fine = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        if (!_bands[_selected].InUse)
+        {
+            base.OnKeyDown(e);
+            return;
+        }
+
         switch (e.Key)
         {
             case Key.Left: Change(_selected, BandEditing.Nudged(_bands[_selected], -1, 0, fine)); break;
             case Key.Right: Change(_selected, BandEditing.Nudged(_bands[_selected], 1, 0, fine)); break;
             case Key.Up: Change(_selected, BandEditing.Nudged(_bands[_selected], 0, 1, fine)); break;
             case Key.Down: Change(_selected, BandEditing.Nudged(_bands[_selected], 0, -1, fine)); break;
-            case Key.PageUp: Choose((_selected + 1) % BandWrites.Bands); break;
-            case Key.PageDown: Choose((_selected + BandWrites.Bands - 1) % BandWrites.Bands); break;
-            case Key.Delete or Key.Back: Change(_selected, _bands[_selected] with { InUse = false }); break;
-            case Key.Enter or Key.Space: Change(_selected, _bands[_selected] with { InUse = !_bands[_selected].InUse }); break;
+            case Key.PageUp: Choose((_selected + 1) % InUse); break;
+            case Key.PageDown: Choose((_selected + InUse - 1) % InUse); break;
+            case Key.Delete or Key.Back: Remove(_selected); break;
             default:
                 base.OnKeyDown(e);
                 return;
@@ -352,7 +361,7 @@ public sealed class BandCurve : UserControl
     protected override void OnGotFocus(FocusChangedEventArgs e)
     {
         base.OnGotFocus(e);
-        _focusRing.IsVisible = e.NavigationMethod is NavigationMethod.Tab or NavigationMethod.Directional;
+        _focusRing.IsVisible = (e.NavigationMethod is NavigationMethod.Tab or NavigationMethod.Directional) && _bands[_selected].InUse;
     }
 
     protected override void OnLostFocus(FocusChangedEventArgs e)
@@ -384,5 +393,25 @@ public sealed class BandCurve : UserControl
         _bands[band] = to;
         Draw();
         BandsChanged?.Invoke(_bands);
+    }
+
+    /// <summary>How many bands are in use; they come first, as the panel keeps them in order.</summary>
+    private int InUse => _bands.Count(band => band.InUse);
+
+    private void Remove(int band)
+    {
+        var (bands, chosen) = BandEditing.Removed(_bands, band);
+        Reorder(bands, chosen);
+    }
+
+    /// <summary>One discrete change to the whole set, such as a band added or removed: kept for Undo, drawn and sent, and a band chosen.</summary>
+    private void Reorder(IReadOnlyList<ParametricBand> bands, int chosen)
+    {
+        Changing?.Invoke();
+        _bands = [.. bands];
+        _selected = chosen;
+        Draw();
+        BandsChanged?.Invoke(_bands);
+        Chosen?.Invoke(chosen);
     }
 }
