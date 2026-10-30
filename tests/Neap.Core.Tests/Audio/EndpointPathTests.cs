@@ -9,9 +9,10 @@ public class EndpointPathTests
         $@"\\?\usb#vid_{vid}&pid_{pid}&mi_00#7&1a2b3c4d&0&0000#{{6994ad04-93ef-11d0-a3cc-00a0c9223196}}\global";
 
     [Theory]
-    [InlineData("2287", "2287")] // the Charging Dock
-    [InlineData("2288", "2288")] // the USB Transmitter
-    [InlineData("229e", "229E")] // the headset on its cable
+    [InlineData("2287", "2287")] // the PC model's dock
+    [InlineData("2288", "2288")] // its transmitter
+    [InlineData("2289", "2289")] // the headset itself, on its cable
+    [InlineData("229d", "229D")] // a white Xbox model's transmitter, its letters upper-cased
     public void ATurtleBeachDeviceGivesItsProductId(string pid, string product) =>
         Assert.Equal(product, EndpointPath.ProductOf(Path("10f5", pid)));
 
