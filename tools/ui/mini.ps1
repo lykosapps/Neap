@@ -61,20 +61,24 @@ foreach ($theme in 'dark', 'light') {
         Check ([string](Find-Tick 'Superhuman Hearing').GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern).Current.ToggleState -eq 'Off') 'Superhuman Hearing starts unticked'
         Check ([string](Find-Tick 'Spatial sound').GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern).Current.ToggleState -eq 'On') 'Spatial sound starts ticked'
         Set-Tick 'Superhuman Hearing' $true
+        # The profile is shown before a choice only once one is saved, which a fresh practice run has not.
+        Check ([string](Find-Tick 'Profile').GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern).Current.ToggleState -eq 'Off') 'the profile starts unticked with none saved'
+        Set-Tick 'Profile' $true
 
         Check (Open-Panel) 'the mini panel opens as the icon opens it'
         $panel = Find-Panel
         if (-not $panel) { continue }
         Check ((Get-Texts) -contains 'Microphone' -and (Get-Texts) -contains 'Noise' -and (Get-Texts) -contains 'Spatial') 'it shows the microphone, noise and spatial tiles'
         Check (Test-Present (Find-Named 'Superhuman Hearing')) 'the Superhuman Hearing tile is there once ticked'
+        Check (Test-Present (Find-Named 'Profile')) 'the profile bar is there once ticked'
         Save-Shot "mini-$theme" -Whole | ForEach-Object { $_.Dispose() }
 
-        # Its sounds are offered only while it is on, as they are on Home.
+        # Its list offers Off and its sounds, as noise control's offers Off and its modes.
         Press (Find-Named 'Superhuman Hearing')
         Check (Wait-Until { (Find-Named 'Superhuman Hearing').Current.HelpText -ne 'Off' } 4) 'pressing the Superhuman Hearing tile turns it on'
         Press (Find-Named 'Superhuman Hearing sounds')
         $sounds = 'Legacy', 'Footsteps', 'Gunshots'
-        Check (Wait-Until { (Compare-Object (Get-Choices) $sounds -SyncWindow 0).Count -eq 0 } 4) "its list offers $($sounds -join ', ')"
+        Check (Wait-Until { (Compare-Object (Get-Choices) (@('Off') + $sounds) -SyncWindow 0).Count -eq 0 } 4) "its list offers Off, $($sounds -join ', ')"
         $pick = $sounds | Where-Object { $_ -ne (Find-Named 'Superhuman Hearing').Current.HelpText } | Select-Object -First 1
         Choose $pick
         Check (Wait-Until { (Find-Named 'Superhuman Hearing').Current.HelpText -eq $pick } 4) "choosing $pick shows it on the tile"

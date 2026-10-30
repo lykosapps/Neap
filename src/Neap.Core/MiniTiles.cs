@@ -17,6 +17,9 @@ public enum MiniTile
 
     /// <summary>Superhuman Hearing, on or off, with its sound.</summary>
     SuperhumanHearing,
+
+    /// <summary>The profile in use, and the way to switch.</summary>
+    Profile,
 }
 
 /// <summary>Decides which of the mini panel's controls are shown, and how the tiles are set out.</summary>
@@ -26,7 +29,8 @@ public enum MiniTile
 /// is kept by name, so a name no longer known, from a later version, is left
 /// out rather than failing, and a choice never made shows what the panel
 /// showed before it could be chosen: everything except Superhuman Hearing,
-/// which is new, so nobody finds it added.
+/// which is new, so nobody finds it added, and the profile only once one is
+/// saved, as there is nothing to switch to before.
 /// </para>
 /// <para>
 /// A tile's own headset decides whether it can be shown at all, such as
@@ -50,15 +54,17 @@ public static class MiniTiles
         MiniTile.NoiseCancellation => "noise",
         MiniTile.SpatialSound => "spatial",
         MiniTile.EqualiserPreset => "equaliser",
+        MiniTile.Profile => "profile",
         _ => "hearing",
     };
 
     /// <summary>The tiles a saved choice names, or <see cref="Default"/> when none was saved.</summary>
     /// <param name="saved">The names kept, or null when the person has never chosen.</param>
-    public static IReadOnlySet<MiniTile> Chosen(IEnumerable<string>? saved) =>
-        saved is null
-            ? Default
-            : Enum.GetValues<MiniTile>().Where(tile => saved.Contains(NameOf(tile))).ToHashSet();
+    /// <param name="hasProfiles">Whether a profile is saved, which adds the profile to the panel before a choice is made.</param>
+    public static IReadOnlySet<MiniTile> Chosen(IEnumerable<string>? saved, bool hasProfiles = false) =>
+        saved is not null
+            ? Enum.GetValues<MiniTile>().Where(tile => saved.Contains(NameOf(tile))).ToHashSet()
+            : hasProfiles ? Default.Append(MiniTile.Profile).ToHashSet() : Default;
 
     /// <summary>The names to keep for a choice, in the order the tiles are shown.</summary>
     public static IReadOnlyList<string> ToSave(IEnumerable<MiniTile> chosen) =>

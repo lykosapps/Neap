@@ -570,6 +570,9 @@
   <data name="Quick_NoParametricPresets" xml:space="preserve">
     <value>No saved parametric presets</value>
   </data>
+  <data name="Mini_Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
   <data name="Routing_OpenSoundSettings" xml:space="preserve">
     <value>Open Sound settings</value>
   </data>

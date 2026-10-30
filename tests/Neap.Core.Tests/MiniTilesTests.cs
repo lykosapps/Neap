@@ -12,6 +12,20 @@ public class MiniTilesTests
     }
 
     [Fact]
+    public void BeforeAChoiceTheProfileShowsOnceOneIsSaved()
+    {
+        Assert.DoesNotContain(MiniTile.Profile, MiniTiles.Chosen(null, hasProfiles: false));
+        Assert.Contains(MiniTile.Profile, MiniTiles.Chosen(null, hasProfiles: true));
+    }
+
+    [Fact]
+    public void AChoiceMadeLeavesTheProfileAsChosen()
+    {
+        Assert.DoesNotContain(MiniTile.Profile, MiniTiles.Chosen(["microphone"], hasProfiles: true));
+        Assert.Contains(MiniTile.Profile, MiniTiles.Chosen(["profile"], hasProfiles: false));
+    }
+
+    [Fact]
     public void AChoiceOfNothingShowsNothing() =>
         Assert.Empty(MiniTiles.Chosen([]));
 

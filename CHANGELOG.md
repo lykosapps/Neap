@@ -23,6 +23,13 @@ and date.
 
 ### Changed
 
+- The mini panel can show the profile in use, under the headset's name,
+  with the same menu as the window's to switch, save or discard. It is
+  shown once a profile is saved, and can be ticked or unticked in Settings.
+- A mini panel tile with a list, such as noise cancellation, opens it from
+  a strip down its right edge, easier to hit than the small arrow was.
+  Superhuman Hearing's list offers Off as noise cancellation's does, and a
+  sound chosen while it is off turns it on.
 - On Windows, the warning that sound, calls or the microphone are going to
   the wrong transmitter or the dock has a button, Choose for me, that makes
   the change in Windows. Windows' own Settings app cannot choose the device

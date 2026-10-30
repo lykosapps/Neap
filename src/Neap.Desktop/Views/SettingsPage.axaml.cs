@@ -24,10 +24,11 @@ public partial class SettingsPage : UserControl
     /// <summary>A box for each control the mini panel can show, ticked for those it does.</summary>
     private static StackPanel MiniTileChoices()
     {
-        var chosen = Core.MiniTiles.Chosen(AppSettings.Current.MiniTiles).ToHashSet();
+        var chosen = Core.MiniTiles.Chosen(AppSettings.Current.MiniTiles, AppServices.Profiles.All.Count > 0).ToHashSet();
         var boxes = new StackPanel();
         foreach (var (tile, word) in new[]
         {
+            (Core.MiniTile.Profile, "Mini_Profile"),
             (Core.MiniTile.Microphone, "Quick_Microphone.Text"),
             (Core.MiniTile.NoiseCancellation, "Mini_Noise"),
             (Core.MiniTile.SpatialSound, "Quick_Spatial.Text"),

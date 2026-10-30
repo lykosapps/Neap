@@ -53,7 +53,7 @@ public partial class MiniPanelWindow : Window
     private static readonly SettingKey HearingSound = Registry.ByName["shh_preset"];
 
     private readonly MainWindow? _main;
-    private readonly IReadOnlySet<MiniTile> _chosen = MiniTiles.Chosen(AppSettings.Current.MiniTiles);
+    private readonly IReadOnlySet<MiniTile> _chosen = MiniTiles.Chosen(AppSettings.Current.MiniTiles, AppServices.Profiles.All.Count > 0);
     private readonly BatteryMeter _battery = new("caption");
     private IDisposable? _recheck;
     private bool _painting;
@@ -248,6 +248,7 @@ public partial class MiniPanelWindow : Window
         Spatial.IsVisible = _chosen.Contains(MiniTile.SpatialSound) && Platform.Current.Spatial.Supported;
         HearingTile.IsVisible = _chosen.Contains(MiniTile.SuperhumanHearing) && HeadsetModels.Shows(headset.Model, HearingOn.Name);
         PresetRow.IsVisible = _chosen.Contains(MiniTile.EqualiserPreset);
+        Profile.IsVisible = _chosen.Contains(MiniTile.Profile);
 
         int shown = Tiles.Children.Count(tile => tile.IsVisible);
         Tiles.IsVisible = shown > 0;
@@ -265,8 +266,8 @@ public partial class MiniPanelWindow : Window
     private static bool Readable(SettingKey key) =>
         AppServices.Headset.TryGetNumber(key.Name, out _) || HeadsetModels.Unread(AppServices.Headset.Model, key.Name);
 
-    /// <summary>Shows Superhuman Hearing on its tile: on with its sound, or off, and its sounds in the tile's list while it is on.</summary>
-    /// <remarks>The list is left off while Superhuman Hearing is, as the sounds are on Home, since a sound means nothing then.</remarks>
+    /// <summary>Shows Superhuman Hearing on its tile: on with its sound, or off, and Off and its sounds in the tile's list.</summary>
+    /// <remarks>As noise control's list does, it offers Off first, and a sound chosen while it is off turns it on with that sound.</remarks>
     private void PaintHearing()
     {
         var headset = AppServices.Headset;
@@ -278,10 +279,15 @@ public partial class MiniPanelWindow : Window
             : sound is { } chosen ? OptionNames.For(HearingSound, chosen)
             : Strings.Get("Switch_On");
         HearingTile.Show(on == 1, state, CanWrite(HearingOn) && Readable(HearingOn));
+        var sounds = (HearingSound.Options ?? new Dictionary<int, string>()).Keys.Select(option =>
+            (OptionNames.For(HearingSound, option), on == 1 && option == sound, (Action)(() =>
+            {
+                headset.SetKey(HearingSound.Key, option);
+                if (on != 1) headset.SetKey(HearingOn.Key, 1);
+            })));
         HearingTile.Offer(
-            (HearingSound.Options ?? new Dictionary<int, string>()).Keys.Select(option =>
-                (OptionNames.For(HearingSound, option), option == sound, (Action)(() => headset.SetKey(HearingSound.Key, option)))),
-            on == 1 && CanWrite(HearingSound) && Readable(HearingSound));
+            sounds.Prepend((Strings.Get("Switch_Off"), on == 0, () => headset.SetKey(HearingOn.Key, 0))),
+            CanWrite(HearingOn) && Readable(HearingOn) && CanWrite(HearingSound) && Readable(HearingSound));
     }
 
     /// <summary>Shows noise control on its tile: on in either of its two ways, and both ways and off in its list.</summary>
