@@ -145,6 +145,10 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             Check (@(Find-All 'Pre-gain' | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Slider }).Count -eq 1) 'as a slider'
             $warning = 'Boosts this large are squashed by the headset at this pre-gain.'
             if ((Get-Texts) -contains $warning) {
+                # Straight after moving the slider, as a person does: the value the warning sets still shows.
+                $preGain = @(Find-All 'Pre-gain' | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Slider })[0]
+                $preGain.GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).SetValue(2)
+                Wait-Until { (Get-Texts) -contains '+2 dB' } 3 | Out-Null
                 $before = @(Get-Texts | Where-Object { $_ -match '^[+-]\d+ dB$' })[0]
                 Press (Find-Named 'Lower pre-gain')
                 Check (Wait-Until { (Get-Texts) -notcontains $warning } 6) 'Lower pre-gain clears the warning'

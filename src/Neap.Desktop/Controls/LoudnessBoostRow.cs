@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Neap.Core.Audio;
 
 namespace Neap.Desktop.Controls;
@@ -52,6 +53,13 @@ public sealed class LoudnessBoostRow : SettingsCard
 
     private bool JustChosen() => _chosenAt != 0 && Stopwatch.GetElapsedTime(_chosenAt) < ChoiceHold;
 
+    /// <summary>The boosts the slider sent while the person moved it, the only reports the hold leaves alone.</summary>
+    /// <remarks>A level set by something else during the hold, such as the equaliser's Lower pre-gain, is shown at once.</remarks>
+    private readonly HashSet<int> _sent = [];
+
+    /// <summary>Shows the level the headset holds once the hold is over, as the last confirmation may have come during it.</summary>
+    private readonly DispatcherTimer _settle = new() { Interval = ChoiceHold };
+
     protected override Type StyleKeyOverride => typeof(SettingsCard);
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -67,6 +75,7 @@ public sealed class LoudnessBoostRow : SettingsCard
         base.OnUnloaded(e);
         if (IsLoaded) return;
         AppServices.Headset.LoudnessChanged -= Refresh;
+        _settle.Stop();
     }
 
     private void Build()
@@ -74,6 +83,12 @@ public sealed class LoudnessBoostRow : SettingsCard
         if (_built) return;
         _built = true;
 
+        _settle.Tick += (_, _) =>
+        {
+            _settle.Stop();
+            _sent.Clear();
+            Refresh();
+        };
         _slider = NeapControls.Slider();
         _slider.Minimum = LoudnessBoostLook.MinBoostDb;
         _slider.Maximum = LoudnessBoostLook.MaxBoostDb;
@@ -83,7 +98,11 @@ public sealed class LoudnessBoostRow : SettingsCard
         {
             if (_readout is not null) _readout.Text = Boost(args.NewValue);
             if (_painting) return;
+            if (!JustChosen()) _sent.Clear();
+            _sent.Add((int)Math.Round(args.NewValue));
             _chosenAt = Stopwatch.GetTimestamp();
+            _settle.Stop();
+            _settle.Start();
             AppServices.Headset.SetLoudnessBoost((float)args.NewValue);
         };
         _readout = new TextBlock
@@ -124,7 +143,7 @@ public sealed class LoudnessBoostRow : SettingsCard
         ToolTip.SetTip(_slider, level);
         // The row's description goes with it: the row gives it to the line the slider sits in, which a screen reader does not reach.
         AutomationProperties.SetHelpText(_slider, $"{Description} {level}");
-        if (_slider.IsPointerOver || JustChosen()) return;
+        if ((_slider.IsPointerOver || JustChosen()) && _sent.Contains(look.BoostDb)) return;
         _painting = true;
         try
         {
