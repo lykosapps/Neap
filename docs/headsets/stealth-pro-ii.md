@@ -42,7 +42,7 @@ system tried with a real headset.
 |---|---|---|---|---|---|---|---|
 | Master volume, on/off | Listed | Yes | Has | Confirmed | Confirmed | Done on the PC | — |
 | Master volume, level | Listed | Yes | Has | Confirmed | Confirmed | `0x2A0`, mirror `0x260` | — |
-| Pre-gain: the level before the equaliser | Not listed | Yes, over RACE `0x000A` | Has | Confirmed | Untried | RACE `0x000A`, parameter `0x00040000`, NVKey `0x5008` | On the Audio page, from 12 dB below the headset's stock level (-12 dB) to 18 dB above, in steps of 1 dB; saved on the headset. Try it on Linux. |
+| Pre-gain: the level before the equaliser | Not listed | Yes, over RACE `0x000A` | Has | Confirmed | Untried | RACE `0x000A`, parameter `0x00040000`, NVKey `0x5008` | On the Audio page, from 12 dB below the headset's stock level to 18 dB above it (-24 dB to +6 dB, with stock at -12 dB), in steps of 1 dB; saved on the headset. Try it on Linux. |
 | Superhuman Hearing, on/off | Listed | Yes | Has | Confirmed | Confirmed | `0x720` | — |
 | Superhuman Hearing, type (Legacy, Footsteps, Gunshots) | Listed | Yes | Has | Confirmed | Confirmed | `0x730` | — |
 | Superhuman Hearing, intensity | Listed | Yes | Has | Confirmed | Confirmed | `0x740` | — |
