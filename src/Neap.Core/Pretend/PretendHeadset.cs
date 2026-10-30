@@ -50,7 +50,6 @@ public sealed record PretendRefusal(string Frame, string Reason);
 public sealed class PretendHeadset : IDeviceSource
 {
     public const ushort DockProduct = 0x229B;
-    public const ushort TransmitterProduct = 0x229D;
     public const ushort HeadsetProduct = 0x229E;
     public const ushort AtlasTransmitterProduct = 0x225E;
     public const ushort AtlasHeadsetProduct = 0x2260;

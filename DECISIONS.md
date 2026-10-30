@@ -1,5 +1,16 @@
 # Decisions
 
+## 2026-10-30 — The app's folder is no longer moved from the name before Neap
+
+- **Options:** call the move from the earlier folder at startup again, or
+  remove it.
+- **Chosen:** removed. Neap keeps its settings, log and volume journal only
+  in its own folder.
+- **Why:** nothing has called the move since the app was rebuilt in
+  Avalonia, and every public release, from 0.1.0 on, was named Neap and
+  kept its folder under that name, so no one installing a release has a
+  folder under the earlier name to move.
+
 ## 2026-10-30 — The headset's output is found among every output, not only the default
 
 - **Options:** keep using only Windows' default output, and say so when it

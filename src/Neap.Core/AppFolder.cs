@@ -26,20 +26,4 @@ public static class AppFolder
         !string.IsNullOrWhiteSpace(name) && name.TrimEnd('.', ' ').Length > 0
         && name.IndexOfAny(['/', '\\', ':']) < 0
         && name.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) < 0;
-
-    /// <summary>
-    /// Moves the folder kept under the app's earlier name, the first time.
-    /// </summary>
-    /// <remarks>
-    /// Call before anything reads or writes the folder. The volume journal is
-    /// in it, and losing that would lose the record of other applications'
-    /// volumes after a crash.
-    /// </remarks>
-    /// <exception cref="IOException">The folder could not be moved.</exception>
-    /// <exception cref="UnauthorizedAccessException">The folder could not be moved.</exception>
-    public static void MoveFromEarlierName()
-    {
-        string earlier = System.IO.Path.Combine(LocalData, "StealthProIIControl");
-        if (Directory.Exists(earlier) && !Directory.Exists(Path)) Directory.Move(earlier, Path);
-    }
 }

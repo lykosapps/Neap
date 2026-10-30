@@ -312,9 +312,6 @@ public sealed class HeadsetService : IDisposable
         TryGetNumberByKey(LinkState.ChargingKey, out int power) ? power : null,
         _batteryTrend.IsSettling(DateTimeOffset.UtcNow));
 
-    public int GetNumber(string name, int fallback = 0) =>
-        TryGetNumber(name, out int value) ? value : fallback;
-
     public string? GetText(string name)
     {
         if (!Registry.ByName.TryGetValue(name, out var key)) return null;

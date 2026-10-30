@@ -293,9 +293,6 @@ public sealed class PresetService
 
     // -- compare -----------------------------------------------------------
 
-    /// <summary>Whether the headset is playing the bank flat for a comparison.</summary>
-    public bool IsComparing(Bank bank) => _compares.TryGetValue(bank, out var hold) && hold.Held;
-
     /// <summary>
     /// Plays the bank flat, to hear the curve against none, by choosing the
     /// headset's own flat preset, the one write it always acts on.
@@ -435,9 +432,6 @@ public sealed class PresetService
         ChooseFlat(state);
         _new.Add(bank);
     }
-
-    /// <summary>Whether the bank is on a new preset, not yet saved.</summary>
-    public bool IsNew(Bank bank) => _new.Contains(bank);
 
     /// <summary>Makes the curve flat by choosing the headset's own flat preset, as a starting point.</summary>
     /// <remarks>

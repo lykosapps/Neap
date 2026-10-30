@@ -68,12 +68,6 @@ public static class AudioEndpoints
         return endpoint.GetMute();
     }
 
-    public static int GetMicPercent(string match = DefaultMatch) =>
-        GetPercent(match, Flow.Input);
-
-    public static int SetMicPercent(int percent, string match = DefaultMatch) =>
-        SetPercent(percent, match, Flow.Input);
-
     public static EndpointInfo Describe(string match = DefaultMatch, Flow flow = Flow.Output)
     {
         using var endpoint = Endpoint.Open(match, flow);
@@ -102,32 +96,6 @@ public static class AudioEndpoints
     {
         using var endpoint = Endpoint.Open(match, flow, fallBackToDefault: false);
         return endpoint.GetPeak();
-    }
-
-    /// <summary>Lists every active endpoint on a flow by friendly name.</summary>
-    public static List<string> ListNames(Flow flow = Flow.Output)
-    {
-        var names = new List<string>();
-        var enumerator = Com.Create<IMMDeviceEnumerator>(Com.MMDeviceEnumeratorClsid);
-        try
-        {
-            if (Com.Failed(enumerator.EnumAudioEndpoints(
-                    flow == Flow.Output ? DataFlow.Render : DataFlow.Capture,
-                    Com.DeviceStateActive, out var collection))) return names;
-            try
-            {
-                collection.GetCount(out uint count);
-                for (uint i = 0; i < count; i++)
-                {
-                    if (Com.Failed(collection.Item(i, out var device))) continue;
-                    try { names.Add(Endpoint.FriendlyName(device)); }
-                    finally { Marshal.ReleaseComObject(device); }
-                }
-            }
-            finally { Marshal.ReleaseComObject(collection); }
-        }
-        finally { Marshal.ReleaseComObject(enumerator); }
-        return names;
     }
 }
 
