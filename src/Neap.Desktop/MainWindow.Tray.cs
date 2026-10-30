@@ -129,12 +129,15 @@ public partial class MainWindow : IDisposable
     /// <summary>The notification-area glyph: light on a dark taskbar, dark on a light one.</summary>
     /// <remarks>
     /// Windows has a taskbar shade, set apart from the app's own theme. A Linux
-    /// panel gives no such answer and is dark far more often than not, so it
-    /// gets the light glyph.
+    /// panel gives no such answer, so the desktop's own light or dark choice
+    /// stands in for it, as a light theme usually comes with a light panel.
     /// </remarks>
     private static WindowIcon TrayPicture()
     {
-        string shade = OperatingSystem.IsWindows() && TaskbarIsLight() ? "light" : "dark";
+        bool light = OperatingSystem.IsWindows()
+            ? TaskbarIsLight()
+            : Application.Current?.PlatformSettings?.GetColorValues().ThemeVariant == PlatformThemeVariant.Light;
+        string shade = light ? "light" : "dark";
         return new WindowIcon(AssetLoader.Open(new Uri($"avares://Neap.Desktop/Assets/tray-{shade}.ico")));
     }
 
@@ -142,7 +145,7 @@ public partial class MainWindow : IDisposable
     private static bool TaskbarIsLight() =>
         Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize", "SystemUsesLightTheme", 0) is 1;
 
-    /// <summary>Swaps the glyph when Windows reports a colour change, such as the taskbar's shade.</summary>
+    /// <summary>Swaps the glyph when the system reports a colour change, such as the taskbar's shade or the desktop's theme.</summary>
     private void RepaintTrayPicture(object? sender, PlatformColorValues colours) =>
         Dispatcher.UIThread.Post(() => _tray?.Icon = TrayPicture());
 
