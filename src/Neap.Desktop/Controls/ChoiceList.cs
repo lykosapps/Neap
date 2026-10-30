@@ -24,13 +24,16 @@ public sealed record Choice(string Name, object? Tag)
     /// <summary>The row can be deleted, with a delete button at its end.</summary>
     public bool Deletable { get; init; }
 
+    /// <summary>A rule above the row, setting it apart from the rows before it.</summary>
+    public bool RuleAbove { get; init; }
+
     /// <summary>Tags beside the name in the box once the row is chosen, such as Edited.</summary>
     public IReadOnlyList<string> Badges { get; init; } = [];
 
     /// <summary>The row is asking Delete or Cancel.</summary>
     internal bool Confirming { get; init; }
 
-    /// <summary>A heading over the rows after it, which cannot be chosen.</summary>
+    /// <summary>A heading over the rows after it, which cannot be chosen; below the first, with a rule above it.</summary>
     public static Choice Heading(string name) => new(name, null);
 
     /// <summary>The row's name, which is what a screen reader says for the box's choice.</summary>
@@ -44,9 +47,9 @@ public sealed record Choice(string Name, object? Tag)
 /// <remarks>
 /// <para>
 /// The box is the toolkit's own; this gives it the rows: each row's name and
-/// preview, headings that cannot be chosen, and the box naming the choice with
-/// its tags. The row in use is the box's choice; with none, the box shows its
-/// placeholder.
+/// preview, headings and rules that set groups apart, the Bands preset list's
+/// marker on the chosen row, and the box naming the choice with its tags. The
+/// row in use is the box's choice; with none, the box shows its placeholder.
 /// </para>
 /// <para>
 /// A row the person made has the ten-band equaliser's delete button at its
@@ -142,23 +145,37 @@ internal sealed class ChoiceList
         return face;
     }
 
-    /// <summary>A row: its name, its preview, and its delete button when it has one; or a heading.</summary>
+    /// <summary>A row: its marker, name, preview and delete button; or a heading; with a rule above to set a group apart.</summary>
     private Control Row(Choice choice)
     {
-        if (choice.Tag is null) return new TextBlock { Text = choice.Name, Classes = { "label" } };
+        bool first = _choices.Count > 0 && _choices[0].Name == choice.Name && _choices[0].Tag == choice.Tag;
+        bool rule = choice.RuleAbove || (choice.Tag is null && !first);
+        Control body = choice.Tag is not { } tag ? new TextBlock { Text = choice.Name, Classes = { "label" } } : Line(choice, tag);
+        if (!rule) return body;
+        var line = new Border { Height = 1, Margin = new Thickness(0, 0, 0, Space.S) };
+        line.Bind(Border.BackgroundProperty, line.GetResourceObservable("NeapPopupStrokeBrush"));
+        return new StackPanel { Children = { line, body } };
+    }
+
+    /// <summary>A row that can be chosen: the chosen marker, its name, its preview, and its delete button when it has one.</summary>
+    private Grid Line(Choice choice, object tag)
+    {
         // Every row keeps the delete button's room when any row has one, so the previews line up down the list.
         var room = _choices.Any(c => c.Deletable) ? new GridLength(DeleteWidth) : GridLength.Auto;
         var row = new Grid
         {
-            ColumnDefinitions = { new(GridLength.Star), new(GridLength.Auto), new(room) },
+            ColumnDefinitions = { new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto), new(room) },
             ColumnSpacing = Space.S,
             Classes = { "slot" },
         };
-        row.Children.Add(new TextBlock { Text = choice.Name, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis });
+        row.Children.Add(new Border { Classes = { "marker" } });
+        var words = new TextBlock { Text = choice.Name, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+        Grid.SetColumn(words, 1);
+        row.Children.Add(words);
         if (choice.Preview?.Invoke() is { } preview)
         {
             preview.Margin = new Thickness(Space.S, 0, 0, 0);
-            Grid.SetColumn(preview, 1);
+            Grid.SetColumn(preview, 2);
             row.Children.Add(preview);
         }
 
@@ -169,6 +186,10 @@ internal sealed class ChoiceList
                 Content = new PathIcon { Width = 12, Height = 12, Data = (Geometry)Application.Current!.FindResource("IconClose")! },
                 Classes = { "remove" },
                 Width = DeleteWidth,
+                // As high as the row's words, so a row with the button is no taller than one without.
+                Height = 24,
+                Padding = new Thickness(0),
+                VerticalAlignment = VerticalAlignment.Center,
             };
             string name = Strings.Format("Equaliser_DeleteNamed", choice.Name);
             AutomationProperties.SetName(delete, name);
@@ -176,9 +197,9 @@ internal sealed class ChoiceList
             delete.Click += (_, e) =>
             {
                 e.Handled = true;
-                AskToDelete(choice.Tag);
+                AskToDelete(tag);
             };
-            Grid.SetColumn(delete, 2);
+            Grid.SetColumn(delete, 3);
             row.Children.Add(delete);
         }
 

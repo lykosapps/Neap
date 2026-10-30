@@ -204,9 +204,10 @@ public sealed class CurvesBar : UserControl
         else _targetListed = listed;
 
         var items = new List<Choice> { new(Strings.Get("Curves_None"), NoneTag) { Chosen = !shown } };
-        foreach (var (name, tag) in builtIns) items.Add(new Choice(name, tag) { Chosen = shown && chosen is null && tag == builtInChosen });
-        foreach (var file in files) items.Add(new Choice(file.Name, file) { Chosen = shown && file == chosen, Deletable = true });
-        items.Add(new Choice(Strings.Get(measurement ? "Curves_LoadMeasured" : "Curves_LoadTarget"), LoadTag));
+        foreach (var (name, tag) in builtIns)
+            items.Add(new Choice(name, tag) { Chosen = shown && chosen is null && tag == builtInChosen, RuleAbove = tag == builtIns[0].Tag });
+        foreach (var file in files) items.Add(new Choice(file.Name, file) { Chosen = shown && file == chosen, Deletable = true, RuleAbove = file == files[0] });
+        items.Add(new Choice(Strings.Get(measurement ? "Curves_LoadMeasured" : "Curves_LoadTarget"), LoadTag) { RuleAbove = true });
         (measurement ? _measuredChoices : _targetChoices).Show(items);
     }
 

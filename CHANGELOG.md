@@ -26,7 +26,9 @@ and date.
 - The equaliser preset on Home and in the mini panel is a standard list
   box, as the equaliser's own lists are: what is in use is chosen, with an
   Edited tag once it has been changed, and a preset you made can be deleted
-  from the list, with Delete and Cancel in its place.
+  from the list, with Delete and Cancel in its place. Every list box's rows
+  look like the Equaliser page's preset list, the open list has an edge so it
+  stands out from the page, and the box shows when its list is open.
 - On the Device page, About the headset is at the end, after the
   transmitters, as it is looked up only now and then.
 - Loudness boost is now called Pre-gain, and says what it is: the level the

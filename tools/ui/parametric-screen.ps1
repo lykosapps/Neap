@@ -160,6 +160,7 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
                 Open-Menu $face
                 Start-Sleep -Milliseconds 400
                 Save-ListShot "parametric-list-$($curve[1])-$theme"
+                Save-Shot "parametric-open-$($curve[1])-$theme" -Whole | ForEach-Object { $_.Dispose() }
                 Check (Wait-Until { $null -ne (Find-ListRow $builtIn) } 4) "the $($curve[1]) list has the built-in one, $builtIn"
                 $row = Find-ListRow $builtIn
                 Check ($row -and $row.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) 'selected, as it is in use'

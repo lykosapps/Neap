@@ -130,6 +130,7 @@ public sealed class ParametricPresetBar : UserControl
         _listed = listed;
 
         var items = new List<Choice>();
+        if (presets.Count > 0) items.Add(Choice.Heading(Strings.Get("Equaliser_PresetsLabel.Text")));
         foreach (var preset in presets)
         {
             items.Add(new Choice(preset.Name, preset)

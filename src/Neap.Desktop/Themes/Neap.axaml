@@ -239,6 +239,24 @@
         <Setter Property="Background" Value="{DynamicResource NeapSelectedBrush}" />
     </Style>
 
+    <!--
+        A list box's rows: the Bands preset list's padding and rounded rows, so
+        every list Neap chooses from reads the same; the colours are Fluent's
+        own keys (FluentKeys).
+    -->
+    <Style Selector="ComboBoxItem">
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Margin" Value="4,1" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+    </Style>
+    <!-- While its list is open, the box says so: an accent edge, and its arrow turned up. -->
+    <Style Selector="ComboBox:dropdownopen /template/ Border#Background">
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapAccentFillBrush}" />
+    </Style>
+    <Style Selector="ComboBox:dropdownopen /template/ PathIcon#DropDownGlyph">
+        <Setter Property="RenderTransform" Value="rotate(180deg)" />
+    </Style>
+
     <!-- A button that is only a picture: as high as every other button, and as wide. -->
     <Style Selector="Button.iconbutton">
         <Setter Property="Width" Value="40" />

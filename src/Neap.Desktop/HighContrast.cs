@@ -103,6 +103,7 @@ internal static class HighContrast
 
         // Cards, setting rows and tiles share the window colour here, so an outline is all that sets their edge.
         Brush("NeapCardStrokeBrush", p.Text);
+        Brush("NeapPopupStrokeBrush", p.Text);
 
         // A setting's card: plain and outlined, on or off. A card that is on
         // is not filled, since its switch is drawn in the highlight and would
