@@ -89,6 +89,22 @@ public sealed class InkPicture
 
     private static int Quant(int c) { return (((c >> 16) & 255) >> 3) << 10 | (((c >> 8) & 255) >> 3) << 5 | ((c & 255) >> 3); }
 }
+
+public static class ProcessWindows
+{
+    private delegate bool Visitor(IntPtr window, IntPtr state);
+    [DllImport("user32.dll")] private static extern bool EnumWindows(Visitor visitor, IntPtr state);
+    [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr window, out uint process);
+    [DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr window);
+
+    // The visible top-level windows of a process, popups included.
+    public static IntPtr[] Of(int process)
+    {
+        var found = new List<IntPtr>();
+        EnumWindows((window, state) => { uint id; GetWindowThreadProcessId(window, out id); if (id == process && IsWindowVisible(window)) found.Add(window); return true; }, IntPtr.Zero);
+        return found.ToArray();
+    }
+}
 '@
 
 $out = Join-Path $script:Out ("align-$Theme" + $(if ($Label) { "-$Label" } else { '' }))
@@ -190,18 +206,23 @@ function Measure-Window([string]$View, $Element) {
 }
 
 # An open list: the app draws it at its own scale, so its rows are scaled to the picture.
+# Its window is found through Windows, as UI Automation lists its rows under
+# the control it opens from and not as a window of their own.
 function Measure-List([string]$View) {
     Start-Sleep -Milliseconds 400
     $file = Join-Path $out "$View.png"
     try { Send-Pretend "picture $file" | Out-Null } catch { Say "$View | could not picture the list: $($_.Exception.Message)"; return }
-    $list = @($A::RootElement.FindAll($Scope::Children, (New-Condition ProcessIdProperty ([int]$script:Proc.Id)))) |
-        Where-Object { [IntPtr]$_.Current.NativeWindowHandle -ne $script:Handle -and $_.Current.Name -ne 'Mini panel' } | Select-Object -First 1
-    if (-not $list) { Say "$View | no list window found"; return }
     $bitmap = [System.Drawing.Bitmap]::FromFile($file)
-    $r = $list.Current.BoundingRectangle
-    $scale = $r.Width / $bitmap.Width
-    Measure-View $View $list $bitmap ([pscustomobject]@{ X = $r.X; Y = $r.Y }) $scale
-    $bitmap.Dispose()
+    try {
+        # The window shaped like the picture, which leaves out the main window and the mini panel.
+        $popup = [ProcessWindows]::Of([int]$script:Proc.Id) | Where-Object { $_ -ne $script:Handle } | ForEach-Object {
+            $r = New-Object NeapUi+Rect; [NeapUi]::GetWindowRect($_, [ref]$r) | Out-Null; $r
+        } | Sort-Object { [Math]::Abs(($_.Right - $_.Left) * $bitmap.Height - ($_.Bottom - $_.Top) * $bitmap.Width) } | Select-Object -First 1
+        if (-not $popup) { Say "$View | no list window found"; return }
+        $scale = ($popup.Right - $popup.Left) / $bitmap.Width
+        Measure-View $View $script:Window $bitmap ([pscustomobject]@{ X = $popup.Left; Y = $popup.Top }) $scale
+    }
+    finally { $bitmap.Dispose() }
 }
 
 # Every part of a page, a window's height at a time from its top.
@@ -247,23 +268,33 @@ try {
         Section 'the open lists'
         Send-Pretend 'page home' | Out-Null
         Wait-Stable { (Get-Texts) -join '|' } 2 | Out-Null
+        # A list opened before the headset answers shows only that it is reading.
+        Wait-Until { (Get-Texts) -contains 'Headset connected' } 15 | Out-Null
         # Each list on its own, so one that cannot be opened leaves the rest measured.
         $lists = [ordered]@{
-            'list-profile' = { Open-Menu (Find-Named 'Profile'); Measure-List 'list-profile'; Press (Find-Named 'Profile') }
+            'list-profile' = {
+                # The list says it is reading until the profile settings are read, a moment after connecting.
+                Open-Menu (Find-Named 'Profile')
+                Wait-Until { $box = Find-Named 'New profile'; $box -and $box.Current.IsEnabled } 15 | Out-Null
+                Measure-List 'list-profile'; Send-Pretend 'press Profile' | Out-Null }
             'list-chat' = {
                 $chat = @(Search { $script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty $CT::Button)) }) | Where-Object { $_.Current.Name -like 'Chat comes from*' } | Select-Object -First 1
-                Press $chat; Measure-List 'list-chat'; Press $chat
+                Press $chat; Measure-List 'list-chat'; Send-Pretend "press $($chat.Current.Name)" | Out-Null
             }
             'list-home-preset' = { Open-Menu (Find-Box 'Equaliser preset*'); Measure-List 'list-home-preset'; Close-Menu (Find-Box 'Equaliser preset*') }
             'list-device-shutoff' = { Send-Pretend 'page device' | Out-Null; Start-Sleep 1; Open-Menu (Find-Box 'Auto shut-off*'); Measure-List 'list-device-shutoff'; Close-Menu (Find-Box 'Auto shut-off*') }
             'list-parametric-presets' = {
                 Send-Pretend 'page equaliser' | Out-Null; Start-Sleep 1
                 Press (Find-Named 'Game'); Start-Sleep -Milliseconds 600
+                # The modes show once the presets are read from the headset.
+                Wait-Until { $null -ne (Find-Named 'Parametric') } 15 | Out-Null
                 Press (Find-Named 'Parametric'); Wait-Until { $null -ne (Find-ParametricPicker) } 6 | Out-Null
                 Open-Menu (Find-ParametricPicker); Measure-List 'list-parametric-presets'; Close-Menu (Find-ParametricPicker)
             }
             'list-measured' = { Open-Menu (Find-Box 'Measured'); Measure-List 'list-measured'; Close-Menu (Find-Box 'Measured') }
-            'list-band-filter' = { Open-Menu (Find-Box 'Band 1 filter'); Measure-List 'list-band-filter'; Close-Menu (Find-Box 'Band 1 filter') }
+            'list-band-filter' = {
+                if (-not (Find-Box 'Band 1 filter')) { Press (Find-Named 'Add band'); Start-Sleep -Milliseconds 400 }
+                Open-Menu (Find-Box 'Band 1 filter'); Measure-List 'list-band-filter'; Close-Menu (Find-Box 'Band 1 filter') }
         }
         foreach ($name in $lists.Keys) {
             try { & $lists[$name] } catch { Say "$name | could not be measured: $($_.Exception.Message)" }
