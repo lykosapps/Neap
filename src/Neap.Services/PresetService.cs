@@ -523,7 +523,9 @@ public sealed class PresetService
     {
         try { await _headset.Post(client => { PresetStore.Delete(client, name, bank); return true; }); }
         catch (Exception ex) { return ex.Message; }
-        await ReadBack(bank, "a delete");
+        // The headset is moved to its first preset when the one in use goes, so the screen moves with it.
+        if (await ReadBack(bank, "a delete") && _banks[bank] is { } state && state.Baseline?.Name == name)
+            Adopt(state, state.Presets.FirstOrDefault(p => !p.Custom));
         return null;
     }
 

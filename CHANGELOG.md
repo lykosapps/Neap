@@ -195,6 +195,8 @@ and date.
   way, with an outlined track when off, and were smaller to touch.
 - Saving or deleting an equaliser preset no longer closes Neap when the
   headset goes just after it.
+- Deleting the equaliser preset in use shows Signature Sound as the
+  preset in use, as the headset moves to it.
 - In Parametric, Undo, Redo and Compare come in the same order as with
   the ten bands, so switching between them no longer moves the buttons.
 - List boxes in stacked settings rows are one width, so they line up, as
