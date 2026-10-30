@@ -98,7 +98,10 @@ public static class SystemTools
     {
         if (OperatingSystem.IsWindows())
         {
-            Process.Start("explorer.exe", $"/select,\"{path}\"")?.Dispose();
+            // By its full path: a bare name is looked for in Neap's folder and
+            // the folder it was started from before the system's own.
+            string explorer = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");
+            Process.Start(explorer, $"/select,\"{path}\"")?.Dispose();
             return;
         }
         // The freedesktop file-manager protocol can select a file, but only
