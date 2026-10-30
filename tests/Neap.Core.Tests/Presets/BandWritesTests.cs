@@ -98,6 +98,43 @@ public class BandWritesTests
         Assert.Equal(new BandWrite(9, BandParameter.Frequency, (float)ParametricBand.HighestHertz), Assert.Single(writes));
     }
 
+    [Theory]
+    [InlineData(BandParameter.Type, 0)]
+    [InlineData(BandParameter.Type, 10)]
+    [InlineData(BandParameter.Frequency, ParametricBand.LowestHertz)]
+    [InlineData(BandParameter.Frequency, ParametricBand.HighestHertz)]
+    [InlineData(BandParameter.Q, ParametricBand.LowestQ)]
+    [InlineData(BandParameter.Q, ParametricBand.HighestQ)]
+    [InlineData(BandParameter.Gain, -ParametricBand.MostGain)]
+    [InlineData(BandParameter.Gain, ParametricBand.MostGain)]
+    public void AWriteInsideABandsLimitsMaySend(BandParameter parameter, double value) =>
+        Assert.True(BandWrites.InRange(new BandWrite(0, parameter, value)));
+
+    [Theory]
+    [InlineData(BandParameter.Type, 3)]    // band-pass, never sent
+    [InlineData(BandParameter.Type, 8)]    // all-pass, never sent
+    [InlineData(BandParameter.Type, 11)]
+    [InlineData(BandParameter.Type, 4.5)]
+    [InlineData(BandParameter.Frequency, 19)]
+    [InlineData(BandParameter.Frequency, 19501)]
+    [InlineData(BandParameter.Q, 0.05)]
+    [InlineData(BandParameter.Q, 10.5)]
+    [InlineData(BandParameter.Gain, 12.5)]
+    [InlineData(BandParameter.Gain, -13)]
+    [InlineData(BandParameter.Gain, double.NaN)]
+    public void AWriteOutsideABandsLimitsMayNot(BandParameter parameter, double value) =>
+        Assert.False(BandWrites.InRange(new BandWrite(0, parameter, value)));
+
+    [Fact]
+    public void EveryPlannedWriteIsInsideABandsLimits()
+    {
+        var wild = Enumerable.Range(0, BandWrites.Bands)
+            .Select(band => new ParametricBand(BandType.LowShelf, band % 2 == 0 ? 1 : 99999, band % 2 == 0 ? 0.01 : 50, band % 2 == 0 ? -40 : 40, true))
+            .ToArray();
+
+        Assert.All(BandWrites.Plan(null, wild), write => Assert.True(BandWrites.InRange(write), write.ToString()));
+    }
+
     [Fact]
     public void AnythingButTenBandsIsRefused()
     {

@@ -79,7 +79,13 @@ Everything the headset itself does is reached over its own HID protocol:
 noise cancellation, both equalisers, microphone, noise gate, Superhuman
 Hearing, button and dial assignment, transmitter lighting, battery, power,
 wake on motion, voice prompts. Every setting is in the registry,
-`Settings/Registry.cs`, and every write is checked against it.
+`Settings/Registry.cs`, and every write is checked against it, and against
+the headset it goes to: a setting in a group only one headset has goes to
+no other. The three stored sound commands that are not settings, the
+parametric bands, the loudness level and the game equaliser's stored
+record, are the exceptions: the client sends each only to a headset known
+to take it, holds the loudness to its range and refuses a band value
+outside a band's limits.
 
 This needs **nothing installed** — no driver, no Turtle Beach software, no
 admin rights.

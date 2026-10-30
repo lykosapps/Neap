@@ -36,6 +36,18 @@ public static class BandWrites
         return GameBank | (uint)(band << 4) | (toSoundNow ? ToSoundNow : 0) | (uint)parameter;
     }
 
+    /// <summary>Whether a write is one a band may hold: a filter the equaliser offers, or a frequency, width or gain inside a band's limits.</summary>
+    /// <remarks>The headset saves every write and checks none, so anything else is refused rather than sent.</remarks>
+    /// <param name="write">The band, the parameter and its value.</param>
+    public static bool InRange(BandWrite write) => write.Parameter switch
+    {
+        BandParameter.Type => Enum.GetValues<BandType>().Any(type => (double)type == write.Value),
+        BandParameter.Frequency => write.Value is >= ParametricBand.LowestHertz and <= ParametricBand.HighestHertz,
+        BandParameter.Q => write.Value is >= ParametricBand.LowestQ and <= ParametricBand.HighestQ,
+        BandParameter.Gain => Math.Abs(write.Value) <= ParametricBand.MostGain,
+        _ => false,
+    };
+
     /// <summary>The band and parameter an id names, or false when it is not one of the game bands'.</summary>
     /// <param name="id">The parameter id, with or without bit 3.</param>
     /// <param name="band">The band, counted from zero.</param>

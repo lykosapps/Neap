@@ -46,6 +46,23 @@ public class PretendBandTests
         Assert.Equal(StockBands.Q, client.ReadBand(2, BandParameter.Q, TimeSpan.FromSeconds(1))!.Value, 4);
     }
 
+    [Theory]
+    [InlineData(BandParameter.Type, 3)]
+    [InlineData(BandParameter.Gain, 30)]
+    [InlineData(BandParameter.Frequency, 40000)]
+    public void ABandValueOutsideItsLimitsIsNotSentAndSaidToTheRecording(BandParameter parameter, double value)
+    {
+        var headset = new PretendHeadset();
+        using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
+        var attempts = new List<WriteAttempt>();
+        client.Wrote += attempts.Add;
+
+        Assert.Throws<ArgumentException>(() => client.SetBand(new BandWrite(5, parameter, value)));
+
+        Assert.Equal(StockBands.Game, headset.Bands);
+        Assert.NotNull(Assert.Single(attempts).Refused);
+    }
+
     [Fact]
     public void ABandIsNotSentToAHeadsetItIsNotKnownFor()
     {

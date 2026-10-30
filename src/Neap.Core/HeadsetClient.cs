@@ -494,12 +494,15 @@ public sealed class HeadsetClient : IDisposable
     /// <param name="write">The band, the parameter and its value.</param>
     /// <exception cref="WritesDisabledException">The client is read-only.</exception>
     /// <exception cref="InvalidOperationException">The headset is not one the command is known for.</exception>
+    /// <exception cref="ArgumentException">The value is not one a band may hold; see <see cref="BandWrites.InRange"/>.</exception>
     public void SetBand(BandWrite write)
     {
         string value = string.Create(CultureInfo.InvariantCulture, $"{write.Value:0.####}");
         SendDsp($"parametric_band_{write.Band}_{write.Parameter}".ToLowerInvariant(), value, "a parametric band",
             HeadsetModels.Of(ProductId) is { HasParametricBands: true },
-            () => _transport.SendOutput(BandFrames.SetFrame(write, RelayThroughBase)));
+            () => _transport.SendOutput(BandWrites.InRange(write)
+                ? BandFrames.SetFrame(write, RelayThroughBase)
+                : throw new ArgumentException($"refusing to set a parametric band: band {write.Band}'s {write.Parameter} cannot be {value}")));
     }
 
     /// <summary>How long to listen for a stored record, and how many times to ask.</summary>
