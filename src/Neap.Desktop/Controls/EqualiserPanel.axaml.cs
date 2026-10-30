@@ -348,11 +348,16 @@ public partial class EqualiserPanel : UserControl
         StopCompare();
     }
 
+    /// <remarks>
+    /// A read that fails, as one can just after the headset reconnects, is
+    /// tried again at the next status, since the page then says to try again.
+    /// </remarks>
     private async void OnStatusChanged(HeadsetStatus status)
     {
         if (status.Link != Link.Connected) return;
         AppServices.Headset.StatusChanged -= OnStatusChanged;
         await Reload();
+        if (_state is null && this.InWindow()) AppServices.Headset.StatusChanged += OnStatusChanged;
     }
 
     private async Task Reload()

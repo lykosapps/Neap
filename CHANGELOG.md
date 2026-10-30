@@ -123,6 +123,9 @@ and date.
 - An app turned down by the mix is no longer left turned down for good
   when the mix moves in the first moments after Neap starts, while it is
   still putting back the volumes a previous run left.
+- When the Equaliser page couldn't read the headset just after it
+  reconnected, it tries again as the headset's state next changes, rather
+  than staying on "Couldn't read the equaliser" until you leave the page.
 - A quick drag of a volume or microphone slider leaves the system at the
   level the slider ends on. It could settle on one just before, and the
   slider then moved back to it.
