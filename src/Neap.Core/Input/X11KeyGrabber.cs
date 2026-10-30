@@ -98,7 +98,8 @@ public sealed class X11KeyGrabber : IDisposable
             unanswered = keys.Count - _decided;
             foreach (var key in keys.Skip(_decided)) _failed[key.Id] = GrabFailure.Refused;
         }
-        Trouble?.Invoke($"X had not answered for {unanswered} of the keys after two seconds, so they are shown as refused");
+        if (unanswered > 0)
+            Trouble?.Invoke($"X had not answered for {unanswered} of the keys after two seconds, so they are shown as refused");
     }
 
     /// <summary>The keys that could not be taken, and why. Settled once construction returns.</summary>
