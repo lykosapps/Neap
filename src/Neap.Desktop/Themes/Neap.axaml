@@ -249,6 +249,12 @@
         <Setter Property="Margin" Value="4,1" />
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
     </Style>
+    <!-- A rule between groups of rows: a row of its own, only as tall as its line and the space around it. -->
+    <Style Selector="ComboBoxItem.rule">
+        <Setter Property="Padding" Value="12,4" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
     <!-- While its list is open, the box says so: an accent edge, and its arrow turned up. -->
     <Style Selector="ComboBox:dropdownopen /template/ Border#Background">
         <Setter Property="BorderBrush" Value="{DynamicResource NeapAccentFillBrush}" />

@@ -142,6 +142,7 @@ public sealed class ParametricPresetBar : UserControl
             });
         }
 
+        if (presets.Count > 0) items.Add(Choice.Rule());
         items.Add(Choice.Heading(Strings.Get("ParametricPreset_NewFrom")));
         foreach (var shape in Enum.GetValues<StartingShape>())
             items.Add(new Choice(Strings.Get(ShapeKey(shape)), shape) { Preview = () => PresetListItems.Preview(StartingShapes.Bands(shape)) });

@@ -24,17 +24,20 @@ public sealed record Choice(string Name, object? Tag)
     /// <summary>The row can be deleted, with a delete button at its end.</summary>
     public bool Deletable { get; init; }
 
-    /// <summary>A rule above the row, setting it apart from the rows before it.</summary>
-    public bool RuleAbove { get; init; }
-
     /// <summary>Tags beside the name in the box once the row is chosen, such as Edited.</summary>
     public IReadOnlyList<string> Badges { get; init; } = [];
 
     /// <summary>The row is asking Delete or Cancel.</summary>
     internal bool Confirming { get; init; }
 
-    /// <summary>A heading over the rows after it, which cannot be chosen; below the first, with a rule above it.</summary>
+    /// <summary>Whether the row is a rule setting groups of rows apart.</summary>
+    public bool IsRule { get; init; }
+
+    /// <summary>A heading over the rows after it, which cannot be chosen.</summary>
     public static Choice Heading(string name) => new(name, null);
+
+    /// <summary>A rule between groups of rows, a row of its own so it is never inside a row's hover or chosen tint.</summary>
+    public static Choice Rule() => new(string.Empty, null) { IsRule = true };
 
     /// <summary>The row's name, which is what a screen reader says for the box's choice.</summary>
     public override string ToString() => Name;
@@ -83,6 +86,9 @@ internal sealed class ChoiceList
             item.IsEnabled = choice.Tag is not null;
             item.Focusable = choice.Tag is not null && !choice.Confirming;
             AutomationProperties.SetName(item, choice.Name);
+            // A rule takes only the room it needs; containers are reused, so a row gets its own back.
+            item.Classes.Set("rule", choice.IsRule);
+            AutomationProperties.SetAccessibilityView(item, choice.IsRule ? AccessibilityView.Raw : AccessibilityView.Control);
         };
         box.SelectionChanged += (_, _) =>
         {
@@ -145,16 +151,17 @@ internal sealed class ChoiceList
         return face;
     }
 
-    /// <summary>A row: its marker, name, preview and delete button; or a heading; with a rule above to set a group apart.</summary>
+    /// <summary>A row: its marker, name, preview and delete button; or a heading; or a rule.</summary>
     private Control Row(Choice choice)
     {
-        bool first = _choices.Count > 0 && _choices[0].Name == choice.Name && _choices[0].Tag == choice.Tag;
-        bool rule = choice.RuleAbove || (choice.Tag is null && !first);
-        Control body = choice.Tag is not { } tag ? new TextBlock { Text = choice.Name, Classes = { "label" } } : Line(choice, tag);
-        if (!rule) return body;
-        var line = new Border { Height = 1, Margin = new Thickness(0, 0, 0, Space.S) };
-        line.Bind(Border.BackgroundProperty, line.GetResourceObservable("NeapPopupStrokeBrush"));
-        return new StackPanel { Children = { line, body } };
+        if (choice.IsRule)
+        {
+            var line = new Border { Height = 1 };
+            line.Bind(Border.BackgroundProperty, line.GetResourceObservable("NeapPopupStrokeBrush"));
+            return line;
+        }
+
+        return choice.Tag is not { } tag ? new TextBlock { Text = choice.Name, Classes = { "label" } } : Line(choice, tag);
     }
 
     /// <summary>A row that can be chosen: the chosen marker, its name, its preview, and its delete button when it has one.</summary>
