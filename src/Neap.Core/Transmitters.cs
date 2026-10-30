@@ -17,10 +17,12 @@ namespace Neap.Core;
 /// <param name="Control">The slot's "control" array, likewise.</param>
 /// <param name="Spare">A Charging Dock's spare battery; null for any other transmitter.</param>
 /// <param name="Answered">Whether the headset answered for the slot; an empty slot on the Stealth Pro II gives no answer, so an unanswered one is not known to be empty.</param>
+/// <param name="Unreadable">Whether the headset answered for the slot in a shape Neap does not read, so it is not known to be empty either.</param>
 public sealed record Transmitter(
     int Slot, bool Paired, bool Active, string Kind, string ProductId,
     string VendorId, string Firmware, string Address,
-    IReadOnlyList<string> Info, IReadOnlyList<string> Control, SpareReading? Spare = null, bool Answered = true);
+    IReadOnlyList<string> Info, IReadOnlyList<string> Control, SpareReading? Spare = null, bool Answered = true,
+    bool Unreadable = false);
 
 /// <summary>
 /// The headset pairs with up to four transmitters and keeps a slot for each.
@@ -91,6 +93,11 @@ public static class Transmitters
     }
 
     /// <summary>Turns one slot's reply into a <see cref="Transmitter"/>.</summary>
+    /// <remarks>
+    /// A reply that is not an object with an "info" array long enough to hold
+    /// the address is unreadable, not empty: an empty slot still sends its
+    /// whole record, with an address of zeros.
+    /// </remarks>
     public static Transmitter Describe(int slot, JsonElement block)
     {
         var info = StringsOf(block, "info");
@@ -99,11 +106,13 @@ public static class Transmitters
         string address = At(info, InfoAddress);
         string product = At(info, InfoProduct).ToUpperInvariant();
         bool paired = address.Length > 0 && address != EmptyAddress;
+        bool answered = block.ValueKind != JsonValueKind.Undefined;
+        bool unreadable = answered && info.Count <= InfoAddress;
 
         return new Transmitter(
             Slot: slot,
             Paired: paired,
-            Active: At(info, InfoState) == "2",
+            Active: !unreadable && At(info, InfoState) == "2",
             // An empty slot has no hardware to name, so say nothing rather
             // than reporting "Unrecognised (0)".
             Kind: !paired ? ""
@@ -118,28 +127,33 @@ public static class Transmitters
             Info: info,
             Control: control,
             Spare: paired && PieceOf(product) == Piece.Dock ? SpareBattery.Parse(At(info, InfoSpare)) : null,
-            Answered: block.ValueKind != JsonValueKind.Undefined);
+            Answered: answered,
+            Unreadable: unreadable);
     }
 
     /// <summary>The slot a pushed transmitter record describes, or null when the event carries none.</summary>
     /// <remarks>
     /// The headset pushes a slot's whole record when something in it changes,
-    /// such as the spare battery going in or out of the Charging Dock. A
-    /// record without an address is one that did not parse, and is not taken
-    /// for an empty slot.
+    /// such as the spare battery going in or out of the Charging Dock. An
+    /// unreadable record is not taken for an empty slot.
     /// </remarks>
     public static Transmitter? FromEvent(DeviceEvent evt)
     {
         if (!Verbs.TransmitterCategories.Contains(evt.Category)
             || !evt.Values.TryGetValue($"{Verbs.TransmitterKey(evt.Category):x}", out var block)) return null;
         var slot = Describe(evt.Category[2] - '0', block);
-        return slot.Info.Count > InfoAddress ? slot : null;
+        return slot.Unreadable ? null : slot;
     }
 
     /// <summary>The paired transmitters, with one slot's newer record in place of what it held.</summary>
     public static IReadOnlyList<Transmitter> With(IEnumerable<Transmitter> known, Transmitter slot) =>
         known.Where(t => t.Slot != slot.Slot).Append(slot)
              .Where(t => t.Paired).OrderBy(t => t.Slot).ToList();
+
+    /// <summary>The paired transmitters after a read of every slot, keeping what was known of a slot whose reply is unreadable.</summary>
+    public static IReadOnlyList<Transmitter> AfterRead(IEnumerable<Transmitter> known, IEnumerable<Transmitter> read) =>
+        read.Select(t => t.Unreadable ? known.FirstOrDefault(k => k.Slot == t.Slot) : t)
+            .OfType<Transmitter>().Where(t => t.Paired).OrderBy(t => t.Slot).ToList();
 
     /// <summary>Live lighting brightness, from whichever transmitter is active.</summary>
     /// <remarks>

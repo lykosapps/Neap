@@ -122,6 +122,18 @@ public class RecordingTests
     }
 
     [Fact]
+    public void ASlotThatDidNotParseIsNotCalledEmpty()
+    {
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values()) with { Transmitters = [Transmitters.Describe(3, Json("\"garbled\""))] });
+
+        string text = Written(recording);
+
+        Assert.Contains("  3  did not parse", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("  3  empty", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ALevelIsNotedOnlyWhenItChanges()
     {
         var recording = new Recording("Neap", "10");

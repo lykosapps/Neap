@@ -307,6 +307,7 @@ public sealed class Recording(string app, string system)
                     ? $"  {slot.Slot}  {slot.Kind} ({slot.ProductId}), firmware {slot.Firmware}, "
                       + $"address {slot.Address}{(slot.Active ? ", in use" : "")}"
                       + $"  info [{string.Join(", ", slot.Info)}]  control [{string.Join(", ", slot.Control)}]"
+                    : slot.Unreadable ? $"  {slot.Slot}  did not parse"
                     : slot.Answered ? $"  {slot.Slot}  empty" : $"  {slot.Slot}  no answer");
         }
 

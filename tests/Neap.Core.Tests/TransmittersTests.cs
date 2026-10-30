@@ -45,6 +45,51 @@ public class TransmittersTests
         Assert.False(Transmitters.Describe(3, default).Answered);
 
     [Fact]
+    public void ASlotWithNoAnswerIsNotUnreadable() =>
+        Assert.False(Transmitters.Describe(3, default).Unreadable);
+
+    [Fact]
+    public void AnEmptySlotIsReadable() =>
+        Assert.False(Transmitters.Describe(3, Empty).Unreadable);
+
+    [Theory]
+    [InlineData("\"garbled\"")]
+    [InlineData("{\"control\":[\"0\",\"80\",\"30\"]}")]
+    [InlineData("{\"info\":[\"2\",\"17\"]}")]
+    public void ASlotThatDoesNotParseIsUnreadableNotEmpty(string reply)
+    {
+        var slot = Transmitters.Describe(2, JsonDocument.Parse(reply).RootElement);
+
+        Assert.True(slot.Unreadable);
+        Assert.True(slot.Answered);
+        Assert.False(slot.Active);
+    }
+
+    [Fact]
+    public void AnUnreadableSlotKeepsWhatWasKnownOfIt()
+    {
+        var known = new[] { Transmitters.Describe(2, Dock) };
+        var read = new[]
+        {
+            Transmitters.Describe(1, Empty),
+            Transmitters.Describe(2, JsonDocument.Parse("\"garbled\"").RootElement),
+        };
+
+        Assert.Equal(known, Transmitters.AfterRead(known, read));
+    }
+
+    [Fact]
+    public void AReadableSlotReplacesWhatWasKnownOfIt()
+    {
+        var usb = Transmitters.Describe(1, Slot(
+            "\"1\",\"33\",\"0\",\"0\",\"1\",\"10F5\",\"229D\",\"4.107.703.0\",\"11:22:33:44:55:66\""));
+        var known = new[] { Transmitters.Describe(2, Dock) };
+        var read = new[] { usb, Transmitters.Describe(2, Empty) };
+
+        Assert.Equal([usb], Transmitters.AfterRead(known, read));
+    }
+
+    [Fact]
     public void AnUnknownProductSaysSo()
     {
         var odd = Transmitters.Describe(1, Slot(

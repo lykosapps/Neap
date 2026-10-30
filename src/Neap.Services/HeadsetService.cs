@@ -208,6 +208,9 @@ public sealed class HeadsetService : IDisposable
 
     private volatile IReadOnlyList<Transmitter> _known = Array.Empty<Transmitter>();
 
+    /// <summary>The slots whose record the log has said did not parse, until one parses again.</summary>
+    private readonly HashSet<int> _toldUnreadable = [];
+
     /// <summary>
     /// The chat wheel reported a position. Raised on the UI thread with the
     /// raw counter, which is deliberately not a mix value: see
@@ -1281,10 +1284,15 @@ public sealed class HeadsetService : IDisposable
 
         // A dropped read comes back as four empty slots. Keeping that
         // would wipe the list the moment a reply went missing, so only a
-        // read that found something replaces what we knew.
+        // read that found something replaces what we knew, and a slot whose
+        // record did not parse keeps what we knew of it.
+        foreach (var slot in all)
+            if (!slot.Unreadable) _toldUnreadable.Remove(slot.Slot);
+            else if (_toldUnreadable.Add(slot.Slot))
+                AppLog.Write($"headset: transmitter slot {slot.Slot}'s record did not parse, so what Neap knew of it is kept");
         if (all.Any(t => t.Paired))
         {
-            var known = all.Where(t => t.Paired).ToList();
+            var known = Transmitters.AfterRead(_known, all);
             NoteSpare(_known, known);
             _known = known;
             _ui.Post(() => TransmittersChanged?.Invoke());

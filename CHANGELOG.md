@@ -95,6 +95,9 @@ and date.
 - On Linux, a transmitter that answers Neap's question about the headset
   in a way Neap cannot read is left as it is rather than restarted, which
   switched the headset off. The app log says what it answered.
+- A transmitter whose details the headset sends in a form Neap cannot read
+  stays on the Device page as it was, rather than dropping off as if its
+  slot were empty. The app log and a recording say the slot did not parse.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for
