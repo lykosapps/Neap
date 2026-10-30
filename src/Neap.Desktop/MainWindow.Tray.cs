@@ -45,7 +45,7 @@ public partial class MainWindow : IDisposable
         // A second launch asks this copy for its window, and an update
         // restarts it, whether or not there is an icon.
         OneCopy.Current?.ListenForShow(() => Dispatcher.UIThread.Post(Reveal));
-        AppServices.Updates.Installed += program => Dispatcher.UIThread.Post(() => _ = Restart(program));
+        AppServices.Updates.Installed += OnUpdateInstalled;
 
         // Without an icon to be got back by, the window closing closes the app,
         // and the mini panel, which only the icon opens, is not offered.
@@ -76,14 +76,22 @@ public partial class MainWindow : IDisposable
         };
         if (Application.Current is { } app) TrayIcon.SetIcons(app, new TrayIcons { _tray });
 
-        AppServices.Updates.Found += release => Dispatcher.UIThread.Post(() => TellAboutUpdate(release));
+        AppServices.Updates.Found += OnUpdateFound;
 
-        AppServices.Headset.StatusChanged += _ => Dispatcher.UIThread.Post(PaintTray);
-        AppServices.Headset.Changed += () => Dispatcher.UIThread.Post(PaintTray);
-        AppServices.AudioRoute.Changed += () => Dispatcher.UIThread.Post(PaintTray);
+        AppServices.Headset.StatusChanged += OnHeadsetStatus;
+        AppServices.Headset.Changed += PostPaintTray;
+        AppServices.AudioRoute.Changed += PostPaintTray;
         AppServices.Headset.AccessChanged += PaintTray;
         PaintTray();
     }
+
+    private void OnUpdateInstalled(string program) => Dispatcher.UIThread.Post(() => _ = Restart(program));
+
+    private void OnUpdateFound(Release release) => Dispatcher.UIThread.Post(() => TellAboutUpdate(release));
+
+    private void OnHeadsetStatus(HeadsetStatus status) => PostPaintTray();
+
+    private void PostPaintTray() => Dispatcher.UIThread.Post(PaintTray);
 
     /// <summary>Takes the mini panel off the icon's menu and closes it when it is switched off, and puts it back when it is switched on.</summary>
     public void MiniPanelSettingChanged()
@@ -252,10 +260,22 @@ public partial class MainWindow : IDisposable
         Activate();
     }
 
+    /// <summary>Stops following the services and takes the icon away.</summary>
+    /// <remarks>
+    /// The services outlive the window, and a change already on its way when
+    /// the app stops would otherwise reach an icon that has gone.
+    /// </remarks>
     public void Dispose()
     {
         if (Application.Current?.PlatformSettings is { } settings) settings.ColorValuesChanged -= RepaintTrayPicture;
+        AppServices.Updates.Installed -= OnUpdateInstalled;
+        AppServices.Updates.Found -= OnUpdateFound;
+        AppServices.Headset.StatusChanged -= OnHeadsetStatus;
+        AppServices.Headset.Changed -= PostPaintTray;
+        AppServices.AudioRoute.Changed -= PostPaintTray;
+        AppServices.Headset.AccessChanged -= PaintTray;
         _tray?.Dispose();
+        _tray = null;
         GC.SuppressFinalize(this);
     }
 

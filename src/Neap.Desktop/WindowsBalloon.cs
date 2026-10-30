@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Runtime.Versioning;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using H.NotifyIcon.Core;
 
 namespace Neap.Desktop;
@@ -45,10 +46,11 @@ internal static class WindowsBalloon
         icon.ShowNotification(title, message);
         _icon = icon;
 
-        _ = Task.Delay(Stay).ContinueWith(_ =>
+        // On this thread, which made the icon's window and is the only one that can end it.
+        DispatcherTimer.RunOnce(() =>
         {
             if (ReferenceEquals(_icon, icon)) Remove();
-        }, TaskScheduler.Default);
+        }, Stay);
     }
 
     private static void Remove()
@@ -57,7 +59,7 @@ internal static class WindowsBalloon
         _icon = null;
         if (going is null) return;
         try { going.Dispose(); }
-        catch (InvalidOperationException ex) { AppLog.Write($"could not take the notification's icon away: {ex.Message}"); }
+        catch (Exception ex) { AppLog.Write($"could not take the notification's icon away: {ex.Message}"); }
     }
 }
 #endif
