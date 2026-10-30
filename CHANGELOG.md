@@ -141,6 +141,10 @@ and date.
   stops answering says it couldn't switch, rather than closing the app.
 - After an update, the old version closes cleanly rather than leaving a
   crash in the app log on its way out.
+- Compare on the Equaliser page works with voice control and a screen
+  reader, which press a button rather than hold it: a press turns it on,
+  and another turns it off. Holding it works as before, and a screen reader
+  reads its instruction.
 - The keyboard keeps its place in the profiles list in Settings and in the
   equaliser's preset lists after Cancel or Delete, a rename, or a profile
   switching as an app opens. Before, the next Tab started again from the

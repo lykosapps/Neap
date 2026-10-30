@@ -185,7 +185,6 @@ public sealed class BandPanel : UserControl
         MakeIconButton(_undo, "Parametric_Undo", "IconUndo", mirrored: false);
         MakeIconButton(_redo, "Parametric_Redo", "IconUndo", mirrored: true);
         _compare.Content = Strings.Get("Parametric_Compare");
-        ToolTip.SetTip(_compare, Strings.Get("Parametric_CompareTip"));
         _turnOff.Content = Strings.Get("Parametric_TurnOff");
         _remove.Content = Strings.Get("Parametric_RemoveBand");
         _add.Content = new StackPanel
@@ -354,7 +353,7 @@ public sealed class BandPanel : UserControl
         {
             AddBand(ToneSweep.Bell(hertz, boost));
         };
-        WireCompare();
+        CompareHold.Wire(_compare, () => _comparing, StartCompare, StopCompare);
         _undo.Click += (_, _) => Walk(_undoStack, _redoStack);
         _redo.Click += (_, _) => Walk(_redoStack, _undoStack);
         _level.ActionInvoked += (_, _) => LowerLevel();
@@ -387,28 +386,7 @@ public sealed class BandPanel : UserControl
 
     // -- compare -----------------------------------------------------------
 
-    /// <summary>Holds Compare while the button is pressed, by pointer or by Space or Enter, as the ten-band equaliser's Compare does.</summary>
-    private void WireCompare()
-    {
-        // The button handles its own presses, which is not a reason to miss one.
-        _compare.AddHandler(PointerPressedEvent, (_, e) =>
-        {
-            if (e.GetCurrentPoint(_compare).Properties.IsLeftButtonPressed) StartCompare();
-        }, RoutingStrategies.Tunnel, handledEventsToo: true);
-        _compare.AddHandler(PointerReleasedEvent, (_, _) => StopCompare(), RoutingStrategies.Bubble, handledEventsToo: true);
-        _compare.PointerCaptureLost += (_, _) => StopCompare();
-        _compare.AddHandler(KeyDownEvent, (_, e) =>
-        {
-            if (e.Key is Avalonia.Input.Key.Space or Avalonia.Input.Key.Enter) StartCompare();
-        }, RoutingStrategies.Bubble, handledEventsToo: true);
-        _compare.AddHandler(KeyUpEvent, (_, e) =>
-        {
-            if (e.Key is Avalonia.Input.Key.Space or Avalonia.Input.Key.Enter) StopCompare();
-        }, RoutingStrategies.Bubble, handledEventsToo: true);
-        _compare.LostFocus += (_, _) => StopCompare();
-    }
-
-    /// <summary>Plays flat on the headset and draws the curve muted, until let go.</summary>
+    /// <summary>Plays flat on the headset and draws the curve muted, until let go or pressed again.</summary>
     private void StartCompare()
     {
         if (_comparing) return;

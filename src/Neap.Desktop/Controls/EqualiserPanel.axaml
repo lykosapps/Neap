@@ -149,7 +149,7 @@
                                     Data="{StaticResource IconUndo}"
                                     RenderTransform="scale(-1, 1)" />
                             </Button>
-                            <!-- Held, not clicked: see CompareHold. -->
+                            <!-- Held, or pressed on and off: see CompareHold. -->
                             <Button
                                 x:Name="CompareButton"
                                 loc:Uid.Value="Equaliser_Compare"

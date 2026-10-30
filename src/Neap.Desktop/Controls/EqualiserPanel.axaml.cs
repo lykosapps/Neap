@@ -54,8 +54,8 @@ namespace Neap.Desktop.Controls;
 /// put back no longer exists.
 /// </para>
 /// <para>
-/// Compare plays the headset flat for as long as it is held; see
-/// <see cref="CompareHold"/>. The curve is put back on release, and
+/// Compare plays the headset flat for as long as it is held, or until it
+/// is pressed again; see <see cref="CompareHold"/>. The curve is put back on release, and
 /// whenever the button, the page, the window or the app is left.
 /// </para>
 /// </remarks>
@@ -129,7 +129,7 @@ public partial class EqualiserPanel : UserControl
         };
         UndoButton.Click += async (_, _) => await Go(undo: true);
         RedoButton.Click += async (_, _) => await Go(undo: false);
-        WireCompare();
+        CompareHold.Wire(CompareButton, () => _comparing, StartCompare, StopCompare);
         SaveButton.Click += async (_, _) => await SaveAsNew();
 
         // Overwriting deletes the preset before saving over it, so it asks
@@ -997,27 +997,6 @@ public partial class EqualiserPanel : UserControl
     }
 
     // -- compare -----------------------------------------------------------
-
-    /// <summary>Holds Compare while the button is pressed, by pointer or by Space or Enter.</summary>
-    private void WireCompare()
-    {
-        // The button handles its own presses, which is not a reason to miss one.
-        CompareButton.AddHandler(PointerPressedEvent, (_, e) =>
-        {
-            if (e.GetCurrentPoint(CompareButton).Properties.IsLeftButtonPressed) StartCompare();
-        }, RoutingStrategies.Tunnel, handledEventsToo: true);
-        CompareButton.AddHandler(PointerReleasedEvent, (_, _) => StopCompare(), RoutingStrategies.Bubble, handledEventsToo: true);
-        CompareButton.PointerCaptureLost += (_, _) => StopCompare();
-        CompareButton.AddHandler(KeyDownEvent, (_, e) =>
-        {
-            if (e.Key is Key.Space or Key.Enter) StartCompare();
-        }, RoutingStrategies.Bubble, handledEventsToo: true);
-        CompareButton.AddHandler(KeyUpEvent, (_, e) =>
-        {
-            if (e.Key is Key.Space or Key.Enter) StopCompare();
-        }, RoutingStrategies.Bubble, handledEventsToo: true);
-        CompareButton.LostFocus += (_, _) => StopCompare();
-    }
 
     private async void StartCompare()
     {

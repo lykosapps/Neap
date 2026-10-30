@@ -1728,9 +1728,6 @@
   <data name="Equaliser_Compare.Content" xml:space="preserve">
     <value>Compare</value>
   </data>
-  <data name="Equaliser_Compare.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Hold to hear it flat</value>
-  </data>
   <data name="Equaliser_Flat.Text" xml:space="preserve">
     <value>Hearing it flat</value>
   </data>
@@ -2016,7 +2013,7 @@
   <data name="Parametric_Compare" xml:space="preserve">
     <value>Compare</value>
   </data>
-  <data name="Parametric_CompareTip" xml:space="preserve">
+  <data name="Compare_Tip" xml:space="preserve">
     <value>Hold to hear it flat</value>
   </data>
   <data name="FilterImport_Title" xml:space="preserve">
