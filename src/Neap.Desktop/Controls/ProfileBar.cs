@@ -330,20 +330,18 @@ public sealed class ProfileBar : UserControl
             string? defaultId = AppServices.Profiles.DefaultId;
             foreach (var profile in AppServices.Profiles.All)
             {
-                var item = new ListBoxItem { Content = profile.Name, Tag = profile };
+                // The chosen row's marker, as every list's.
+                var row = new StackPanel
+                {
+                    Classes = { "gaprow" },
+                    Children = { new Border { Classes = { "marker" } }, new TextBlock { Text = profile.Name, VerticalAlignment = VerticalAlignment.Center } },
+                };
+                var item = new ListBoxItem { Content = row, Tag = profile };
                 AutomationProperties.SetName(item, profile.Name);
                 if (profile.Id == defaultId)
                 {
                     string tag = Strings.Get("Profile_DefaultTag");
-                    item.Content = new StackPanel
-                    {
-                        Classes = { "gaprow" },
-                        Children =
-                        {
-                            new TextBlock { Text = profile.Name, VerticalAlignment = VerticalAlignment.Center },
-                            new Border { Classes = { "tag" }, Child = new TextBlock { Text = tag } },
-                        },
-                    };
+                    row.Children.Add(new Border { Classes = { "tag" }, Child = new TextBlock { Text = tag } });
                     AutomationProperties.SetItemStatus(item, tag);
                 }
                 _list.Items.Add(item);

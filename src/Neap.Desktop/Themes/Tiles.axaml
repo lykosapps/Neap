@@ -282,15 +282,4 @@
         <Setter Property="MinHeight" Value="0" />
     </Style>
 
-    <!-- A preset in Home's list: a flat row, the chosen one tinted and marked at its left edge. -->
-    <Style Selector="ListBoxItem.preset">
-        <Setter Property="Padding" Value="12,8" />
-        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
-    </Style>
-    <Style Selector="ListBoxItem.preset:pointerover /template/ ContentPresenter#TileContent">
-        <Setter Property="Background" Value="{DynamicResource NeapPresetHoverBrush}" />
-    </Style>
-    <Style Selector="ListBoxItem.preset:selected /template/ ContentPresenter#TileContent">
-        <Setter Property="Background" Value="{DynamicResource NeapPresetSelectedBrush}" />
-    </Style>
 </Styles>

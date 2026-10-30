@@ -603,22 +603,24 @@ function Wheel {
     Check ($chooser.Current.Name -eq 'Chat comes from No app chosen yet') "with no chat app chosen, the field says so: $($chooser.Current.Name)"
     $top = $chooser.Current.BoundingRectangle.Top
     (Pattern $chooser ([System.Windows.Automation.InvokePattern])).Invoke()
-    $box = { param($name) Everywhere 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox) | Where-Object { $_.Current.Name -like $name } | Select-Object -First 1 }
+    $box = { param($name) Everywhere 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::ListItem) | Where-Object { $_.Current.Name -like $name } | Select-Object -First 1 }
+    # A row of the list that takes several: chosen if it is not, cleared if it is.
+    $flip = { param($row) $p = Pattern $row ([System.Windows.Automation.SelectionItemPattern]); if ($p.Current.IsSelected) { $p.RemoveFromSelection() } else { $p.AddToSelection() } }
     Until { $null -ne (& $box 'Pretend Chat*') } | Out-Null
     $chat = & $box 'Pretend Chat*'
     $music = & $box 'Pretend Music'
     if ($null -eq $chat -or $null -eq $music) { Fail 'the list offers the pretend apps'; return }
     Screenshot 'home-mix-choose'
-    (Pattern $chat ([System.Windows.Automation.TogglePattern])).Toggle()
+    & $flip $chat
     Check (Until { $null -ne (Ask 'mix') } 5) 'choosing a chat app starts the mix'
-    (Pattern $music ([System.Windows.Automation.TogglePattern])).Toggle()
+    & $flip $music
     Check (Until { $chooser.Current.Name -eq 'Chat comes from Pretend Chat and Pretend Music' }) "a second app joins the first: $($chooser.Current.Name)"
     Check ($chooser.Current.BoundingRectangle.Top -eq $top) 'choosing apps does not move the field'
     Screenshot 'home-mix-two'
-    (Pattern $chat ([System.Windows.Automation.TogglePattern])).Toggle()
-    (Pattern $music ([System.Windows.Automation.TogglePattern])).Toggle()
+    & $flip $chat
+    & $flip $music
     Check (Until { $null -eq (Ask 'mix') } 5) 'clearing the last chat app stops the mix'
-    (Pattern $chat ([System.Windows.Automation.TogglePattern])).Toggle()
+    & $flip $chat
     Check (Until { $null -ne (Ask 'mix') } 5) 'choosing it again starts the mix again'
     $start = Ask 'mix'
 

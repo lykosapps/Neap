@@ -48,6 +48,7 @@ internal static class FluentKeys
         ("ListBoxItemBackgroundSelectedPointerOver", "NeapSelectedBrush"),
         ("ListBoxItemBackgroundSelectedPressed", "NeapSelectedBrush"),
         ("FlyoutPresenterBackground", "NeapFlyoutBrush"),
+        ("FlyoutBorderThemeBrush", "NeapPopupStrokeBrush"),
         ("MenuFlyoutPresenterBackground", "NeapFlyoutBrush"),
         ("AccentButtonBackground", "NeapAccentFillBrush"),
         ("AccentButtonBackgroundPointerOver", "NeapAccentFillHoverBrush"),

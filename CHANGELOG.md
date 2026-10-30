@@ -28,7 +28,9 @@ and date.
   Edited tag once it has been changed, and a preset you made can be deleted
   from the list, with Delete and Cancel in its place. Every list box's rows
   look like the Equaliser page's preset list, the open list has an edge so it
-  stands out from the page, and the box shows when its list is open.
+  stands out from the page, and the box shows when its list is open. The
+  profile list in the side menu and the chat apps on Home have the same rows;
+  the chat apps are a list you choose several from, each marked when chosen.
 - On the Device page, About the headset is at the end, after the
   transmitters, as it is looked up only now and then.
 - Loudness boost is now called Pre-gain, and says what it is: the level the

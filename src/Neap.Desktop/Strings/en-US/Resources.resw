@@ -2370,4 +2370,7 @@
   <data name="Curves_AutoEqNeeds" xml:space="preserve">
     <value>Choose a measurement and a target to use Auto-EQ.</value>
   </data>
+  <data name="Mix_AppList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Chat apps</value>
+  </data>
 </root>

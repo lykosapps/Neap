@@ -134,7 +134,7 @@
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusTag}" />
         <Setter Property="Opacity" Value="0" />
     </Style>
-    <Style Selector="Button.chip.chosen Border.marker, ComboBoxItem:selected Border.marker">
+    <Style Selector="Button.chip.chosen Border.marker, ComboBoxItem:selected Border.marker, ListBoxItem:selected Border.marker">
         <Setter Property="Opacity" Value="1" />
     </Style>
 

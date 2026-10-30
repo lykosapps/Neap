@@ -228,15 +228,25 @@
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusCardTop}" />
     </Style>
 
-    <!-- A list in a flyout, such as the profile bar's or spatial sound's, sits on the flyout's own colour like a drop-down's: nothing behind its items, and only the chosen one filled. -->
+    <!--
+        A list in a flyout, such as the profile bar's or the chat apps', sits on
+        the flyout's own colour with a list box's rows: padded and rounded,
+        tinted when pointed at, and the chosen ones tinted and marked.
+    -->
     <Style Selector="FlyoutPresenter ListBox">
         <Setter Property="Background" Value="Transparent" />
     </Style>
     <Style Selector="FlyoutPresenter ListBoxItem">
         <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Margin" Value="0,1" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
     </Style>
-    <Style Selector="FlyoutPresenter ListBoxItem:selected">
-        <Setter Property="Background" Value="{DynamicResource NeapSelectedBrush}" />
+    <Style Selector="FlyoutPresenter ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource NeapPresetHoverBrush}" />
+    </Style>
+    <Style Selector="FlyoutPresenter ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource NeapPresetSelectedBrush}" />
     </Style>
 
     <!--

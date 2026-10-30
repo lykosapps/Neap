@@ -58,6 +58,9 @@ public partial class MixPanel : UserControl
     /// <summary>What the list last showed each application as, by process name.</summary>
     private readonly Dictionary<string, string> _names = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Whether the list is being filled, so its choices are not taken for the person's.</summary>
+    private bool _listing;
+
     public MixPanel()
     {
         InitializeComponent();
@@ -68,6 +71,12 @@ public partial class MixPanel : UserControl
             AppServices.Mix.Apply((int)Math.Round(args.NewValue));
         };
         Refresh.Click += (_, _) => _ = LoadCandidates();
+        AppList.SelectionChanged += (_, e) =>
+        {
+            if (_listing) return;
+            foreach (var added in e.AddedItems.OfType<ListBoxItem>()) Choose((string)added.Tag!, on: true);
+            foreach (var removed in e.RemovedItems.OfType<ListBoxItem>()) Choose((string)removed.Tag!, on: false);
+        };
         Layout.SizeChanged += (_, _) => Arrange();
         KeysLink.IsVisible = AppServices.Hotkeys.Supported;
         KeysLink.Click += (_, _) => (TopLevel.GetTopLevel(this) as MainWindow)?.Open("controls");
@@ -151,7 +160,7 @@ public partial class MixPanel : UserControl
         AppServices.Mix.ChatApps = apps;
     }
 
-    /// <summary>Lists the applications playing to the headset, a check box each.</summary>
+    /// <summary>Lists the applications playing to the headset, a row each, the ones carrying chat chosen.</summary>
     /// <remarks>
     /// Cheap enough to run on arrival, and re-run on demand, since a chat
     /// application may have started since.
@@ -161,22 +170,30 @@ public partial class MixPanel : UserControl
         var candidates = await AppServices.Mix.Candidates("the list of chat apps");
         var chosen = AppServices.Mix.ChatApps;
 
-        AppList.Children.Clear();
-        _names.Clear();
-        foreach (var candidate in candidates)
+        _listing = true;
+        try
         {
-            _names[candidate.Process] = candidate.Display;
-            var box = new CheckBox
+            AppList.Items.Clear();
+            _names.Clear();
+            foreach (var candidate in candidates)
             {
-                Content = candidate.Playing
-                    ? Strings.Format("Mix_Playing", candidate.Display)
-                    : candidate.Display,
-                IsChecked = chosen.Contains(candidate.Process, StringComparer.OrdinalIgnoreCase),
-            };
-            string process = candidate.Process;
-            box.IsCheckedChanged += (_, _) => Choose(process, box.IsChecked == true);
-            AppList.Children.Add(box);
+                _names[candidate.Process] = candidate.Display;
+                string text = candidate.Playing ? Strings.Format("Mix_Playing", candidate.Display) : candidate.Display;
+                var item = new ListBoxItem
+                {
+                    Tag = candidate.Process,
+                    Content = new StackPanel
+                    {
+                        Classes = { "gaprow" },
+                        Children = { new Border { Classes = { "marker" } }, new TextBlock { Text = text, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center } },
+                    },
+                };
+                AutomationProperties.SetName(item, text);
+                AppList.Items.Add(item);
+                if (chosen.Contains(candidate.Process, StringComparer.OrdinalIgnoreCase)) AppList.SelectedItems!.Add(item);
+            }
         }
+        finally { _listing = false; }
         Nothing.IsOpen = candidates.Count == 0;
         MissingHint.IsVisible = !Nothing.IsOpen;
         Paint();

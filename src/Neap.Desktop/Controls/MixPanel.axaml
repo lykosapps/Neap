@@ -148,7 +148,9 @@
                 <Button.Flyout>
                     <Flyout Placement="Bottom">
                         <StackPanel MinWidth="260" MaxWidth="360" Spacing="{StaticResource NeapSpaceS}">
-                            <StackPanel x:Name="AppList" Spacing="{StaticResource NeapSpaceXS}" />
+                            <!-- Several can be chosen, each a row like any list's, its marker showing it is chosen. -->
+                            <ListBox x:Name="AppList" loc:Uid.Value="Mix_AppList" SelectionMode="Multiple,Toggle" />
+                            <Border Height="1" Background="{DynamicResource NeapPopupStrokeBrush}" />
                             <!--
                                 Only applications with sound open on the headset are
                                 listed, so one not yet started is missing. The notice
