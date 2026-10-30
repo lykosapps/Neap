@@ -105,6 +105,9 @@ and date.
 - When the headset answers with a reply Neap cannot read, the app log and a
   recording say so and keep the reply, with the headset's serial number
   blanked, rather than saying the headset gave no answer.
+- A setting Neap cannot send, such as one out of range in a profile saved
+  by hand, no longer shows on screen as if it had changed. It stays at
+  what the headset holds, and the app log says why.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

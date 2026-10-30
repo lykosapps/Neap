@@ -297,10 +297,11 @@ public class PretendHeadsetTests
     [Fact]
     public void AnAtlasAirKeepsItsTransmittersLightInAGroupOfItsOwn()
     {
+        // Sent as the frame itself: the client sends 0x430 only to a headset
+        // it knows as an Atlas Air, which this release does not.
         var headset = new PretendHeadset(atlas: true);
-        using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
-
-        client.Set(0x430, 30);
+        Exchange(headset.Open(), Frames.SetKey(0x430, 30));
+        using var client = new HeadsetClient(transport: headset.Open());
 
         Assert.Equal("30", headset.Value(0x430));
         Assert.Equal("30", client.ReadCategory("TX", TimeSpan.FromSeconds(1))["430"].GetString());

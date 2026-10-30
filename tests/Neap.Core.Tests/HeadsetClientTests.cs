@@ -177,6 +177,22 @@ public class HeadsetClientTests
     }
 
     [Theory]
+    [InlineData(0x430, 50)]  // the Atlas Air's transmitter light, inside the second slot's block
+    [InlineData(0x800, 1)]   // the Atlas Air's Superhuman Hearing
+    [InlineData(0xC00, 10)]  // the Atlas Air's voice prompt volume
+    public void AStealthProIINeverGetsTheAtlasAirsOwnKeys(int key, int value)
+    {
+        var headset = new PretendHeadset();
+        using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
+        var told = new List<WriteAttempt>();
+        client.Wrote += told.Add;
+
+        Assert.Throws<ArgumentException>(() => client.Set(key, value));
+        Assert.Empty(headset.Sent);
+        Assert.NotNull(Assert.Single(told).Refused);
+    }
+
+    [Theory]
     [InlineData(0x400, 1, 0x620)]   // a slot's base address, whatever it is checked as
     [InlineData(0x630, 101, 0x620)] // past the range it is checked against
     public void AWriteCheckedAsAnotherSettingIsStillRefusedWhereNotConfirmed(int key, int value, int checkedAs)

@@ -86,4 +86,36 @@ public class RegistryTests
             Assert.Equal(Registry.WireValue(0x402, 50), Registry.WireValue(slotBase + 2, 50));
         }
     }
+
+    [Theory]
+    [InlineData(0x430, 50)]  // the Atlas Air's transmitter light, inside the second slot's block
+    [InlineData(0x800, 1)]   // its Superhuman Hearing
+    [InlineData(0x820, 50)]  // its Superhuman Hearing level
+    [InlineData(0xC00, 10)]  // its voice prompt volume
+    public void AnotherHeadsetsOwnKeyIsRefusedForTheStealthProII(int key, int value)
+    {
+        Assert.Throws<ArgumentException>(() => Registry.WireValue(key, value, model: HeadsetModels.StealthProII));
+        Assert.Throws<ArgumentException>(() => Registry.WireValue(key, value));
+        Assert.Equal(value.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            Registry.WireValue(key, value, model: HeadsetModels.AtlasAir));
+    }
+
+    [Fact]
+    public void NoWritableKeyFromAGroupOnlyTheAtlasAirHasReachesTheStealthProII()
+    {
+        var atlasOnly = Registry.All.Where(k => k.Writable
+            && HeadsetModels.AtlasAir.ExtraCategories.Contains(k.Category)).ToList();
+
+        Assert.NotEmpty(atlasOnly);
+        Assert.All(atlasOnly, k => Assert.Throws<ArgumentException>(
+            () => Registry.WireValue(k.Key, k.Minimum ?? 0, model: HeadsetModels.StealthProII)));
+    }
+
+    [Fact]
+    public void AStealthProIIKeyTheAtlasAirAlsoUsesIsStillAcceptedForTheStealthProII()
+    {
+        // 0x630 is where the Atlas Air keeps its mic monitoring level, and a
+        // setting of the Stealth Pro II's own.
+        Assert.Equal("1", Registry.WireValue(0x630, 1, model: HeadsetModels.StealthProII));
+    }
 }

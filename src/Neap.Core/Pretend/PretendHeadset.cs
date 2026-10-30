@@ -681,7 +681,8 @@ public sealed class PretendHeadset : IDeviceSource
             {
                 // The Atlas Air keeps its mic monitoring level where the
                 // Stealth Pro II keeps its AI noise reduction switch.
-                wire = Registry.WireValue(key, value, _atlas && key == 0x630 ? 0x620 : null);
+                wire = Registry.WireValue(key, value, _atlas && key == 0x630 ? 0x620 : null,
+                    _atlas ? HeadsetModels.AtlasAir : HeadsetModels.StealthProII);
             }
             catch (ArgumentException ex)
             {

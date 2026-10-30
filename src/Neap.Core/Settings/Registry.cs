@@ -81,22 +81,28 @@ public static class Registry
     /// addition is the lighting in the other transmitter slots: each slot's two
     /// brightnesses sit at +1 and +2 in its own block, and only slot one's are
     /// listed. A slot's base address is never written: writing it moves the
-    /// headset onto a transmitter nobody chose.
+    /// headset onto a transmitter nobody chose. A setting in a group only one
+    /// headset has goes only to that headset: the Atlas Air's transmitter light
+    /// at 0x430 is inside the Stealth Pro II's second transmitter block.
     /// </remarks>
     /// <param name="key">The key the value is sent to.</param>
     /// <param name="value">The value to send.</param>
     /// <param name="checkedAs">The key whose range the value is checked against, where the headset keeps another setting at <paramref name="key"/>; see <see cref="HeadsetModels.CheckedAs"/>. Both keys must be confirmed.</param>
+    /// <param name="model">The headset written to, or null for one Neap does not know.</param>
     /// <exception cref="ArgumentException">The write is not a confirmed one.</exception>
-    public static string WireValue(int key, object value, int? checkedAs = null)
+    public static string WireValue(int key, object value, int? checkedAs = null, HeadsetModel? model = null)
     {
-        var sentTo = Confirmed(key);
-        return (checkedAs is { } rules && rules != key ? Confirmed(rules) : sentTo).Validate(value);
+        var sentTo = Confirmed(key, model);
+        return (checkedAs is { } rules && rules != key ? Confirmed(rules, model) : sentTo).Validate(value);
     }
 
-    /// <exception cref="ArgumentException">The key is not confirmed as safe to write.</exception>
-    private static SettingKey Confirmed(int key)
+    /// <exception cref="ArgumentException">The key is not confirmed as safe to write to this headset.</exception>
+    private static SettingKey Confirmed(int key, HeadsetModel? model)
     {
-        if (ByKey.TryGetValue(key, out var known) && known.Writable) return known;
+        if (ByKey.TryGetValue(key, out var known) && known.Writable)
+            return HeadsetModels.AnothersOwn(model, known.Category)
+                ? throw new ArgumentException($"0x{key:x} is another headset's own setting, not the {model?.Name ?? "unknown headset"}'s")
+                : known;
 
         int inSlot = (key - TransmitterBlock) % TransmitterStride;
         if (key is >= TransmitterBlock and < TransmitterBlock + 4 * TransmitterStride

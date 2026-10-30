@@ -243,6 +243,9 @@ public static class HeadsetModels
 
     public static readonly IReadOnlyList<HeadsetModel> All = AtlasAirReleased ? [StealthProII, AtlasAir] : [StealthProII];
 
+    /// <summary>Every headset Neap has a model of, whether this release supports it or not.</summary>
+    private static readonly HeadsetModel[] Known = [StealthProII, AtlasAir];
+
     /// <summary>Every known headset's <see cref="HeadsetModel.SoundName"/>, apart by |, for finding its speakers and microphone.</summary>
     /// <remarks>Written out rather than built from <see cref="All"/>, as it is the default of many a parameter; a test keeps the two the same.</remarks>
     public const string SoundNames = AtlasAirReleased ? "stealth pro|atlas air" : "stealth pro";
@@ -261,6 +264,15 @@ public static class HeadsetModels
     /// <summary>The groups of settings to ask a headset for: every headset's it has, and any of its own.</summary>
     public static IEnumerable<string> CategoriesOf(HeadsetModel? model) =>
         Verbs.SettingCategories.Except(model?.MissingCategories ?? []).Concat(model?.ExtraCategories ?? []);
+
+    /// <summary>Whether a group of settings is another headset's own, which this one does not have: the Atlas Air's Superhuman Hearing for a Stealth Pro II.</summary>
+    /// <remarks>
+    /// A headset keeps its own settings at keys another may use for something
+    /// else, so they go to no headset that does not ask for their group,
+    /// including one Neap does not know.
+    /// </remarks>
+    public static bool AnothersOwn(HeadsetModel? model, string category) =>
+        Known.Any(other => other.ExtraCategories.Contains(category)) && !CategoriesOf(model).Contains(category);
 
     /// <summary>The key of a headset's copy of the system's output level: the Stealth Pro II's while it is not known.</summary>
     public static int VolumeKeyOf(HeadsetModel? model) => (model ?? StealthProII).VolumeKey;

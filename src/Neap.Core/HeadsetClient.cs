@@ -417,7 +417,7 @@ public sealed class HeadsetClient : IDisposable
             if (!AllowWrites)
                 throw new WritesDisabledException(
                     $"refusing to set 0x{key:x}: this client is read-only");
-            wire = Registry.WireValue(key, value, checkedAs);
+            wire = Registry.WireValue(key, value, checkedAs, HeadsetModels.Of(ProductId));
             _transport.SendOutput(Frames.SetKey(key, wire, NextCounter()));
             _lastSet = Stopwatch.GetTimestamp();
         }

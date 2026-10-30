@@ -400,6 +400,7 @@ public sealed class HeadsetService : IDisposable
     public void Set(string name, int value)
     {
         if (Registry.ByName.TryGetValue(name, out var key)) SetKey(key.Key, value);
+        else AppLog.Write($"headset: a change to {name} was not sent: no setting has that name");
     }
 
     /// <summary>Set a value, coalescing rapid changes to the same key.</summary>
@@ -418,15 +419,27 @@ public sealed class HeadsetService : IDisposable
     /// passes <paramref name="hold"/> false: the headset's own buttons must be
     /// heard straight away.
     /// </para>
+    /// <para>
+    /// A write the registry refuses is refused here, before the store moves,
+    /// so the screen keeps showing what the headset holds rather than a value
+    /// that was never sent.
+    /// </para>
     /// </remarks>
     public void SetKey(int key, int value, bool hold = true)
     {
-        if (_readOnly)
+        string? why = null;
+        if (_readOnly) why = $"Neap only reads the {Model?.Name ?? "headset"}'s settings for now";
+        else
         {
-            string why = $"Neap only reads the {Model?.Name ?? "headset"}'s settings for now";
+            try { Registry.WireValue(OnTheWire(key), value, HeadsetModels.CheckedAs(Model, key), Model); }
+            catch (ArgumentException refused) { why = refused.Message; }
+        }
+        if (why is not null)
+        {
             if (_refused.TryAdd(key, true))
                 AppLog.Write($"headset: a change to 0x{key:x} was not sent: {why}");
             Wrote?.Invoke(new WriteAttempt(key, value.ToString(CultureInfo.InvariantCulture), why));
+            Raise();
             return;
         }
         Store(key, value, hold);
