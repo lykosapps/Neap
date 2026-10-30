@@ -14,6 +14,8 @@ public class AppFolderTests
     [InlineData("  ")]
     [InlineData(".")]
     [InlineData("..")]
+    [InlineData("...")]
+    [InlineData(" .")]
     [InlineData("a/b")]
     [InlineData("a\\b")]
     [InlineData("../Neap")]

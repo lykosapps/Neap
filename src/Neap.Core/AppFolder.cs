@@ -19,9 +19,11 @@ public static class AppFolder
     /// <remarks>
     /// <c>.</c> would be the app's own folder, <c>..</c> or a path with a
     /// separator another one, and a full path replaces the app's entirely.
+    /// Windows drops a name's trailing dots and spaces, so one made only of
+    /// them, such as <c>...</c>, is the app's own folder there too.
     /// </remarks>
     public static bool IsFolderName(string? name) =>
-        !string.IsNullOrWhiteSpace(name) && name is not ("." or "..")
+        !string.IsNullOrWhiteSpace(name) && name.TrimEnd('.', ' ').Length > 0
         && name.IndexOfAny(['/', '\\', ':']) < 0
         && name.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) < 0;
 
