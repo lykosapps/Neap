@@ -174,6 +174,9 @@ and date.
   only while an X11 program is in front, as most games are. Before, they
   looked as if they worked everywhere. Where Linux has no shortcuts at all,
   the log says why.
+- On Linux, the desktop notification that a newer version is out is sent
+  in the form the notification service takes, and the log says when the
+  desktop refuses it. Before, it could be refused without a word.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for
