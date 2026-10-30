@@ -245,7 +245,13 @@ public static class Pretend
     {
         if (!Active) return;
         string? named = Environment.GetEnvironmentVariable(FolderVariable);
-        AppFolder.Separate(string.IsNullOrWhiteSpace(named) ? "Pretend" : named);
+        bool plain = AppFolder.IsFolderName(named);
+        AppFolder.Separate(plain ? named! : "Pretend");
+
+        // Logged once the folder is the pretend run's, so the line is not
+        // written to the real app's log.
+        if (!plain && !string.IsNullOrEmpty(named))
+            AppLog.Write($"pretend: {FolderVariable} '{named}' is not a plain folder name, so the run uses Pretend");
     }
 
     /// <summary>Opens the pipe a test script drives the pretend headset through.</summary>

@@ -15,6 +15,16 @@ public static class AppFolder
     /// <remarks>Call before anything reads or writes the folder.</remarks>
     public static void Separate(string name) => Path = System.IO.Path.Combine(Path, name);
 
+    /// <summary>Whether a name for <see cref="Separate"/> is a folder directly inside the app's.</summary>
+    /// <remarks>
+    /// <c>.</c> would be the app's own folder, <c>..</c> or a path with a
+    /// separator another one, and a full path replaces the app's entirely.
+    /// </remarks>
+    public static bool IsFolderName(string? name) =>
+        !string.IsNullOrWhiteSpace(name) && name is not ("." or "..")
+        && name.IndexOfAny(['/', '\\', ':']) < 0
+        && name.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) < 0;
+
     /// <summary>
     /// Moves the folder kept under the app's earlier name, the first time.
     /// </summary>
