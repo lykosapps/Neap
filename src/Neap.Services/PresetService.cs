@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using Neap.Core.Presets;
 
@@ -51,7 +52,9 @@ public sealed class PresetService
     public const int BandCeiling = 90;
 
     private readonly HeadsetService _headset;
-    private readonly Dictionary<Bank, BankState> _banks = new();
+    /// <summary>The banks read so far.</summary>
+    /// <remarks>Concurrent because <see cref="HeadsetService.Wrote"/> reads it on the headset thread while a read adds to it.</remarks>
+    private readonly ConcurrentDictionary<Bank, BankState> _banks = new();
     private readonly Dictionary<Bank, Task<BankState>> _reading = new();
 
     /// <summary>Banks that chose the flat preset as a starting point rather than as a preset, until another is chosen.</summary>
