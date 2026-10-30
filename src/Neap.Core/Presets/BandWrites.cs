@@ -37,7 +37,7 @@ public static class BandWrites
     }
 
     /// <summary>Whether a write is one a band may hold: a filter the equaliser offers, or a frequency, width or gain inside a band's limits.</summary>
-    /// <remarks>The headset saves every write and checks none, so anything else is refused rather than sent.</remarks>
+    /// <remarks>Nothing between here and the headset checks a band value, so anything else is refused rather than sent.</remarks>
     /// <param name="write">The band, the parameter and its value.</param>
     public static bool InRange(BandWrite write) => write.Parameter switch
     {

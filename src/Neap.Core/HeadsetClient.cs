@@ -500,9 +500,12 @@ public sealed class HeadsetClient : IDisposable
         string value = string.Create(CultureInfo.InvariantCulture, $"{write.Value:0.####}");
         SendDsp($"parametric_band_{write.Band}_{write.Parameter}".ToLowerInvariant(), value, "a parametric band",
             HeadsetModels.Of(ProductId) is { HasParametricBands: true },
-            () => _transport.SendOutput(BandWrites.InRange(write)
-                ? BandFrames.SetFrame(write, RelayThroughBase)
-                : throw new ArgumentException($"refusing to set a parametric band: band {write.Band}'s {write.Parameter} cannot be {value}")));
+            () =>
+            {
+                if (!BandWrites.InRange(write))
+                    throw new ArgumentException($"refusing to set a parametric band: band {write.Band}'s {write.Parameter} cannot be {value}");
+                _transport.SendOutput(BandFrames.SetFrame(write, RelayThroughBase));
+            });
     }
 
     /// <summary>How long to listen for a stored record, and how many times to ask.</summary>
