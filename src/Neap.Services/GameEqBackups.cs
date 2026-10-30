@@ -31,8 +31,20 @@ public static class GameEqBackups
     internal static string Keep(GameEqRecord record, DateTime taken)
     {
         Directory.CreateDirectory(Folder);
-        string file = Path.Combine(Folder, string.Create(CultureInfo.InvariantCulture, $"{taken.ToString(Stamp, CultureInfo.InvariantCulture)} game equaliser record.bin"));
-        File.WriteAllBytes(file, record.Bytes.ToArray());
-        return file;
+        string name = $"{taken.ToString(Stamp, CultureInfo.InvariantCulture)} game equaliser record";
+        for (int copy = 1; ; copy++)
+        {
+            string file = Path.Combine(Folder, copy == 1 ? $"{name}.bin" : $"{name} ({copy}).bin");
+            try
+            {
+                using var stream = new FileStream(file, FileMode.CreateNew, FileAccess.Write);
+                stream.Write(record.Bytes);
+                return file;
+            }
+            catch (IOException) when (File.Exists(file) && copy < 100)
+            {
+                // Taken, by a copy made the same second or a clock put back: try the next name.
+            }
+        }
     }
 }

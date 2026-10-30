@@ -72,6 +72,9 @@ and date.
 - Settings Neap can't read no longer turn the update check back on: Neap
   starts from its defaults with the check off, in case you had turned it
   off.
+- Two copies of the headset's game equaliser record kept in the same
+  second, or after the clock is put back, are both kept; the later one
+  takes a number after its name rather than replacing the first.
 - A name kept for an app on a profile is found after a restart whatever
   the case of the app's program name.
 - A screen reader names the Details row on the Device page, which opens
