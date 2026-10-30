@@ -65,7 +65,7 @@ public sealed class ParametricSetup
                 () => Thread.Sleep(Settle)));
             if (result.Outcome is SwitchOutcome.Done or SwitchOutcome.AlreadyDone)
             {
-                string? build = _headset.Values.TryGetValue("130", out var value) ? value.GetString() : null;
+                string? build = _headset.GetText("firmware_version");
                 AppSettings.Update(settings =>
                 {
                     settings.ParametricOn = on;

@@ -104,7 +104,7 @@ public sealed class ParametricService
     /// </remarks>
     private async void CheckThenSend()
     {
-        string? firmware = _headset.Values.TryGetValue("130", out var value) ? value.GetString() : null;
+        string? firmware = _headset.GetText("firmware_version");
         bool reset;
         string? unreadable;
         try
