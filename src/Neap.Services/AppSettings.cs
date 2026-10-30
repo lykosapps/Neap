@@ -412,7 +412,7 @@ public sealed class AppSettings
         }
 
         try { return JsonSerializer.Deserialize<AppSettings>(text) ?? new(); }
-        catch (Exception ex) when (ex is JsonException or NotSupportedException)
+        catch (Exception ex)
         {
             AppLog.Write($"could not read the app's settings, so it starts from its defaults with the update check off: {ex.Message}");
             string kept = Path + ".unreadable";
