@@ -178,7 +178,8 @@ and date.
   in the form the notification service takes, and the log says when the
   desktop refuses it. Before, it could be refused without a word.
 - On Linux, the icon in the notification area is dark when the desktop's
-  theme is light, so it shows on a light panel. It was always light.
+  theme is light, so it shows on a light panel. It was always light. On
+  GNOME, whose top bar is dark in either theme, it stays light.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

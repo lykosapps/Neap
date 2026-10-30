@@ -129,14 +129,14 @@ public partial class MainWindow : IDisposable
     /// <summary>The notification-area glyph: light on a dark taskbar, dark on a light one.</summary>
     /// <remarks>
     /// Windows has a taskbar shade, set apart from the app's own theme. A Linux
-    /// panel gives no such answer, so the desktop's own light or dark choice
-    /// stands in for it, as a light theme usually comes with a light panel.
+    /// panel gives no such answer, so Core judges it from the desktop and its theme.
     /// </remarks>
     private static WindowIcon TrayPicture()
     {
         bool light = OperatingSystem.IsWindows()
             ? TaskbarIsLight()
-            : Application.Current?.PlatformSettings?.GetColorValues().ThemeVariant == PlatformThemeVariant.Light;
+            : PanelShade.IsLight(Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP"),
+                Application.Current?.PlatformSettings?.GetColorValues().ThemeVariant == PlatformThemeVariant.Light);
         string shade = light ? "light" : "dark";
         return new WindowIcon(AssetLoader.Open(new Uri($"avares://Neap.Desktop/Assets/tray-{shade}.ico")));
     }
