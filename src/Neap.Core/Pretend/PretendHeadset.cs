@@ -215,6 +215,9 @@ public sealed class PretendHeadset : IDeviceSource
     /// <summary>The game equaliser's stored record as the headset currently holds it; set to start from another.</summary>
     public GameEqRecord Record { get { lock (_gate) return _record; } init => _record = value; }
 
+    /// <summary>Bytes given in place of the stored record when it is read, for a record Neap does not understand.</summary>
+    public byte[]? UnknownRecord { get; init; }
+
     /// <summary>Every frame sent, in order.</summary>
     public IReadOnlyList<byte[]> Sent
     {
@@ -462,7 +465,7 @@ public sealed class PretendHeadset : IDeviceSource
         if (_on)
         {
             var reply = new List<byte> { Frames.RaceStart, Frames.RaceReply, 0xBE, 0x00, 0x00, 0x0A, 0xBA, 0x00 };
-            reply.AddRange(_record.Bytes.ToArray());
+            reply.AddRange(UnknownRecord ?? _record.Bytes.ToArray());
             Fragment([.. reply]);
         }
 

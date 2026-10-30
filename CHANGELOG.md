@@ -89,6 +89,9 @@ and date.
   offer to save a new preset, rather than counting its slot as free when the
   headset may be full. A preset whose bands can't be read is no longer
   listed as flat.
+- With Parametric on, when the headset's stored equaliser comes back in a
+  form Neap doesn't understand, Neap doesn't send its shape onto it as the
+  headset connects, and says so in its log.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

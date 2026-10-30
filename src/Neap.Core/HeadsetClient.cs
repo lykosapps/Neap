@@ -494,12 +494,23 @@ public sealed class HeadsetClient : IDisposable
     public const string GameEqRecordName = "game_eq_record";
 
     /// <summary>
+    /// The stored record the last <see cref="ReadGameEqRecord"/> was given and
+    /// did not understand, in hex; null when it understood it or none came.
+    /// </summary>
+    public string? UnreadableRecord { get; private set; }
+
+    /// <summary>
     /// Reads the game equaliser's stored record, or null when the headset gives
     /// none or one Neap does not understand.
     /// </summary>
-    /// <remarks>Proven over the cable and through the Charging Dock, which passes the reply back.</remarks>
+    /// <remarks>
+    /// Proven over the cable and through the Charging Dock, which passes the
+    /// reply back. A record that comes but is not understood is kept in
+    /// <see cref="UnreadableRecord"/>, so it is not taken for no reply.
+    /// </remarks>
     public GameEqRecord? ReadGameEqRecord()
     {
+        UnreadableRecord = null;
         for (int attempt = 0; attempt < RecordTries; attempt++)
         {
             var reader = new NvKeyReader(GameEqRecord.Length);
@@ -511,7 +522,12 @@ public sealed class HeadsetClient : IDisposable
             {
                 var input = _transport.GetInput();
                 reader.Add(input);
-                if (reader.Record(GameEqRecord.Header) is { } bytes) return GameEqRecord.Parse(bytes);
+                if (reader.Record(GameEqRecord.Header) is { } bytes)
+                {
+                    var record = GameEqRecord.Parse(bytes);
+                    if (record is null) UnreadableRecord = Convert.ToHexString(bytes);
+                    return record;
+                }
                 foreach (var evt in Ingest(input))
                     if (evt.Kind == "UP") _setAside.Add(evt);
                 Thread.Sleep(4);

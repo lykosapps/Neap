@@ -98,17 +98,23 @@ public sealed class ParametricService
     /// <summary>Turns parametric off if Swarm II has reset the headset's equaliser, or else sends the saved shape.</summary>
     /// <remarks>
     /// After a reset the gains are no longer exact, so the shape is not sent
-    /// until parametric is turned on again.
+    /// until parametric is turned on again. Nor is it sent onto a stored
+    /// record that came back in a form Neap does not understand, as there is
+    /// no telling whether it was reset.
     /// </remarks>
     private async void CheckThenSend()
     {
         string? firmware = _headset.Values.TryGetValue("130", out var value) ? value.GetString() : null;
         bool reset;
+        string? unreadable;
         try
         {
-            reset = await _headset.Post(client => ParametricOff.ResetBySwarm(
-                AppSettings.Current.ParametricFirmware, firmware,
-                client.ReadGameEqRecord()?.GainCorrectionOn));
+            (reset, unreadable) = await _headset.Post(client =>
+            {
+                bool? gainCorrectionOn = client.ReadGameEqRecord()?.GainCorrectionOn;
+                return (ParametricOff.ResetBySwarm(AppSettings.Current.ParametricFirmware, firmware, gainCorrectionOn),
+                    client.UnreadableRecord);
+            });
         }
         catch (Exception ex)
         {
@@ -121,6 +127,10 @@ public sealed class ParametricService
             AppLog.Write($"parametric: turned off, as Swarm II reset the headset's equaliser (firmware {firmware ?? "unknown"})");
             AppSettings.Update(settings => (settings.ParametricOn, settings.ParametricFirmware, settings.ParametricReset) = (false, null, true));
             Reset?.Invoke();
+        }
+        else if (unreadable is not null)
+        {
+            AppLog.Write($"parametric: could not read the stored record, so the shape is not sent: {unreadable}");
         }
         else if (AppSettings.Current.ParametricActive && !TakenOverByAnotherApp() && SavedToSend() is { } saved)
         {

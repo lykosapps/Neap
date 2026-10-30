@@ -19,6 +19,19 @@ public class PretendRecordTests
         Assert.NotNull(record);
         Assert.True(record.Matches(GameEqRecord.Shipped));
         Assert.True(record.GainCorrectionOn);
+        Assert.Null(client.UnreadableRecord);
+    }
+
+    [Fact]
+    public void ARecordNeapDoesNotUnderstandIsToldFromNoReply()
+    {
+        var unknown = GameEqRecord.Shipped.Bytes.ToArray();
+        unknown[184] = 2;
+        var headset = new PretendHeadset(wired: true) { UnknownRecord = unknown };
+        using var client = Wired(headset);
+
+        Assert.Null(client.ReadGameEqRecord());
+        Assert.Equal(Convert.ToHexString(unknown), client.UnreadableRecord);
     }
 
     [Fact]
