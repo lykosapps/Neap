@@ -59,6 +59,8 @@ and date.
 - Every switch looks the same. The switches in Settings, on the Device
   page's Keep high-resolution audio and for the mix's keyboard shortcuts were drawn another
   way, with an outlined track when off, and were smaller to touch.
+- In Parametric, Undo, Redo and Compare come in the same order as with
+  the ten bands, so switching between them no longer moves the buttons.
 - The chat apps list and the mix work when the headset is Windows' output
   for calls but another device is the default, as when the speakers play
   everything else. Before, the list was empty and the mix did nothing,

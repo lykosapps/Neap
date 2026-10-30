@@ -98,7 +98,7 @@ public sealed class BandPanel : UserControl
     /// <summary>The person asked to turn Parametric off, which the page asks about and does.</summary>
     public event Action? TurnOffAsked;
 
-    /// <summary>Compare, Undo, Redo and Turn off, which the page puts beside its choice of mode.</summary>
+    /// <summary>Undo, Redo, Compare and Turn off, in the ten bands' order, which the page puts beside its choice of mode.</summary>
     public Control Tools { get; }
 
     public BandPanel()
@@ -117,7 +117,7 @@ public sealed class BandPanel : UserControl
             HorizontalAlignment = HorizontalAlignment.Right,
             ItemSpacing = Space.S,
             LineSpacing = Space.S,
-            Children = { _compare, _undo, _redo, _turnOff },
+            Children = { _undo, _redo, _compare, _turnOff },
         };
         Content = Build();
         Wire();
