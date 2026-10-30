@@ -666,20 +666,11 @@ function Quick {
     Page 'Home'
     MicTile
 
-    # The equaliser tile opens a list of presets in a flyout, which is a
-    # window of its own, so the preset is looked for in the popups too.
     $script:step = 'the preset list on Home'
     $tile = Find $script:window 'AutomationIdProperty' 'PresetPicker'
     if ($null -eq $tile) { Fail 'Home has an equaliser tile'; return }
     Ask 'clear' | Out-Null
-    (Pattern $tile ([System.Windows.Automation.InvokePattern])).Invoke()
-    $preset = {
-        Everywhere 'NameProperty' 'Signature Sound' |
-            Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem } | Select-Object -First 1
-    }
-    if (-not (Until { $null -ne (& $preset) })) { Fail 'the equaliser tile lists Signature Sound'; return }
-    $item = & $preset
-    (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select()
+    Choose $tile 'Signature Sound'
     Check (Until { @(Writes | Where-Object { $_.key -eq '0x1210' -and $_.value -eq '1' }).Count -gt 0 }) 'the preset list on Home sends 0x1210=1'
     Collect
 }
