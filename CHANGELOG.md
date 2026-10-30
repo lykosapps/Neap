@@ -123,6 +123,13 @@ and date.
 - An app turned down by the mix is no longer left turned down for good
   when the mix moves in the first moments after Neap starts, while it is
   still putting back the volumes a previous run left.
+- A message that comes after a wait, such as a save that failed, no longer
+  closes the app when the window has gone to the notification area or the
+  mini panel has closed in the meantime. What it would have said goes to
+  the app log. The mini panel stays open while it shows a message, such as
+  the one about activating Dolby Atmos.
+- Switching profiles, or discarding a profile's changes, while the headset
+  stops answering says it couldn't switch, rather than closing the app.
 - After an update, the old version closes cleanly rather than leaving a
   crash in the app log on its way out.
 - A screen reader names the Details row on the Device page, which opens

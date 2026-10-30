@@ -119,15 +119,24 @@ public sealed class NeapDialog : Window
     }
 
     /// <summary>Opens the dialog over a control's window, and says whether the primary button answered it.</summary>
-    /// <exception cref="InvalidOperationException">The control is not in a window.</exception>
+    /// <remarks>See <see cref="Ask"/> for a control that is no longer in a window.</remarks>
     public async Task<bool> ShowAsync(Control over) => await Ask(over) == DialogAnswer.Primary;
 
     /// <summary>Opens the dialog over a control's window, and says which button answered it.</summary>
-    /// <exception cref="InvalidOperationException">The control is not in a window.</exception>
+    /// <remarks>
+    /// Work that ends in a dialog often finishes after a wait, by which time
+    /// the window may have closed to the notification area or the mini panel
+    /// may have gone. With no window to open over, the dialog is not shown:
+    /// what it would have said goes to the app log, and it answers as if
+    /// closed, which every caller takes as the safe choice.
+    /// </remarks>
     public async Task<DialogAnswer> Ask(Control over)
     {
-        var owner = TopLevel.GetTopLevel(over) as Window
-            ?? throw new InvalidOperationException("a dialog needs the window it opens over");
+        if (TopLevel.GetTopLevel(over) is not Window owner)
+        {
+            AppLog.Write($"dialog: not shown, as the window it was for has gone: {Heading} {(Body as TextBlock)?.Text}");
+            return DialogAnswer.None;
+        }
         return await ShowDialog<DialogAnswer>(owner);
     }
 }

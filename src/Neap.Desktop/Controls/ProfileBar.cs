@@ -222,7 +222,7 @@ public sealed class ProfileBar : UserControl
             _busy = true;
             Paint();
             try { await AppServices.Profiles.Discard(); }
-            catch (HeadsetUnavailableException ex) { await ProfileDialogs.Complain(this, Strings.Get("Profile_CouldNotSwitchTitle"), ex.Message); }
+            catch (Exception ex) { await CouldNotSwitch(ex); }
             finally
             {
                 _busy = false;
@@ -373,10 +373,7 @@ public sealed class ProfileBar : UserControl
         Paint();
         IReadOnlyList<string> missing = [];
         try { missing = await AppServices.Profiles.Apply(chosen); }
-        catch (HeadsetUnavailableException ex)
-        {
-            await ProfileDialogs.Complain(this, Strings.Get("Profile_CouldNotSwitchTitle"), ex.Message);
-        }
+        catch (Exception ex) { await CouldNotSwitch(ex); }
         finally
         {
             _busy = false;
@@ -385,5 +382,18 @@ public sealed class ProfileBar : UserControl
         if (missing.Count > 0)
             await ProfileDialogs.Complain(this, Strings.Get("Profile_PartiallyAppliedTitle"),
                 Strings.Format("Profile_MissingPresets", Strings.List(missing)));
+    }
+
+    /// <summary>Says a switch or a discard failed, and leaves the reason in the app log.</summary>
+    /// <remarks>
+    /// Any failure is caught, not only a headset that is away: one that stops
+    /// answering partway through a read fails with something else, and that
+    /// left uncaught would end the app.
+    /// </remarks>
+    private async Task CouldNotSwitch(Exception ex)
+    {
+        AppLog.Write($"profiles: could not switch: {ex.Message}");
+        await ProfileDialogs.Complain(this, Strings.Get("Profile_CouldNotSwitchTitle"),
+            ex is HeadsetUnavailableException ? ex.Message : Strings.Get("Profile_NeedsHeadset"));
     }
 }

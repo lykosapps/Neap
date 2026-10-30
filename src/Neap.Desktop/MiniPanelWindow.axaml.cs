@@ -171,10 +171,10 @@ public partial class MiniPanelWindow : Window
         Close();
     }
 
-    /// <summary>Closes the panel once focus has gone elsewhere, unless the presets are open, which hold it.</summary>
+    /// <summary>Closes the panel once focus has gone elsewhere, unless the presets or one of its dialogs are open, which hold it.</summary>
     private void CloseIfAway()
     {
-        if (Pretend.Mini || IsActive || Preset.IsDropDownOpen) return;
+        if (Pretend.Mini || IsActive || Preset.IsDropDownOpen || OwnedWindows.Count > 0) return;
         Close();
     }
 
