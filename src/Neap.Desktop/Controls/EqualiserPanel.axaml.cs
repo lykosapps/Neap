@@ -668,8 +668,11 @@ public partial class EqualiserPanel : UserControl
             int at = CustomSlots.Children.IndexOf(confirm);
             string? trouble = await AppServices.Presets.Delete(Bank, preset.Name);
             if (trouble is not null) await Complain(Strings.Get("Equaliser_CouldNotDelete"), trouble);
+            // The keyboard is not taken back from wherever the person went while the bank was read.
+            bool movedOn = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is Visual focused
+                and not TopLevel && !confirm.IsVisualAncestorOf(focused);
             ShowStored();
-            FocusCustom(at);
+            if (!movedOn) FocusCustom(at);
         };
         cancel.Click += (_, _) =>
         {
