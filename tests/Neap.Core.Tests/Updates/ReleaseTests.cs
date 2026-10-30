@@ -162,6 +162,23 @@ public class ReleaseTests
         Assert.Throws<FormatException>(() => Release.Parse(Json(repository: repository)));
     }
 
+    /// <summary>Each link is checked on its own, so the zip, its hash and the page are each tried over another scheme.</summary>
+    [Theory]
+    [InlineData("\"html_url\": \"", "http")]
+    [InlineData("win-x64.zip\", \"browser_download_url\": \"", "http")]
+    [InlineData("win-x64.zip.sha256\", \"browser_download_url\": \"", "http")]
+    [InlineData("\"html_url\": \"", "ftp")]
+    [InlineData("win-x64.zip\", \"browser_download_url\": \"", "ftp")]
+    [InlineData("win-x64.zip.sha256\", \"browser_download_url\": \"", "ftp")]
+    public void ALinkThatIsNotHttpsIsRefused(string before, string scheme)
+    {
+        string json = Json();
+        string plain = json.Replace($"{before}https://", $"{before}{scheme}://", StringComparison.Ordinal);
+        Assert.NotEqual(json, plain);
+
+        Assert.Throws<FormatException>(() => Release.Parse(plain));
+    }
+
     [Fact]
     public void AReleasePageInAnotherRepositoryIsRefused()
     {

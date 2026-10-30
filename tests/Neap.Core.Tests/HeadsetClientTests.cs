@@ -243,17 +243,24 @@ public class HeadsetClientTests
         Assert.Equal([new PretendWrite(0x422, "60"), new PretendWrite(0x461, "20")], headset.Writes);
     }
 
+    /// <summary>A read straight after a write waits out the pause, and no longer than that.</summary>
+    /// <remarks>
+    /// The clock starts before the write, so time spent inside it counts towards the pause and the
+    /// lower bound holds however slow the machine is; the one millisecond allows for the sleep
+    /// rounding down to whole milliseconds. The upper bound is loose enough for a busy machine.
+    /// </remarks>
     [Fact]
     public void AReadRightAfterAWriteWaitsBeforeItIsSent()
     {
         using var client = new HeadsetClient(allowWrites: true, transport: new PretendHeadset().Open());
 
-        client.Set(0x760, 55);
         var clock = Stopwatch.StartNew();
+        client.Set(0x760, 55);
         client.ReadCategory("GSI", Window);
 
-        Assert.True(clock.Elapsed >= HeadsetClient.AfterWrite - TimeSpan.FromMilliseconds(5),
-            $"the read went out {clock.ElapsedMilliseconds} ms after the write");
+        Assert.InRange(clock.Elapsed,
+            HeadsetClient.AfterWrite - TimeSpan.FromMilliseconds(1),
+            HeadsetClient.AfterWrite + TimeSpan.FromMilliseconds(250));
     }
 
     [Fact]
