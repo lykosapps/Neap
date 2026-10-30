@@ -15,8 +15,6 @@ public sealed class DesktopPlatform : IPlatform
 
     public IRouteSource Routes => SystemRoutes.Instance;
 
-    public IVolumes Volumes => SystemVolumes.Instance;
-
     /// <remarks>Only the build made for Windows can reach Windows' spatial sound.</remarks>
     public ISpatialAudio Spatial { get; } =
 #if WINDOWS

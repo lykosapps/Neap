@@ -10,39 +10,25 @@ namespace Neap.Services;
 /// <param name="FoundHeadset">Whether the device is the headset's, rather than the default standing in for it.</param>
 public sealed record VolumeState(int Percent, bool Muted, string DeviceName, bool FoundHeadset);
 
-/// <summary>The system's volume and mute for the headset's output and its microphone.</summary>
-public interface IVolumes
+/// <summary>The system's volume and mute for the headset's output and its microphone, from whichever sound system this is.</summary>
+public static class SystemVolumes
 {
     /// <exception cref="Exception">The system could not be asked.</exception>
-    EndpointInfo Describe(Flow flow);
-
-    /// <exception cref="Exception">The system refused.</exception>
-    void SetPercent(int percent, Flow flow);
-
-    /// <exception cref="Exception">The system refused.</exception>
-    void SetMuted(bool muted, Flow flow);
-}
-
-/// <summary>Volume and mute from whichever sound system this is.</summary>
-public sealed class SystemVolumes : IVolumes
-{
-    public static SystemVolumes Instance { get; } = new();
-
-    private SystemVolumes() { }
-
-    public EndpointInfo Describe(Flow flow) =>
+    public static EndpointInfo Describe(Flow flow) =>
         OperatingSystem.IsWindows() ? AudioEndpoints.Describe(AudioEndpoints.DefaultMatch, flow)
         : OperatingSystem.IsLinux() ? PulseVolumes.Describe(flow)
         : throw Unsupported();
 
-    public void SetPercent(int percent, Flow flow)
+    /// <exception cref="Exception">The system refused.</exception>
+    public static void SetPercent(int percent, Flow flow)
     {
         if (OperatingSystem.IsWindows()) AudioEndpoints.SetPercent(percent, AudioEndpoints.DefaultMatch, flow);
         else if (OperatingSystem.IsLinux()) PulseVolumes.SetPercent(percent, flow);
         else throw Unsupported();
     }
 
-    public void SetMuted(bool muted, Flow flow)
+    /// <exception cref="Exception">The system refused.</exception>
+    public static void SetMuted(bool muted, Flow flow)
     {
         if (OperatingSystem.IsWindows()) AudioEndpoints.SetMuted(muted, AudioEndpoints.DefaultMatch, flow);
         else if (OperatingSystem.IsLinux()) PulseVolumes.SetMuted(muted, flow);
@@ -74,7 +60,7 @@ public static class SoundVolume
     {
         try
         {
-            var info = Pretend.Windows?.Describe(flow) ?? Platform.Current.Volumes.Describe(flow);
+            var info = Pretend.Windows?.Describe(flow) ?? SystemVolumes.Describe(flow);
             return new VolumeState(info.Percent, info.Muted, info.Name, info.MatchedHeadset);
         }
         catch (Exception)
@@ -90,7 +76,7 @@ public static class SoundVolume
         try
         {
             if (Pretend.Windows is { } windows) windows.SetPercent(percent, flow);
-            else Platform.Current.Volumes.SetPercent(percent, flow);
+            else SystemVolumes.SetPercent(percent, flow);
         }
         catch (Exception ex) { AppLog.Write($"could not set the system's {flow} volume: {ex.Message}"); }
     });
@@ -100,7 +86,7 @@ public static class SoundVolume
         try
         {
             if (Pretend.Windows is { } windows) windows.SetMuted(muted, flow);
-            else Platform.Current.Volumes.SetMuted(muted, flow);
+            else SystemVolumes.SetMuted(muted, flow);
         }
         catch (Exception ex) { AppLog.Write($"could not set the system's {flow} mute: {ex.Message}"); }
     });
