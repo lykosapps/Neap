@@ -196,10 +196,11 @@ public sealed class SessionMix : IMixEngine
         lock (_gate) { running = _running; mix = _mix; chatApps = _chatApps.ToList(); }
         if (!running) return;
 
-        // Hold nothing down on a device nobody is listening to. If the person
-        // has switched to speakers — or to the other transmitter — the mix
-        // applies to nothing they can hear, and levels left pinned on an
-        // unused device are found later with no explanation.
+        // Hold nothing down on a device nobody is listening to. With no
+        // output that is the headset's, or no telling which of two it is
+        // (HeadsetOutput), the mix applies to nothing they can hear, and
+        // levels left pinned on an unused device are found later with no
+        // explanation.
         using var headset = _playback.Headset();
         if (headset is null)
         {

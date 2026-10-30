@@ -48,6 +48,10 @@ and date.
 
 ### Fixed
 
+- The chat apps list and the mix work when the headset is Windows' output
+  for calls but another device is the default, as when the speakers play
+  everything else. Before, the list was empty and the mix did nothing,
+  without saying why.
 - In high contrast, a slider's track is drawn in the text colour, not the
   colour Windows uses for what is switched off, so a slider that works no
   longer looks disabled.

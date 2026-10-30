@@ -1,5 +1,21 @@
 # Decisions
 
+## 2026-10-30 — The headset's output is found among every output, not only the default
+
+- **Options:** keep using only Windows' default output, and say so when it
+  is not the headset; or look further, safely.
+- **Chosen:** the default output if it is the headset's; otherwise the
+  default output for calls, if that is; otherwise the headset's output when
+  there is only one. With two headset outputs and neither a default, none is
+  used, as the mix cannot tell which is in use. The log says which way it was
+  found, or why not, whenever that changes. The same rule serves Linux,
+  which has no default for calls.
+- **Why:** the owner's PC had its speakers as the default and the headset
+  as the default for calls, where Discord plays, so the chat apps list was
+  empty and the mix off, with nothing saying why. Only the default was used
+  so that two transmitters plugged in at once could not leave the mix on the
+  one not listened to; the new rule keeps that guard.
+
 ## 2026-10-30 — Both built-in measurements are plain choices, and Auto-EQ needs both curves shown
 
 - **Chosen:** the Measured list offers the Stealth Pro II with noise

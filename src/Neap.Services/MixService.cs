@@ -91,6 +91,7 @@ public sealed class MixService : IDisposable
         CentreCue.Trouble = line => AppLog.Write($"mix: {line}");
         SideMeter.Trouble = line => AppLog.Write($"mix: {line}");
         SessionMix.LookedUp = name => AppLog.Write($"mix: named {name}, playing to the headset");
+        HeadsetOutput.Said = line => AppLog.Write(line);
     }
 
     /// <summary>

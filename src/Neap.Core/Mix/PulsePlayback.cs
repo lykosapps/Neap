@@ -28,12 +28,14 @@ internal sealed class PulsePlayback : IPlayback
     private readonly PulseClient _client = new();
 
     /// <exception cref="PulseException">The sound server could not be asked.</exception>
+    /// <remarks>Which output it is, and why, is <see cref="HeadsetOutput"/>'s: the headset's outputs are those with its USB ids, and the sound server has no default for calls.</remarks>
     public IPlaybackDevice? Headset()
     {
-        string name = _client.DefaultSink();
-        return _client.Sinks().FirstOrDefault(s => s.Name == name) is { } sink && sink.IsHeadset
-            ? new Output(_client, sink.Description, sink.Index)
-            : null;
+        var sinks = _client.Sinks().Where(s => s.IsHeadset).ToList();
+        var (name, found) = HeadsetOutput.Pick([.. sinks.Select(s => new SoundOutput(s.Name, s.Description))], _client.DefaultSink(), null);
+        var sink = sinks.FirstOrDefault(s => s.Name == name);
+        HeadsetOutput.Note(found, sink?.Description);
+        return sink is null ? null : new Output(_client, sink.Description, sink.Index);
     }
 
     /// <exception cref="PulseException">The sound server could not be asked.</exception>

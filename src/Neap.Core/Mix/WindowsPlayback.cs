@@ -18,31 +18,33 @@ internal sealed class WindowsPlayback : IPlayback
 
     private readonly MMDeviceEnumerator _devices = new();
 
-    /// <remarks>
-    /// <para>
-    /// Not the first endpoint whose name matches. Two transmitters plugged in
-    /// at once give two endpoints that both answer to "Stealth Pro", the
-    /// Charging Dock's and the USB Transmitter's, and the first match can
-    /// leave the mix holding levels on one device while the person listens to
-    /// the other, with nothing to show for it.
-    /// </para>
-    /// <para>
-    /// The default output is the only endpoint the mix has any business
-    /// touching, so this asks for that one and checks it is the headset,
-    /// rather than finding a headset and then asking whether it is the default.
-    /// </para>
-    /// </remarks>
+    /// <remarks>Which output it is, and why, is <see cref="HeadsetOutput"/>'s: the headset's outputs are those whose name matches.</remarks>
     public IPlaybackDevice? Headset()
+    {
+        var headsets = new List<SoundOutput>();
+        foreach (var device in _devices.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
+        {
+            using (device)
+            {
+                if (HeadsetModels.SoundMatches(device.FriendlyName, Audio.AudioEndpoints.DefaultMatch))
+                    headsets.Add(new SoundOutput(device.ID, device.FriendlyName));
+            }
+        }
+
+        var (id, found) = HeadsetOutput.Pick(headsets, DefaultId(Role.Multimedia), DefaultId(Role.Communications));
+        HeadsetOutput.Note(found, headsets.FirstOrDefault(o => o.Id == id).Name);
+        return id is null ? null : new Device(_devices.GetDevice(id));
+    }
+
+    /// <summary>The default output's id for a role, or null when there is none.</summary>
+    private string? DefaultId(Role role)
     {
         try
         {
-            var current = _devices.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-            if (HeadsetModels.SoundMatches(current.FriendlyName, Audio.AudioEndpoints.DefaultMatch))
-                return new Device(current);
-            current.Dispose();
-            return null;
+            using var device = _devices.GetDefaultAudioEndpoint(DataFlow.Render, role);
+            return device.ID;
         }
-        catch { return null; }
+        catch (COMException) { return null; }
     }
 
     public IEnumerable<IPlaybackDevice> Others(IPlaybackDevice headset)
