@@ -35,16 +35,19 @@ public static class GameEqBackups
         for (int copy = 1; ; copy++)
         {
             string file = Path.Combine(Folder, copy == 1 ? $"{name}.bin" : $"{name} ({copy}).bin");
+            FileStream stream;
             try
             {
-                using var stream = new FileStream(file, FileMode.CreateNew, FileAccess.Write);
-                stream.Write(record.Bytes);
-                return file;
+                stream = new FileStream(file, FileMode.CreateNew, FileAccess.Write);
             }
             catch (IOException) when (File.Exists(file) && copy < 100)
             {
                 // Taken, by a copy made the same second or a clock put back: try the next name.
+                continue;
             }
+            using (stream)
+                stream.Write(record.Bytes);
+            return file;
         }
     }
 }
