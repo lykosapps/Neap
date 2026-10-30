@@ -692,9 +692,6 @@ public partial class EqualiserPanel : UserControl
 
     // -- saving ------------------------------------------------------------
 
-    private static bool Same(string a, string b) =>
-        string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
-
     /// <summary>
     /// Saves the current curve as a new preset.
     /// </summary>
@@ -753,11 +750,10 @@ public partial class EqualiserPanel : UserControl
     /// </summary>
     /// <remarks>
     /// Anything that would refuse the save is reported while typing rather
-    /// than as an error afterwards: no free slots, a name already taken, or
-    /// the name of one of the headset's own presets. A name at the length
-    /// limit gets a note of its own. A taken name points at the Overwrite
-    /// button, since replacing that preset is the likeliest reason to type
-    /// its name.
+    /// than as an error afterwards; see <see cref="PresetStore.Check"/>. A
+    /// name at the length limit gets a note of its own. A taken name points
+    /// at the Overwrite button, since replacing that preset is the likeliest
+    /// reason to type its name.
     /// </remarks>
     private async Task<string> AskForName(string title, string suggested)
     {
@@ -787,41 +783,21 @@ public partial class EqualiserPanel : UserControl
         {
             if (_state is not { } state) return;
             string typed = (field.Text ?? "").Trim();
-            var taken = state.Custom.FirstOrDefault(p => Same(p.Name, typed));
-            bool factory = state.Presets.Concat(PresetStore.Factory(Bank)).Any(p => !p.Custom && Same(p.Name, typed));
-            int free = state.FreeSlots.Count;
-            limit.IsVisible = typed.Length >= PresetStore.MaxNameLength;
-
-            if (typed.Length == 0)
+            var problem = PresetStore.Check(typed, state.Presets, Bank, state.FullyRead);
+            // A name too long says so in the note itself, so the limit's own line would repeat it.
+            limit.IsVisible = typed.Length >= PresetStore.MaxNameLength && problem != PresetNameProblem.TooLong;
+            note.Text = problem switch
             {
-                note.Text = Strings.Get("Equaliser_GiveName");
-                dialog.IsPrimaryButtonEnabled = false;
-            }
-            else if (factory)
-            {
-                note.Text = Strings.Format("Equaliser_FactoryName", typed);
-                dialog.IsPrimaryButtonEnabled = false;
-            }
-            else if (taken is not null)
-            {
-                note.Text = Strings.Format("Equaliser_NameTaken", taken.Name);
-                dialog.IsPrimaryButtonEnabled = false;
-            }
-            else if (!state.FullyRead)
-            {
-                note.Text = Strings.Get("Preset_SlotsUnread");
-                dialog.IsPrimaryButtonEnabled = false;
-            }
-            else if (free == 0)
-            {
-                note.Text = Strings.Format("Equaliser_SlotsFull", PresetStore.CustomSlots);
-                dialog.IsPrimaryButtonEnabled = false;
-            }
-            else
-            {
-                note.Text = Strings.Format("Equaliser_FreeSlots", free, PresetStore.CustomSlots);
-                dialog.IsPrimaryButtonEnabled = true;
-            }
+                PresetNameProblem.Empty => Strings.Get("Equaliser_GiveName"),
+                PresetNameProblem.Factory => Strings.Format("Equaliser_FactoryName", typed),
+                PresetNameProblem.Taken => Strings.Format("Equaliser_NameTaken",
+                    state.Custom.First(p => Core.Presets.PresetName.Same(p.Name, typed)).Name),
+                PresetNameProblem.TooLong => Strings.Format("Preset_TooLong", PresetStore.MaxNameLength),
+                PresetNameProblem.Unread => Strings.Get("Preset_SlotsUnread"),
+                PresetNameProblem.Full => Strings.Format("Equaliser_SlotsFull", PresetStore.CustomSlots),
+                _ => Strings.Format("Equaliser_FreeSlots", state.FreeSlots.Count, PresetStore.CustomSlots),
+            };
+            dialog.IsPrimaryButtonEnabled = problem == PresetNameProblem.None;
         }
 
         field.TextChanged += (_, _) => Judge();

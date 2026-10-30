@@ -211,4 +211,45 @@ public class PresetStoreTests
 
         Assert.Equal([new PretendWrite(0x1210, "1"), new PretendWrite(0x1610, "Night Raid")], headset.Writes);
     }
+
+    private static Preset Custom(int id, string name) => new(id, name, Flat, Bank.Game, true);
+
+    private static readonly Preset[] OneSaved = [Custom(16, "Footsteps")];
+
+    [Theory]
+    [InlineData("", PresetNameProblem.Empty)]
+    [InlineData("   ", PresetNameProblem.Empty)]
+    [InlineData("bass boost", PresetNameProblem.Factory)]
+    [InlineData(" FOOTSTEPS", PresetNameProblem.Taken)]
+    [InlineData("Bass & Treble copy", PresetNameProblem.None)]
+    public void ANewPresetsNameMustBeGivenAndFree(string name, PresetNameProblem expected) =>
+        Assert.Equal(expected, PresetStore.Check(name, OneSaved, Bank.Game, true));
+
+    [Fact]
+    public void AFactoryNameIsRefusedEvenWhenTheListLeavesTheFactoryPresetsOut() =>
+        Assert.Equal(PresetNameProblem.Factory, PresetStore.Check("Clarity", [], Bank.Mic, true));
+
+    [Fact]
+    public void ANameAtTheLimitFitsAsLongAsItsCharactersArePlain()
+    {
+        Assert.Equal(PresetNameProblem.None, PresetStore.Check(new string('a', PresetStore.MaxNameLength), OneSaved, Bank.Game, true));
+        // A quotation mark is escaped, so it costs two of the report's bytes.
+        Assert.Equal(PresetNameProblem.TooLong, PresetStore.Check("\"" + new string('a', PresetStore.MaxNameLength - 1), OneSaved, Bank.Game, true));
+    }
+
+    [Fact]
+    public void ANewPresetNeedsAFreeSlot()
+    {
+        Preset[] full = [.. Enumerable.Range(0, PresetStore.CustomSlots).Select(i => Custom(PresetStore.FirstCustomId + i, $"P{i}"))];
+
+        Assert.Equal(PresetNameProblem.Full, PresetStore.Check("Music", full, Bank.Game, true));
+        Assert.Equal(PresetNameProblem.Taken, PresetStore.Check("p1", full, Bank.Game, true));
+    }
+
+    [Fact]
+    public void ANewPresetWaitsForEverySlotToBeRead()
+    {
+        Assert.Equal(PresetNameProblem.Unread, PresetStore.Check("Music", OneSaved, Bank.Game, false));
+        Assert.Equal(PresetNameProblem.Taken, PresetStore.Check("footsteps", OneSaved, Bank.Game, false));
+    }
 }

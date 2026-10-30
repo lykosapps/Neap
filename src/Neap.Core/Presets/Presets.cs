@@ -124,6 +124,26 @@ public static class PresetStore
     public static bool NameFits(string name, Bank bank) =>
         Frames.SetKey(Spec(bank).NameKey, name.Trim()).Length <= Frames.ReportLength;
 
+    /// <summary>What is wrong with a name for a new custom preset, if anything.</summary>
+    /// <remarks>
+    /// Everything that would refuse the save, so a dialog can say so while
+    /// the name is typed rather than as an error afterwards.
+    /// </remarks>
+    /// <param name="name">The name typed.</param>
+    /// <param name="presets">The bank's presets as read; the headset's own are counted whether or not they are among them.</param>
+    /// <param name="bank">Which bank, for its own presets and its name's report.</param>
+    /// <param name="fullyRead">Whether every slot is accounted for; see <see cref="CustomsRead.Complete"/>.</param>
+    public static PresetNameProblem Check(string name, IReadOnlyList<Preset> presets, Bank bank, bool fullyRead)
+    {
+        name = name.Trim();
+        if (name.Length == 0) return PresetNameProblem.Empty;
+        if (presets.Concat(Factory(bank)).Any(p => !p.Custom && PresetName.Same(p.Name, name))) return PresetNameProblem.Factory;
+        if (presets.Any(p => p.Custom && PresetName.Same(p.Name, name))) return PresetNameProblem.Taken;
+        if (!NameFits(name, bank)) return PresetNameProblem.TooLong;
+        if (!fullyRead) return PresetNameProblem.Unread;
+        return FreeSlots(presets, fullyRead).Count == 0 ? PresetNameProblem.Full : PresetNameProblem.None;
+    }
+
     public static readonly BankSpec Game = new(
         Bank.Game, 0x1210, 0x12C0,
         Enumerable.Range(0, 10).Select(i => 0x1220 + 0x10 * i).ToArray(),

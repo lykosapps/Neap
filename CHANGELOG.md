@@ -165,6 +165,9 @@ and date.
 - A screen reader reads the mix dial and the parametric equaliser's dials
   as sliders, and says their value as they turn. Before, they had no role
   and no value.
+- Saving an equaliser preset says while you type when a name is too long
+  for the headset, such as one with quotation marks or accented letters
+  near the limit. It let you press Save and then said it could not.
 - The mini panel shows the battery while the headset is switched off and
   charging on its cable, as Home does. It hid it there.
 - A screen reader names the Details row on the Device page, which opens
