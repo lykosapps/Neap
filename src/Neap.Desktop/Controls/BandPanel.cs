@@ -589,7 +589,7 @@ public sealed class BandPanel : UserControl
     }
 
     private static string Octaves(double q) =>
-        (2 * Math.Asinh(1 / (2 * q)) / Math.Log(2)).ToString("0.0", CultureInfo.CurrentCulture);
+        ParametricBand.Octaves(q).ToString("0.0", CultureInfo.CurrentCulture);
 
     /// <summary>Says when the biggest boost at the headset's level would reach its compressor, and offers to lower the level.</summary>
     private void PaintLevel()

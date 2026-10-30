@@ -25,10 +25,10 @@ public readonly record struct PlotScale(double Width, double Height, double Show
     private double PerDb => (Height / 2 - Margin) / ShownDb;
 
     /// <summary>The distance from the left edge of a frequency.</summary>
-    public double X(double hertz) => Width * Math.Log(Math.Clamp(hertz, LowestHertz, HighestHertz) / LowestHertz) / Math.Log(HighestHertz / LowestHertz);
+    public double X(double hertz) => Width * LogScale.Share(hertz, LowestHertz, HighestHertz);
 
     /// <summary>The frequency at a distance from the left edge, held to the plot.</summary>
-    public double Hertz(double x) => LowestHertz * Math.Pow(HighestHertz / LowestHertz, Math.Clamp(x / Width, 0, 1));
+    public double Hertz(double x) => LogScale.At(x / Width, LowestHertz, HighestHertz);
 
     /// <summary>The distance from the top of a gain, which a line or point never leaves the plot's extremes from.</summary>
     public double Y(double db) => Height / 2 - (Math.Clamp(db, -ShownDb, ShownDb) * PerDb);

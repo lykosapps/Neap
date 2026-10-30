@@ -6,6 +6,7 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Media;
+using Neap.Core.Presets;
 using Path = Avalonia.Controls.Shapes.Path;
 
 namespace Neap.Desktop.Controls;
@@ -153,17 +154,14 @@ public sealed class BandDial : RangeBase
     private double Share(double value)
     {
         if (Maximum <= Minimum) return 0;
-        double share = Logarithmic
-            ? (Math.Log(Math.Max(value, Minimum)) - Math.Log(Minimum)) / (Math.Log(Maximum) - Math.Log(Minimum))
-            : (value - Minimum) / (Maximum - Minimum);
-        return Math.Clamp(share, 0, 1);
+        return Logarithmic
+            ? LogScale.Share(value, Minimum, Maximum)
+            : Math.Clamp((value - Minimum) / (Maximum - Minimum), 0, 1);
     }
 
-    private double ValueAt(double share) => Math.Clamp(
-        Logarithmic
-            ? Math.Exp(Math.Log(Minimum) + (share * (Math.Log(Maximum) - Math.Log(Minimum))))
-            : Minimum + (share * (Maximum - Minimum)),
-        Minimum, Maximum);
+    private double ValueAt(double share) => Logarithmic
+        ? LogScale.At(share, Minimum, Maximum)
+        : Math.Clamp(Minimum + (share * (Maximum - Minimum)), Minimum, Maximum);
 
     private static Point PointOn(double degrees, double radius)
     {

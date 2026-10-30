@@ -48,13 +48,13 @@ public static class ToneSweep
     /// <param name="position">The slider's value.</param>
     /// <param name="maximum">The slider's largest value.</param>
     public static double Hertz(double position, double maximum) =>
-        ParametricBand.LowestHertz * Math.Pow(Span, Math.Clamp(position / maximum, 0, 1));
+        LogScale.At(position / maximum, ParametricBand.LowestHertz, ParametricBand.HighestHertz);
 
     /// <summary>The position along a slider of a frequency.</summary>
     /// <param name="hertz">The frequency.</param>
     /// <param name="maximum">The slider's largest value.</param>
     public static double Position(double hertz, double maximum) =>
-        maximum * Math.Log(Math.Clamp(hertz, ParametricBand.LowestHertz, ParametricBand.HighestHertz) / ParametricBand.LowestHertz) / Math.Log(Span);
+        maximum * LogScale.Share(hertz, ParametricBand.LowestHertz, ParametricBand.HighestHertz);
 
     /// <summary>A new bell at the tone's frequency, a cut or a boost.</summary>
     /// <param name="frequency">Where the tone is.</param>

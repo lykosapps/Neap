@@ -71,6 +71,10 @@ public readonly record struct ParametricBand(BandType Type, double Hertz, double
     /// <summary>The gain to send: the band's own when it is in use and has one, else zero.</summary>
     public double WireGain => InUse && UsesGain ? Gain : 0;
 
+    /// <summary>How many octaves a width spans, as the screen states it.</summary>
+    /// <remarks>The bandwidth between a bell's half-gain points, for the Q a person sets.</remarks>
+    public static double Octaves(double q) => 2 * Math.Asinh(1 / (2 * q)) / Math.Log(2);
+
     /// <summary>The same band with every value inside its range.</summary>
     public ParametricBand Held() => this with
     {

@@ -50,4 +50,11 @@ public class ParametricBandTests
         Assert.Equal(19500, Bell(30000).Held().Hertz);
         Assert.True(ParametricBand.HighestHertz < 0.45 * 44100);
     }
+
+    [Theory]
+    [InlineData(1.414, 1.0)]
+    [InlineData(0.667, 2.0)]
+    [InlineData(4.318, 0.33)]
+    public void AWidthReadsAsTheOctavesItSpans(double q, double octaves) =>
+        Assert.Equal(octaves, ParametricBand.Octaves(q), 2);
 }
