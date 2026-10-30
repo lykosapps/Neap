@@ -97,6 +97,9 @@ public interface IHotkeys : IDisposable
     /// <summary>What the system said when it refused this one, or null.</summary>
     string? Trouble(MixKey which);
 
+    /// <summary>Where the keys are not heard, when that is somewhere, to say where they are set; null when they are heard everywhere.</summary>
+    string? Limit { get; }
+
     void Enable(bool enabled);
 
     void Rebind(MixKey which, Shortcut shortcut);
@@ -187,6 +190,7 @@ public static class Unsupported
         public bool Enabled => false;
         public Shortcut Key(MixKey which) => MixShortcuts.Defaults[which];
         public string? Trouble(MixKey which) => null;
+        public string? Limit => null;
         public void Enable(bool enabled) { }
         public void Rebind(MixKey which, Shortcut shortcut) { }
         public void ResetToDefaults() { }

@@ -53,7 +53,7 @@ public sealed class X11KeyGrabber : IDisposable
 
     private const short PollIn = 1;
 
-    private static readonly Lazy<bool> CanConnect = new(Connects);
+    private static readonly Lazy<string?> NoDisplay = new(WhyNoDisplay);
     private static readonly ErrorHandler Handler = OnError;
     private static int _lastError;
 
@@ -73,8 +73,8 @@ public sealed class X11KeyGrabber : IDisposable
     /// <summary>Where a grabber says it gave up waiting for X. Unset, nothing is said.</summary>
     public static Action<string>? Trouble { get; set; }
 
-    /// <summary>Whether this system has an X display to take keys from, and the library to talk to it.</summary>
-    public static bool Available => OperatingSystem.IsLinux() && CanConnect.Value;
+    /// <summary>Why this system has no X display to take keys from, or no library to talk to it, for the app log; null when it has both.</summary>
+    public static string? Unavailable => OperatingSystem.IsLinux() ? NoDisplay.Value : "this is not Linux";
 
     /// <summary>Starts listening for these keys, and waits to learn which could be taken.</summary>
     /// <param name="keys">The combinations to take.</param>
@@ -120,15 +120,15 @@ public sealed class X11KeyGrabber : IDisposable
         _thread.Join(TimeSpan.FromSeconds(1));
     }
 
-    private static bool Connects()
+    private static string? WhyNoDisplay()
     {
-        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DISPLAY"))) return false;
-        if (!NativeLibrary.TryLoad(Library, out var library)) return false;
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DISPLAY"))) return "DISPLAY is not set, so there is no X display";
+        if (!NativeLibrary.TryLoad(Library, out var library)) return $"{Library} could not be loaded";
         NativeLibrary.Free(library);
         var display = XOpenDisplay(IntPtr.Zero);
-        if (display == IntPtr.Zero) return false;
+        if (display == IntPtr.Zero) return "the X display refused the connection";
         XCloseDisplay(display);
-        return true;
+        return null;
     }
 
     private static int OnError(IntPtr display, IntPtr error)

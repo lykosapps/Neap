@@ -51,6 +51,8 @@ public abstract class MixHotkeys : IHotkeys
         lock (_gate) return _trouble.GetValueOrDefault(which);
     }
 
+    public virtual string? Limit => null;
+
     public void Enable(bool enabled)
     {
         if (enabled == Enabled) return;

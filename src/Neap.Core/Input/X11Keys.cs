@@ -53,4 +53,18 @@ public static class X11Keys
 
     /// <summary>The modifier bits of a press with the locks taken away, as a shortcut names them.</summary>
     public static uint WithoutLocks(uint state) => state & ShortcutBits;
+
+    /// <summary>Whether keys taken from X are heard only while an X11 program is in front, from the session's XDG_SESSION_TYPE and WAYLAND_DISPLAY.</summary>
+    /// <remarks>
+    /// A Wayland desktop gives X a compatibility layer, not the whole
+    /// keyboard, so a key taken there works in X11 programs, as most games
+    /// are, and not in the desktop's own. Either variable says the session is
+    /// Wayland's, as some desktops set only one of them.
+    /// </remarks>
+    public static bool OnlyX11Programs(string? sessionType, string? waylandDisplay) =>
+        string.Equals(sessionType, "wayland", StringComparison.OrdinalIgnoreCase) || !string.IsNullOrEmpty(waylandDisplay);
+
+    /// <summary>Whether keys taken from X are heard only while an X11 program is in front, in the session the app runs in.</summary>
+    public static bool OnlyX11Programs() =>
+        OnlyX11Programs(Environment.GetEnvironmentVariable("XDG_SESSION_TYPE"), Environment.GetEnvironmentVariable("WAYLAND_DISPLAY"));
 }

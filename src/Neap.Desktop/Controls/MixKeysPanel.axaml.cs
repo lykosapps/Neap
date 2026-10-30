@@ -32,6 +32,14 @@ public partial class MixKeysPanel : UserControl
         // Global keys would be taken from the real copy of the app.
         KeysOn.IsEnabled = !Pretend.Active;
 
+        // Keys that look set but do nothing in front of most programs would be
+        // a silent failure, so where they are not heard is said where they are set.
+        if (AppServices.Hotkeys.Limit is { } limit)
+        {
+            KeysCard.Description = limit;
+            AutomationProperties.SetHelpText(KeysOn, limit);
+        }
+
         KeysOn.IsCheckedChanged += (_, _) =>
         {
             if (_painting) return;

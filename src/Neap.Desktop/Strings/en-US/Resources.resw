@@ -192,6 +192,9 @@
   <data name="Mix_KeysCard.Header" xml:space="preserve">
     <value>Keyboard shortcuts</value>
   </data>
+  <data name="Mix_KeysOnWayland" xml:space="preserve">
+    <value>On Wayland, these work only while an X11 program is in front, as most games are.</value>
+  </data>
   <data name="Mix_GameRow.Header" xml:space="preserve">
     <value>Toward game</value>
   </data>

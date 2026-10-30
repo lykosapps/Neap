@@ -170,6 +170,10 @@ and date.
   near the limit. It let you press Save and then said it could not.
 - The mini panel shows the battery while the headset is switched off and
   charging on its cable, as Home does. It hid it there.
+- On a Linux desktop running Wayland, the keyboard shortcuts say they work
+  only while an X11 program is in front, as most games are. Before, they
+  looked as if they worked everywhere. Where Linux has no shortcuts at all,
+  the log says why.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

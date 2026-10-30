@@ -70,4 +70,19 @@ public class X11KeysTests
     [Fact]
     public void AMouseButtonHeldIsNotPartOfTheShortcut() =>
         Assert.Equal(X11Keys.Shift, X11Keys.WithoutLocks(X11Keys.Shift | 0x100 /* Button1Mask */));
+
+    [Theory]
+    [InlineData("wayland", null)]
+    [InlineData("Wayland", "")]
+    [InlineData(null, "wayland-0")]
+    [InlineData("x11", "wayland-0")]
+    public void OnWaylandTheKeysReachOnlyX11Programs(string? sessionType, string? waylandDisplay) =>
+        Assert.True(X11Keys.OnlyX11Programs(sessionType, waylandDisplay));
+
+    [Theory]
+    [InlineData("x11", null)]
+    [InlineData("tty", "")]
+    [InlineData(null, null)]
+    public void OnAnXSessionTheKeysReachTheWholeDesktop(string? sessionType, string? waylandDisplay) =>
+        Assert.False(X11Keys.OnlyX11Programs(sessionType, waylandDisplay));
 }

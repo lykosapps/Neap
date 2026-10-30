@@ -24,10 +24,18 @@ public sealed class X11Hotkeys : MixHotkeys
 
     public X11Hotkeys(MixService mix) : base(mix)
     {
+        if (X11Keys.OnlyX11Programs())
+        {
+            Limit = Strings.Get("Mix_KeysOnWayland");
+            AppLog.Write("keyboard shortcuts: this is a Wayland session, so they are heard only while an X11 program is in front");
+        }
     }
 
-    /// <summary>Whether there is an X display to take keys from.</summary>
-    public static bool Available => X11KeyGrabber.Available;
+    /// <summary>Why there is no X display to take keys from, for the app log, or null when there is one.</summary>
+    public static string? Unavailable => X11KeyGrabber.Unavailable;
+
+    /// <remarks>Set on a Wayland desktop, where X is a compatibility layer that hears keys only for its own programs.</remarks>
+    public override string? Limit { get; }
 
     protected override IReadOnlyDictionary<MixKey, string> Start(IReadOnlyDictionary<MixKey, Shortcut> wanted)
     {
