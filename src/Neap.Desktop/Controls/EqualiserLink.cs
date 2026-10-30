@@ -50,8 +50,7 @@ public sealed class EqualiserLink : Button
                 {
                     Width = (double)Application.Current!.FindResource("NeapIconRow")!,
                     Height = (double)Application.Current!.FindResource("NeapIconRow")!,
-                    Data = (Avalonia.Media.Geometry)Application.Current!.FindResource("IconArrowUp")!,
-                    RenderTransform = new Avalonia.Media.RotateTransform(90),
+                    Data = (Avalonia.Media.Geometry)Application.Current!.FindResource("IconArrowRight")!,
                 },
             },
         };

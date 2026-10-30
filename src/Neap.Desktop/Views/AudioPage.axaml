@@ -31,16 +31,6 @@
         <Style Selector="Border.group c|SettingsCard /template/ ContentPresenter#Control">
             <Setter Property="MinWidth" Value="230" />
         </Style>
-
-        <!-- A link to another page, as quiet as a card: the name on the left, where it goes on the right. -->
-        <Style Selector="Button.rowlink">
-            <Setter Property="Background" Value="{DynamicResource NeapPanelBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource NeapCardStrokeBrush}" />
-            <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusCard}" />
-            <Setter Property="Padding" Value="{StaticResource NeapPaddingCard}" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        </Style>
     </UserControl.Styles>
 
     <c:PageView>

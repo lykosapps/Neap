@@ -54,6 +54,8 @@ and date.
 
 ### Fixed
 
+- The arrow after a link to another page, such as Keyboard shortcuts on
+  Home, points right, to where it goes. It pointed up.
 - The chat apps list and the mix work when the headset is Windows' output
   for calls but another device is the default, as when the speakers play
   everything else. Before, the list was empty and the mix did nothing,

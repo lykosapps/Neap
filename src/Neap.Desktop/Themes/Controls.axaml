@@ -20,10 +20,10 @@
     <!--
         An icon beside a button's words is drawn, not lettered, so the heavier
         padding above that centres the letters would leave it low; it is raised
-        by half the difference, so it sits centred on the letters. A chip pads
-        evenly, so its icon stays put.
+        by half the difference, so it sits centred on the letters. A chip and
+        a link pad evenly, so their icons stay put.
     -->
-    <Style Selector="Button:not(.chip) StackPanel > PathIcon">
+    <Style Selector="Button:not(.chip):not(.link):not(.rowlink) StackPanel > PathIcon">
         <Setter Property="RenderTransform" Value="translate(0px, -2.5px)" />
     </Style>
 
