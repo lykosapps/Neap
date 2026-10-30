@@ -98,6 +98,10 @@ and date.
 - A transmitter whose details the headset sends in a form Neap cannot read
   stays on the Device page as it was, rather than dropping off as if its
   slot were empty. The app log and a recording say the slot did not parse.
+- A change to a transmitter's lights is sent only once Neap knows which
+  transmitter is in use, so after a reconnect it no longer changes the
+  lights of the one used before. Until then the app log says it was not
+  sent.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

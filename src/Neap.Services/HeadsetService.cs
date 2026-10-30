@@ -115,8 +115,8 @@ public sealed class HeadsetService : IDisposable
     private volatile HeadsetStatus _status;
     private long _lastRaise;
 
-    /// <summary>Which slot's block the lighting writes belong in. See <see cref="OnTheWire"/>.</summary>
-    private int _lightingBlock = 0x400;
+    /// <summary>Which slot's block the lighting writes belong in, or null until a slot read finds the one in use. See <see cref="OnTheWire"/>. Only touched on the headset thread.</summary>
+    private int? _lightingBlock;
 
     /// <summary>Last seen 0x150, for spotting that it moved. See <see cref="LinkFlagMoved"/>.</summary>
     private int? _lastLinkFlag;
@@ -438,6 +438,13 @@ public sealed class HeadsetService : IDisposable
             {
                 int since = (int)((Stopwatch.GetTimestamp() - previous) * 1000 / Stopwatch.Frequency);
                 if (since < WriteGapMs) Thread.Sleep(WriteGapMs - since);
+            }
+            if (SlotLight(key) && _lightingBlock is null)
+            {
+                const string why = "no transmitter slot reads as the one in use, so Neap does not know whose light it is";
+                AppLog.Write($"headset: a change to 0x{key:x} was not sent: {why}");
+                Wrote?.Invoke(new WriteAttempt(key, latest.ToString(CultureInfo.InvariantCulture), why));
+                return true;
             }
             client.Set(OnTheWire(key), latest, HeadsetModels.CheckedAs(Model, key));
             _lastWrite[key] = Stopwatch.GetTimestamp();
@@ -1009,9 +1016,13 @@ public sealed class HeadsetService : IDisposable
     /// </para>
     /// </remarks>
     private int OnTheWire(int key) =>
-        key is 0x401 or 0x402 && Model?.OwnKeys.ContainsKey(key) != true
-            ? _lightingBlock + (key - 0x400)
+        SlotLight(key) && _lightingBlock is int block
+            ? block + (key - 0x400)
             : HeadsetModels.KeyOnHeadset(Model, key);
+
+    /// <summary>Whether a key is one of the two lighting roles that belong in the active slot's block; see <see cref="OnTheWire"/>.</summary>
+    /// <remarks>Until a slot read finds the slot in use, a write to one is not sent: in the first slot's block it would change another transmitter's light.</remarks>
+    private bool SlotLight(int key) => key is 0x401 or 0x402 && Model?.OwnKeys.ContainsKey(key) != true;
 
     /// <summary>The groups of settings to ask the connected headset for; see <see cref="HeadsetModels.CategoriesOf"/>.</summary>
     private IEnumerable<string> Categories() => HeadsetModels.CategoriesOf(Model);
@@ -1029,6 +1040,7 @@ public sealed class HeadsetService : IDisposable
     private void Forget()
     {
         _link.Forget();
+        _lightingBlock = null;
         _batteryTrend.Reset();
         FileLoudness(null);
         if (_values.IsEmpty && _owned.IsEmpty) return;
