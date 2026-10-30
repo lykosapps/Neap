@@ -55,7 +55,7 @@ public sealed class BandPanel : UserControl
     private readonly Button _turnOff = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Notice _level = new() { Severity = Severity.Warning };
     private readonly LoudnessBoostRow _preGain;
-    private double _lowerBy;
+    private int _fittingBoost;
 
     private readonly Grid _main = new() { ColumnSpacing = Space.L, RowSpacing = Space.L };
     private readonly Border _editor = new() { Classes = { "options" }, Margin = default, VerticalAlignment = VerticalAlignment.Top };
@@ -625,14 +625,14 @@ public sealed class BandPanel : UserControl
         bool squashes = LevelHeadroom.Squashes(reading.LevelDb, _bands);
         _level.IsOpen = squashes;
         if (!squashes) return;
-        _lowerBy = LevelHeadroom.LowerBy(reading.LevelDb, _bands);
+        _fittingBoost = LevelHeadroom.FittingBoost(reading.LevelDb, _bands);
         _level.ActionText = Strings.Get("Parametric_LevelLower");
     }
 
     private void LowerLevel()
     {
-        if (AppServices.Headset.Loudness is not { Available: true } reading || _lowerBy <= 0) return;
-        AppServices.Headset.SetLoudnessBoost((float)(reading.BoostDb - _lowerBy));
+        if (AppServices.Headset.Loudness is not { Available: true }) return;
+        AppServices.Headset.SetLoudnessBoost(_fittingBoost);
     }
 
     private static string TypeKey(BandType type) => type switch

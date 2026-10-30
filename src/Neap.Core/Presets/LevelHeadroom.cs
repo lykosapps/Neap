@@ -1,8 +1,10 @@
+using Neap.Core.Audio;
+
 namespace Neap.Core.Presets;
 
 /// <summary>
-/// Whether the game equaliser's boosts, at the loudness level in use, reach the
-/// headset's compressor, and how far lowering the level would keep them clear.
+/// Whether the game equaliser's boosts, at the pre-gain in use, reach the
+/// headset's compressor, and the pre-gain that would keep them clear.
 /// </summary>
 /// <remarks>
 /// The compressor sits after the equaliser with a threshold of -10 dB and a
@@ -29,11 +31,12 @@ public static class LevelHeadroom
     public static bool Squashes(double levelDb, IReadOnlyList<ParametricBand> bands) =>
         PeakDb(levelDb, bands) > CompressorThresholdDb;
 
-    /// <summary>How far to lower the level to bring a full-scale peak back to the threshold, in half decibels.</summary>
+    /// <summary>The highest pre-gain, in the whole decibels the control steps in, that brings a full-scale peak back to the threshold.</summary>
+    /// <remarks>In whole decibels so the control shows exactly what is set, even from a level set elsewhere in fractions.</remarks>
     /// <param name="levelDb">The loudness level the headset holds.</param>
     /// <param name="bands">The ten bands.</param>
-    public static double LowerBy(double levelDb, IReadOnlyList<ParametricBand> bands) =>
-        Math.Ceiling(Math.Max(0, PeakDb(levelDb, bands) - CompressorThresholdDb) * 2) / 2;
+    public static int FittingBoost(double levelDb, IReadOnlyList<ParametricBand> bands) =>
+        (int)Math.Floor(LoudnessBoost.BoostOf((float)levelDb) - Math.Max(0, PeakDb(levelDb, bands) - CompressorThresholdDb));
 
     private static double BiggestBoost(IReadOnlyList<ParametricBand> bands) =>
         bands.Where(band => band.InUse && band.UsesGain).Select(band => band.Gain).DefaultIfEmpty(0).Max(boost => Math.Max(0, boost));

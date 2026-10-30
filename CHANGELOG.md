@@ -38,8 +38,8 @@ and date.
   transmitters, as it is looked up only now and then.
 - Loudness boost is now called Pre-gain, and says what it is: the level the
   headset applies before its equaliser. It goes below the headset's normal
-  level as well as above it, down to 12 dB lower, so there is room for an
-  equaliser boost without the headset squashing it.
+  level as well as above it, down to 12 dB lower, in steps of 1 dB, so
+  there is room for an equaliser boost without the headset squashing it.
 - The mix dial on the Home page grows a little in a wider card, from its
   old size to a little larger, and the words on it keep their size.
 - The parametric equaliser, which fitted up to four adjustments to the ten

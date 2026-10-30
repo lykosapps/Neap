@@ -52,8 +52,8 @@ public static class LoudnessBoost
     /// </remarks>
     public const float MinBoostDb = -12f;
 
-    /// <summary>The step the boost controls take, in decibels.</summary>
-    public const float StepDb = 3f;
+    /// <summary>The step the boost controls take, in decibels: whole decibels, fine enough to set a pre-gain that just clears an equaliser boost.</summary>
+    public const float StepDb = 1f;
 
     /// <summary>A frame that reads the current level.</summary>
     public static byte[] ReadFrame(bool relayThroughBase) => DspParameter.ReadFrame(InputLevelParam, relayThroughBase);

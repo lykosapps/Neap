@@ -23,7 +23,7 @@ public class LevelHeadroomTests
     public void FlatBandsNeverReachItFromStockOrBelow()
     {
         Assert.False(LevelHeadroom.Squashes(LoudnessBoost.StockDb, [.. StockBands.Game]));
-        Assert.Equal(0, LevelHeadroom.LowerBy(LoudnessBoost.StockDb, [.. StockBands.Game]));
+        Assert.Equal(0, LevelHeadroom.FittingBoost(LoudnessBoost.StockDb, [.. StockBands.Game]));
     }
 
     [Fact]
@@ -31,17 +31,22 @@ public class LevelHeadroomTests
     {
         double level = LoudnessBoost.LevelForBoost(6);
         Assert.True(LevelHeadroom.Squashes(level, [.. StockBands.Game]));
-        Assert.Equal(4, LevelHeadroom.LowerBy(level, [.. StockBands.Game]));
+        Assert.Equal(2, LevelHeadroom.FittingBoost(level, [.. StockBands.Game]));
     }
 
     [Fact]
-    public void TheSuggestedLoweringBringsAPeakBackToTheThreshold()
+    public void TheFittingPreGainIsAWholeStepThatBringsAPeakBackUnderTheThreshold()
     {
         var bands = WithBoost(4.5);
-        double lower = LevelHeadroom.LowerBy(LoudnessBoost.StockDb, bands);
-        Assert.Equal(2.5, lower);
-        Assert.False(LevelHeadroom.Squashes(LoudnessBoost.StockDb - lower, bands));
+        int boost = LevelHeadroom.FittingBoost(LoudnessBoost.StockDb, bands);
+        Assert.Equal(-3, boost);
+        Assert.False(LevelHeadroom.Squashes(LoudnessBoost.LevelForBoost(boost), bands));
+        Assert.True(LevelHeadroom.Squashes(LoudnessBoost.LevelForBoost(boost + 1), bands));
     }
+
+    [Fact]
+    public void FromAFractionalLevelTheFittingPreGainIsStillWhole() =>
+        Assert.Equal(-7, LevelHeadroom.FittingBoost(-16.5, WithBoost(9)));
 
     [Fact]
     public void OnlyABandThatIsOnAndHasAGainCounts()
@@ -64,7 +69,7 @@ public class LevelHeadroomTests
     {
         // Lowering always lands the peak on the threshold, so the level ends at the threshold minus the boost: -22 dB at most.
         var bands = WithBoost(ParametricBand.MostGain);
-        double after = LoudnessBoost.StockDb - LevelHeadroom.LowerBy(LoudnessBoost.StockDb, bands);
+        double after = LoudnessBoost.LevelForBoost(LevelHeadroom.FittingBoost(LoudnessBoost.StockDb, bands));
         Assert.Equal(-22, after);
         Assert.True(after >= LoudnessBoost.StockDb + LoudnessBoost.MinBoostDb);
     }

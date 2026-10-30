@@ -143,7 +143,15 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
             }
             Check ($null -ne (Find-Named 'Pre-gain')) 'the page shows the pre-gain'
             Check (@(Find-All 'Pre-gain' | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Slider }).Count -eq 1) 'as a slider'
-            Note "the boost warning: $(if ((Get-Texts) -contains 'Boosts this large are squashed by the headset at this pre-gain.') { 'shown under the pre-gain' } else { 'not shown at this pre-gain' })"
+            $warning = 'Boosts this large are squashed by the headset at this pre-gain.'
+            if ((Get-Texts) -contains $warning) {
+                $before = @(Get-Texts | Where-Object { $_ -match '^[+-]\d+ dB$' })[0]
+                Press (Find-Named 'Lower pre-gain')
+                Check (Wait-Until { (Get-Texts) -notcontains $warning } 6) 'Lower pre-gain clears the warning'
+                $after = @(Get-Texts | Where-Object { $_ -match '^[+-]\d+ dB$' })[0]
+                Check ($after -ne $before) "and the pre-gain shows the new value: $before to $after"
+            }
+            else { Note 'the boost warning: not shown at this pre-gain' }
             Save-Shot 'parametric-autoeq-dark' -Whole | ForEach-Object { $_.Dispose() }
         }
 

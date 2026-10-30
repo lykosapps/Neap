@@ -59,6 +59,9 @@ if ($Parts.Contains('A')) {
         if ($rv) { $rv.SetValue(-12) }
         Check (Wait-Until { (Get-Texts) -contains '-12 dB' } 5) 'at the bottom the slider reads -12 dB'
         Check (Wait-Until { $slider.Current.HelpText -like '*Headset level: -24 dB' } 5) 'and the headset level reads -24 dB'
+        if ($rv) { $rv.SetValue(-4) }
+        Check (Wait-Until { (Get-Texts) -contains '-4 dB' } 5) 'it steps in whole decibels: -4 dB'
+        Check (Wait-Until { $slider.Current.HelpText -like '*Headset level: -16 dB' } 5) 'and the headset level reads -16 dB'
         if ($rv) { $rv.SetValue(0) }
         Check (Wait-Until { $slider.Current.HelpText -like '*Headset level: -12 dB' } 5) 'back at +0 the headset level reads -12 dB again'
 
