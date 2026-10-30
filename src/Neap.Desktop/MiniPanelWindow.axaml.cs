@@ -64,7 +64,7 @@ public partial class MiniPanelWindow : Window
         Title = Strings.Get("Main_TrayMini");
         Classes.Set("touch", Pretend.Touch || OnSmallScreen());
         BatteryHolder.Content = _battery;
-        if (Pretend.Behind) ShowActivated = false;
+        WindowBehind.Keep(this);
 
         Dial.ValueChanged += (_, args) =>
         {

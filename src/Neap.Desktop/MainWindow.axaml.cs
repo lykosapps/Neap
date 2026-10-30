@@ -49,8 +49,8 @@ public partial class MainWindow : Window
         Title = title;
 
         // A script driving a practice run while somebody works opens it
-        // without taking the keyboard from them.
-        if (Pretend.Behind) ShowActivated = false;
+        // behind their windows, without taking the keyboard from them.
+        WindowBehind.Keep(this);
 
         Activated += (_, _) => WindowPresence.Set(this, true);
         Deactivated += (_, _) => WindowPresence.Set(this, false);
