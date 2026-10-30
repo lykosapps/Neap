@@ -23,6 +23,9 @@ and date.
 
 ### Changed
 
+- A recording for a bug report names a sound device only when it is the
+  headset's. Any other is written as "another device", since its name,
+  such as your earbuds', can carry yours.
 - Controls in a row line up: list boxes sit centred beside buttons, with
   their words on the same line; buttons that are only an icon are as high
   as the rest; and an icon beside a button's words is centred on them.

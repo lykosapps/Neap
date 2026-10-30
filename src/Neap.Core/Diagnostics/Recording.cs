@@ -368,9 +368,17 @@ public sealed class Recording(string app, string system)
     private static int Order(string key) =>
         int.TryParse(key, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int number) ? number : int.MaxValue;
 
+    /// <summary>The device Windows uses for a role, named only when it is the headset's.</summary>
+    /// <remarks>
+    /// A device a person named, such as their own earbuds, often carries their
+    /// name, and Redaction cannot tell it apart. That the default is not the
+    /// headset is what a report needs.
+    /// </remarks>
     private static string Default(SoundDefault role) =>
         $"{(role.Output ? "output" : "input"),-6} {role.Role,-14} "
-        + (role.Device.Length == 0 ? "(none)" : $"{role.Device}  [{(role.Product.Length > 0 ? Named(role.Product) : "not the headset")}]");
+        + (role.Device.Length == 0 ? "(none)"
+            : role.Product.Length == 0 ? "another device"
+            : $"{role.Device}  [{Named(role.Product)}]");
 
     private static string Device(SoundDevice device) =>
         $"{(device.Output ? "output" : "input")} {device.Name} [{Named(device.Product)}]";

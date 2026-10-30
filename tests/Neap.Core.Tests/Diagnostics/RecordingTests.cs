@@ -203,7 +203,24 @@ public class RecordingTests
         });
 
         Assert.Contains(Section(Written(recording), "During"),
-            l => l.Contains("default  output Multimedia     Speakers (Realtek)  [not the headset]", StringComparison.Ordinal));
+            l => l.Contains("default  output Multimedia     another device", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ADefaultThatIsNotTheHeadsetIsNotNamed()
+    {
+        var other = Sound with { Defaults = [new(true, "Multimedia", "Sam's AirPods", "")] };
+        var recording = new Recording("Neap", "10");
+        recording.Began(At(Start, Values(), other));
+        recording.Sampled(Start.AddSeconds(1), Sound);
+        recording.Sampled(Start.AddSeconds(2), other);
+        recording.Ended(At(Start.AddSeconds(3), Values(), other));
+
+        string text = Written(recording);
+
+        Assert.DoesNotContain("Sam", text, StringComparison.Ordinal);
+        Assert.Contains("output Multimedia     another device", text, StringComparison.Ordinal);
+        Assert.Contains("output Multimedia     Headset (Charging Dock)  [", text, StringComparison.Ordinal);
     }
 
     [Fact]
