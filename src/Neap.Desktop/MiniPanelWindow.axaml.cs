@@ -312,8 +312,18 @@ public partial class MiniPanelWindow : Window
         var size = new PixelSize((int)Bounds.Width, (int)Bounds.Height);
         using var picture = new RenderTargetBitmap(size, new Vector(96, 96));
         picture.Render(this);
-        picture.Save(file, new PngBitmapEncoderOptions());
-        AppLog.Write($"saved a picture of the mini panel to {file}");
-        (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown();
+        int exitCode = 0;
+        try
+        {
+            picture.Save(file, new PngBitmapEncoderOptions());
+            AppLog.Write($"saved a picture of the mini panel to {file}");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            // Exits all the same, and says it failed, so a script waiting for it is not left waiting.
+            AppLog.Write($"could not save a picture of the mini panel to {file}: {ex.Message}");
+            exitCode = 1;
+        }
+        (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown(exitCode);
     }
 }

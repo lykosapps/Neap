@@ -254,9 +254,16 @@ public partial class MainWindow : Window
         var size = new PixelSize((int)Bounds.Width, (int)Bounds.Height);
         using var picture = new RenderTargetBitmap(size, new Vector(96, 96));
         picture.Render(this);
-        picture.Save(file, new PngBitmapEncoderOptions());
-        AppLog.Write($"saved a picture of the window to {file}");
         _quitting = true;
+        try { picture.Save(file, new PngBitmapEncoderOptions()); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            // Exits all the same, and says it failed, so a script waiting for it is not left waiting.
+            AppLog.Write($"could not save a picture of the window to {file}: {ex.Message}");
+            Shutdown(1);
+            return;
+        }
+        AppLog.Write($"saved a picture of the window to {file}");
         Close();
     }
 }

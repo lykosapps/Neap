@@ -266,8 +266,8 @@ public partial class MainWindow : IDisposable
         Shutdown();
     }
 
-    private static void Shutdown() =>
-        (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown();
+    private static void Shutdown(int exitCode = 0) =>
+        (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown(exitCode);
 
     /// <summary>Puts the volumes back, lets go of the headset and takes the icon away, before the window closes.</summary>
     private void StopRunning()
