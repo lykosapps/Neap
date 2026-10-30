@@ -14,6 +14,55 @@ public enum Bank { Game, Mic }
 public sealed record Preset(
     int Id, string Name, IReadOnlyList<int> Bands, Bank Bank, bool Custom);
 
+/// <summary>What reading one custom slot found.</summary>
+public enum SlotFound
+{
+    /// <summary>A preset, its name and bands read.</summary>
+    Preset,
+
+    /// <summary>The slot answered with no name: it holds nothing.</summary>
+    Empty,
+
+    /// <summary>No reply came: the slot is empty, or its reply was lost.</summary>
+    NoAnswer,
+
+    /// <summary>A reply came that is not a name and a number for each band.</summary>
+    Unparsed,
+}
+
+/// <summary>One custom slot as read.</summary>
+/// <param name="Slot">The slot's category, such as CG1.</param>
+/// <param name="Found">What the read found.</param>
+/// <param name="Preset">The preset, when one was read.</param>
+public sealed record SlotReading(string Slot, SlotFound Found, Preset? Preset = null);
+
+/// <summary>A bank's custom slots as read, and the count the headset gave.</summary>
+/// <param name="Slots">Each slot, in order.</param>
+/// <param name="Count">How many custom presets the headset says it holds, or null when it did not say.</param>
+public sealed record CustomsRead(IReadOnlyList<SlotReading> Slots, int? Count)
+{
+    /// <summary>The presets read.</summary>
+    public IReadOnlyList<Preset> Presets { get; } = [.. Slots.Select(s => s.Preset).OfType<Preset>()];
+
+    /// <summary>Whether every slot is accounted for: the headset gave its count and the presets read match it.</summary>
+    /// <remarks>
+    /// Only then is a slot that did not answer known to be empty rather than
+    /// one whose reply was lost.
+    /// </remarks>
+    public bool Complete => Count == Presets.Count;
+
+    /// <summary>What was and was not read, for the app log.</summary>
+    public string Describe()
+    {
+        var unknown = Slots
+            .Where(s => s.Found is SlotFound.NoAnswer or SlotFound.Unparsed)
+            .Select(s => s.Found == SlotFound.NoAnswer ? $"{s.Slot} did not answer" : $"{s.Slot} was not understood")
+            .DefaultIfEmpty("every slot answered");
+        string count = Count is int n ? $"the headset counts {n}" : "the headset gave no count";
+        return $"{Presets.Count} read, {count}; {string.Join(", ", unknown)}";
+    }
+}
+
 /// <summary>Which keys and categories a bank lives at, and the centre of each of its ten bands in hertz.</summary>
 public sealed record BankSpec(
     Bank Bank, int Select, int NameKey, IReadOnlyList<int> Bands,
@@ -25,11 +74,11 @@ public sealed record BankSpec(
 /// </summary>
 /// <remarks>
 /// <para>
-/// Listing takes ten reads and makes no sound. Each custom slot is its own
-/// category (CG1..CG5 for the game bank, CM1..CM5 for the microphone, read
-/// with SCG1..SCG5 and SCM1..SCM5), and each answers with the slot's name and
-/// all ten bands in one reply. Swarm II lists them the same way and keeps no
-/// list of its own.
+/// Listing takes ten reads and the counts, and makes no sound. Each custom
+/// slot is its own category (CG1..CG5 for the game bank, CM1..CM5 for the
+/// microphone, read with SCG1..SCG5 and SCM1..SCM5), and each answers with the
+/// slot's name and all ten bands in one reply. Swarm II lists them the same
+/// way and keeps no list of its own.
 /// </para>
 /// <para>
 /// Saving is a sequence of writes with no save command: a slot id, then the
@@ -154,84 +203,120 @@ public static class PresetStore
 
     // -- reading -----------------------------------------------------------
 
-    /// <summary>Reads the used custom slots straight off the headset, without changing what plays.</summary>
-    /// <remarks>See <see cref="ReadSlot"/> for what is left out.</remarks>
-    public static List<Preset> ReadCustoms(
-        HeadsetClient client, Bank bank, TimeSpan? wait = null) =>
-        Enumerable.Range(0, Spec(bank).Slots.Count)
-            .Select(index => ReadSlot(client, bank, index, wait))
-            .OfType<Preset>()
-            .ToList();
+    /// <summary>Reads the custom slots straight off the headset, without changing what plays.</summary>
+    /// <remarks>See <see cref="ReadCustoms(Bank, Func{int, Task{SlotReading}}, Func{Task{int?}})"/>.</remarks>
+    public static CustomsRead ReadCustoms(HeadsetClient client, Bank bank, TimeSpan? wait = null) =>
+        ReadCustoms(bank,
+            index => Task.FromResult(ReadSlot(client, bank, index, wait)),
+            () => Task.FromResult(Count(client, bank, wait))).GetAwaiter().GetResult();
 
-    /// <summary>Reads one custom slot straight off the headset, or null when it holds no preset.</summary>
+    /// <summary>Reads every custom slot and the count the headset gives, then reads again whatever is not known.</summary>
     /// <remarks>
-    /// An empty slot does not answer, and one that answers with an empty name
-    /// is empty too. A slot that does not answer is left out, but it is not
-    /// known to be empty, since its reply may have been lost, so do not treat
-    /// it as free to write. An empty slot costs the whole wait.
+    /// An empty slot does not answer, and neither does a slot whose reply is
+    /// lost, so silence alone does not say a slot is free. The count settles
+    /// it: when the presets read match it, the slots that did not answer are
+    /// empty. When they do not, each slot not known is read once more, and the
+    /// count too if it was not given.
     /// </remarks>
-    public static Preset? ReadSlot(HeadsetClient client, Bank bank, int index, TimeSpan? wait = null)
+    /// <param name="bank">Which bank.</param>
+    /// <param name="readSlot">Reads one slot, by its index from zero.</param>
+    /// <param name="count">Reads how many custom presets the headset says it holds.</param>
+    public static async Task<CustomsRead> ReadCustoms(
+        Bank bank, Func<int, Task<SlotReading>> readSlot, Func<Task<int?>> count)
     {
-        string category = Spec(bank).Slots[index];
-        var values = client.ReadCategory(category, wait ?? TimeSpan.FromSeconds(1));
-        string key = $"{Verbs.PresetSlotKey(category):x}";
-        if (!values.TryGetValue(key, out var slot) || slot.ValueKind != JsonValueKind.Object) return null;
+        var slots = new SlotReading[Spec(bank).Slots.Count];
+        for (int i = 0; i < slots.Length; i++) slots[i] = await readSlot(i).ConfigureAwait(false);
+        var read = new CustomsRead([.. slots], await count().ConfigureAwait(false));
+        if (read.Complete) return read;
 
-        string name = slot.TryGetProperty("name", out var n) ? (n.GetString() ?? "").Trim() : "";
-        if (name.Length == 0) return null;
-
-        var bands = new List<int>();
-        if (slot.TryGetProperty("bands", out var b) && b.ValueKind == JsonValueKind.Array)
-            foreach (var value in b.EnumerateArray())
-                bands.Add(TryNumber(value.GetString(), out int parsed) ? parsed : 0);
-
-        return new Preset(FirstCustomId + index, name, bands, bank, true);
+        for (int i = 0; i < slots.Length; i++)
+            if (slots[i].Found is SlotFound.NoAnswer or SlotFound.Unparsed)
+                slots[i] = await readSlot(i).ConfigureAwait(false);
+        return new CustomsRead(slots, read.Count ?? await count().ConfigureAwait(false));
     }
 
-    /// <summary>Everything in one bank: the factory presets plus whatever is stored.</summary>
-    public static List<Preset> ReadBank(HeadsetClient client, Bank bank) =>
-        Factory(bank).Concat(ReadCustoms(client, bank)).ToList();
+    /// <summary>Reads one custom slot straight off the headset.</summary>
+    /// <remarks>
+    /// One that answers with an empty name is empty. A reply that is not a
+    /// name and one number for each band is not understood, and is not made
+    /// into a preset with bands it does not have. An empty slot costs the
+    /// whole wait.
+    /// </remarks>
+    public static SlotReading ReadSlot(HeadsetClient client, Bank bank, int index, TimeSpan? wait = null)
+    {
+        var spec = Spec(bank);
+        string category = spec.Slots[index];
+        var values = client.ReadCategory(category, wait ?? TimeSpan.FromSeconds(1));
+        if (values.Count == 0) return new SlotReading(category, SlotFound.NoAnswer);
 
-    /// <summary>Whatever preset is selected on the headset right now, if any.</summary>
+        string key = $"{Verbs.PresetSlotKey(category):x}";
+        if (!values.TryGetValue(key, out var slot) || slot.ValueKind != JsonValueKind.Object
+            || !slot.TryGetProperty("name", out var n) || n.ValueKind != JsonValueKind.String)
+            return new SlotReading(category, SlotFound.Unparsed);
+
+        string name = n.GetString()!.Trim();
+        if (name.Length == 0) return new SlotReading(category, SlotFound.Empty);
+
+        if (!slot.TryGetProperty("bands", out var b) || b.ValueKind != JsonValueKind.Array
+            || b.GetArrayLength() != spec.Bands.Count)
+            return new SlotReading(category, SlotFound.Unparsed);
+        var bands = new List<int>();
+        foreach (var value in b.EnumerateArray())
+        {
+            if (!TryNumber(value, out int parsed)) return new SlotReading(category, SlotFound.Unparsed);
+            bands.Add(parsed);
+        }
+
+        return new SlotReading(category, SlotFound.Preset, new Preset(FirstCustomId + index, name, bands, bank, true));
+    }
+
+    /// <summary>Whatever preset is selected on the headset right now, or null when none is or it cannot be read.</summary>
     public static Preset? ReadCurrent(HeadsetClient client, Bank bank, TimeSpan? wait = null)
     {
         var spec = Spec(bank);
         var values = client.ReadCategory(spec.Category, wait ?? TimeSpan.FromMilliseconds(1200));
-        if (!values.TryGetValue($"{spec.Select:x}", out var selected)) return null;
-        if (!TryNumber(selected.GetString(), out int id)) return null;
+        if (!values.TryGetValue($"{spec.Select:x}", out var selected) || !TryNumber(selected, out int id)) return null;
 
-        string name = values.TryGetValue($"{spec.NameKey:x}", out var n)
-            ? (n.GetString() ?? "").Trim() : "";
-        var bands = spec.Bands
-            .Select(key => values.TryGetValue($"{key:x}", out var v)
-                           && TryNumber(v.GetString(), out int parsed) ? parsed : 0)
-            .ToArray();
+        string name = values.TryGetValue($"{spec.NameKey:x}", out var n) && n.ValueKind == JsonValueKind.String
+            ? n.GetString()!.Trim() : "";
+        var bands = new int[spec.Bands.Count];
+        for (int i = 0; i < bands.Length; i++)
+            if (!values.TryGetValue($"{spec.Bands[i]:x}", out var v) || !TryNumber(v, out bands[i])) return null;
 
         return new Preset(id, name, bands, bank, id >= FirstCustomId);
     }
 
-    /// <summary>A number as the headset sends it, whatever the PC's language.</summary>
-    private static bool TryNumber(string? text, out int value) =>
-        int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
-
-    /// <summary>Custom ids with nothing in them.</summary>
-    public static List<int> FreeSlots(IEnumerable<Preset> presets)
+    /// <summary>A number as the headset sends it, as text or as a number, whatever the PC's language.</summary>
+    private static bool TryNumber(JsonElement value, out int number)
     {
+        number = 0;
+        return value.ValueKind switch
+        {
+            JsonValueKind.String => int.TryParse(value.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out number),
+            JsonValueKind.Number => value.TryGetInt32(out number),
+            _ => false,
+        };
+    }
+
+    /// <summary>Custom ids with nothing in them, or none when not every slot could be read.</summary>
+    /// <remarks>
+    /// A slot missing from a bank not fully read may hold a preset whose reply
+    /// was lost, so offering it would let a save go ahead on a full bank.
+    /// </remarks>
+    /// <param name="presets">The presets read.</param>
+    /// <param name="fullyRead">Whether every slot is accounted for; see <see cref="CustomsRead.Complete"/>.</param>
+    public static List<int> FreeSlots(IEnumerable<Preset> presets, bool fullyRead)
+    {
+        if (!fullyRead) return [];
         var used = presets.Where(p => p.Custom).Select(p => p.Id).ToHashSet();
         return Enumerable.Range(FirstCustomId, CustomSlots).Where(id => !used.Contains(id)).ToList();
     }
 
-    /// <summary>How many custom presets the headset says it holds.</summary>
-    /// <remarks>
-    /// A cheap cross-check on <see cref="ReadCustoms"/>: if this disagrees
-    /// with the number of named slots, the fault is in our reading rather than
-    /// in the headset.
-    /// </remarks>
+    /// <summary>How many custom presets the headset says it holds, or null when it does not say.</summary>
     public static int? Count(HeadsetClient client, Bank bank, TimeSpan? wait = null)
     {
         var values = client.ReadCategory("CEC", wait ?? TimeSpan.FromMilliseconds(1200));
-        return values.TryGetValue($"{Spec(bank).CountKey:x}", out var raw)
-               && TryNumber(raw.GetString(), out int count) ? count : null;
+        return values.TryGetValue($"{Spec(bank).CountKey:x}", out var raw) && TryNumber(raw, out int count) ? count : null;
     }
 
     // -- writing -----------------------------------------------------------

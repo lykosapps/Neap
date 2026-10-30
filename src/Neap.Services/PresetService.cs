@@ -13,8 +13,11 @@ public sealed class BankState
     /// <summary>Which preset the live curve is a variation of. See <see cref="PresetService"/>.</summary>
     public Preset? Baseline { get; set; }
 
+    /// <summary>Whether every custom slot is accounted for; see <see cref="CustomsRead.Complete"/>.</summary>
+    public required bool FullyRead { get; init; }
+
     public IEnumerable<Preset> Custom => Presets.Where(p => p.Custom);
-    public IReadOnlyList<int> FreeSlots => PresetStore.FreeSlots(Presets);
+    public IReadOnlyList<int> FreeSlots => PresetStore.FreeSlots(Presets, FullyRead);
 }
 
 /// <summary>
@@ -114,18 +117,17 @@ public sealed class PresetService
             // One slot per job, so a setting changed meanwhile waits for the
             // slot being read rather than the whole bank: an empty slot
             // never answers, and a bank of empty slots took seconds.
-            var presets = PresetStore.Factory(bank).Select(PresetNames.Shown).ToList();
-            for (int i = 0; i < PresetStore.Spec(bank).Slots.Count; i++)
-            {
-                int index = i;
-                if (await _headset.Post(client => PresetStore.ReadSlot(client, bank, index)) is { } preset)
-                    presets.Add(preset);
-            }
+            var customs = await PresetStore.ReadCustoms(bank,
+                index => _headset.Post(client => PresetStore.ReadSlot(client, bank, index)),
+                () => _headset.Post(client => PresetStore.Count(client, bank)));
+            if (!customs.Complete)
+                AppLog.Write($"presets: not every {bank} slot could be read, so none is offered as free ({customs.Describe()})");
             var state = new BankState
             {
                 Bank = bank,
                 Spec = PresetStore.Spec(bank),
-                Presets = presets,
+                Presets = [.. PresetStore.Factory(bank).Select(PresetNames.Shown), .. customs.Presets],
+                FullyRead = customs.Complete,
                 Baseline = _banks.GetValueOrDefault(bank)?.Baseline,
             };
             _banks[bank] = state;
@@ -480,6 +482,9 @@ public sealed class PresetService
         if (!PresetStore.NameFits(name, bank))
             return Strings.Format("Preset_TooLong", PresetStore.MaxNameLength);
 
+        // A slot not read may hold a preset, so the bank may be full and a
+        // name in it unseen. Saving over a preset needs no free slot.
+        if (replacing is null && !state.FullyRead) return Strings.Get("Preset_SlotsUnread");
         var free = state.FreeSlots;
         if (replacing is null && free.Count == 0)
             return Strings.Format("Preset_Full", PresetStore.CustomSlots);

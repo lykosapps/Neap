@@ -33,7 +33,8 @@ public class PresetStoreTests
     public void BandValuesSnapToHalfDecibels(int tenths, int snapped) =>
         Assert.Equal(snapped, PresetStore.Snap(tenths));
 
-    private static readonly TimeSpan Window = TimeSpan.FromMilliseconds(50);
+    /// <summary>Long enough for a slot's reply of two reports however coarse the machine's sleeps, as a missed reply leaves the bank not fully read.</summary>
+    private static readonly TimeSpan Window = TimeSpan.FromMilliseconds(200);
     private static readonly int[] Flat = new int[10];
 
     [Fact]
@@ -41,12 +42,13 @@ public class PresetStoreTests
     {
         using var client = new HeadsetClient(transport: new PretendHeadset().Open());
 
-        var presets = PresetStore.ReadCustoms(client, Bank.Game, Window);
+        var read = PresetStore.ReadCustoms(client, Bank.Game, Window);
 
-        Assert.Equal([16, 17], presets.Select(p => p.Id));
-        Assert.Equal("Night Raid", presets[0].Name);
-        Assert.Equal(-10, presets[0].Bands[3]);
-        Assert.All(presets, p => Assert.True(p.Custom));
+        Assert.Equal([16, 17], read.Presets.Select(p => p.Id));
+        Assert.Equal("Night Raid", read.Presets[0].Name);
+        Assert.Equal(-10, read.Presets[0].Bands[3]);
+        Assert.All(read.Presets, p => Assert.True(p.Custom));
+        Assert.True(read.Complete);
     }
 
     [Fact]
@@ -58,9 +60,92 @@ public class PresetStoreTests
         client.Drain();
         headset.Push("{\"OR\":\"CG1\",\"KVP\":{\"1700\":{\"name\":\"\",\"bands\":[]}}}");
 
-        var presets = PresetStore.ReadCustoms(client, Bank.Game, Window);
+        var read = PresetStore.ReadCustoms(client, Bank.Game, Window);
 
-        Assert.Equal(["Footstep Focus"], presets.Select(p => p.Name));
+        Assert.Equal(["Footstep Focus"], read.Presets.Select(p => p.Name));
+        Assert.Equal(SlotFound.Empty, read.Slots[0].Found);
+        Assert.True(read.Complete);
+    }
+
+    /// <summary>Reads the pretend headset's game slots, with the slots given losing their reply the number of times given.</summary>
+    private static CustomsRead ReadLosing(HeadsetClient client, Dictionary<int, int> losses, Func<int?>? count = null)
+    {
+        var reads = new Dictionary<int, int>();
+        return PresetStore.ReadCustoms(Bank.Game,
+            index =>
+            {
+                reads[index] = reads.GetValueOrDefault(index) + 1;
+                return Task.FromResult(reads[index] <= losses.GetValueOrDefault(index)
+                    ? new SlotReading(PresetStore.Game.Slots[index], SlotFound.NoAnswer)
+                    : PresetStore.ReadSlot(client, Bank.Game, index, Window));
+            },
+            () => Task.FromResult(count is null ? PresetStore.Count(client, Bank.Game, Window) : count())).GetAwaiter().GetResult();
+    }
+
+    [Fact]
+    public void ASlotWhoseReplyIsLostIsReadAgain()
+    {
+        using var client = new HeadsetClient(transport: new PretendHeadset().Open());
+
+        var read = ReadLosing(client, new() { [1] = 1 });
+
+        Assert.Equal(["Night Raid", "Footstep Focus"], read.Presets.Select(p => p.Name));
+        Assert.True(read.Complete);
+    }
+
+    [Fact]
+    public void ASlotLostTwiceLeavesTheBankNotFullyRead()
+    {
+        using var client = new HeadsetClient(transport: new PretendHeadset().Open());
+
+        var read = ReadLosing(client, new() { [1] = 2 });
+
+        Assert.Equal(["Night Raid"], read.Presets.Select(p => p.Name));
+        Assert.False(read.Complete);
+        Assert.Empty(PresetStore.FreeSlots(read.Presets, read.Complete));
+        Assert.Contains("CG2 did not answer", read.Describe(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ABankWithNoCountIsNotFullyRead()
+    {
+        using var client = new HeadsetClient(transport: new PretendHeadset().Open());
+        int asked = 0;
+
+        var read = ReadLosing(client, [], () => { asked++; return null; });
+
+        Assert.Equal(2, read.Presets.Count);
+        Assert.False(read.Complete);
+        Assert.Equal(2, asked);
+    }
+
+    [Fact]
+    public void ABandSentAsANumberIsRead()
+    {
+        var headset = new PretendHeadset();
+        using var client = new HeadsetClient(transport: headset.Open());
+        headset.Push("{\"OR\":\"CG1\",\"KVP\":{\"1700\":{\"name\":\"Plain\",\"bands\":[1,2,3,4,5,6,7,8,9,10]}}}");
+
+        var slot = PresetStore.ReadSlot(client, Bank.Game, 0, Window);
+
+        Assert.Equal(SlotFound.Preset, slot.Found);
+        Assert.Equal(Enumerable.Range(1, 10), slot.Preset!.Bands);
+    }
+
+    [Theory]
+    [InlineData("[\"10\",\"x\",\"0\",\"0\",\"0\",\"0\",\"0\",\"0\",\"0\",\"0\"]")]
+    [InlineData("[\"10\",\"20\"]")]
+    [InlineData("\"10\"")]
+    public void ASlotWithABandThatCannotBeReadIsNotUnderstood(string bands)
+    {
+        var headset = new PretendHeadset();
+        using var client = new HeadsetClient(transport: headset.Open());
+        headset.Push($"{{\"OR\":\"CG1\",\"KVP\":{{\"1700\":{{\"name\":\"Odd\",\"bands\":{bands}}}}}}}");
+
+        var slot = PresetStore.ReadSlot(client, Bank.Game, 0, Window);
+
+        Assert.Equal(SlotFound.Unparsed, slot.Found);
+        Assert.Null(slot.Preset);
     }
 
     [Fact]
@@ -72,7 +157,8 @@ public class PresetStoreTests
             new(18, "B", Flat, Bank.Game, true),
         ];
 
-        Assert.Equal([17, 19, 20], PresetStore.FreeSlots(used));
+        Assert.Equal([17, 19, 20], PresetStore.FreeSlots(used, fullyRead: true));
+        Assert.Empty(PresetStore.FreeSlots(used, fullyRead: false));
     }
 
     [Fact]

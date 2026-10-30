@@ -541,7 +541,9 @@ public partial class EqualiserPanel : UserControl
 
         int free = _state.FreeSlots.Count;
         NewButton.IsEnabled = free > 0;
-        FreeSlots.Text = Strings.Format("Equaliser_FreeSlots", free, PresetStore.CustomSlots);
+        FreeSlots.Text = _state.FullyRead
+            ? Strings.Format("Equaliser_FreeSlots", free, PresetStore.CustomSlots)
+            : Strings.Get("Preset_SlotsUnread");
     }
 
     /// <summary>
@@ -779,6 +781,11 @@ public partial class EqualiserPanel : UserControl
             else if (taken is not null)
             {
                 note.Text = Strings.Format("Equaliser_NameTaken", taken.Name);
+                dialog.IsPrimaryButtonEnabled = false;
+            }
+            else if (!state.FullyRead)
+            {
+                note.Text = Strings.Get("Preset_SlotsUnread");
                 dialog.IsPrimaryButtonEnabled = false;
             }
             else if (free == 0)

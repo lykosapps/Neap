@@ -521,7 +521,7 @@ public class PretendHeadsetTests
         using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
 
         PresetStore.Save(client, "Bass & Treble 2", Enumerable.Range(1, 10).ToArray(), Bank.Game, hint: 19);
-        var saved = PresetStore.ReadCustoms(client, Bank.Game, Window).Single(p => p.Name == "Bass & Treble 2");
+        var saved = PresetStore.ReadCustoms(client, Bank.Game, Window).Presets.Single(p => p.Name == "Bass & Treble 2");
 
         Assert.Equal(18, saved.Id);
         Assert.Equal(Enumerable.Range(1, 10), saved.Bands);
@@ -536,7 +536,7 @@ public class PretendHeadsetTests
 
         PresetStore.Delete(client, "Night Raid", Bank.Game);
 
-        Assert.DoesNotContain(PresetStore.ReadCustoms(client, Bank.Game, Window), p => p.Name == "Night Raid");
+        Assert.DoesNotContain(PresetStore.ReadCustoms(client, Bank.Game, Window).Presets, p => p.Name == "Night Raid");
         Assert.Equal(1, PresetStore.Count(client, Bank.Game, Window));
     }
 

@@ -717,6 +717,9 @@
   <data name="Preset_Full" xml:space="preserve">
     <value>All {0} slots are used. Delete one first.</value>
   </data>
+  <data name="Preset_SlotsUnread" xml:space="preserve">
+    <value>Couldn't read every preset slot, so a new preset can't be saved. Try again.</value>
+  </data>
   <data name="Preset_Missing" xml:space="preserve">
     <value>There's no custom preset called {0}.</value>
   </data>

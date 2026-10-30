@@ -255,7 +255,8 @@ static int ShowPresets(Bank bank)
 {
     using var client = Ask();
     var spec = PresetStore.Spec(bank);
-    var presets = PresetStore.ReadBank(client, bank);
+    var customs = PresetStore.ReadCustoms(client, bank);
+    var presets = PresetStore.Factory(bank).Concat(customs.Presets).ToList();
     var current = PresetStore.ReadCurrent(client, bank);
 
     Console.WriteLine($"{bank} equaliser  ({string.Join("  ", spec.Hertz.Select(hertz => $"{hertz} Hz"))})");
@@ -266,10 +267,8 @@ static int ShowPresets(Bank bank)
                         + $"{(preset.Custom ? "custom  " : "built in")} "
                         + $"[{string.Join(" ", preset.Bands.Select(b => $"{b / 10.0,5:+0.0;-0.0;0.0}"))}]");
     }
-    Console.WriteLine($"free slots: {string.Join(", ", PresetStore.FreeSlots(presets))}");
-    var counted = PresetStore.Count(client, bank);
-    Console.WriteLine($"headset says it holds {counted} custom; we found "
-                    + $"{presets.Count(p => p.Custom)}");
+    Console.WriteLine($"free slots: {string.Join(", ", PresetStore.FreeSlots(customs.Presets, customs.Complete))}");
+    Console.WriteLine($"{(customs.Complete ? "every slot read" : "not every slot read")}: {customs.Describe()}");
     return 0;
 }
 

@@ -84,6 +84,11 @@ and date.
 - Trying an update again after one that failed part-way no longer deletes
   the files it set aside, which can be the only copy of the version
   running. The update says it could not finish instead.
+- On the Equaliser page, a preset whose reply from the headset is lost is
+  asked for again. If it still can't be read, the page says so and doesn't
+  offer to save a new preset, rather than counting its slot as free when the
+  headset may be full. A preset whose bands can't be read is no longer
+  listed as flat.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for
