@@ -22,6 +22,7 @@ public sealed class OneCopy : IDisposable
 {
     private readonly FileStream _lock;
     private readonly CancellationTokenSource _stopping = new();
+    private bool _disposed;
 
     private OneCopy(FileStream held) => _lock = held;
 
@@ -105,8 +106,16 @@ public sealed class OneCopy : IDisposable
         }
     });
 
+    /// <summary>Lets go of the lock and stops listening.</summary>
+    /// <remarks>
+    /// Safe to call twice: an update lets go of the lock before it starts the
+    /// new version, and the process lets go of it again as it ends.
+    /// </remarks>
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
+        if (Current == this) Current = null;
         _stopping.Cancel();
         _lock.Dispose();
         _stopping.Dispose();
