@@ -64,6 +64,16 @@ and date.
 - The record Neap keeps of other apps' volumes, so it can put them back
   after a crash, is no longer lost if the PC loses power while it is being
   saved.
+- Your settings and profiles are no longer lost if the PC loses power while
+  they are being saved, or if another program, such as a virus scanner, has
+  the settings file open as Neap starts. Neap tries again, and if the file
+  stays out of reach it leaves it alone until the next start rather than
+  saving its defaults over it.
+- Settings Neap can't read no longer turn the update check back on: Neap
+  starts from its defaults with the check off, in case you had turned it
+  off.
+- A name kept for an app on a profile is found after a restart whatever
+  the case of the app's program name.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

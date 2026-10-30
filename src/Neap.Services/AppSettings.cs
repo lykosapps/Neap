@@ -306,7 +306,9 @@ public sealed class AppSettings
     [JsonPropertyName("default_profile")] public string? DefaultProfileId { get; set; }
 
     /// <summary>What an app assigned to a profile is called, by process name, so it is named when it is not running.</summary>
-    [JsonPropertyName("app_names")] public Dictionary<string, string> AppNames { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    /// <remarks>Filled in place when read, so it keeps ignoring case after a restart.</remarks>
+    [JsonPropertyName("app_names"), JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
+    public Dictionary<string, string> AppNames { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// A profile's fields as stored. <see cref="ProfileService"/> is the only
@@ -342,8 +344,14 @@ public sealed class AppSettings
 
     private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
 
+    /// <summary>How many times the file is tried before it is taken as unreadable for this run.</summary>
+    private const int ReadAttempts = 5;
+
     private static readonly object Gate = new();
     private static AppSettings? _current;
+
+    /// <summary>Whether the file is there but could not be opened, so nothing is saved over it this run.</summary>
+    private static bool _held;
 
     public static AppSettings Current
     {
@@ -364,16 +372,49 @@ public sealed class AppSettings
     }
 
     /// <remarks>
-    /// A file that can't be read is copied aside before the defaults are used,
-    /// as the next change saves over it.
+    /// <para>
+    /// A file another program holds for a moment, such as a virus scanner or a
+    /// backup, is tried again. One still held is left alone for the whole run
+    /// rather than saved over, as there is nothing wrong with it.
+    /// </para>
+    /// <para>
+    /// A file that opens but can't be read is copied aside before the defaults
+    /// are used, as the next change saves over it.
+    /// </para>
+    /// <para>
+    /// Either way the defaults leave the update check off: it may have been
+    /// turned off, and asking GitHub is the one thing Neap does over the
+    /// network.
+    /// </para>
     /// </remarks>
     private static AppSettings Load()
     {
         if (!File.Exists(Path)) return new AppSettings();
-        try { return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(Path)) ?? new(); }
-        catch (Exception ex)
+        string text;
+        for (int attempt = 1; ; attempt++)
         {
-            AppLog.Write($"could not read the app's settings, so it starts from its defaults: {ex.Message}");
+            try
+            {
+                text = File.ReadAllText(Path);
+                break;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                if (attempt < ReadAttempts)
+                {
+                    Thread.Sleep(200);
+                    continue;
+                }
+                AppLog.Write($"could not open the app's settings, so it starts from its defaults and saves nothing over them until it is restarted: {ex.Message}");
+                _held = true;
+                return new AppSettings { CheckForUpdates = false };
+            }
+        }
+
+        try { return JsonSerializer.Deserialize<AppSettings>(text) ?? new(); }
+        catch (Exception ex) when (ex is JsonException or NotSupportedException)
+        {
+            AppLog.Write($"could not read the app's settings, so it starts from its defaults with the update check off: {ex.Message}");
             string kept = Path + ".unreadable";
             try
             {
@@ -384,16 +425,18 @@ public sealed class AppSettings
             {
                 AppLog.Write($"could not keep the settings that could not be read: {copyEx.Message}");
             }
-            return new AppSettings();
+            return new AppSettings { CheckForUpdates = false };
         }
     }
 
     private static void Save(AppSettings settings)
     {
+        // The log says so once, when the file is found held.
+        if (_held) return;
         try
         {
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path)!);
-            File.WriteAllText(Path, JsonSerializer.Serialize(settings, Indented));
+            WholeFile.Write(Path, JsonSerializer.Serialize(settings, Indented));
         }
         catch (Exception ex)
         {
