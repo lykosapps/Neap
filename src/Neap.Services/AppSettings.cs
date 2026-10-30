@@ -43,6 +43,13 @@ public sealed class AppSettings
     [JsonPropertyName("chat_apps")] public List<string> ChatApps { get; set; } = new();
 
     /// <summary>
+    /// The names the chosen chat apps show, by program, kept from when each was
+    /// last found playing to the headset, so one not open now is still shown by
+    /// its name rather than its program's.
+    /// </summary>
+    [JsonPropertyName("chat_app_names")] public Dictionary<string, string> ChatAppNames { get; set; } = new();
+
+    /// <summary>
     /// Whether we have told them that closing the window does not stop the
     /// app. Said once, because the second time it is noise.
     /// </summary>

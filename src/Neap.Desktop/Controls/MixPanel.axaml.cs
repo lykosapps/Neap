@@ -178,9 +178,12 @@ public partial class MixPanel : UserControl
             foreach (var candidate in candidates)
             {
                 _names[candidate.Process] = candidate.Display;
-                string text = candidate.Playing ? Strings.Format("Mix_Playing", candidate.Display) : candidate.Display;
-                var item = new ListBoxItem { Tag = candidate.Process, Content = text };
-                AutomationProperties.SetName(item, text);
+                // The name stays as it is; whether it is making sound now is a tag beside it.
+                var row = new StackPanel { Classes = { "gaprow" }, Children = { new TextBlock { Text = candidate.Display } } };
+                if (candidate.Playing) row.Children.Add(new Border { Classes = { "tag" }, Child = new TextBlock { Text = Strings.Get("Mix_Playing") } });
+                var item = new ListBoxItem { Tag = candidate.Process, Content = row };
+                AutomationProperties.SetName(item, candidate.Display);
+                if (candidate.Playing) AutomationProperties.SetItemStatus(item, Strings.Get("Mix_Playing"));
                 AppList.Items.Add(item);
                 if (chosen.Contains(candidate.Process, StringComparer.OrdinalIgnoreCase)) AppList.SelectedItems!.Add(item);
             }

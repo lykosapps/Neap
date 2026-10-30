@@ -272,9 +272,14 @@ public sealed class MixService : IDisposable
                 + (found.Count == 0 ? "none" : string.Join(", ", found.Keys.Order(StringComparer.OrdinalIgnoreCase))));
         }
 
+        // A chosen app found now has its name kept; one not open now is shown by the name kept.
+        var names = AppSettings.Current.ChatAppNames;
         foreach (string chosen in ChatApps)
-            if (!found.ContainsKey(chosen))
-                found[chosen] = new ChatCandidate(chosen, chosen, false);
+        {
+            string? kept = names.FirstOrDefault(n => string.Equals(n.Key, chosen, StringComparison.OrdinalIgnoreCase)).Value;
+            if (!found.TryGetValue(chosen, out var now)) found[chosen] = new ChatCandidate(chosen, kept ?? chosen, false);
+            else if (now.Display != chosen && now.Display != kept) AppSettings.Update(s => s.ChatAppNames[chosen] = now.Display);
+        }
 
         return found.Values.OrderBy(c => c.Display, StringComparer.CurrentCultureIgnoreCase).ToList();
     });

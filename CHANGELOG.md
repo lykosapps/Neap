@@ -31,6 +31,9 @@ and date.
   stands out from the page, and the box shows when its list is open. The
   profile list in the side menu and the chat apps on Home have the same rows;
   the chat apps are a list you choose several from, each marked when chosen.
+  An app keeps its name in that list, with a Playing tag while it makes
+  sound, and a chosen app that is not open shows the name it had rather
+  than its program's, such as ms-teams.
 - On the Device page, About the headset is at the end, after the
   transmitters, as it is looked up only now and then.
 - Loudness boost is now called Pre-gain, and says what it is: the level the
