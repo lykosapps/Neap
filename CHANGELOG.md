@@ -54,6 +54,8 @@ and date.
 
 ### Fixed
 
+- A screen reader names the box for a preset's name when saving an
+  equaliser preset. It was read out as an unnamed text box.
 - The arrow after a link to another page, such as Keyboard shortcuts on
   Home, points right, to where it goes. It pointed up.
 - Every switch looks the same. The switches in Settings, on the Device
