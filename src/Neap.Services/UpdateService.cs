@@ -347,14 +347,16 @@ public sealed class UpdateService : IDisposable
     /// <remarks>
     /// The zip is held open, letting no other program write to it, from
     /// the hash check until it is unzipped, so the bytes unzipped are the
-    /// bytes checked.
+    /// bytes checked. Other programs may still read it, as a virus scanner
+    /// often has a new download open, and refusing readers would fail the
+    /// update for that.
     /// </remarks>
     private static void Install(Release release, string zip, string expected)
     {
         string incoming = Path.Combine(Work, "new");
         if (Directory.Exists(incoming)) Directory.Delete(incoming, recursive: true);
 
-        using (var held = new FileStream(zip, FileMode.Open, FileAccess.Read, FileShare.None))
+        using (var held = new FileStream(zip, FileMode.Open, FileAccess.Read, FileShare.Read))
         {
             string hash = Convert.ToHexStringLower(SHA256.HashData(held));
             if (hash != expected)
