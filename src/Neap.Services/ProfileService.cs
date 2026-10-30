@@ -215,10 +215,8 @@ public sealed class ProfileService : IDisposable
         {
             if (shapeHeard) AppServices.Parametric.Use(s.GameShape!);
             else if (s.GameShape is not null) missing = [.. missing, Strings.Get("Profile_ParametricOff")];
-            else if (ParametricService.Active && AppServices.Presets.LiveBands(Bank.Game) is { } heard)
-                AppServices.Parametric.UseBands(heard);
             else if (ParametricService.Active)
-                AppLog.Write("parametric: the ten-band gains are not read yet, so the profile's ten bands were not sent");
+                AppServices.Parametric.UseBands(AppServices.Presets.LiveBands(Bank.Game) ?? new int[BandWrites.Bands]);
         }
 
         if (!shapeHeard && s.GamePreset is { } gp && game.Presets.FirstOrDefault(p => p.Name == gp) is { } gamePreset)

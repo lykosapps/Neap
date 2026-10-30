@@ -112,7 +112,7 @@ public sealed class PresetChoice : ComboBox
     private void Paint()
     {
         var list = PresetPickerLook.List(
-            ParametricService.Active,
+            ParametricService.Offered && ParametricService.Active,
             AppServices.Headset.Model is { HasParametricBands: true },
             ParametricService.Presets.Count);
         var (name, edited) = list switch
