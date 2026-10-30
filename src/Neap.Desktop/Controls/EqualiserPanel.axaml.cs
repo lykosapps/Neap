@@ -638,10 +638,22 @@ public partial class EqualiserPanel : UserControl
     /// Builds the in-place confirmation that replaces a preset's chip while
     /// its deletion is pending: Delete and Cancel, with no dialog.
     /// </summary>
+    /// <remarks>
+    /// Either answer rebuilds the row and takes away the button the keyboard
+    /// was on, so it is put back: on the preset after Cancel, and on the
+    /// preset now in its place after Delete.
+    /// </remarks>
     private Control ConfirmChip(Preset preset)
     {
         var delete = new Button { Content = Strings.Get("Equaliser_Delete") };
         var cancel = new Button { Content = Strings.Get("Dialog_Cancel") };
+        var confirm = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = Space.S,
+            Margin = new Thickness(Space.S, Space.XS),
+            Children = { delete, cancel },
+        };
         // The keyboard lands on the safe choice, where the delete button it
         // came from was, not on the destructive one.
         cancel.AttachedToVisualTree += (_, _) => Dispatcher.UIThread.Post(() => cancel.Focus());
@@ -653,23 +665,30 @@ public partial class EqualiserPanel : UserControl
             // Deleting reads the bank back, which takes seconds; one press is one delete.
             delete.IsEnabled = cancel.IsEnabled = false;
             _confirmingDelete = null;
+            int at = CustomSlots.Children.IndexOf(confirm);
             string? trouble = await AppServices.Presets.Delete(Bank, preset.Name);
             if (trouble is not null) await Complain(Strings.Get("Equaliser_CouldNotDelete"), trouble);
             ShowStored();
+            FocusCustom(at);
         };
         cancel.Click += (_, _) =>
         {
             _confirmingDelete = null;
+            int at = CustomSlots.Children.IndexOf(confirm);
             Paint();
+            FocusCustom(at);
         };
-        return new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = Space.S,
-            Margin = new Thickness(Space.S, Space.XS),
-            Children = { delete, cancel },
-        };
+        return confirm;
     }
+
+    /// <summary>Puts the keyboard on the custom preset at a place in the list, or the last one, or on New when there are none.</summary>
+    /// <remarks>Posted, as the rows just built are not laid out yet.</remarks>
+    private void FocusCustom(int at) => Dispatcher.UIThread.Post(() =>
+    {
+        var rows = CustomSlots.Children.Select(child => child.Tag).OfType<Row>().ToList();
+        Control target = rows.Count > 0 ? rows[Math.Clamp(at, 0, rows.Count - 1)].Chip : NewButton;
+        target.Focus();
+    }, DispatcherPriority.Loaded);
 
     // -- saving ------------------------------------------------------------
 

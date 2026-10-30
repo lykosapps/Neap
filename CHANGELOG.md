@@ -141,6 +141,10 @@ and date.
   stops answering says it couldn't switch, rather than closing the app.
 - After an update, the old version closes cleanly rather than leaving a
   crash in the app log on its way out.
+- The keyboard keeps its place in the profiles list in Settings and in the
+  equaliser's preset lists after Cancel or Delete, a rename, or a profile
+  switching as an app opens. Before, the next Tab started again from the
+  top of the window.
 - A screen reader says a notice as it appears, such as the one asking for
   Ctrl, Alt or Shift with a mix shortcut, and says a warning at once.
 - When you name a profile or a preset, a screen reader says why Save is

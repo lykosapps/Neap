@@ -18,7 +18,8 @@ namespace Neap.Desktop.Controls;
 /// <remarks>
 /// The rows are rebuilt only when something they show has changed. The
 /// profiles change on every read of the headset, and rebuilding each time
-/// would take the keyboard's place out from under whoever is on a row.
+/// would take the keyboard's place out from under whoever is on a row. When
+/// they are rebuilt, the keyboard is put back; see <see cref="Refocus"/>.
 /// </remarks>
 public sealed class ProfilesSettings : UserControl
 {
@@ -35,6 +36,15 @@ public sealed class ProfilesSettings : UserControl
 
     /// <summary>The profile whose delete is pending confirmation, if any.</summary>
     private string? _confirmingDeleteId;
+
+    /// <summary>What a row's button does, which says where the keyboard goes back to after a rebuild.</summary>
+    private enum Role { Apps, Rename, Delete, Confirm, Keep }
+
+    /// <summary>The rows' buttons, by profile and by what each does.</summary>
+    private readonly Dictionary<(string Id, Role Role), Button> _buttons = [];
+
+    /// <summary>The profiles the rows were last built for, in order.</summary>
+    private List<string> _ids = [];
 
     /// <summary>What the rows and the default were last built from; see the remarks.</summary>
     private string _shown = "";
@@ -96,11 +106,18 @@ public sealed class ProfilesSettings : UserControl
         if (shown == _shown) return;
         _shown = shown;
 
+        var focused = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
+        var was = _buttons.FirstOrDefault(b => ReferenceEquals(b.Value, focused)).Key;
+        int at = was.Id is null ? -1 : _ids.IndexOf(was.Id);
+
         _empty.IsVisible = profiles.Count == 0;
         _defaultCard.IsVisible = profiles.Count != 0;
         _rows.Children.Clear();
+        _buttons.Clear();
+        _ids = profiles.Select(p => p.Id).ToList();
         foreach (var profile in profiles)
             _rows.Children.Add(_confirmingDeleteId == profile.Id ? ConfirmRow(profile) : Row(profile));
+        if (was.Id is not null) Refocus(was, at);
 
         _painting = true;
         try
@@ -120,6 +137,38 @@ public sealed class ProfilesSettings : UserControl
         finally { _painting = false; }
     }
 
+    /// <summary>Puts the keyboard back where it was before the rows were rebuilt, or on the nearest button left.</summary>
+    /// <remarks>
+    /// Rebuilding takes the focused button away, and with nothing focused the
+    /// next Tab starts again from the top of the window. The same button on
+    /// the same profile takes it back; leaving a delete's Delete and Cancel
+    /// goes back to the row's delete button; the row of a deleted profile
+    /// hands it to the row now in its place. Asking to delete needs nothing
+    /// here, as Cancel takes the keyboard itself. Posted, as the new rows are
+    /// not laid out yet.
+    /// </remarks>
+    private void Refocus((string Id, Role Role) was, int at)
+    {
+        Button? target;
+        if (_buttons.TryGetValue(was, out var same)) target = same;
+        else if (_ids.Contains(was.Id)) target = was.Role is Role.Confirm or Role.Keep ? _buttons.GetValueOrDefault((was.Id, Role.Delete)) : null;
+        else if (_ids.Count > 0)
+        {
+            string next = _ids[Math.Min(at, _ids.Count - 1)];
+            target = _buttons.GetValueOrDefault((next, Role.Apps)) ?? _buttons.GetValueOrDefault((next, Role.Keep));
+        }
+        else target = null;
+
+        if (target is not null) Dispatcher.UIThread.Post(() => target.Focus(), DispatcherPriority.Loaded);
+    }
+
+    /// <summary>Keeps a row's button, so <see cref="Refocus"/> can find it after the next rebuild.</summary>
+    private Button Kept(Button button, Profile profile, Role role)
+    {
+        _buttons[(profile.Id, role)] = button;
+        return button;
+    }
+
     private static PathIcon Icon(string key)
     {
         var resources = Application.Current!;
@@ -133,7 +182,7 @@ public sealed class ProfilesSettings : UserControl
     /// </summary>
     private Control Row(Profile profile)
     {
-        var apps = new Button { Content = Icon("IconApps"), Classes = { "iconbutton" } };
+        var apps = Kept(new Button { Content = Icon("IconApps"), Classes = { "iconbutton" } }, profile, Role.Apps);
         string appsName = Strings.Format("Profile_AppsTitle", profile.Name);
         AutomationProperties.SetName(apps, appsName);
         // Unlike rename and delete, this icon has no meaning anyone already
@@ -148,7 +197,7 @@ public sealed class ProfilesSettings : UserControl
             : Strings.Get("Profile_NoApps");
         AutomationProperties.SetHelpText(apps, assigned);
 
-        var rename = new Button { Content = Icon("IconEdit"), Classes = { "iconbutton" } };
+        var rename = Kept(new Button { Content = Icon("IconEdit"), Classes = { "iconbutton" } }, profile, Role.Rename);
         AutomationProperties.SetName(rename, Strings.Format("Profile_RenameNamed", profile.Name));
         rename.Click += async (_, _) =>
         {
@@ -156,7 +205,7 @@ public sealed class ProfilesSettings : UserControl
             if (typed.Length > 0) AppServices.Profiles.Rename(profile.Id, typed);
         };
 
-        var delete = new Button { Content = Icon("IconDelete"), Classes = { "iconbutton" } };
+        var delete = Kept(new Button { Content = Icon("IconDelete"), Classes = { "iconbutton" } }, profile, Role.Delete);
         AutomationProperties.SetName(delete, Strings.Format("Profile_DeleteNamed", profile.Name));
         delete.Click += (_, _) =>
         {
@@ -307,8 +356,8 @@ public sealed class ProfilesSettings : UserControl
     /// </summary>
     private Control ConfirmRow(Profile profile)
     {
-        var delete = new Button { Content = Strings.Get("Profile_Delete") };
-        var cancel = new Button { Content = Strings.Get("Dialog_Cancel") };
+        var delete = Kept(new Button { Content = Strings.Get("Profile_Delete") }, profile, Role.Confirm);
+        var cancel = Kept(new Button { Content = Strings.Get("Dialog_Cancel") }, profile, Role.Keep);
         cancel.AttachedToVisualTree += (_, _) => Dispatcher.UIThread.Post(() => cancel.Focus());
         AutomationProperties.SetName(delete, Strings.Format("Profile_DeleteNamed", profile.Name));
         AutomationProperties.SetName(cancel, Strings.Format("Profile_KeepNamed", profile.Name));

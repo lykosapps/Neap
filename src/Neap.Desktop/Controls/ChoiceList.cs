@@ -58,7 +58,9 @@ public sealed record Choice(string Name, object? Tag)
 /// A row the person made has the ten-band equaliser's delete button at its
 /// end, shown when the row is pointed at or focused, and asks Delete or Cancel
 /// in the row's place, with no dialog and the keyboard on Cancel. The Delete
-/// key does the same on a focused row.
+/// key does the same on a focused row. After Cancel the keyboard goes back to
+/// the row, and after Delete to the row now in its place, as listing the rows
+/// again takes away the button it was on.
 /// </para>
 /// <para>
 /// A row that only acts, such as a starting shape or Load, is chosen and then
@@ -74,6 +76,9 @@ internal sealed class ChoiceList
     private IReadOnlyList<Choice> _choices = [];
     private object? _confirming;
     private bool _filling;
+
+    /// <summary>The row the keyboard goes back to once the rows are listed again, after a delete's Delete or Cancel.</summary>
+    private int? _refocus;
 
     public ChoiceList(ComboBox box)
     {
@@ -131,7 +136,23 @@ internal sealed class ChoiceList
             _box.SelectedItem = shown.FirstOrDefault(c => c.Chosen && c.Tag is not null);
         }
         finally { _filling = false; }
+
+        if (_refocus is int at && _box.IsDropDownOpen) FocusNear(at);
+        _refocus = null;
     }
+
+    /// <summary>Puts the keyboard on the row at a place in the list, or the nearest one that can take it.</summary>
+    /// <remarks>Posted, as the rows just listed are not laid out yet.</remarks>
+    private void FocusNear(int at) => Dispatcher.UIThread.Post(() =>
+    {
+        int count = _box.ItemCount;
+        if (count == 0) return;
+        at = Math.Min(at, count - 1);
+        Enumerable.Range(at, count - at).Concat(Enumerable.Range(0, at).Reverse())
+            .Select(_box.ContainerFromIndex)
+            .FirstOrDefault(row => row is { Focusable: true })
+            ?.Focus();
+    }, DispatcherPriority.Loaded);
 
     /// <summary>Puts the box back on the row in use and says what was chosen.</summary>
     /// <remarks>Posted, as choosing usually lists the rows again, which cannot happen while the box is still selecting.</remarks>
@@ -223,16 +244,20 @@ internal sealed class ChoiceList
         {
             e.Handled = true;
             _confirming = null;
+            _refocus = Place(choice);
             Deleted?.Invoke(choice.Tag!);
         };
         cancel.Click += (_, e) =>
         {
             e.Handled = true;
             _confirming = null;
+            _refocus = Place(choice);
             Fill();
         };
         return new StackPanel { Orientation = Orientation.Horizontal, Spacing = Space.S, Children = { delete, cancel } };
     }
+
+    private int Place(Choice choice) => _choices.ToList().FindIndex(c => Equals(c.Tag, choice.Tag));
 
     /// <summary>Turns a row into Delete and Cancel.</summary>
     /// <remarks>Posted, so the button pressed is not taken out of the list while its press is still being handled.</remarks>
