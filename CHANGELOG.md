@@ -141,6 +141,9 @@ and date.
   stops answering says it couldn't switch, rather than closing the app.
 - After an update, the old version closes cleanly rather than leaving a
   crash in the app log on its way out.
+- A screen reader reads the mix dial and the parametric equaliser's dials
+  as sliders, and says their value as they turn. Before, they had no role
+  and no value.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

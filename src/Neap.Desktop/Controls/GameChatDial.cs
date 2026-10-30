@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Animation;
+using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -77,6 +78,8 @@ public sealed class GameChatDial : RangeBase
     }
 
     protected override Type StyleKeyOverride => typeof(GameChatDial);
+
+    protected override AutomationPeer OnCreateAutomationPeer() => new DialAutomationPeer(this);
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {

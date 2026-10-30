@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
@@ -100,6 +101,8 @@ public sealed class BandDial : RangeBase
     public double Ratio { get; set; } = 1.1;
 
     protected override Type StyleKeyOverride => typeof(BandDial);
+
+    protected override AutomationPeer OnCreateAutomationPeer() => new DialAutomationPeer(this);
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
