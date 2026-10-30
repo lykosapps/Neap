@@ -29,10 +29,36 @@ public static class LinkInquiry
     /// <summary>The request, answered by the transmitter rather than relayed to the headset.</summary>
     public static byte[] Frame => Frames.Command(CommandId, [1, 0, 0, 0], relayThroughBase: false);
 
-    /// <summary>Whether a reply says the headset is linked, or null when the report is not a reply to the inquiry.</summary>
-    public static bool? Linked(ReadOnlySpan<byte> report)
+    /// <summary>What a report says in answer to the inquiry.</summary>
+    /// <remarks>
+    /// A reply to the inquiry whose payload is not the one byte 0 or 1 is
+    /// unreadable rather than no answer: the transmitter did answer, so its
+    /// channel works, whatever the reply means.
+    /// </remarks>
+    public static LinkAnswer Answer(ReadOnlySpan<byte> report)
     {
-        var payload = Frames.CommandReply(report, CommandId);
-        return payload.Length == 1 ? payload[0] switch { 1 => true, 0 => false, _ => null } : null;
+        if (!Frames.IsCommandReply(report, CommandId)) return LinkAnswer.None;
+        return Frames.CommandReply(report, CommandId) switch
+        {
+            [1] => LinkAnswer.Linked,
+            [0] => LinkAnswer.NotLinked,
+            _ => LinkAnswer.Unreadable,
+        };
     }
+}
+
+/// <summary>A transmitter's answer to <see cref="LinkInquiry"/>.</summary>
+public enum LinkAnswer
+{
+    /// <summary>No reply to the inquiry.</summary>
+    None,
+
+    /// <summary>A reply saying no headset is linked.</summary>
+    NotLinked,
+
+    /// <summary>A reply saying the headset is linked.</summary>
+    Linked,
+
+    /// <summary>A reply to the inquiry that says neither.</summary>
+    Unreadable,
 }

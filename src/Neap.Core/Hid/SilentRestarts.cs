@@ -35,14 +35,15 @@ public sealed class SilentRestarts
     public void Retry(string path) => _restarted.Remove(path);
 
     /// <summary>Whether a silent transmitter's answer to <see cref="LinkInquiry"/> calls for a restart now.</summary>
-    /// <param name="linked">Its answer, or null when it gave none.</param>
+    /// <param name="answer">Its answer.</param>
     /// <param name="ruleOutOfDate">Whether the access rule installed is older than this version's; see <see cref="UdevRule"/>.</param>
     /// <remarks>
     /// <para>
     /// One that answers that no headset is linked has a working channel and
     /// simply has no headset to speak for: the headset is off or out of
     /// range, and a restart would only switch it off once it comes back. One
-    /// that gives no answer, or says the headset is linked and still answers
+    /// whose answer cannot be read has a working channel too, and is left
+    /// alone rather than restarted on a guess. One that gives no answer, or says the headset is linked and still answers
     /// nothing else, has a channel that has stopped, and is restarted.
     /// </para>
     /// <para>
@@ -52,21 +53,21 @@ public sealed class SilentRestarts
     /// back no reports at all.
     /// </para>
     /// </remarks>
-    public static bool Needed(bool? linked, bool ruleOutOfDate) => linked switch
+    public static bool Needed(LinkAnswer answer, bool ruleOutOfDate) => answer switch
     {
-        false => false,
-        null => !ruleOutOfDate,
-        true => true,
+        LinkAnswer.None => !ruleOutOfDate,
+        LinkAnswer.Linked => true,
+        _ => false,
     };
 
     /// <summary>Whether a silent transmitter's answer to <see cref="LinkInquiry"/> shows its control channel has stopped.</summary>
-    /// <param name="linked">Its answer, or null when it gave none.</param>
+    /// <param name="answer">Its answer.</param>
     /// <remarks>
     /// The transmitter answers the question itself, so no answer at all is a
     /// channel that has stopped, which keeping it awake (see
-    /// <see cref="UdevRule"/>) can prevent. One that answers either way has a
+    /// <see cref="UdevRule"/>) can prevent. One that answers at all has a
     /// working channel, and an older rule is no reason to ask the person for
     /// their password.
     /// </remarks>
-    public static bool ChannelStopped(bool? linked) => linked is null;
+    public static bool ChannelStopped(LinkAnswer answer) => answer == LinkAnswer.None;
 }

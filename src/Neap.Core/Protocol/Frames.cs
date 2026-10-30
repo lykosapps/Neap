@@ -133,6 +133,11 @@ public static class Frames
         return frame;
     }
 
+    /// <summary>Whether a report is a RACE command reply (<see cref="RaceReply"/>) for a given command id, whatever its payload.</summary>
+    public static bool IsCommandReply(ReadOnlySpan<byte> report, ushort commandId) =>
+        report.Length >= 9 && report[0] == InReportId && report[3] == RaceStart && report[4] == RaceReply
+        && (report[7] | (report[8] << 8)) == commandId;
+
     /// <summary>
     /// The payload of a RACE command reply (<see cref="RaceReply"/>) for a
     /// given command id, or an empty span when the report is not that reply.
@@ -145,9 +150,7 @@ public static class Frames
     /// </remarks>
     public static ReadOnlySpan<byte> CommandReply(ReadOnlySpan<byte> report, ushort commandId)
     {
-        if (report.Length < 9 || report[0] != InReportId
-            || report[3] != RaceStart || report[4] != RaceReply) return default;
-        if ((report[7] | (report[8] << 8)) != commandId) return default;
+        if (!IsCommandReply(report, commandId)) return default;
         int inner = report[5] | (report[6] << 8);
         int payloadLength = inner - 2;
         if (payloadLength <= 0 || 9 + payloadLength > report.Length) return default;

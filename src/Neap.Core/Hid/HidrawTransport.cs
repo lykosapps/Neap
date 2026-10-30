@@ -220,20 +220,23 @@ public sealed class HidrawTransport : IHidTransport
     /// The transmitter answers this itself, so an answer at all says its
     /// control channel works, whatever the headset is doing.
     /// </remarks>
-    /// <returns>Its answer, or null when it gave none in time.</returns>
+    /// <returns>Its answer, and its reply in hex with trailing zeros left off, empty when it gave none in time.</returns>
     /// <exception cref="AccessDeniedException">The system does not let this user open the device.</exception>
     /// <exception cref="TransportException">The device could not be opened, written or read.</exception>
-    public static bool? AskLinked(HidDeviceInfo device, TimeSpan wait)
+    public static (LinkAnswer Answer, string Reply) AskLinked(HidDeviceInfo device, TimeSpan wait)
     {
         using var hid = new HidrawTransport(device);
         hid.SendOutput(LinkInquiry.Frame);
         long until = Environment.TickCount64 + (long)wait.TotalMilliseconds;
         while (Environment.TickCount64 < until)
         {
-            if (LinkInquiry.Linked(hid.GetInput()) is { } linked) return linked;
+            var report = hid.GetInput();
+            var answer = LinkInquiry.Answer(report);
+            if (answer != LinkAnswer.None)
+                return (answer, Convert.ToHexString(report, 0, report.AsSpan().LastIndexOfAnyExcept((byte)0) + 1));
             Thread.Sleep(4);
         }
-        return null;
+        return (LinkAnswer.None, "");
     }
 
     // -- restarting ----------------------------------------------------------

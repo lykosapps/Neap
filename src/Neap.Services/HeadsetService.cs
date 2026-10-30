@@ -1114,7 +1114,9 @@ public sealed class HeadsetService : IDisposable
     /// Each is asked first whether the headset is linked to it, a question it
     /// answers itself (<see cref="LinkInquiry"/>). One that answers no has a
     /// working channel and no headset to speak for, and is asked again next
-    /// time rather than restarted: the restart switches the headset off.
+    /// time rather than restarted: the restart switches the headset off. One
+    /// whose answer cannot be read has a working channel too, and is treated
+    /// the same way.
     /// </para>
     /// <para>
     /// The next ask, a few seconds later, finds out whether a restart worked: a
@@ -1137,21 +1139,24 @@ public sealed class HeadsetService : IDisposable
             var device = present.First(d => d.Path == path);
             try
             {
-                bool? linked = HidrawTransport.AskLinked(device, LinkWait);
-                bool stopped = SilentRestarts.ChannelStopped(linked);
+                var (answer, reply) = HidrawTransport.AskLinked(device, LinkWait);
+                bool stopped = SilentRestarts.ChannelStopped(answer);
                 _channelStopped |= stopped;
-                if (!SilentRestarts.Needed(linked, stopped && RuleOutOfDate()))
+                if (!SilentRestarts.Needed(answer, stopped && RuleOutOfDate()))
                 {
                     _restarts.Retry(path);
                     if (_toldUnlinked.Add(path))
-                        AppLog.Write(stopped
-                            ? $"headset: the transmitter at {path} gave no answer to the link question, so it is restarted once this version's access rule is in"
-                            : $"headset: the transmitter at {path} answers, and says no headset is linked to it, so it is left as it is");
+                        AppLog.Write(answer switch
+                        {
+                            LinkAnswer.None => $"headset: the transmitter at {path} gave no answer to the link question, so it is restarted once this version's access rule is in",
+                            LinkAnswer.Unreadable => $"headset: the transmitter at {path} answered the link question with a reply Neap cannot read ({reply}), so it is left as it is",
+                            _ => $"headset: the transmitter at {path} answers, and says no headset is linked to it, so it is left as it is",
+                        });
                     continue;
                 }
                 _toldUnlinked.Remove(path);
                 AppLog.Write($"headset: the transmitter at {path} "
-                    + (linked is null ? "gave no answer to the link question" : "says the headset is linked, and answers nothing else")
+                    + (answer == LinkAnswer.None ? "gave no answer to the link question" : "says the headset is linked, and answers nothing else")
                     + ", so it is restarted");
                 var heard = HidrawTransport.Restart(device, RestartListen);
                 AppLog.Write($"headset: restarted the silent transmitter at {path}, and read {heard.Count} reports with something in them as it came back"
@@ -1182,7 +1187,7 @@ public sealed class HeadsetService : IDisposable
     {
         try
         {
-            return HidrawTransport.AskLinked(device, LinkWait) is null;
+            return SilentRestarts.ChannelStopped(HidrawTransport.AskLinked(device, LinkWait).Answer);
         }
         catch (TransportException ex)
         {

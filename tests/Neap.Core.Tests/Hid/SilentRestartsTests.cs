@@ -56,23 +56,26 @@ public class SilentRestartsTests
     }
 
     [Theory]
-    [InlineData(null, true)]
-    [InlineData(true, true)]
-    [InlineData(false, false)]
-    public void OnlyATransmitterThatSaysNoHeadsetIsLinkedIsLeftAlone(bool? linked, bool restart) =>
-        Assert.Equal(restart, SilentRestarts.Needed(linked, ruleOutOfDate: false));
+    [InlineData(LinkAnswer.None, true)]
+    [InlineData(LinkAnswer.Linked, true)]
+    [InlineData(LinkAnswer.NotLinked, false)]
+    [InlineData(LinkAnswer.Unreadable, false)]
+    public void OnlyNoAnswerOrLinkedAndSilentIsRestarted(LinkAnswer answer, bool restart) =>
+        Assert.Equal(restart, SilentRestarts.Needed(answer, ruleOutOfDate: false));
 
     [Theory]
-    [InlineData(null, false)]
-    [InlineData(true, true)]
-    [InlineData(false, false)]
-    public void AStoppedChannelUnderAnOlderRuleWaitsForTheNewOne(bool? linked, bool restart) =>
-        Assert.Equal(restart, SilentRestarts.Needed(linked, ruleOutOfDate: true));
+    [InlineData(LinkAnswer.None, false)]
+    [InlineData(LinkAnswer.Linked, true)]
+    [InlineData(LinkAnswer.NotLinked, false)]
+    [InlineData(LinkAnswer.Unreadable, false)]
+    public void AStoppedChannelUnderAnOlderRuleWaitsForTheNewOne(LinkAnswer answer, bool restart) =>
+        Assert.Equal(restart, SilentRestarts.Needed(answer, ruleOutOfDate: true));
 
     [Theory]
-    [InlineData(null, true)]
-    [InlineData(true, false)]
-    [InlineData(false, false)]
-    public void OnlyNoAnswerAtAllIsAStoppedChannel(bool? linked, bool stopped) =>
-        Assert.Equal(stopped, SilentRestarts.ChannelStopped(linked));
+    [InlineData(LinkAnswer.None, true)]
+    [InlineData(LinkAnswer.Linked, false)]
+    [InlineData(LinkAnswer.NotLinked, false)]
+    [InlineData(LinkAnswer.Unreadable, false)]
+    public void OnlyNoAnswerAtAllIsAStoppedChannel(LinkAnswer answer, bool stopped) =>
+        Assert.Equal(stopped, SilentRestarts.ChannelStopped(answer));
 }

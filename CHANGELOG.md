@@ -92,6 +92,9 @@ and date.
 - With Parametric on, when the headset's stored equaliser comes back in a
   form Neap doesn't understand, Neap doesn't send its shape onto it as the
   headset connects, and says so in its log.
+- On Linux, a transmitter that answers Neap's question about the headset
+  in a way Neap cannot read is left as it is rather than restarted, which
+  switched the headset off. The app log says what it answered.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for
