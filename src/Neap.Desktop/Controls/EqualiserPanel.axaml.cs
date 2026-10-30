@@ -279,7 +279,7 @@ public partial class EqualiserPanel : UserControl
     /// <summary>Whether Parametric was chosen, as a choice to be made good once it is turned on.</summary>
     private bool _parametricWanted;
 
-    /// <summary>Whether this panel offers the true parametric equaliser: the Stealth Pro II's game bank, once it is in the release.</summary>
+    /// <summary>Whether this panel offers the true parametric equaliser: the Stealth Pro II's game bank, while Neap offers it.</summary>
     private bool ParametricOffered =>
         Bank == Bank.Game && AppServices.Headset.Model is { HasParametricBands: true }
         && ParametricService.Offered;

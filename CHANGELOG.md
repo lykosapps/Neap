@@ -57,13 +57,8 @@ and date.
 
 ### Fixed
 
-- A Stealth Pro II whose parametric equaliser was turned on with a test
-  build keeps its equaliser as it is when it connects: Neap no longer sends
-  the saved parametric shape while that equaliser is not in the release.
-  And a saved shape Neap cannot read is no longer sent as a flat one.
-- The quick equaliser preset list, in Quick settings and the mini panel,
-  lists the ten-band presets for a Stealth Pro II left in its parametric
-  equaliser by a test build, rather than parametric presets that do nothing.
+- A saved parametric shape Neap cannot read is no longer sent to the
+  headset as a flat one.
 - The record Neap keeps of other apps' volumes, so it can put them back
   after a crash, is no longer lost if the PC loses power while it is being
   saved.

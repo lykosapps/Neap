@@ -46,13 +46,14 @@ public sealed class ParametricService
 
     public ParametricService(HeadsetService headset) => _headset = headset;
 
-    /// <summary>Whether Neap offers the parametric equaliser: once it is in the release, or in a pretend run.</summary>
+    /// <summary>Whether Neap offers the parametric equaliser: once it is in the release, in a pretend run, or while it is turned on.</summary>
     /// <remarks>
-    /// Nothing is sent to the headset's bands or its equaliser record while it
-    /// is not offered, whatever the settings file says, as there is nothing on
-    /// screen to see it or turn it off.
+    /// A headset whose parametric equaliser was turned on with a test build
+    /// keeps it, with the controls to change it or turn it off; once off, it
+    /// is gone until the release has it. Nothing is sent to the headset's
+    /// bands or its equaliser record while it is not offered.
     /// </remarks>
-    public static bool Offered => FirmwareEdit.ParametricReleased || Pretend.Active;
+    public static bool Offered => FirmwareEdit.ParametricReleased || Pretend.Active || AppSettings.Current.ParametricOn;
 
     /// <summary>The ten bands as the person last left them, flat before they have made any, or null when what is saved cannot be read.</summary>
     public static IReadOnlyList<ParametricBand>? Saved => StoredBand.Shape(AppSettings.Current.ParametricShape);
@@ -88,10 +89,7 @@ public sealed class ParametricService
         bool connected = status.Link == Link.Connected;
         if (!connected) _sender.Forget();
         else if (!_wasConnected && AppSettings.Current.ParametricOn && _headset.Model is { HasParametricBands: true })
-        {
-            if (Offered) CheckThenSend();
-            else AppLog.Write("parametric: on in the settings, but not in this release, so the saved shape was not sent");
-        }
+            CheckThenSend();
         _wasConnected = connected;
     }
 
