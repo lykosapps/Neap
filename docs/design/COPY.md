@@ -147,6 +147,6 @@ never cute, never alarmed and never blames anyone.
 | Chat apps | Chat sources | The apps that count as chat |
 | Master volume | Volume | The headset's own volume |
 | Microphone | Mic | Everywhere in the interface, including Microphone monitoring |
-| Loudness boost | Max loudness boost | Raising the Stealth Pro II's own level |
+| Pre-gain | Loudness boost, Max loudness boost | The level the Stealth Pro II applies before its equaliser |
 | Preset | Profile (for the equaliser) | A saved equaliser curve |
 | Profile | Preset (for the headset) | A saved set of all the headset's settings |

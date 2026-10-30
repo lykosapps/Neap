@@ -28,4 +28,4 @@ the models, not this file.
 | Lights | Yes |
 | Auto shut-off | Yes |
 | Wake on motion | Yes |
-| Max loudness boost | Yes |
+| Pre-gain | Yes |

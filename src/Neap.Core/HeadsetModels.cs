@@ -60,9 +60,9 @@ public sealed record HeadsetModel(
     /// <remarks>A group it does not have is never answered, so asking for one only delays the read at start.</remarks>
     public IReadOnlyList<string> MissingCategories { get; init; } = [];
 
-    /// <summary>Whether it has the loudness boost; see <see cref="Audio.LoudnessBoost"/>.</summary>
+    /// <summary>Whether it has Pre-gain, the level before its equaliser; see <see cref="Audio.LoudnessBoost"/>.</summary>
     /// <remarks>
-    /// The boost writes a level the headset keeps, so a headset is sent it,
+    /// Pre-gain writes a level the headset keeps, so a headset is sent it,
     /// even to ask, only where the command is known: confirmed on the Stealth
     /// Pro II, and read from the Atlas Air's firmware (SP2Tools F114: the same
     /// command, parameter and stock level), for its testers to confirm by ear.

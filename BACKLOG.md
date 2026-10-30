@@ -115,7 +115,7 @@ first and say how sure each finding is.
 - **A fully parametric equaliser, live.** Built for the Stealth Pro II and
   held back from releases (`FirmwareEdit.ParametricReleased` is off); see
   DECISIONS.md, 27 and 28 October. Each of the game bank's ten bands has a
-  filter, frequency, width and gain, set live over the loudness boost's route,
+  filter, frequency, width and gain, set live over Pre-gain's route,
   after the headset's stock gain correction is cleared, which choosing
   Parametric on the Equaliser page does, through the dock or the cable.
   Neap keeps its own presets, imports Equalizer APO and
@@ -126,15 +126,15 @@ first and say how sure each finding is.
   is released. Left: the headset checks (HEADSET-CHECKS.md),
   the record write on Linux, and whether the Mode button's preset step
   moves the bands (if it does, Neap must block it or follow it).
-- **Equaliser boosts with the loudness boost raised.** SP2Tools reads an
+- **Equaliser boosts with Pre-gain raised.** SP2Tools reads an
   active compressor after the equaliser (threshold −10 dB, ratio 100:1,
   make-up +7 dB, live over the same route) that squashes a 0 dBFS tone by
   about 4, 7 and 10 dB at +6, +9 and +12 dB of boost, so a boost mostly
   raises compression, not level (read from the code, not proven), and the
-  loudness boost raises the level going into it. On a headset with the
-  boost raised, measure a bass boost and all ten bands at
+  Pre-gain raises the level going into it. On a headset with
+  Pre-gain raised, measure a bass boost and all ten bands at
   +9 dB for compression or clipping, against the same at stock, with the
-  sealed setup above. If it squashes, the loudness boost or the equaliser may need to
+  sealed setup above. If it squashes, Pre-gain or the equaliser may need to
   say so. Needs the headset and a recording microphone.
 - **Game and chat mix in the dock, natively.** Neap mixes in software today
   (per-app volumes). The dock's firmware has a second stereo playback
@@ -220,4 +220,4 @@ Needs the testers' replies on GitHub issue 1, not the owner's headset.
 - A chat mix overlay: a small on-screen display when the mix moves.
 - Mode button presses that trigger actions on the PC.
 - Spot Swarm II running and offer to close it.
-- **Import filters into the parametric equaliser.** Paste or open an Equalizer APO or AutoEq text file ("Filter 1: ON PK Fc 105 Hz Gain -2.5 dB Q 0.7") and put it on the ten bands, with where it came from shown beside the preset. Supported types only (bell, shelves, cuts, notch), at most ten bands, gains held to the headset's ±12 dB; what does not fit is listed, not dropped quietly. A preamp line is not used (Neap has no preamp), and the page says so. The way to a curve tuned to this headset rather than a generic starting shape, once someone has measured the Stealth Pro II properly; Neap's own measurement (28 September) is not trusted. Built on the parametric screen: "Import filters…" at the foot of Start from opens a dialog to paste into or open a .txt file, says before applying how many bands it sets, each line not used and why, gains held, and that a preamp is not used, and applies as one step Undo takes back. Still to do: showing where the bands came from beside the preset, once parametric presets are saved.
+- **Import filters into the parametric equaliser.** Paste or open an Equalizer APO or AutoEq text file ("Filter 1: ON PK Fc 105 Hz Gain -2.5 dB Q 0.7") and put it on the ten bands, with where it came from shown beside the preset. Supported types only (bell, shelves, cuts, notch), at most ten bands, gains held to the headset's ±12 dB; what does not fit is listed, not dropped quietly. A preamp line is not used (Pre-gain, set on its own, is the headset's preamp), and the page says so. The way to a curve tuned to this headset rather than a generic starting shape, once someone has measured the Stealth Pro II properly; Neap's own measurement (28 September) is not trusted. Built on the parametric screen: "Import filters…" at the foot of Start from opens a dialog to paste into or open a .txt file, says before applying how many bands it sets, each line not used and why, gains held, and that a preamp is not used, and applies as one step Undo takes back. Still to do: showing where the bands came from beside the preset, once parametric presets are saved.

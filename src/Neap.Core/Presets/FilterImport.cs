@@ -45,7 +45,7 @@ public sealed record FilterImportResult(
 /// filter that is off, a type the headset does not have, and every filter
 /// after the tenth are listed and not used, so nothing is dropped quietly. A
 /// gain past the limit is held to it, and a preamp line is reported and left to
-/// the person, since the headset's level is the Loudness boost's to set.
+/// the person, since the headset's level is Pre-gain's to set.
 /// </remarks>
 public static partial class FilterImport
 {

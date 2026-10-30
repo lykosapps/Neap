@@ -545,8 +545,8 @@ public sealed class HeadsetService : IDisposable
     });
 
     /// <summary>
-    /// Sets the headset's loudness boost above stock, in decibels, and confirms
-    /// it with a read.
+    /// Sets the headset's level before its equaliser (Pre-gain), in decibels
+    /// from stock, and confirms it with a read.
     /// </summary>
     /// <remarks>
     /// <para>

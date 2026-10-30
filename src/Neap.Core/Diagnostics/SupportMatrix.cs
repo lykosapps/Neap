@@ -44,7 +44,7 @@ public static class SupportMatrix
             sb.AppendLine();
         }
 
-        sb.Append("| Max loudness boost |");
+        sb.Append("| Pre-gain |");
         foreach (var model in models) sb.Append(' ').Append(model.HasLoudnessBoost ? "Yes" : "—").Append(" |");
         sb.AppendLine();
         return sb.ToString();
