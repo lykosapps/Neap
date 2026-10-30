@@ -268,12 +268,10 @@ public sealed class UpdateService : IDisposable
 
             string expected = release.HashFrom(await Http.GetStringAsync(hashLink));
             string zip = Path.Combine(Work, release.ZipName);
-            string hash = await Download(zipLink, zip);
-            if (hash != expected)
-                throw new InvalidDataException($"the download's SHA-256 {hash} is not the published {expected}");
+            await Download(zipLink, zip);
 
             Set(UpdateStage.Installing);
-            await Task.Run(() => Install(release, zip));
+            await Task.Run(() => Install(release, zip, expected));
             AppLog.Write($"updates: version {version} is in place, restarting into it");
             Installed?.Invoke(Path.Combine(Folder, ExeName));
         }
@@ -313,14 +311,13 @@ public sealed class UpdateService : IDisposable
         Set(_offered);
     }
 
-    /// <summary>Downloads a file, reporting progress, and gives its SHA-256 in lower case.</summary>
-    private async Task<string> Download(Uri from, string to)
+    /// <summary>Downloads a file, reporting progress.</summary>
+    private async Task Download(Uri from, string to)
     {
         using var response = await Http.GetAsync(from, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
         long length = response.Content.Headers.ContentLength ?? 0;
 
-        using var sha = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         await using (var source = await response.Content.ReadAsStreamAsync())
         await using (var file = File.Create(to))
         {
@@ -330,7 +327,6 @@ public sealed class UpdateService : IDisposable
             while ((read = await ReadWithin(source, buffer)) > 0)
             {
                 await file.WriteAsync(buffer.AsMemory(0, read));
-                sha.AppendData(buffer, 0, read);
                 arrived += read;
                 int percent = length > 0 ? (int)(arrived * 100 / length) : 0;
                 if (percent == Percent) continue;
@@ -338,7 +334,6 @@ public sealed class UpdateService : IDisposable
                 Changed?.Invoke();
             }
         }
-        return Convert.ToHexStringLower(sha.GetHashAndReset());
     }
 
     /// <remarks>The client's own timeout ends once the download starts, so a stall is caught here.</remarks>
@@ -348,14 +343,26 @@ public sealed class UpdateService : IDisposable
         return await source.ReadAsync(buffer, stalled.Token);
     }
 
-    /// <summary>Unzips the download, checks it is the version expected, and puts it in place of this one.</summary>
-    private static void Install(Release release, string zip)
+    /// <summary>Checks the download and the version inside it, and puts it in place of this one.</summary>
+    /// <remarks>
+    /// The zip is held open, letting no other program write to it, from
+    /// the hash check until it is unzipped, so the bytes unzipped are the
+    /// bytes checked.
+    /// </remarks>
+    private static void Install(Release release, string zip, string expected)
     {
         string incoming = Path.Combine(Work, "new");
         if (Directory.Exists(incoming)) Directory.Delete(incoming, recursive: true);
 
-        // Refuses any entry that would land outside the folder.
-        ZipFile.ExtractToDirectory(zip, incoming);
+        using (var held = new FileStream(zip, FileMode.Open, FileAccess.Read, FileShare.None))
+        {
+            string hash = Convert.ToHexStringLower(SHA256.HashData(held));
+            if (hash != expected)
+                throw new InvalidDataException($"the download's SHA-256 {hash} is not the published {expected}");
+            held.Position = 0;
+            // Refuses any entry that would land outside the folder.
+            ZipFile.ExtractToDirectory(held, incoming);
+        }
         File.Delete(zip);
 
         string exe = Path.Combine(incoming, ExeName);
