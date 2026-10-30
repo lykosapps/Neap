@@ -8,10 +8,9 @@ namespace Neap.Core.Audio.Pulse;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The headset's device is the one whose USB ids say so, found before the
-/// default is: moving the slider while the default is a pair of speakers
-/// would otherwise change the speakers. With no headset device it falls back
-/// to the default and says so through <see cref="EndpointInfo.MatchedHeadset"/>.
+/// The headset's device is the one whose USB ids say so, chosen as
+/// <see cref="HeadsetDevice.Choose"/> sets out. With no headset device it
+/// falls back to the default and says so through <see cref="EndpointInfo.MatchedHeadset"/>.
 /// </para>
 /// <para>
 /// A volume is the number the desktop's own mixer shows, so what Neap shows
@@ -56,14 +55,9 @@ public static class PulseVolumes
         var devices = flow == Flow.Output ? client.Sinks() : client.Sources();
         string listening = flow == Flow.Output ? client.DefaultSink() : client.DefaultSource();
 
-        // The one in use first, for the reason in Windows' version: several
-        // devices can answer for the headset, one per transmitter plugged in.
-        var headset = devices.FirstOrDefault(d => d.IsHeadset && d.Name == listening)
-                      ?? devices.FirstOrDefault(d => d.IsHeadset);
-        if (headset is not null) return (headset, true);
-
-        return devices.FirstOrDefault(d => d.Name == listening) is { } fallback
-            ? (fallback, false)
+        var (device, headset) = HeadsetDevice.Choose(devices, d => d.IsHeadset, d => d.Name == listening);
+        return device is not null
+            ? (device, headset)
             : throw new PulseException("there is no audio device available");
     }
 }

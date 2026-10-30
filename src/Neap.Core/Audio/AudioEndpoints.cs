@@ -231,42 +231,45 @@ internal sealed class Endpoint : IDisposable
     internal IMMDevice Device => _device;
 
     /// <summary>
-    /// Finds the headset's endpoint on a flow: the Windows default if it is
-    /// one of the headset's, and otherwise the first whose name matches.
+    /// Finds the headset's endpoint on a flow, chosen as
+    /// <see cref="HeadsetDevice.Choose"/> sets out, or null when no endpoint's
+    /// name matches.
     /// </summary>
     /// <remarks>
-    /// The default is checked first because the headset can offer several
-    /// endpoints at once, one per transmitter plugged in and one more for
-    /// itself over the USB-C cable, all with the same name. Taking the first
-    /// match can move the Charging Dock's level while Windows plays through
-    /// the USB-C cable, which changes nothing audible.
+    /// The headset's endpoints all have the same name, so which is in use is
+    /// told by the default's id. Every endpoint not chosen is released.
     /// </remarks>
     internal static IMMDevice? FindMatching(IMMDeviceEnumerator enumerator, string match, DataFlow flow)
     {
+        string listening = "";
         if (!Com.Failed(enumerator.GetDefaultAudioEndpoint(flow, Role.Multimedia, out var current))
             && current is not null)
         {
-            if (HeadsetModels.SoundMatches(FriendlyName(current), match))
-                return current;
+            listening = IdOf(current);
             Marshal.ReleaseComObject(current);
         }
 
         if (Com.Failed(enumerator.EnumAudioEndpoints(flow, Com.DeviceStateActive, out var collection)))
             return null;
+        var devices = new List<IMMDevice>();
         try
         {
             collection.GetCount(out uint count);
             for (uint i = 0; i < count; i++)
-            {
-                if (Com.Failed(collection.Item(i, out var device))) continue;
-                if (HeadsetModels.SoundMatches(FriendlyName(device), match))
-                    return device;
-                Marshal.ReleaseComObject(device);
-            }
+                if (!Com.Failed(collection.Item(i, out var device))) devices.Add(device);
         }
         finally { Marshal.ReleaseComObject(collection); }
-        return null;
+
+        var (chosen, headset) = HeadsetDevice.Choose(devices,
+            d => HeadsetModels.SoundMatches(FriendlyName(d), match),
+            d => listening.Length > 0 && IdOf(d) == listening);
+        foreach (var device in devices)
+            if (!headset || !ReferenceEquals(device, chosen)) Marshal.ReleaseComObject(device);
+        return headset ? chosen : null;
     }
+
+    private static string IdOf(IMMDevice device) =>
+        Com.Failed(device.GetId(out string id)) ? "" : id ?? "";
 
     internal static string FriendlyName(IMMDevice device)
     {
