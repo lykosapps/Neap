@@ -145,8 +145,15 @@
                     <Setter Property="Background" Value="{DynamicResource NeapAccentFillHoverBrush}" />
                 </Style>
             </Style>
+            <!-- Something that cannot be used yet, such as the sound of Superhuman Hearing while it is off, is drawn in the disabled colour, as a switch is. -->
             <Style Selector="^:disabled">
                 <Setter Property="Foreground" Value="{DynamicResource NeapTextDisabledBrush}" />
+            </Style>
+            <Style Selector="^:disabled:checked">
+                <Setter Property="Foreground" Value="{DynamicResource NeapPanelBrush}" />
+                <Style Selector="^ /template/ Border#Segment">
+                    <Setter Property="Background" Value="{DynamicResource NeapTextDisabledBrush}" />
+                </Style>
             </Style>
             <Style Selector="^:focus-visible /template/ Border#Ring">
                 <Setter Property="IsVisible" Value="True" />

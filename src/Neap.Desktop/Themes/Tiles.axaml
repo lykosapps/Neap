@@ -99,15 +99,6 @@
     </Style>
 
     <!--
-        Something that cannot be used yet is shown faded, not hidden: a
-        segmented control in a card, such as the sound of Superhuman Hearing
-        while it is off.
-    -->
-    <Style Selector="Border.card Border.segmented:disabled">
-        <Setter Property="Opacity" Value="0.35" />
-    </Style>
-
-    <!--
         The switch in a card's head, at its right and with no word beside it:
         the tint and the switch itself say the state, and the card's own
         line says anything more.

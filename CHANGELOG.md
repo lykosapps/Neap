@@ -54,6 +54,9 @@ and date.
 
 ### Fixed
 
+- Superhuman Hearing's sound choices, while it is off, are drawn in the
+  colours for what is off rather than faded, so in high contrast they
+  take the system's colour for it.
 - The focus mark on the menu is drawn in the text colour, as every
   other focus mark is. In the light theme it was a pale purple that was
   hard to see.
