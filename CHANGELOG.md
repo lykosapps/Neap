@@ -102,6 +102,9 @@ and date.
   transmitter is in use, so after a reconnect it no longer changes the
   lights of the one used before. Until then the app log says it was not
   sent.
+- When the headset answers with a reply Neap cannot read, the app log and a
+  recording say so and keep the reply, rather than saying the headset gave
+  no answer.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

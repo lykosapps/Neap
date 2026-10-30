@@ -211,6 +211,9 @@ public sealed class HeadsetService : IDisposable
     /// <summary>The slots whose record the log has said did not parse, until one parses again.</summary>
     private readonly HashSet<int> _toldUnreadable = [];
 
+    /// <summary>The replies the log has said did not parse, each said once while the app runs.</summary>
+    private readonly HashSet<string> _toldUndecoded = new(StringComparer.Ordinal);
+
     /// <summary>
     /// The chat wheel reported a position. Raised on the UI thread with the
     /// raw counter, which is deliberately not a mix value: see
@@ -715,7 +718,7 @@ public sealed class HeadsetService : IDisposable
                     // Clear anything left on the wire before the first read,
                     // or a stale reply answers the first question asked.
                     client.Drain();
-                    var silent = new List<(string Category, string? Heard)>();
+                    var silent = new List<(string Category, string? Heard, string? Unparsed)>();
                     var everything = client.ReadAll(categories: Categories(), unanswered: silent);
 
                     // Opening the transmitter proves only that the
@@ -738,9 +741,11 @@ public sealed class HeadsetService : IDisposable
                     // itself: judged from the keys reported, a group sharing a
                     // key range with another that answered, as the Atlas Air's
                     // noise gate shares 0x7xx, reads as answered.
-                    foreach (var (group, heard) in silent)
-                        AppLog.Write($"headset: no answer for its {group} settings, which have no reading until it reports them"
-                            + (heard is null ? "" : $"; it sent {heard} instead"));
+                    foreach (var (group, heard, unparsed) in silent)
+                        AppLog.Write(unparsed is not null
+                            ? $"headset: its reply for its {group} settings did not parse, so they have no reading until it reports them: {unparsed}"
+                            : $"headset: no answer for its {group} settings, which have no reading until it reports them"
+                              + (heard is null ? "" : $"; it sent {heard} instead"));
                     primed = true;
                     // Only the groups this headset has: one it lacks costs a
                     // whole window each time, unanswered.
@@ -1104,6 +1109,10 @@ public sealed class HeadsetService : IDisposable
             _toldQuiet.Clear();
             _channelStopped = false;
             client.Wrote += attempt => Wrote?.Invoke(attempt);
+            client.Undecoded += fragment =>
+            {
+                if (_toldUndecoded.Add(fragment)) AppLog.Write($"headset: a reply did not parse: {fragment}");
+            };
             Model = HeadsetModels.Of(client.ProductId);
             if (client.Name != DeviceName)
                 AppLog.Write(client.Name.Length > 0

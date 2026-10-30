@@ -189,9 +189,10 @@ public sealed class SessionRecorder(HeadsetService headset) : IDisposable
             {
                 try
                 {
-                    var again = await headset.Post(client => client.ReadCategory(group, SilentWait));
+                    var (again, unparsed) = await headset.Post(client => (client.ReadCategory(group, SilentWait), client.Unparsed));
                     foreach (var (key, value) in again) values[key] = value.Clone();
-                    if (again.Count == 0) unread.Add($"{group}: no answer, asked twice");
+                    if (again.Count == 0)
+                        unread.Add(unparsed is null ? $"{group}: no answer, asked twice" : $"{group}: its reply did not parse: {unparsed}");
                 }
                 catch (Exception ex) { unread.Add($"{group}: {ex.Message}"); }
             }

@@ -5,8 +5,11 @@ namespace Neap.Core.Tests.Protocol;
 
 public class EventParserTests
 {
-    private static (List<DeviceEvent> Events, byte[] Remainder) Parse(string text) =>
-        EventParser.Consume(Encoding.ASCII.GetBytes(text));
+    private static (List<DeviceEvent> Events, byte[] Remainder) Parse(string text)
+    {
+        var (events, remainder, _) = EventParser.Consume(Encoding.ASCII.GetBytes(text));
+        return (events, remainder);
+    }
 
     [Fact]
     public void ReadsANotification()
@@ -76,4 +79,20 @@ public class EventParserTests
         Assert.Empty(events);
         Assert.Contains(EventParser.Unrecognised, fragment => fragment.Contains("89x", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void AnEventThatDoesNotDecodeIsReturnedWithItsCategory()
+    {
+        const string broken = "{\"OR\":\"GSI\",\"KVP\":{\"240\":89x}}";
+
+        var (_, _, undecoded) = EventParser.Consume(Encoding.ASCII.GetBytes(broken + "{\"UP\":\"SAF\",\"KVP\":{\"750\":\"1\"}}"));
+
+        var only = Assert.Single(undecoded);
+        Assert.Equal("GSI", only.Category);
+        Assert.Equal(broken, only.Fragment);
+    }
+
+    [Fact]
+    public void EventsThatDecodeLeaveNothingUndecoded() =>
+        Assert.Empty(EventParser.Consume(Encoding.ASCII.GetBytes("{\"UP\":\"SAF\",\"KVP\":{\"750\":\"1\"}}")).Undecoded);
 }

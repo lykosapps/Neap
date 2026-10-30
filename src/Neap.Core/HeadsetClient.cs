@@ -76,6 +76,16 @@ public sealed class HeadsetClient : IDisposable
     /// </remarks>
     public string? Unanswered { get; private set; }
 
+    /// <summary>The reply the last <see cref="ReadCategory"/> got for its category when that reply did not decode, or null.</summary>
+    /// <remarks>A reply that arrived and could not be read is not silence, and is told apart from it.</remarks>
+    public string? Unparsed { get; private set; }
+
+    /// <summary>Raised with each event that did not decode, once for each <see cref="ReadCategory"/> it arrives during or after; see <see cref="EventParser"/>.</summary>
+    public event Action<string>? Undecoded;
+
+    /// <summary>The events that did not decode since the last <see cref="ReadCategory"/> began.</summary>
+    private readonly List<(string Category, string Fragment)> _undecoded = [];
+
     /// <param name="allowWrites">Whether this client may write to the headset at all.</param>
     /// <param name="transport">The channel to the device, or the first plugged in to ask when none is given.</param>
     /// <param name="ownsTransport">
@@ -229,7 +239,14 @@ public sealed class HeadsetClient : IDisposable
         if (payload.IsEmpty) return [];
 
         _buffer.AddRange(payload.ToArray());
-        var (events, remainder) = EventParser.Consume(_buffer.ToArray());
+        var (events, remainder, undecoded) = EventParser.Consume(_buffer.ToArray());
+        // One that did not decode stays in the buffer, so it is found again
+        // with each report read until the next request clears it.
+        foreach (var each in undecoded.Where(each => !_undecoded.Contains(each)))
+        {
+            _undecoded.Add(each);
+            Undecoded?.Invoke(each.Fragment);
+        }
         _buffer.Clear();
         // Keep the tail bounded: a reply we never complete must not grow
         // without limit.
@@ -270,6 +287,8 @@ public sealed class HeadsetClient : IDisposable
         _heard = null;
         _reads = 0;
         Unanswered = null;
+        Unparsed = null;
+        _undecoded.Clear();
         var values = new Dictionary<string, JsonElement>();
         var clock = Stopwatch.StartNew();
         var sinceRead = new Stopwatch();
@@ -292,6 +311,7 @@ public sealed class HeadsetClient : IDisposable
             if (rest > 0) Thread.Sleep((int)rest);
         }
         if (values.Count == 0 && _heard is not null) Unanswered = Convert.ToHexString(_heard);
+        if (values.Count == 0) Unparsed = _undecoded.Find(u => u.Category == category).Fragment;
         return values;
     }
 
@@ -320,18 +340,19 @@ public sealed class HeadsetClient : IDisposable
     /// <param name="categories">The categories to read: every headset's, unless given.</param>
     /// <param name="unanswered">
     /// Given, each category that gave no answer is added to it, with what
-    /// arrived instead in hex, or null when nothing did; see <see cref="Unanswered"/>.
+    /// arrived instead in hex, or null when nothing did (see <see cref="Unanswered"/>),
+    /// and its reply when one arrived and did not decode (see <see cref="Unparsed"/>).
     /// </param>
     public Dictionary<string, JsonElement> ReadAll(
         TimeSpan? wait = null, IEnumerable<string>? categories = null,
-        ICollection<(string Category, string? Heard)>? unanswered = null)
+        ICollection<(string Category, string? Heard, string? Unparsed)>? unanswered = null)
     {
         var window = wait ?? TimeSpan.FromMilliseconds(1200);
         var values = new Dictionary<string, JsonElement>();
         foreach (var category in categories ?? Verbs.SettingCategories)
         {
             var answer = ReadCategory(category, window);
-            if (answer.Count == 0) unanswered?.Add((category, Unanswered));
+            if (answer.Count == 0) unanswered?.Add((category, Unanswered, Unparsed));
             foreach (var pair in answer)
                 values[pair.Key] = pair.Value;
         }

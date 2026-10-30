@@ -38,8 +38,9 @@ public readonly record struct DeviceEvent(
 /// </para>
 /// <para>
 /// Anything event-shaped that does not decode is recorded in
-/// <see cref="Unrecognised"/> rather than discarded, so that "cannot parse"
-/// is never mistaken for "does not exist".
+/// <see cref="Unrecognised"/> rather than discarded, and a whole event that
+/// does not decode is returned with its category, so that "cannot parse" is
+/// never mistaken for "does not exist".
 /// </para>
 /// </remarks>
 public static class EventParser
@@ -64,7 +65,7 @@ public static class EventParser
 
     /// <summary>
     /// Parses the complete events in a buffer and returns them with whatever
-    /// was not consumed.
+    /// was not consumed, and each complete event that did not decode.
     /// </summary>
     /// <remarks>
     /// Replies longer than one report continue in follow-on reports, and the
@@ -72,9 +73,11 @@ public static class EventParser
     /// keep appending to the remainder rather than clearing it. An unrelated
     /// notification can arrive part-way through a long reply.
     /// </remarks>
-    public static (List<DeviceEvent> Events, byte[] Remainder) Consume(ReadOnlySpan<byte> buffer)
+    public static (List<DeviceEvent> Events, byte[] Remainder, List<(string Category, string Fragment)> Undecoded) Consume(
+        ReadOnlySpan<byte> buffer)
     {
         var events = new List<DeviceEvent>();
+        var undecoded = new List<(string Category, string Fragment)>();
         var spans = new List<(int Start, int End)>();
         int consumed = 0;
 
@@ -102,9 +105,13 @@ public static class EventParser
             }
             catch (JsonException)
             {
+                values = null;
+            }
+            if (values is null)
+            {
+                undecoded.Add((match.Groups[2].Value, Clipped(text[match.Index..end])));
                 continue;
             }
-            if (values is null) continue;
 
             events.Add(new DeviceEvent(match.Groups[1].Value, match.Groups[2].Value, values));
             spans.Add((match.Index, end));
@@ -112,8 +119,11 @@ public static class EventParser
         }
 
         NoteUnrecognised(text, spans);
-        return (events, buffer[consumed..].ToArray());
+        return (events, buffer[consumed..].ToArray(), undecoded);
     }
+
+    /// <summary>A fragment cut to the 200 characters kept of it.</summary>
+    private static string Clipped(string fragment) => fragment.Length > 200 ? fragment[..200] : fragment;
 
     /// <summary>Index just past the object beginning at <paramref name="start"/>, or -1.</summary>
     private static int ObjectEnd(string text, int start)
@@ -148,7 +158,7 @@ public static class EventParser
         {
             int start = loose.Index, end = loose.Index + loose.Length;
             if (parsed.Any(s => s.Start <= start && end <= s.End)) continue;
-            string fragment = loose.Value.Length > 200 ? loose.Value[..200] : loose.Value;
+            string fragment = Clipped(loose.Value);
             lock (UnrecognisedGate)
             {
                 if (UnrecognisedFragments.Contains(fragment)) continue;

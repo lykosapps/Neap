@@ -121,7 +121,7 @@ internal static class Capture
             if (payload.Length == 0) continue;
 
             buffer.AddRange(payload);
-            var (events, remainder) = EventParser.Consume(buffer.ToArray());
+            var (events, remainder, _) = EventParser.Consume(buffer.ToArray());
             buffer.Clear();
             buffer.AddRange(remainder.Length > 8192 ? remainder[^8192..] : remainder);
 

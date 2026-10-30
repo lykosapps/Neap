@@ -255,12 +255,12 @@ public class HeadsetClientTests
     public void AReadOfEveryCategoryNamesTheOnesThatGaveNoAnswer()
     {
         using var client = new HeadsetClient(transport: new PretendHeadset().Open());
-        var unanswered = new List<(string Category, string? Heard)>();
+        var unanswered = new List<(string Category, string? Heard, string? Unparsed)>();
 
         var values = client.ReadAll(Window, ["GSI", "NG"], unanswered);
 
         Assert.Contains("240", values.Keys);
-        Assert.Equal([("NG", (string?)null)], unanswered);
+        Assert.Equal([("NG", (string?)null, (string?)null)], unanswered);
     }
 
     [Fact]
@@ -284,6 +284,34 @@ public class HeadsetClientTests
 
         Assert.Equal("50", client.ReadCategory("Prm", Slow)["c00"].GetString());
         Assert.Equal("72", client.ReadCategory("GSI", Slow)["240"].GetString());
+    }
+
+    [Fact]
+    public void AReplyThatDoesNotDecodeIsToldApartFromSilence()
+    {
+        const string broken = "{\"OR\":\"GSI\",\"KVP\":{\"240\":72x}}";
+        var transmitter = new Scripted();
+        transmitter.Answer(Fragments(broken));
+        using var client = new HeadsetClient(transport: transmitter);
+        var told = new List<string>();
+        client.Undecoded += told.Add;
+
+        Assert.Empty(client.ReadCategory("GSI", Window));
+        Assert.Equal(broken, client.Unparsed);
+        Assert.Contains(broken, told);
+    }
+
+    [Fact]
+    public void AnAnsweredReadLeavesNothingUnparsed()
+    {
+        var transmitter = new Scripted();
+        transmitter.Answer(Fragments("{\"OR\":\"GSI\",\"KVP\":{\"240\":72x}}"));
+        transmitter.Answer(Fragments("{\"OR\":\"GSI\",\"KVP\":{\"240\":\"72\"}}"));
+        using var client = new HeadsetClient(transport: transmitter);
+
+        client.ReadCategory("GSI", Window);
+        Assert.NotEmpty(client.ReadCategory("GSI", Slow));
+        Assert.Null(client.Unparsed);
     }
 
     [Fact]
