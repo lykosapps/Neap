@@ -2,7 +2,8 @@
 .SYNOPSIS
 Checks the lists that open from a button rather than a list box, in pretend
 mode: the profile list in the side menu and Home's chat apps, that they choose
-as every list does, and pictures them open for a person to look over.
+as every list does, and pictures them and a plain list box open for a person to
+look over.
 
 .DESCRIPTION
 Run through run.ps1. Saves one profile from the side menu, so its list has a
@@ -69,6 +70,15 @@ foreach ($part in @(@('A', 'dark'), @('B', 'light'))) {
         $chat.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).RemoveFromSelection()
         $music.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).RemoveFromSelection()
         Check (Wait-Until { (Find-ChatField).Current.Name -eq 'Chat comes from No app chosen yet' } 4) 'and both can be cleared'
+        Press (Find-ChatField)
+
+        Section "a plain list box ($theme)"
+        Send-Pretend 'page device' | Out-Null
+        Check (Wait-Until { $null -ne (Find-Box 'Auto shut-off*') } 10) 'the Device page has Auto shut-off'
+        Open-Menu (Find-Box 'Auto shut-off*')
+        Check (Wait-Until { $null -ne (Find-RowLike '10 minutes') } 4) 'its list opens'
+        Save-ListShot "lists-plain-$theme"
+        Close-Menu (Find-Box 'Auto shut-off*')
     }
     finally { Stop-NeapPretend }
 }

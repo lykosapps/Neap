@@ -164,25 +164,22 @@ internal sealed class ChoiceList
         return choice.Tag is not { } tag ? new TextBlock { Text = choice.Name, Classes = { "label" } } : Line(choice, tag);
     }
 
-    /// <summary>A row that can be chosen: the chosen marker, its name, its preview, and its delete button when it has one.</summary>
+    /// <summary>A row that can be chosen: its name, its preview, and its delete button when it has one.</summary>
     private Grid Line(Choice choice, object tag)
     {
         // Every row keeps the delete button's room when any row has one, so the previews line up down the list.
         var room = _choices.Any(c => c.Deletable) ? new GridLength(DeleteWidth) : GridLength.Auto;
         var row = new Grid
         {
-            ColumnDefinitions = { new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto), new(room) },
+            ColumnDefinitions = { new(GridLength.Star), new(GridLength.Auto), new(room) },
             ColumnSpacing = Space.S,
             Classes = { "slot" },
         };
-        row.Children.Add(new Border { Classes = { "marker" } });
-        var words = new TextBlock { Text = choice.Name, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
-        Grid.SetColumn(words, 1);
-        row.Children.Add(words);
+        row.Children.Add(new TextBlock { Text = choice.Name, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis });
         if (choice.Preview?.Invoke() is { } preview)
         {
             preview.Margin = new Thickness(Space.S, 0, 0, 0);
-            Grid.SetColumn(preview, 2);
+            Grid.SetColumn(preview, 1);
             row.Children.Add(preview);
         }
 
@@ -206,7 +203,7 @@ internal sealed class ChoiceList
                 e.Handled = true;
                 AskToDelete(tag);
             };
-            Grid.SetColumn(delete, 3);
+            Grid.SetColumn(delete, 2);
             row.Children.Add(delete);
         }
 

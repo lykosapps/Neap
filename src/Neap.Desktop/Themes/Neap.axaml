@@ -231,16 +231,50 @@
     <!--
         A list in a flyout, such as the profile bar's or the chat apps', sits on
         the flyout's own colour with a list box's rows: padded and rounded,
-        tinted when pointed at, and the chosen ones tinted and marked.
+        tinted when pointed at, and the chosen ones tinted and marked. The
+        marker is drawn in the row itself, as in a list box's, so a list of plain
+        words has it too.
     -->
     <Style Selector="FlyoutPresenter ListBox">
         <Setter Property="Background" Value="Transparent" />
     </Style>
     <Style Selector="FlyoutPresenter ListBoxItem">
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Padding" Value="16,8,12,8" />
         <Setter Property="Margin" Value="0,1" />
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel>
+                    <ContentPresenter
+                        Name="PART_ContentPresenter"
+                        Padding="{TemplateBinding Padding}"
+                        HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Foreground="{TemplateBinding Foreground}" />
+                    <Border
+                        Name="PART_Marker"
+                        Width="3"
+                        Height="16"
+                        Margin="4,0,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Background="{DynamicResource NeapAccentFillBrush}"
+                        CornerRadius="{StaticResource NeapRadiusTag}"
+                        IsHitTestVisible="False"
+                        IsVisible="False" />
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="FlyoutPresenter ListBoxItem:selected /template/ Border#PART_Marker">
+        <Setter Property="IsVisible" Value="True" />
     </Style>
     <Style Selector="FlyoutPresenter ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource NeapPresetHoverBrush}" />
@@ -250,14 +284,47 @@
     </Style>
 
     <!--
-        A list box's rows: the Bands preset list's padding and rounded rows, so
-        every list Neap chooses from reads the same; the colours are Fluent's
-        own keys (FluentKeys).
+        A list box's rows: the Bands preset list's padding and rounded rows, and
+        its marker on the chosen row, drawn in the row itself so every list box
+        has it, plain words or not; the colours are Fluent's own keys
+        (FluentKeys).
     -->
     <Style Selector="ComboBoxItem">
-        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Padding" Value="16,8,12,8" />
         <Setter Property="Margin" Value="4,1" />
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel>
+                    <ContentPresenter
+                        Name="PART_ContentPresenter"
+                        Padding="{TemplateBinding Padding}"
+                        HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Foreground="{TemplateBinding Foreground}" />
+                    <Border
+                        Name="PART_Marker"
+                        Width="3"
+                        Height="16"
+                        Margin="4,0,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Background="{DynamicResource NeapAccentFillBrush}"
+                        CornerRadius="{StaticResource NeapRadiusTag}"
+                        IsHitTestVisible="False"
+                        IsVisible="False" />
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="ComboBoxItem:selected /template/ Border#PART_Marker">
+        <Setter Property="IsVisible" Value="True" />
     </Style>
     <!-- A rule between groups of rows: a row of its own, only as tall as its line and the space around it. -->
     <Style Selector="ComboBoxItem.rule">

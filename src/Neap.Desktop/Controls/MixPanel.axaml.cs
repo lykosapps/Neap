@@ -179,15 +179,7 @@ public partial class MixPanel : UserControl
             {
                 _names[candidate.Process] = candidate.Display;
                 string text = candidate.Playing ? Strings.Format("Mix_Playing", candidate.Display) : candidate.Display;
-                var item = new ListBoxItem
-                {
-                    Tag = candidate.Process,
-                    Content = new StackPanel
-                    {
-                        Classes = { "gaprow" },
-                        Children = { new Border { Classes = { "marker" } }, new TextBlock { Text = text, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center } },
-                    },
-                };
+                var item = new ListBoxItem { Tag = candidate.Process, Content = text };
                 AutomationProperties.SetName(item, text);
                 AppList.Items.Add(item);
                 if (chosen.Contains(candidate.Process, StringComparer.OrdinalIgnoreCase)) AppList.SelectedItems!.Add(item);
