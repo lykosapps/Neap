@@ -123,6 +123,9 @@ and date.
 - An app turned down by the mix is no longer left turned down for good
   when the mix moves in the first moments after Neap starts, while it is
   still putting back the volumes a previous run left.
+- After the headset is unplugged and plugged back in, a change of spatial
+  sound made in the system's Sound settings or in Dolby Access shows in
+  Neap straight away again.
 - A message that comes after a wait, such as a save that failed, no longer
   closes the app when the window has gone to the notification area or the
   mini panel has closed in the meantime. What it would have said goes to

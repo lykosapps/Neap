@@ -72,6 +72,10 @@ public partial class SpatialTile : UserControl
     private string? _knownEndpointId;
     private SpatialFormat? _known;
     private IDisposable? _watch;
+
+    /// <summary>The endpoint <see cref="_watch"/> is on, apart from the last one seen, which outlasts a headset going away.</summary>
+    private string? _watchedEndpointId;
+
     private Task? _loading;
     private SpatialPanel? _panel;
 
@@ -136,6 +140,7 @@ public partial class SpatialTile : UserControl
         AppServices.Headset.StatusChanged -= OnStatus;
         _watch?.Dispose();
         _watch = null;
+        _watchedEndpointId = null;
         _knownEndpointId = null;
     }
 
@@ -174,8 +179,9 @@ public partial class SpatialTile : UserControl
     /// <summary>Keeps the watch on whichever endpoint is now current, since a stale one would watch a transmitter no longer in use.</summary>
     private void Rewatch(string? endpointId)
     {
-        if (endpointId == _knownEndpointId) return;
+        if (endpointId == _watchedEndpointId) return;
         _watch?.Dispose();
+        _watchedEndpointId = endpointId;
         _watch = endpointId is null ? null : Platform.Current.Spatial.Watch(endpointId, () => Dispatcher.UIThread.Post(() => _ = Load()));
     }
 
