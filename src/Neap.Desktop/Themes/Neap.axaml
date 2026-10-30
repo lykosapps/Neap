@@ -148,6 +148,11 @@
     <Style Selector="Window.touch Button, Window.touch ToggleButton, Window.touch ComboBox, Window.touch ListBoxItem">
         <Setter Property="FontSize" Value="{StaticResource NeapFontBodyTouch}" />
     </Style>
+    <!-- A finger needs the larger target an icon alone would otherwise not give. -->
+    <Style Selector="Window.touch Button.iconbutton">
+        <Setter Property="Width" Value="{StaticResource NeapTargetTouch}" />
+        <Setter Property="Height" Value="{StaticResource NeapTargetTouch}" />
+    </Style>
     <Style Selector="Window.touch c|NavItem">
         <Setter Property="Height" Value="{StaticResource NeapNavItemHeightTouch}" />
     </Style>
@@ -342,8 +347,8 @@
 
     <!-- A button that is only a picture: as high as every other button, and as wide. -->
     <Style Selector="Button.iconbutton">
-        <Setter Property="Width" Value="40" />
-        <Setter Property="Height" Value="40" />
+        <Setter Property="Width" Value="{StaticResource NeapControlHeight}" />
+        <Setter Property="Height" Value="{StaticResource NeapControlHeight}" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
     </Style>

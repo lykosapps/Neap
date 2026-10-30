@@ -17,6 +17,26 @@
         <Setter Property="MinWidth" Value="{StaticResource NeapTargetMin}" />
         <Setter Property="Padding" Value="12,8,12,3" />
     </Style>
+    <!--
+        An icon beside a button's words is drawn, not lettered, so the heavier
+        padding above that centres the letters would leave it low; it is raised
+        by half the difference, so it sits centred on the letters. A chip pads
+        evenly, so its icon stays put.
+    -->
+    <Style Selector="Button:not(.chip) StackPanel > PathIcon">
+        <Setter Property="RenderTransform" Value="translate(0px, -2.5px)" />
+    </Style>
+
+    <!--
+        A list box sits centred in its row, as a button and a field do, rather
+        than at the top, where a taller neighbour leaves it high; and its words
+        get more padding above than below, as a button's do, so they sit on the
+        same line as a button's beside it.
+    -->
+    <Style Selector="ComboBox">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Padding" Value="12,6,0,5" />
+    </Style>
 
     <!--
         Sliders are the toolkit's own, in Neap's colours and sizes through the

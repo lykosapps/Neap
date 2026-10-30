@@ -23,6 +23,9 @@ and date.
 
 ### Changed
 
+- Controls in a row line up: list boxes sit centred beside buttons, with
+  their words on the same line; buttons that are only an icon are as high
+  as the rest; and an icon beside a button's words is centred on them.
 - The equaliser preset on Home and in the mini panel is a standard list
   box, as the equaliser's own lists are: what is in use is chosen, with an
   Edited tag once it has been changed, and a preset you made can be deleted
