@@ -141,6 +141,8 @@ and date.
   stops answering says it couldn't switch, rather than closing the app.
 - After an update, the old version closes cleanly rather than leaving a
   crash in the app log on its way out.
+- On Linux, with high contrast on, controls that cannot be used are drawn
+  in grey. They were bright green, the colour that usually means on.
 - A screen reader names the side menu's two lists, Pages and Settings,
   rather than reading each out as a list with no name.
 - Compare on the Equaliser page works with voice control and a screen

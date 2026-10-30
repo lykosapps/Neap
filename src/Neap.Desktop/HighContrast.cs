@@ -17,7 +17,9 @@ namespace Neap.Desktop;
 /// <para>
 /// Windows says what its colours are; elsewhere the person has asked for
 /// contrast and nothing more, so a plain one is used: white on black, with
-/// yellow for what a link would be and cyan for what is chosen.
+/// yellow for what a link would be and cyan for what is chosen. What cannot
+/// be used is a neutral grey, still 4.5:1 against black either way round, so
+/// it is never read as on or working.
 /// </para>
 /// <para>
 /// Two variants, one over the light theme and one over the dark, since the
@@ -58,7 +60,7 @@ internal static class HighContrast
     private static Palette Read() => OperatingSystem.IsWindows() && !Pretend.HighContrast
         ? new Palette(System(ColorWindow), System(ColorWindowText), System(ColorGrayText),
             System(ColorHighlight), System(ColorHighlightText), System(ColorHotlight))
-        : new Palette(Colors.Black, Colors.White, Color.Parse("#3FF23F"), Color.Parse("#1AEBFF"), Colors.Black, Color.Parse("#FFFF00"));
+        : new Palette(Colors.Black, Colors.White, Color.Parse("#A6A6A6"), Color.Parse("#1AEBFF"), Colors.Black, Color.Parse("#FFFF00"));
 
     private static ResourceDictionary Dictionary(Palette p)
     {

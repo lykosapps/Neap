@@ -88,7 +88,9 @@ public sealed class SettingRow : SettingsCard
     /// <summary>Builds the row's control for its setting, once.</summary>
     private void Build(SettingKey key)
     {
-        if (Header is null) Header = key.Name;
+        // A row with no words of its own would show and say its registry name,
+        // so it is a mistake in the page, not something to cover over.
+        string spoken = Header ?? throw new InvalidOperationException($"the setting row for {key.Name} has no header");
 
         _control = key.Kind switch
         {
@@ -123,7 +125,6 @@ public sealed class SettingRow : SettingsCard
         // it, since the control takes focus; otherwise every slider announces
         // as "slider". The automation id is the setting's registry name, so a
         // script can find the control by the setting it writes.
-        string spoken = Header ?? key.Name;
         foreach (Control? control in new Control?[] { _slider, _toggle, _choice, _buttons })
             if (control is not null)
             {
