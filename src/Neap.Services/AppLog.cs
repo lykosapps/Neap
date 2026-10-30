@@ -15,13 +15,14 @@ namespace Neap.Services;
 /// </para>
 /// <para>
 /// Small on purpose: plain lines, the most recent thousand, beside the app's
-/// settings. It holds the app's own states, the names of the programs
-/// playing to the headset where the mix needs them, and the paths that error
-/// messages carry, which can include the profile folder. It stays on the PC,
-/// and a recording that includes it blanks the account, the profile folder
-/// and the PC's name (<see cref="Neap.Core.Diagnostics.Redaction"/>). How the
-/// file is kept, including when it cannot be written, is
-/// <see cref="LogFile"/>'s.
+/// settings. It holds the app's own states, the names the person gives
+/// profiles, presets and the curve files they load, the names of the
+/// programs playing to the headset where the mix needs them, and the paths
+/// that error messages carry, which can include the profile folder. It stays
+/// on the PC, and a recording that includes it blanks the account, the
+/// profile folder and the PC's name
+/// (<see cref="Neap.Core.Diagnostics.Redaction"/>). How the file is kept,
+/// including when it cannot be written, is <see cref="LogFile"/>'s.
 /// </para>
 /// </remarks>
 public static class AppLog
