@@ -36,9 +36,10 @@
                 <ControlTemplate>
                     <Border Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
                         <Grid>
+                            <!-- The focus mark of every control, drawn inside the item, as the items sit too close for one outside. -->
                             <Border x:Name="Ring" CornerRadius="{TemplateBinding CornerRadius}"
-                                    BorderThickness="2" IsHitTestVisible="False" IsVisible="False"
-                                    BorderBrush="{DynamicResource SystemAccentColorLight2}" />
+                                    BorderThickness="{StaticResource NeapFocusRingWidth}" IsHitTestVisible="False" IsVisible="False"
+                                    BorderBrush="{DynamicResource NeapTextBrush}" />
                             <Border x:Name="Marker" Width="3" Height="18" CornerRadius="2"
                                     HorizontalAlignment="Left" VerticalAlignment="Center" IsVisible="False"
                                     Background="{DynamicResource NeapGameTextBrush}" />

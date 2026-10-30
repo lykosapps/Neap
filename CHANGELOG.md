@@ -54,6 +54,9 @@ and date.
 
 ### Fixed
 
+- The focus mark on the menu is drawn in the text colour, as every
+  other focus mark is. In the light theme it was a pale purple that was
+  hard to see.
 - A screen reader names the box for a preset's name when saving an
   equaliser preset. It was read out as an unnamed text box.
 - The arrow after a link to another page, such as Keyboard shortcuts on
