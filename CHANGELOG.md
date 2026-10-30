@@ -54,6 +54,9 @@ and date.
 
 ### Fixed
 
+- The mix dial, before any chat app is chosen, is drawn in the colours for
+  what is off rather than faded, so in high contrast it takes the
+  system's colour for it.
 - Superhuman Hearing's sound choices, while it is off, are drawn in the
   colours for what is off rather than faded, so in high contrast they
   take the system's colour for it.

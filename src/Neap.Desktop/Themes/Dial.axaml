@@ -24,15 +24,6 @@
         <Setter Property="Stroke" Value="{DynamicResource NeapChatBrush}" />
     </Style>
 
-    <!--
-        The dial with no chat apps chosen: drawn, so the card shows what it is
-        for, and faded well below its working contrast, so it plainly cannot
-        be turned yet.
-    -->
-    <Style Selector="Grid.mixdial:disabled">
-        <Setter Property="Opacity" Value="0.35" />
-    </Style>
-
     <!-- The knob's pointer, in the colour of the side the mix leans to. -->
     <Style Selector="c|GameChatDial Path#Pointer">
         <Setter Property="Stroke" Value="{DynamicResource NeapGameTextBrush}" />
@@ -41,6 +32,21 @@
     </Style>
     <Style Selector="c|GameChatDial Path#Pointer.chat">
         <Setter Property="Stroke" Value="{DynamicResource NeapChatTextBrush}" />
+    </Style>
+
+    <!--
+        The dial with no chat apps chosen: drawn, so the card shows what it is
+        for, in the colour for what is off, so it plainly cannot be turned yet
+        and high contrast draws it in the system's own colour for that.
+    -->
+    <Style Selector="c|GameChatDial:disabled Path.segment.game, c|GameChatDial:disabled Path.segment.chat, c|GameChatDial:disabled Path#Pointer">
+        <Setter Property="Stroke" Value="{DynamicResource NeapTextDisabledBrush}" />
+    </Style>
+    <Style Selector="c|GameChatDial:disabled /template/ Ellipse#Knob">
+        <Setter Property="Stroke" Value="{DynamicResource NeapTextDisabledBrush}" />
+    </Style>
+    <Style Selector="Grid.mixdial:disabled > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextDisabledBrush}" />
     </Style>
 
     <Style Selector="c|GameChatDial">
@@ -58,7 +64,8 @@
                              Stroke="{DynamicResource NeapAccentTextBrush}" StrokeThickness="2" />
                     <!-- The segments, placed by the code. -->
                     <Canvas x:Name="Ring" />
-                    <Ellipse Width="{StaticResource NeapDialKnobSize}" Height="{StaticResource NeapDialKnobSize}"
+                    <Ellipse x:Name="Knob"
+                             Width="{StaticResource NeapDialKnobSize}" Height="{StaticResource NeapDialKnobSize}"
                              Fill="{DynamicResource NeapKnobBrush}"
                              Stroke="{DynamicResource NeapKnobEdgeBrush}" StrokeThickness="1" />
                     <Path x:Name="Pointer" />
