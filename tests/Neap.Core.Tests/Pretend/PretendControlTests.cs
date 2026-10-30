@@ -187,6 +187,32 @@ public class PretendControlTests
     }
 
     [Fact]
+    public void ColoursAtAPointThatIsNotANumberIsAnsweredAsAnError()
+    {
+        var (_, control) = Make();
+        control.Colours = (_, _) => null;
+
+        var reply = Reply(control, "colours 10 x");
+
+        Assert.False(reply.GetProperty("ok").GetBoolean());
+        Assert.Contains("'x'", reply.GetProperty("error").GetString(), StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(typeof(UnauthorizedAccessException))]
+    [InlineData(typeof(IOException))]
+    public void APictureThatCannotBeSavedIsAnsweredAsAnError(Type thrown)
+    {
+        var (_, control) = Make();
+        control.Picture = _ => throw (Exception)Activator.CreateInstance(thrown, "the file cannot be written")!;
+
+        var reply = Reply(control, "picture C:\\Windows\\list.png");
+
+        Assert.False(reply.GetProperty("ok").GetBoolean());
+        Assert.Equal("the file cannot be written", reply.GetProperty("error").GetString());
+    }
+
+    [Fact]
     public void ProgramsStartAndCloseByName()
     {
         var (_, control) = Make();

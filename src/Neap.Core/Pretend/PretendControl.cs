@@ -226,12 +226,15 @@ public sealed class PretendControl : IDisposable
                 ("picture", >= 2) => (Picture ?? throw new ArgumentException("there is no window to picture a list in"))(Rest(line))
                     ? "ok" : throw new ArgumentException("no list is open to picture"),
                 ("colours", 3) => (Colours ?? throw new ArgumentException("there is no window to read colours in"))(
-                    int.Parse(words[1], CultureInfo.InvariantCulture), int.Parse(words[2], CultureInfo.InvariantCulture)),
+                    PixelOf(words[1]), PixelOf(words[2])),
                 _ => throw new ArgumentException($"not a command: '{line}'"),
             };
             return new JsonObject { ["ok"] = true, ["result"] = result }.ToJsonString();
         }
-        catch (Exception ex) when (ex is ArgumentException or KeyNotFoundException)
+        // A command the app could not carry out, such as a picture saved to a
+        // folder that refuses it, is that command's answer: the pipe goes on
+        // serving the next.
+        catch (Exception ex) when (ex is ArgumentException or KeyNotFoundException or IOException or UnauthorizedAccessException)
         {
             return new JsonObject { ["ok"] = false, ["error"] = ex.Message }.ToJsonString();
         }
@@ -271,6 +274,10 @@ public sealed class PretendControl : IDisposable
         text == "empty" ? null
         : int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out int percent) ? percent
         : throw new ArgumentException($"a spare battery is a percentage or empty, not '{text}'");
+
+    private static int PixelOf(string text) =>
+        int.TryParse(text, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out int pixel) ? pixel
+        : throw new ArgumentException($"a point on the screen is two whole numbers, not '{text}'");
 
     private static Bank BankOf(string text) => text switch
     {
