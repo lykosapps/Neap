@@ -179,9 +179,26 @@ public sealed class AutoSwitchService : IDisposable
         if (_waiting is { } next && next != id) await TryApply();
     }
 
-    private async void OnProfilesChanged() => await TryApply();
+    private async void OnProfilesChanged()
+    {
+        try { await TryApply(); }
+        catch (Exception ex) { Fault(ex); }
+    }
 
-    private async void OnStatus(Neap.Core.Connection.HeadsetStatus status) => await TryApply(read: true);
+    private async void OnStatus(Neap.Core.Connection.HeadsetStatus status)
+    {
+        try { await TryApply(read: true); }
+        catch (Exception ex) { Fault(ex); }
+    }
+
+    /// <summary>Logs a switch that failed, once per fault.</summary>
+    /// <remarks>The switch runs from event handlers, where anything thrown closes the app.</remarks>
+    private void Fault(Exception ex)
+    {
+        string line = $"profiles: could not switch on its own: {ex.Message}";
+        if (line != _lastFault) AppLog.Write(line);
+        _lastFault = line;
+    }
 
     private void OnChosen()
     {

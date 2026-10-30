@@ -108,6 +108,8 @@ and date.
 - A setting Neap cannot send, such as one out of range in a profile saved
   by hand, no longer shows on screen as if it had changed. It stays at
   what the headset holds, and the app log says why.
+- Neap stays open if switching profile on its own fails part way, as when
+  the transmitter is pulled out mid-switch, and says why in its log.
 - An app turned down by the mix is no longer left turned down for good
   when the mix moves in the first moments after Neap starts, while it is
   still putting back the volumes a previous run left.
