@@ -57,6 +57,12 @@
   <data name="Main_NavSettings.AccessKey" xml:space="preserve">
     <value>S</value>
   </data>
+  <data name="Main_Places.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Pages</value>
+  </data>
+  <data name="Main_Foot.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Settings</value>
+  </data>
   <data name="Main_TrayOpen" xml:space="preserve">
     <value>Open Neap</value>
   </data>
@@ -765,6 +771,10 @@
   <data name="Profile_Edited" xml:space="preserve">
     <value>Edited</value>
   </data>
+  <data name="Profile_StatusEdited" xml:space="preserve">
+    <value>{0}, edited</value>
+    <comment>What a screen reader says for the profile in use once it has been changed. {0} is the profile's name.</comment>
+  </data>
   <data name="Profile_InUse" xml:space="preserve">
     <value>In use</value>
   </data>
@@ -854,6 +864,10 @@
   </data>
   <data name="Profile_Waiting" xml:space="preserve">
     <value>Waiting to switch to {0}</value>
+  </data>
+  <data name="Profile_TipWaiting" xml:space="preserve">
+    <value>{0}. {1}</value>
+    <comment>The profile button's tooltip in the folded menu. {0} is the profile's name; {1} says which profile is waiting to switch.</comment>
   </data>
   <data name="Profile_NoApps" xml:space="preserve">
     <value>Not assigned to any app</value>
@@ -1049,6 +1063,14 @@
   </data>
   <data name="Mix_KeyName" xml:space="preserve">
     <value>{0}: {1}</value>
+  </data>
+  <data name="Text_TwoSentences" xml:space="preserve">
+    <value>{0} {1}</value>
+    <comment>Two whole sentences shown one after the other.</comment>
+  </data>
+  <data name="Text_ThreeSentences" xml:space="preserve">
+    <value>{0} {1} {2}</value>
+    <comment>Three whole sentences shown one after the other.</comment>
   </data>
   <data name="Volume_Name" xml:space="preserve">
     <value>Volume</value>
@@ -1776,6 +1798,10 @@
   <data name="Firmware_Intro.Text" xml:space="preserve">
     <value>Edits change your headset's firmware. Neap backs up each section before writing it, and the headset puts stock back itself if a write doesn't verify. An edit can still stop the headset starting, and Turtle Beach can't help with an edited headset.</value>
   </data>
+  <data name="Firmware_StepState" xml:space="preserve">
+    <value>{0}: {1}</value>
+    <comment>A step of a firmware change as a screen reader says it. {0} is the step; {1} is how far it has got.</comment>
+  </data>
   <data name="Firmware_CannotWrite.Title" xml:space="preserve">
     <value>This version of Neap can't install edits yet</value>
   </data>
@@ -2327,6 +2353,10 @@
   </data>
   <data name="Curves_FileType" xml:space="preserve">
     <value>Frequency response</value>
+  </data>
+  <data name="Profile_ProgramsFileType" xml:space="preserve">
+    <value>Programs</value>
+    <comment>The kind of file the program picker shows on Windows.</comment>
   </data>
   <data name="Curves_LoadMeasuredTitle" xml:space="preserve">
     <value>Load a measurement</value>

@@ -293,7 +293,7 @@ public sealed class ProfileBar : UserControl
         _face.IsVisible = !_compact;
         _icon.IsVisible = _compact;
         _editedDot.IsVisible = edited;
-        string status = edited ? $"{_name.Text}, {Strings.Get("Profile_Edited")}" : _name.Text;
+        string status = edited ? Strings.Format("Profile_StatusEdited", _name.Text) : _name.Text;
         AutomationProperties.SetItemStatus(_face, status);
         AutomationProperties.SetItemStatus(_icon, status);
         AutomationProperties.SetName(_icon, _name.Text);
@@ -315,7 +315,7 @@ public sealed class ProfileBar : UserControl
 
         // The whole name, where the bar has shortened it, and in the icon what is waiting too. Only when it
         // changes: setting a tip on the button its list hangs from closes the list.
-        string tip = _compact && waiting is not null ? $"{_name.Text}. {_waiting.Text}" : _name.Text!;
+        string tip = _compact && waiting is not null ? Strings.Format("Profile_TipWaiting", _name.Text, _waiting.Text) : _name.Text!;
         foreach (var button in new Button[] { _face, _icon })
             if (ToolTip.GetTip(button) as string != tip) ToolTip.SetTip(button, tip);
     }

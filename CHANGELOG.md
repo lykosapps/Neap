@@ -141,6 +141,8 @@ and date.
   stops answering says it couldn't switch, rather than closing the app.
 - After an update, the old version closes cleanly rather than leaving a
   crash in the app log on its way out.
+- A screen reader names the side menu's two lists, Pages and Settings,
+  rather than reading each out as a list with no name.
 - Compare on the Equaliser page works with voice control and a screen
   reader, which press a button rather than hold it: a press turns it on,
   and another turns it off. Holding it works as before, and a screen reader

@@ -326,7 +326,7 @@ public sealed class ProfilesSettings : UserControl
         if (TopLevel.GetTopLevel(this) is not { } top) return null;
         var options = new FilePickerOpenOptions { AllowMultiple = false };
         // Only Windows programs have a name that ends in a type; elsewhere any file may be one.
-        if (OperatingSystem.IsWindows()) options.FileTypeFilter = [new FilePickerFileType("Programs") { Patterns = ["*.exe"] }];
+        if (OperatingSystem.IsWindows()) options.FileTypeFilter = [new FilePickerFileType(Strings.Get("Profile_ProgramsFileType")) { Patterns = ["*.exe"] }];
         var picked = await top.StorageProvider.OpenFilePickerAsync(options);
         if (picked.Count == 0 || picked[0].TryGetLocalPath() is not { } path) return null;
 

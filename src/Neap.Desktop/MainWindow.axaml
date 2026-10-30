@@ -101,6 +101,7 @@
                 <!-- Settings sits apart at the foot, as the Windows app has it. -->
                 <ListBox
                     x:Name="Foot"
+                    loc:Uid.Value="Main_Foot"
                     Background="Transparent"
                     DockPanel.Dock="Bottom">
                     <c:NavItem
@@ -108,7 +109,10 @@
                         Icon="{StaticResource IconSettings}"
                         Page="settings" />
                 </ListBox>
-                <ListBox x:Name="Places" Background="Transparent">
+                <ListBox
+                    x:Name="Places"
+                    loc:Uid.Value="Main_Places"
+                    Background="Transparent">
                     <c:NavItem
                         loc:Uid.Value="Main_NavHome"
                         Icon="{StaticResource IconHome}"

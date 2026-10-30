@@ -51,7 +51,7 @@ public partial class HeadsetStatusStrip : UserControl
         string tip = look.Headline switch
         {
             Headline.NoAccess => "",
-            Headline.NoSound when status.NoSound => StateCopy.WhatNoSound + " " + StateCopy.FixNoSound,
+            Headline.NoSound when status.NoSound => Strings.Format("Text_TwoSentences", StateCopy.WhatNoSound, StateCopy.FixNoSound),
             Headline.NoSound => StateCopy.SoundElsewhere,
             _ => status.Detail,
         };

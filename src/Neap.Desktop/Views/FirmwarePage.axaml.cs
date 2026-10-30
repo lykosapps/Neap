@@ -277,7 +277,7 @@ public partial class FirmwarePage : UserControl
             var said = new TextBlock { Text = state, Classes = { "secondary" } };
             Grid.SetColumn(said, 1);
             row.Children.Add(said);
-            AutomationProperties.SetName(row, $"{StepWords(step)}: {state}");
+            AutomationProperties.SetName(row, Strings.Format("Firmware_StepState", StepWords(step), state));
             StepList.Children.Add(row);
         }
 

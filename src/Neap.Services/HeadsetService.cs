@@ -347,7 +347,7 @@ public sealed class HeadsetService : IDisposable
     /// <summary>What the headset has been reading for its battery lately, to tell a reading that is still settling.</summary>
     private readonly BatteryTrend _batteryTrend = new();
 
-    private static string OffDetail => StateCopy.WhatOffOnCable + " " + StateCopy.FixOff;
+    private static string OffDetail => Strings.Format("Text_TwoSentences", StateCopy.WhatOffOnCable, StateCopy.FixOff);
 
     /// <summary>Logs each battery reading with the one before it, and feeds the trend, so settling can be measured across swaps.</summary>
     private void NoteBattery(JsonElement? was, JsonElement now)
@@ -1415,7 +1415,7 @@ public sealed class HeadsetService : IDisposable
     }
 
     private static string QuietDetail =>
-        StateCopy.WhatOff + " " + StateCopy.FixOff + " " + StateCopy.FallbackOff;
+        Strings.Format("Text_ThreeSentences", StateCopy.WhatOff, StateCopy.FixOff, StateCopy.FallbackOff);
 
     /// <summary>The detail shown when the headset's settings cannot be reached.</summary>
     /// <remarks>
@@ -1434,10 +1434,10 @@ public sealed class HeadsetService : IDisposable
     /// </para>
     /// </remarks>
     private static string UnreachableDetail =>
-        StateCopy.WhatUnreachable + " " + StateCopy.FixUnreachable;
+        Strings.Format("Text_TwoSentences", StateCopy.WhatUnreachable, StateCopy.FixUnreachable);
 
     private static string UnreachableNoSoundDetail =>
-        StateCopy.WhatUnreachableNoSound + " " + StateCopy.FixUnreachable;
+        Strings.Format("Text_TwoSentences", StateCopy.WhatUnreachableNoSound, StateCopy.FixUnreachable);
 
     /// <summary>Show a new status, when the tracker decided one.</summary>
     private void Publish(HeadsetStatus? next)
