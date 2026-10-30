@@ -46,9 +46,9 @@ public partial class MixKeysPanel : UserControl
             Paint();
         };
 
-        Capture(GameKey, MixKey.TowardGame);
-        Capture(ChatKey, MixKey.TowardChat);
-        Capture(CentreKey, MixKey.Balanced);
+        Capture(GameKey, GameRow, MixKey.TowardGame);
+        Capture(ChatKey, ChatRow, MixKey.TowardChat);
+        Capture(CentreKey, CentreRow, MixKey.Balanced);
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -74,14 +74,17 @@ public partial class MixKeysPanel : UserControl
     /// <remarks>
     /// The button itself becomes the prompt, so there is no dialog to dismiss;
     /// Escape leaves the binding as it was. The press is taken on the way down,
-    /// before the button can take Enter or Space as a click of its own.
+    /// before the button can take Enter or Space as a click of its own. The
+    /// button's name says the prompt too, as its name, not its words, is what
+    /// a screen reader reads.
     /// </remarks>
-    private void Capture(Button button, MixKey which)
+    private void Capture(Button button, SettingsCard row, MixKey which)
     {
         button.Click += (_, _) =>
         {
             _capturing = which;
             button.Content = Strings.Get("Mix_PressKeys");
+            AutomationProperties.SetName(button, Strings.Format("Mix_KeyName", row.Header, button.Content));
             button.Focus();
         };
 

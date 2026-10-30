@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Media;
 
@@ -9,8 +10,15 @@ public enum Severity { Informational, Warning }
 
 /// <summary>A sentence the screen has to say in words, which comes and goes.</summary>
 /// <remarks>
+/// <para>
 /// Hidden when closed, and takes no room: a closed one left in a stack would
 /// still be spaced as a child of it, which leaves a blank band.
+/// </para>
+/// <para>
+/// Its words are a live region, politely for a note and at once for a
+/// warning, and are put in only as it opens, so a screen reader says them
+/// when it appears and whenever they change, not only someone who sees it.
+/// </para>
 /// </remarks>
 public partial class Notice : UserControl
 {
@@ -34,6 +42,7 @@ public partial class Notice : UserControl
         InitializeComponent();
         Action.Click += (_, _) => ActionInvoked?.Invoke(this, EventArgs.Empty);
         IsVisible = false;
+        Live(AutomationLiveSetting.Polite);
     }
 
     public string? Title
@@ -73,29 +82,30 @@ public partial class Notice : UserControl
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == TitleProperty)
+        if (change.Property == TitleProperty || change.Property == MessageProperty || change.Property == IsOpenProperty)
         {
-            TitleText.Text = Title;
+            TitleText.Text = IsOpen ? Title : null;
             TitleText.IsVisible = !string.IsNullOrEmpty(Title);
-        }
-        else if (change.Property == MessageProperty)
-        {
-            MessageText.Text = Message;
+            MessageText.Text = IsOpen ? Message : null;
             MessageText.IsVisible = !string.IsNullOrEmpty(Message);
+            IsVisible = IsOpen;
         }
         else if (change.Property == ActionTextProperty)
         {
             Action.Content = ActionText;
             Action.IsVisible = !string.IsNullOrEmpty(ActionText);
         }
-        else if (change.Property == IsOpenProperty)
-        {
-            IsVisible = IsOpen;
-        }
         else if (change.Property == SeverityProperty)
         {
             Frame.Classes.Set("warning", Severity == Severity.Warning);
             Mark.Data = (Geometry)Application.Current!.FindResource(Severity == Severity.Warning ? "IconWarning" : "IconInfo")!;
+            Live(Severity == Severity.Warning ? AutomationLiveSetting.Assertive : AutomationLiveSetting.Polite);
         }
+    }
+
+    private void Live(AutomationLiveSetting setting)
+    {
+        AutomationProperties.SetLiveSetting(TitleText, setting);
+        AutomationProperties.SetLiveSetting(MessageText, setting);
     }
 }

@@ -749,7 +749,7 @@ public partial class EqualiserPanel : UserControl
             MaxLength = PresetStore.MaxNameLength,
         };
         AutomationProperties.SetName(field, Strings.Get("Equaliser_NamePlaceholder"));
-        var note = new TextBlock { Classes = { "caption", "secondary" } };
+        var note = NameNote.For(field);
         var limit = new TextBlock
         {
             Text = Strings.Format("Preset_TooLong", PresetStore.MaxNameLength),

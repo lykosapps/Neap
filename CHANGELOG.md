@@ -141,6 +141,12 @@ and date.
   stops answering says it couldn't switch, rather than closing the app.
 - After an update, the old version closes cleanly rather than leaving a
   crash in the app log on its way out.
+- A screen reader says a notice as it appears, such as the one asking for
+  Ctrl, Alt or Shift with a mix shortcut, and says a warning at once.
+- When you name a profile or a preset, a screen reader says why Save is
+  off, such as a name already taken, as you type.
+- A screen reader says "Press the keys" when a mix shortcut is waiting for
+  its new keys, rather than the keys it had.
 - A screen reader reads the mix dial and the parametric equaliser's dials
   as sliders, and says their value as they turn. Before, they had no role
   and no value.

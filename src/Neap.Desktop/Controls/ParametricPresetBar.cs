@@ -226,7 +226,8 @@ public sealed class ParametricPresetBar : UserControl
             MaxLength = ParametricPresets.LongestName,
         };
         AutomationProperties.SetName(field, Strings.Get("Equaliser_NamePlaceholder"));
-        var note = new TextBlock { Classes = { "caption", "secondary" }, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+        var note = NameNote.For(field);
+        note.TextWrapping = Avalonia.Media.TextWrapping.Wrap;
         var dialog = new NeapDialog
         {
             Heading = title,

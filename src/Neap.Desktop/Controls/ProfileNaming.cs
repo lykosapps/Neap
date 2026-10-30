@@ -22,7 +22,7 @@ internal static class ProfileNaming
         var field = new TextBox { Text = suggested, PlaceholderText = Strings.Get("Profile_NamePlaceholder"), MaxLength = 40 };
         // A placeholder alone is not a name a screen reader can rely on.
         AutomationProperties.SetName(field, Strings.Get("Profile_NamePlaceholder"));
-        var note = new TextBlock { Classes = { "caption", "secondary" } };
+        var note = NameNote.For(field);
         var dialog = new NeapDialog
         {
             Heading = title,
