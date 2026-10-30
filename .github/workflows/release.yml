@@ -18,6 +18,8 @@ permissions:
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  # Avalonia's build tools report each build to Avalonia unless told not to.
+  AVALONIA_TELEMETRY_OPTOUT: 1
 
 jobs:
   windows:

@@ -26,6 +26,12 @@ dotnet test --project tests/Neap.Core.Tests -c Release
 The same tests run on both. A few run on Linux only, such as the headset
 permission rule written by a real shell, so both are checked on every push.
 
+Avalonia's build tools report each build to Avalonia (the project's name,
+its target framework and runtime, and Avalonia's version). The build on
+GitHub turns this off; to turn it off on your own machine, set the
+environment variable `AVALONIA_TELEMETRY_OPTOUT` to `1`, as you may already
+have done for .NET's own with `DOTNET_CLI_TELEMETRY_OPTOUT`.
+
 Any warning fails the build. The build, the tests and the formatting check
 run on every push and pull request.
 
