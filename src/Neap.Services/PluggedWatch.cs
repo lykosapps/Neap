@@ -25,6 +25,8 @@ public sealed class PluggedWatch
     private readonly IDisposable _timer;
     private readonly Action _changed;
     private bool _failing;
+    private bool _looking;
+    private bool _stopped;
 
     /// <param name="changed">Called on the UI thread after the first look, and whenever what is plugged in changes.</param>
     public PluggedWatch(Action changed)
@@ -40,8 +42,15 @@ public sealed class PluggedWatch
     /// <summary>Gets the product ids plugged in, as four hex digits.</summary>
     public IReadOnlyList<string> Products { get; private set; } = Array.Empty<string>();
 
+    /// <remarks>
+    /// A look still under way when the next is due lets it pass, so a slow one
+    /// cannot land after a newer one; and one that ends after Stop tells
+    /// nobody, as its page has gone.
+    /// </remarks>
     private async Task Look()
     {
+        if (_looking || _stopped) return;
+        _looking = true;
         IReadOnlyList<HidDeviceInfo> now;
         try { now = await Task.Run(() => AppServices.Devices.Candidates()); }
         catch (Exception ex)
@@ -51,7 +60,9 @@ public sealed class PluggedWatch
             _failing = true;
             return;
         }
+        finally { _looking = false; }
         _failing = false;
+        if (_stopped) return;
 
         var products = now.Select(d => d.ProductId.ToString("X4", CultureInfo.InvariantCulture))
             .Order(StringComparer.Ordinal).ToArray();
@@ -62,5 +73,9 @@ public sealed class PluggedWatch
         _changed();
     }
 
-    public void Stop() => _timer.Dispose();
+    public void Stop()
+    {
+        _stopped = true;
+        _timer.Dispose();
+    }
 }
