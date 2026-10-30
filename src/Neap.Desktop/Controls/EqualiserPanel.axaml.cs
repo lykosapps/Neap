@@ -282,7 +282,7 @@ public partial class EqualiserPanel : UserControl
     /// <summary>Whether this panel offers the true parametric equaliser: the Stealth Pro II's game bank, once it is in the release.</summary>
     private bool ParametricOffered =>
         Bank == Bank.Game && AppServices.Headset.Model is { HasParametricBands: true }
-        && (Core.Firmware.FirmwareEdit.ParametricReleased || Pretend.Active);
+        && ParametricService.Offered;
 
     /// <summary>Which of the headset's equalisers this panel shapes.</summary>
     public Bank Bank

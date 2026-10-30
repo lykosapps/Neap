@@ -54,6 +54,10 @@ and date.
 
 ### Fixed
 
+- A Stealth Pro II whose parametric equaliser was turned on with a test
+  build keeps its equaliser as it is when it connects: Neap no longer sends
+  the saved parametric shape while that equaliser is not in the release.
+  And a saved shape Neap cannot read is no longer sent as a flat one.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

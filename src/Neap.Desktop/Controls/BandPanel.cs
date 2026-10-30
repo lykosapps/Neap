@@ -86,7 +86,7 @@ public sealed class BandPanel : UserControl
 
     private readonly Stack<List<ParametricBand>> _undoStack = new();
     private readonly Stack<List<ParametricBand>> _redoStack = new();
-    private List<ParametricBand> _bands = [.. ParametricService.Saved];
+    private List<ParametricBand> _bands = [.. ParametricService.Shown];
     private int _selected;
     private bool _painting;
 
@@ -158,7 +158,7 @@ public sealed class BandPanel : UserControl
 
     private void OnWindowDeactivated(object? sender, EventArgs e) => StopCompare();
 
-    private void ShowSaved() => Show(ParametricService.Saved);
+    private void ShowSaved() => Show(ParametricService.Shown);
 
     // A tone left playing, or Compare left holding flat, behind a hidden panel is one nobody can stop.
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

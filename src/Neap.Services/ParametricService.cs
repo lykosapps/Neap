@@ -1,4 +1,5 @@
 using Neap.Core.Connection;
+using Neap.Core.Firmware;
 using Neap.Core.Presets;
 
 namespace Neap.Services;
@@ -45,9 +46,27 @@ public sealed class ParametricService
 
     public ParametricService(HeadsetService headset) => _headset = headset;
 
-    /// <summary>The ten bands as the person last left them, or flat before they have made any.</summary>
-    public static IReadOnlyList<ParametricBand> Saved =>
-        StoredBand.Bands(AppSettings.Current.ParametricShape) ?? StockBands.Flat;
+    /// <summary>Whether Neap offers the parametric equaliser: once it is in the release, or in a pretend run.</summary>
+    /// <remarks>
+    /// Nothing is sent to the headset's bands or its equaliser record while it
+    /// is not offered, whatever the settings file says, as there is nothing on
+    /// screen to see it or turn it off.
+    /// </remarks>
+    public static bool Offered => FirmwareEdit.ParametricReleased || Pretend.Active;
+
+    /// <summary>The ten bands as the person last left them, flat before they have made any, or null when what is saved cannot be read.</summary>
+    public static IReadOnlyList<ParametricBand>? Saved => StoredBand.Shape(AppSettings.Current.ParametricShape);
+
+    /// <summary>The ten bands to draw: the saved ones, or flat when they cannot be read.</summary>
+    public static IReadOnlyList<ParametricBand> Shown => Saved ?? StockBands.Flat;
+
+    /// <summary>The saved bands to send, or null, with a line in the app log, when they cannot be read.</summary>
+    internal static IReadOnlyList<ParametricBand>? SavedToSend()
+    {
+        if (Saved is { } saved) return saved;
+        AppLog.Write("parametric: the saved shape is not ten bands the headset has, so it was not sent");
+        return null;
+    }
 
     /// <summary>Starts sending the saved shape each time the headset connects, while parametric is on, and following another app's gains.</summary>
     public void Watch()
@@ -69,7 +88,10 @@ public sealed class ParametricService
         bool connected = status.Link == Link.Connected;
         if (!connected) _sender.Forget();
         else if (!_wasConnected && AppSettings.Current.ParametricOn && _headset.Model is { HasParametricBands: true })
-            CheckThenSend();
+        {
+            if (Offered) CheckThenSend();
+            else AppLog.Write("parametric: on in the settings, but not in this release, so the saved shape was not sent");
+        }
         _wasConnected = connected;
     }
 
@@ -100,9 +122,9 @@ public sealed class ParametricService
             AppSettings.Update(settings => (settings.ParametricOn, settings.ParametricFirmware, settings.ParametricReset) = (false, null, true));
             Reset?.Invoke();
         }
-        else if (AppSettings.Current.ParametricActive && !TakenOverByAnotherApp())
+        else if (AppSettings.Current.ParametricActive && !TakenOverByAnotherApp() && SavedToSend() is { } saved)
         {
-            Set(Saved);
+            Set(saved);
         }
     }
 
@@ -127,7 +149,7 @@ public sealed class ParametricService
         if (seen.Count == reported.Length && seen.SequenceEqual(reported)) return false;
         AppSettings.Update(settings => settings.ParametricSeenGains = [.. reported]);
 
-        bool inUse = AppSettings.Current.ParametricOn && Active && _headset.Model is { HasParametricBands: true };
+        bool inUse = Offered && AppSettings.Current.ParametricOn && Active && _headset.Model is { HasParametricBands: true };
         if (!inUse || !OtherAppChange.Changed(seen, reported)) return false;
 
         AppLog.Write("parametric: another app changed the ten-band equaliser, so Neap goes back to it and keeps the shape");
@@ -170,9 +192,15 @@ public sealed class ParametricService
         Send();
     }
 
-    /// <summary>Sends the shape waiting, unless a job already is on its way to.</summary>
+    /// <summary>Sends the shape waiting, unless a job already is on its way to, or the parametric equaliser is not offered.</summary>
     private void Send()
     {
+        if (!Offered)
+        {
+            AppLog.Write("parametric: the parametric equaliser is not in this release, so the bands were not sent");
+            return;
+        }
+
         if (Interlocked.Exchange(ref _queued, 1) == 1) return;
 
         var job = _headset.Post(client =>
@@ -202,7 +230,7 @@ public sealed class ParametricService
     /// <summary>Whether the equaliser is in its Parametric mode.</summary>
     public static bool Active => AppSettings.Current.ParametricActive;
 
-    /// <summary>Goes into the Parametric mode, sending the whole saved shape, or a flat one when there is none.</summary>
+    /// <summary>Goes into the Parametric mode, sending the whole saved shape, or a flat one when there is none or it cannot be read.</summary>
     /// <remarks>
     /// All ten bands are sent, whatever Neap last sent: the ten-band
     /// equaliser changes the same bands' gains, so a band thought unchanged
@@ -213,7 +241,8 @@ public sealed class ParametricService
         AppSettings.Update(settings => (settings.ParametricActive, settings.ParametricTakenOver) = (true, false));
         if (ReportedGains() is { } reported) AppSettings.Update(settings => settings.ParametricSeenGains = [.. reported]);
         _sender.Forget();
-        Set(Saved);
+        if (Saved is null) AppLog.Write("parametric: the saved shape is not ten bands the headset has, so a flat one was sent");
+        Set(Shown);
         Announce();
     }
 

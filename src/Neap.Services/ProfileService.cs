@@ -139,8 +139,8 @@ public sealed class ProfileService : IDisposable
             AppServices.Presets.State(Bank.Mic)?.Baseline?.Name, format, autoShutoff,
             new ModeChoice(modeFunction, AppServices.Noise.Cycling), dial,
             ProfileGate.HoldsMix(model) && AppServices.Mix.Running ? AppServices.Mix.Mix : null,
-            model is { HasParametricBands: true } && AppSettings.Current.ParametricOn && ParametricService.Active
-                ? ParametricShape.Of(ParametricService.Saved) : null), Active?.Settings, model);
+            model is { HasParametricBands: true } && ParametricService.Offered && AppSettings.Current.ParametricOn && ParametricService.Active
+                ? ParametricShape.Of(ParametricService.Shown) : null), Active?.Settings, model);
     }
 
     private static async Task<(BankState Game, BankState Mic)> EnsureBanks() => (
@@ -209,13 +209,16 @@ public sealed class ProfileService : IDisposable
         // mode follows from other apps. Without one, Parametric is left
         // before the preset is chosen, for the same reason.
         var model = _headset.Model;
-        bool shapeHeard = model is { HasParametricBands: true } && s.GameShape is not null && AppSettings.Current.ParametricOn;
-        if (model is { HasParametricBands: true })
+        bool parametric = model is { HasParametricBands: true } && ParametricService.Offered;
+        bool shapeHeard = parametric && s.GameShape is not null && AppSettings.Current.ParametricOn;
+        if (parametric)
         {
             if (shapeHeard) AppServices.Parametric.Use(s.GameShape!);
             else if (s.GameShape is not null) missing = [.. missing, Strings.Get("Profile_ParametricOff")];
+            else if (ParametricService.Active && AppServices.Presets.LiveBands(Bank.Game) is { } heard)
+                AppServices.Parametric.UseBands(heard);
             else if (ParametricService.Active)
-                AppServices.Parametric.UseBands(AppServices.Presets.LiveBands(Bank.Game) ?? new int[BandWrites.Bands]);
+                AppLog.Write("parametric: the ten-band gains are not read yet, so the profile's ten bands were not sent");
         }
 
         if (!shapeHeard && s.GamePreset is { } gp && game.Presets.FirstOrDefault(p => p.Name == gp) is { } gamePreset)

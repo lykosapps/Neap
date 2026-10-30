@@ -159,7 +159,7 @@ public sealed class PresetChoice : ComboBox
         IsEnabled = true;
         var presets = ParametricService.Presets;
         var baseline = ParametricService.Baseline;
-        var shown = PresetPickerLook.Parametric(ParametricShape.Of(ParametricService.Saved), baseline);
+        var shown = PresetPickerLook.Parametric(ParametricShape.Of(ParametricService.Shown), baseline);
         string? chosen = shown == PresetShown.Unsaved ? null : baseline!.Name;
         bool edited = shown == PresetShown.Edited;
         PlaceholderText = Strings.Get("ParametricPreset_None");

@@ -20,4 +20,10 @@ public sealed record StoredBand(int Type, double Hertz, double Q, double Gain, b
         if (stored.Any(band => !Enum.IsDefined((BandType)band.Type))) return null;
         return [.. stored.Select(band => new ParametricBand((BandType)band.Type, band.Hertz, band.Q, band.Gain, band.InUse).Held())];
     }
+
+    /// <summary>The person's saved shape: flat before they have made one, or null when what is stored cannot be read.</summary>
+    /// <remarks>An unreadable shape is not taken as flat, so a damaged settings file never flattens the headset's equaliser.</remarks>
+    /// <param name="stored">What was stored.</param>
+    public static IReadOnlyList<ParametricBand>? Shape(IReadOnlyList<StoredBand> stored) =>
+        stored.Count == 0 ? StockBands.Flat : Bands(stored);
 }

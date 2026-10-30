@@ -28,6 +28,21 @@ public class StoredBandTests
     }
 
     [Fact]
+    public void NoShapeSavedIsFlat() => Assert.Equal(StockBands.Flat, StoredBand.Shape([]));
+
+    [Fact]
+    public void ASavedShapeThatCannotBeReadIsNoShape()
+    {
+        Assert.Null(StoredBand.Shape(Ten()[..9]));
+        var stored = Ten();
+        stored[3] = stored[3] with { Type = 3 };
+        Assert.Null(StoredBand.Shape(stored));
+    }
+
+    [Fact]
+    public void ASavedShapeIsItsTenBands() => Assert.Equal(StockBands.Game, StoredBand.Shape(Ten()));
+
+    [Fact]
     public void AFilterTheHeadsetDoesNotHaveIsNotAShape()
     {
         var stored = Ten();

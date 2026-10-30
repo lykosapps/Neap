@@ -44,6 +44,12 @@ public sealed class ParametricSetup
 
     private Task<SwitchResult> Run(string what, bool on, Func<GainCorrectionSwitch, SwitchResult> change)
     {
+        if (!ParametricService.Offered)
+        {
+            AppLog.Write($"parametric: {what}: not in this release, so nothing was sent");
+            return Task.FromResult(new SwitchResult(SwitchOutcome.ReadOnly));
+        }
+
         // A job posted with no headset connected would wait for one, so it is answered here.
         if (_headset.Status.Link is Link.Absent or Link.Connecting) return Task.FromResult(Said(what, new SwitchResult(SwitchOutcome.NoHeadset)));
         if (!GainCorrectionSwitch.BatteryAllows(_headset.Battery)) return Task.FromResult(Said(what, new SwitchResult(SwitchOutcome.LowBattery)));
@@ -68,7 +74,7 @@ public sealed class ParametricSetup
                     if (!on) settings.ParametricActive = false;
                 });
                 _bands.Forget();
-                if (on && ParametricService.Active) _bands.Set(ParametricService.Saved);
+                if (on && ParametricService.Active && ParametricService.SavedToSend() is { } saved) _bands.Set(saved);
             }
 
             return Said(what, result);
