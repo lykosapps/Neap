@@ -33,7 +33,8 @@ public sealed record RoutingStory(string Title, string Message, IReadOnlyList<De
     /// <param name="route">Where the system is sending sound and taking the microphone from.</param>
     /// <param name="sound">Check where sound is being sent.</param>
     /// <param name="microphone">Check which microphone is being listened to.</param>
-    public static RoutingStory? Of(HeadsetStatus status, AudioRoute route, bool sound, bool microphone)
+    /// <param name="chosenForYou">The warning can make the choices itself, so it does not tell the person how.</param>
+    public static RoutingStory? Of(HeadsetStatus status, AudioRoute route, bool sound, bool microphone, bool chosenForYou)
     {
         var verdict = RoutingCheck.Judge(status, route.Output, route.Calls, route.Input,
             route.CallsInput, route.Cable, AudioRoute.Belonging, sound, microphone);
@@ -68,11 +69,11 @@ public sealed record RoutingStory(string Title, string Message, IReadOnlyList<De
             .GroupBy(w => w.Pick)
             .Select(g => Pick(g.Key, g.ToList()))
             .ToList();
-        string choose = picks.Count > 0
+        var choices = RoutingCheck.Choices(wrong);
+        chosenForYou &= choices.Count > 0;
+        string choose = picks.Count > 0 && !chosenForYou
             ? " " + Strings.Format("Routing_Choose", Strings.List(picks))
             : "";
-
-        var choices = RoutingCheck.Choices(wrong);
         if (verdict.Cabled)
         {
             bool outs = wrong.Any(w => w.Output);
@@ -97,7 +98,9 @@ public sealed record RoutingStory(string Title, string Message, IReadOnlyList<De
         return new RoutingStory(title, wrong.Any(w => w.Pick.Length == 0)
             ? Strings.Format("Routing_OnUnplugged", here, there)
             : verdict.CrossPlayFixes && picks.Count > 0
-                ? on + " " + Strings.Format("Routing_PressOrChoose", there, here, Strings.List(picks))
+                ? on + " " + (chosenForYou
+                    ? Strings.Format("Routing_PressOrChooseForMe", there, here)
+                    : Strings.Format("Routing_PressOrChoose", there, here, Strings.List(picks)))
                 : on + choose, choices);
     }
 

@@ -568,25 +568,25 @@
     <value>Choose for me</value>
   </data>
   <data name="Routing_TitleSound" xml:space="preserve">
-    <value>Your system is playing to the {0}</value>
+    <value>Sound is set to the {0}</value>
   </data>
   <data name="Routing_TitleCalls" xml:space="preserve">
-    <value>Your system is sending calls to the {0}</value>
+    <value>Calls are set to the {0}</value>
   </data>
   <data name="Routing_TitleMicrophone" xml:space="preserve">
-    <value>Your system is using the {0}'s microphone</value>
+    <value>The microphone is set to the {0}</value>
   </data>
   <data name="Routing_TitleSoundCalls" xml:space="preserve">
-    <value>Your system is sending sound and calls to the {0}</value>
+    <value>Sound and calls are set to the {0}</value>
   </data>
   <data name="Routing_TitleSoundMicrophone" xml:space="preserve">
-    <value>Your system is sending sound and the microphone to the {0}</value>
+    <value>Sound and the microphone are set to the {0}</value>
   </data>
   <data name="Routing_TitleCallsMicrophone" xml:space="preserve">
-    <value>Your system is sending calls and the microphone to the {0}</value>
+    <value>Calls and the microphone are set to the {0}</value>
   </data>
   <data name="Routing_TitleAll" xml:space="preserve">
-    <value>Your system is sending sound, calls and the microphone to the {0}</value>
+    <value>Sound, calls and the microphone are set to the {0}</value>
   </data>
   <data name="Routing_Choose" xml:space="preserve">
     <value>In Sound settings, choose {0}.</value>
@@ -607,13 +607,13 @@
     <value>"{0}" for communications</value>
   </data>
   <data name="Routing_CableBoth" xml:space="preserve">
-    <value>Plugged in by cable, your headset plays one source at a time and sends your voice only over the cable.</value>
+    <value>On the cable, your headset plays and sends sound only over the cable.</value>
   </data>
   <data name="Routing_CableSound" xml:space="preserve">
-    <value>Plugged in by cable, your headset plays one source at a time, so sound sent to the {0} and the cable won't play together.</value>
+    <value>On the cable, your headset plays only what is sent to the cable, not to the {0}.</value>
   </data>
   <data name="Routing_CableMicrophone" xml:space="preserve">
-    <value>Plugged in by cable, your headset sends your voice only over it, so nobody will hear you.</value>
+    <value>On the cable, your headset sends your voice only over the cable.</value>
   </data>
   <data name="Routing_On" xml:space="preserve">
     <value>Your headset is on the {0}.</value>
@@ -626,6 +626,9 @@
   </data>
   <data name="Routing_OnUnheard" xml:space="preserve">
     <value>Your headset is on the {0}, so nobody will hear you.</value>
+  </data>
+  <data name="Routing_PressOrChooseForMe" xml:space="preserve">
+    <value>Press CrossPlay to switch to the {0}, or Choose for me to stay on the {1}.</value>
   </data>
   <data name="Routing_OnUnplugged" xml:space="preserve">
     <value>Your headset is on the {0}, which isn't plugged in. Press CrossPlay to switch to the {1}.</value>

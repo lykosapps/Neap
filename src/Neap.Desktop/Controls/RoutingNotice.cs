@@ -96,7 +96,8 @@ public sealed class RoutingNotice : Notice
 
     private void Paint()
     {
-        var story = RoutingStory.Of(AppServices.Headset.Status, AppServices.AudioRoute, Sound, Microphone);
+        var story = RoutingStory.Of(AppServices.Headset.Status, AppServices.AudioRoute, Sound, Microphone,
+            chosenForYou: OperatingSystem.IsWindows());
         if (story is null)
         {
             IsOpen = false;
