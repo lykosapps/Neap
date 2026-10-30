@@ -56,6 +56,9 @@ and date.
 
 - The arrow after a link to another page, such as Keyboard shortcuts on
   Home, points right, to where it goes. It pointed up.
+- Every switch looks the same. The switches in Settings, on the Device
+  page's Keep high-resolution audio and for the mix's keyboard shortcuts were drawn another
+  way, with an outlined track when off, and were smaller to touch.
 - The chat apps list and the mix work when the headset is Windows' output
   for calls but another device is the default, as when the speakers play
   everything else. Before, the list was empty and the mix did nothing,

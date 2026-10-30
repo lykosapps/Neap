@@ -110,7 +110,6 @@
                         x:Name="ShhSwitch"
                         loc:Uid.Value="Quick_ShhTile"
                         Classes="tileswitch"
-                        Theme="{DynamicResource NeapSwitch}"
                         IsEnabled="False" />
                 </Grid>
                 <TextBlock

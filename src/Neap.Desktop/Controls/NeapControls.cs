@@ -75,13 +75,7 @@ internal static class NeapControls
     }
 
     /// <summary>A switch with its state in words beside it, at the right of its row.</summary>
-    public static ToggleSwitch Switch() => new()
-    {
-        Theme = Of("NeapSwitch"),
-        OnContent = Strings.Get("Switch_On"),
-        OffContent = Strings.Get("Switch_Off"),
-        HorizontalAlignment = HorizontalAlignment.Right,
-    };
+    public static ToggleSwitch Switch() => new() { HorizontalAlignment = HorizontalAlignment.Right };
 
     /// <summary>A slider centred in its row.</summary>
     public static Slider Slider() => new() { VerticalAlignment = VerticalAlignment.Center };

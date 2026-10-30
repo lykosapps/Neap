@@ -226,10 +226,11 @@
         </ControlTheme>
 
         <!--
-            A switch: a pill track, the accent when on and a soft fill when off,
-            with its On or Off word beside it.
+            Every switch: a pill track, the accent when on and a soft fill when
+            off, with its On or Off word beside it. The words are set for every
+            switch at startup, from the resource file.
         -->
-        <ControlTheme x:Key="NeapSwitch" TargetType="ToggleSwitch">
+        <ControlTheme x:Key="{x:Type ToggleSwitch}" TargetType="ToggleSwitch">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="{DynamicResource NeapTextBrush}" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />

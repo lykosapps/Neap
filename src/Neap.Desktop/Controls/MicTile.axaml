@@ -25,7 +25,6 @@
                     <ToggleSwitch
                         x:Name="Face"
                         Classes="tileswitch"
-                        Theme="{DynamicResource NeapSwitch}"
                         IsEnabled="False" />
                 </Grid>
                 <TextBlock

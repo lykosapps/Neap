@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Styling;
@@ -16,6 +17,16 @@ public class App : Application
         // Before anything draws or starts: the words and the system underneath.
         Strings.Source = ResourceStrings.Get;
         Platform.Use(new DesktopPlatform());
+
+        // Every switch says On or Off beside it, in the resource file's words.
+        Styles.Add(new Style(x => x.OfType<ToggleSwitch>())
+        {
+            Setters =
+            {
+                new Setter(ToggleSwitch.OnContentProperty, Strings.Get("Switch_On")),
+                new Setter(ToggleSwitch.OffContentProperty, Strings.Get("Switch_Off")),
+            },
+        });
 
         // Someone who has asked their system for high contrast gets its
         // colours, and gets them as they change while the app is open. A
