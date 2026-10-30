@@ -82,8 +82,6 @@ public sealed class PretendHeadset : IDeviceSource
     private const string AtlasSilent = "3DT";
 
     private const int NameKey = 0x220;
-    private const int SlotBlock = 0x400;
-    private const int SlotStride = 0x20;
 
     // The Charging Dock's slot, and where in it the spare battery's charge sits.
     private const int DockSlot = 0;
@@ -258,10 +256,10 @@ public sealed class PretendHeadset : IDeviceSource
     /// <remarks>A transmitter's lighting is held in its slot, at +1 and +2.</remarks>
     public string? Value(int key)
     {
-        int inSlot = key - SlotBlock;
+        int inSlot = key - Transmitters.Block;
         lock (_gate)
-            return inSlot is >= 0 and < Transmitters.Slots * SlotStride && inSlot % SlotStride is 1 or 2
-                ? _control[inSlot / SlotStride][inSlot % SlotStride]
+            return inSlot is >= 0 and < Transmitters.Slots * Transmitters.Stride && inSlot % Transmitters.Stride is 1 or 2
+                ? _control[inSlot / Transmitters.Stride][inSlot % Transmitters.Stride]
                 : _values.GetValueOrDefault(key);
     }
 
@@ -310,7 +308,7 @@ public sealed class PretendHeadset : IDeviceSource
             _info[DockSlot][SpareEntry] = percent?.ToString(CultureInfo.InvariantCulture) ?? SpareBattery.EmptySlot;
             if (!_on) return;
             var kvp = new StringBuilder();
-            Append(kvp, Hex(SlotBlock), SlotRecord(DockSlot));
+            Append(kvp, Hex(Transmitters.Block), SlotRecord(DockSlot));
             Enqueue($"{{\"UP\":\"TX1\",\"KVP\":{{{kvp}}}}}", reply: false);
         }
     }
@@ -643,7 +641,7 @@ public sealed class PretendHeadset : IDeviceSource
     /// </summary>
     /// <remarks>The Atlas Air's transmitter group sits among the slots' keys and is read as plain values.</remarks>
     private static bool IsPlainValue(int key) =>
-        (key is not (>= SlotBlock and < SlotBlock + Transmitters.Slots * SlotStride)
+        (key is not (>= Transmitters.Block and < Transmitters.Block + Transmitters.Slots * Transmitters.Stride)
          || Registry.ByKey.TryGetValue(key, out var setting) && setting.Category == "TX")
         && !(key >= 0x1700 && key < 0x1900);
 
@@ -713,11 +711,11 @@ public sealed class PretendHeadset : IDeviceSource
             changed[at] = to;
         }
 
-        int inSlot = key - SlotBlock;
-        if (!IsPlainValue(key) && inSlot is >= 0 and < Transmitters.Slots * SlotStride)
+        int inSlot = key - Transmitters.Block;
+        if (!IsPlainValue(key) && inSlot is >= 0 and < Transmitters.Slots * Transmitters.Stride)
         {
             // Only +1 and +2 get this far: WireValue refuses the rest.
-            _control[inSlot / SlotStride][inSlot % SlotStride] = value;
+            _control[inSlot / Transmitters.Stride][inSlot % Transmitters.Stride] = value;
             return null;
         }
 

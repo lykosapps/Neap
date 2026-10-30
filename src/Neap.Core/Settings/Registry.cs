@@ -104,16 +104,13 @@ public static class Registry
                 ? throw new ArgumentException($"0x{key:x} is another headset's own setting, not the {model?.Name ?? "unknown headset"}'s")
                 : known;
 
-        int inSlot = (key - TransmitterBlock) % TransmitterStride;
-        if (key is >= TransmitterBlock and < TransmitterBlock + 4 * TransmitterStride
+        int inSlot = (key - Transmitters.Block) % Transmitters.Stride;
+        if (key is >= Transmitters.Block and < Transmitters.Block + Transmitters.Slots * Transmitters.Stride
             && inSlot is 1 or 2)
-            return ByKey[TransmitterBlock + inSlot];
+            return ByKey[Transmitters.Block + inSlot];
 
         throw new ArgumentException($"0x{key:x} is not a setting confirmed as safe to write");
     }
-
-    private const int TransmitterBlock = 0x400;
-    private const int TransmitterStride = 0x20;
 
     private static SettingKey R(int key, string name, string category,
         int? min = null, int? max = null, bool writable = true, string note = "") =>

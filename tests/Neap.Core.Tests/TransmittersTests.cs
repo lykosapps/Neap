@@ -193,4 +193,49 @@ public class TransmittersTests
     {
         Assert.Equal(piece, Transmitters.PieceOf(product));
     }
+
+    [Theory]
+    [InlineData(1, 0x400)]
+    [InlineData(2, 0x420)]
+    [InlineData(3, 0x440)]
+    [InlineData(4, 0x460)]
+    public void EachSlotsRecordSitsInItsOwnBlock(int slot, int key)
+    {
+        Assert.Equal(key, Transmitters.BlockOf(slot));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(5)]
+    public void ASlotOutsideOneToFourHasNoBlock(int slot)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => Transmitters.BlockOf(slot));
+    }
+
+    [Theory]
+    [InlineData(0x401, 1, 0x401)]
+    [InlineData(0x402, 1, 0x402)]
+    [InlineData(0x401, 2, 0x421)]
+    [InlineData(0x402, 2, 0x422)]
+    [InlineData(0x401, 4, 0x461)]
+    public void ALightWriteGoesToTheActiveSlotsBlock(int role, int activeSlot, int wire)
+    {
+        Assert.Equal(wire, Transmitters.LightingKeyFor(role, activeSlot));
+    }
+
+    [Theory]
+    [InlineData(0x400, 1)]
+    [InlineData(0x403, 1)]
+    [InlineData(0x401, 0)]
+    [InlineData(0x401, 5)]
+    public void OnlyALightRoleInARealSlotHasAWireKey(int role, int activeSlot)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => Transmitters.LightingKeyFor(role, activeSlot));
+    }
+
+    [Fact]
+    public void ASlotsCategoryReadsAtItsBlock()
+    {
+        Assert.Equal(Transmitters.BlockOf(3), Verbs.TransmitterKey("TX3"));
+    }
 }

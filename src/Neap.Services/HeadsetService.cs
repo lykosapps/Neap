@@ -115,9 +115,9 @@ public sealed class HeadsetService : IDisposable
     private volatile HeadsetStatus _status;
     private long _lastRaise;
 
-    /// <summary>Which slot's block the lighting writes belong in, or null until a slot read finds the one in use. See <see cref="OnTheWire"/>.</summary>
+    /// <summary>Which slot the lighting writes belong in, or null until a slot read finds the one in use. See <see cref="OnTheWire"/>.</summary>
     /// <remarks>Only the headset thread reads or sets it.</remarks>
-    private int? _lightingBlock;
+    private int? _lightingSlot;
 
     /// <summary>Last seen 0x150, for spotting that it moved. See <see cref="LinkFlagMoved"/>.</summary>
     private int? _lastLinkFlag;
@@ -456,7 +456,7 @@ public sealed class HeadsetService : IDisposable
                 int since = (int)((Stopwatch.GetTimestamp() - previous) * 1000 / Stopwatch.Frequency);
                 if (since < WriteGapMs) Thread.Sleep(WriteGapMs - since);
             }
-            if (SlotLight(key) && _lightingBlock is null)
+            if (SlotLight(key) && _lightingSlot is null)
             {
                 const string why = "no transmitter slot reads as the one in use, so Neap does not know whose light it is";
                 AppLog.Write($"headset: a change to 0x{key:x} was not sent: {why}");
@@ -1016,18 +1016,10 @@ public sealed class HeadsetService : IDisposable
     /// <summary>Where a lighting brightness actually has to be written.</summary>
     /// <remarks>
     /// <para>
-    /// The two LED keys are roles, not addresses. Each transmitter slot is a
-    /// block (0x400, 0x420, 0x440, 0x460), and a slot's two brightnesses sit at
-    /// +1 and +2 inside its own block, so 0x401 and 0x402 on the wire are slot
-    /// one's. Measured with the Charging Dock in slot two and the USB
-    /// Transmitter in slot one: writing 0x421 moved the dock's values and 0x401
-    /// moved the transmitter's.
-    /// </para>
-    /// <para>
     /// The app shows the active transmitter's brightnesses under 0x401/0x402,
-    /// so writes are translated here to the active slot's block. The keys then
-    /// mean "the LEDs of the transmitter you are using" for reads and writes
-    /// alike.
+    /// so writes are translated to the active slot's block; see
+    /// <see cref="Transmitters.LightingKeyFor"/>. The keys then mean "the LEDs
+    /// of the transmitter you are using" for reads and writes alike.
     /// </para>
     /// <para>
     /// A headset that keeps its light elsewhere, as the Atlas Air does, has
@@ -1035,8 +1027,8 @@ public sealed class HeadsetService : IDisposable
     /// </para>
     /// </remarks>
     private int OnTheWire(int key) =>
-        SlotLight(key) && _lightingBlock is int block
-            ? block + (key - 0x400)
+        SlotLight(key) && _lightingSlot is int slot
+            ? Transmitters.LightingKeyFor(key, slot)
             : HeadsetModels.KeyOnHeadset(Model, key);
 
     /// <summary>Whether a key is one of the two lighting roles that belong in the active slot's block; see <see cref="OnTheWire"/>.</summary>
@@ -1059,7 +1051,7 @@ public sealed class HeadsetService : IDisposable
     private void Forget()
     {
         _link.Forget();
-        _lightingBlock = null;
+        _lightingSlot = null;
         _batteryTrend.Reset();
         FileLoudness(null);
         if (_values.IsEmpty && _owned.IsEmpty) return;
@@ -1336,7 +1328,7 @@ public sealed class HeadsetService : IDisposable
         // The dock's two lighting brightnesses come back inside its slot and
         // nowhere else, so take them out here or both LED rows have no value.
         var active = all.FirstOrDefault(t => t.Active);
-        if (active is not null) _lightingBlock = 0x400 + 0x20 * (active.Slot - 1);
+        if (active is not null) _lightingSlot = active.Slot;
 
         var lighting = Transmitters.Lighting(all);
         if (lighting.Count > 0)

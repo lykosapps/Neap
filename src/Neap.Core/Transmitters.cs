@@ -31,6 +31,39 @@ public static class Transmitters
 {
     public const int Slots = 4;
 
+    /// <summary>Where slot one's record is read; each later slot's sits one <see cref="Stride"/> on.</summary>
+    public const int Block = 0x400;
+
+    /// <summary>How far apart two slots' records sit.</summary>
+    public const int Stride = 0x20;
+
+    /// <summary>The key a slot's record is read at, for slots 1 to 4.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The slot is not one of the four.</exception>
+    public static int BlockOf(int slot)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(slot, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(slot, Slots);
+        return Block + Stride * (slot - 1);
+    }
+
+    /// <summary>Where a lighting brightness for the transmitter in use is written.</summary>
+    /// <remarks>
+    /// The two LED keys, 0x401 and 0x402, are roles, not addresses. A slot's
+    /// two brightnesses sit at +1 and +2 inside its own block, so the role is
+    /// moved into the active slot's block. Measured with the Charging Dock in
+    /// slot two and the USB Transmitter in slot one: writing 0x421 moved the
+    /// dock's values and 0x401 moved the transmitter's.
+    /// </remarks>
+    /// <param name="role">0x401 or 0x402.</param>
+    /// <param name="activeSlot">The slot of the transmitter in use, 1 to 4.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The role is not a light, or the slot is not one of the four.</exception>
+    public static int LightingKeyFor(int role, int activeSlot)
+    {
+        if (role is not (Block + ControlLed1 or Block + ControlLed2))
+            throw new ArgumentOutOfRangeException(nameof(role), $"0x{role:x} is not a lighting key");
+        return BlockOf(activeSlot) + (role - Block);
+    }
+
     /// <summary>What a Turtle Beach device in this family actually is.</summary>
     public enum Piece { Unknown, Dock, Transmitter, Headset }
 

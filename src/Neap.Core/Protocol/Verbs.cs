@@ -88,9 +88,9 @@ public static class Verbs
         return (category[1] == 'G' ? 0x1700 : 0x1800) + 0x20 * (n - 1);
     }
 
-    /// <summary>Transmitter slot n reads at 0x400 + 0x20*(n-1).</summary>
+    /// <summary>Transmitter slot n reads at its block; see <see cref="Transmitters.BlockOf"/>.</summary>
     public static int TransmitterKey(string category) =>
-        0x400 + 0x20 * (category[2] - '1');
+        Transmitters.BlockOf(category[2] - '0');
 
     internal static bool TakesArgument(string verb) => verb == "set_kvp";
 
