@@ -43,7 +43,7 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
    Accepted, mitigated by process rather than by code: `FINDINGS.md` and `CONTRIBUTING.md` require this to be stripped before anything is shared, and the whole repository and its commit history were checked today with nothing found. This is ongoing discipline, not a one-time fix — worth a fresh look before anything captured from the hardware is committed.
 
 8. **Another program or account on the machine reads Neap's own settings, log or journal.**
-   Accepted. None of them holds a password, a token, or anything about the person; Windows' ordinary per-user file permissions are enough for files this unremarkable.
+   Accepted. None of them holds a password or a token. The log names the programs playing to the headset and can hold paths under the person's profile, which that account can already see; Windows' ordinary per-user file permissions are enough for files this unremarkable.
 
 9. **A vulnerability ships inside a NuGet package or a GitHub Action.**
    Accepted and monitored. Dependabot watches both, weekly; every version is pinned exactly rather than left to float, and Actions are pinned to a commit. No separate scanner (OSV-Scanner and the like) is wired in yet; low priority, since Dependabot already covers most of the same ground.

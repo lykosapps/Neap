@@ -15,7 +15,11 @@ namespace Neap.Services;
 /// </para>
 /// <para>
 /// Small on purpose: plain lines, the most recent thousand, beside the app's
-/// settings. Nothing about the person, only the app's own states. How the
+/// settings. It holds the app's own states, the names of the programs
+/// playing to the headset where the mix needs them, and the paths that error
+/// messages carry, which can include the profile folder. It stays on the PC,
+/// and a recording that includes it blanks the account, the profile folder
+/// and the PC's name (<see cref="Neap.Core.Diagnostics.Redaction"/>). How the
 /// file is kept, including when it cannot be written, is
 /// <see cref="LogFile"/>'s.
 /// </para>
