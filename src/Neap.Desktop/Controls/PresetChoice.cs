@@ -13,14 +13,14 @@ namespace Neap.Desktop.Controls;
 /// </summary>
 /// <remarks>
 /// <para>
-/// It follows the mode in use, as <see cref="PresetPickerLook"/> decides. In
-/// the ten-band mode it names the preset the headset is on, with the Edited
-/// tag for a curve moved since, and lists the headset's presets. In the
-/// Parametric mode it names and lists the parametric presets Neap keeps, with
-/// the Parametric tag, as a parametric preset and a ten-band one can share a
-/// name; with none saved, it says so and lists the way to the equaliser, where
-/// one is saved. The rows are <see cref="ChoiceList"/>'s, so a preset the
-/// person saved can be deleted from here as from every list.
+/// It names the preset in use, in whichever mode, with the Edited tag for a
+/// curve moved since. Where Neap offers the parametric equaliser it lists the
+/// headset's ten-band presets and Neap's parametric ones under their own
+/// headings, as <see cref="PresetPickerLook"/> decides; choosing one of the
+/// other kind moves to its mode. With no parametric preset saved, it says so
+/// and lists the way to the equaliser, where one is saved. The rows are
+/// <see cref="ChoiceList"/>'s, so a preset the person saved can be deleted
+/// from here as from every list.
 /// </para>
 /// <para>
 /// The ten-band presets are read from the headset once, ten reads, one per
@@ -47,7 +47,12 @@ public sealed class PresetChoice : ComboBox
         {
             if (chosen == EqualiserRow) EqualiserAsked?.Invoke();
             else if (chosen is ParametricPreset parametric) AppServices.Parametric.Use(parametric.Shape);
-            else if (chosen is Preset preset) await AppServices.Presets.Select(Bank.Game, preset);
+            else if (chosen is Preset preset)
+            {
+                // Out of the Parametric mode first, so the preset's gains are not put on the parametric bands.
+                if (ParametricService.Offered && ParametricService.Active) AppServices.Parametric.UseBands(preset.Bands);
+                await AppServices.Presets.Select(Bank.Game, preset);
+            }
             Paint();
         };
         _choices.Deleted += async deleted =>
@@ -108,85 +113,74 @@ public sealed class PresetChoice : ComboBox
         Paint();
     }
 
-    /// <summary>Names, lists and selects the presets of the mode in use.</summary>
+    /// <summary>Names the preset in use, and lists every preset to pick another.</summary>
     private void Paint()
     {
-        var list = PresetPickerLook.List(
-            ParametricService.Offered && ParametricService.Active,
-            AppServices.Headset.Model is { HasParametricBands: true },
-            ParametricService.Presets.Count);
-        var (name, edited) = list switch
-        {
-            PickerList.Bands => PaintBands(),
-            PickerList.NoParametric => PaintNone(),
-            _ => PaintParametric(),
-        };
-        string said = edited ? Strings.Format("Quick_PresetEdited", name) : name;
-        AutomationProperties.SetItemStatus(this, list == PickerList.Bands ? said : Strings.Format("Quick_PresetParametric", said));
-    }
-
-    /// <summary>
-    /// Lists the headset's ten-band presets, the one it is on, or that a curve
-    /// moved since came from, as the box's choice.
-    /// </summary>
-    private (string Name, bool Edited) PaintBands()
-    {
-        if (AppServices.Presets.State(Bank.Game) is not { } state)
+        bool both = PresetPickerLook.List(ParametricService.Offered,
+            AppServices.Headset.Model is { HasParametricBands: true }) == PickerList.BandsAndParametric;
+        bool parametric = both && ParametricService.Active;
+        var bands = AppServices.Presets.State(Bank.Game);
+        if (bands is null && !parametric)
         {
             IsEnabled = false;
             PlaceholderText = Strings.Get("Reading_None");
-            return (PlaceholderText, false);
+            AutomationProperties.SetItemStatus(this, PlaceholderText);
+            return;
         }
 
         IsEnabled = true;
-        bool edited = AppServices.Presets.IsEdited(Bank.Game);
-        var chosen = state.Baseline;
-        PlaceholderText = Strings.Get("Quick_PresetUnsaved");
-        Fill($"bands\n{chosen?.Id}\t{edited}\n" + string.Join('\n', state.Presets.Select(p => $"{p.Id}\t{p.Name}")),
-            () => [.. state.Presets.Select(p => new Choice(p.Name, p)
+        var rows = new List<Choice>();
+        var key = new System.Text.StringBuilder();
+        (string? Name, bool Edited) shown = (null, false);
+
+        if (bands is not null)
+        {
+            bool edited = AppServices.Presets.IsEdited(Bank.Game);
+            var chosen = parametric ? null : bands.Baseline;
+            if (!parametric) shown = (chosen?.Name, edited && chosen is not null);
+            if (both) rows.Add(Choice.Heading(Strings.Get("Quick_BandsHeading")));
+            rows.AddRange(bands.Presets.Select(p => new Choice(p.Name, p)
             {
                 Preview = () => PresetListItems.Preview(p.Bands, PresetService.BandFloor, PresetService.BandCeiling),
                 Chosen = p.Id == chosen?.Id,
                 Deletable = p.Custom,
                 Badges = p.Id == chosen?.Id && edited ? [Strings.Get("ParametricPreset_EditedTag")] : [],
-            })]);
-        return (chosen?.Name ?? PlaceholderText, edited && chosen is not null);
-    }
+            }));
+            key.Append($"bands {chosen?.Id} {edited}\n").AppendJoin('\n', bands.Presets.Select(p => $"{p.Id}\t{p.Name}"));
+        }
 
-    /// <summary>Lists the parametric presets, the one the shape came from as the box's choice.</summary>
-    private (string Name, bool Edited) PaintParametric()
-    {
-        IsEnabled = true;
-        var presets = ParametricService.Presets;
-        var baseline = ParametricService.Baseline;
-        var shown = PresetPickerLook.Parametric(ParametricShape.Of(ParametricService.Shown), baseline);
-        string? chosen = shown == PresetShown.Unsaved ? null : baseline!.Name;
-        bool edited = shown == PresetShown.Edited;
-        PlaceholderText = Strings.Get("ParametricPreset_None");
-        Fill($"parametric\n{chosen}\t{edited}\n" + string.Join('\n', presets.Select(p => $"{p.Name}\t{p.Shape.GetHashCode()}")),
-            () => [.. presets.Select(p => new Choice(p.Name, p)
+        if (both)
+        {
+            var presets = ParametricService.Presets;
+            var look = PresetPickerLook.Parametric(ParametricShape.Of(ParametricService.Shown), ParametricService.Baseline);
+            string? chosen = !parametric || look == PresetShown.Unsaved ? null : ParametricService.Baseline!.Name;
+            bool edited = look == PresetShown.Edited;
+            if (parametric) shown = (chosen, edited);
+            if (rows.Count > 0) rows.Add(Choice.Rule());
+            if (presets.Count == 0)
             {
-                Preview = () => PresetListItems.Preview(StoredBand.Bands(p.Shape.Bands)),
-                Chosen = p.Name == chosen,
-                Deletable = true,
-                Badges = p.Name != chosen ? []
-                    : edited ? [Strings.Get("ParametricPreset_EditedTag"), Strings.Get("Quick_Parametric")]
-                    : [Strings.Get("Quick_Parametric")],
-            })]);
-        return (chosen ?? PlaceholderText, edited);
-    }
+                rows.Add(Choice.Heading(Strings.Get("Quick_NoParametricPresets")));
+                rows.Add(new Choice(Strings.Get("Quick_EqualiserSettings.Content"), EqualiserRow));
+            }
+            else
+            {
+                rows.Add(Choice.Heading(Strings.Get("Quick_ParametricHeading")));
+                rows.AddRange(presets.Select(p => new Choice(p.Name, p)
+                {
+                    Preview = () => PresetListItems.Preview(StoredBand.Bands(p.Shape.Bands)),
+                    Chosen = p.Name == chosen,
+                    Deletable = true,
+                    Badges = p.Name == chosen && edited ? [Strings.Get("ParametricPreset_EditedTag")] : [],
+                }));
+            }
+            key.Append($"\nparametric {parametric} {chosen} {edited}\n").AppendJoin('\n', presets.Select(p => $"{p.Name}\t{p.Shape.GetHashCode()}"));
+        }
 
-    /// <summary>With no parametric preset saved: says so, and lists the way to the equaliser, where one is saved.</summary>
-    private (string Name, bool Edited) PaintNone()
-    {
-        IsEnabled = true;
-        PlaceholderText = Strings.Get("ParametricPreset_None");
-        Fill("none", () =>
-        [
-            Choice.Heading(Strings.Get("ParametricPreset_NoneSaved")),
-            new Choice(Strings.Get("Quick_EqualiserSettings.Content"), EqualiserRow),
-        ]);
-        return (PlaceholderText, false);
+        PlaceholderText = Strings.Get(parametric ? "ParametricPreset_None" : "Quick_PresetUnsaved");
+        Fill(key.ToString(), () => rows);
+        string name = shown.Name ?? PlaceholderText;
+        string said = shown.Edited ? Strings.Format("Quick_PresetEdited", name) : name;
+        AutomationProperties.SetItemStatus(this, parametric ? Strings.Format("Quick_PresetParametric", said) : said);
     }
 
     /// <summary>Lists the rows, unless the list already holds what <paramref name="key"/> names.</summary>

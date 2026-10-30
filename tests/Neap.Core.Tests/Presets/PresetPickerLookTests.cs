@@ -10,13 +10,12 @@ public class PresetPickerLookTests
     private static readonly ParametricPreset Bass = new("Bass", ParametricShape.Of(Bands(6)));
 
     [Theory]
-    [InlineData(false, true, 2, PickerList.Bands)]
-    [InlineData(false, false, 0, PickerList.Bands)]
-    [InlineData(true, false, 2, PickerList.Bands)]
-    [InlineData(true, true, 2, PickerList.Parametric)]
-    [InlineData(true, true, 0, PickerList.NoParametric)]
-    public void ListsThePresetsOfTheModeInUse(bool active, bool hasParametric, int saved, PickerList expected) =>
-        Assert.Equal(expected, PresetPickerLook.List(active, hasParametric, saved));
+    [InlineData(false, true, PickerList.Bands)] // parametric is not offered
+    [InlineData(true, false, PickerList.Bands)] // the headset has no parametric bands
+    [InlineData(false, false, PickerList.Bands)]
+    [InlineData(true, true, PickerList.BandsAndParametric)] // in either mode, saved presets or not
+    public void ListsBothKindsWhereverParametricIsOffered(bool offered, bool hasParametric, PickerList expected) =>
+        Assert.Equal(expected, PresetPickerLook.List(offered, hasParametric));
 
     [Fact]
     public void NamesTheParametricPresetTheShapeCameFrom()

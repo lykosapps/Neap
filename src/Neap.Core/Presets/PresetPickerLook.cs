@@ -6,19 +6,15 @@ public enum PickerList
     /// <summary>The ten-band presets the headset keeps.</summary>
     Bands,
 
-    /// <summary>The parametric presets Neap keeps.</summary>
-    Parametric,
-
-    /// <summary>None: the Parametric mode is in use and no parametric preset is saved yet.</summary>
-    NoParametric,
+    /// <summary>The ten-band presets, then the parametric presets Neap keeps, each under its own heading.</summary>
+    BandsAndParametric,
 }
 
 /// <summary>What the game equaliser's quick preset picker, on Home and in the mini panel, names and offers.</summary>
 /// <remarks>
-/// The picker follows the mode in use. Choosing a ten-band preset in the
-/// Parametric mode would put its gains on the parametric bands, leaving a
-/// shape that matches neither and is saved nowhere, so the Parametric mode
-/// offers its own presets instead.
+/// Every preset is one choice away, whichever mode is in use: choosing one
+/// of the other kind moves to its mode first, so a ten-band preset's gains
+/// never land on the parametric bands.
 /// </remarks>
 public static class PresetPickerLook
 {
@@ -26,13 +22,10 @@ public static class PresetPickerLook
     public const int CurvePoints = 24;
 
     /// <summary>Which presets the picker lists.</summary>
-    /// <param name="parametricActive">The Parametric mode is the one in use.</param>
+    /// <param name="parametricOffered">Neap offers the parametric equaliser.</param>
     /// <param name="hasParametricBands">The headset connected has parametric bands.</param>
-    /// <param name="parametricPresets">How many parametric presets are saved.</param>
-    public static PickerList List(bool parametricActive, bool hasParametricBands, int parametricPresets) =>
-        !(parametricActive && hasParametricBands) ? PickerList.Bands
-        : parametricPresets == 0 ? PickerList.NoParametric
-        : PickerList.Parametric;
+    public static PickerList List(bool parametricOffered, bool hasParametricBands) =>
+        parametricOffered && hasParametricBands ? PickerList.BandsAndParametric : PickerList.Bands;
 
     /// <summary>How the parametric shape in use is named: its preset, its preset as edited, or no preset.</summary>
     /// <param name="shape">The shape in use.</param>

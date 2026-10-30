@@ -561,6 +561,15 @@
   <data name="State_MixKeysInSettings" xml:space="preserve">
     <value>Use the dial or keyboard shortcuts.</value>
   </data>
+  <data name="Quick_BandsHeading" xml:space="preserve">
+    <value>Bands</value>
+  </data>
+  <data name="Quick_ParametricHeading" xml:space="preserve">
+    <value>Parametric</value>
+  </data>
+  <data name="Quick_NoParametricPresets" xml:space="preserve">
+    <value>No saved parametric presets</value>
+  </data>
   <data name="Routing_OpenSoundSettings" xml:space="preserve">
     <value>Open Sound settings</value>
   </data>
@@ -1168,9 +1177,6 @@
   </data>
   <data name="Quick_PresetUnsaved" xml:space="preserve">
     <value>Custom curve</value>
-  </data>
-  <data name="Quick_Parametric" xml:space="preserve">
-    <value>Parametric</value>
   </data>
   <data name="Quick_PresetParametric" xml:space="preserve">
     <value>{0}, parametric</value>
@@ -2320,9 +2326,6 @@
   </data>
   <data name="ParametricPreset_Picker" xml:space="preserve">
     <value>Parametric preset: {0}</value>
-  </data>
-  <data name="ParametricPreset_NoneSaved" xml:space="preserve">
-    <value>No saved presets yet</value>
   </data>
   <data name="ParametricPreset_SaveName" xml:space="preserve">
     <value>Save over the preset</value>

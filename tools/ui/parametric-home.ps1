@@ -1,15 +1,17 @@
 <#
 .SYNOPSIS
-Checks that Home's equaliser preset picker and the mini panel's follow the
-Parametric mode: they name and list the parametric presets, not the ten-band
-ones, on the published app in pretend mode.
+Checks Home's equaliser preset picker and the mini panel's in the Parametric
+mode: they name the parametric preset in use and list the ten-band and the
+parametric presets under their own headings, on the published app in pretend
+mode.
 
 .DESCRIPTION
 Run through run.ps1. In each theme it opens Home in Parametric with no preset
 saved, checks the picker says so and that its link opens the Equaliser page,
 saves two parametric presets there, and goes back to Home to check the picker
-names the one in use, lists both and takes a choice. The mini panel's picker
-is then checked the same way. Nothing here changes a real headset.
+names the one in use, lists both kinds and takes a choice. The mini panel's
+picker is then checked the same way, and choosing a ten-band preset there
+leaves the Parametric mode. Nothing here changes a real headset.
 #>
 
 . "$PSScriptRoot\Ui.ps1"
@@ -63,8 +65,9 @@ foreach ($theme in 'dark', 'light') {
         Save-Shot "parametric-home-none-$theme" -Whole | ForEach-Object { $_.Dispose() }
 
         Open-Menu (Find-Named 'Equaliser preset')
-        Check (Wait-Until { $null -ne (Find-InPopup 'No saved presets yet' ([System.Windows.Automation.ControlType]::Text)) } 4) 'its list says no preset is saved yet'
-        Check ($null -eq (Find-Choice 'Bass Boost')) 'and offers no ten-band preset'
+        Check (Wait-Until { $null -ne (Find-InPopup 'No saved parametric presets' ([System.Windows.Automation.ControlType]::Text)) } 4) 'its list says no parametric preset is saved yet'
+        # The ten-band presets join the list once the headset has been read, a second for each empty slot.
+        Check (Wait-Until { $null -ne (Find-Choice 'Bass Boost') } 12) 'and still offers the ten-band presets'
         # A row of the list, named as the link under the picker.
         $link = Find-Choice 'Equaliser settings'
         Check ($null -ne $link) 'it offers the way to the equaliser'
@@ -86,7 +89,8 @@ foreach ($theme in 'dark', 'light') {
 
         Open-Menu (Find-Named 'Equaliser preset')
         Check (Wait-Until { $null -ne (Find-Choice 'Bassy') -and $null -ne (Find-Choice 'Clear') } 4) 'its list offers the parametric presets'
-        Check ($null -eq (Find-Choice 'Bass Boost')) 'and not the ten-band ones'
+        Check ($null -ne (Find-Choice 'Bass Boost')) 'and the ten-band ones'
+        Check ($null -ne (Find-InPopup 'Bands' ([System.Windows.Automation.ControlType]::Text)) -and $null -ne (Find-InPopup 'Parametric' ([System.Windows.Automation.ControlType]::Text))) 'each under its own heading'
         Press (Find-Choice 'Bassy')
         Check (Test-Shown 'Bassy, parametric') 'choosing one names it'
 
@@ -105,6 +109,14 @@ foreach ($theme in 'dark', 'light') {
             Press (Find-Choice 'Clear')
             Check (Test-Shown 'Clear, parametric') 'choosing one names it'
             Check ($null -ne (Find-Panel)) 'and the panel stays open'
+            Open-Menu (Find-Named 'Equaliser preset')
+            Check (Wait-Until { $null -ne (Find-Choice 'Bass Boost') } 4) 'its list offers the ten-band presets too'
+            Press (Find-Choice 'Bass Boost')
+            Check (Test-Shown 'Bass Boost') 'choosing one leaves the Parametric mode and names it'
+            Open-Menu (Find-Named 'Equaliser preset')
+            Wait-Until { $null -ne (Find-Choice 'Clear') } 4 | Out-Null
+            Press (Find-Choice 'Clear')
+            Check (Test-Shown 'Clear, parametric') 'and choosing a parametric one goes back to it'
             Press (Find-Named 'Open Neap')
             Wait-Until { $null -eq (Find-Panel) } 4 | Out-Null
         }
