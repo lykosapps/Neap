@@ -207,7 +207,7 @@ public partial class MiniPanelWindow : Window
             else StopRechecking();
         }
         else StopRechecking();
-        BatteryHolder.IsVisible = headset.Battery is not null && headset.Status.Link == Link.Connected;
+        BatteryHolder.IsVisible = headset.Battery is not null;
 
         PaintTiles();
         PaintHearing();

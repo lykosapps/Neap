@@ -165,6 +165,8 @@ and date.
 - A screen reader reads the mix dial and the parametric equaliser's dials
   as sliders, and says their value as they turn. Before, they had no role
   and no value.
+- The mini panel shows the battery while the headset is switched off and
+  charging on its cable, as Home does. It hid it there.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for
