@@ -93,7 +93,8 @@ if ($Parts.Contains('B')) {
 
         Send-Pretend 'page profiles' | Out-Null
         Wait-Until { $null -ne (Find-Named 'New profile') } 10 | Out-Null
-        Press (Find-All 'New profile' | Where-Object { $_.Current.ControlType.ProgrammaticName -match 'Button' } | Sort-Object { $_.Current.BoundingRectangle.Y } | Select-Object -Last 1)
+        # Pressed inside the practice run, as pressing it from here lands on it while the page is still settling.
+        Send-Pretend 'press New profile' | Out-Null
         Check (Wait-Until { $null -ne (Find-Named 'Profile name') } 5) 'a new profile asks for a name'
         (Find-Named 'Profile name').GetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern).SetValue('Bass night')
         Wait-Until { (Find-Named 'Save').Current.IsEnabled } 3 | Out-Null

@@ -136,6 +136,8 @@ try {
 }
 catch {
     Write-Host "  FAIL  the check stopped: $_" -ForegroundColor Red
+    # Where, as the calls that led there, since a shared helper is often the line that failed.
+    foreach ($line in $_.ScriptStackTrace -split "`n") { Write-Host "        $line" }
     $code = 1
 }
 Write-Host "== finished, exit $code"
