@@ -204,6 +204,8 @@ and date.
   headset goes just after it.
 - Deleting the equaliser preset in use shows Signature Sound as the
   preset in use, as the headset moves to it.
+- When the equaliser's preset buttons don't fit on one line, Save as new
+  wraps to the right, under the other buttons, not to the left.
 - Plugging in the headset's USB-C cable no longer leaves its microphone
   muted from an earlier time while the headset is unmuted: the cable's
   microphone takes the headset's own mute.
