@@ -123,6 +123,9 @@ and date.
 - An app turned down by the mix is no longer left turned down for good
   when the mix moves in the first moments after Neap starts, while it is
   still putting back the volumes a previous run left.
+- A quick drag of a volume or microphone slider leaves the system at the
+  level the slider ends on. It could settle on one just before, and the
+  slider then moved back to it.
 - After the headset is unplugged and plugged back in, a change of spatial
   sound made in the system's Sound settings or in Dolby Access shows in
   Neap straight away again.

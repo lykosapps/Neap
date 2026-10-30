@@ -129,7 +129,8 @@ public sealed class SystemVolumeRow : SettingsCard
             if (_readout is not null) _readout.Text = Strings.Format("Level_Percent", (int)args.NewValue);
             if (_painting) return;
             _chosenAt = Stopwatch.GetTimestamp();
-            _ = SoundVolume.SetVolume((int)args.NewValue, Flow);
+            _wantedPercent = (int)args.NewValue;
+            _ = WriteChoices();
         };
         _readout = new TextBlock
         {
@@ -155,7 +156,9 @@ public sealed class SystemVolumeRow : SettingsCard
             ToolTip.SetTip(_mute, Strings.Get("Volume_MuteTip"));
             _mute.Click += (_, _) =>
             {
-                if (!_painting) _ = SoundVolume.SetMuted(_mute.IsChecked == true, Flow);
+                if (_painting) return;
+                _wantedMuted = _mute.IsChecked == true;
+                _ = WriteChoices();
             };
             // Left of the slider's line, not inside it, so the track is as long
             // as every other row's and ends at the same edge.
@@ -187,6 +190,41 @@ public sealed class SystemVolumeRow : SettingsCard
     private static readonly TimeSpan ChoiceHold = TimeSpan.FromMilliseconds(1500);
 
     private bool JustChosen() => _chosenAt != 0 && Stopwatch.GetElapsedTime(_chosenAt) < ChoiceHold;
+
+    /// <summary>The level and mute the person chose that are still to be written, or null.</summary>
+    private int? _wantedPercent;
+    private bool? _wantedMuted;
+    private bool _writing;
+
+    /// <summary>Writes what the person chose to the system, one write at a time and only the latest of each.</summary>
+    /// <remarks>
+    /// Each write takes a moment on a thread of its own. A drag asks for dozens,
+    /// and started side by side they can finish out of order, leaving the
+    /// system on a level the slider has already passed. So one write runs at a
+    /// time, and a level replaced while it runs is never written.
+    /// </remarks>
+    private async Task WriteChoices()
+    {
+        if (_writing) return;
+        _writing = true;
+        try
+        {
+            while (_wantedPercent is not null || _wantedMuted is not null)
+            {
+                if (_wantedMuted is { } muted)
+                {
+                    _wantedMuted = null;
+                    await SoundVolume.SetMuted(muted, Flow);
+                }
+                if (_wantedPercent is { } percent)
+                {
+                    _wantedPercent = null;
+                    await SoundVolume.SetVolume(percent, Flow);
+                }
+            }
+        }
+        finally { _writing = false; }
+    }
 
     /// <summary>Reads the level and mute state from the system. A slider being dragged is left alone.</summary>
     private async Task Refresh()
