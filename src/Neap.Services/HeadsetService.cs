@@ -96,7 +96,7 @@ public sealed class HeadsetService : IDisposable
     private readonly BlockingCollection<Job> _jobs = new(new ConcurrentQueue<Job>());
     private readonly CancellationTokenSource _stopping = new();
     private readonly ConcurrentDictionary<string, JsonElement> _values = new();
-    private readonly ConcurrentDictionary<string, long> _owned = new();
+    private readonly WriteHold _owned = new((long)(OwnershipWindow.TotalSeconds * Stopwatch.Frequency));
     private readonly ConcurrentDictionary<int, int> _pending = new();
     private readonly ConcurrentDictionary<int, bool> _inFlight = new();
     private readonly ConcurrentDictionary<int, long> _lastWrite = new();
@@ -501,11 +501,8 @@ public sealed class HeadsetService : IDisposable
     {
         string hex = Hex(key);
         _values[hex] = JsonSerializer.SerializeToElement(value);
-        if (hold)
-            _owned[hex] = Stopwatch.GetTimestamp()
-                + (long)(OwnershipWindow.TotalSeconds * Stopwatch.Frequency);
-        else
-            _owned.TryRemove(hex, out _);
+        if (hold) _owned.Hold(hex, Stopwatch.GetTimestamp());
+        else _owned.Release(hex);
         Raise();
     }
 
@@ -998,9 +995,7 @@ public sealed class HeadsetService : IDisposable
                     _ui.Post(() => WheelMoved?.Invoke(position));
                 continue;
             }
-            if (!authoritative && _owned.TryGetValue(pair.Key, out long until) && until > now)
-                continue;
-            _owned.TryRemove(pair.Key, out _);
+            if (!_owned.Takes(pair.Key, now, authoritative)) continue;
             bool had = _values.TryGetValue(pair.Key, out var existing);
             if (had
                 && existing.ValueKind == pair.Value.ValueKind
