@@ -12,6 +12,11 @@ public sealed class SystemRoutes : IRouteSource
 {
     public static SystemRoutes Instance { get; } = new();
 
+    static SystemRoutes()
+    {
+        if (OperatingSystem.IsWindows()) Routing.Trouble = line => AppLog.Write($"sound: {line}");
+    }
+
     private SystemRoutes() { }
 
     public RouteLook Look()

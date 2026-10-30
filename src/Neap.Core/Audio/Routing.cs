@@ -242,27 +242,35 @@ public static class Routing
         }
     }
 
+    /// <summary>Where an endpoint whose filter path could not be read is said, for the app's log. Unset, nothing is.</summary>
+    public static Action<string>? Trouble { get; set; }
+
+    /// <summary>Whether an unreadable filter path has been said; see <see cref="ProductOf"/>.</summary>
+    private static int _unreadableSaid;
+
     /// <summary>
     /// The product id behind an endpoint if it is a Turtle Beach device, and
-    /// empty for anything else.
+    /// empty for anything else; see <see cref="EndpointPath.ProductOf"/>.
     /// </summary>
     /// <remarks>
-    /// The vendor check (VID 10F5) matters: a USB webcam's microphone has a
-    /// product id of its own and would otherwise count as a transmitter the
-    /// headset is not on.
+    /// A path that cannot be read makes the endpoint read as someone else's,
+    /// so Neap may say sound goes elsewhere or the cable is out. That is said
+    /// to <see cref="Trouble"/>, once a run, as every endpoint is asked on
+    /// every look.
     /// </remarks>
     public static string ProductOf(MMDevice device)
     {
         try
         {
             if (!device.Properties.Contains(FilterPath)) return "";
-            string path = device.Properties[FilterPath].Value?.ToString() ?? "";
-            if (!path.Contains("vid_10f5", StringComparison.OrdinalIgnoreCase)) return "";
-            int at = path.IndexOf("pid_", StringComparison.OrdinalIgnoreCase);
-            return at >= 0 && path.Length >= at + 8
-                ? path.Substring(at + 4, 4).ToUpperInvariant() : "";
+            return EndpointPath.ProductOf(device.Properties[FilterPath].Value?.ToString() ?? "");
         }
-        catch { return ""; }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            if (Trouble is { } say && Interlocked.Exchange(ref _unreadableSaid, 1) == 0)
+                say($"an audio device's filter path could not be read, so it does not count as Turtle Beach: {ex.Message}");
+            return "";
+        }
     }
 }
 
