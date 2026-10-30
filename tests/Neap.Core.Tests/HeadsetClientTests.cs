@@ -291,14 +291,15 @@ public class HeadsetClientTests
     {
         const string broken = "{\"OR\":\"GSI\",\"KVP\":{\"240\":72x}}";
         var transmitter = new Scripted();
-        transmitter.Answer(Fragments(broken));
+        // A report after it is read with it still in the buffer, so it is found twice.
+        transmitter.Answer([.. Fragments(broken), .. Fragments("{\"UP\":")]);
         using var client = new HeadsetClient(transport: transmitter);
         var told = new List<string>();
         client.Undecoded += told.Add;
 
         Assert.Empty(client.ReadCategory("GSI", Window));
         Assert.Equal(broken, client.Unparsed);
-        Assert.Contains(broken, told);
+        Assert.Equal([broken], told);
     }
 
     [Fact]

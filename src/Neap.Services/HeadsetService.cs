@@ -115,7 +115,8 @@ public sealed class HeadsetService : IDisposable
     private volatile HeadsetStatus _status;
     private long _lastRaise;
 
-    /// <summary>Which slot's block the lighting writes belong in, or null until a slot read finds the one in use. See <see cref="OnTheWire"/>. Only touched on the headset thread.</summary>
+    /// <summary>Which slot's block the lighting writes belong in, or null until a slot read finds the one in use. See <see cref="OnTheWire"/>.</summary>
+    /// <remarks>Only the headset thread reads or sets it.</remarks>
     private int? _lightingBlock;
 
     /// <summary>Last seen 0x150, for spotting that it moved. See <see cref="LinkFlagMoved"/>.</summary>

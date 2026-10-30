@@ -43,8 +43,9 @@ public sealed class SilentRestarts
     /// simply has no headset to speak for: the headset is off or out of
     /// range, and a restart would only switch it off once it comes back. One
     /// whose answer cannot be read has a working channel too, and is left
-    /// alone rather than restarted on a guess. One that gives no answer, or says the headset is linked and still answers
-    /// nothing else, has a channel that has stopped, and is restarted.
+    /// alone rather than restarted on a guess. One that gives no answer, or
+    /// says the headset is linked and still answers nothing else, has a
+    /// channel that has stopped, and is restarted.
     /// </para>
     /// <para>
     /// A stopped channel under an older rule waits for the new one. The older
