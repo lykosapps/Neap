@@ -61,6 +61,9 @@ and date.
 - The quick equaliser preset list, in Quick settings and the mini panel,
   lists the ten-band presets for a Stealth Pro II left in its parametric
   equaliser by a test build, rather than parametric presets that do nothing.
+- The record Neap keeps of other apps' volumes, so it can put them back
+  after a crash, is no longer lost if the PC loses power while it is being
+  saved.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

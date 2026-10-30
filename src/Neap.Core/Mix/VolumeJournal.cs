@@ -256,7 +256,7 @@ internal sealed class VolumeJournal
         {
             if (_record.Devices.Count == 0) { File.Delete(_path); return; }
             Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
-            File.WriteAllText(_path, JsonSerializer.Serialize(_record));
+            WholeFile.Write(_path, JsonSerializer.Serialize(_record));
         }
         catch (Exception ex)
         {
