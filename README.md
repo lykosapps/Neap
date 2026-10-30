@@ -174,9 +174,11 @@ it keeps its settings and log. If you allowed access, delete
 `/etc/udev/rules.d/70-neap.rules` too.
 
 **What isn't there yet on Linux:** Gaming Mode on the Steam Deck (use desktop
-mode), and spatial sound and the audio format (Windows' own). The keyboard shortcuts work while a
-program on X, which is most games, is in front, and not over a native Wayland
-program.
+mode); spatial sound, the audio format and Keep high-resolution audio
+(Windows' own); the live meters beside the mix; and, in a problem recording,
+where the PC's sound is going. On Wayland, the keyboard shortcuts work while
+a program on X, which is most games, is in front, and not over a native
+Wayland program.
 
 ## Alongside Swarm II (Windows)
 

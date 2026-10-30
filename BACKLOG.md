@@ -120,8 +120,10 @@ first and say how sure each finding is.
   Parametric on the Equaliser page does, through the dock or the cable.
   Neap keeps its own presets, imports Equalizer APO and
   AutoEq filters, lets a profile hold a shape, gives way to another app's ten-band
-  changes, and turns parametric off when Swarm II resets the headset. All of
-  it runs in practice runs only. Left: the headset checks (HEADSET-CHECKS.md),
+  changes, and turns parametric off when Swarm II resets the headset. Its
+  Undo, Redo and Compare come in the same order as with the ten bands. All of
+  it runs in practice runs only, so none of it is in the changelog until it
+  is released. Left: the headset checks (HEADSET-CHECKS.md),
   the record write on Linux, and whether the Mode button's preset step
   moves the bands (if it does, Neap must block it or follow it).
 - **Equaliser boosts with the loudness boost raised.** SP2Tools reads an

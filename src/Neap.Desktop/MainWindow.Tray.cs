@@ -21,7 +21,7 @@ namespace Neap.Desktop;
 /// <remarks>
 /// The mix, the chat wheel and the headset's own controls are the point of
 /// running, and none of them need a window. A click on the icon opens the
-/// mini panel, with the four settings changed mid-game; the window and Quit
+/// mini panel, with the settings changed mid-game; the window and Quit
 /// are on the icon's menu.
 /// </remarks>
 public partial class MainWindow : IDisposable

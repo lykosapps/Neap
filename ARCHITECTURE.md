@@ -43,8 +43,10 @@ is true: Core has a Windows class and a Linux class behind one interface
 (`IHidTransport`, `IMicrophoneListener`, `IPlayback`, the route and volume
 sources), chosen by `OperatingSystem`; or the feature exists on one system
 only and says so, through `Unsupported`, so a screen leaves the control out
-rather than show one that does nothing. Today that is spatial sound and the
-audio format, which are Windows' alone. Linux alone needs an access rule
+rather than show one that does nothing. Today that is spatial sound, the
+audio format, Keep high-resolution audio (`IRing`), the mix's live side
+meters (`SideMeter`), and the survey of where sound is going that a problem
+recording takes, which are Windows' alone. Linux alone needs an access rule
 and a way back for a silent transmitter, below.
 
 On Linux the pieces are:

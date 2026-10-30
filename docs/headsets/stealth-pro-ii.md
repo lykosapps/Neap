@@ -42,6 +42,7 @@ system tried with a real headset.
 |---|---|---|---|---|---|---|---|
 | Master volume, on/off | Listed | Yes | Has | Confirmed | Confirmed | Done on the PC | — |
 | Master volume, level | Listed | Yes | Has | Confirmed | Confirmed | `0x2A0`, mirror `0x260` | — |
+| Pre-gain: the level before the equaliser | Not listed | Yes, over RACE `0x000A` | Has | Confirmed | Untried | RACE `0x000A`, parameter `0x00040000`, NVKey `0x5008` | On the Audio page, from 12 dB below the headset's stock level (-12 dB) to 18 dB above, in steps of 1 dB; saved on the headset. Try it on Linux. |
 | Superhuman Hearing, on/off | Listed | Yes | Has | Confirmed | Confirmed | `0x720` | — |
 | Superhuman Hearing, type (Legacy, Footsteps, Gunshots) | Listed | Yes | Has | Confirmed | Confirmed | `0x730` | — |
 | Superhuman Hearing, intensity | Listed | Yes | Has | Confirmed | Confirmed | `0x740` | — |
@@ -69,7 +70,7 @@ system tried with a real headset.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Game equaliser, 4 presets and 10 bands | Listed | Yes | Has | Confirmed | Confirmed | `0x1210`–`0x12C0` | Neap adds a parametric equaliser and a test tone. |
+| Game equaliser, 4 presets and 10 bands | Listed | Yes | Has | Confirmed | Confirmed | `0x1210`–`0x12C0` | No parametric equaliser in a release: the fitted one and its test tone are removed, and the true one, in the next row, is held back. |
 | Parametric game equaliser: each band's filter, frequency, width and gain, live | Not listed | Yes, over RACE `0x000A` (apm `0x0007_01pp`), and the stored record `0x500B` | Hidden | Untried | Untried | `0x000A`, `0x500B` | Built and held back (`FirmwareEdit.ParametricReleased` is off): turning on and off from the Equaliser page, through the dock or the cable, Neap's own presets, filter import, profiles that hold a shape, giving way to another app's ten-band equaliser, turning off after a Swarm II flash, and the measured response, a target and Auto-EQ drawn on the curve. SP2Tools proved the live commands on the owner's headset; Neap read and wrote the stored record through the dock on the owner's headset (28 October); its other writes wait for the headset checks, and the record write has not been tried on Linux. |
 | Mic equaliser, 4 presets and 10 bands | Listed | Yes | Has | Confirmed | Confirmed | `0x1310`–`0x13C0` | — |
 | Custom presets on the headset, save and delete | Listed | Yes | Has | Confirmed | Confirmed | `0x1600`–`0x1630` | Swarm II's software-only presets aren't in Neap; Neap's are all on the headset. |
@@ -180,6 +181,7 @@ was confirmed.
   the code, not yet seen on the wire). Neap now asks which firmware a headset
   has, since the headset reports the same version either way.
 
+- 2026-10-30 — Tracker read against the code: Pre-gain, which ships, now has a row, and the ten-band row no longer promises a parametric equaliser and test tone, which no release has.
 - 2026-10-30 — Owner, with a test build on the headset: deleting a saved parametric preset from its list with the mouse asks Delete or Cancel in the row and does not also choose it (works; row spacing to fix), and Discard in the side menu's profile list puts the profile back (works).
 - 2026-10-29 — Neap carries a measured response of the Stealth Pro II on a B&K 5128 head (stock pads, left and right averaged), with noise cancellation off and on, and the 5128 diffuse field with a tilt as the target. On the measurement with cancellation off, Auto-EQ's nine bands bring it within 0.34 dB of the target below 10 kHz (3.55 dB before). Drawn only; nothing about it is sent to the headset beyond the bands.
 - 2026-10-29 — Owner, with a test build: in Parametric, the phone app's ten-band changes reached the sound at once (heard), and Neap applied them to the parametric bands slot by slot, so a phone preset cutting the treble ("HIGH CUT TEST": +5, +5, +3.5, 0, 0, 0, -9, -8.5, -9, -9) came out as +5 dB at 3 kHz and a +3.5 dB high shelf. Neap's table did not show the change. Neap now goes back to the ten-band equaliser instead (DECISIONS.md, 29 October).

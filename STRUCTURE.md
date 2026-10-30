@@ -9,14 +9,15 @@ Who it's for: see [USERS.md](USERS.md).
   balance, and quick settings. What opens first; serves the at-a-glance check
   and the mix, the two most frequent tasks.
 - **Audio** — two sections. What you hear: noise cancellation, transparency
-  or off with Superhuman Hearing, master and voice-prompt volume, the
-  loudness boost, and Windows' spatial sound (Windows only). Your
+  or off with Superhuman Hearing, master and voice-prompt volume,
+  Pre-gain, and Windows' spatial sound (Windows only). Your
   microphone: mic on/off with a live meter, sensitivity, monitoring, AI
   noise reduction and the noise gate. Both equalisers are on the Equaliser page.
   Serves noise control, levels and microphone settings: the occasional
   changes, on one page.
 - **Equaliser** — the game and microphone equalisers, one tab each: presets
-  beside a large curve, bands or, on the Stealth Pro II, a true parametric equaliser with its test tone.
+  beside a large curve, and the ten bands. A true parametric equaliser for
+  the Stealth Pro II is in practice runs only, until it is released.
   Serves tuning sound, which is done occasionally and at length, and needs
   more room than a card on another page.
 - **Controls** — what the Mode button and lower dial are assigned to, a
@@ -35,7 +36,8 @@ Who it's for: see [USERS.md](USERS.md).
 - **Settings** (footer) — Neap itself: its version and whether it is up to
   date, with What's new (the newer version's while one is out, otherwise the
   running version's) and Update and restart (Download, on Linux), whether to
-  check for updates by itself, and whether it starts when you sign in.
+  check for updates by itself, whether it starts when you sign in, and
+  whether the icon opens the mini panel, with which controls it shows.
   Then Problems and other
   headsets: recording headset activity to send with a bug report, and a link
   to the guide for helping support another headset. The licence line is at
@@ -57,8 +59,9 @@ pixels the menu shows icons only, and the profile switcher becomes one
 profile icon that opens the same menu. One shortcut: Home's equaliser tile opens the Equaliser page on its Game
 tab. Closing the window leaves a
 tray icon running. A left click on it opens the mini panel: a small card by
-the notification area with the four things changed mid-game (the game and
-chat mix, the microphone, noise cancellation and the equaliser preset), which
+the notification area with the things changed mid-game: the game and chat
+mix, always, and the controls chosen in Settings from the microphone, noise
+cancellation, spatial sound, Superhuman Hearing and the equaliser preset. It
 closes on Escape or when focus leaves it, and has a button that opens the
 window. The icon's menu opens the window (Open Neap), opens the mini panel, or
 quits; it exposes no page. On a Linux desktop with no notification area,
