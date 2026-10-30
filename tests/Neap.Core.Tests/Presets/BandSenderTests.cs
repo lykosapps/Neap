@@ -23,6 +23,14 @@ public class BandSenderTests
     }
 
     [Fact]
+    public void ForgettingDuringASendIsNotUndoneWhenItEnds()
+    {
+        var sender = new BandSender();
+        sender.Send(Flat(), _ => sender.Forget(), () => { });
+        Assert.Equal(40, sender.Send(Flat(), _ => { }, () => { }));
+    }
+
+    [Fact]
     public void OnlyTheChangeIsSentTheSecondTime()
     {
         var sender = new BandSender();
