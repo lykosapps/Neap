@@ -77,6 +77,10 @@ and date.
   takes a number after its name rather than replacing the first.
 - A name kept for an app on a profile is found after a restart whatever
   the case of the app's program name.
+- On Linux, Allow access on a desktop that has no password prompt running
+  says so, with the command to run yourself, rather than doing nothing.
+- On Linux, Allow access always runs the system's own shell as the
+  administrator, never a program of the same name in one of your folders.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

@@ -3,19 +3,6 @@ using Neap.Core.Hid;
 
 namespace Neap.Services;
 
-/// <summary>How asking the system to let this user use the headset went.</summary>
-public enum AccessResult
-{
-    /// <summary>The rule is in place and the system has been told to use it.</summary>
-    Granted,
-
-    /// <summary>The person did not give their password.</summary>
-    Cancelled,
-
-    /// <summary>It could not be done; <see cref="HeadsetAccess.Grant"/> says why.</summary>
-    Failed,
-}
-
 /// <summary>
 /// Gives this user the system's permission to use the headset, on Linux, by
 /// installing <see cref="UdevRule"/> through the desktop's own password prompt.
@@ -33,9 +20,6 @@ public enum AccessResult
 /// </remarks>
 public static class HeadsetAccess
 {
-    /// <summary>The exit codes polkit's pkexec gives when the person turned the prompt away.</summary>
-    private const int Dismissed = 126, NotAuthorised = 127;
-
     /// <summary>Where a system keeps pkexec: in its usual place, or where NixOS puts programs that need to be setuid.</summary>
     private static readonly string[] Locations = ["/usr/bin/pkexec", "/run/wrappers/bin/pkexec"];
 
@@ -56,21 +40,17 @@ public static class HeadsetAccess
         if (!CanAsk || Pkexec is not { } pkexec) return (AccessResult.Failed, null);
 
         var start = new ProcessStartInfo(pkexec) { RedirectStandardError = true, RedirectStandardOutput = true };
-        start.ArgumentList.Add("sh");
-        start.ArgumentList.Add("-c");
-        start.ArgumentList.Add(UdevRule.RootCommand);
+        foreach (string argument in AccessPrompt.Arguments) start.ArgumentList.Add(argument);
         try
         {
             using var process = Process.Start(start) ?? throw new InvalidOperationException("the prompt did not start");
             string said = await process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();
-            AppLog.Write($"headset access: the password prompt ended with {process.ExitCode}");
-            return process.ExitCode switch
-            {
-                0 => (AccessResult.Granted, null),
-                Dismissed or NotAuthorised => (AccessResult.Cancelled, null),
-                _ => (AccessResult.Failed, said.Trim()),
-            };
+            said = said.Trim();
+            AppLog.Write(process.ExitCode == 0 ? "headset access: the password prompt ended with 0"
+                : $"headset access: the password prompt ended with {process.ExitCode}: {said}");
+            var result = AccessPrompt.Outcome(process.ExitCode, said);
+            return (result, result == AccessResult.Failed ? said : null);
         }
         catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
         {
