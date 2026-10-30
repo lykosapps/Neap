@@ -55,6 +55,17 @@
             <SolidColorBrush x:Key="NeapToneCautionBrush" Color="#FCE100" />
             <SolidColorBrush x:Key="NeapToneNeutralBrush" Color="#8B8B8B" />
             <SolidColorBrush x:Key="NeapToneCriticalBrush" Color="#FF99A4" />
+            <!-- The parametric equaliser's ten bands, one colour each, at least 3:1 on the panel. -->
+            <SolidColorBrush x:Key="NeapBand1Brush" Color="#E5484D" />
+            <SolidColorBrush x:Key="NeapBand2Brush" Color="#F76B15" />
+            <SolidColorBrush x:Key="NeapBand3Brush" Color="#D19A00" />
+            <SolidColorBrush x:Key="NeapBand4Brush" Color="#3E9B4F" />
+            <SolidColorBrush x:Key="NeapBand5Brush" Color="#12A594" />
+            <SolidColorBrush x:Key="NeapBand6Brush" Color="#0090FF" />
+            <SolidColorBrush x:Key="NeapBand7Brush" Color="#8E4EC6" />
+            <SolidColorBrush x:Key="NeapBand8Brush" Color="#D6409F" />
+            <SolidColorBrush x:Key="NeapBand9Brush" Color="#6E6E7A" />
+            <SolidColorBrush x:Key="NeapBand10Brush" Color="#A07A3C" />
 
             <SolidColorBrush x:Key="NeapButtonBrush" Color="#1F1F23" />
             <SolidColorBrush x:Key="NeapButtonHoverBrush" Color="#27272C" />
@@ -142,6 +153,17 @@
             <SolidColorBrush x:Key="NeapToneCautionBrush" Color="#9D5D00" />
             <SolidColorBrush x:Key="NeapToneNeutralBrush" Color="#8A8A8A" />
             <SolidColorBrush x:Key="NeapToneCriticalBrush" Color="#C42B1C" />
+            <!-- The parametric equaliser's ten bands, one colour each, at least 3:1 on the panel. -->
+            <SolidColorBrush x:Key="NeapBand1Brush" Color="#DC3E42" />
+            <SolidColorBrush x:Key="NeapBand2Brush" Color="#CC4E00" />
+            <SolidColorBrush x:Key="NeapBand3Brush" Color="#9E6C00" />
+            <SolidColorBrush x:Key="NeapBand4Brush" Color="#2A7E3B" />
+            <SolidColorBrush x:Key="NeapBand5Brush" Color="#008573" />
+            <SolidColorBrush x:Key="NeapBand6Brush" Color="#0D74CE" />
+            <SolidColorBrush x:Key="NeapBand7Brush" Color="#8145B5" />
+            <SolidColorBrush x:Key="NeapBand8Brush" Color="#C2298A" />
+            <SolidColorBrush x:Key="NeapBand9Brush" Color="#60646C" />
+            <SolidColorBrush x:Key="NeapBand10Brush" Color="#A35829" />
 
             <SolidColorBrush x:Key="NeapButtonBrush" Color="#EBEBEF" />
             <SolidColorBrush x:Key="NeapButtonHoverBrush" Color="#E3E3E8" />

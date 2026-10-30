@@ -93,6 +93,17 @@ internal static class HighContrast
         Brush("NeapToneCautionBrush", p.Text);
         Brush("NeapToneNeutralBrush", p.Text);
         Brush("NeapToneCriticalBrush", p.Text);
+        // The parametric bands are told apart by their numbers here, so every one is the text.
+        Brush("NeapBand1Brush", p.Text);
+        Brush("NeapBand2Brush", p.Text);
+        Brush("NeapBand3Brush", p.Text);
+        Brush("NeapBand4Brush", p.Text);
+        Brush("NeapBand5Brush", p.Text);
+        Brush("NeapBand6Brush", p.Text);
+        Brush("NeapBand7Brush", p.Text);
+        Brush("NeapBand8Brush", p.Text);
+        Brush("NeapBand9Brush", p.Text);
+        Brush("NeapBand10Brush", p.Text);
         Brush("NeapQuietBrush", p.Window);
         Brush("NeapInsetBrush", p.Window);
         Brush("NeapQuietHoverBrush", p.Window);

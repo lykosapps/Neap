@@ -91,6 +91,8 @@ public sealed class ThemeContrastTests
         ("NeapToneCriticalBrush", "NeapPanelBrush", false, 4.5),
         // The charging bolt, a picture.
         ("NeapToneGoodBrush", "NeapPanelBrush", false, 3),
+        // Each parametric band's ring, the only edge its point has.
+        .. Enumerable.Range(1, 10).Select(band => ($"NeapBand{band}Brush", "NeapPanelBrush", false, 3.0)),
     ];
 
     private static readonly string[] ThemeNames = ["Dark", "Light"];

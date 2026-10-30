@@ -39,12 +39,6 @@ public sealed class BandCurve : UserControl
     private const double PointSize = 20;
     private const int Samples = 180;
 
-    private static readonly Color[] BandColours =
-    [
-        Color.Parse("#E5484D"), Color.Parse("#F76B15"), Color.Parse("#D19A00"), Color.Parse("#3E9B4F"), Color.Parse("#12A594"),
-        Color.Parse("#0090FF"), Color.Parse("#8E4EC6"), Color.Parse("#D6409F"), Color.Parse("#6E6E7A"), Color.Parse("#A07A3C"),
-    ];
-
     private readonly Canvas _canvas = new() { ClipToBounds = true };
     private readonly Path _grid = new() { StrokeThickness = 0.5 };
     private readonly Path _zero = new() { StrokeThickness = 1.2 };
@@ -64,6 +58,7 @@ public sealed class BandCurve : UserControl
 
     private List<ParametricBand> _bands = [.. StockBands.Game.Select(band => band with { InUse = false })];
     private int _selected;
+    private int _ownBand = -1;
     private double? _toneHertz;
     private bool _muted;
 
@@ -91,7 +86,8 @@ public sealed class BandCurve : UserControl
 
         for (int band = 0; band < _points.Length; band++)
         {
-            _points[band] = new Ellipse { Width = PointSize, Height = PointSize, StrokeThickness = 2.5, Stroke = new SolidColorBrush(BandColours[band]) };
+            _points[band] = new Ellipse { Width = PointSize, Height = PointSize, StrokeThickness = 2.5 };
+            Use(_points[band], Shape.StrokeProperty, BandBrush(band));
             Use(_points[band], Shape.FillProperty, "NeapPanelBrush");
             _numbers[band] = new TextBlock { Text = (band + 1).ToString(System.Globalization.CultureInfo.CurrentCulture), FontSize = 11, IsHitTestVisible = false, TextAlignment = TextAlignment.Center, Width = PointSize };
             Use(_numbers[band], TextBlock.ForegroundProperty, "NeapTextBrush");
@@ -180,6 +176,9 @@ public sealed class BandCurve : UserControl
     }
 
     protected override Type StyleKeyOverride => typeof(UserControl);
+
+    /// <summary>The theme's colour for a band, counted from 0.</summary>
+    private static string BandBrush(int band) => $"NeapBand{band + 1}Brush";
 
     private static void Use(AvaloniaObject target, AvaloniaProperty<IBrush?> property, string key) =>
         target.Bind(property, ((StyledElement)target).GetResourceObservable(key));
@@ -302,7 +301,11 @@ public sealed class BandCurve : UserControl
         _fill.Data = new PathGeometry { Figures = [fill] };
         _own.Data = new PathGeometry { Figures = [own] };
         _own.IsVisible = showOwn;
-        _own.Fill = new SolidColorBrush(BandColours[_selected]);
+        if (_ownBand != _selected)
+        {
+            _ownBand = _selected;
+            Use(_own, Shape.FillProperty, BandBrush(_selected));
+        }
         _curve.Opacity = _muted ? 0.45 : 1;
         DrawResponses(scale, bands);
 
