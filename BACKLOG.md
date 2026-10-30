@@ -78,6 +78,13 @@ Needs the headset on the Windows app, and the owner present. Run
   without being closed.
 
 ### Bugs seen once
+- A preset named "1" with flat bands appeared on the headset after a save
+  cut short by unplugging the Charging Dock (30 October). Saving is three
+  writes, the name last; whether a save stopped part way leaves a preset the
+  headset names itself is unproven and needs a save interrupted on purpose.
+- Opening the Equaliser page once read every game slot as empty while the
+  headset counted one preset, so saving was refused with "Try again" and no
+  way to try again but leaving the page. The next read was right.
 - The chat mix does not move when the wheel is turned, on the Windows app,
   with the headset connected. Seen once; 0.3.0 fixed a wheel stuck at the
   middle, which may be this. Check on the headset before closing.
