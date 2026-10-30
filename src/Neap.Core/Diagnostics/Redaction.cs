@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Neap.Core.Settings;
 
 namespace Neap.Core.Diagnostics;
 
@@ -18,6 +19,11 @@ namespace Neap.Core.Diagnostics;
 /// Anything shaped like a radio address is blanked, not only the addresses
 /// the headset named, because the transmitter records hold addresses in
 /// fields not yet identified.
+/// </para>
+/// <para>
+/// The serial number is also blanked by its key, so a reply kept as it
+/// arrived because it did not parse does not carry it: by value, it is
+/// blanked only once a reply holding it has parsed.
 /// </para>
 /// </remarks>
 public sealed partial class Redaction
@@ -69,11 +75,16 @@ public sealed partial class Redaction
         foreach (var (find, replace) in _exact)
             text = text.Replace(find, replace, StringComparison.OrdinalIgnoreCase);
         if (_account is not null) text = _account.Replace(text, Removed);
+        text = Serial.Replace(text, "$1" + Removed + "\"");
         return RadioAddress().Replace(text, m => IsEmpty(m.Value) ? m.Value : Removed);
     }
 
     /// <summary>An empty transmitter slot's address says only that the slot is empty, so it stays.</summary>
     private static bool IsEmpty(string address) => address.All(c => c is '0' or ':' or '-');
+
+    /// <summary>The serial number's value in a reply as the headset sends it.</summary>
+    private static readonly Regex Serial = new(
+        $@"(""{Registry.ByName["serial_number"].Key:x}""\s*:\s*"")[^""]*""", RegexOptions.CultureInvariant);
 
     [GeneratedRegex(@"(?<![0-9A-Fa-f:-])[0-9A-Fa-f]{2}([:-])[0-9A-Fa-f]{2}(\1[0-9A-Fa-f]{2}){4}(?![0-9A-Fa-f:-])")]
     private static partial Regex RadioAddress();

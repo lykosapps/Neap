@@ -23,6 +23,15 @@ public class RedactionTests
     }
 
     [Fact]
+    public void TheSerialIsBlankedInAReplyThatDidNotParse()
+    {
+        var redaction = new Redaction([]);
+
+        Assert.Equal("{\"OR\":\"Inf\",\"KVP\":{\"120\":\"(removed)\",\"150\":1x}}",
+            redaction.Apply("{\"OR\":\"Inf\",\"KVP\":{\"120\":\"TB1234567\",\"150\":1x}}"));
+    }
+
+    [Fact]
     public void AnEmptySlotsAddressStays()
     {
         Assert.Equal("00:00:00:00:00:00", new Redaction([]).Apply("00:00:00:00:00:00"));
