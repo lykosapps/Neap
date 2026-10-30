@@ -17,6 +17,11 @@ public sealed class X11Hotkeys : MixHotkeys
 {
     private X11KeyGrabber? _grabber;
 
+    static X11Hotkeys()
+    {
+        X11KeyGrabber.Trouble = line => AppLog.Write($"keys: {line}");
+    }
+
     public X11Hotkeys(MixService mix) : base(mix)
     {
     }

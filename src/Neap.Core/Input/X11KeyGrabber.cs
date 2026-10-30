@@ -62,7 +62,16 @@ public sealed class X11KeyGrabber : IDisposable
     private readonly Thread _thread;
     private volatile bool _stopping;
 
+    /// <summary>How many keys the listener has taken or failed to take, in order. Guarded by the lock on <see cref="_failed"/>.</summary>
+    private int _decided;
+
+    /// <summary>Set once construction stopped waiting for the listener; what it decides after that is not reported.</summary>
+    private bool _late;
+
     private delegate int ErrorHandler(IntPtr display, IntPtr error);
+
+    /// <summary>Where a grabber says it gave up waiting for X. Unset, nothing is said.</summary>
+    public static Action<string>? Trouble { get; set; }
 
     /// <summary>Whether this system has an X display to take keys from, and the library to talk to it.</summary>
     public static bool Available => OperatingSystem.IsLinux() && CanConnect.Value;
@@ -78,10 +87,25 @@ public sealed class X11KeyGrabber : IDisposable
         _thread.Start();
 
         // A handle the thread has not yet set is left to it: disposing under it would fail its Set.
-        if (ready.Wait(TimeSpan.FromSeconds(2))) ready.Dispose();
+        if (ready.Wait(TimeSpan.FromSeconds(2))) { ready.Dispose(); return; }
+
+        // A slow or distant X server. A key not yet taken is said to be
+        // refused rather than left to look as if it works.
+        int unanswered;
+        lock (_failed)
+        {
+            _late = true;
+            unanswered = keys.Count - _decided;
+            foreach (var key in keys.Skip(_decided)) _failed[key.Id] = GrabFailure.Refused;
+        }
+        Trouble?.Invoke($"X had not answered for {unanswered} of the keys after two seconds, so they are shown as refused");
     }
 
     /// <summary>The keys that could not be taken, and why. Settled once construction returns.</summary>
+    /// <remarks>
+    /// A key still being taken when construction gives up waiting is reported
+    /// as refused, even if X gives it afterwards.
+    /// </remarks>
     public IReadOnlyDictionary<int, GrabFailure> Failed
     {
         get
@@ -113,9 +137,15 @@ public sealed class X11KeyGrabber : IDisposable
         return 0;
     }
 
-    private void Fail(int id, GrabFailure why)
+    /// <summary>Notes that a key was taken, when <paramref name="why"/> is null, or why it was not.</summary>
+    private void Decide(int id, GrabFailure? why)
     {
-        lock (_failed) _failed[id] = why;
+        lock (_failed)
+        {
+            if (_late) return;
+            _decided++;
+            if (why is { } failure) _failed[id] = failure;
+        }
     }
 
     private void Listen(IReadOnlyList<KeyGrab> keys, ManualResetEventSlim ready)
@@ -123,7 +153,7 @@ public sealed class X11KeyGrabber : IDisposable
         var display = XOpenDisplay(IntPtr.Zero);
         if (display == IntPtr.Zero)
         {
-            foreach (var key in keys) Fail(key.Id, GrabFailure.Refused);
+            foreach (var key in keys) Decide(key.Id, GrabFailure.Refused);
             ready.Set();
             return;
         }
@@ -136,13 +166,13 @@ public sealed class X11KeyGrabber : IDisposable
             int code = XKeysymToKeycode(display, key.KeySym);
             if (code == 0)
             {
-                Fail(key.Id, GrabFailure.Refused);
+                Decide(key.Id, GrabFailure.Refused);
                 continue;
             }
 
             var why = Grab(display, root, code, key.Modifiers, taken);
-            if (why is { } failure) Fail(key.Id, failure);
-            else wanted[(code, key.Modifiers)] = key.Id;
+            if (why is null) wanted[(code, key.Modifiers)] = key.Id;
+            Decide(key.Id, why);
         }
         ready.Set();
 

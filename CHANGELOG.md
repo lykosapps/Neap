@@ -108,6 +108,10 @@ and date.
 - A setting Neap cannot send, such as one out of range in a profile saved
   by hand, no longer shows on screen as if it had changed. It stays at
   what the headset holds, and the app log says why.
+- A keyboard shortcut for the mix that another program holds says so beside
+  the key even when the PC is slow as Neap starts. On Linux, a key X has
+  not answered for within two seconds shows as refused, and the log says
+  why.
 - What is plugged in, on Home and the Device page, no longer goes back to
   an older list when the PC is slow to list its USB devices.
 - With Parametric on, a headset that goes while its curve is being sent

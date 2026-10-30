@@ -45,15 +45,17 @@ public sealed class HotkeyService : MixHotkeys
 
         _pump = new Thread(() =>
         {
-            _thread = GetCurrentThreadId();
-
-            foreach (var (which, shortcut) in wanted)
-                if (!RegisterHotKey(IntPtr.Zero, (int)which + 1,
-                        shortcut.Modifiers | ModNoRepeat, shortcut.Key))
-                    refused[which] = Marshal.GetLastWin32Error() == AlreadyRegistered
-                        ? Strings.Get("Key_Taken")
-                        : Strings.Get("Key_Refused");
-            ready.Set();
+            try
+            {
+                _thread = GetCurrentThreadId();
+                foreach (var (which, shortcut) in wanted)
+                    if (!RegisterHotKey(IntPtr.Zero, (int)which + 1,
+                            shortcut.Modifiers | ModNoRepeat, shortcut.Key))
+                        refused[which] = Marshal.GetLastWin32Error() == AlreadyRegistered
+                            ? Strings.Get("Key_Taken")
+                            : Strings.Get("Key_Refused");
+            }
+            finally { ready.Set(); }
 
             while (GetMessage(out var message, IntPtr.Zero, 0, 0) > 0)
                 if (message.Kind == WmHotkey)
@@ -69,8 +71,10 @@ public sealed class HotkeyService : MixHotkeys
 
         _pump.Start();
 
-        // A handle the thread has not yet set is left to it: disposing under it would fail its Set.
-        if (ready.Wait(TimeSpan.FromSeconds(2))) ready.Dispose();
+        // Registering never waits on anything, so neither does this: the
+        // refusals and the thread's id are complete once it is set.
+        ready.Wait();
+        ready.Dispose();
         return refused;
     }
 
