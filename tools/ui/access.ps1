@@ -207,6 +207,8 @@ function Test-Page([string]$Page, [string]$Theme) {
         $name = $stop.Current.Name
         $box = $stop.Current.BoundingRectangle
         if ([string]::IsNullOrWhiteSpace($name)) { Check $false "has no name: $(Get-Label $stop) at $([int]$box.X),$([int]$box.Y)" }
+        # A control named from content with no text of its own says its type.
+        if ($name -like 'Neap.*' -or $name -like 'Avalonia.*') { Check $false "is named after its code type: $(Get-Label $stop) at $([int]$box.X),$([int]$box.Y)" }
         if ($box.Width -lt $smallest -or $box.Height -lt $smallest) {
             # A control scrolled half out of view reads as short; measure it whole.
             try { $stop.GetCurrentPattern([System.Windows.Automation.ScrollItemPattern]::Pattern).ScrollIntoView() } catch { Write-Verbose 'it cannot be scrolled' }

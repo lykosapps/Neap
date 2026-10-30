@@ -73,6 +73,9 @@ public class SettingsCard : ContentControl
 
     protected override Type StyleKeyOverride => typeof(SettingsCard);
 
+    /// <summary>The setting's name, which is what a screen reader says for a button the row heads, such as an expander's.</summary>
+    public override string ToString() => Header ?? string.Empty;
+
     private Grid? _layout;
     private Control? _control;
 

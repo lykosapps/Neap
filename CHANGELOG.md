@@ -54,6 +54,8 @@ and date.
 
 ### Fixed
 
+- A screen reader names the Details row on the Device page, which opens
+  the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for
   what is off rather than faded, so in high contrast it takes the
   system's colour for it.
