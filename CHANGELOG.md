@@ -109,7 +109,7 @@ and date.
   by hand, no longer shows on screen as if it had changed. It stays at
   what the headset holds, and the app log says why.
 - With Parametric on, a headset that goes while its curve is being sent
-  gets the whole curve again when it comes back. It could come back flat.
+  gets the whole curve again when it comes back. It could come back without it.
 - The equaliser curve is sent whole when the headset connects, even while
   its presets are still being read. Rarely, only part of it was sent.
 - Neap stays open if switching profile on its own fails part way, as when

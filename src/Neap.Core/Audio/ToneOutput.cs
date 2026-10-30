@@ -6,6 +6,10 @@ namespace Neap.Core.Audio;
 /// <summary>Opens the test tone on the headset on whichever sound system this is.</summary>
 public static class ToneOutput
 {
+    /// <summary>Where a tone reports a failure once it is closing. Unset, nothing is reported.</summary>
+    /// <remarks>A tone closes on a pool thread after its fade, where there is nobody to throw to.</remarks>
+    public static Action<string>? Trouble { get; set; }
+
     /// <summary>Starts a silent tone on the headset's output.</summary>
     /// <exception cref="WindowsAudioException">The headset has no output Windows can play to.</exception>
     /// <exception cref="PulseException">The sound server could not be asked, or has no headset output to play to.</exception>

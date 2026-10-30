@@ -107,10 +107,18 @@ public sealed class TestTone : IPlayingTone
         Task.Delay(TimeSpan.FromSeconds(ToneGenerator.FadeSeconds) + TimeSpan.FromMilliseconds(120))
             .ContinueWith(_ =>
             {
-                _player.Stop();
-                _player.Dispose();
-                _device.Dispose();
-                _devices.Dispose();
+                // A headset unplugged while the tone played refuses the stop.
+                try
+                {
+                    try { _player.Stop(); }
+                    finally { _player.Dispose(); }
+                }
+                catch (Exception ex) { ToneOutput.Trouble?.Invoke($"the tone did not close cleanly: {ex.Message}"); }
+                finally
+                {
+                    _device.Dispose();
+                    _devices.Dispose();
+                }
             }, TaskScheduler.Default);
     }
 }

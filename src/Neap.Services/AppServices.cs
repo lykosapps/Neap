@@ -42,6 +42,8 @@ public static class AppServices
         // a quiet application and no idea why.
         _ = MixService.Recover();
 
+        ToneOutput.Trouble = line => AppLog.Write($"tone: {line}");
+
         Pretend.Start();
 
         // A practice run asked for the Parametric mode starts with it turned on, so a picture of it can be taken.
