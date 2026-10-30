@@ -230,13 +230,17 @@ public static class PresetStore
             index => Task.FromResult(ReadSlot(client, bank, index, wait)),
             () => Task.FromResult(Count(client, bank, wait))).GetAwaiter().GetResult();
 
-    /// <summary>Reads every custom slot and the count the headset gives, then reads again whatever is not known.</summary>
+    /// <summary>How long the headset is given to catch up after its slots and count disagree.</summary>
+    private static readonly TimeSpan CatchUp = TimeSpan.FromMilliseconds(300);
+
+    /// <summary>Reads every custom slot and the count the headset gives, and reads them all once more when they disagree.</summary>
     /// <remarks>
     /// An empty slot does not answer, and neither does a slot whose reply is
     /// lost, so silence alone does not say a slot is free. The count settles
     /// it: when the presets read match it, the slots that did not answer are
-    /// empty. When they do not, each slot not known is read once more, and the
-    /// count too if it was not given.
+    /// empty. When they do not, a reply was lost, or a slot or the count is
+    /// still answering from before a save or a delete, so every slot and the
+    /// count are read again after a pause.
     /// </remarks>
     /// <param name="bank">Which bank.</param>
     /// <param name="readSlot">Reads one slot, by its index from zero.</param>
@@ -249,10 +253,9 @@ public static class PresetStore
         var read = new CustomsRead([.. slots], await count().ConfigureAwait(false));
         if (read.Complete) return read;
 
-        for (int i = 0; i < slots.Length; i++)
-            if (slots[i].Found is SlotFound.NoAnswer or SlotFound.Unparsed)
-                slots[i] = await readSlot(i).ConfigureAwait(false);
-        return new CustomsRead(slots, read.Count ?? await count().ConfigureAwait(false));
+        await Task.Delay(CatchUp).ConfigureAwait(false);
+        for (int i = 0; i < slots.Length; i++) slots[i] = await readSlot(i).ConfigureAwait(false);
+        return new CustomsRead(slots, await count().ConfigureAwait(false));
     }
 
     /// <summary>Reads one custom slot straight off the headset.</summary>

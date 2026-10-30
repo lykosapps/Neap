@@ -107,6 +107,18 @@ public class PresetStoreTests
     }
 
     [Fact]
+    public void ABankThatDisagreesWithItsCountIsReadAgainWhole()
+    {
+        using var client = new HeadsetClient(transport: new PretendHeadset().Open());
+        var counts = new Queue<int?>([3, 2]);
+
+        var read = ReadLosing(client, [], counts.Dequeue);
+
+        Assert.Equal(["Night Raid", "Footstep Focus"], read.Presets.Select(p => p.Name));
+        Assert.True(read.Complete);
+    }
+
+    [Fact]
     public void ABankWithNoCountIsNotFullyRead()
     {
         using var client = new HeadsetClient(transport: new PretendHeadset().Open());
