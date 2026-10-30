@@ -18,12 +18,34 @@ public sealed class SessionMixTests : IDisposable
         public float Volume { get; set; } = volume;
     }
 
-    private sealed class Device(string id, params Session[] sessions) : IPlaybackDevice
+    private sealed class Device(string id, params IPlaybackSession[] sessions) : IPlaybackDevice
     {
         public string Id => id;
         public string Name => id;
         public IReadOnlyList<IPlaybackSession> Sessions() => sessions;
         public void Dispose() { }
+    }
+
+    /// <summary>A session whose first volume change waits until it is let go, so a pass can be held part way.</summary>
+    private sealed class SlowSession(string program, float volume) : IPlaybackSession
+    {
+        private float _volume = volume;
+        public ManualResetEventSlim Entered { get; } = new();
+        public ManualResetEventSlim LetGo { get; } = new();
+        public string? Id => program;
+        public string Program => program;
+        public string Display => program;
+        public bool Ours => false;
+        public bool Playing => true;
+        public float Volume
+        {
+            get => _volume;
+            set
+            {
+                if (!Entered.IsSet) { Entered.Set(); LetGo.Wait(); }
+                _volume = value;
+            }
+        }
     }
 
     /// <summary>The outputs present, and the one the person is listening on when it is the headset.</summary>
@@ -58,6 +80,28 @@ public sealed class SessionMixTests : IDisposable
         mix.ApplyNow();
 
         Assert.Equal(0.5f, discord.Volume, 3);
+        Assert.Equal(0.8f, spotify.Volume, 3);
+    }
+
+    [Fact]
+    public async Task RecoveringWaitsForAPassUnderWaySoNothingIsLeftHeldDown()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var spotify = new SlowSession("Spotify", 0.8f);
+        var journal = new VolumeJournal(_journal);
+        var playback = new Playback(new Device("dock", spotify));
+        var mix = new SessionMix(playback, ["Discord"], journal);
+        mix.Start();
+        mix.SetMix(75);
+        Assert.True(spotify.Entered.Wait(TimeSpan.FromSeconds(5), ct));
+
+        // The pass has journalled 0.4 and is about to set it.
+        var recovering = Task.Run(() => SessionMix.Recover(playback, journal), ct);
+        await Task.WhenAny(recovering, Task.Delay(300, ct));
+        spotify.LetGo.Set();
+        await recovering.WaitAsync(TimeSpan.FromSeconds(5), ct);
+        mix.Dispose();
+
         Assert.Equal(0.8f, spotify.Volume, 3);
     }
 

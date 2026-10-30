@@ -37,7 +37,7 @@ public sealed record ChatElsewhere(string App, string Device);
 /// This holds other applications' volumes down while it runs and is the only
 /// thing that knows what they were. If it dies without putting them back,
 /// somebody is left with a quiet Spotify and no idea why. So every change is
-/// journalled first and replayed on the next launch by <see cref="Recover"/>.
+/// journalled first and replayed on the next launch by <see cref="Recover()"/>.
 /// Without the journal, three commands in a row are enough to ratchet an
 /// application to silence.
 /// </para>
@@ -76,8 +76,14 @@ public sealed class SessionMix : IMixEngine
     private bool _running;
     private Timer? _sweep;
 
-    /// <summary>Held for the whole of a pass, so no two passes ever overlap.</summary>
-    private readonly object _pass = new();
+    /// <summary>Held for the whole of a pass and of a recovery, so no two ever overlap.</summary>
+    /// <remarks>
+    /// Shared by every mix, because a recovery at launch runs alongside the
+    /// first pass. Interleaved, the recovery drops a journal entry the pass is
+    /// about to act on, and the volume the pass then sets is taken as the
+    /// original from then on.
+    /// </remarks>
+    private static readonly object Passing = new();
     private int _passQueued;
 
     /// <summary>The device the last pass held volumes down on. Only touched inside a pass.</summary>
@@ -158,7 +164,7 @@ public sealed class SessionMix : IMixEngine
 
         // Wait out a pass already under way. Otherwise it could hold volumes
         // down again just after they were put back.
-        lock (_pass) RestoreDevices(_playback, _journal);
+        lock (Passing) RestoreDevices(_playback, _journal);
     }
 
     /// <summary>Applies the mix now, on the caller's thread.</summary>
@@ -177,7 +183,7 @@ public sealed class SessionMix : IMixEngine
 
     private void Pass()
     {
-        lock (_pass)
+        lock (Passing)
         {
             try { Apply(); }
             catch (Exception ex)
@@ -357,13 +363,19 @@ public sealed class SessionMix : IMixEngine
         try
         {
             using var playback = Playback.ForThisSystem();
-            RestoreDevices(playback, VolumeJournal.Shared);
+            Recover(playback, VolumeJournal.Shared);
         }
         catch (Exception ex)
         {
             // No sound system to ask; the journal keeps it for next time.
             Trouble?.Invoke($"could not put volumes back yet: {ex.Message}");
         }
+    }
+
+    /// <summary>Puts back what <paramref name="journal"/> holds, on <paramref name="playback"/>'s devices.</summary>
+    internal static void Recover(IPlayback playback, VolumeJournal journal)
+    {
+        lock (Passing) RestoreDevices(playback, journal);
     }
 
     public void Dispose()
