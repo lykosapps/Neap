@@ -197,6 +197,9 @@ and date.
   headset goes just after it.
 - Deleting the equaliser preset in use shows Signature Sound as the
   preset in use, as the headset moves to it.
+- Plugging in the headset's USB-C cable no longer leaves its microphone
+  muted from an earlier time while the headset is unmuted: the cable's
+  microphone takes the headset's own mute.
 - In Parametric, Undo, Redo and Compare come in the same order as with
   the ten bands, so switching between them no longer moves the buttons.
 - List boxes in stacked settings rows are one width, so they line up, as

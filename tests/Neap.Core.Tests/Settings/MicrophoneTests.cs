@@ -1,3 +1,4 @@
+using Neap.Core.Audio;
 using Neap.Core.Settings;
 
 namespace Neap.Core.Tests.Settings;
@@ -114,6 +115,17 @@ public class MicrophoneTests
     [InlineData(0, 0, null)]
     public void AMuteTheHeadsetSetIsUndoneOnceItsArmIsSeenDown(int? before, int? now, bool? mute) =>
         Assert.Equal(mute, Microphone.SystemMuteFor(before, now, mutedByHeadset: true));
+
+    [Theory]
+    [InlineData("dock-mic", "cable-mic", "229E", 0, false)] // the cable's microphone kept an old mute
+    [InlineData("dock-mic", "cable-mic", "229E", 1, true)]
+    [InlineData(null, "cable-mic", "229E", 0, false)]
+    [InlineData("cable-mic", "cable-mic", "229E", 0, null)] // the same microphone: a mute set on it stays
+    [InlineData("dock-mic", "webcam", "", 0, null)] // not the headset's
+    [InlineData("dock-mic", "cable-mic", "229E", null, null)] // the headset has not said
+    public void AHeadsetMicrophoneTheSystemMovesToTakesTheHeadsetsMute(string? before, string now, string product, int? headsetMute, bool? mute) =>
+        Assert.Equal(mute, Microphone.SystemMuteForNewMicrophone(
+            before is null ? null : new Routed(before, "229B"), new Routed(now, product), headsetMute));
 
     [Fact]
     public void TheArmIsAReadingNotASetting()

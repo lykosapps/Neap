@@ -23,12 +23,27 @@ namespace Neap.Services;
 public sealed class MicFollowsHeadset : IDisposable
 {
     private readonly HeadsetService _headset;
+    private readonly AudioRoute _route;
     private int? _last;
+    private Routed? _input;
 
-    public MicFollowsHeadset(HeadsetService headset)
+    public MicFollowsHeadset(HeadsetService headset, AudioRoute route)
     {
         _headset = headset;
+        _route = route;
+        _input = route.Input;
         _headset.Changed += OnChanged;
+        _route.Changed += OnRouteChanged;
+    }
+
+    private async void OnRouteChanged()
+    {
+        var before = _input;
+        _input = _route.Input;
+        if (Microphone.SystemMuteForNewMicrophone(before, _input, _headset.Microphone.Mute) is not { } mute) return;
+        AppLog.Write($"microphone: the system moved to {_input!.Endpoint}, so its mute is set to the headset's own ({(mute ? "on" : "off")})");
+        await SoundVolume.SetMuted(mute, Flow.Input);
+        AppSettings.Update(settings => settings.MicMutedByHeadset = mute);
     }
 
     private async void OnChanged()
@@ -71,5 +86,9 @@ public sealed class MicFollowsHeadset : IDisposable
         else AppSettings.Update(settings => settings.MonitoringBeforeMute = null);
     }
 
-    public void Dispose() => _headset.Changed -= OnChanged;
+    public void Dispose()
+    {
+        _headset.Changed -= OnChanged;
+        _route.Changed -= OnRouteChanged;
+    }
 }

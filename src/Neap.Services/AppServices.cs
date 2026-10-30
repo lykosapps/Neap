@@ -64,7 +64,7 @@ public static class AppServices
             ? new AutoSwitchService(Profiles, Headset, windows.Programs, windows.Recording)
             : new AutoSwitchService(Profiles, Headset, AutoSwitchService.RunningPrograms, MicrophoneUsers.Now);
         Recorder = new SessionRecorder(Headset);
-        MicFollow = new MicFollowsHeadset(Headset);
+        MicFollow = new MicFollowsHeadset(Headset, AudioRoute);
         Hotkeys = Platform.Current.CreateHotkeys(Mix);
         Hotkeys.Enable(Hotkeys.Supported && AppSettings.Current.MixHotkeys && !Pretend.Active);
         Updates = new UpdateService();

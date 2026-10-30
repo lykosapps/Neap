@@ -1,3 +1,5 @@
+using Neap.Core.Audio;
+
 namespace Neap.Core.Settings;
 
 /// <summary>Whether the headset's microphone is picking you up, and what is stopping it if not.</summary>
@@ -116,6 +118,20 @@ public static class Microphone
         if (before is null) return now == 1 ? true : mutedByHeadset ? false : null;
         return now == 1;
     }
+
+    /// <summary>What the system's mute should become because the system moved to another of the headset's microphones, or null to leave it as it is.</summary>
+    /// <remarks>
+    /// A microphone keeps the mute it had when last in use, so plugging in the
+    /// USB-C cable can bring back a mute from another day while the headset
+    /// itself is unmuted, and nobody can hear the person. The headset's own
+    /// mute is what the person last chose, so the new microphone takes it.
+    /// </remarks>
+    /// <param name="before">The system's microphone before, or null if there was none.</param>
+    /// <param name="now">The system's microphone now.</param>
+    /// <param name="headsetMute">The <see cref="HeadsetMic.Mute"/> now, or null if it is not one.</param>
+    public static bool? SystemMuteForNewMicrophone(Routed? before, Routed? now, int? headsetMute) =>
+        headsetMute is 0 or 1 && now is { Product.Length: > 0 } && now.Endpoint != before?.Endpoint
+            ? headsetMute == 1 : null;
 
     /// <summary>What a press of the app's switch changes in this state.</summary>
     /// <param name="state">The microphone now.</param>
