@@ -30,7 +30,7 @@ public sealed class ProfilesSettings : UserControl
         Classes = { "secondary" },
     };
 
-    private readonly ComboBox _default = new() { MinWidth = 180 };
+    private readonly ComboBox _default = new();
     private readonly SettingsCard _defaultCard;
 
     /// <summary>The profile whose delete is pending confirmation, if any.</summary>

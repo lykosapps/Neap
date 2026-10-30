@@ -29,7 +29,7 @@
             <Setter Property="Padding" Value="0" />
         </Style>
         <Style Selector="Border.group c|SettingsCard /template/ ContentPresenter#Control">
-            <Setter Property="MinWidth" Value="230" />
+            <Setter Property="MinWidth" Value="{StaticResource NeapRowControlWidth}" />
         </Style>
     </UserControl.Styles>
 

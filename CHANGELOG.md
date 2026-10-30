@@ -61,6 +61,9 @@ and date.
   way, with an outlined track when off, and were smaller to touch.
 - In Parametric, Undo, Redo and Compare come in the same order as with
   the ten bands, so switching between them no longer moves the buttons.
+- List boxes in stacked settings rows are one width, so they line up, as
+  on the Device page, where Auto shut-off's box was narrower than the
+  audio format's.
 - The chat apps list and the mix work when the headset is Windows' output
   for calls but another device is the default, as when the speakers play
   everything else. Before, the list was empty and the mix did nothing,

@@ -70,7 +70,7 @@ public sealed class FormatRow : SettingsCard
     {
         if (_picker is null)
         {
-            _picker = new ComboBox { MinWidth = 240 };
+            _picker = new ComboBox();
             AutomationProperties.SetName(_picker, Header ?? Strings.Get("Format_Name"));
             _picker.SelectionChanged += async (_, _) => await Apply();
             Content = _picker;

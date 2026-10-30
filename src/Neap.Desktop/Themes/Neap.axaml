@@ -118,6 +118,15 @@
     </Styles.Resources>
 
     <!--
+        A list box beside a row's name is one width on every page, so the boxes
+        in stacked rows line up. A setting row holds its control in a grid with
+        the dash it shows in its place.
+    -->
+    <Style Selector="c|SettingsCard > ComboBox, c|SettingsCard > Grid > ComboBox">
+        <Setter Property="MinWidth" Value="{StaticResource NeapRowControlWidth}" />
+    </Style>
+
+    <!--
         Neap's own look, the same on every system. The values come from
         Tokens.axaml; these styles say where they go.
     -->

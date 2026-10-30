@@ -145,7 +145,7 @@ public sealed class SettingRow : SettingsCard
         var options = key.Options ?? new Dictionary<int, string>();
         if (AsButtons) return BuildButtons(key);
 
-        _choice = new ComboBox { MinWidth = 160 };
+        _choice = new ComboBox();
         foreach (var option in options)
             _choice.Items.Add(new ComboBoxItem { Content = OptionNames.For(key, option.Key), Tag = option.Key });
         _choice.SelectionChanged += (_, _) =>
