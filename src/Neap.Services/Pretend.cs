@@ -261,8 +261,8 @@ public static class Pretend
         AppLog.Write($"pretend headset: answering on the pipe {PretendControl.DefaultPipe}");
     }
 
-    /// <summary>Lets a test script move the keyboard focus, open pages and the mini panel, press controls, read text's colours and picture an open list; see <see cref="PretendControl.MoveFocus"/>, <see cref="PretendControl.OpenPage"/>, <see cref="PretendControl.OpenMini"/>, <see cref="PretendControl.Press"/>, <see cref="PretendControl.Colours"/> and <see cref="PretendControl.Picture"/>.</summary>
-    public static void Drives(Func<FocusMove, JsonNode?> move, Func<string, bool> open, Action mini, Func<string, bool> press, Func<int, int, JsonNode?> colours, Func<string, bool> picture)
+    /// <summary>Lets a test script move the keyboard focus, open pages and the mini panel, press controls, read text's colours, picture an open list and scroll the page; see <see cref="PretendControl.MoveFocus"/>, <see cref="PretendControl.OpenPage"/>, <see cref="PretendControl.OpenMini"/>, <see cref="PretendControl.Press"/>, <see cref="PretendControl.Colours"/>, <see cref="PretendControl.Picture"/> and <see cref="PretendControl.Scroll"/>.</summary>
+    public static void Drives(Func<FocusMove, JsonNode?> move, Func<string, bool> open, Action mini, Func<string, bool> press, Func<int, int, JsonNode?> colours, Func<string, bool> picture, Func<bool, bool> scroll)
     {
         if (_control is null) return;
         _control.MoveFocus = move;
@@ -271,6 +271,7 @@ public static class Pretend
         _control.Press = press;
         _control.Colours = colours;
         _control.Picture = picture;
+        _control.Scroll = scroll;
     }
 
     public static void Stop() => _control?.Dispose();

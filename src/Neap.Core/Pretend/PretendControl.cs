@@ -116,6 +116,9 @@ public sealed class PretendControl : IDisposable
     /// <summary>Gets or sets what saves a picture of the list open over a window to a file, saying whether one is open.</summary>
     public Func<string, bool>? Picture { get; set; }
 
+    /// <summary>Gets or sets what scrolls the page open to its top, or down by most of a window, saying whether it moved.</summary>
+    public Func<bool, bool>? Scroll { get; set; }
+
     /// <summary>Starts answering on the pipe, one script at a time.</summary>
     public void Start() => _serving ??= Task.Run(Serve);
 
@@ -214,6 +217,12 @@ public sealed class PretendControl : IDisposable
                 ("mini", 1) => Done(OpenMini ?? throw new ArgumentException("there is no window to open the mini panel from")),
                 ("press", >= 2) => (Press ?? throw new ArgumentException("there is no window to press in"))(Rest(line))
                     ? "ok" : throw new ArgumentException($"nothing called '{Rest(line)}' to press"),
+                ("scroll", 2) => (Scroll ?? throw new ArgumentException("there is no page to scroll"))(words[1] switch
+                {
+                    "top" => true,
+                    "down" => false,
+                    _ => throw new ArgumentException($"a page scrolls to its top or down, not '{words[1]}'"),
+                }) ? "moved" : "still",
                 ("picture", >= 2) => (Picture ?? throw new ArgumentException("there is no window to picture a list in"))(Rest(line))
                     ? "ok" : throw new ArgumentException("no list is open to picture"),
                 ("colours", 3) => (Colours ?? throw new ArgumentException("there is no window to read colours in"))(

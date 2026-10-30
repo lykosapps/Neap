@@ -218,7 +218,7 @@ public partial class MainWindow : Window
         FitRail(Bounds.Width);
         if (Pretend.Active)
             Pretend.Drives(move => PretendFocus.Move(this, move), page => Dispatcher.UIThread.Invoke(() => Open(page)),
-                () => Dispatcher.UIThread.Invoke(() => { if (_mini is null) ToggleMini(); }), PretendPress.Press, PretendColours.At, PretendPicture.Save);
+                () => Dispatcher.UIThread.Invoke(() => { if (_mini is null) ToggleMini(); }), PretendPress.Press, PretendColours.At, PretendPicture.Save, top => Dispatcher.UIThread.Invoke(() => ScrollPage(top)));
         if (Pretend.Snapshot is { } file) _ = SaveAndExit(file);
 
         // A launch at sign-in lives in the notification area rather than open
@@ -229,6 +229,16 @@ public partial class MainWindow : Window
             if (TrayAvailability.Exists) HideToTray();
             else WindowState = WindowState.Minimized;
         }
+    }
+
+    /// <summary>Scrolls the page open to its top, or down by most of the window, for a pretend run's script; says whether it moved.</summary>
+    private bool ScrollPage(bool top)
+    {
+        if (Body.Content is not Visual page || page.GetVisualDescendants().OfType<PageView>().FirstOrDefault() is not { Scroller: { } scroller }) return false;
+        var before = scroller.Offset;
+        double y = top ? 0 : Math.Min(scroller.Offset.Y + (scroller.Viewport.Height * 0.8), scroller.Extent.Height - scroller.Viewport.Height);
+        scroller.Offset = new Vector(scroller.Offset.X, Math.Max(0, y));
+        return scroller.Offset != before;
     }
 
     /// <summary>A pretend run's picture of the window, once the headset has answered and the screens have settled.</summary>

@@ -36,7 +36,9 @@ param(
     [string]$Parts = '',
     [int]$TimeoutSeconds = 600,
     [switch]$Inside,
-    [switch]$NoPublish
+    [switch]$NoPublish,
+    # Anything more, such as a check's own -Theme, is passed on to the check.
+    [Parameter(ValueFromRemainingArguments)][string[]]$Rest = @()
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -97,7 +99,7 @@ if (-not $Inside) {
         New-Item -ItemType Directory -Force -Path $logs | Out-Null
         $log = Join-Path $logs "$Check.txt"
         Remove-Item $log -ErrorAction SilentlyContinue
-        $extra = if ($Parts) { " -Parts $Parts" } else { '' }
+        $extra = $(if ($Parts) { " -Parts $Parts" } else { '' }) + $(if ($Rest.Count) { ' ' + ($Rest -join ' ') } else { '' })
         $command = 'cmd /c powershell -NoProfile -ExecutionPolicy Bypass -File "{0}" {1}{2} -Inside > "{3}" 2>&1' -f $PSCommandPath, $Check, $extra, $log
         $started = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $command }
         if ($started.ReturnValue -ne 0) { throw "could not start the check outside the package ($($started.ReturnValue))" }
@@ -126,7 +128,10 @@ if (-not $Inside) {
 }
 
 try {
-    if ($Parts) { & $script -Parts $Parts } else { & $script }
+    $passed = @{}
+    for ($i = 0; $i + 1 -lt $Rest.Count; $i += 2) { $passed[$Rest[$i].TrimStart('-')] = $Rest[$i + 1] }
+    if ($Parts) { $passed['Parts'] = $Parts }
+    & $script @passed
     $code = $LASTEXITCODE
 }
 catch {
