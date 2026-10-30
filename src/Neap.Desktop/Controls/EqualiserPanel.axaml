@@ -118,12 +118,15 @@
                             everything where overwriting loses the old curve;
                             before that it offers a duplicate, which is not the
                             thing to do next, and is plain. The row wraps under
-                            the choice of mode when the card is too narrow.
+                            the choice of mode when the card is too narrow, and
+                            what wraps keeps to the right, under the buttons it
+                            follows.
                         -->
                         <WrapPanel
                             x:Name="Actions"
                             Grid.Column="1"
                             HorizontalAlignment="Right"
+                            ItemsAlignment="End"
                             ItemSpacing="{StaticResource NeapSpaceS}"
                             LineSpacing="{StaticResource NeapSpaceS}">
                             <Button
