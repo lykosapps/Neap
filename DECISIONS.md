@@ -1,5 +1,23 @@
 # Decisions
 
+## 2026-10-31 — The routing warning sets Windows' defaults when pressed
+
+- **Options:** keep opening Windows' Sound settings and leave the change to
+  the person; open the old Sound panel, where the device for calls can be
+  chosen; or make the change from the warning.
+- **Chosen:** on Windows, the warning's button, "Choose for me", makes
+  each device it names the default for what it names it for: sound, the
+  microphone, or calls. If Windows refuses one, Neap logs it and opens
+  Sound settings as before. Linux keeps opening its sound settings.
+- **Why:** seen on the headset on 31 October: with the USB-C cable in,
+  the warning said to choose the cable for calls, but Windows 11's Settings
+  app has no way to choose the device for calls, so the warning could not be
+  acted on from where it sent the person. Neap already set the default
+  device through the same Windows interface for the audio format. The
+  earlier stance, that changing the default is too unreliable to do on
+  anyone's behalf, came with the move from the first app and had no case
+  behind it; the button acts only when pressed, and falls back if refused.
+
 ## 2026-10-30 — The app's folder is no longer moved from the name before Neap
 
 - **Options:** call the move from the earlier folder at startup again, or

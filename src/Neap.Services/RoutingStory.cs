@@ -5,7 +5,8 @@ namespace Neap.Services;
 /// <summary>What to tell a person whose sound or microphone is aimed at a transmitter the headset is not on.</summary>
 /// <param name="Title">The headline: where the system is sending what.</param>
 /// <param name="Message">What it means, and what to do about it.</param>
-public sealed record RoutingStory(string Title, string Message)
+/// <param name="Choices">The defaults that would put it right, by <see cref="RoutingCheck.Choices"/>.</param>
+public sealed record RoutingStory(string Title, string Message, IReadOnlyList<DefaultChoice> Choices)
 {
     /// <summary>
     /// The warning for the routes as they stand, or null when there is nothing
@@ -71,6 +72,7 @@ public sealed record RoutingStory(string Title, string Message)
             ? " " + Strings.Format("Routing_Choose", Strings.List(picks))
             : "";
 
+        var choices = RoutingCheck.Choices(wrong);
         if (verdict.Cabled)
         {
             bool outs = wrong.Any(w => w.Output);
@@ -78,7 +80,7 @@ public sealed record RoutingStory(string Title, string Message)
                 (outs && mic ? Strings.Get("Routing_CableBoth")
                     : outs ? Strings.Format("Routing_CableSound", there)
                     : Strings.Get("Routing_CableMicrophone"))
-                + choose);
+                + choose, choices);
         }
 
         // Two ways out, when there are two: CrossPlay moves the headset to the
@@ -96,7 +98,7 @@ public sealed record RoutingStory(string Title, string Message)
             ? Strings.Format("Routing_OnUnplugged", here, there)
             : verdict.CrossPlayFixes && picks.Count > 0
                 ? on + " " + Strings.Format("Routing_PressOrChoose", there, here, Strings.List(picks))
-                : on + choose);
+                : on + choose, choices);
     }
 
     /// <summary>

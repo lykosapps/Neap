@@ -22,6 +22,9 @@ public sealed record Misrouted(AudioRole Role, string OnName, string OnProduct, 
 /// </param>
 public sealed record RoutingVerdict(IReadOnlyList<Misrouted> Wrong, bool Cabled, bool CrossPlayFixes);
 
+/// <summary>A device to make the system's default: for sound or the microphone, or for calls.</summary>
+public sealed record DefaultChoice(string Device, bool Output, bool Calls);
+
 /// <summary>
 /// Whether Windows is sending sound, calls or the microphone to one of the
 /// headset's devices that is not the one in use.
@@ -101,4 +104,15 @@ public static class RoutingCheck
     }
 
     private static bool Same(string a, string b) => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>The defaults to set so that every half in <paramref name="wrong"/> is right.</summary>
+    /// <remarks>
+    /// The system keeps the default for calls apart from the one for
+    /// everything else, so each is its own choice even on the same device.
+    /// A half with no device to choose is left out.
+    /// </remarks>
+    public static IReadOnlyList<DefaultChoice> Choices(IReadOnlyList<Misrouted> wrong) =>
+        [.. wrong.Where(w => w.Pick.Length > 0)
+            .Select(w => new DefaultChoice(w.Pick, w.Output, w.Role is AudioRole.Calls or AudioRole.CallsMicrophone))
+            .Distinct()];
 }

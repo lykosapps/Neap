@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Neap.Core;
 using Neap.Core.Audio;
 using Neap.Core.Audio.Pulse;
+using Neap.Core.Connection;
 
 namespace Neap.Services;
 
@@ -63,11 +64,25 @@ public static class SystemTools
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return ""; }
     }
 
+    /// <summary>Makes each device the system's default for what it is chosen for.</summary>
+    /// <remarks>
+    /// Windows only, where the default for calls is out of reach of its own
+    /// Settings app. On Linux it does nothing, and the caller opens the
+    /// sound settings instead.
+    /// </remarks>
+    /// <returns>Whether every choice was made.</returns>
+    public static bool SetDefaults(IReadOnlyList<DefaultChoice> choices)
+    {
+        if (!OperatingSystem.IsWindows() || choices.Count == 0) return false;
+        foreach (var choice in choices)
+            if (!DeviceFormat.SetDefault(choice.Device, choice.Output, choice.Calls)) return false;
+        return true;
+    }
+
     /// <summary>Opens the system's own sound settings, where the default output and microphone are chosen.</summary>
     /// <remarks>
-    /// The app does not change the default device itself: that is too
-    /// unreliable to do on anyone's behalf. Linux has no one settings app,
-    /// so this tries the ones desktops ship, in order.
+    /// Linux has no one settings app, so this tries the ones desktops ship,
+    /// in order.
     /// </remarks>
     /// <exception cref="PlatformNotSupportedException">No sound settings could be found to open.</exception>
     public static void OpenSoundSettings()

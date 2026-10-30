@@ -23,6 +23,10 @@ and date.
 
 ### Changed
 
+- On Windows, the warning that sound, calls or the microphone are going to
+  the wrong transmitter or the dock has a button, Choose for me, that makes
+  the change in Windows. Windows' own Settings app cannot choose the device
+  for calls.
 - A recording for a bug report names a sound device only when it is the
   headset's. Any other is written as "another device", since its name,
   such as your earbuds', can carry yours.

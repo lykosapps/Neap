@@ -343,14 +343,35 @@ public static class DeviceFormat
     /// the Sound dialog does.
     /// </summary>
     /// <returns>False if IPolicyConfig is unavailable or any role is refused.</returns>
-    public static bool SetDefaultEndpoint(string deviceId)
+    public static bool SetDefaultEndpoint(string deviceId) =>
+        SetDefaultEndpoint(deviceId, Role.Console, Role.Multimedia, Role.Communications);
+
+    /// <summary>
+    /// Makes the active device of this name the system's default on its flow:
+    /// for calls, or for everything else.
+    /// </summary>
+    /// <returns>False if no active device has the name, IPolicyConfig is unavailable, or a role is refused.</returns>
+    public static bool SetDefault(string name, bool output, bool calls)
+    {
+        using var devices = new NAudio.CoreAudioApi.MMDeviceEnumerator();
+        var flow = output ? NAudio.CoreAudioApi.DataFlow.Render : NAudio.CoreAudioApi.DataFlow.Capture;
+        string? id = null;
+        foreach (var device in devices.EnumerateAudioEndPoints(flow, NAudio.CoreAudioApi.DeviceState.Active))
+            using (device)
+                if (id is null && device.FriendlyName == name) id = device.ID;
+        return id is not null && (calls
+            ? SetDefaultEndpoint(id, Role.Communications)
+            : SetDefaultEndpoint(id, Role.Console, Role.Multimedia));
+    }
+
+    private static bool SetDefaultEndpoint(string deviceId, params Role[] roles)
     {
         IPolicyConfig? policy;
         try { policy = Com.Create<IPolicyConfig>(PolicyConfigClsid); }
         catch (Exception) { return false; }
         try
         {
-            foreach (var role in new[] { Role.Console, Role.Multimedia, Role.Communications })
+            foreach (var role in roles)
                 if (Com.Failed(policy.SetDefaultEndpoint(deviceId, role))) return false;
             return true;
         }

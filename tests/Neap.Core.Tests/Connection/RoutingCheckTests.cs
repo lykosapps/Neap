@@ -85,4 +85,30 @@ public class RoutingCheckTests
         Assert.Equal(AudioRole.Microphone, Assert.Single(mic!.Wrong).Role);
         Assert.False(mic.CrossPlayFixes);
     }
+
+    [Fact]
+    public void OnTheCableEachDeviceIsChosenForWhatWentWrongWithIt()
+    {
+        var verdict = Judge(On(Dock), OnCable, calls: OnDock, input: OnCable, callsInput: OnDock, cable: Headset);
+
+        Assert.Equal(
+            [new DefaultChoice($"Speakers ({Headset})", Output: true, Calls: true),
+             new DefaultChoice($"Microphone ({Headset})", Output: false, Calls: true)],
+            RoutingCheck.Choices(verdict!.Wrong));
+    }
+
+    [Fact]
+    public void SoundAndCallsOnOneDeviceAreTwoChoicesOfIt()
+    {
+        var verdict = Judge(On(Dock), OnTransmitter, calls: OnTransmitter);
+
+        Assert.Equal(
+            [new DefaultChoice($"Speakers ({Dock})", Output: true, Calls: false),
+             new DefaultChoice($"Speakers ({Dock})", Output: true, Calls: true)],
+            RoutingCheck.Choices(verdict!.Wrong));
+    }
+
+    [Fact]
+    public void AHalfWithNothingToChooseIsLeftOut() =>
+        Assert.Empty(RoutingCheck.Choices([new Misrouted(AudioRole.Sound, "Charging Dock", Dock, "")]));
 }

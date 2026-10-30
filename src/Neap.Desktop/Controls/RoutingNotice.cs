@@ -17,8 +17,9 @@ namespace Neap.Desktop.Controls;
 /// is <see cref="RoutingStory"/>'s.
 /// </para>
 /// <para>
-/// It opens the system's own sound settings. The app does not change the
-/// default device itself: that is too unreliable to do on anyone's behalf.
+/// On Windows it makes the choices it names, as Windows 11's Settings app
+/// cannot choose the device for calls; if Windows refuses one, or on Linux,
+/// it opens the system's own sound settings instead.
 /// </para>
 /// </remarks>
 public sealed class RoutingNotice : Notice
@@ -29,15 +30,32 @@ public sealed class RoutingNotice : Notice
     public static readonly StyledProperty<bool> MicrophoneProperty =
         AvaloniaProperty.Register<RoutingNotice, bool>(nameof(Microphone), defaultValue: true);
 
+    private IReadOnlyList<DefaultChoice> _choices = [];
+
     public RoutingNotice()
     {
         Severity = Severity.Warning;
-        ActionText = Strings.Get("Routing_OpenSoundSettings");
-        ActionInvoked += (_, _) =>
+        ActionInvoked += async (_, _) => await Act();
+    }
+
+    private async Task Act()
+    {
+        var choices = _choices;
+        if (choices.Count > 0)
         {
-            try { SystemTools.OpenSoundSettings(); }
-            catch (Exception ex) { AppLog.Write($"could not open the sound settings: {ex.Message}"); }
-        };
+            try
+            {
+                if (await Task.Run(() => SystemTools.SetDefaults(choices)))
+                {
+                    AppLog.Write($"routing: made {string.Join(", ", choices)} the system's default");
+                    return;
+                }
+                AppLog.Write("routing: Windows did not take every default, so its sound settings are opened");
+            }
+            catch (Exception ex) { AppLog.Write($"routing: could not set the system's defaults, so its sound settings are opened: {ex.Message}"); }
+        }
+        try { SystemTools.OpenSoundSettings(); }
+        catch (Exception ex) { AppLog.Write($"could not open the sound settings: {ex.Message}"); }
     }
 
     protected override Type StyleKeyOverride => typeof(Notice);
@@ -87,6 +105,8 @@ public sealed class RoutingNotice : Notice
 
         Title = story.Title;
         Message = story.Message;
+        _choices = OperatingSystem.IsWindows() ? story.Choices : [];
+        ActionText = Strings.Get(_choices.Count > 0 ? "Routing_ChooseForMe" : "Routing_OpenSoundSettings");
         IsOpen = true;
     }
 }

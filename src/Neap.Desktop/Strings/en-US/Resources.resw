@@ -564,6 +564,9 @@
   <data name="Routing_OpenSoundSettings" xml:space="preserve">
     <value>Open Sound settings</value>
   </data>
+  <data name="Routing_ChooseForMe" xml:space="preserve">
+    <value>Choose for me</value>
+  </data>
   <data name="Routing_TitleSound" xml:space="preserve">
     <value>Your system is playing to the {0}</value>
   </data>
