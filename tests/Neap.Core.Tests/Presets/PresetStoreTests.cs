@@ -212,6 +212,19 @@ public class PresetStoreTests
         Assert.Equal([new PretendWrite(0x1210, "1"), new PretendWrite(0x1610, "Night Raid")], headset.Writes);
     }
 
+    [Fact]
+    public void DeletingThePresetInUseMovesOffItEvenWhenItsBandsAreNotRead()
+    {
+        var headset = new PretendHeadset();
+        var transmitter = new FirstReplyLosesBands(headset.Open(),
+            "{\"OR\":\"AQG\",\"KVP\":{\"1210\":\"16\",\"12c0\":\"Night Raid\"}}");
+        using var client = new HeadsetClient(allowWrites: true, transport: transmitter);
+
+        PresetStore.Delete(client, "Night Raid", Bank.Game);
+
+        Assert.Equal([new PretendWrite(0x1210, "1"), new PretendWrite(0x1610, "Night Raid")], headset.Writes);
+    }
+
     private static Preset Custom(int id, string name) => new(id, name, Flat, Bank.Game, true);
 
     private static readonly Preset[] OneSaved = [Custom(16, "Footsteps")];
@@ -251,5 +264,41 @@ public class PresetStoreTests
     {
         Assert.Equal(PresetNameProblem.Unread, PresetStore.Check("Music", OneSaved, Bank.Game, false));
         Assert.Equal(PresetNameProblem.Taken, PresetStore.Check("footsteps", OneSaved, Bank.Game, false));
+    }
+
+    /// <summary>A pretend headset whose answer to the first request is replaced by the reply given, as when a category's band values are lost.</summary>
+    private sealed class FirstReplyLosesBands(Core.Hid.IHidTransport headset, string reply) : Core.Hid.IHidTransport
+    {
+        private byte[]? _waiting;
+        private bool _replied;
+
+        public ushort ProductId => headset.ProductId;
+
+        public string Name => headset.Name;
+
+        public string Describe() => headset.Describe();
+
+        public void SendOutput(ReadOnlySpan<byte> report)
+        {
+            if (_replied)
+            {
+                headset.SendOutput(report);
+                return;
+            }
+            _replied = true;
+            _waiting = new byte[64];
+            _waiting[0] = Core.Hid.HidControl.InReportId;
+            _waiting[1] = (byte)reply.Length;
+            System.Text.Encoding.ASCII.GetBytes(reply).CopyTo(_waiting, 3);
+        }
+
+        public byte[] GetInput(byte reportId = Core.Hid.HidControl.InReportId)
+        {
+            if (_waiting is not { } report) return headset.GetInput(reportId);
+            _waiting = null;
+            return report;
+        }
+
+        public void Dispose() => headset.Dispose();
     }
 }

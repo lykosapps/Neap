@@ -297,14 +297,18 @@ public static class PresetStore
         var values = client.ReadCategory(spec.Category, wait ?? TimeSpan.FromMilliseconds(1200));
         if (!values.TryGetValue($"{spec.Select:x}", out var selected) || !TryNumber(selected, out int id)) return null;
 
-        string name = values.TryGetValue($"{spec.NameKey:x}", out var n) && n.ValueKind == JsonValueKind.String
-            ? n.GetString()!.Trim() : "";
+        string name = NameIn(values, spec);
         var bands = new int[spec.Bands.Count];
         for (int i = 0; i < bands.Length; i++)
             if (!values.TryGetValue($"{spec.Bands[i]:x}", out var v) || !TryNumber(v, out bands[i])) return null;
 
         return new Preset(id, name, bands, bank, id >= FirstCustomId);
     }
+
+    /// <summary>The name of the preset in use, from a read of its bank's category, or empty when it is not there.</summary>
+    private static string NameIn(IReadOnlyDictionary<string, JsonElement> values, BankSpec spec) =>
+        values.TryGetValue($"{spec.NameKey:x}", out var name) && name.ValueKind == JsonValueKind.String
+            ? name.GetString()!.Trim() : "";
 
     /// <summary>A number as the headset sends it, as text or as a number, whatever the PC's language.</summary>
     private static bool TryNumber(JsonElement value, out int number)
@@ -408,8 +412,9 @@ public static class PresetStore
             throw new PresetException(
                 $"{name} is one of the headset's own presets, so it cannot be deleted");
 
-        var current = ReadCurrent(client, bank);
-        if (current is not null && current.Name == name)
+        // Only the name says whether to move off it: a band lost from the
+        // reply must not leave the headset on a slot about to be emptied.
+        if (NameIn(client.ReadCategory(spec.Category, TimeSpan.FromMilliseconds(1200)), spec) == name)
         {
             client.Set(spec.Select, fallback);
             Thread.Sleep(200);
