@@ -72,6 +72,8 @@ and date.
 - Every switch looks the same. The switches in Settings, on the Device
   page's Keep high-resolution audio and for the mix's keyboard shortcuts were drawn another
   way, with an outlined track when off, and were smaller to touch.
+- Saving or deleting an equaliser preset no longer closes Neap when the
+  headset goes just after it.
 - In Parametric, Undo, Redo and Compare come in the same order as with
   the ten bands, so switching between them no longer moves the buttons.
 - List boxes in stacked settings rows are one width, so they line up, as

@@ -512,8 +512,8 @@ public sealed class PresetService
         }
         catch (Exception ex) { return ex.Message; }
 
-        await Load(bank);
-        Adopt(_banks[bank], _banks[bank].Custom.FirstOrDefault(p => p.Name == name));
+        if (await ReadBack(bank, "a save"))
+            Adopt(_banks[bank], _banks[bank].Custom.FirstOrDefault(p => p.Name == name));
         return null;
     }
 
@@ -521,7 +521,27 @@ public sealed class PresetService
     {
         try { await _headset.Post(client => { PresetStore.Delete(client, name, bank); return true; }); }
         catch (Exception ex) { return ex.Message; }
-        await Load(bank);
+        await ReadBack(bank, "a delete");
         return null;
+    }
+
+    /// <summary>Reads the bank again after a save or delete the headset took; says whether it could.</summary>
+    /// <remarks>
+    /// The change is already on the headset, so a read that fails here, as
+    /// when the headset goes just after, is logged rather than reported as
+    /// the change failing.
+    /// </remarks>
+    private async Task<bool> ReadBack(Bank bank, string after)
+    {
+        try
+        {
+            await Load(bank);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"presets: the {bank} equaliser's presets could not be read again after {after}: {ex.Message}");
+            return false;
+        }
     }
 }
