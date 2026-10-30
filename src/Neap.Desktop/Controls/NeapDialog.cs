@@ -126,13 +126,15 @@ public sealed class NeapDialog : Window
     /// <remarks>
     /// Work that ends in a dialog often finishes after a wait, by which time
     /// the window may have closed to the notification area or the mini panel
-    /// may have gone. With no window to open over, the dialog is not shown:
+    /// may have gone. A dialog cannot open over a window that is hidden or
+    /// closed, and the header's controls stay in the main window while it is
+    /// hidden. With no window showing to open over, the dialog is not shown:
     /// what it would have said goes to the app log, and it answers as if
     /// closed, which every caller takes as the safe choice.
     /// </remarks>
     public async Task<DialogAnswer> Ask(Control over)
     {
-        if (TopLevel.GetTopLevel(over) is not Window owner)
+        if (TopLevel.GetTopLevel(over) is not Window { IsVisible: true } owner)
         {
             AppLog.Write($"dialog: not shown, as the window it was for has gone: {Heading} {(Body as TextBlock)?.Text}");
             return DialogAnswer.None;
