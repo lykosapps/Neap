@@ -351,9 +351,8 @@ public sealed class UpdateService : IDisposable
     /// <summary>Unzips the download, checks it is the version expected, and puts it in place of this one.</summary>
     private static void Install(Release release, string zip)
     {
-        string incoming = Path.Combine(Work, "new"), replaced = Path.Combine(Work, "old");
-        foreach (string folder in new[] { incoming, replaced })
-            if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
+        string incoming = Path.Combine(Work, "new");
+        if (Directory.Exists(incoming)) Directory.Delete(incoming, recursive: true);
 
         // Refuses any entry that would land outside the folder.
         ZipFile.ExtractToDirectory(zip, incoming);
@@ -366,7 +365,7 @@ public sealed class UpdateService : IDisposable
         if (found != release.Version)
             throw new InvalidDataException($"the download's {ExeName} is version {found}, not {release.Version}");
 
-        FolderSwap.Swap(Folder, incoming, replaced);
+        FolderSwap.Swap(Folder, incoming, Path.Combine(Work, "old"));
     }
 
     /// <summary>Whether Neap can write to its own folder, which updating needs.</summary>

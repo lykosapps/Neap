@@ -16,6 +16,11 @@ namespace Neap.Core.Updates;
 /// If any move fails, every move already made is undone, so the folder is
 /// left as the running version, never as a mix of the two.
 /// </para>
+/// <para>
+/// A file still in the folder of replaced files is one a failed undo could
+/// not put back, and the only copy of it, so a swap refuses to start while
+/// there is one.
+/// </para>
 /// </remarks>
 public static class FolderSwap
 {
@@ -23,10 +28,15 @@ public static class FolderSwap
     /// <param name="target">The app's folder.</param>
     /// <param name="incoming">The new version, unzipped on the same drive.</param>
     /// <param name="replaced">Where the files being replaced are moved to, on the same drive.</param>
-    /// <exception cref="IOException">A file could not be moved; the folder is as it was.</exception>
+    /// <exception cref="IOException">
+    /// A file could not be moved, or <paramref name="replaced"/> still holds files; the folder is as it was.
+    /// </exception>
     /// <exception cref="UnauthorizedAccessException">A file could not be moved; the folder is as it was.</exception>
     public static void Swap(string target, string incoming, string replaced)
     {
+        if (Directory.Exists(replaced) && Directory.EnumerateFiles(replaced, "*", SearchOption.AllDirectories).Any())
+            throw new IOException($"{replaced} still holds files a failed update could not put back.");
+
         var done = new Stack<(string From, string To)>();
         try
         {

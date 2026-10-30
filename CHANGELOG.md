@@ -81,6 +81,9 @@ and date.
   says so, with the command to run yourself, rather than doing nothing.
 - On Linux, Allow access always runs the system's own shell as the
   administrator, never a program of the same name in one of your folders.
+- Trying an update again after one that failed part-way no longer deletes
+  the files it set aside, which can be the only copy of the version
+  running. The update says it could not finish instead.
 - A screen reader names the Details row on the Device page, which opens
   the firmware and serial number, rather than reading out a code name.
 - The mix dial, before any chat app is chosen, is drawn in the colours for

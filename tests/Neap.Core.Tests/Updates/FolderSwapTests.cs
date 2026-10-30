@@ -88,4 +88,31 @@ public sealed class FolderSwapTests : IDisposable
         Assert.Equal("old", Read("c.dll"));
         Assert.Equal(3, Directory.GetFiles(Incoming).Length);
     }
+
+    [Fact]
+    public void FilesAFailedSwapLeftAsideStopTheNextOne()
+    {
+        Put(Target, "Neap.exe", "old");
+        Put(Target, "Neap.Core.dll", "new");
+        Put(Replaced, "Neap.Core.dll", "only copy");
+        Put(Incoming, "Neap.exe", "new");
+
+        Assert.ThrowsAny<IOException>(Swap);
+
+        Assert.Equal("old", Read("Neap.exe"));
+        Assert.Equal("only copy", File.ReadAllText(Path.Combine(Replaced, "Neap.Core.dll")));
+        Assert.Equal("new", File.ReadAllText(Path.Combine(Incoming, "Neap.exe")));
+    }
+
+    [Fact]
+    public void EmptyFoldersAFailedSwapLeftAsideDoNotStopTheNextOne()
+    {
+        Directory.CreateDirectory(Path.Combine(Replaced, "en-US"));
+        Put(Target, "Neap.exe", "old");
+        Put(Incoming, "Neap.exe", "new");
+
+        Swap();
+
+        Assert.Equal("new", Read("Neap.exe"));
+    }
 }
