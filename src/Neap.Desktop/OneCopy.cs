@@ -61,22 +61,46 @@ public sealed class OneCopy : IDisposable
     }
 
     /// <summary>Calls <paramref name="show"/>, on a thread of its own, each time another launch asks for the window.</summary>
+    /// <remarks>
+    /// A pipe that cannot be opened, because something else holds its name,
+    /// is tried again every few seconds rather than at once, and logged only
+    /// the first time, so a lasting clash costs neither the processor nor
+    /// the log.
+    /// </remarks>
     public void ListenForShow(Action show) => _ = Task.Run(async () =>
     {
+        bool refused = false;
         while (!_stopping.IsCancellationRequested)
         {
+            NamedPipeServerStream pipe;
             try
             {
-                await using var pipe = new NamedPipeServerStream(PipeName, PipeDirection.In, 1,
+                pipe = new NamedPipeServerStream(PipeName, PipeDirection.In, 1,
                     PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
-                await pipe.WaitForConnectionAsync(_stopping.Token);
-                show();
+                refused = false;
             }
-            catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException) { return; }
-            catch (IOException ex)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                // Another launch hung up before it was answered; the next one still gets through.
-                AppLog.Write($"the show request was interrupted: {ex.Message}");
+                if (!refused) AppLog.Write($"a second launch cannot show this window for now: {ex.Message}");
+                refused = true;
+                try { await Task.Delay(TimeSpan.FromSeconds(5), _stopping.Token); }
+                catch (Exception stop) when (stop is OperationCanceledException or ObjectDisposedException) { return; }
+                continue;
+            }
+
+            await using (pipe)
+            {
+                try
+                {
+                    await pipe.WaitForConnectionAsync(_stopping.Token);
+                    show();
+                }
+                catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException) { return; }
+                catch (IOException ex)
+                {
+                    // Another launch hung up before it was answered; the next one still gets through.
+                    AppLog.Write($"the show request was interrupted: {ex.Message}");
+                }
             }
         }
     });
