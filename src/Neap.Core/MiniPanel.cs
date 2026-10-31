@@ -48,6 +48,12 @@ public static class MiniPanel
         return new(x, y, w, h);
     }
 
+    /// <summary>The tallest the panel may grow, in pixels: the work area less its gaps.</summary>
+    /// <remarks>Not its height now: a panel that opened short, before its controls had filled in, has to be able to grow.</remarks>
+    /// <param name="work">The screen less its taskbars.</param>
+    /// <param name="margin">The gap kept to the work area's edges, in pixels.</param>
+    public static int Tallest(Box work, int margin) => work.Height - 2 * margin;
+
     /// <summary>What a click on the icon does.</summary>
     /// <param name="panelOn">Whether the person has the mini panel switched on.</param>
     public static TrayClick Click(bool panelOn) => panelOn ? TrayClick.ToggleMiniPanel : TrayClick.OpenWindow;

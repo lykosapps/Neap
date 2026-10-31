@@ -5,6 +5,10 @@ public class MiniPanelTests
     private static readonly Box Screen = new(0, 0, 1920, 1080);
 
     [Fact]
+    public void ItMayGrowToTheWorkAreaWhateverItsHeightNow() =>
+        Assert.Equal(1008, MiniPanel.Tallest(new Box(0, 0, 1920, 1032), 12));
+
+    [Fact]
     public void BesideATaskbarAtTheFootItIsBottomRight() =>
         Assert.Equal(new Box(1568, 570, 340, 450),
             MiniPanel.Place(Screen, new Box(0, 0, 1920, 1032), 340, 450, 12));

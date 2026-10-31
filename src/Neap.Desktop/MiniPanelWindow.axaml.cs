@@ -187,7 +187,7 @@ public partial class MiniPanelWindow : Window
         double scale = RenderScaling;
         var box = MiniPanel.Place(Of(screen.Bounds), Of(screen.WorkingArea),
             (int)Math.Ceiling(Bounds.Width * scale), (int)Math.Ceiling(Bounds.Height * scale), (int)Math.Round(EdgeGap * scale));
-        MaxHeight = box.Height / scale;
+        MaxHeight = MiniPanel.Tallest(Of(screen.WorkingArea), (int)Math.Round(EdgeGap * scale)) / scale;
         var at = new PixelPoint(box.X, box.Y);
         if (Position != at) Position = at;
 
