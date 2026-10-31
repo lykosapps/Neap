@@ -13,6 +13,13 @@ and date.
 
 ### Added
 
+- On the Stealth Pro II, the Equaliser page has Parametric: each of the ten
+  game bands has its own filter, frequency, width and gain, changed live,
+  through the Charging Dock or the cable. Neap keeps your parametric
+  presets, imports Equalizer APO and AutoEq filters, lets a profile hold a
+  shape, and can draw the headset's measured response and a target, with
+  Auto-EQ to fit one to the other. If Swarm II resets the equaliser,
+  Parametric turns off and says so.
 - Neap recognises the Turtle Beach Atlas Air, finds its speakers and
   microphone, and shows only what it has: no chat wheel, noise cancellation,
   lights, Charging Dock or CrossPlay. Its settings can be changed, on
@@ -75,8 +82,8 @@ and date.
 - The mix dial on the Home page grows a little in a wider card, from its
   old size to a little larger, and the words on it keep their size.
 - The parametric equaliser, which fitted up to four adjustments to the ten
-  bands, is removed from every headset, with its test tone. A true parametric
-  equaliser for the Stealth Pro II is being built and is not in this release.
+  bands, is removed with its test tone. Parametric, under Added, takes its
+  place on the Stealth Pro II.
 - The notices about where the headset's sound goes, and the messages that
   ask for access to the headset on Linux, are shorter, and the long heading
   on the Device page is too.

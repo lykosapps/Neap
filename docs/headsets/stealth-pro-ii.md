@@ -70,8 +70,8 @@ system tried with a real headset.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Game equaliser, 4 presets and 10 bands | Listed | Yes | Has | Confirmed | Confirmed | `0x1210`–`0x12C0` | No parametric equaliser in a release: the fitted one and its test tone are removed, and the true one, in the next row, is held back. |
-| Parametric game equaliser: each band's filter, frequency, width and gain, live | Not listed | Yes, over RACE `0x000A` (apm `0x0007_01pp`), and the stored record `0x500B` | Hidden | Untried | Untried | `0x000A`, `0x500B` | Built and held back (`FirmwareEdit.ParametricReleased` is off): turning on and off from the Equaliser page, through the dock or the cable, Neap's own presets, filter import, profiles that hold a shape, giving way to another app's ten-band equaliser, turning off after a Swarm II flash, and the measured response, a target and Auto-EQ drawn on the curve. SP2Tools proved the live commands on the owner's headset; Neap read and wrote the stored record through the dock on the owner's headset (28 October); its other writes wait for the headset checks, and the record write has not been tried on Linux. |
+| Game equaliser, 4 presets and 10 bands | Listed | Yes | Has | Confirmed | Confirmed | `0x1210`–`0x12C0` | The fitted parametric equaliser and its test tone are removed; the true one is in the next row. |
+| Parametric game equaliser: each band's filter, frequency, width and gain, live | Not listed | Yes, over RACE `0x000A` (apm `0x0007_01pp`), and the stored record `0x500B` | Has | Untried | Untried | `0x000A`, `0x500B` | On from 0.4.0 (DECISIONS.md, 31 October), with the headset checks still to pass before the tag: turning on and off from the Equaliser page, through the dock or the cable, Neap's own presets, filter import, profiles that hold a shape, giving way to another app's ten-band equaliser, turning off after a Swarm II flash, and the measured response, a target and Auto-EQ drawn on the curve. SP2Tools proved the live commands on the owner's headset; Neap read and wrote the stored record through the dock on the owner's headset (28 October); its other writes wait for the headset checks, and the record write has not been tried on Linux. |
 | Mic equaliser, 4 presets and 10 bands | Listed | Yes | Has | Confirmed | Confirmed | `0x1310`–`0x13C0` | — |
 | Custom presets on the headset, save and delete | Listed | Yes | Has | Confirmed | Confirmed | `0x1600`–`0x1630` | Swarm II's software-only presets aren't in Neap; Neap's are all on the headset. |
 
@@ -152,6 +152,7 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
+- 2026-10-31 — Parametric turned on for 0.4.0 by the owner's call; its headset checks (HEADSET-CHECKS.md, 31 to 36) are still to pass before the tag.
 - 2026-10-23 — Owner's headset on the white Xbox dock. The dock names
   itself "Stealth Pro II Xbox", and the headset on its cable "Stealth Pro II
   Xbox Headset"; Neap's title now shows that name. On the cable alone the

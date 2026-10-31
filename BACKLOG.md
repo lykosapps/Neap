@@ -127,18 +127,16 @@ first and say how sure each finding is.
   matched to anything (see [FINDINGS.md](FINDINGS.md)); whether the charging
   flag means charging, or only powered by the cable; 32-bit audio formats
   are assumed to be floating point.
-- **A fully parametric equaliser, live.** Built for the Stealth Pro II and
-  held back from releases (`FirmwareEdit.ParametricReleased` is off); see
-  DECISIONS.md, 27 and 28 October. Each of the game bank's ten bands has a
+- **A fully parametric equaliser, live.** On for the Stealth Pro II from
+  0.4.0 (DECISIONS.md, 31 October; and 27 and 28 October). Each of the game bank's ten bands has a
   filter, frequency, width and gain, set live over Pre-gain's route,
   after the headset's stock gain correction is cleared, which choosing
   Parametric on the Equaliser page does, through the dock or the cable.
   Neap keeps its own presets, imports Equalizer APO and
   AutoEq filters, lets a profile hold a shape, gives way to another app's ten-band
   changes, and turns parametric off when Swarm II resets the headset. Its
-  Undo, Redo and Compare come in the same order as with the ten bands. All of
-  it runs in practice runs only, so none of it is in the changelog until it
-  is released. Left: the headset checks (HEADSET-CHECKS.md),
+  Undo, Redo and Compare come in the same order as with the ten bands.
+  Left, before 0.4.0 is tagged: the headset checks (HEADSET-CHECKS.md, 31 to 36),
   the record write on Linux, and whether the Mode button's preset step
   moves the bands (if it does, Neap must block it or follow it).
 - **Equaliser boosts with Pre-gain raised.** SP2Tools reads an

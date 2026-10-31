@@ -1,5 +1,18 @@
 # Decisions
 
+## 2026-10-31 — Parametric is on for the Stealth Pro II in 0.4.0
+
+- **Options:** keep it held back until its headset checks are done; turn it
+  on now, with the checks still to pass before the tag.
+- **Chosen:** on now, the owner's call. `FirmwareEdit.ParametricReleased` is
+  on, so the Stealth Pro II's Equaliser page offers it; a headset without
+  live bands does not. The Atlas Air gets it in a test build only, after its
+  firmware was read to have the same controls, until a tester has heard it.
+- **Why:** SP2Tools proved the live bands audible on the owner's headset,
+  wired and through the dock, and Neap read and wrote the stored record
+  there. What is left is checks of Neap's own flows on the headset.
+- **Revisit if** a headset check fails: turn it off again before the tag.
+
 ## 2026-10-31 — The Atlas Air ships with every function
 
 - **Options:** ship only what its testers confirmed, as the rule of
