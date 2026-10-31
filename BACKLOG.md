@@ -136,9 +136,8 @@ first and say how sure each finding is.
   AutoEq filters, lets a profile hold a shape, gives way to another app's ten-band
   changes, and turns parametric off when Swarm II resets the headset. Its
   Undo, Redo and Compare come in the same order as with the ten bands.
-  Left, before 0.4.0 is tagged: headset checks 31 (a Swarm II flash) and 32
-  (the phone app's change) (HEADSET-CHECKS.md; 33 to 36 pass),
-  and the record write on Linux. The Mode button's preset step does move the
+  Left, before 0.4.0 is tagged: headset check 31, a Swarm II flash
+  (HEADSET-CHECKS.md; 32 to 36 pass), and the record write on Linux. The Mode button's preset step does move the
   headset to the ten bands, and Neap follows it (31 October).
 - **Equaliser boosts with Pre-gain raised.** SP2Tools reads an
   active compressor after the equaliser (threshold −10 dB, ratio 100:1,
