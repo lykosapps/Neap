@@ -1,5 +1,17 @@
 # Decisions
 
+## 2026-10-31 — A release's changelog is a short summary by theme
+
+- **Options:** keep every line under the version, with Highlights first, as
+  0.3.0 did; a short summary by theme only.
+- **Chosen:** the short summary, the owner's call. Lines still go under
+  Unreleased as changes are made, and are bundled at the release.
+- **Why:** the release page and the app's notes are read by people deciding
+  whether to update; three hundred lines hid what mattered. The commit
+  history keeps every change in detail.
+- **Revisit if:** testers or users need the detail to tell whether a
+  particular bug is fixed.
+
 ## 2026-10-31 — The Linux AppImage updates itself
 
 - **Options:** keep opening the release page; a delta update tool for

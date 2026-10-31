@@ -6,8 +6,9 @@ holds the evidence behind each claim, and the commit history holds every
 change in detail.
 
 Each change a person could notice gets a line under **Unreleased**, in the
-section it belongs to. At a release, Unreleased takes the version number
-and date.
+section it belongs to. At a release, those lines are bundled by theme
+into a short summary under the version number and date, and the detail
+stays in the commit history.
 
 ## Unreleased
 
@@ -15,312 +16,39 @@ and date.
 
 **The Atlas Air, and a parametric equaliser for the Stealth Pro II.**
 
-### Added
+### Highlights
 
-- On Linux, Neap running from its AppImage updates itself, as it does on
-  Windows: Update and restart downloads the new AppImage, checks it against
-  the checksum published with it, and puts it in place of the old one under
-  the same name. Neap built or installed any other way still opens the
-  release page.
-- On the Stealth Pro II, the Equaliser page has Parametric: each of the ten
-  game bands has its own filter, frequency, width and gain, changed live,
-  through the Charging Dock or the cable. Neap keeps your parametric
-  presets, imports Equalizer APO and AutoEq filters, lets a profile hold a
-  shape, and can draw the headset's measured response and a target, with
-  Auto-EQ to fit one to the other. It turns on only once the headset shows
-  its firmware can take it, and changes nothing otherwise. If Swarm II resets the equaliser,
-  Parametric turns off and says so; if the headset's Mode button or another
-  app changes it, Neap switches to Bands, says so, and keeps your shape. Its presets work as the ten bands' do:
-  a built-in shape, such as Flat, is chosen as itself, Discard puts back what
-  you chose, and Undo, Compare, Discard, Save and Save as new sit where the
-  ten bands have them, with Turn off in the menu beside them.
-- Neap recognises the Turtle Beach Atlas Air, finds its speakers and
-  microphone, and shows only what it has: no chat wheel, noise cancellation,
-  headset lights, Charging Dock or CrossPlay. Its settings can be changed, on
-  Windows and Linux.
-- On a headset with no chat wheel, such as the Atlas Air, a profile saves
-  the game and chat mix and puts it back when it's switched to.
-- On the Atlas Air, muting the microphone from Neap also turns mic
-  monitoring down, as the headset's own mute does, and puts it back when you
-  unmute, even before Neap has read the headset's settings.
-- The mini panel has a Superhuman Hearing tile: a press turns it on or off,
-  and the arrow in its corner picks Legacy, Footsteps or Gunshots. It is
-  left out for a headset without it.
-- In Settings, you choose which controls the mini panel shows: the
-  microphone, noise cancellation, spatial sound, Superhuman Hearing and the
-  equaliser preset. The panel shows what it did before, without Superhuman
-  Hearing, until you choose. The mix is always there.
-
-### Changed
-
-- The mini panel's game and chat mix fills from the middle toward the side
-  it leans to, in that side's colour, so how far it leans shows at a glance.
-- The mini panel can show the profile in use, under the headset's name,
-  with the same menu as the window's to switch, save or discard. It is
-  shown once a profile is saved, and can be ticked or unticked in Settings.
-- A mini panel tile with a list, such as noise cancellation, opens it from
-  a larger target across its top-right corner, easier to hit than the small
-  arrow was.
-  Superhuman Hearing's list offers Off as noise cancellation's does, and a
-  sound chosen while it is off turns it on.
-- On Windows, the warning that sound, calls or the microphone are going to
-  the wrong transmitter or the dock has a button, Choose for me, that makes
-  the change in Windows. Windows' own Settings app cannot choose the device
-  for calls.
-- The warning that sound, calls or the microphone are going to the wrong
-  place is shorter: "Calls are set to the Charging Dock", and on Windows
-  no steps through Sound settings, as the button makes the change.
-- A recording for a bug report names a sound device only when it is the
-  headset's. Any other is written as "another device", since its name,
-  such as your earbuds', can carry yours.
-- Controls in a row line up: list boxes sit centred beside buttons, with
-  their words on the same line; buttons that are only an icon are as high
-  as the rest; and an icon beside a button's words is centred on them.
-- The equaliser preset on Home and in the mini panel is a standard list
-  box, as the equaliser's own lists are: what is in use is chosen, with an
-  Edited tag once it has been changed, and a preset you made can be deleted
-  from the list, with Delete and Cancel in its place. Every list box's rows
-  look like the Equaliser page's preset list, the open list has an edge so it
-  stands out from the page, and the box shows when its list is open. The
-  profile list in the side menu and the chat apps on Home have the same rows;
-  the chat apps are a list you choose several from, each marked when chosen.
-  An app keeps its name in that list, with a Playing tag while it makes
-  sound, and a chosen app that is not open shows the name it had rather
-  than its program's, such as ms-teams.
-- On the Device page, About the headset is at the end, after the
-  transmitters, as it is looked up only now and then.
-- Loudness boost is now called Pre-gain, and says what it is: the level the
-  headset applies before its equaliser. It goes below the headset's normal
-  level as well as above it, down to 12 dB lower, in steps of 1 dB, so
-  there is room for an equaliser boost without the headset squashing it.
-- The mix dial on the Home page grows a little in a wider card, from its
-  old size to a little larger, and the words on it keep their size.
-- The parametric equaliser, which fitted up to four adjustments to the ten
-  bands, is removed with its test tone. Parametric, under Added, takes its
-  place on the Stealth Pro II.
-- The notices about where the headset's sound goes, and the messages that
-  ask for access to the headset on Linux, are shorter, and the long heading
-  on the Device page is too.
+- **Atlas Air support.** Neap works with the Turtle Beach Atlas Air on
+  Windows and Linux, and shows only the controls it has.
+- **A true parametric equaliser.** On the Stealth Pro II, the headset's ten
+  bands are no longer fixed: you choose where each one sits, how wide it is
+  and how much it boosts or cuts, and the headset plays the shape as drawn.
+  The old Parametric could only get close to your shape with the ten fixed
+  bands, four adjustments at most. Import AutoEq and Equalizer APO filters,
+  draw the headset's measured sound against a target and fit one to the
+  other, save presets, and keep a shape in a profile. If another app or
+  the headset changes the equaliser, Neap switches back to Bands and keeps
+  your shape.
+- **A mini panel you set up.** Choose its controls, including a new
+  Superhuman Hearing tile and your current profile.
+- **Sound in the right place.** On Windows, when sound or calls go to the
+  wrong device, one button fixes it.
+- **Linux updates itself,** as Windows does.
+- **Pre-gain,** formerly Loudness boost, now goes lower as well as higher,
+  so equaliser boosts have room.
 
 ### Fixed
 
-- Neap no longer asks the Atlas Air for two groups of settings it does not
-  have, when it connects or while it is connected.
-- On Linux, the Atlas Air no longer drops to "Not connected" every 24
-  seconds or so. Neap took in the same report again and again as the
-  transmitter handed it back, and then could not read the headset's replies.
-- On the Atlas Air, Superhuman Hearing and voice prompts use the places
-  Swarm II keeps them, rather than the Stealth Pro II's. In testing with an
-  owner of one.
-- On the Atlas Air, mic monitoring and the transmitter's light use the
-  places Swarm II keeps them. In testing with an owner of one.
-- The Atlas Air's voice prompts read as a percentage, like the levels beside
-  them, and the slider keeps one scale from the start.
-- The Atlas Air no longer drops to "Not connected" every minute or so while
-  it is in use. Neap was asking it for its buttons and switches several
-  times a second, and the headset then missed Neap's regular check. They are
-  now read once, when it connects, and the log says when the headset stops
-  answering that check.
-- On the Atlas Air, the transmitter light shows its level as soon as Neap
-  connects.
-- On the Atlas Air, Superhuman Hearing shows as off when a change to the
-  equaliser turns it off.
-- On the Atlas Air, profiles keep Superhuman Hearing and the voice prompt
-  level. Neap had taken them for settings it could not read, though the
-  headset reports both.
-- On the Atlas Air, moving mic monitoring above 1% changes it. Every higher
-  level was refused, because its place is where the Stealth Pro II keeps an
-  on and off switch.
-- On the Atlas Air, the master volume no longer jumps to 100% and back as it
-  is moved, from the slider or the headset's wheel.
-- On the Atlas Air, Bluetooth says whether the headset is listening over it.
-  It used to say "Connected" on the transmitter and "Not connected" on
-  Bluetooth.
-- On the Atlas Air, profiles no longer stay on "Reading the headset's
-  settings…". They wait only for settings the headset has.
-- On the Atlas Air, AI noise reduction is no longer offered. The headset
-  doesn't have it, and the switch was changing its mic monitoring level.
-- On the Atlas Air, voice prompts go from 0 to 15, as in Swarm II, so every
-  step changes how loud they are.
-- A saved parametric shape Neap cannot read is no longer sent to the
-  headset as a flat one.
-- The record Neap keeps of other apps' volumes, so it can put them back
-  after a crash, is no longer lost if the PC loses power while it is being
-  saved.
-- Your settings and profiles are no longer lost if the PC loses power while
-  they are being saved, or if another program, such as a virus scanner, has
-  the settings file open as Neap starts. Neap tries again, and if the file
-  stays out of reach it leaves it alone until the next start rather than
-  saving its defaults over it.
-- Settings Neap can't read no longer turn the update check back on: Neap
-  starts from its defaults with the check off, in case you had turned it
-  off.
-- Two copies of the headset's game equaliser record kept in the same
-  second, or after the clock is put back, are both kept; the later one
-  takes a number after its name rather than replacing the first.
-- A name kept for an app on a profile is found after a restart whatever
-  the case of the app's program name.
-- On Linux, Allow access on a desktop that has no password prompt running
-  says so, with the command to run yourself, rather than doing nothing.
-- On Linux, Allow access always runs the system's own shell as the
-  administrator, never a program of the same name in one of your folders.
-- Trying an update again after one that failed part-way no longer deletes
-  the files it set aside, which can be the only copy of the version
-  running. The update says it could not finish instead.
-- On the Equaliser page, a preset whose reply from the headset is lost is
-  asked for again. If it still can't be read, the page says so and doesn't
-  offer to save a new preset, rather than counting its slot as free when the
-  headset may be full. A preset whose bands can't be read is no longer
-  listed as flat.
-- With Parametric on, when the headset's stored equaliser comes back in a
-  form Neap doesn't understand, Neap doesn't send its shape onto it as the
-  headset connects, and says so in its log.
-- On Linux, a transmitter that answers Neap's question about the headset
-  in a way Neap cannot read is left as it is rather than restarted, which
-  switched the headset off. The app log says what it answered.
-- A transmitter whose details the headset sends in a form Neap cannot read
-  stays on the Device page as it was, rather than dropping off as if its
-  slot were empty. The app log and a recording say the slot did not parse.
-- A change to a transmitter's lights is sent only once Neap knows which
-  transmitter is in use, so after a reconnect it no longer changes the
-  lights of the one used before. Until then the app log says it was not
-  sent.
-- When the headset answers with a reply Neap cannot read, the app log and a
-  recording say so and keep the reply, with the headset's serial number
-  blanked, rather than saying the headset gave no answer.
-- A setting Neap cannot send, such as one out of range in a profile saved
-  by hand, no longer shows on screen as if it had changed. It stays at
-  what the headset holds, and the app log says why.
-- A keyboard shortcut for the mix that another program holds says so beside
-  the key even when the PC is slow as Neap starts. On Linux, a key X has
-  not answered for within two seconds shows as refused, and the log says
-  why.
-- What is plugged in, on Home and the Device page, no longer goes back to
-  an older list when the PC is slow to list its USB devices.
-- With Parametric on, a headset that goes while its curve is being sent
-  gets the whole curve again when it comes back. It could come back without it.
-- The equaliser curve is sent whole when the headset connects, even while
-  its presets are still being read. Rarely, only part of it was sent.
-- Neap stays open if switching profile on its own fails part way, as when
-  the transmitter is pulled out mid-switch, and says why in its log.
-- An app turned down by the mix is no longer left turned down for good
-  when the mix moves in the first moments after Neap starts, while it is
-  still putting back the volumes a previous run left.
-- When the Equaliser page couldn't read the headset just after it
-  reconnected, it tries again as the headset's state next changes, rather
-  than staying on "Couldn't read the equaliser" until you leave the page.
-- A quick drag of a volume or microphone slider leaves the system at the
-  level the slider ends on. It could settle on one just before, and the
-  slider then moved back to it.
-- After the headset is unplugged and plugged back in, a change of spatial
-  sound made in the system's Sound settings or in Dolby Access shows in
-  Neap straight away again.
-- A message that comes after a wait, such as a save that failed, no longer
-  closes the app when the window has gone to the notification area or the
-  mini panel has closed in the meantime. What it would have said goes to
-  the app log. The mini panel stays open while it shows a message, such as
-  the one about activating Dolby Atmos.
-- Switching profiles, or discarding a profile's changes, while the headset
-  stops answering says it couldn't switch, rather than closing the app.
-- After an update, the old version closes cleanly rather than leaving a
-  crash in the app log on its way out.
-- On Linux, with high contrast on, controls that cannot be used are drawn
-  in grey. They were bright green, the colour that usually means on.
-- A screen reader names the side menu's two lists, Pages and Settings,
-  rather than reading each out as a list with no name.
-- Compare on the Equaliser page works with voice control and a screen
-  reader, which press a button rather than hold it: a press turns it on,
-  and another turns it off. Holding it works as before, and a screen reader
-  reads its instruction.
-- The keyboard keeps its place in the profiles list in Settings and in the
-  equaliser's preset lists after Cancel or Delete, a rename, or a profile
-  switching as an app opens. Before, the next Tab started again from the
-  top of the window.
-- A screen reader says a notice as it appears, such as the one asking for
-  Ctrl, Alt or Shift with a mix shortcut, and says a warning at once.
-- When you name a profile or a preset, a screen reader says why Save is
-  off, such as a name already taken, as you type.
-- A screen reader says "Press the keys" when a mix shortcut is waiting for
-  its new keys, rather than the keys it had.
-- A screen reader reads the mix dial and the parametric equaliser's dials
-  as sliders, and says their value as they turn. Before, they had no role
-  and no value.
-- Saving an equaliser preset says while you type when a name is too long
-  for the headset, such as one with quotation marks or accented letters
-  near the limit. It let you press Save and then said it could not.
-- The mini panel shows the battery while the headset is switched off and
-  charging on its cable, as Home does. It hid it there.
-- On a Linux desktop running Wayland, the keyboard shortcuts say they work
-  only while an X11 program is in front, as most games are. Before, they
-  looked as if they worked everywhere. Where Linux has no shortcuts at all,
-  the log says why.
-- On Linux, the desktop notification that a newer version is out is sent
-  in the form the notification service takes, and the log says when the
-  desktop refuses it. Before, it could be refused without a word.
-- On Linux, the icon in the notification area is dark when the desktop's
-  theme is light, so it shows on a light panel. It was always light. On
-  GNOME, whose top bar is dark in either theme, it stays light.
-- A screen reader names the Details row on the Device page, which opens
-  the firmware and serial number, rather than reading out a code name.
-- The mix dial, before any chat app is chosen, is drawn in the colours for
-  what is off rather than faded, so in high contrast it takes the
-  system's colour for it.
-- Superhuman Hearing's sound choices, while it is off, are drawn in the
-  colours for what is off rather than faded, so in high contrast they
-  take the system's colour for it.
-- The focus mark on the menu is drawn in the text colour, as every
-  other focus mark is. In the light theme it was a pale purple that was
-  hard to see.
-- A screen reader names the box for a preset's name when saving an
-  equaliser preset. It was read out as an unnamed text box.
-- The arrow after a link to another page, such as Keyboard shortcuts on
-  Home, points right, to where it goes. It pointed up.
-- Every switch looks the same. The switches in Settings, on the Device
-  page's Keep high-resolution audio and for the mix's keyboard shortcuts were drawn another
-  way, with an outlined track when off, and were smaller to touch.
-- Saving or deleting an equaliser preset no longer closes Neap when the
-  headset goes just after it.
-- Deleting the equaliser preset in use shows Signature Sound as the
-  preset in use, as the headset moves to it.
-- The mini panel no longer cuts off its last controls when it opened
-  shorter than it later grew, such as before the headset had answered.
-- When the equaliser's preset buttons don't fit on one line, Save as new
-  wraps to the right, under the other buttons, not to the left.
-- Plugging in the headset's USB-C cable no longer leaves its microphone
-  muted from an earlier time while the headset is unmuted: the cable's
-  microphone takes the headset's own mute.
-- In Parametric, Undo, Redo and Compare come in the same order as with
-  the ten bands, so switching between them no longer moves the buttons.
-- List boxes in stacked settings rows are one width, so they line up, as
-  on the Device page, where Auto shut-off's box was narrower than the
-  audio format's.
-- The chat apps list and the mix work when the headset is Windows' output
-  for calls but another device is the default, as when the speakers play
-  everything else. Before, the list was empty and the mix did nothing,
-  without saying why.
-- Updating works from a copy built by hand, which runs as Neap.Desktop.exe.
-  It said it couldn't update, because it looked in the download for its own
-  file name rather than the Neap.exe a release has.
-- Settings Neap can't read are kept as app-settings.json.unreadable beside
-  the settings file, and the log says so, rather than being replaced by the
-  defaults with no copy.
-- In high contrast, a slider's track is drawn in the text colour, not the
-  colour Windows uses for what is switched off, so a slider that works no
-  longer looks disabled.
-- A recording no longer lists a headset output's level every second when
-  two of its outputs have the same name; each is noted only when its own
-  level changes.
-- A recording lists a change to the loudness boost beside the other changes
-  Neap sends, and Neap sends it only to a headset known to take it.
-- The list of chat apps, and the apps on a profile, show a program Windows
-  gives no name for as words, "Ms Teams" rather than "ms-teams".
-- The battery no longer shows more than 100%. A headset switched back on
-  was seen reporting 250%; a number that is not a charge is left out until
-  the next real one.
-- On Controls, the Mode button is described as "The button above the volume
-  dial", where it said beside the power switch.
-- With Dolby Atmos on, the note says Dolby Access's equaliser applies on top
-  of the headset's, rather than telling you to turn it off.
+- **Atlas Air:** a steadier connection, and its controls behave as in
+  Swarm II.
+- **Your settings are safer:** a power cut or a locked file no longer loses
+  them.
+- **Steadier when the headset drops:** fewer crashes, and Neap picks up
+  again when it reconnects.
+- **Easier with a screen reader and keyboard:** more controls are named and
+  read out, and focus keeps its place.
+- **A tidier look:** controls line up, switches and lists match, and high
+  contrast is clearer.
 
 ## 0.3.0 — 2026-10-24
 
