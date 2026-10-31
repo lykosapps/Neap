@@ -26,8 +26,8 @@ is in 0.2.1.7 for the testers to confirm.
 
 | System | Neap connects | How sure | Next |
 |---|---|---|---|
-| Windows | Yes, through the USB Transmitter; 0.2.1.7 drops to Not connected every 20 seconds to two minutes | Confirmed; the drops are Neap's | Fixed in 0.2.1.8, with no reply yet: ask the tester to leave it running for ten minutes while recording. |
-| Linux | 0.2.1.8: when Neap starts with the PC, or after the transmitter is unplugged and plugged back in, then Not connected for about 5 seconds in every 24 | Seen; the drops are Neap's | Fixed in 0.2.1.9: the drops (see Problems), and Home asks for the replug when Neap's restart brings nothing back. Ask the tester to start it with the headset on and leave it ten minutes while recording. |
+| Windows | Yes, through the USB Transmitter, and stays connected | Confirmed: 0.2.1.8 ran 17 minutes with no drop (22 October) | — |
+| Linux | Yes, and stays connected. When Neap starts with the PC it connects at once; started by hand some time later, it needs the transmitter unplugged and plugged back in once, which Home asks for | Confirmed: 0.2.1.9 stayed connected 10 minutes (24 October); every start with the PC in a day's USB trace answered at once (30 October) | See Problems: the transmitter stops answering. |
 
 ## Features
 
@@ -54,7 +54,7 @@ is in 0.2.1.7 for the testers to confirm.
 | Sensitivity | Listed | Yes | Has | Confirmed | Blocked | Done on the PC; the transmitter copies the PC's level into `0x610` (F120, Read) | The tester says it works (0.2.1.5). |
 | Monitoring, on/off | Listed | Yes, at `0x620` (F120, Read) | Hidden | Untried | Blocked | `0x620`, 1 off, 0 on | The level at 0 is off, so no switch is offered. |
 | Monitoring, level | Listed | Yes | Has, test | Seen | Blocked | `0x630`, 0–100: −30 dB to 0 dB, 0 off, 20 as shipped (F120, Read) | Every level read back as the gain F120 gives, 100 as 0 dB, the most the headset's own key allows (Seen, 22 October). The tester hears a difference between 0% and 100%, but not his own voice clearly. Ask whether Swarm II at 100% is any louder; see Problems. |
-| Noise gate, on/off | Listed | Yes | Has | Confirmed | Blocked | `0x700` | Reported when it changes, but not in the read at start, which asked the Stealth Pro II's group `SAF`, which this headset does not have. The firmware serves it as group `NG` and answers a read of it with the saved values (SP2Tools F125, Read). 0.2.1.7 asks `NG` and no longer asks `SAF`, and the 22 October recording has no `0x700` or `0x710`: `NG` gave no answer. Neap's log missed it, as its check counted the group as answered from Superhuman Hearing's `0x720`; the next build logs each group that gives no answer, with anything sent instead. The firmware serves the read (F125, Read), so the next recording shows whether the request is lost on the way or the reply is something Neap does not take. Until then the switch shows no reading at start; turning it on or off works. |
+| Noise gate, on/off | Listed | Yes | Has | Confirmed | Blocked | `0x700` | Reported when it changes, not at start. The headset refuses a read of group `NG`, and of `TX`, with an empty reset (`70 00`), on every connect seen on both systems (Seen, 23, 24 and 30 October), though SP2Tools read the firmware as serving it (F125). So the switch shows no reading until it is changed or reported; turning it on or off works. Every request Neap sends carries the same message id, `FB 00`, which a CoAP server may take as a repeat: a lead, untried. |
 | Noise gate, level | Listed | Yes | Has | Confirmed | Blocked | `0x710` | Heard clear at 0%, cut at 50%, almost muted at 100%. As the on/off for reading it. |
 | High Bandwidth Microphone | Listed | Yes, through the PC's sound format | Has | Seen | Missing | The PC's sound format: the transmitter offers 16 and 48 kHz | As High Bandwidth Audio. |
 
@@ -115,9 +115,10 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 | Problem | Found in | Status | Next |
 |---|---|---|---|
-| Windows: Not connected every 20 seconds to two minutes, with the headset on and nothing touched | 0.2.1.7 | Fixed in 0.2.1.8, not yet seen on the headset. 0.2.1.7 read the headset's inputs after every report it sent, several times a second, and while each read waited the transmitter seems to have handed back its last report again (Seen in the recording; the cause is inferred): one signal report came back 4,998 times in under a second, where 0.2.1.2's recording has one every ten seconds. The headset then missed two heartbeats in a row, and Neap let go of it. The inputs are now read once at connect, a repeated report is taken once, the heartbeat waits its turn after other requests, and the log says when two heartbeats go unanswered. | Ask the tester to leave it running for ten minutes while recording. |
-| Linux: Not connected for about 5 seconds in every 24 | 0.2.1.8 | Fixed in 0.2.1.9, not yet seen on the headset. The transmitter hands back its last report until it has a new one. The first part of the long Prm reply at connect came back again and again, and each copy was taken in as the start of another reply that never closed. Every reply after it was then read as part of that one: TX and NG, which come next, gave "no answer", and so did every heartbeat, so Neap let go 16.4 seconds after each connect (Seen, 23 October: both groups "sent" Prm's first part, byte for byte, and six drops came 16.4 seconds after a connect). A copy of the report before is now taken in once on every read, not only during the RACE requests 0.2.1.8 covered, and a reply left unfinished is dropped when the next request goes out. Neap also no longer asks for `SAF`, which this headset does not have, about once a second while connected. Tests repeat the tester's case. When the headset sent its signal strength every few seconds, the heartbeat was never needed, which is why the session after the replug stayed connected. | Ask the Linux tester to leave it ten minutes while recording. |
-| Linux: the transmitter stops answering | 0.2.1.2 | Open. It happens when Neap starts long after the transmitter was plugged in: on every start by hand since 20 October, not on 23 October's start with the PC. Neap's one restart brought nothing back under the new rule (23 October, 0 reports); unplugging it and plugging it back in did, at once. That matches the Stealth Pro II's dock, which answers only when something has read it since it was plugged in (SP2Tools, proven on the dock). The ~445 reports earlier restarts "read" were one old report handed back again, not answers. In 0.2.1.9: a transmitter restarted once and still silent is asked whether the headset is linked again, and with no answer, Home asks the person to unplug it and plug it back in. | Ask the Linux tester to start Neap by hand with the headset on, follow what Home asks, and record. |
+| Sound stops while the headset stays connected; changing the sound format, or another option in the system's sound settings, brings it back | Before Neap | Open, on Windows 11 and CachyOS. Not Neap's: the tester has had it since getting the headset. Changing the format restarts the sound stream, so the transmitter stops playing a stream the PC is still sending. | Ask the tester, the next time it happens and before changing anything, to save Neap's log, to see whether the headset reports its sound link (`0x230`) dropping. |
+| Windows: Not connected every 20 seconds to two minutes, with the headset on and nothing touched | 0.2.1.7 | Fixed in 0.2.1.8, confirmed: 17 minutes with no drop (22 October). 0.2.1.7 read the headset's inputs after every report it sent, several times a second, and while each read waited the transmitter seems to have handed back its last report again (Seen in the recording; the cause is inferred): one signal report came back 4,998 times in under a second, where 0.2.1.2's recording has one every ten seconds. The headset then missed two heartbeats in a row, and Neap let go of it. The inputs are now read once at connect, a repeated report is taken once, the heartbeat waits its turn after other requests, and the log says when two heartbeats go unanswered. | — |
+| Linux: Not connected for about 5 seconds in every 24 | 0.2.1.8 | Fixed in 0.2.1.9, confirmed: 10 minutes with no drop (24 October), and a whole evening in the 30 October trace. The transmitter hands back its last report until it has a new one. The first part of the long Prm reply at connect came back again and again, and each copy was taken in as the start of another reply that never closed. Every reply after it was then read as part of that one: TX and NG, which come next, gave "no answer", and so did every heartbeat, so Neap let go 16.4 seconds after each connect (Seen, 23 October: both groups "sent" Prm's first part, byte for byte, and six drops came 16.4 seconds after a connect). A copy of the report before is now taken in once on every read, not only during the RACE requests 0.2.1.8 covered, and a reply left unfinished is dropped when the next request goes out. Neap also no longer asks for `SAF`, which this headset does not have, about once a second while connected. Tests repeat the tester's case. When the headset sent its signal strength every few seconds, the heartbeat was never needed, which is why the session after the replug stayed connected. | — |
+| Linux: the transmitter stops answering | 0.2.1.2 | Open, and narrowed. A day's USB trace (30 October) has three starts with the PC, each answered at once, and no start where it was silent. The transmitter keeps its power and its unread replies through a shutdown: at the next start it hands back the end of the last session's replies before Neap asks anything. Quitting Neap and asking again 8 seconds later was answered too. So the silence comes only when Neap starts by hand some time after it last read the transmitter, as on 24 October, when 0.2.1.9's restart read nothing and Home asked for the replug, which worked. It happens when Neap starts long after the transmitter was plugged in: on every start by hand since 20 October, not on 23 October's start with the PC. Neap's one restart brought nothing back under the new rule (23 October, 0 reports); unplugging it and plugging it back in did, at once. That matches the Stealth Pro II's dock, which answers only when something has read it since it was plugged in (SP2Tools, proven on the dock). The ~445 reports earlier restarts "read" were one old report handed back again, not answers. In 0.2.1.9: a transmitter restarted once and still silent is asked whether the headset is linked again, and with no answer, Home asks the person to unplug it and plug it back in. | Left as it is: with Neap starting with the PC, as is the default, no replug is needed. Not yet known is what the transmitter misses while nothing reads it; Linux reads a USB device's reports only while a program has it open, where Windows always does, which would fit (untried). |
 | Linux: Neap's restart switches the headset off | 0.2.1.5 | It happened on every start of Neap. 0.2.1.7 restarts only a transmitter that gives no answer at all, not one that says no headset is linked. Not the transmitter's doing (F118); probably the headset reacting to the link going. | Ask the Linux tester whether it still happens. |
 | Linux: the restart's log said the transmitter answered when it hadn't | 0.2.1.5 | Fixed for 0.2.1.7: a report with a length of 0 is empty, whatever is left in it | — |
 | Mic monitoring too quiet: heard only when speaking very loudly | 0.2.1.6 | Open. On 22 October every level read back as the gain the firmware gives it, with 100% at 0 dB, the most its own key allows; the tester hears 0% and 100% differ, but not his voice clearly. Left: the noise gate, which Neap still cannot read (it was never confirmed off), and whether 0 dB is simply this headset's most. A gain above 0 dB is possible only by writing the sound chip's saved sidetone setting directly (F120: its block allows up to +12 dB), never tried, and not offered. | Ask whether Swarm II at 100% is any louder than Neap at 100%. If not, Neap matches the headset. |
@@ -159,6 +160,31 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-10-30 — Linux tester, a USB trace over 28 to 30 October, 0.2.1.9
+  starting with the PC. Only 30 October's traffic was kept, as the recorder's
+  log filled with Neap's reads. Three starts with the PC: the transmitter
+  answered at once each time, said no headset was linked while it was off,
+  and connected when it came on (15:22, with no replug), then stayed
+  connected all evening. At each start it first handed back the end of the
+  previous session's replies, so it kept power through the shutdown. The
+  headset refused `NG` and `TX` with an empty reset on every connect.
+  Unplugged and plugged back in, the transmitter showed for a second as
+  another device (`0E8D:0003`), came up at high speed, timed out on the
+  system's sound requests, and came back at full speed 80 seconds later;
+  before the replug it was running at full speed too. The tester also
+  reported sound stopping while connected (see Problems) and other USB
+  devices dropping: those were on another USB controller or flagged by the
+  system as electrical interference, and one, the game controller, came
+  back as its own firmware loader, so neither the recorder, which only
+  listens, nor Neap caused them.
+- 2026-10-24 — Linux tester, 0.2.1.9, started by hand with the headset on:
+  silent; the restart read nothing and Home asked for the replug, which
+  brought it back. Then 10 minutes connected with no drop. The battery fell
+  from 60% to 55% in that time, as the Stealth Pro II's does just after it is
+  switched on.
+- 2026-10-23 — Windows tester, 0.2.1.8 (17 minutes): connected throughout.
+  "So far so good." Swarm II's mic monitoring may sound a little clearer;
+  he is not sure.
 - 2026-10-23 — Linux tester, 0.2.1.8. Started by hand with the headset on:
   Quiet; the transmitter gave no answer to the link question, was restarted,
   read back nothing, and stayed silent. Unplugged and plugged back in: it
@@ -333,6 +359,7 @@ Fixed, when the Atlas Air is released.
 - On the Atlas Air, muting the microphone from Neap also turns mic monitoring
   down, as the headset's own mute does, and puts it back when you unmute.
   Before, you went on hearing yourself while muted.
+  Unmuting before Neap has read the headset's settings puts it back too.
 - On the Atlas Air, the transmitter light shows its level as soon as Neap
   connects.
 - On the Atlas Air, Superhuman Hearing shows as off when a change to the
