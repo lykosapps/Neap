@@ -48,6 +48,12 @@ public sealed class MicFollowsHeadset : IDisposable
 
     private async void OnChanged()
     {
+        if (_waitingForMonitoring && _headset.TryGetNumberByKey(Registry.ByName["mic_monitoring"].Key, out _))
+        {
+            _waitingForMonitoring = false;
+            QuietMonitoring(_headset, muted: false);
+        }
+
         if (_headset.Microphone.Mute is not { } now) return;
         var before = _last;
         _last = now;
@@ -71,6 +77,9 @@ public sealed class MicFollowsHeadset : IDisposable
         QuietMonitoring(AppServices.Headset, muted);
     }
 
+    /// <summary>Whether an unmute came before the headset reported its monitoring level, which is then put back once it does.</summary>
+    private static volatile bool _waitingForMonitoring;
+
     private static void QuietMonitoring(HeadsetService headset, bool muted)
     {
         if (headset.Model is not { QuietsMonitoringWhileMuted: true }) return;
@@ -82,8 +91,11 @@ public sealed class MicFollowsHeadset : IDisposable
             AppLog.Write($"microphone: mic monitoring {(muted ? $"down from {now} while muted" : $"back to {set}")}, as the headset's own mute does");
             headset.SetKey(key, set, hold: false);
         }
-        if (muted) AppSettings.Update(settings => settings.MonitoringBeforeMute = MonitoringWhileMuted.KeptFor(now) ?? settings.MonitoringBeforeMute);
-        else AppSettings.Update(settings => settings.MonitoringBeforeMute = null);
+        int? kept = MonitoringWhileMuted.KeptAfter(muted, now, before);
+        _waitingForMonitoring = !muted && now is null && kept is not null;
+        if (_waitingForMonitoring)
+            AppLog.Write($"microphone: mic monitoring goes back to {kept} once the headset reports it");
+        AppSettings.Update(settings => settings.MonitoringBeforeMute = kept);
     }
 
     public void Dispose()

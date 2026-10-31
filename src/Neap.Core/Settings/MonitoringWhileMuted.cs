@@ -23,16 +23,20 @@ public static class MonitoringWhileMuted
     /// <param name="muted">Whether the person is muting.</param>
     /// <param name="now">The monitoring level the headset reports now, or null if it has not.</param>
     /// <param name="before">The level kept from the last mute, or null if none was.</param>
-    /// <remarks>
-    /// Unmuting before the headset has reported its level still puts the kept
-    /// level back: the mute turned it down, and the kept level is cleared as
-    /// the person unmutes, so waiting for a reading would leave monitoring at
-    /// nothing.
-    /// </remarks>
     public static int? LevelFor(bool muted, int? now, int? before) => muted
         ? now is > 0 ? 0 : null
-        : now is null or 0 && before is > 0 ? before : null;
+        : now == 0 && before is > 0 ? before : null;
 
-    /// <summary>The level to keep for unmuting, as the person mutes.</summary>
-    public static int? KeptFor(int? now) => now is > 0 ? now : null;
+    /// <summary>The level to keep after the person mutes or unmutes, or null to keep none.</summary>
+    /// <remarks>
+    /// Unmuting before the headset has reported its level, as while it is off
+    /// or out of range, keeps the level, so it is put back once the headset
+    /// reports again (<see cref="LevelFor"/> with its reading).
+    /// </remarks>
+    /// <param name="muted">Whether the person is muting.</param>
+    /// <param name="now">The monitoring level the headset reports now, or null if it has not.</param>
+    /// <param name="before">The level kept from the last mute, or null if none was.</param>
+    public static int? KeptAfter(bool muted, int? now, int? before) => muted
+        ? now is > 0 ? now : before
+        : now is null ? before : null;
 }
