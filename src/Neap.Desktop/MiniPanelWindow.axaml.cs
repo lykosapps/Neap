@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -70,6 +71,7 @@ public partial class MiniPanelWindow : Window
         {
             if (!_painting) AppServices.Mix.Apply((int)Math.Round(args.NewValue));
         };
+        Dial.LayoutUpdated += (_, _) => PaintMixTrack();
         OpenNeap.Click += (_, _) => OpenWindow(null);
         ChooseApps.Click += (_, _) => OpenWindow("home");
         Preset.DropDownClosed += (_, _) => CloseIfAway();
@@ -254,6 +256,36 @@ public partial class MiniPanelWindow : Window
         Tiles.IsVisible = shown > 0;
         Tiles.Columns = MiniTiles.Columns(shown);
         TilesArea.IsVisible = shown > 0 || PresetRow.IsVisible;
+    }
+
+    /// <summary>Lays the mix's track under its slider, filled from the middle to the thumb toward the side it leans to.</summary>
+    /// <remarks>Taken from where the slider laid out its own track and thumb, so the two always line up.</remarks>
+    private void PaintMixTrack()
+    {
+        if (Dial.GetVisualDescendants().OfType<Track>().FirstOrDefault() is not { Thumb: { } thumb } track
+            || track.TranslatePoint(new Point(0, track.Bounds.Height / 2), MixTrack) is not { } start
+            || thumb.TranslatePoint(new Point(thumb.Bounds.Width / 2, 0), MixTrack) is not { } at)
+            return;
+
+        // The toolkit's own thickness for a slider's line, as the volume sliders have.
+        double height = this.TryFindResource("SliderTrackThemeHeight", out var thickness) && thickness is double set ? set : 4;
+        double top = start.Y - height / 2;
+        double middle = start.X + track.Bounds.Width / 2;
+        foreach (var bar in new[] { MixRail, MixFill })
+        {
+            Canvas.SetTop(bar, top);
+            bar.Height = height;
+            bar.RadiusX = bar.RadiusY = height / 2;
+        }
+        Canvas.SetLeft(MixRail, start.X);
+        MixRail.Width = track.Bounds.Width;
+
+        var lean = MixLevels.Lean((int)Math.Round(Dial.Value));
+        Canvas.SetLeft(MixFill, Math.Min(middle, at.X));
+        MixFill.Width = Math.Abs(at.X - middle);
+        MixFill.IsVisible = lean != MixLean.Balanced;
+        MixFill.Classes.Set("game", lean is MixLean.GameOnly or MixLean.TowardGame);
+        MixFill.Classes.Set("chat", lean is MixLean.ChatOnly or MixLean.TowardChat);
     }
 
     /// <summary>Gets Superhuman Hearing's value, or null where the headset has not reported it.</summary>

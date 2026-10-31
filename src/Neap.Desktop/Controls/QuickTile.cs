@@ -19,7 +19,7 @@ namespace Neap.Desktop.Controls;
 /// setting's: a press that changes nothing leaves the tile as it was.
 /// </para>
 /// <para>
-/// The list is a separate button, a strip down the tile's right edge, so the
+/// The list is a separate button across the tile's top-right corner, so the
 /// tile and its list are two stops for the keyboard and two names for a
 /// screen reader, and the list is easy to hit. Its look is in Tiles.axaml.
 /// </para>
@@ -118,7 +118,6 @@ public sealed class QuickTile : Grid
             }
         }
         _more.IsVisible = _choices.Items.Count > 1;
-        Classes.Set("haslist", _more.IsVisible);
         _more.IsEnabled = canChoose;
     }
 }

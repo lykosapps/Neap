@@ -42,12 +42,8 @@
         Sliders are the toolkit's own, in Neap's colours and sizes through the
         toolkit's names (FluentKeys and Tokens.axaml), so a click anywhere
         along the track, dragging and the keyboard all work as the toolkit
-        makes them. A balance slider, such as the mini panel's game and chat
-        mix, has no side that is more, so neither side of the thumb is filled.
+        makes them, and every slider looks the same.
     -->
-    <Style Selector="Slider.balance /template/ RepeatButton#PART_DecreaseButton">
-        <Setter Property="Background" Value="{DynamicResource NeapControlTrackBrush}" />
-    </Style>
 
     <!--
         A thin busy line: a short stretch of the accent on the slider's track.

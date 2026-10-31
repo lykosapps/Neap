@@ -20,9 +20,10 @@
     <!--
         A quick tile in the mini panel: the inset's fill, taking the on tint
         while its setting is on, as Home's cards do. The icon at the top, and
-        the name and state at the foot. A tile with a list is split, as the
-        system's quick settings are: the list's arrow fills a strip down its
-        right edge, the whole strip a target, and the face keeps clear of it.
+        the name and state at the foot. A tile with a list has its arrow in a
+        target across the top-right corner, beside the icon, as wide as a
+        finger and as tall as the icon's row, so the name and state below keep
+        the tile's whole width even three to a row.
     -->
     <Style Selector="ToggleButton.quicktile">
         <Setter Property="MinHeight" Value="64" />
@@ -81,22 +82,20 @@
         <Setter Property="MaxLines" Value="2" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
-    <Style Selector="c|QuickTile.haslist ToggleButton.quicktile">
-        <Setter Property="Padding" Value="10,8,44,8" />
-    </Style>
     <Style Selector="Button.quickmore">
         <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="36" />
         <Setter Property="MinWidth" Value="0" />
         <Setter Property="MinHeight" Value="0" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="1" />
-        <Setter Property="CornerRadius" Value="0,7,7,0" />
+        <Setter Property="CornerRadius" Value="0,7,0,7" />
         <Setter Property="HorizontalAlignment" Value="Right" />
-        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
-    <!-- The strip sits on the tile, so it takes the tile's text colour while the tile is on, and the tile's own hover. -->
+    <!-- The target sits on the tile, so it takes the tile's text colour while the tile is on, and the tile's own hover. -->
     <Style Selector="c|QuickTile.on Button.quickmore">
         <Setter Property="Foreground" Value="{DynamicResource NeapQuickOnTextBrush}" />
     </Style>

@@ -15,6 +15,22 @@
     Background="Transparent">
 
     <Window.Styles>
+        <!-- The mix's slider draws no track of its own; MixTrack, under it, does. -->
+        <Style Selector="Slider.centred /template/ RepeatButton">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Slider.centred:pointerover /template/ RepeatButton">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Slider.centred:pressed /template/ RepeatButton">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Rectangle#MixFill.game">
+            <Setter Property="Fill" Value="{DynamicResource NeapGameBrush}" />
+        </Style>
+        <Style Selector="Rectangle#MixFill.chat">
+            <Setter Property="Fill" Value="{DynamicResource NeapChatBrush}" />
+        </Style>
         <!-- The preset picker sized to the panel's compact row; by name, as it is styled as the ComboBox it is. -->
         <Style Selector="ComboBox#Preset">
             <Setter Property="MinHeight" Value="0" />
@@ -92,15 +108,27 @@
                             Classes="label"
                             Foreground="{DynamicResource NeapChatTextBrush}" />
                     </Grid>
-                    <Slider
-                        x:Name="Dial"
-                        Margin="0,-12"
-                        Classes="balance"
-                        Minimum="0"
-                        Maximum="100"
-                        SmallChange="1"
-                        LargeChange="10"
-                        loc:Uid.Value="Mix_Dial" />
+                    <!--
+                        The toolkit's slider over a track of its own: the fill
+                        runs from the middle to the thumb, in the colour of the
+                        side the mix leans to, as balance controls are drawn.
+                        Drawn under the slider, so the thumb stays on top.
+                    -->
+                    <Panel>
+                        <Canvas x:Name="MixTrack" IsHitTestVisible="False">
+                            <Rectangle x:Name="MixRail" Fill="{DynamicResource NeapControlTrackBrush}" />
+                            <Rectangle x:Name="MixFill" />
+                        </Canvas>
+                        <Slider
+                            x:Name="Dial"
+                            Margin="0,-12"
+                            Classes="centred"
+                            Minimum="0"
+                            Maximum="100"
+                            SmallChange="1"
+                            LargeChange="10"
+                            loc:Uid.Value="Mix_Dial" />
+                    </Panel>
                 </StackPanel>
                 <Button
                     x:Name="ChooseApps"

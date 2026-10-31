@@ -23,11 +23,14 @@ and date.
 
 ### Changed
 
+- The mini panel's game and chat mix fills from the middle toward the side
+  it leans to, in that side's colour, so how far it leans shows at a glance.
 - The mini panel can show the profile in use, under the headset's name,
   with the same menu as the window's to switch, save or discard. It is
   shown once a profile is saved, and can be ticked or unticked in Settings.
 - A mini panel tile with a list, such as noise cancellation, opens it from
-  a strip down its right edge, easier to hit than the small arrow was.
+  a larger target across its top-right corner, easier to hit than the small
+  arrow was.
   Superhuman Hearing's list offers Off as noise cancellation's does, and a
   sound chosen while it is off turns it on.
 - On Windows, the warning that sound, calls or the microphone are going to
