@@ -50,7 +50,7 @@ public sealed class PresetChoice : ComboBox
             else if (chosen is Preset preset)
             {
                 // Out of the Parametric mode first, so the preset's gains are not put on the parametric bands.
-                if (ParametricService.Offered && ParametricService.Active) AppServices.Parametric.UseBands(preset.Bands);
+                if (ParametricListed && ParametricService.Active) AppServices.Parametric.UseBands(preset.Bands);
                 await AppServices.Presets.Select(Bank.Game, preset);
             }
             Paint();
@@ -113,11 +113,21 @@ public sealed class PresetChoice : ComboBox
         Paint();
     }
 
+    /// <summary>Whether Parametric's presets are listed: only while it is turned on, for a headset whose bands can be set live.</summary>
+    /// <remarks>
+    /// Turned off, by the person or by Swarm II resetting the equaliser, a
+    /// parametric preset chosen here would go onto the stock bands without the
+    /// Equaliser page's confirmation, and the list would name Parametric as in
+    /// use while the headset plays the ten bands.
+    /// </remarks>
+    private static bool ParametricListed => PresetPickerLook.List(
+        ParametricService.Offered && AppSettings.Current.ParametricOn,
+        AppServices.Headset.Model is { HasParametricBands: true }) == PickerList.BandsAndParametric;
+
     /// <summary>Names the preset in use, and lists every preset to pick another.</summary>
     private void Paint()
     {
-        bool both = PresetPickerLook.List(ParametricService.Offered,
-            AppServices.Headset.Model is { HasParametricBands: true }) == PickerList.BandsAndParametric;
+        bool both = ParametricListed;
         bool parametric = both && ParametricService.Active;
         var bands = AppServices.Presets.State(Bank.Game);
         if (bands is null && !parametric)
