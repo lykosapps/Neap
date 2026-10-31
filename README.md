@@ -111,6 +111,13 @@ only while it's on a call.
 - **Updates itself** with one press, on Windows and from the Linux AppImage,
   checked against the checksum published with each release.
 
+### Coming soon
+
+**Changes to the headset's own firmware,** written by Neap: the Mode
+button stepping through transparency without Neap running, and new light
+patterns, starting with the light switching off when the headset
+disconnects instead of blinking.
+
 ## Built to be relied on
 
 - **Tested on the hardware.** Every release is checked on a real headset,
@@ -129,8 +136,8 @@ only while it's on a call.
 2. Unzip it to a folder of its own and run `Neap.exe`. Windows warns the
    first time, as the download isn't signed yet: choose **More info**, then
    **Run anyway**.
-3. Close Swarm II and remove the Waves audio driver; see
-   [Alongside Swarm II](#alongside-swarm-ii-windows).
+3. Remove Swarm II, or stop it running, and remove the Waves audio driver;
+   see [Alongside Swarm II](#alongside-swarm-ii-windows).
 
 **To update,** choose **Update and restart** in Settings when Neap says a
 newer version is out. **To remove it,** delete its folder and
@@ -157,11 +164,13 @@ front.
 
 ## Alongside Swarm II (Windows)
 
-1. **Keep Swarm II for firmware updates and pairing.** Neap does neither.
-2. **Stop it starting with Windows.** The two apps fight over the headset.
-   In Swarm II: Settings → App Settings → turn off **Autostart Swarm II**,
-   then close it.
-3. **Remove the Waves audio driver.** In Windows Settings → Apps, uninstall
+Swarm II is optional. Neap covers the headset's settings, and the Turtle
+Beach phone app updates its firmware.
+
+1. **Remove Swarm II,** or, if you keep it, stop it starting with Windows,
+   as the two apps fight over the headset: in Swarm II, Settings → App
+   Settings → turn off **Autostart Swarm II**, then close it.
+2. **Remove the Waves audio driver.** In Windows Settings → Apps, uninstall
    **Turtle Beach Audio Driver**.
 
 ## Help and feedback
