@@ -159,6 +159,11 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-10-31 — Test build 0.4.0.1 published, 0.4.0 with Parametric on for
+  the Atlas Air. Both testers asked to turn it on, raise one band by a lot
+  and say whether they hear it; the Linux tester also asked to attach the
+  app log the next time sound stops, before changing anything, and told the
+  trace script can be removed.
 - 2026-10-30 — Linux tester, a USB trace over 28 to 30 October, 0.2.1.9
   starting with the PC. Only 30 October's traffic was kept, as the recorder's
   log filled with Neap's reads. Three starts with the PC: the transmitter
