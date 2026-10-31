@@ -40,8 +40,8 @@ public class ReleaseTests
         var release = Release.Parse(Json());
 
         Assert.Equal(new Version(0, 3, 0), release.Version);
-        Assert.Equal("Neap-0.3.0-win-x64.zip", release.ZipName);
-        Assert.EndsWith("/v0.3.0/Neap-0.3.0-win-x64.zip", release.Zip?.AbsoluteUri, StringComparison.Ordinal);
+        Assert.Equal("Neap-0.3.0-win-x64.zip", release.DownloadName);
+        Assert.EndsWith("/v0.3.0/Neap-0.3.0-win-x64.zip", release.Download?.AbsoluteUri, StringComparison.Ordinal);
         Assert.EndsWith("/v0.3.0/Neap-0.3.0-win-x64.zip.sha256", release.Hash?.AbsoluteUri, StringComparison.Ordinal);
         Assert.Equal("https://github.com/lykosapps/Neap/releases/tag/v0.3.0", release.Page.AbsoluteUri);
     }
@@ -84,19 +84,40 @@ public class ReleaseTests
 
         Assert.Throws<FormatException>(() => Release.Parse(noZip));
 
-        var release = Release.Parse(noZip, installable: false);
+        var release = Release.Parse(noZip, package: Package.None);
         Assert.Equal(new Version(0, 3, 0), release.Version);
         Assert.Equal("https://github.com/lykosapps/Neap/releases/tag/v0.3.0", release.Page.AbsoluteUri);
-        Assert.Null(release.Zip);
+        Assert.Null(release.Download);
         Assert.Null(release.Hash);
+    }
+
+    [Fact]
+    public void OnLinuxTheAppImageAndItsHashAreTheDownload()
+    {
+        var release = Release.Parse(Json(zipName: "Neap-0.3.0-x86_64.AppImage"), Package.AppImage);
+
+        Assert.Equal("Neap-0.3.0-x86_64.AppImage", release.DownloadName);
+        Assert.EndsWith("/v0.3.0/Neap-0.3.0-x86_64.AppImage", release.Download?.AbsoluteUri, StringComparison.Ordinal);
+        Assert.EndsWith("/v0.3.0/Neap-0.3.0-x86_64.AppImage.sha256", release.Hash?.AbsoluteUri, StringComparison.Ordinal);
+        Assert.Equal(release, Release.Parse(release.ToJson(), Package.AppImage));
+        Assert.Throws<FormatException>(() => Release.Parse(Json(), Package.AppImage));
+    }
+
+    [Fact]
+    public void TheAppImagesHashFileIsReadAsTheWorkflowWritesIt()
+    {
+        var release = Release.Parse(Json(zipName: "Neap-0.3.0-x86_64.AppImage"), Package.AppImage);
+
+        Assert.Equal(Hash, release.HashFrom($"{Hash}  Neap-0.3.0-x86_64.AppImage\n"));
+        Assert.Throws<FormatException>(() => release.HashFrom($"{Hash}  Neap-0.3.0-win-x64.zip"));
     }
 
     [Fact]
     public void AReleaseWithoutADownloadIsReadBackAsItWas()
     {
-        var release = Release.Parse(Json(zipName: "Neap-0.3.0-linux-x64.tar.gz"), installable: false);
+        var release = Release.Parse(Json(zipName: "Neap-0.3.0-linux-x64.tar.gz"), package: Package.None);
 
-        Assert.Equal(release, Release.Parse(release.ToJson(), installable: false));
+        Assert.Equal(release, Release.Parse(release.ToJson(), package: Package.None));
     }
 
     [Fact]
@@ -104,7 +125,7 @@ public class ReleaseTests
     {
         string elsewhere = Json().Replace("https://github.com/lykosapps/Neap/", "https://github.com/someone/Else/", StringComparison.Ordinal);
 
-        Assert.Throws<FormatException>(() => Release.Parse(elsewhere, installable: false));
+        Assert.Throws<FormatException>(() => Release.Parse(elsewhere, package: Package.None));
     }
 
     [Fact]

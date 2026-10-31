@@ -15,7 +15,7 @@ A one-page record of what could go wrong, and what is done about it. Revisited a
 1. **The person at the keyboard.** Same trust level as the app: one person, one machine, no accounts.
 2. **Other programs on the machine.** Read through Windows' Audio Session API to run the game/chat mix; can connect to a local pipe only when the app was started with `--pretend`.
 3. **The headset and its transmitters.** An external USB device. Neap trusts it to answer honestly, but not to ask for anything: every write is checked, and a garbled reply is treated as a failure to parse, never guessed at.
-4. **Distribution.** A zip (Windows) and an AppImage (Linux) on GitHub's release page, not signed yet, fetched by hand; on Windows also by the app's own updater (`UpdateService`), which replaces the app's files and restarts it. The Linux app never installs anything: it only says a newer version exists.
+4. **Distribution.** A zip (Windows) and an AppImage (Linux) on GitHub's release page, not signed yet, fetched by hand; also by the app's own updater (`UpdateService`): on Windows it replaces the app's files, and on Linux the AppImage it runs from, then restarts it, after checking the download against the SHA-256 published in the same release. A Linux copy not run from its AppImage never installs anything: it only says a newer version exists.
 5. **The system's device permissions (Linux).** The headset's control channel belongs to root until a rule gives it to the person at the machine; Neap asks for that rule, through the system's own prompt.
 6. **The sound server and the X server,** which other programs of the same person share with Neap.
 

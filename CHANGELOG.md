@@ -13,6 +13,11 @@ and date.
 
 ### Added
 
+- On Linux, Neap running from its AppImage updates itself, as it does on
+  Windows: Update and restart downloads the new AppImage, checks it against
+  the checksum published with it, and puts it in place of the old one under
+  the same name. Neap built or installed any other way still opens the
+  release page.
 - On the Stealth Pro II, the Equaliser page has Parametric: each of the ten
   game bands has its own filter, frequency, width and gain, changed live,
   through the Charging Dock or the cable. Neap keeps your parametric

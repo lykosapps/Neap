@@ -202,6 +202,7 @@ public static class Pretend
     public static Release? Release { get; } = Active && Given(UpdateFlag)
         ? new Release(new Version(9, 9, 9),
             new Uri("https://github.com/lykosapps/Neap/releases/latest"),
+            Package.WindowsZip,
             new Uri("https://github.com/lykosapps/Neap/releases/download/v9.9.9/Neap-9.9.9-win-x64.zip"),
             new Uri("https://github.com/lykosapps/Neap/releases/download/v9.9.9/Neap-9.9.9-win-x64.zip.sha256"),
             SampleNotes)

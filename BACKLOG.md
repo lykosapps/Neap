@@ -190,9 +190,8 @@ Needs a Linux machine or the WSL distros, and for the Deck lines the Steam Deck.
 - **Linux packages and updates, on request.** Flatpak, `.deb` and `.rpm`
   packages (a package would install the headset rule, so the password
   prompt is never needed), an Arm build, and one for musl distributions such
-  as Alpine. Also in-app updates: today Neap says a newer version is out and
-  opens the page, and an AppImage can be updated in place with a delta
-  update tool (AppImageUpdate).
+  as Alpine. The AppImage updates itself from 0.4.0; a package would update
+  through the system's own tools instead.
 
 ## 6. Another headset: the Atlas Air and the rest
 

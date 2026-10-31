@@ -15,21 +15,25 @@ namespace Neap.Services;
 /// The only thing Neap sends over a network. A check asks GitHub for its
 /// latest release and sends nothing from the PC or the headset, only the
 /// request, which GitHub sees as it sees any website visit; an update
-/// downloads that release's zip. Neither happens in a
+/// downloads that release's zip on Windows, or its AppImage on Linux. Neither happens in a
 /// pretend run, which finds the release <see cref="Pretend.Release"/> gives,
 /// if any, and installs nothing.
 /// </para>
 /// <para>
-/// The download is checked against the SHA-256 published beside it, and the
-/// Neap.exe inside against the release's version, before anything is moved.
+/// The download is checked against the SHA-256 published beside it, and on
+/// Windows the Neap.exe inside against the release's version, before anything
+/// is moved. An AppImage is checked by its hash alone, as its version is only
+/// known by running it.
 /// The hash comes from the same release, so it catches a broken download,
 /// not a release replaced by someone with the account; signing would, and
 /// the download is not signed yet.
 /// </para>
 /// <para>
-/// The work happens in a hidden folder inside Neap's own, so that putting
-/// the new version in place is a set of renames on one drive
-/// (<see cref="FolderSwap"/>). The version that starts next clears it.
+/// On Windows the work happens in a hidden folder inside Neap's own, so that
+/// putting the new version in place is a set of renames on one drive
+/// (<see cref="FolderSwap"/>). The version that starts next clears it. On
+/// Linux the new AppImage arrives as a hidden file beside the running one and
+/// is renamed over it (<see cref="AppImageSwap"/>).
 /// </para>
 /// </remarks>
 public sealed class UpdateService : IDisposable
@@ -88,14 +92,24 @@ public sealed class UpdateService : IDisposable
     /// <summary>Whether this system looks for a newer version and says when there is one.</summary>
     public static bool Supported => OperatingSystem.IsWindows() || OperatingSystem.IsLinux() || Pretend.Active;
 
-    /// <summary>Whether this system puts a newer version in place of the running one.</summary>
+    /// <summary>The AppImage Neap is running from, as its runtime says in <c>APPIMAGE</c>, or null when it is not running from one.</summary>
+    private static string? AppImage =>
+        OperatingSystem.IsLinux() && Environment.GetEnvironmentVariable("APPIMAGE") is { Length: > 0 } path && File.Exists(path)
+            ? path : null;
+
+    /// <summary>The download this system puts in place of the running copy.</summary>
     /// <remarks>
-    /// Only Windows does. On Linux the program is one a package, a download or
-    /// the person's own hands put where it is, and replacing files under a
-    /// copy that is running crashes it, so Neap says a newer version is out and
-    /// opens its release page.
+    /// Windows' zip, or on Linux the AppImage, a single file that can be
+    /// replaced whole. Neap built or installed any other way on Linux is one
+    /// a package or the person's own hands put where it is, and replacing
+    /// files under a copy that is running crashes it, so Neap says a newer
+    /// version is out and opens its release page.
     /// </remarks>
-    public static bool CanInstall => OperatingSystem.IsWindows();
+    public static Package Package =>
+        OperatingSystem.IsWindows() ? Package.WindowsZip : AppImage is not null ? Package.AppImage : Package.None;
+
+    /// <summary>Whether this system puts a newer version in place of the running one.</summary>
+    public static bool CanInstall => Package != Package.None;
 
     private sealed class Idle : IDisposable
     {
@@ -124,6 +138,7 @@ public sealed class UpdateService : IDisposable
         });
 
         if (CanInstall && !Pretend.Active) _ = Task.Run(ClearLeftovers);
+        if (AppImage is { } appImage && !Pretend.Active) ClearAppImageDownload(appImage);
         Remember();
         CheckIfDue();
     }
@@ -181,7 +196,7 @@ public sealed class UpdateService : IDisposable
 
         try
         {
-            var release = Release.Parse(kept, CanInstall);
+            var release = Release.Parse(kept, Package);
             if (AppInfo.Version is { } running && release.IsNewerThan(running))
             {
                 Newer = release;
@@ -213,7 +228,7 @@ public sealed class UpdateService : IDisposable
         Set(UpdateStage.Checking);
         try
         {
-            var latest = Pretend.Active ? Pretend.Release : Release.Parse(await Http.GetStringAsync(Release.Latest), CanInstall);
+            var latest = Pretend.Active ? Pretend.Release : Release.Parse(await Http.GetStringAsync(Release.Latest), Package);
             AppSettings.Update(s => s.CheckedForUpdates = DateTimeOffset.Now);
             if (latest is null || AppInfo.Version is not { } running || !latest.IsNewerThan(running))
             {
@@ -250,7 +265,7 @@ public sealed class UpdateService : IDisposable
     /// <summary>Downloads the newer version, checks it and puts it in place, then raises <see cref="Installed"/>.</summary>
     public async Task Update()
     {
-        if (Newer is not { Zip: { } zipLink, Hash: { } hashLink } release || Busy) return;
+        if (Newer is not { Download: { } link, Hash: { } hashLink } release || Busy) return;
         string version = release.Version.ToString(3);
         if (Pretend.Active)
         {
@@ -263,24 +278,39 @@ public sealed class UpdateService : IDisposable
         {
             Percent = 0;
             Set(UpdateStage.Downloading);
-            Directory.CreateDirectory(Work);
-            File.SetAttributes(Work, File.GetAttributes(Work) | FileAttributes.Hidden);
-
             string expected = release.HashFrom(await Http.GetStringAsync(hashLink));
-            string zip = Path.Combine(Work, release.ZipName);
-            await Download(zipLink, zip);
-
-            Set(UpdateStage.Installing);
-            await Task.Run(() => Install(release, zip, expected));
+            string program;
+            if (release.Package == Package.AppImage && AppImage is { } appImage)
+            {
+                string incoming = AppImageSwap.IncomingFor(appImage);
+                await Download(link, incoming);
+                Set(UpdateStage.Installing);
+                await Task.Run(() => InstallAppImage(appImage, incoming, expected));
+                program = appImage;
+            }
+            else
+            {
+                Directory.CreateDirectory(Work);
+                File.SetAttributes(Work, File.GetAttributes(Work) | FileAttributes.Hidden);
+                string zip = Path.Combine(Work, release.DownloadName!);
+                await Download(link, zip);
+                Set(UpdateStage.Installing);
+                await Task.Run(() => Install(release, zip, expected));
+                program = Path.Combine(Folder, ExeName);
+            }
             AppLog.Write($"updates: version {version} is in place, restarting into it");
-            Installed?.Invoke(Path.Combine(Folder, ExeName));
+            Installed?.Invoke(program);
         }
         catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or FormatException
             or InvalidDataException or IOException or UnauthorizedAccessException)
         {
             AppLog.Write($"updates: could not update to {version}, so this version stays: {ex.Message}");
             Set(UpdateStage.UpdateFailed);
-            await Task.Run(ClearDownload);
+            await Task.Run(() =>
+            {
+                if (AppImage is { } appImage) ClearAppImageDownload(appImage);
+                else ClearDownload();
+            });
         }
     }
 
@@ -377,12 +407,33 @@ public sealed class UpdateService : IDisposable
         FolderSwap.Swap(Folder, incoming, Path.Combine(Work, "old"));
     }
 
-    /// <summary>Whether Neap can write to its own folder, which updating needs.</summary>
+    /// <summary>Checks the downloaded AppImage against its published hash, and renames it over the running one.</summary>
+    private static void InstallAppImage(string appImage, string incoming, string expected)
+    {
+        string hash;
+        using (var held = File.OpenRead(incoming)) hash = Convert.ToHexStringLower(SHA256.HashData(held));
+        if (hash != expected)
+            throw new InvalidDataException($"the download's SHA-256 {hash} is not the published {expected}");
+        AppImageSwap.Swap(appImage, incoming);
+    }
+
+    /// <summary>Deletes a new AppImage that arrived but was not put in place.</summary>
+    private static void ClearAppImageDownload(string appImage)
+    {
+        try { File.Delete(AppImageSwap.IncomingFor(appImage)); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Write($"updates: could not clear the download: {ex.Message}");
+        }
+    }
+
+    /// <summary>Whether Neap can write to its own folder, or the AppImage's, which updating needs.</summary>
     private static bool CanWriteHere()
     {
         try
         {
-            using var probe = new FileStream(Path.Combine(Folder, ".update-probe"), FileMode.Create,
+            string folder = AppImage is { } appImage ? Path.GetDirectoryName(appImage)! : Folder;
+            using var probe = new FileStream(Path.Combine(folder, ".update-probe"), FileMode.Create,
                 FileAccess.Write, FileShare.None, 1, FileOptions.DeleteOnClose);
             return true;
         }

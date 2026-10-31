@@ -289,8 +289,11 @@ The updater runs as the person, never elevated, so it can only update a copy
 in a folder they can write to; anywhere else it says a newer version exists
 and sends them to the download (`UpdateOffer`).
 
-Linux never updates itself. The program is one that an AppImage, a package or
-the person's own hands put where it is, and replacing files under a running copy
-crashed it, so Neap says a newer version is out and opens its release page.
-It uses the same check and the same offer, which decides that a system that
-cannot install is sent to the download.
+On Linux only the AppImage updates itself. It is one file, so the new one
+arrives hidden beside it, is checked against its published hash, and is
+renamed over it (`AppImageSwap`); the running copy goes on reading the image
+it started from. A program a package or the person's own hands put elsewhere
+is never replaced, as replacing files under a running copy crashed it, so
+Neap says a newer version is out and opens its release page. Both use the same
+check and the same offer, which decides that a system that cannot install is
+sent to the download.

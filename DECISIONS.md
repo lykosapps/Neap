@@ -1,5 +1,25 @@
 # Decisions
 
+## 2026-10-31 — The Linux AppImage updates itself
+
+- **Options:** keep opening the release page; a delta update tool for
+  AppImages (AppImageUpdate); download the whole new AppImage and rename it
+  over the running one, as Windows unzips over its folder.
+- **Chosen:** the whole AppImage, renamed over the old one under the same
+  name, after its SHA-256 matches the one published in the same release.
+  Only a copy run from its AppImage does this; any other Linux copy still
+  opens the release page.
+- **Why:** an AppImage is one file, so a rename puts it in place whole or not
+  at all, and the running copy keeps reading the image it started from, so
+  the crash that ruled updates out on 7 October does not arise. The delta
+  tool would need another program fetched and run, and a file more on every
+  release, to save part of one download. The same path keeps the sign-in
+  entry working. Proven against the real 0.3.0 release in a Linux virtual
+  machine (read, hash, swap, and the new file runs); a release-to-release
+  update in the app is proven only once two releases have it.
+- **Revisit if:** an update leaves a copy that does not start, or a desktop
+  shows the old version's name for the file and people are confused by it.
+
 ## 2026-10-31 — Parametric is on for the Stealth Pro II in 0.4.0
 
 - **Options:** keep it held back until its headset checks are done; turn it
@@ -666,6 +686,8 @@
   live. Telling people costs nothing and cannot break an install.
 - **Revisit if:** Linux users ask for in-app updates; a delta update tool for
   AppImages (AppImageUpdate) is the likely route.
+- **SUPERSEDED (31 October 2026, the owner asked for in-app updates on
+  Linux):** the AppImage now updates itself; see the entry of that date.
 
 ## 2026-10-07 — Neap asks for headset access once, through the system's own prompt
 
