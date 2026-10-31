@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
 
+using Neap.Core.Input;
 using Neap.Core.Updates;
 
 namespace Neap.Services;
@@ -92,9 +93,11 @@ public sealed class UpdateService : IDisposable
     /// <summary>Whether this system looks for a newer version and says when there is one.</summary>
     public static bool Supported => OperatingSystem.IsWindows() || OperatingSystem.IsLinux() || Pretend.Active;
 
-    /// <summary>The AppImage Neap is running from, as its runtime says in <c>APPIMAGE</c>, or null when it is not running from one.</summary>
+    /// <summary>The AppImage Neap is running from, or null when it is not running from one; see <see cref="DesktopEntry.AppImageOf"/>.</summary>
     private static string? AppImage =>
-        OperatingSystem.IsLinux() && Environment.GetEnvironmentVariable("APPIMAGE") is { Length: > 0 } path && File.Exists(path)
+        OperatingSystem.IsLinux()
+        && DesktopEntry.AppImageOf(Environment.GetEnvironmentVariable("APPIMAGE"), Environment.GetEnvironmentVariable("APPDIR"),
+            Environment.ProcessPath ?? "") is { } path && File.Exists(path)
             ? path : null;
 
     /// <summary>The download this system puts in place of the running copy.</summary>
@@ -207,7 +210,12 @@ public sealed class UpdateService : IDisposable
         }
         catch (FormatException ex)
         {
-            AppLog.Write($"updates: could not read the version found earlier: {ex.Message}");
+            // Kept by a copy with another download, such as one that only
+            // opened the release page, so it says nothing about being up to
+            // date: the check is made again now.
+            AppLog.Write($"updates: could not read the version found earlier, so it is looked for again: {ex.Message}");
+            AppSettings.Update(s => (s.FoundRelease, s.CheckedForUpdates) = (null, null));
+            return;
         }
         AppSettings.Update(s => s.FoundRelease = null);
         Stage = UpdateStage.UpToDate;

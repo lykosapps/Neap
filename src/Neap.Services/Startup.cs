@@ -98,7 +98,7 @@ internal sealed class LinuxStartup : IStartup
 
     private static void Write()
     {
-        string exe = DesktopEntry.StartedFrom(Environment.GetEnvironmentVariable("APPIMAGE"), Environment.ProcessPath ?? "");
+        string exe = DesktopEntry.StartedFrom(Environment.GetEnvironmentVariable("APPIMAGE"), Environment.GetEnvironmentVariable("APPDIR"), Environment.ProcessPath ?? "");
         if (exe.Length == 0) throw new InvalidOperationException("no process path");
 
         Directory.CreateDirectory(Folder);
