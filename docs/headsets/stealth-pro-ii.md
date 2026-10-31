@@ -152,7 +152,8 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
-- 2026-10-31 — Parametric turned on for 0.4.0 by the owner's call; its headset checks (HEADSET-CHECKS.md, 31 to 36) are still to pass before the tag.
+- 2026-10-31 — Owner, Parametric headset checks with the try-it copy, through the Charging Dock: 34 (turn on, a built-in shape, an edit, Discard, Turn off from the menu, Swarm II's presets as before), 35 (Compare, and switching windows while held) and 36 (Bands and back) pass. 33, the Mode button stepping game presets: the headset goes to the ten bands; Neap noticed but its Equaliser page stayed on Parametric, fixed the same day and confirmed on the headset (the page goes to Bands and says so). 32 was not run with the phone app. 31, a Swarm II flash, is still to do. Turning on now first reads band 1: through the dock it answered 31.5 Hz on the first try.
+- 2026-10-31 — Parametric turned on for 0.4.0 by the owner's call; its headset checks (HEADSET-CHECKS.md, 31 to 36) were then run (see the line above).
 - 2026-10-23 — Owner's headset on the white Xbox dock. The dock names
   itself "Stealth Pro II Xbox", and the headset on its cable "Stealth Pro II
   Xbox Headset"; Neap's title now shows that name. On the cable alone the
