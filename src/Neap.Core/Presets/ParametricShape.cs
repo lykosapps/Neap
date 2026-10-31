@@ -112,18 +112,32 @@ public static class ParametricPresets
     public static IReadOnlyList<ParametricPreset> Without(IReadOnlyList<ParametricPreset> presets, string name) =>
         [.. presets.Where(p => !PresetName.Same(p.Name, name))];
 
+    /// <summary>The shape the shape on screen came from: a saved preset's, a built-in one's, or null when it came from neither.</summary>
+    /// <param name="baseline">The saved preset it came from, or null.</param>
+    /// <param name="builtIn">The built-in shape it came from, or null; a saved preset is taken first.</param>
+    public static ParametricShape? From(ParametricPreset? baseline, StartingShape? builtIn) =>
+        baseline?.Shape ?? (builtIn is { } shape ? ParametricShape.Of(StartingShapes.Bands(shape)) : null);
+
     /// <summary>What can be done with the shape on screen and the preset it came from.</summary>
+    /// <remarks>
+    /// The buttons follow the ten-band equaliser's rules (<see cref="EqualiserActions"/>):
+    /// a built-in shape is as one of Turtle Beach's presets, and a saved
+    /// preset as one of yours.
+    /// </remarks>
     /// <param name="shape">The shape on screen.</param>
-    /// <param name="baseline">The preset it came from, or null.</param>
-    public static ParametricPresetActions Actions(ParametricShape shape, ParametricPreset? baseline) =>
-        new(Edited: baseline is not null && baseline.Shape != shape,
-            Save: baseline is not null && baseline.Shape != shape,
-            Rename: baseline is not null);
+    /// <param name="baseline">The saved preset it came from, or null.</param>
+    /// <param name="builtIn">The built-in shape it came from, or null.</param>
+    public static ParametricPresetActions Actions(ParametricShape shape, ParametricPreset? baseline, StartingShape? builtIn = null)
+    {
+        var from = From(baseline, builtIn);
+        bool edited = from is not null && from != shape;
+        return new(edited, Rename: baseline is not null,
+            EqualiserActions.For(edited, known: from is not null, yours: baseline is not null));
+    }
 }
 
 /// <summary>Which of a parametric preset's actions can be taken.</summary>
-/// <remarks>Saving as new can always be taken, so it is not here.</remarks>
 /// <param name="Edited">The shape has moved since its preset was chosen.</param>
-/// <param name="Save">The shape can be saved over its preset.</param>
-/// <param name="Rename">The preset can be renamed.</param>
-public readonly record struct ParametricPresetActions(bool Edited, bool Save, bool Rename);
+/// <param name="Rename">The preset is a saved one, which can be renamed.</param>
+/// <param name="Buttons">Discard, Save and Save as new, as the ten-band equaliser has them.</param>
+public readonly record struct ParametricPresetActions(bool Edited, bool Rename, EqualiserActions Buttons);

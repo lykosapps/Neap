@@ -65,14 +65,66 @@ public class ParametricPresetsTests
     }
 
     [Fact]
-    public void WithNoPresetBehindItOnlySavingAsNewIsOffered() =>
-        Assert.Equal(new ParametricPresetActions(false, false, false), ParametricPresets.Actions(Shape(1), null));
+    public void WithNoPresetBehindItOnlySavingAsNewIsOffered()
+    {
+        var can = ParametricPresets.Actions(Shape(1), null);
+        Assert.False(can.Edited);
+        Assert.False(can.Rename);
+        Assert.Equal(EqualiserActions.For(edited: false, baseline: null), can.Buttons);
+    }
 
     [Fact]
-    public void AnUnchangedPresetCanBeRenamedButNotSavedOver() =>
-        Assert.Equal(new ParametricPresetActions(false, false, true), ParametricPresets.Actions(Shape(3), Two[0]));
+    public void AnUnchangedPresetCanBeRenamedOrDuplicatedButNotSavedOver()
+    {
+        var can = ParametricPresets.Actions(Shape(3), Two[0]);
+        Assert.False(can.Edited);
+        Assert.True(can.Rename);
+        Assert.False(can.Buttons.Overwrite);
+        Assert.True(can.Buttons.Duplicate);
+        Assert.False(can.Buttons.Discard);
+    }
 
     [Fact]
-    public void AnEditedPresetCanBeSavedOver() =>
-        Assert.Equal(new ParametricPresetActions(true, true, true), ParametricPresets.Actions(Shape(4), Two[0]));
+    public void AnEditedPresetCanBeSavedOverOrDiscarded()
+    {
+        var can = ParametricPresets.Actions(Shape(4), Two[0]);
+        Assert.True(can.Edited);
+        Assert.True(can.Buttons.Overwrite);
+        Assert.True(can.Buttons.Discard);
+    }
+
+    /// <summary>A built-in shape is chosen as one of Turtle Beach's presets is, never as an edit of the preset before it.</summary>
+    [Fact]
+    public void ABuiltInShapeIsAPresetOfItsOwnThatCannotBeSavedOver()
+    {
+        var flat = ParametricShape.Of(StartingShapes.Bands(StartingShape.Flat));
+        var chosen = ParametricPresets.Actions(flat, null, StartingShape.Flat);
+        Assert.False(chosen.Edited);
+        Assert.False(chosen.Rename);
+        Assert.True(chosen.Buttons.Duplicate);
+        Assert.False(chosen.Buttons.OfferOverwrite);
+
+        var moved = ParametricPresets.Actions(Shape(2), null, StartingShape.Flat);
+        Assert.True(moved.Edited);
+        Assert.True(moved.Buttons.Discard);
+        Assert.False(moved.Buttons.Overwrite);
+    }
+
+    [Fact]
+    public void DiscardPutsBackWhatTheShapeCameFrom()
+    {
+        Assert.Equal(Two[0].Shape, ParametricPresets.From(Two[0], StartingShape.AddBass));
+        Assert.Equal(ParametricShape.Of(StartingShapes.Bands(StartingShape.AddBass)), ParametricPresets.From(null, StartingShape.AddBass));
+        Assert.Null(ParametricPresets.From(null, null));
+    }
+
+    [Fact]
+    public void BothEqualisersFollowOneRule()
+    {
+        foreach (bool edited in new[] { false, true })
+        {
+            Assert.Equal(EqualiserActions.For(edited, new Preset(16, "Mine", new int[10], Bank.Game, true)), EqualiserActions.For(edited, known: true, yours: true));
+            Assert.Equal(EqualiserActions.For(edited, baseline: null), EqualiserActions.For(edited, known: false, yours: false));
+        }
+    }
 }

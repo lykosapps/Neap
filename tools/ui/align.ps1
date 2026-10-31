@@ -306,8 +306,8 @@ try {
         Send-Pretend 'page equaliser' | Out-Null
         Wait-Stable { (Get-Texts) -join '|' } 2 | Out-Null
         if (Find-Named 'Game') { Press (Find-Named 'Game'); Start-Sleep -Milliseconds 600 }
-        if (-not (Find-Named 'Save as new')) { Press (Find-Named 'Parametric'); Wait-Until { $null -ne (Find-Named 'Save as new') } 6 | Out-Null }
-        Press (Find-Named 'Save as new')
+        if (-not (Find-SaveAsNew)) { Press (Find-Named 'Parametric'); Wait-Until { $null -ne (Find-SaveAsNew) } 6 | Out-Null }
+        Press (Find-SaveAsNew)
         if (Wait-Until { $null -ne (Find-Dialog) } 5) { Measure-Window 'dialog-save-preset' (Find-Dialog); Press (Find-Anywhere 'Cancel') }
         Wait-Until { $null -eq (Find-Dialog) } 4 | Out-Null
         Open-Menu (Find-Named 'More preset actions')

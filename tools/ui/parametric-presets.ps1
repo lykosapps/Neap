@@ -4,8 +4,10 @@ Checks the parametric equaliser's saved presets and a profile that holds a
 parametric shape, on the published app in pretend mode.
 
 .DESCRIPTION
-Run through run.ps1. Part A saves a shape as a preset, edits it, saves over
-it, chooses it again, renames it and deletes it. Part B saves a profile while
+Run through run.ps1. Part A saves a built-in shape as a preset, chooses
+another built-in shape and finds it chosen as itself, edits the preset,
+discards the edit and edits it again, saves over it, renames it and deletes
+it. Part B saves a profile while
 in Parametric, goes to the ten bands, and has the profile's Discard put the
 Parametric shape back. Nothing here changes a real headset.
 
@@ -44,21 +46,36 @@ if ($Parts.Contains('A')) {
         Close-Menu (Find-Named 'More preset actions')
 
         Choose-Shape 'Add bass'
-        Press (Find-Named 'Save as new')
+        Check (Test-Picker 'Add bass') 'a built-in shape is chosen by its name'
+        Check ($null -ne (Find-Named 'Duplicate')) 'and unchanged, saving it copies it, as on the ten bands'
+        Press (Find-SaveAsNew)
         Save-Name 'Bassy'
         Check (Test-Picker 'Bassy') 'saving names the preset'
-        Check (-not (Find-Named 'Save over the preset').Current.IsEnabled) 'with nothing to save over yet'
+        Check (-not (Find-Named 'Save Bassy').Current.IsEnabled) 'with nothing to save over yet'
+        Check ($null -eq (Find-Named 'Discard')) 'and nothing to discard'
 
         Choose-Shape 'Cut mud'
+        Check (Test-Picker 'Cut mud') 'another built-in shape is chosen as itself, not as an edit of the preset'
+        Check ($null -eq (Find-Named 'Save Bassy')) 'so the preset cannot be saved over from it'
+
+        # Choosing the preset, then Undo, puts the built-in shape's bands back under the preset's name: an edit of it.
+        Choose-Shape 'Bassy'
+        Press (Find-Named 'Undo')
         Check (Test-Picker 'Bassy, edited') 'a change shows the preset as edited'
-        Check ((Find-Named 'Save over the preset').Current.IsEnabled) 'and it can be saved over'
+        Check ((Find-Named 'Save Bassy').Current.IsEnabled) 'and it can be saved over'
+        Check ($null -ne (Find-Named 'Discard')) 'or discarded'
+        Press (Find-Named 'Discard')
+        Check (Test-Picker 'Bassy') 'Discard puts the preset back'
+        Check ($null -eq (Find-Named 'Discard')) 'and Discard goes'
+        Press (Find-Named 'Undo')
+        Check (Test-Picker 'Bassy, edited') 'Undo takes Discard back'
 
         Open-Menu (Find-Named 'Parametric preset: Bassy, edited')
         Check (Wait-Until { $null -ne (Find-ListRow 'Bassy') } 4) 'the picker lists it'
         Save-ListShot 'parametric-list-presets'
         Check ((Find-ListRow 'Bassy').GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) 'selected while edited, as every list shows what is in use'
         Close-Menu (Find-ParametricPicker)
-        Press (Find-Named 'Save over the preset')
+        Press (Find-Named 'Save Bassy')
         Check (Test-Picker 'Bassy') 'saving over it clears Edited'
 
         Press-PresetAction 'Rename'
@@ -88,7 +105,7 @@ if ($Parts.Contains('B')) {
         Set-NeapSize 1400 1500 'Equaliser'
         Wait-Until { $null -ne (Find-Named 'Equaliser curve') } 20 | Out-Null
         Choose-Shape 'Add bass'
-        Press (Find-Named 'Save as new')
+        Press (Find-SaveAsNew)
         Save-Name 'Bassy'
 
         Send-Pretend 'page profiles' | Out-Null

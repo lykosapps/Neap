@@ -280,12 +280,25 @@ public sealed class ParametricService
     /// <summary>The preset the shape came from, or null when it came from none.</summary>
     public static ParametricPreset? Baseline => ParametricPresets.Find(Presets, AppSettings.Current.ParametricPresetName);
 
+    /// <summary>The built-in shape the shape came from, or null when it came from a saved preset or neither.</summary>
+    /// <remarks>A name that is not one of today's shapes, from another version, reads as none.</remarks>
+    public static StartingShape? BuiltIn =>
+        Enum.TryParse<StartingShape>(AppSettings.Current.ParametricBuiltIn, out var shape) && Enum.IsDefined(shape) ? shape : null;
+
     /// <summary>Marks a preset as the one the shape comes from, or none with null; the bands are the caller's to set.</summary>
     /// <remarks>Every change to the presets passes through here, so announcing it here repaints any picker that is open.</remarks>
     /// <param name="name">The preset's name, or null.</param>
     public void Choose(string? name)
     {
-        AppSettings.Update(settings => settings.ParametricPresetName = name);
+        AppSettings.Update(settings => (settings.ParametricPresetName, settings.ParametricBuiltIn) = (name, null));
+        Announce();
+    }
+
+    /// <summary>Marks a built-in shape as the one the shape comes from, with no saved preset behind it; the bands are the caller's to set.</summary>
+    /// <param name="shape">The built-in shape.</param>
+    public void ChooseBuiltIn(StartingShape shape)
+    {
+        AppSettings.Update(settings => (settings.ParametricPresetName, settings.ParametricBuiltIn) = (null, shape.ToString()));
         Announce();
     }
 

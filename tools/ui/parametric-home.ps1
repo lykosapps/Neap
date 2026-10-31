@@ -35,7 +35,7 @@ function Choose-Shape([string]$Shape) { Choose-Parametric $Shape }
 
 # Saves the shape on screen as a new parametric preset.
 function Save-As([string]$Name) {
-    Press (Find-Named 'Save as new')
+    Press (Find-SaveAsNew)
     $edit = [System.Windows.Automation.ControlType]::Edit
     Wait-Until { $null -ne (Find-InPopup 'Name' $edit) -or $null -ne (Find-Named 'Name') } 5 | Out-Null
     $field = Find-InPopup 'Name' $edit

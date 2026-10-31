@@ -52,7 +52,6 @@ public sealed class BandPanel : UserControl
     private readonly Button _compare = new() { Classes = { "quiet" }, HorizontalContentAlignment = HorizontalAlignment.Center };
     private bool _comparing;
     private Window? _window;
-    private readonly Button _turnOff = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Notice _level = new() { Severity = Severity.Warning };
     private readonly LoudnessBoostRow _preGain;
     private int _fittingBoost;
@@ -98,7 +97,7 @@ public sealed class BandPanel : UserControl
     /// <summary>The person asked to turn Parametric off, which the page asks about and does.</summary>
     public event Action? TurnOffAsked;
 
-    /// <summary>Undo, Redo, Compare and Turn off, in the ten bands' order, which the page puts beside its choice of mode.</summary>
+    /// <summary>Undo, Redo, Compare, then the presets' Discard, Save, Save as new and menu, in the ten bands' order, which the page puts beside its choice of mode.</summary>
     public Control Tools { get; }
 
     public BandPanel()
@@ -117,7 +116,7 @@ public sealed class BandPanel : UserControl
             HorizontalAlignment = HorizontalAlignment.Right,
             ItemSpacing = Space.S,
             LineSpacing = Space.S,
-            Children = { _undo, _redo, _compare, _turnOff },
+            Children = { _undo, _redo, _compare, _presets.Actions },
         };
         Content = Build();
         Wire();
@@ -185,7 +184,6 @@ public sealed class BandPanel : UserControl
         MakeIconButton(_undo, "Parametric_Undo", "IconUndo", mirrored: false);
         MakeIconButton(_redo, "Parametric_Redo", "IconUndo", mirrored: true);
         _compare.Content = Strings.Get("Parametric_Compare");
-        _turnOff.Content = Strings.Get("Parametric_TurnOff");
         _remove.Content = Strings.Get("Parametric_RemoveBand");
         _add.Content = new StackPanel
         {
@@ -363,7 +361,7 @@ public sealed class BandPanel : UserControl
             _presets.CameFrom(imported.Source);
             Replace(imported.Bands, keepSelection: false);
         };
-        _turnOff.Click += (_, _) => TurnOffAsked?.Invoke();
+        _presets.TurnOffAsked += () => TurnOffAsked?.Invoke();
 
         _type.SelectionChanged += (_, _) => { if (!_painting && _type.SelectedItem is ComboBoxItem { Tag: BandType t }) Change(_selected, BandEditing.WithType(_bands[_selected], t)); };
         _remove.Click += (_, _) => RemoveBand(_selected);

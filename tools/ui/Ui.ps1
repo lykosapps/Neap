@@ -434,6 +434,13 @@ function Choose-Parametric([string]$Name) {
     else { Write-Host "  note  the picker has no row called '$Name'" }
 }
 
+# The button that saves the shape as a new preset: Duplicate while the preset or built-in shape it came from is unchanged, as on the ten bands.
+function Find-SaveAsNew {
+    $button = Find-Named 'Save as new'
+    if (-not $button) { $button = Find-Named 'Duplicate' }
+    $button
+}
+
 # Chooses Rename from the parametric preset's More menu.
 function Press-PresetAction([string]$Name) {
     Press (Find-Named 'More preset actions')

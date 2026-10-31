@@ -77,7 +77,8 @@ if ($Parts.Contains('C')) {
     Open-Equaliser @('--parametric')
     try {
         Check (Test-Editor) 'the editor is open'
-        Press (Find-Named 'Turn off')
+        Open-Menu (Find-Named 'More preset actions')
+        Check ($(try { Send-Pretend 'press Turn off' | Out-Null; $true } catch { $false })) 'the preset menu offers Turn off'
         Answer-Dialog $off 'Turn off'
         Check (Wait-Until { $null -eq (Find-Named 'All bands') } 8) 'it goes back to the ten bands'
     }

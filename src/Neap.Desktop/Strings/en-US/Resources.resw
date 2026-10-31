@@ -2300,9 +2300,6 @@
   <data name="ParametricPreset_More" xml:space="preserve">
     <value>More preset actions</value>
   </data>
-  <data name="ParametricPreset_NewFrom" xml:space="preserve">
-    <value>New from</value>
-  </data>
   <data name="Parametric_AddBand" xml:space="preserve">
     <value>Add band</value>
   </data>
@@ -2318,6 +2315,12 @@
   <data name="Parametric_AllBands" xml:space="preserve">
     <value>All bands</value>
   </data>
+  <data name="ParametricPreset_Yours" xml:space="preserve">
+    <value>Your presets</value>
+  </data>
+  <data name="ParametricPreset_BuiltIn" xml:space="preserve">
+    <value>Built-in</value>
+  </data>
   <data name="ParametricPreset_None" xml:space="preserve">
     <value>No preset</value>
   </data>
@@ -2329,9 +2332,6 @@
   </data>
   <data name="ParametricPreset_Picker" xml:space="preserve">
     <value>Parametric preset: {0}</value>
-  </data>
-  <data name="ParametricPreset_SaveName" xml:space="preserve">
-    <value>Save over the preset</value>
   </data>
   <data name="ParametricPreset_Rename" xml:space="preserve">
     <value>Rename</value>

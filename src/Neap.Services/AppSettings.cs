@@ -230,6 +230,10 @@ public sealed class AppSettings
     [JsonPropertyName("parametric_preset")]
     public string? ParametricPresetName { get; set; }
 
+    /// <summary>The built-in shape the parametric shape came from, by its name, or null; never set with <see cref="ParametricPresetName"/>.</summary>
+    [JsonPropertyName("parametric_built_in")]
+    public string? ParametricBuiltIn { get; set; }
+
     /// <summary>Whether the parametric curve shows the headset's measured response, and the response with the bands added.</summary>
     [JsonPropertyName("parametric_show_measured")]
     public bool ParametricShowMeasured { get; set; } = true;

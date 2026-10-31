@@ -25,14 +25,21 @@ public readonly record struct EqualiserActions(
 {
     /// <param name="edited">The curve has moved since its preset was chosen.</param>
     /// <param name="baseline">The preset it came from, or null when that is not known.</param>
-    public static EqualiserActions For(bool edited, Preset? baseline) => new(
+    public static EqualiserActions For(bool edited, Preset? baseline) =>
+        For(edited, known: baseline is not null, yours: baseline is { Custom: true });
+
+    /// <summary>The same rules for any equaliser: the ten bands, or Parametric, whose built-in shapes are as Turtle Beach's presets and whose saved ones are yours.</summary>
+    /// <param name="edited">The curve has moved since its preset was chosen.</param>
+    /// <param name="known">The preset it came from is known.</param>
+    /// <param name="yours">That preset is one the person saved, which can be written over.</param>
+    public static EqualiserActions For(bool edited, bool known, bool yours) => new(
         Discard: edited,
         // Always: a changed curve saves as a new preset, and an unchanged
         // one copies its preset.
         Save: true,
         // Only a preset of yours has somewhere to write the curve back to.
-        Overwrite: edited && baseline is { Custom: true },
-        Duplicate: !edited && baseline is not null,
-        OfferOverwrite: baseline is { Custom: true },
-        SaveLeads: edited || baseline is null);
+        Overwrite: edited && yours,
+        Duplicate: !edited && known,
+        OfferOverwrite: yours,
+        SaveLeads: edited || !known);
 }

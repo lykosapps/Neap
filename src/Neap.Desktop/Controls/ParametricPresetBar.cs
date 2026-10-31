@@ -9,15 +9,22 @@ namespace Neap.Desktop.Controls;
 
 /// <summary>
 /// Where the parametric equaliser's shape comes from: one picker that lists
-/// the saved presets, each with a way to delete it, and the starting shapes,
-/// with saving, renaming and importing beside it.
+/// the saved presets, each with a way to delete it, and the built-in shapes,
+/// with Discard, Save, Save as new and a menu of the rest in <see cref="Actions"/>.
 /// </summary>
 /// <remarks>
 /// <para>
-/// A saved preset and a starting shape each put a whole shape on the curve,
+/// A saved preset and a built-in shape each put a whole shape on the curve,
 /// so they are one <see cref="ComboBox"/>, each row with its curve beside it
-/// (<see cref="ChoiceList"/>). The box names the preset, with the same Edited
-/// tag the ten-band equaliser uses once the shape has moved.
+/// (<see cref="ChoiceList"/>). The box names the one in use, with the same
+/// Edited tag the ten-band equaliser uses once the shape has moved. A
+/// built-in shape is chosen as one of Turtle Beach's presets is on the ten
+/// bands: as itself, never as an edit of the preset before it.
+/// </para>
+/// <para>
+/// <see cref="Actions"/> follow the ten-band equaliser's buttons, in its
+/// order and by its rules (<see cref="EqualiserActions"/>), so the page puts
+/// them where the ten bands' are.
 /// </para>
 /// <para>
 /// The presets are Neap's own, kept in its settings rather than on the
@@ -32,13 +39,15 @@ public sealed class ParametricPresetBar : UserControl
     private readonly Func<IReadOnlyList<ParametricBand>> _bands;
     private readonly Action<IReadOnlyList<ParametricBand>> _replace;
 
-    private readonly ComboBox _picker = new() { MinWidth = 240 };
+    private readonly ComboBox _picker = new() { MinWidth = 240, HorizontalAlignment = HorizontalAlignment.Left };
     private readonly ChoiceList _choices;
+    private readonly Button _discard = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Button _save = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
-    private readonly Button _saveAsNew = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
+    private readonly Button _saveAsNew = new() { MinWidth = 104, HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Button _more = new() { Classes = { "quiet", "iconbutton" } };
     private readonly MenuItem _rename = new();
     private readonly MenuItem _import = new();
+    private readonly MenuItem _turnOff = new();
 
     /// <summary>The file an imported shape came from, shown and offered as its name until it is saved or replaced.</summary>
     private string? _source;
@@ -60,10 +69,9 @@ public sealed class ParametricPresetBar : UserControl
             AppServices.Parametric.Delete(((ParametricPreset)deleted).Name);
             Paint();
         };
-        _save.Content = Strings.Get("Dialog_Save");
-        AutomationProperties.SetName(_save, Strings.Get("ParametricPreset_SaveName"));
-        _saveAsNew.Content = Strings.Get("Equaliser_SaveAsNew");
+        _discard.Content = Strings.Get("Equaliser_DiscardButton.Content");
         _rename.Header = Strings.Get("ParametricPreset_Rename");
+        _turnOff.Header = Strings.Get("Parametric_TurnOff");
         _more.Content = new PathIcon
         {
             Width = Space.Icon,
@@ -74,24 +82,33 @@ public sealed class ParametricPresetBar : UserControl
         AutomationProperties.SetName(_more, more);
         ToolTip.SetTip(_more, more);
         _import.Header = Strings.Get("ParametricPreset_Import");
-        _more.Flyout = new MenuFlyout { Items = { _rename, _import } };
+        _more.Flyout = new MenuFlyout { Items = { _rename, _import, new Separator(), _turnOff } };
 
+        _discard.Click += (_, _) => Discard();
         _save.Click += (_, _) => SaveOver();
         _saveAsNew.Click += async (_, _) => await SaveAsNew();
         _rename.Click += async (_, _) => await Rename();
         _import.Click += (_, _) => ImportAsked?.Invoke();
+        _turnOff.Click += (_, _) => TurnOffAsked?.Invoke();
 
-        Content = new WrapPanel
+        Content = _picker;
+        Actions = new WrapPanel
         {
             Orientation = Orientation.Horizontal,
             ItemSpacing = Space.S,
             LineSpacing = Space.S,
-            Children = { _picker, _save, _saveAsNew, _more },
+            Children = { _discard, _save, _saveAsNew, _more },
         };
     }
 
+    /// <summary>Discard, Save, Save as new and the menu of the rest, in the ten-band equaliser's order, for the page to put where its are.</summary>
+    public Control Actions { get; }
+
     /// <summary>Import preset was chosen; the panel asks for the filters.</summary>
     public event Action? ImportAsked;
+
+    /// <summary>Turn off was chosen from the menu; the page asks about it and does it.</summary>
+    public event Action? TurnOffAsked;
 
     /// <summary>Notes the file the next shape comes from, or none with null.</summary>
     /// <remarks>An imported shape stands apart from any preset until it is saved; any other shape is an edit of the preset in use.</remarks>
@@ -106,31 +123,40 @@ public sealed class ParametricPresetBar : UserControl
     public void Paint()
     {
         var baseline = ParametricService.Baseline;
-        var can = ParametricPresets.Actions(ParametricShape.Of(_bands()), baseline);
-        string name = baseline is null && _source is not null ? Strings.Format("ParametricPreset_ImportedFrom", _source)
-            : baseline is null ? Strings.Get("ParametricPreset_None")
-            : baseline.Name;
+        var builtIn = baseline is null ? ParametricService.BuiltIn : null;
+        var can = ParametricPresets.Actions(ParametricShape.Of(_bands()), baseline, builtIn);
+        string? from = baseline?.Name ?? (builtIn is { } shape ? Strings.Get(ShapeKey(shape)) : null);
+        string name = from ?? (_source is not null ? Strings.Format("ParametricPreset_ImportedFrom", _source) : Strings.Get("ParametricPreset_None"));
         _picker.PlaceholderText = name;
         AutomationProperties.SetName(_picker,
-            Strings.Format("ParametricPreset_Picker", can.Edited ? Strings.Format("ParametricPreset_Edited", baseline!.Name) : name));
-        _save.IsEnabled = can.Save;
-        _save.Classes.Set("accent", can.Save);
+            Strings.Format("ParametricPreset_Picker", can.Edited ? Strings.Format("ParametricPreset_Edited", from!) : name));
+
+        // As the ten bands' buttons: Discard once edited, Save over a preset of
+        // yours, and Save as new, which copies an unchanged preset.
+        _discard.IsVisible = can.Buttons.Discard;
+        _save.IsVisible = can.Buttons.OfferOverwrite;
+        _save.IsEnabled = can.Buttons.Overwrite;
+        if (baseline is not null) _save.Content = Strings.Format("Equaliser_Overwrite", baseline.Name);
+        _saveAsNew.Content = Strings.Get(can.Buttons.Duplicate ? "Equaliser_Duplicate" : "Equaliser_SaveAsNew");
+        _saveAsNew.Classes.Set("accent", can.Buttons.SaveLeads);
         _rename.IsEnabled = can.Rename;
-        FillList(baseline, can.Edited);
+        FillList(baseline, builtIn, can.Edited);
     }
 
-    /// <summary>Lists the saved presets, the one in use as the box's choice, then the starting shapes.</summary>
-    /// <param name="inUse">The preset in use, or null.</param>
+    /// <summary>Lists the saved presets, then the built-in shapes, with the one in use as the box's choice.</summary>
+    /// <param name="inUse">The saved preset in use, or null.</param>
+    /// <param name="builtIn">The built-in shape in use, or null.</param>
     /// <param name="edited">Whether the shape has moved since it was chosen.</param>
-    private void FillList(ParametricPreset? inUse, bool edited)
+    private void FillList(ParametricPreset? inUse, StartingShape? builtIn, bool edited)
     {
         var presets = ParametricService.Presets;
-        string listed = $"{inUse?.Name}\t{edited}\n" + string.Join('\n', presets.Select(p => $"{p.Name}\t{p.Shape.GetHashCode()}"));
+        string listed = $"{inUse?.Name}\t{builtIn}\t{edited}\n" + string.Join('\n', presets.Select(p => $"{p.Name}\t{p.Shape.GetHashCode()}"));
         if (listed == _listed) return;
         _listed = listed;
 
+        string[] editedTag = edited ? [Strings.Get("ParametricPreset_EditedTag")] : [];
         var items = new List<Choice>();
-        if (presets.Count > 0) items.Add(Choice.Heading(Strings.Get("Equaliser_PresetsLabel.Text")));
+        if (presets.Count > 0) items.Add(Choice.Heading(Strings.Get("ParametricPreset_Yours")));
         foreach (var preset in presets)
         {
             items.Add(new Choice(preset.Name, preset)
@@ -138,14 +164,21 @@ public sealed class ParametricPresetBar : UserControl
                 Preview = () => PresetListItems.Preview(StoredBand.Bands(preset.Shape.Bands)),
                 Chosen = preset.Name == inUse?.Name,
                 Deletable = true,
-                Badges = edited ? [Strings.Get("ParametricPreset_EditedTag")] : [],
+                Badges = preset.Name == inUse?.Name ? editedTag : [],
             });
         }
 
         if (presets.Count > 0) items.Add(Choice.Rule());
-        items.Add(Choice.Heading(Strings.Get("ParametricPreset_NewFrom")));
+        items.Add(Choice.Heading(Strings.Get("ParametricPreset_BuiltIn")));
         foreach (var shape in Enum.GetValues<StartingShape>())
-            items.Add(new Choice(Strings.Get(ShapeKey(shape)), shape) { Preview = () => PresetListItems.Preview(StartingShapes.Bands(shape)) });
+        {
+            items.Add(new Choice(Strings.Get(ShapeKey(shape)), shape)
+            {
+                Preview = () => PresetListItems.Preview(StartingShapes.Bands(shape)),
+                Chosen = shape == builtIn,
+                Badges = shape == builtIn ? editedTag : [],
+            });
+        }
         _choices.Show(items);
     }
 
@@ -158,10 +191,21 @@ public sealed class ParametricPresetBar : UserControl
                 Choose(preset);
                 break;
             case StartingShape shape:
-                CameFrom(null);
+                _source = null;
+                AppServices.Parametric.ChooseBuiltIn(shape);
                 _replace(StartingShapes.Bands(shape));
                 break;
         }
+    }
+
+    /// <summary>Puts back the shape the curve came from, as one change Undo can take back.</summary>
+    private void Discard()
+    {
+        var baseline = ParametricService.Baseline;
+        if (ParametricPresets.From(baseline, baseline is null ? ParametricService.BuiltIn : null) is not { } from
+            || StoredBand.Bands(from.Bands) is not { } bands)
+            return;
+        _replace(bands);
     }
 
     private void Choose(ParametricPreset preset)
