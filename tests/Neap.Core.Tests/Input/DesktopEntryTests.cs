@@ -11,7 +11,7 @@ public class DesktopEntryTests
 
     [Fact]
     public void ASpaceNeedsNoEscape() =>
-        Assert.Equal("\"/home/sam/My Apps/Neap\" --startup", DesktopEntry.Exec("/home/sam/My Apps/Neap", "--startup"));
+        Assert.Equal("\"/opt/My Apps/Neap\" --startup", DesktopEntry.Exec("/opt/My Apps/Neap", "--startup"));
 
     [Theory]
     [InlineData("/home/a$b/Neap", "\"/home/a\\\\$b/Neap\"")]        // $ is escaped, and the escape's backslash is doubled
@@ -24,27 +24,27 @@ public class DesktopEntryTests
 
     [Fact]
     public void AnAppImageIsStartedFromItsOwnFileNotTheFolderItUnpacksTo() =>
-        Assert.Equal("/home/sam/Apps/Neap.AppImage",
-            DesktopEntry.StartedFrom("/home/sam/Apps/Neap.AppImage", "/tmp/.mount_NeapAbC123", "/tmp/.mount_NeapAbC123/usr/bin/Neap"));
+        Assert.Equal("/opt/Apps/Neap.AppImage",
+            DesktopEntry.StartedFrom("/opt/Apps/Neap.AppImage", "/tmp/.mount_NeapAbC123", "/tmp/.mount_NeapAbC123/usr/bin/Neap"));
 
     [Theory]
     [InlineData(null, null)]
     [InlineData("", "")]
     public void AProgramNotInAnAppImageIsStartedFromWhereItIs(string? appImage, string? appDir) =>
-        Assert.Equal("/home/sam/Neap/Neap", DesktopEntry.StartedFrom(appImage, appDir, "/home/sam/Neap/Neap"));
+        Assert.Equal("/opt/Neap/Neap", DesktopEntry.StartedFrom(appImage, appDir, "/opt/Neap/Neap"));
 
     /// <summary>A terminal in another AppImage app hands its own APPIMAGE and APPDIR to whatever starts from it.</summary>
     [Fact]
     public void AnotherAppImagesFileIsNeverTakenForNeaps()
     {
-        Assert.Null(DesktopEntry.AppImageOf("/home/sam/Apps/Editor.AppImage", "/tmp/.mount_EditorXyz", "/home/sam/Neap/Neap"));
-        Assert.Equal("/home/sam/Neap/Neap",
-            DesktopEntry.StartedFrom("/home/sam/Apps/Editor.AppImage", "/tmp/.mount_EditorXyz", "/home/sam/Neap/Neap"));
+        Assert.Null(DesktopEntry.AppImageOf("/opt/Apps/Editor.AppImage", "/tmp/.mount_EditorXyz", "/opt/Neap/Neap"));
+        Assert.Equal("/opt/Neap/Neap",
+            DesktopEntry.StartedFrom("/opt/Apps/Editor.AppImage", "/tmp/.mount_EditorXyz", "/opt/Neap/Neap"));
     }
 
     [Fact]
     public void AFolderThatOnlyStartsWithTheAppImagesIsNotInIt() =>
-        Assert.Null(DesktopEntry.AppImageOf("/home/sam/Apps/Neap.AppImage", "/tmp/.mount_Neap", "/tmp/.mount_NeapOther/usr/bin/Neap"));
+        Assert.Null(DesktopEntry.AppImageOf("/opt/Apps/Neap.AppImage", "/tmp/.mount_Neap", "/tmp/.mount_NeapOther/usr/bin/Neap"));
 
     [Fact]
     public void APathWithALineBreakIsRefused() =>
