@@ -12,6 +12,13 @@ stays in the commit history.
 
 ## Unreleased
 
+### Highlights
+
+- **Parametric on the Atlas Air, to try.** The Atlas Air gets the same
+  parametric equaliser as the Stealth Pro II. Its firmware has the same
+  controls, but no one has heard a band change on it yet, so this build is
+  for owners willing to try it and say what they hear.
+
 ## 0.4.0 — 2026-10-31
 
 **The Atlas Air, and a parametric equaliser for the Stealth Pro II.**
