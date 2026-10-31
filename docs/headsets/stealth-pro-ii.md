@@ -14,6 +14,9 @@ and its battery warnings.
   updated 7 October 2026. The owner's headset is the Xbox edition, so check
   the Xbox article for any differences.
 - **Testers:** the owner, on Windows and on a Steam Deck (SteamOS, desktop mode).
+  The PlayStation edition: several users on Reddit report it working (31
+  October); which ids it has is not recorded, and Swarm II's catalogue names
+  none for PlayStation, so it is probably the PC set.
 - **Latest release:** 0.3.0, 24 October 2026.
 
 ## Connection
@@ -151,6 +154,7 @@ Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
 - 2026-10-31 — Owner, Parametric headset checks with the try-it copy, through the Charging Dock: 34 (turn on, a built-in shape, an edit, Discard, Turn off from the menu, Swarm II's presets as before), 35 (Compare, and switching windows while held) and 36 (Bands and back) pass. 33, the Mode button stepping game presets: the headset goes to the ten bands; Neap noticed but its Equaliser page stayed on Parametric, fixed the same day and confirmed on the headset (the page goes to Bands and says so). 32, the phone app's change, passes with Neap open and with Neap closed. 31, a Swarm II flash, is skipped for 0.4.0 by the owner's call, as it would replace the owner's edited firmware; the screen check covers what Neap does after one. Turning on now first reads band 1: through the dock it answered 31.5 Hz on the first try.
+- 2026-10-31 — Owner: several users on Reddit have used Neap with the PlayStation edition and report it working. The README lists it as supported. Which ids it has, and which features each tried, is not recorded.
 - 2026-10-31 — Parametric turned on for 0.4.0 by the owner's call; its headset checks (HEADSET-CHECKS.md, 31 to 36) were then run (see the line above).
 - 2026-10-23 — Owner's headset on the white Xbox dock. The dock names
   itself "Stealth Pro II Xbox", and the headset on its cable "Stealth Pro II

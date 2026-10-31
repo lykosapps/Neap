@@ -32,7 +32,7 @@ in one quiet app.
 | Headset | Windows | Linux | Parametric equaliser |
 |---|---|---|---|
 | Stealth Pro II (Xbox) | Yes | Yes | Yes |
-| Stealth Pro II (PlayStation) | Should work, not yet tried | Should work, not yet tried | Yes |
+| Stealth Pro II (PlayStation) | Yes | Yes | Yes |
 | Atlas Air | Yes, with two owners testing | Yes | In testing |
 
 Neap shows only what each headset has. Own another Turtle Beach headset
