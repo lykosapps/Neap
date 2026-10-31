@@ -201,6 +201,13 @@ Needs the testers' replies on GitHub issue 1, not the owner's headset.
   (DECISIONS.md, 31 October). Left, on GitHub issue 1: the noise gate's
   reading at start, which the headset refuses; sound stopping while
   connected; and the replug on Linux after Neap is started by hand.
+- **Parametric on the Atlas Air, for 0.4.1.** Its firmware has the same live
+  band controls (read from its code); 0.4.0 only reads its bands into the
+  log. Test build 0.4.0.1 turns it on (branch `test/0.4.0.1`, to be put on
+  top of the 0.4.0 commit before it is tagged). It ships once a tester hears
+  a band turned into a muffling filter and back. Before then, also: say on
+  the Equaliser page that Superhuman Hearing silences it, and find out
+  whether a band change turns Superhuman Hearing off.
 - **Other Swarm II headsets.** The Stealth 600 Gen 3, 700 Gen 3 and 500
   share the Stealth Pro II's platform (the Atlas Air has its own line above).
   Each needs an owner to capture its settings and run the checks, so ask for
