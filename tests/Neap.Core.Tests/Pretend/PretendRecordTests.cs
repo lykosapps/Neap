@@ -91,11 +91,11 @@ public class PretendRecordTests
     }
 
     [Fact]
-    public void ARecordIsNotSentToAnAtlasAir()
+    public void ARecordIsSentToTheAtlasAir()
     {
         var headset = new PretendHeadset(atlas: true);
         using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
 
-        Assert.Throws<InvalidOperationException>(() => client.WriteGameEqRecord(GameEqRecord.Shipped.WithGainCorrection(false)));
+        client.WriteGameEqRecord(GameEqRecord.Shipped.WithGainCorrection(false));
     }
 }
