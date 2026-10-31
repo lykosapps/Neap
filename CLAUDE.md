@@ -82,7 +82,8 @@ preparing code for experienced reviewers.
   the desktop, which can be black with the screen on. A new check is a script
   beside it that uses `Ui.ps1`. `run.ps1 access` walks every page in both
   themes for names, target sizes, Tab order, a visible focus mark and text
-  contrast in about a minute and a half. It moves focus by asking the
+  contrast in about a minute and a half; `-Headset atlas` walks them
+  with the pretend Atlas Air. It moves focus by asking the
   practice run over its pipe to do what Tab does, so the window stays behind
   and the keyboard is left alone, and it can run while the owner works; that
   a real Tab press reaches the app is check 12 of "Before a release" in

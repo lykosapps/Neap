@@ -25,8 +25,13 @@ text enlarged in Windows. Those need a person, and are listed in the report.
 Which pages to run, as a comma-separated list. All of them by default.
 "parametric" is the Equaliser page in its Parametric mode, which needs a
 launch of its own with Parametric turned on.
+
+.PARAMETER Headset
+"atlas" walks the pages with the pretend headset being an Atlas Air, whose
+pages show fewer controls; Parametric is left out, as it has none. The
+Stealth Pro II by default.
 #>
-param([string]$Parts = 'home,audio,equaliser,controls,profiles,device,settings,parametric')
+param([string]$Parts = 'home,audio,equaliser,controls,profiles,device,settings,parametric', [string]$Headset = '')
 
 . "$PSScriptRoot\Ui.ps1"
 
@@ -264,8 +269,9 @@ function Test-Page([string]$Page, [string]$Theme) {
 }
 
 $wanted = @($Parts.Split(',') | ForEach-Object { $_.Trim() })
-$launches = @(@{ Pages = @($wanted | Where-Object { $_ -ne 'parametric' }); Flags = @('--update') })
-if ($wanted -contains 'parametric') { $launches += @{ Pages = @('parametric'); Flags = @('--update', '--parametric', '--wired') } }
+$headsetFlags = @(if ($Headset -eq 'atlas') { '--atlas' })
+$launches = @(@{ Pages = @($wanted | Where-Object { $_ -ne 'parametric' }); Flags = @('--update') + $headsetFlags })
+if ($wanted -contains 'parametric' -and -not $headsetFlags) { $launches += @{ Pages = @('parametric'); Flags = @('--update', '--parametric', '--wired') } }
 foreach ($theme in 'dark', 'light') {
     foreach ($launch in $launches | Where-Object { $_.Pages.Count -gt 0 }) {
         $pages = $launch.Pages
