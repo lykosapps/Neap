@@ -510,7 +510,7 @@ public sealed class PretendHeadset : IDeviceSource
         // The Atlas Air's stored monitoring gain is only ever read, as its firmware has it (F120).
         if (param == Sidetone.GainParam && _atlas && op != SetOp)
             ReplyLevel(param, Sidetone.GainFor(int.Parse(_values[0x630], CultureInfo.InvariantCulture)));
-        if (!_atlas && BandWrites.TryParse(param, out int band, out var parameter))
+        if (BandWrites.TryParse(param, out int band, out var parameter))
         {
             Band(op, param, band, parameter, BinaryPrimitives.ReadUInt32BigEndian(frame.AsSpan(15, 4)));
             return;
@@ -522,7 +522,7 @@ public sealed class PretendHeadset : IDeviceSource
         else ReplyLevel(param, _loudnessDb);
     }
 
-    /// <summary>Applies or answers one game band's parameter, as SP2Tools found the Stealth Pro II does.</summary>
+    /// <summary>Applies or answers one game band's parameter, as SP2Tools found the Stealth Pro II does and read in the Atlas Air's firmware.</summary>
     private void Band(ushort op, uint param, int band, BandParameter parameter, uint raw)
     {
         var held = _bands[band];

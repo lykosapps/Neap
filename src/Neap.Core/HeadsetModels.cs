@@ -98,6 +98,15 @@ public sealed record HeadsetModel(
     /// </remarks>
     public bool LogsInputs { get; init; }
 
+    /// <summary>Whether its game equaliser's first and sixth bands are read into the log at connect, without being changed; see <see cref="Audio.BandFrames"/>.</summary>
+    /// <remarks>
+    /// The Atlas Air's firmware has the Stealth Pro II's live band controls and
+    /// the same stored bands, read from its code, not yet from a headset. A
+    /// tester's log showing the stock bands proves the route before any band
+    /// is sent.
+    /// </remarks>
+    public bool LogsParametricBands { get; init; }
+
     /// <summary>Whether a key is one of the equalisers', game, microphone or Bluetooth: presets, bands and saving.</summary>
     public static bool IsEqualiserKey(int key) => key is >= 0x1200 and < 0x1500;
 }
@@ -231,6 +240,7 @@ public static class HeadsetModels
         LightReadFromTransmitter = 0x430,
         ReadsMonitoringBack = true,
         LogsInputs = true,
+        LogsParametricBands = true,
     };
 
     public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];

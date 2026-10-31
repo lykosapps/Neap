@@ -6,6 +6,7 @@ using Neap.Core;
 using Neap.Core.Audio;
 using Neap.Core.Connection;
 using Neap.Core.Hid;
+using Neap.Core.Presets;
 using Neap.Core.Protocol;
 using Neap.Core.Settings;
 
@@ -630,6 +631,20 @@ public sealed class HeadsetService : IDisposable
             : "mic monitoring: at connect, the headset gave no reading of the gain it stores");
     }
 
+    /// <summary>Writes in the log, on connect, what the headset's first and sixth game bands hold, on a headset that asks for it; see <see cref="HeadsetModel.LogsParametricBands"/>.</summary>
+    private void LogParametricBands(HeadsetClient client)
+    {
+        if (Model is not { LogsParametricBands: true }) return;
+        string Read(int band, BandParameter parameter)
+        {
+            double? value;
+            try { value = client.ReadBand(band, parameter) ?? client.ReadBand(band, parameter); }
+            catch (Exception) { value = null; }
+            return value?.ToString("0.###", CultureInfo.InvariantCulture) ?? "no reading";
+        }
+        AppLog.Write($"parametric: band 1 reads {Read(0, BandParameter.Frequency)} Hz, width {Read(0, BandParameter.Q)}, filter {Read(0, BandParameter.Type)}; band 6 reads {Read(5, BandParameter.Frequency)} Hz; nothing is changed");
+    }
+
     /// <summary>Writes in the log, on connect, what the headset's buttons and switches have done, on a headset that keeps it; see <see cref="HeadsetModel.LogsInputs"/>.</summary>
     /// <remarks>
     /// Once per connect only. Read after every report, it asks the headset
@@ -764,6 +779,7 @@ public sealed class HeadsetService : IDisposable
                     ProbeLoudness(client);
                     ProbeLight(client);
                     ReadMonitoringBack(client);
+                    LogParametricBands(client);
                     LogInputs(client);
                     var held = Carrying(client);
                     carrying = held?.Name ?? adapter;

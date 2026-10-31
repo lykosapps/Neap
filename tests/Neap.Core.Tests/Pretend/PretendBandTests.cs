@@ -88,6 +88,20 @@ public class PretendBandTests
     }
 
     [Fact]
+    public void TheAtlasAirsStockBandsAreReadThroughItsTransmitter()
+    {
+        using var client = new HeadsetClient(transport: new PretendHeadset(atlas: true).Open());
+
+        Assert.Equal(31.5, client.ReadBand(0, BandParameter.Frequency, TimeSpan.FromSeconds(1)));
+        Assert.Equal((double)BandType.Peaking, client.ReadBand(0, BandParameter.Type, TimeSpan.FromSeconds(1)));
+        Assert.Equal(1000, client.ReadBand(5, BandParameter.Frequency, TimeSpan.FromSeconds(1)));
+    }
+
+    [Fact]
+    public void OnlyTheAtlasAirLogsItsBandsAtConnect() =>
+        Assert.Equal(["Atlas Air"], HeadsetModels.All.Where(model => model.LogsParametricBands).Select(model => model.Name));
+
+    [Fact]
     public void OnlyTheStealthProIIHasParametricBands() =>
         Assert.Equal(["Stealth Pro II"], HeadsetModels.All.Where(model => model.HasParametricBands).Select(model => model.Name));
 }
