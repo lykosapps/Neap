@@ -57,6 +57,9 @@ public sealed class PretendHeadset : IDeviceSource
     /// <summary>With the pretend flag, pretends to be an Atlas Air; see the constructor.</summary>
     public const string AtlasFlag = "--atlas";
     public const string HeadsetName = "Pretend Headset";
+
+    /// <summary>The USB product string the Atlas Air's transmitter gives, as a tester's system logged it.</summary>
+    public const string AtlasTransmitterName = "Atlas Air";
     public const string Serial = "PRETEND-0000001";
 
     /// <summary>Bytes of payload one inbound report carries after its id and length.</summary>
@@ -341,7 +344,7 @@ public sealed class PretendHeadset : IDeviceSource
     {
         public ushort ProductId => headset._product;
 
-        public string Name => HeadsetName;
+        public string Name => headset._product == AtlasTransmitterProduct ? AtlasTransmitterName : HeadsetName;
 
         public string Describe() => $"pretend 0x{HidControl.VendorId:x4}:0x{headset._product:x4}";
 

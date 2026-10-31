@@ -39,6 +39,13 @@ public class PretendHeadsetTests
     // -- the shape of what it says -------------------------------------------
 
     [Fact]
+    public void ThePretendAtlasAirsTransmitterGivesTheRealOnesName()
+    {
+        Assert.Equal("Atlas Air", new PretendHeadset(atlas: true).Open().Name);
+        Assert.Equal(PretendHeadset.HeadsetName, new PretendHeadset().Open().Name);
+    }
+
+    [Fact]
     public void AGeneralStateReplyHasTheDocumentedShape()
     {
         var link = new PretendHeadset().Open();
