@@ -33,6 +33,10 @@ public class MonitoringWhileMutedTests
         Assert.Null(MonitoringWhileMuted.LevelFor(muted: true, now: null, before: null));
 
     [Fact]
+    public void UnmutingBeforeTheHeadsetReportsMonitoringPutsTheLevelBack() =>
+        Assert.Equal(60, MonitoringWhileMuted.LevelFor(muted: false, now: null, before: 60));
+
+    [Fact]
     public void OnlyTheAtlasAirQuietsMonitoringWhileMuted()
     {
         Assert.True(HeadsetModels.AtlasAir.QuietsMonitoringWhileMuted);

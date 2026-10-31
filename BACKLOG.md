@@ -204,9 +204,7 @@ Needs the testers' replies on GitHub issue 1, not the owner's headset.
   out (DECISIONS.md, 23 October); its test build, 0.2.1.9, has every
   function, writes included. Before it is released, set its list of
   functions, and whether its settings may be changed, to what the testers
-  confirmed on GitHub issue 1. Also before it: unmuting from Neap before the
-  headset's settings are read throws away the mic monitoring level kept from
-  the mute, so monitoring stays at nothing.
+  confirmed on GitHub issue 1.
 - **Other Swarm II headsets.** The Stealth 600 Gen 3, 700 Gen 3 and 500
   share the Stealth Pro II's platform (the Atlas Air has its own line above).
   Each needs an owner to capture its settings and run the checks, so ask for
