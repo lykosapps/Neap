@@ -164,10 +164,12 @@ whose desktop has PulseAudio or PipeWire. If it says it needs FUSE, install
 The download is not signed. Each release has a `.sha256` file beside it; check
 it with `sha256sum -c Neap-<version>-x86_64.AppImage.sha256`.
 
-**To update,** Neap tells you when a newer version is out and opens the
-download page. Download the new file and use it in place of the old one.
-Settings are kept. If you turned on **Start when you sign in**, run the new
-file once and it points the sign-in entry at itself.
+**To update,** Neap tells you when a newer version is out. Choose **Update
+and restart**: it downloads the new AppImage, checks it against its `.sha256`,
+and puts it in place of the old file, under the same name, so **Start when you
+sign in** keeps working. Settings are kept. If the AppImage's folder can't be
+written to, Neap opens the download page instead: download the new file and
+use it in place of the old one.
 
 **To remove it,** turn off **Start when you sign in** in its settings if you
 turned it on, close Neap, and delete the file and `~/.local/share/Neap`, where

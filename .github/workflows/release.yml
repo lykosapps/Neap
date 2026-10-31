@@ -162,7 +162,7 @@ jobs:
             '2. If it says it needs FUSE, install **libfuse2** from your distribution, or run it as `./Neap.AppImage --appimage-extract-and-run`.'
             '3. The first time, Neap may say it is not allowed to use the headset. Choose **Allow access**: your system asks for your password once, and the only thing it changes is a small rule file that lets you use the headset.'
             '4. The download is not signed. Check it against the **.sha256** file beside it if you like: `sha256sum -c` on that file.'
-            '5. Neap tells you when a newer version is out and opens its page; download the new file to replace the old one.'
+            '5. Neap tells you when a newer version is out. **Update and restart** downloads it, checks it and puts it in place of the old file.'
             ''
           )
           # Release pages keep every line break, so the changelog's wrapped

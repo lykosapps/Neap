@@ -27,7 +27,7 @@ and date.
   Parametric turns off and says so.
 - Neap recognises the Turtle Beach Atlas Air, finds its speakers and
   microphone, and shows only what it has: no chat wheel, noise cancellation,
-  lights, Charging Dock or CrossPlay. Its settings can be changed, on
+  headset lights, Charging Dock or CrossPlay. Its settings can be changed, on
   Windows and Linux.
 - On a headset with no chat wheel, such as the Atlas Air, a profile saves
   the game and chat mix and puts it back when it's switched to.
