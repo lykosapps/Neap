@@ -94,7 +94,7 @@ system tried with a real headset.
 | Pop-up battery warnings | Listed | Yes, on the PC | Missing | — | — | Done on the PC | Decide whether Neap should warn. |
 | Battery in the notification area | Listed | Yes | Has | Confirmed | Confirmed | — | Shown in the icon's status. |
 | Auto shut-off (off, 5, 10, 20, 30 min) | Listed | Yes | Has | Confirmed | Confirmed | `0x280` | — |
-| Wake on motion | Listed | Yes | Has | Confirmed | Confirmed | `0x2E0` | Turtle Beach's article lists it in Swarm II's desktop app, but the README says the desktop app lacks it. Check, and correct the README. |
+| Wake on motion | Listed | Yes | Has | Confirmed | Confirmed | `0x2E0` | Turtle Beach's article lists it in Swarm II's desktop app. |
 | Hotkeys: volume mute, Superhuman Hearing, noise gate, mic mute, noise cancellation | Listed | Yes, on the PC | Missing | — | — | — | Neap has hotkeys for the mix only. Profile hotkeys are on the backlog. |
 | Voice prompt for each transmitter (none, 1–4) | Listed | Unknown: not yet found | Missing | — | — | Unknown | Turtle Beach's article lists it under Charging Hub. Find where it's kept. |
 | Voice prompt volume | Listed; mobile app only since June 2026 | Yes | Has | Confirmed | Confirmed | `0x2D0` | Swarm II's desktop app has had it switched off since 1.0.0.47. |
@@ -139,8 +139,6 @@ system tried with a real headset.
 - [ ] Neap, once SP2Tools has chosen the mark: read it, show each screen for
       the edits found, and keep the Stock or Edited choice on Controls only as a
       fallback.
-- [ ] Check whether Swarm II's desktop app has wake on motion, and correct
-      the README if it does.
 - [ ] Find where the per-transmitter voice prompt (none, 1–4) is kept.
 - [ ] Decide on hotkeys for more than the mix, Chat Boost and battery warnings.
 - [ ] Read the Xbox edition's article for anything it lists differently.

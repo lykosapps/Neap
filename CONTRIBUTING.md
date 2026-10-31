@@ -68,6 +68,75 @@ never comes forward. The tags are `home`, `audio`, `mic`, `controls`,
 `device` and `settings`. Add `--parametric` with `--wired` to open the
 Stealth Pro II's game equaliser in its parametric mode, turned on.
 
+## Building the app
+
+One app, drawn the same on both systems (Avalonia):
+
+```
+dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained
+dotnet publish src/Neap.Desktop -c Release -r linux-x64 -f net10.0 --self-contained
+```
+
+Run `Neap.Desktop.exe` (Windows) or `Neap.Desktop` (Linux) from the `publish`
+folder. A release renames the Windows file `Neap.exe`, which the updater in
+every installed copy looks for. You need the .NET 10 SDK to build, but not to
+run the result. The Windows build can only be made on Windows; the Linux one
+builds on either. To make the Linux AppImage from a Linux publish folder, see
+`packaging/linux/build-appimage.sh`.
+
+## The probe
+
+`Neap.Probe` is a console harness that talks to the headset without a
+UI, on Windows or Linux. It is how the protocol was worked out and it is still
+the fastest way to see what the hardware is actually saying:
+
+```
+dotnet run --project src/Neap.Probe -c Release -- read
+```
+
+`devices`, `read`, `named`, `registry`, `presets`, `transmitters`, `json`,
+`watch`, `diff`, `audio` and `route` are the ones worth knowing — `route`
+says where Windows sends sound and takes the microphone from, for each of its
+roles, and which of the headset's devices is carrying sound right now. The
+ones that ask Windows about sound (`audio`, `route`, `hear`, `formats` and a
+few more) run only on Windows; on Linux, `sound` asks the sound server in
+their place, and most of the others run on both.
+
+A few more matter when something is not behaving:
+
+- `raw [seconds] [usage page]` prints every report as it arrives, decoded or
+  not, and does not require the device to answer a command first. It listens
+  for what the device pushes and asks for what it answers, and labels which
+  path saw each report — a path that cannot see anything says so rather than
+  going quiet. Usage page `000c` is where the volume wheel pushes its clicks;
+  the chat wheel reports on the settings channel, through whichever
+  transmitter is carrying the headset's controls.
+- `who` asks every transmitter plugged in, separately, which one is carrying
+  the headset's controls. With two plugged in, the answer is not always the
+  one playing the sound.
+- `hear <output>` plays a soft beep on one output every three seconds and
+  prints each of the headset's microphones' levels, second by second. It is
+  for what a default device cannot tell you: whether a device reaches the
+  headset at all, and which microphone actually hears you.
+- `decode <file.pcap>` reads a USBPcap recording of Swarm II driving the
+  headset and prints every command and reply, naming the ones in the
+  registry. This is how anything new gets learned — the registry was built
+  by watching the vendor's app. Capture with `tools/capture.ps1`.
+
+## Safety
+
+Read-first. The client writes nothing unless it is made with writes allowed,
+and even then it sends only settings in the confirmed registry, within their
+confirmed ranges. The one write known to cause harm, a transmitter slot's
+base address, is refused outright. Nothing touches the firmware update path,
+which is signed and encrypted.
+
+One warning worth repeating from the findings: a transmitter will answer
+questions about a headset it can no longer reach, with stale values, and the
+chip vendor's own firmware commands reach only the USB device you are plugged
+into, never the headset behind it. Confirm which device answered before
+trusting a result.
+
 ## Working with the hardware
 
 - **One process at a time.** Only one program can usefully hold the
