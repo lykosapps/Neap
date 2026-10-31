@@ -67,6 +67,9 @@ public static class Pretend
     /// <summary>With <see cref="ParametricFlag"/> and <see cref="WiredFlag"/>, has the headset's stored equaliser as Swarm II puts it back after a firmware flash.</summary>
     public const string SwarmResetFlag = "--swarm-reset";
 
+    /// <summary>With the pretend flag, the headset ignores the live band commands, as a firmware without them would.</summary>
+    public const string NoLiveBandsFlag = "--no-live-bands";
+
     /// <summary>With <see cref="Flag"/>, pretends to be an Atlas Air rather than a Stealth Pro II.</summary>
     public const string AtlasFlag = PretendHeadset.AtlasFlag;
 
@@ -227,6 +230,7 @@ public static class Pretend
         ? new PretendHeadset(atlas: Given(AtlasFlag), wired: Given(WiredFlag))
         {
             Refusing = Given(NoAccessFlag),
+            AnswersBands = !Given(NoLiveBandsFlag),
             Record = GameEqRecord.Shipped.WithGainCorrection(!Given(ParametricFlag) || Given(SwarmResetFlag)),
         }
         : null;

@@ -28,6 +28,9 @@ public enum SwitchOutcome
 
     /// <summary>Neap only reads this headset, so nothing was sent.</summary>
     ReadOnly,
+
+    /// <summary>The headset gave no reading of a band, so its firmware is not known to take live bands, and nothing was sent.</summary>
+    NoLiveBands,
 }
 
 /// <summary>What happened, and whether the record the headset had before was put back.</summary>

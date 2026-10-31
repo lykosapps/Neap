@@ -11,6 +11,7 @@ public enum SwitchSaying
     NoHeadset,
     LowBattery,
     ReadOnly,
+    NoLiveBands,
     NotChangedAndPutBack,
     NotChangedAndNotPutBack,
 }
@@ -34,6 +35,7 @@ public static class SwitchLook
         SwitchOutcome.NoHeadset => SwitchSaying.NoHeadset,
         SwitchOutcome.LowBattery => SwitchSaying.LowBattery,
         SwitchOutcome.ReadOnly => SwitchSaying.ReadOnly,
+        SwitchOutcome.NoLiveBands => SwitchSaying.NoLiveBands,
         _ => result.BackupRestored ? SwitchSaying.NotChangedAndPutBack : SwitchSaying.NotChangedAndNotPutBack,
     };
 }

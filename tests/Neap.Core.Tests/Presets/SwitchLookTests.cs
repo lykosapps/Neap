@@ -13,6 +13,7 @@ public class SwitchLookTests
     [InlineData(SwitchOutcome.NoHeadset, false, SwitchSaying.NoHeadset)]
     [InlineData(SwitchOutcome.LowBattery, true, SwitchSaying.LowBattery)]
     [InlineData(SwitchOutcome.ReadOnly, true, SwitchSaying.ReadOnly)]
+    [InlineData(SwitchOutcome.NoLiveBands, true, SwitchSaying.NoLiveBands)]
     public void EachResultHasItsOwnSaying(SwitchOutcome outcome, bool turningOn, SwitchSaying expected) =>
         Assert.Equal(expected, SwitchLook.Say(new SwitchResult(outcome), turningOn));
 

@@ -2270,6 +2270,9 @@
   <data name="Parametric_SaidCouldNotRead" xml:space="preserve">
     <value>The headset gave no settings to read. Try again.</value>
   </data>
+  <data name="Parametric_SaidNoLiveBands" xml:space="preserve">
+    <value>This headset's firmware doesn't take Parametric. Nothing was changed.</value>
+  </data>
   <data name="Parametric_SaidNoHeadset" xml:space="preserve">
     <value>Connect the headset, then try again.</value>
   </data>

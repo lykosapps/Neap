@@ -215,6 +215,9 @@ public sealed class PretendHeadset : IDeviceSource
     /// <summary>The game equaliser's stored record as the headset currently holds it; set to start from another.</summary>
     public GameEqRecord Record { get { lock (_gate) return _record; } init => _record = value; }
 
+    /// <summary>Whether it answers and takes the live band commands, as a firmware with them does; off, it ignores them, as one without them would.</summary>
+    public bool AnswersBands { get; init; } = true;
+
     /// <summary>Bytes given in place of the stored record when it is read, for a record Neap does not understand.</summary>
     public byte[]? UnknownRecord { get; init; }
 
@@ -512,6 +515,7 @@ public sealed class PretendHeadset : IDeviceSource
             ReplyLevel(param, Sidetone.GainFor(int.Parse(_values[0x630], CultureInfo.InvariantCulture)));
         if (BandWrites.TryParse(param, out int band, out var parameter))
         {
+            if (!AnswersBands) return;
             Band(op, param, band, parameter, BinaryPrimitives.ReadUInt32BigEndian(frame.AsSpan(15, 4)));
             return;
         }

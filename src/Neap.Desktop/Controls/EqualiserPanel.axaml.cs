@@ -281,6 +281,7 @@ public partial class EqualiserPanel : UserControl
         SwitchSaying.NoHeadset => "Parametric_SaidNoHeadset",
         SwitchSaying.LowBattery => "Parametric_SaidLowBattery",
         SwitchSaying.ReadOnly => "Parametric_SaidReadOnly",
+        SwitchSaying.NoLiveBands => "Parametric_SaidNoLiveBands",
         SwitchSaying.NotChangedAndPutBack => "Parametric_SaidNotChangedAndPutBack",
         _ => "Parametric_SaidNotChangedAndNotPutBack",
     };

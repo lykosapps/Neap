@@ -9,12 +9,14 @@ asks first and then opens the editor; part B declines, which goes back to the
 ten bands; part C turns it off from the editor; part D is a headset Swarm II
 has reset, turned on again from the page; part E is a battery too low to risk
 the write; part F is an Atlas Air, which has no Parametric choice; part G
-makes a shape, goes to the ten bands and back, and finds the shape as it was.
+makes a shape, goes to the ten bands and back, and finds the shape as it was;
+part H is a headset whose firmware gives no reading of a band, which is not
+turned on.
 
 .PARAMETER Parts
 Which parts to run. All by default.
 #>
-param([string]$Parts = 'ABCDEFG')
+param([string]$Parts = 'ABCDEFGH')
 
 . "$PSScriptRoot\Ui.ps1"
 
@@ -156,6 +158,18 @@ if ($Parts.Contains('G')) {
         $playing = { @(Send-Pretend 'bands' | Where-Object { $_.type -in 'Peaking', 'LowShelf', 'HighShelf' } | ForEach-Object { '{0:+0.0;-0.0;0.0}' -f [double]$_.gain }) -join ' ' }
         $matched = Wait-Until { (& $playing) -eq $before } 8
         Check $matched "and the headset plays it: $(& $playing)"
+    }
+    finally { Stop-NeapPretend }
+}
+
+if ($Parts.Contains('H')) {
+    Section 'a firmware that gives no reading of a band'
+    Open-Equaliser @('--no-live-bands')
+    try {
+        Press (Find-Named 'Parametric')
+        Answer-Dialog $on 'Turn on'
+        Check (Wait-Until { (Get-Texts) -contains "This headset's firmware doesn't take Parametric. Nothing was changed." } 15) 'it says the firmware does not take Parametric'
+        Check ($null -eq (Find-Named 'All bands')) 'and the editor does not open'
     }
     finally { Stop-NeapPretend }
 }

@@ -23,7 +23,8 @@ and date.
   through the Charging Dock or the cable. Neap keeps your parametric
   presets, imports Equalizer APO and AutoEq filters, lets a profile hold a
   shape, and can draw the headset's measured response and a target, with
-  Auto-EQ to fit one to the other. If Swarm II resets the equaliser,
+  Auto-EQ to fit one to the other. It turns on only once the headset shows
+  its firmware can take it, and changes nothing otherwise. If Swarm II resets the equaliser,
   Parametric turns off and says so; if the headset's Mode button or another
   app changes it, Neap switches to Bands, says so, and keeps your shape. Its presets work as the ten bands' do:
   a built-in shape, such as Flat, is chosen as itself, Discard puts back what

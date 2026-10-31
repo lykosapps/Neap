@@ -1,3 +1,5 @@
+using System.Globalization;
+using Neap.Core;
 using Neap.Core.Connection;
 using Neap.Core.Presets;
 
@@ -58,6 +60,13 @@ public sealed class ParametricSetup
         {
             if (_headset.ReadOnly) return Said(what, new SwitchResult(SwitchOutcome.ReadOnly));
 
+            // Proven on one firmware; a headset that cannot report a band's
+            // frequency is not known to take the live bands, so nothing is
+            // written to it. About half of single reads get no reply, so it
+            // is asked again before giving up.
+            if (on && !AnswersBands(client))
+                return Said(what, new SwitchResult(SwitchOutcome.NoLiveBands));
+
             var result = change(new GainCorrectionSwitch(
                 client.ReadGameEqRecord,
                 client.WriteGameEqRecord,
@@ -79,6 +88,24 @@ public sealed class ParametricSetup
 
             return Said(what, result);
         });
+    }
+
+    /// <summary>How many times the first band's frequency is asked for before the headset is taken not to have live bands.</summary>
+    private const int BandTries = 3;
+
+    /// <summary>Whether the headset reports its first band's frequency, as a firmware that takes the live bands does.</summary>
+    private static bool AnswersBands(HeadsetClient client)
+    {
+        for (int attempt = 0; attempt < BandTries; attempt++)
+        {
+            if (client.ReadBand(0, BandParameter.Frequency) is { } hertz)
+            {
+                AppLog.Write(string.Create(CultureInfo.InvariantCulture, $"parametric: the headset reports band 1 at {hertz:0.#} Hz, so it takes the live bands"));
+                return true;
+            }
+        }
+        AppLog.Write($"parametric: the headset gave no reading of band 1 in {BandTries} tries, so its firmware is not known to take the live bands");
+        return false;
     }
 
     private static SwitchResult Said(string what, SwitchResult result)
