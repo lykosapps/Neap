@@ -50,6 +50,22 @@ resource file, and the contrast of its colours in the dark and light themes.
 When you learn something new about the protocol, add a test that would have
 caught the old mistake.
 
+## Building the app
+
+One app, drawn the same on both systems (Avalonia):
+
+```
+dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained
+dotnet publish src/Neap.Desktop -c Release -r linux-x64 -f net10.0 --self-contained
+```
+
+Run `Neap.Desktop.exe` (Windows) or `Neap.Desktop` (Linux) from the `publish`
+folder. A release renames the Windows file `Neap.exe`, which the updater in
+every installed copy looks for. You need the .NET 10 SDK to build, but not to
+run the result. The Windows build can only be made on Windows; the Linux one
+builds on either. To make the Linux AppImage from a Linux publish folder, see
+`packaging/linux/build-appimage.sh`.
+
 ## Testing the screens without the headset
 
 `--pretend` runs the app against a pretend headset: nothing reaches the
@@ -67,22 +83,6 @@ To look at a screen while somebody works, launch it on that screen instead:
 never comes forward. The tags are `home`, `audio`, `mic`, `controls`,
 `device` and `settings`. Add `--parametric` with `--wired` to open the
 Stealth Pro II's game equaliser in its parametric mode, turned on.
-
-## Building the app
-
-One app, drawn the same on both systems (Avalonia):
-
-```
-dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.19041.0 --self-contained
-dotnet publish src/Neap.Desktop -c Release -r linux-x64 -f net10.0 --self-contained
-```
-
-Run `Neap.Desktop.exe` (Windows) or `Neap.Desktop` (Linux) from the `publish`
-folder. A release renames the Windows file `Neap.exe`, which the updater in
-every installed copy looks for. You need the .NET 10 SDK to build, but not to
-run the result. The Windows build can only be made on Windows; the Linux one
-builds on either. To make the Linux AppImage from a Linux publish folder, see
-`packaging/linux/build-appimage.sh`.
 
 ## The probe
 
@@ -128,14 +128,8 @@ A few more matter when something is not behaving:
 Read-first. The client writes nothing unless it is made with writes allowed,
 and even then it sends only settings in the confirmed registry, within their
 confirmed ranges. The one write known to cause harm, a transmitter slot's
-base address, is refused outright. Nothing touches the firmware update path,
-which is signed and encrypted.
-
-One warning worth repeating from the findings: a transmitter will answer
-questions about a headset it can no longer reach, with stale values, and the
-chip vendor's own firmware commands reach only the USB device you are plugged
-into, never the headset behind it. Confirm which device answered before
-trusting a result.
+base address, is refused outright. The firmware edits, not yet released,
+write the headset's flash only in download mode, saving each section first.
 
 ## Working with the hardware
 

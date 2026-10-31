@@ -13,19 +13,6 @@ group only; a line that touches two says so in its text.
 
 Needs only the code and the tests. Safe to do in one go.
 
-### Recordings and what Core guarantees
-- Volumes are polled rather than followed by event: looked at on 26 October and
-  kept, not a small change. The mix's two-second pass (`SessionMix`) is what
-  catches an application that starts and a volume changed outside Neap, and it
-  also restores volumes after a device switch and looks for chat on the other
-  outputs. Windows events would mean session-created notifications on the
-  headset device plus a volume callback on every session, each arriving on a
-  COM thread and needing registering and unregistering as devices and sessions
-  come and go; the Pulse client runs its own loop only when asked, so a
-  subscription would need a standing loop. A poll stays as the safety net, so
-  the pass would still run, only less often. Revisit only if the idle wakeups
-  are measured as a problem.
-
 ### Interface text
 - **Saving or deleting a preset as the headset goes shows the system's own
   error.** Unplugging the Charging Dock while a preset saved showed "Couldn't
@@ -69,7 +56,7 @@ Needs the headset on the Windows app, and the owner present. Run
   trusted measurement: the 28 September one used a desk microphone on an
   unsealed ear cup (FINDINGS.md). Wanted, with a sealed, calibrated setup:
   one band at a time against the filter model, all ten bands raised
-  together, the parametric view's fitted curves, and whether the most boost
+  together, Parametric's bands against its drawn curve, and whether the most boost
   the bands allow distorts.
 - **Settling time.** After a few more battery swaps, read the app log's
   battery lines and tighten the rule that shows "Settling…". Also see the
@@ -127,20 +114,6 @@ first and say how sure each finding is.
   matched to anything (see [FINDINGS.md](FINDINGS.md)); whether the charging
   flag means charging, or only powered by the cable; 32-bit audio formats
   are assumed to be floating point.
-- **A fully parametric equaliser, live.** On for the Stealth Pro II from
-  0.4.0 (DECISIONS.md, 31 October; and 27 and 28 October). Each of the game bank's ten bands has a
-  filter, frequency, width and gain, set live over Pre-gain's route,
-  after the headset's stock gain correction is cleared, which choosing
-  Parametric on the Equaliser page does, through the dock or the cable.
-  Neap keeps its own presets, imports Equalizer APO and
-  AutoEq filters, lets a profile hold a shape, gives way to another app's ten-band
-  changes, and turns parametric off when Swarm II resets the headset. Its
-  Undo, Redo and Compare come in the same order as with the ten bands.
-  Headset checks 32 to 36 pass (HEADSET-CHECKS.md). 31, a Swarm II flash, is
-  skipped for 0.4.0 by the owner's call, as it would replace the owner's edited
-  firmware; the parametric-on screen check covers what Neap does after one. The
-  record write has not been tried on Linux. The Mode button's preset step does move the
-  headset to the ten bands, and Neap follows it (31 October).
 - **Equaliser boosts with Pre-gain raised.** SP2Tools reads an
   active compressor after the equaliser (threshold −10 dB, ratio 100:1,
   make-up +7 dB, live over the same route) that squashes a 0 dBFS tone by
@@ -161,8 +134,7 @@ first and say how sure each finding is.
   while doing it, which Neap needs to find it. The live switch changes the
   identity and undoes itself at a power cycle; a lasting one is a 2-byte dock
   flash patch. SP2Tools has both parked (`W1` the live test, `W2` the patch).
-  The brief is `knowledge
-eap-asks-dock-chat-mix.md` there: desk questions
+  The brief is `knowledge/neap-asks-dock-chat-mix.md` there: desk questions
   first, then the one experiment when the owner chooses it. Needs the
   headset and dock, with Neap closed for the test.
 - **Bass and treble boost levels**, if the headset turns out to have them.
@@ -186,6 +158,10 @@ Needs a Linux machine or the WSL distros, and for the Deck lines the Steam Deck.
   notification-area extension, an Orca pass, and a real "headset access
   refused" system (a Deck that already has the rule cannot show it) are
   untested.
+- **Parametric on Linux with a real headset.** Turning it on writes the
+  headset's stored equaliser record, proven through the dock on Windows (28
+  October) and not yet tried on Linux. Sharing the dock with the WSL distro
+  needs one administrator prompt at the PC.
 - **Gaming Mode on the Steam Deck.** Neap runs in desktop mode only. Wanted:
   the mix, the chat wheel and the headset's controls working while a game
   runs in Gaming Mode, with no window to open. Needs the Deck.
@@ -238,4 +214,5 @@ Needs the testers' replies on GitHub issue 1, not the owner's headset.
 - A chat mix overlay: a small on-screen display when the mix moves.
 - Mode button presses that trigger actions on the PC.
 - Spot Swarm II running and offer to close it.
-- **Import filters into the parametric equaliser.** Paste or open an Equalizer APO or AutoEq text file ("Filter 1: ON PK Fc 105 Hz Gain -2.5 dB Q 0.7") and put it on the ten bands, with where it came from shown beside the preset. Supported types only (bell, shelves, cuts, notch), at most ten bands, gains held to the headset's ±12 dB; what does not fit is listed, not dropped quietly. A preamp line is not used (Pre-gain, set on its own, is the headset's preamp), and the page says so. The way to a curve tuned to this headset rather than a generic starting shape, once someone has measured the Stealth Pro II properly; Neap's own measurement (28 September) is not trusted. Built on the parametric screen: "Import filters…" at the foot of Start from opens a dialog to paste into or open a .txt file, says before applying how many bands it sets, each line not used and why, gains held, and that a preamp is not used, and applies as one step Undo takes back. Still to do: showing where the bands came from beside the preset, once parametric presets are saved.
+- **Where an imported parametric preset came from,** shown beside the preset
+  (Equalizer APO or AutoEq, and the file).

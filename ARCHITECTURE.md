@@ -282,8 +282,8 @@ them be renamed. So the running version unzips the new one into a hidden
 the new one in, lets go of its one-copy lock and starts the new version.
 Because the old version does all of it, the new version needs no part in
 the swap; it only clears the `.update` folder when it starts. This is Neap's
-own update and nothing to do with the headset's firmware, which stays with
-Swarm II.
+own update and nothing to do with the headset's firmware, which Swarm II or
+the phone app updates.
 
 The updater runs as the person, never elevated, so it can only update a copy
 in a folder they can write to; anywhere else it says a newer version exists
