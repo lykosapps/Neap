@@ -333,7 +333,7 @@ public sealed class ParametricService
     private static void StorePresets(IReadOnlyList<ParametricPreset> presets) => AppSettings.Update(settings =>
         settings.ParametricPresets = [.. presets.Select(p => new AppSettings.StoredParametricPreset { Name = p.Name, Bands = [.. p.Shape.Bands] })]);
 
-    /// <summary>Puts a profile's shape on the headset in the Parametric mode, naming the preset it matches, if any.</summary>
+    /// <summary>Puts a profile's shape on the headset in the Parametric mode, naming the saved preset or built-in shape it matches, if any.</summary>
     /// <param name="shape">The shape.</param>
     public void Use(ParametricShape shape)
     {
@@ -343,7 +343,9 @@ public sealed class ParametricService
             return;
         }
 
-        Choose(ParametricPresets.Matching(Presets, shape)?.Name);
+        if (ParametricPresets.Matching(Presets, shape) is { } preset) Choose(preset.Name);
+        else if (ParametricPresets.MatchingBuiltIn(shape) is { } builtIn) ChooseBuiltIn(builtIn);
+        else Choose(null);
         AppSettings.Update(settings => settings.ParametricActive = true);
         _sender.Forget();
         var bands = BandEditing.InOrder(stored);

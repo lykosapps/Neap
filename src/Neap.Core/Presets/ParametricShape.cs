@@ -88,6 +88,12 @@ public static class ParametricPresets
     public static ParametricPreset? Matching(IReadOnlyList<ParametricPreset> presets, ParametricShape shape) =>
         presets.FirstOrDefault(p => p.Shape == shape);
 
+    /// <summary>The built-in shape with the same bands as a shape, or null, so a shape put back by a profile shows its name.</summary>
+    /// <remarks>A saved preset with the same bands is named first; see <see cref="Matching"/>.</remarks>
+    /// <param name="shape">The shape.</param>
+    public static StartingShape? MatchingBuiltIn(ParametricShape shape) =>
+        Enum.GetValues<StartingShape>().Cast<StartingShape?>().FirstOrDefault(s => ParametricShape.Of(StartingShapes.Bands(s!.Value)) == shape);
+
     /// <summary>The presets with one saved: a new one at the end, or over the one with its name.</summary>
     /// <param name="presets">The presets saved.</param>
     /// <param name="name">The name.</param>

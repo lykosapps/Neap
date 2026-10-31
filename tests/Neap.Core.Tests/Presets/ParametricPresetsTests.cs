@@ -118,6 +118,14 @@ public class ParametricPresetsTests
         Assert.Null(ParametricPresets.From(null, null));
     }
 
+    /// <summary>A profile holds a shape, not its name, so an unchanged built-in shape is named again by its bands.</summary>
+    [Fact]
+    public void AnUnchangedBuiltInShapeIsKnownByItsBands()
+    {
+        Assert.Equal(StartingShape.CutMud, ParametricPresets.MatchingBuiltIn(ParametricShape.Of(StartingShapes.Bands(StartingShape.CutMud))));
+        Assert.Null(ParametricPresets.MatchingBuiltIn(Shape(7)));
+    }
+
     [Fact]
     public void BothEqualisersFollowOneRule()
     {
