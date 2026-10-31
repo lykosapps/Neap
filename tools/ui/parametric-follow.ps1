@@ -8,9 +8,11 @@ Run through run.ps1. With a shape in the Parametric mode, the pretend headset
 reports a new gain for band 1, as the phone app or Swarm II would. Neap goes
 back to the ten bands, says why, plays the other app's gains on the stock
 bands, and keeps the shape: Back to Parametric brings it back as it was.
+Part B does the same after Parametric is chosen on the page, as a person
+does, which the page once held on to while the headset played the ten bands.
 Nothing here changes a real headset.
 #>
-param([string]$Parts = 'A')
+param([string]$Parts = 'AB')
 
 . "$PSScriptRoot\Ui.ps1"
 
@@ -23,7 +25,7 @@ function Get-Field([string]$Name) {
     }
 }
 
-$said = 'Another app changed the equaliser, so Neap switched to Bands. Your Parametric shape is kept.'
+$said = 'The equaliser was changed on the headset or in another app, so Neap switched to Bands. Your Parametric shape is kept.'
 
 if ($Parts.Contains('A')) {
     Section 'another app changes the ten-band equaliser'
@@ -51,6 +53,27 @@ if ($Parts.Contains('A')) {
         $after = @(1..10 | ForEach-Object { Get-Field "Band $_ gain" }) -join ' '
         Check ($after -eq $shape) "the shape is as it was: $after"
         Check (-not ((Get-Texts) -contains $said)) 'and the note has gone'
+    }
+    finally { Stop-NeapPretend }
+}
+
+if ($Parts.Contains('B')) {
+    Section 'the headset leaves Parametric after it was chosen on the page'
+    Start-NeapPretend -Page equaliser -Flags @('--parametric', '--wired')
+    try {
+        Set-NeapSize 1400 1500 'Equaliser'
+        Check (Wait-Until { $null -ne (Find-Named 'All bands') } 20) 'the parametric editor is open'
+        Press (Find-Named 'Bands')
+        Check (Wait-Until { $null -eq (Find-Named 'All bands') } 6) 'Bands shows the ten bands'
+        Press (Find-Named 'Parametric')
+        Check (Wait-Until { $null -ne (Find-Named 'All bands') } 6) 'choosing Parametric on the page opens the editor'
+        Choose-Parametric 'Add bass'
+        Start-Sleep -Seconds 2
+
+        # As the headset's Mode button stepping to the next preset reports it.
+        Send-Pretend 'report eq_band_1 20' | Out-Null
+        Check (Wait-Until { (Get-Texts) -contains $said } 6) 'it says the equaliser was changed'
+        Check (Wait-Until { $null -eq (Find-Named 'All bands') } 6) 'and the page shows the ten bands the headset plays'
     }
     finally { Stop-NeapPretend }
 }

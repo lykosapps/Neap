@@ -2286,7 +2286,7 @@
     <value>The change didn't go through, and the earlier settings could not be put back. Try again.</value>
   </data>
   <data name="Equaliser_TakenOver.Message" xml:space="preserve">
-    <value>Another app changed the equaliser, so Neap switched to Bands. Your Parametric shape is kept.</value>
+    <value>The equaliser was changed on the headset or in another app, so Neap switched to Bands. Your Parametric shape is kept.</value>
   </data>
   <data name="Equaliser_TakenOver.ActionText" xml:space="preserve">
     <value>Back to Parametric</value>

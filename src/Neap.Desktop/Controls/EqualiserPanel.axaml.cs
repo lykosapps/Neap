@@ -189,6 +189,15 @@ public partial class EqualiserPanel : UserControl
         TakenOverNotice.ActionInvoked += (_, _) => ModeParametric.IsChecked = true;
     }
 
+    /// <summary>The headset left Parametric for the ten bands, after another app or its own Mode button changed them, so the page shows the ten bands too.</summary>
+    /// <remarks>Parametric chosen on this page is no longer what is heard, so the choice is let go with it; otherwise the page would go on showing a shape the headset no longer plays.</remarks>
+    private void OnTakenOver()
+    {
+        _parametricWanted = false;
+        ClearHistory();
+        Paint();
+    }
+
     private void EnterParametric()
     {
         AppServices.Parametric.Enter();
@@ -297,7 +306,7 @@ public partial class EqualiserPanel : UserControl
         AppServices.Headset.Changed += Paint;
         AppServices.Parametric.Reset += Paint;
         AppServices.Parametric.ShapeChanged += Paint;
-        AppServices.Parametric.TakenOver += Paint;
+        AppServices.Parametric.TakenOver += OnTakenOver;
         ShowWaiting(Wait.Reading);
         BuildBands();
         await Reload();
@@ -343,7 +352,7 @@ public partial class EqualiserPanel : UserControl
         AppServices.Headset.Changed -= Paint;
         AppServices.Parametric.Reset -= Paint;
         AppServices.Parametric.ShapeChanged -= Paint;
-        AppServices.Parametric.TakenOver -= Paint;
+        AppServices.Parametric.TakenOver -= OnTakenOver;
         AppServices.Headset.StatusChanged -= OnStatusChanged;
         StopCompare();
     }
