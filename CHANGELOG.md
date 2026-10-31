@@ -11,6 +11,10 @@ and date.
 
 ## Unreleased
 
+## 0.4.0 — 2026-10-31
+
+**The Atlas Air, and a parametric equaliser for the Stealth Pro II.**
+
 ### Added
 
 - On Linux, Neap running from its AppImage updates itself, as it does on
