@@ -25,12 +25,12 @@ public class HeadsetModelsTests
     }
 
     [Fact]
-    public void TheAtlasAirIsKnownOnlyWhileItIsReleased()
+    public void TheAtlasAirIsKnownByItsTransmitterHeadsetAndSound()
     {
-        Assert.Equal(HeadsetModels.AtlasAirReleased, HeadsetModels.Of("225E") is not null);
-        Assert.Equal(HeadsetModels.AtlasAirReleased, HeadsetModels.Of("2260") is not null);
-        Assert.Equal(HeadsetModels.AtlasAirReleased, Transmitters.PieceOf("225E") == Transmitters.Piece.Transmitter);
-        Assert.Equal(HeadsetModels.AtlasAirReleased, HeadsetModels.SoundMatches("Speakers (Atlas Air)"));
+        Assert.Same(HeadsetModels.AtlasAir, HeadsetModels.Of("225E"));
+        Assert.Same(HeadsetModels.AtlasAir, HeadsetModels.Of("2260"));
+        Assert.Equal(Transmitters.Piece.Transmitter, Transmitters.PieceOf("225E"));
+        Assert.True(HeadsetModels.SoundMatches("Speakers (Atlas Air)"));
     }
 
     [Fact]

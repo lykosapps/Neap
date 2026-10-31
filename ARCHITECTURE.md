@@ -120,9 +120,7 @@ one repeated fragment reads as the start of every reply after it.
 its speakers' and microphone's names, what it has of what Neap does, the
 groups of settings it lacks, and where it keeps a setting the Stealth Pro II
 keeps elsewhere. Screens offer only what the model has, so a second headset
-is a new entry and a few keys, not new screens. A model is shipped only
-once its testers have confirmed what Neap does on it
-(`HeadsetModels.AtlasAirReleased`). The title shows the USB product string
+is a new entry and a few keys, not new screens. The title shows the USB product string
 of the device Neap talks through, the name the firmware gives it, and falls
 back to the model's name.
 

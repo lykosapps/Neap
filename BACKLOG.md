@@ -200,11 +200,10 @@ Needs a Linux machine or the WSL distros, and for the Deck lines the Steam Deck.
 
 Needs the testers' replies on GitHub issue 1, not the owner's headset.
 
-- **The Atlas Air is held back until its testers confirm it.** 0.3.0 left it
-  out (DECISIONS.md, 23 October); its test build, 0.2.1.9, has every
-  function, writes included. Before it is released, set its list of
-  functions, and whether its settings may be changed, to what the testers
-  confirmed on GitHub issue 1.
+- **The Atlas Air's open questions.** It ships with every function
+  (DECISIONS.md, 31 October). Left, on GitHub issue 1: the noise gate's
+  reading at start, which the headset refuses; sound stopping while
+  connected; and the replug on Linux after Neap is started by hand.
 - **Other Swarm II headsets.** The Stealth 600 Gen 3, 700 Gen 3 and 500
   share the Stealth Pro II's platform (the Atlas Air has its own line above).
   Each needs an owner to capture its settings and run the checks, so ask for

@@ -9,12 +9,13 @@ place of Swarm II. No driver, no Turtle Beach software, no admin rights.
 · Windows 10 version 2004 or later, 64-bit · Linux, 64-bit, on any desktop
 with PulseAudio or PipeWire
 
-**For the Stealth Pro II only, for now.** Tested on the Xbox edition. The
-PlayStation edition should work but hasn't been tried, so reports are
-welcome.
+**For the Stealth Pro II and the Atlas Air.** The Stealth Pro II is tested on
+the Xbox edition. The PlayStation edition should work but hasn't been tried,
+so reports are welcome. The Atlas Air is tested by two owners, on Windows and
+Linux.
 
 > **Own another Turtle Beach headset? Help bring Neap to it.** The Stealth
-> 600 Gen 3, 700 Gen 3, 500 and Atlas Air share the Stealth Pro II's
+> 600 Gen 3, 700 Gen 3 and 500 share the Stealth Pro II's
 > platform. A ten-minute recording made in Neap is where support for them,
 > and for other headsets that work with Swarm II, starts. Nothing else to install, and no technical
 > knowledge needed. **[Here's how](docs/MAPPING.md).**

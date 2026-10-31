@@ -149,14 +149,14 @@ public static class HeadsetModels
         HasParametricBands = true,
     };
 
-    /// <summary>The Atlas Air, from one owner's recording and Turtle Beach's support pages for it, in testing.</summary>
+    /// <summary>The Atlas Air, from its testers' recordings and Turtle Beach's support pages for it.</summary>
     /// <remarks>
     /// <para>
     /// Its transmitter is 225E and the headset reports itself as 2260, from a
     /// recording an owner sent. It answered for the same settings, under the
     /// same keys, as the Stealth Pro II, so its values are read and written as
-    /// the Stealth Pro II's. Every function is on while its tester confirms each
-    /// one; a public release carries only those confirmed, as DECISIONS.md says.
+    /// the Stealth Pro II's. It ships with every function Neap has for it, as
+    /// DECISIONS.md says.
     /// </para>
     /// <para>
     /// What it has is from Turtle Beach's support articles for it: the Swarm II
@@ -233,22 +233,11 @@ public static class HeadsetModels
         LogsInputs = true,
     };
 
-    /// <summary>Whether the Atlas Air is among the headsets this release of Neap supports.</summary>
-    /// <remarks>
-    /// Off until its testers have confirmed what it does. While it is off Neap
-    /// does not know the Atlas Air: its hardware, speakers and microphone are
-    /// those of a headset Neap has no support for.
-    /// </remarks>
-    public const bool AtlasAirReleased = false;
-
-    public static readonly IReadOnlyList<HeadsetModel> All = AtlasAirReleased ? [StealthProII, AtlasAir] : [StealthProII];
-
-    /// <summary>Every headset Neap has a model of, whether this release supports it or not.</summary>
-    private static readonly HeadsetModel[] Known = [StealthProII, AtlasAir];
+    public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];
 
     /// <summary>Every known headset's <see cref="HeadsetModel.SoundName"/>, apart by |, for finding its speakers and microphone.</summary>
     /// <remarks>Written out rather than built from <see cref="All"/>, as it is the default of many a parameter; a test keeps the two the same.</remarks>
-    public const string SoundNames = AtlasAirReleased ? "stealth pro|atlas air" : "stealth pro";
+    public const string SoundNames = "stealth pro|atlas air";
 
     /// <summary>Whether a speaker or microphone's name holds any of the fragments in <paramref name="match"/>, apart by |.</summary>
     public static bool SoundMatches(string name, string match = SoundNames) =>
@@ -272,7 +261,7 @@ public static class HeadsetModels
     /// including one Neap does not know.
     /// </remarks>
     public static bool AnothersOwn(HeadsetModel? model, string category) =>
-        Known.Any(other => other.ExtraCategories.Contains(category)) && !CategoriesOf(model).Contains(category);
+        All.Any(other => other.ExtraCategories.Contains(category)) && !CategoriesOf(model).Contains(category);
 
     /// <summary>The key of a headset's copy of the system's output level: the Stealth Pro II's while it is not known.</summary>
     public static int VolumeKeyOf(HeadsetModel? model) => (model ?? StealthProII).VolumeKey;

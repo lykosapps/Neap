@@ -1,5 +1,23 @@
 # Decisions
 
+## 2026-10-31 — The Atlas Air ships with every function
+
+- **Options:** ship only what its testers confirmed, as the rule of
+  8 October says, which hides both equalisers, auto shut-off, mute and
+  custom presets, and everything on Linux; ask the testers for one more
+  round first; or ship every function Neap has for it.
+- **Chosen:** every function, the owner's call. Neap knows the Atlas Air in
+  every build; `HeadsetModels.AtlasAirReleased` is gone.
+- **Why:** both connection fixes are confirmed, on Windows (17 minutes) and
+  Linux (10 minutes, and every start with the PC in a day's USB trace). The
+  functions not yet confirmed by a tester are seen in recordings to take
+  their values, and use the Stealth Pro II's encoding. Hiding the equaliser
+  would take away what people use the app for.
+- **This sets aside, for the Atlas Air only,** the decision of 8 October that
+  a release carries only what a tester confirmed.
+- **Revisit if** a tester reports a function doing nothing or the wrong
+  thing: hide it in Core until it is fixed.
+
 ## 2026-10-31 — The routing warning sets Windows' defaults when pressed
 
 - **Options:** keep opening Windows' Sound settings and leave the change to

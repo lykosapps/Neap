@@ -1,12 +1,11 @@
 # Atlas Air
 
-Not in 0.3.0: Neap does not know this headset while `HeadsetModels.AtlasAirReleased`
-is off (DECISIONS.md, 23 October 2026). In testing. On Windows it connects and most settings work. On Linux 0.2.1.8
-connects after the transmitter is unplugged and plugged back in, then drops
-every 24 seconds; test build 0.2.1.9 fixes the drops and asks for the replug,
-with no reply yet. SP2Tools has read
-the headset's firmware for every open question (F114 to F126); what it found
-is in 0.2.1.7 for the testers to confirm.
+Supported from the release after 0.3.0, with every function Neap has for
+it (DECISIONS.md, 31 October 2026). It connects and stays connected on
+Windows and Linux; on Linux, Neap started by hand some time after it last
+read the transmitter needs the transmitter plugged in again once, which Home
+asks for. SP2Tools has read the headset's firmware for every open question
+(F114 to F126).
 
 - **Hardware:** USB Transmitter `225E`; the headset reports itself as `2260`;
   firmware 6.163.1646.0. No dock.
@@ -327,57 +326,3 @@ Newest first.
 - Before 2026-10-15 — Windows tester, 0.2.0 and 0.2.1 recordings: the
   hardware ids. The volume mirror is at `0x260`. `0x290` follows QuickSwitch.
   `0x620` follows the mute.
-
-## Changelog lines held back from 0.3.0
-
-Taken out of `CHANGELOG.md`'s Unreleased section; put them back, under Added and
-Fixed, when the Atlas Air is released.
-
-- Neap no longer asks the Atlas Air for two groups of settings it does not
-  have, when it connects or while it is connected.
-- On Linux, the Atlas Air no longer drops to "Not connected" every 24
-  seconds or so. Neap took in the same report again and again as the
-  transmitter handed it back, and then could not read the headset's replies.
-- Neap recognises the Turtle Beach Atlas Air, finds its speakers and
-  microphone, and shows only what it has: no chat wheel, noise cancellation,
-  lights, Charging Dock or CrossPlay. Its settings can be changed, in testing
-  with an owner of one.
-- On the Atlas Air, Superhuman Hearing and voice prompts use the places
-  Swarm II keeps them, rather than the Stealth Pro II's. In testing with an
-  owner of one.
-- On the Atlas Air, mic monitoring and the transmitter's light use the places
-  Swarm II keeps them. In testing with an owner of one.
-- On a headset with no chat wheel, such as the Atlas Air, a profile saves the
-  game and chat mix and puts it back when it's switched to.
-- The Atlas Air's voice prompts read as a percentage, like the levels beside
-  them, and the slider keeps one scale from the start.
-- The Atlas Air no longer drops to "Not connected" every minute or so while
-  it is in use. Neap was asking it for its buttons and switches several times
-  a second, and the headset then missed Neap's regular check. They are now
-  read once, when it connects, and the log says when the headset stops
-  answering that check.
-- On the Atlas Air, muting the microphone from Neap also turns mic monitoring
-  down, as the headset's own mute does, and puts it back when you unmute.
-  Before, you went on hearing yourself while muted.
-  Unmuting before Neap has read the headset's settings puts it back too.
-- On the Atlas Air, the transmitter light shows its level as soon as Neap
-  connects.
-- On the Atlas Air, Superhuman Hearing shows as off when a change to the
-  equaliser turns it off.
-- On the Atlas Air, profiles keep Superhuman Hearing and the voice prompt
-  level. Neap had taken them for settings it could not read, though the
-  headset reports both.
-- On the Atlas Air, moving mic monitoring above 1% changes it. Every
-  higher level was refused, because its place is where the Stealth Pro II
-  keeps an on and off switch.
-- On the Atlas Air, the master volume no longer jumps to 100% and back as it
-  is moved, from the slider or the headset's wheel.
-- On the Atlas Air, Bluetooth says whether the headset is listening over it.
-  It used to say "Connected" on the transmitter and "Not connected" on
-  Bluetooth.
-- On the Atlas Air, profiles no longer stay on "Reading the headset's
-  settings…". They wait only for settings the headset has.
-- On the Atlas Air, AI noise reduction is no longer offered. The headset
-  doesn't have it, and the switch was changing its mic monitoring level.
-- On the Atlas Air, voice prompts go from 0 to 15, as in Swarm II, so every
-  step changes how loud they are.

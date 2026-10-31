@@ -8,7 +8,7 @@ keeps the evidence in full; these files are the working list.
 | Headset | File | Where it stands |
 |---|---|---|
 | Stealth Pro II | [stealth-pro-ii.md](stealth-pro-ii.md) | Supported on Windows and the Steam Deck. |
-| Atlas Air | [atlas-air.md](atlas-air.md) | Not in 0.3.0 (`HeadsetModels.AtlasAirReleased` is off); in testing on Windows, does not connect on Linux. |
+| Atlas Air | [atlas-air.md](atlas-air.md) | Supported on Windows and Linux from the release after 0.3.0, every function included. |
 
 ## Keeping a file up to date
 
