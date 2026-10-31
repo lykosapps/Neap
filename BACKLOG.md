@@ -138,8 +138,8 @@ first and say how sure each finding is.
   Undo, Redo and Compare come in the same order as with the ten bands.
   Left, before 0.4.0 is tagged: headset checks 31 (a Swarm II flash) and 32
   (the phone app's change) (HEADSET-CHECKS.md; 33 to 36 pass),
-  the record write on Linux, and whether the Mode button's preset step
-  moves the bands (if it does, Neap must block it or follow it).
+  and the record write on Linux. The Mode button's preset step does move the
+  headset to the ten bands, and Neap follows it (31 October).
 - **Equaliser boosts with Pre-gain raised.** SP2Tools reads an
   active compressor after the equaliser (threshold −10 dB, ratio 100:1,
   make-up +7 dB, live over the same route) that squashes a 0 dBFS tone by
