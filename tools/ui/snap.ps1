@@ -22,7 +22,7 @@ dark, light or contrast (high contrast over dark).
 Where to save the picture.
 
 .PARAMETER Folder
-The pretend settings folder under %LOCALAPPDATA%\Neap, such as Pretend\mine.
+The pretend settings folder in %LOCALAPPDATA%\Neap, a plain folder name such as PretendMine.
 
 .PARAMETER More
 Further app flags, such as '--scrolled','end' or '--parametric'.

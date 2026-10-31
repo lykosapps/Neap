@@ -84,7 +84,7 @@ Click Neap's icon by the clock for the mix, the microphone, noise
 cancellation, spatial sound, Superhuman Hearing, the equaliser preset and
 the profile in use. Choose which ones it shows.
 
-![The mini panel, with the game and chat mix, tiles for the microphone, noise cancellation and spatial sound, and the equaliser preset.](docs/screenshots/mini.png)
+![The mini panel, with the profile, the game and chat mix, tiles for the microphone, noise cancellation, spatial sound and Superhuman Hearing, and the equaliser preset.](docs/screenshots/mini.png)
 
 ### Profiles that follow your games
 
