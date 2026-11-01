@@ -5,17 +5,20 @@ namespace Neap.Core.Tests.Protocol;
 public class VerbsTests
 {
     [Fact]
-    public void EveryReaderButBluetoothIsSPlusItsCategory()
+    public void EveryReaderButTheTransmitterGroupStartsWithItsNamesLength()
     {
-        var readers = Verbs.Readers.Where(pair => pair.Key != "BT");
+        var readers = Verbs.Readers.Where(pair => pair.Key != "TX");
 
-        Assert.All(readers, pair => Assert.Equal("S" + pair.Key, pair.Value));
+        Assert.All(readers, pair => Assert.Equal((char)(0x50 + pair.Key.Length) + pair.Key, pair.Value));
     }
 
-    [Fact]
-    public void BluetoothIsReadWithRbt()
+    [Theory]
+    [InlineData("BT", "RBT")]
+    [InlineData("NG", "RNG")]
+    [InlineData("TX", "STX")]
+    public void TwoLetterGroupsAreReadAsConfirmedOrAsTheFirmwareReads(string category, string verb)
     {
-        Assert.Equal("RBT", Verbs.Readers["BT"]);
+        Assert.Equal(verb, Verbs.Readers[category]);
     }
 
     [Theory]

@@ -22,6 +22,14 @@ public class FramesTests
     }
 
     [Fact]
+    public void TheNoiseGateReadEndsWithATwoByteName()
+    {
+        byte[] frame = Frames.Build(Verbs.Readers["NG"]);
+
+        Assert.Equal(Convert.FromHexString("6100524E47"), frame[^5..]);
+    }
+
+    [Fact]
     public void LengthsFollowTheArgument()
     {
         byte[] frame = Frames.SetKey(0x760, 100);

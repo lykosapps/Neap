@@ -15,6 +15,15 @@ namespace Neap.Core.Protocol;
 /// reply either.
 /// </para>
 /// <para>
+/// The first letter is the length of the name after it: "S" is 0x53 and
+/// "R" is 0x52, a CoAP option header that says three or two bytes follow
+/// (SP2Tools F227, read from the Atlas Air's firmware). A two-letter name
+/// sent with "S" is malformed, and the headset answers it with an empty
+/// reset. The Atlas Air's noise gate is therefore read as <c>RNG</c>, which
+/// no headset has yet answered. Its transmitter group stays <c>STX</c>
+/// until <c>RTX</c> is tried on its own, as its light is read another way.
+/// </para>
+/// <para>
 /// The chat-mix category <c>3DT</c> contains a digit, so a pattern that
 /// matches letters only drops its replies silently.
 /// </para>
@@ -74,7 +83,7 @@ public static class Verbs
             ["SHH"] = "SSHH",     // the Atlas Air's Superhuman Hearing, 0x8xx
             ["Prm"] = "SPrm",     // the Atlas Air's voice prompts, 0xcxx
             ["TX"] = "STX",       // the Atlas Air's transmitter, 0x4xx; never answered, see TransmitterLight
-            ["NG"] = "SNG",       // the Atlas Air's noise gate, 0x7xx: a group its firmware serves (SP2Tools F125), not yet seen to answer
+            ["NG"] = "RNG",       // the Atlas Air's noise gate, 0x7xx (SP2Tools F125); two letters, so "R" (F227)
         };
         foreach (var category in PresetSlotCategories) map[category] = "S" + category;
         foreach (var category in TransmitterCategories) map[category] = "S" + category;

@@ -14,8 +14,9 @@ asks for. SP2Tools has read the headset's firmware for every open question
   updated 20 March 2026.
 - **Testers:** one on Windows, one on Linux (CachyOS), on
   [issue 1](https://github.com/lykosapps/Neap/issues/1).
-- **Latest test build:** 0.2.1.9, published 24 October 2026: main with the
-  Atlas Air turned on, in one commit under the tag.
+- **Latest test build:** 0.4.0.2, prepared 1 November 2026: 0.4.0.1
+  (Parametric on the Atlas Air) and the noise gate read as `RNG`, under the
+  tag.
 - **SP2Tools:** the questions and answers are in its
   `knowledge/iceman-neap-asks.md`, the findings in
   `side-session-notes/iceman-re/`. All are read from the firmware; none has
@@ -53,7 +54,7 @@ asks for. SP2Tools has read the headset's firmware for every open question
 | Sensitivity | Listed | Yes | Has | Confirmed | Blocked | Done on the PC; the transmitter copies the PC's level into `0x610` (F120, Read) | The tester says it works (0.2.1.5). |
 | Monitoring, on/off | Listed | Yes, at `0x620` (F120, Read) | Hidden | Untried | Blocked | `0x620`, 1 off, 0 on | The level at 0 is off, so no switch is offered. |
 | Monitoring, level | Listed | Yes | Has, test | Seen | Blocked | `0x630`, 0–100: −30 dB to 0 dB, 0 off, 20 as shipped (F120, Read) | Every level read back as the gain F120 gives, 100 as 0 dB, the most the headset's own key allows (Seen, 22 October). The tester hears a difference between 0% and 100%, but not his own voice clearly. Ask whether Swarm II at 100% is any louder; see Problems. |
-| Noise gate, on/off | Listed | Yes | Has | Confirmed | Blocked | `0x700` | Reported when it changes, not at start. The headset refuses a read of group `NG`, and of `TX`, with an empty reset (`70 00`), on every connect seen on both systems (Seen, 23, 24 and 30 October), though SP2Tools read the firmware as serving it (F125). So the switch shows no reading until it is changed or reported; turning it on or off works. Every request Neap sends carries the same message id, `FB 00`, which a CoAP server may take as a repeat: a lead, untried. |
+| Noise gate, on/off | Listed | Yes | Has | Confirmed | Blocked | `0x700` | Reported when it changes, not at start. The headset refuses a read of group `NG`, and of `TX`, with an empty reset (`70 00`), on every connect seen on both systems (Seen, 23, 24 and 30 October), though SP2Tools read the firmware as serving it (F125). So the switch shows no reading until it is changed or reported; turning it on or off works. SP2Tools F227 (Read, 1 November) explains the refusal: the verb's first letter is the length of the name after it, so the two-letter `NG` sent as `SNG` is malformed and reset; the message id is not the cause. Test build 0.4.0.2 reads it as `RNG`; `TX` stays `STX`. Ask a tester for a recording of a start with 0.4.0.2: `0x700` and `0x710` in a reply to `RNG`, and no `70 00`. |
 | Noise gate, level | Listed | Yes | Has | Confirmed | Blocked | `0x710` | Heard clear at 0%, cut at 50%, almost muted at 100%. As the on/off for reading it. |
 | High Bandwidth Microphone | Listed | Yes, through the PC's sound format | Has | Seen | Missing | The PC's sound format: the transmitter offers 16 and 48 kHz | As High Bandwidth Audio. |
 
@@ -126,7 +127,7 @@ From the quick start guide. Neap describes them; it doesn't set them.
 | Transmitter light has no reading at start | 0.2.1.5 | Fixed for 0.2.1.7: read from the transmitter itself (F116) | Ask the tester. |
 | Superhuman Hearing shows on after the equaliser has turned it off | 0.2.1.6 | Fixed for 0.2.1.7 (F122) | Ask the tester to change a preset with it on. |
 | Master volume's mute button is highlighted when muted | 0.2.1.2 | By design: the mute button is on while muted | — |
-| Noise gate shows no reading at start | 0.2.1.2 | Fixed in 0.2.1.9, not yet seen: the firmware serves it as group `NG` (SP2Tools F125), which 0.2.1.7 asks, but the reply was lost behind the copies of Prm's first part (see the drops above) | Check the next recording for `0x700` and `0x710`. |
+| Noise gate shows no reading at start | 0.2.1.2 | Not fixed in 0.2.1.9: the read was refused with `70 00` on every connect since. SP2Tools F227 (Read): `SNG` is malformed, the name being two letters; 0.4.0.2 asks `RNG` | Check a 0.4.0.2 recording for `0x700` and `0x710`. |
 | Neap marked Superhuman Hearing and voice prompts as unread, so profiles left them out | — | Fixed for 0.2.1.7: the headset reports both, seen in the recordings since 0.2.1.3 | — |
 
 ## Next
@@ -159,6 +160,11 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-11-01 — SP2Tools F227, read from the Atlas Air's firmware: a read
+  verb's first letter is a CoAP option header giving the length of the name
+  after it (`S` three, `R` two). `SNG` and `STX` are malformed and the
+  headset resets them with `70 00`, its log saying "discard malformed PDU";
+  `RBT` works for the same reason. Test build 0.4.0.2 asks `RNG`.
 - 2026-10-30 — Linux tester, a USB trace over 28 to 30 October, 0.2.1.9
   starting with the PC. Only 30 October's traffic was kept, as the recorder's
   log filled with Neap's reads. Three starts with the PC: the transmitter

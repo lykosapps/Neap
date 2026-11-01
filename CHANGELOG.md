@@ -18,6 +18,9 @@ stays in the commit history.
   parametric equaliser as the Stealth Pro II. Its firmware has the same
   controls, but no one has heard a band change on it yet, so this build is
   for owners willing to try it and say what they hear.
+- **The Atlas Air's noise gate, read at start, to try.** Neap asks for it in
+  the form the headset's firmware expects, so the switch should show whether
+  the gate is on as soon as Neap connects, instead of only after it changes.
 
 ## 0.4.0 — 2026-10-31
 
