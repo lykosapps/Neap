@@ -12,6 +12,12 @@ stays in the commit history.
 
 ## Unreleased
 
+### Fixed
+
+- When saving or deleting an equaliser preset fails, as when the headset is
+  unplugged part way, Neap says so in plain words rather than showing the
+  system's own error. The detail goes to the app log.
+
 ## 0.4.0 — 2026-10-31
 
 **The Atlas Air, and a parametric equaliser for the Stealth Pro II.**

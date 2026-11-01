@@ -512,7 +512,7 @@ public sealed class PresetService
                 return true;
             });
         }
-        catch (Exception ex) { return ex.Message; }
+        catch (Exception ex) { return NotTaken(bank, "a save", ex); }
 
         if (await ReadBack(bank, "a save"))
             Adopt(_banks[bank], _banks[bank].Custom.FirstOrDefault(p => p.Name == name));
@@ -522,13 +522,24 @@ public sealed class PresetService
     public async Task<string?> Delete(Bank bank, string name)
     {
         try { await _headset.Post(client => { PresetStore.Delete(client, name, bank); return true; }); }
-        catch (Exception ex) { return ex.Message; }
+        catch (Exception ex) { return NotTaken(bank, "a delete", ex); }
         // The headset is moved to its first preset when the one in use goes;
         // choosing it here brings the bands on screen with it, not only the name.
         if (await ReadBack(bank, "a delete") && _banks[bank] is { Baseline.Name: var was } state && was == name
             && state.Presets.FirstOrDefault(p => !p.Custom) is { } first)
             await Select(bank, first);
         return null;
+    }
+
+    /// <summary>Logs why the headset did not take a save or delete, and gives the text to show.</summary>
+    /// <remarks>
+    /// The exception's own text is the system's or the protocol's, not
+    /// written for the screen, so it goes to the log.
+    /// </remarks>
+    private static string NotTaken(Bank bank, string what, Exception ex)
+    {
+        AppLog.Write($"presets: the headset did not take {what} to the {bank} equaliser: {ex.Message}");
+        return Strings.Get("Preset_NotTaken");
     }
 
     /// <summary>Reads the bank again after a save or delete the headset took; says whether it could.</summary>

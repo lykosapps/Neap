@@ -13,13 +13,7 @@ group only; a line that touches two says so in its text.
 
 Needs only the code and the tests. Safe to do in one go.
 
-### Interface text
-- **Saving or deleting a preset as the headset goes shows the system's own
-  error.** Unplugging the Charging Dock while a preset saved showed "Couldn't
-  save" over "SetOutputReport failed (The device is not connected.)", the text
-  of the error itself. Saving, saving over and deleting all pass that text to
-  the screen. Seen on the headset on 30 October; nothing was saved or left
-  half-written.
+Nothing here at the moment.
 
 ## 2. A screen sitting on Windows
 
