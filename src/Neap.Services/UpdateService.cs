@@ -44,6 +44,12 @@ public sealed class UpdateService : IDisposable
     /// <summary>How long the download may stall before it is given up.</summary>
     private static readonly TimeSpan Stall = TimeSpan.FromSeconds(30);
 
+    /// <summary>How long the whole download may take, however steadily it arrives.</summary>
+    private static readonly TimeSpan DownloadLimit = TimeSpan.FromMinutes(15);
+
+    /// <summary>The most a download may be, about four times the largest release so far.</summary>
+    private const long MaxDownloadBytes = 250L * 1024 * 1024;
+
     private static string Folder => AppContext.BaseDirectory;
 
     private static string Work => Path.Combine(Folder, ".update");
@@ -352,20 +358,25 @@ public sealed class UpdateService : IDisposable
     /// <summary>Downloads a file, reporting progress.</summary>
     private async Task Download(Uri from, string to)
     {
-        using var response = await Http.GetAsync(from, HttpCompletionOption.ResponseHeadersRead);
+        using var overall = new CancellationTokenSource(DownloadLimit);
+        using var response = await Http.GetAsync(from, HttpCompletionOption.ResponseHeadersRead, overall.Token);
         response.EnsureSuccessStatusCode();
         long length = response.Content.Headers.ContentLength ?? 0;
+        if (length > MaxDownloadBytes)
+            throw new InvalidDataException($"the download is {length} bytes, more than the {MaxDownloadBytes} allowed");
 
-        await using (var source = await response.Content.ReadAsStreamAsync())
+        await using (var source = await response.Content.ReadAsStreamAsync(overall.Token))
         await using (var file = File.Create(to))
         {
             var buffer = new byte[81920];
             long arrived = 0;
             int read;
-            while ((read = await ReadWithin(source, buffer)) > 0)
+            while ((read = await ReadWithin(source, buffer, overall.Token)) > 0)
             {
-                await file.WriteAsync(buffer.AsMemory(0, read));
+                await file.WriteAsync(buffer.AsMemory(0, read), overall.Token);
                 arrived += read;
+                if (arrived > MaxDownloadBytes)
+                    throw new InvalidDataException($"the download is more than the {MaxDownloadBytes} bytes allowed");
                 int percent = length > 0 ? (int)(arrived * 100 / length) : 0;
                 if (percent == Percent) continue;
                 Percent = percent;
@@ -375,9 +386,10 @@ public sealed class UpdateService : IDisposable
     }
 
     /// <remarks>The client's own timeout ends once the download starts, so a stall is caught here.</remarks>
-    private static async Task<int> ReadWithin(Stream source, byte[] buffer)
+    private static async Task<int> ReadWithin(Stream source, byte[] buffer, CancellationToken overall)
     {
-        using var stalled = new CancellationTokenSource(Stall);
+        using var stalled = CancellationTokenSource.CreateLinkedTokenSource(overall);
+        stalled.CancelAfter(Stall);
         return await source.ReadAsync(buffer, stalled.Token);
     }
 

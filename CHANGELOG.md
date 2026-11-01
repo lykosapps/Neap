@@ -12,6 +12,12 @@ stays in the commit history.
 
 ## Unreleased
 
+### Changed
+
+- An update that is more than 250 MB, or takes more than 15 minutes to
+  download, is given up and the current version stays. The reason goes to
+  the app log.
+
 ### Fixed
 
 - When saving or deleting an equaliser preset fails, as when the headset is

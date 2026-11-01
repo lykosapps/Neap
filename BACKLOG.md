@@ -194,8 +194,7 @@ Needs the testers' replies on GitHub issue 1, not the owner's headset.
 
 - Sign the download, so Windows does not warn about it. The updater should
   check the signature too.
-- Updater, nice to have: a limit on how big a download may be and how long
-  it may take, and a way to cancel it.
+- Updater, nice to have: a way to cancel a download.
 - **An installer**, beyond the zip. Per-user, so the in-app updater keeps
   working: Windows keeps Program Files locked, and the updater never runs
   elevated.
