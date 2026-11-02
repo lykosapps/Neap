@@ -35,7 +35,7 @@ public interface IBootRomLink : IDisposable
 /// </para>
 /// </remarks>
 /// <param name="link">The serial connection.</param>
-public sealed class BootRom(IBootRomLink link)
+public sealed class BootRom(IBootRomLink link) : IDisposable
 {
     /// <summary>The USB ids the chip shows in download mode.</summary>
     public const ushort VendorId = 0x0E8D, ProductId = 0x0003;
@@ -126,6 +126,9 @@ public sealed class BootRom(IBootRomLink link)
         Say(BigEndian(address));
         link.Read(2, TimeSpan.FromMilliseconds(600));
     }
+
+    /// <summary>Closes the serial connection.</summary>
+    public void Dispose() => link.Dispose();
 
     /// <summary>Sends bytes and takes in their echo.</summary>
     private void Say(byte[] bytes)

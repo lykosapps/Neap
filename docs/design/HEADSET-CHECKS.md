@@ -152,3 +152,37 @@ plugged in again; the headset's lights read as before throughout.
 36. **Bands and back:** in Parametric with a shape, switch to Bands, then back
     to Parametric. The sound matches the screen each time, with nothing of
     the Bands preset under the shape.
+
+## Firmware edits, before they are released
+
+Neap's own writer is built: it reads each mod's state from the flash, finds
+the chip's download mode, writes with SP2Tools' proven program and reads every
+write back. `FirmwareEdit.Released` stays off until these pass on the owner's
+headset, run from a build with the page opened over the pretend flag's page
+switch, one at a time, with SP2Tools' recovery kit at hand. Each write needs
+the owner's go first.
+
+37. **Status, read live:** open the Firmware page with the headset on the dock,
+    then on the cable. Each edit reads as it is on the headset (both active on
+    the owner's), and the app log lists each edit's state.
+38. **Download mode found (no write):** start applying with nothing to change
+    held back by Cancel at the plug-in step; switch the headset off and plug
+    in. Neap reaches the chip; Cancel; the headset starts by itself about half
+    a minute after unplugging.
+39. **One edit off, then on:** untick the light edit and apply. One plug-in;
+    each step done; the light blinks again on disconnect; the page reads it as
+    factory. Then tick it and apply: it reads as active and the light stays
+    off on disconnect.
+40. **Both edits at once:** restore to stock, then tick both and apply. Three
+    sections with one plug-in; both read as active; the Mode button cycles
+    with its tones and the light stays off.
+41. **A backup restored:** restore the newest backup of the light section. It
+    reads back, and the page shows the light edit as the backup holds it.
+42. **Unplugged part way (owner's choice, with the recovery kit ready):** pull
+    the cable during Write. The page says the step failed; the next apply's
+    check finds the section, and if the headset will not start, SP2Tools'
+    `brom_restore.py` or the backups bring it back.
+43. **Swarm II recovery:** after Recover in Swarm II, the page reads both
+    edits as factory (the new code left behind is not called).
+44. **Linux:** on a Linux PC, the chip's download mode is found as
+    `/dev/ttyACM*` and read without root once the udev rule is in place.

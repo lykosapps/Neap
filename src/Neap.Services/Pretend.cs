@@ -88,7 +88,7 @@ public static class Pretend
     /// <summary>With <see cref="MiniFlag"/>, draws the mini panel at touch size, as a small window gets it.</summary>
     public const string TouchFlag = "--touch";
 
-    /// <summary>With <see cref="Flag"/>, makes every firmware section fail its read back, so the headset's own revert can be seen.</summary>
+    /// <summary>With <see cref="Flag"/>, loses the first firmware write, so a write that does not read back, and Neap putting the section back, can be seen.</summary>
     public const string FirmwareRevertsFlag = "--firmware-reverts";
 
     public static bool Active { get; } = Given(Flag);
@@ -98,7 +98,7 @@ public static class Pretend
     public static IFirmwareWriter? Firmware => FirmwareWriter.Value;
 
     private static readonly Lazy<IFirmwareWriter?> FirmwareWriter = new(() => Headset is { } headset
-        ? new PretendFirmwareWriter(headset.Flash, Core.Firmware.FirmwareEdit.NoiseCycle.FirmwareBuild, Given(FirmwareRevertsFlag))
+        ? new PretendFirmwareWriter(headset.Flash, Given(FirmwareRevertsFlag))
         : null);
 
     /// <summary>Whether a pretend run is shown in high contrast.</summary>

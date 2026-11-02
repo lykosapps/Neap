@@ -102,7 +102,7 @@ system tried with a real headset.
 | Voice prompt for each transmitter (none, 1–4) | Listed | Unknown: not yet found | Missing | — | — | Unknown | Turtle Beach's article lists it under Charging Hub. Find where it's kept. |
 | Voice prompt volume | Listed; mobile app only since June 2026 | Yes | Has | Confirmed | Confirmed | `0x2D0` | Swarm II's desktop app has had it switched off since 1.0.0.47. |
 | Dock light brightness, two lights | Listed | Yes | Has | Confirmed | Confirmed | `0x401`, `0x402` | — |
-| Firmware updates | Listed | Yes, but Neap leaves updates to Swarm II | Not planned | — | — | — | Neap never updates the firmware. SP2Tools' firmware edits have a page in Neap, kept out of every release until Neap's own writer is proven on a headset (DECISIONS.md, 22 October); a firmware write is the riskiest thing Neap could do. |
+| Firmware updates | Listed | Yes, but Neap leaves updates to Swarm II | Not planned | — | — | — | Neap never updates the firmware. SP2Tools' firmware edits have a page in Neap, kept out of every release until Neap's own writer is proven on a headset (built 2 November 2026: live state from the flash, download mode found and read on the owner's headset, writes untried; checks 37-44 in `docs/design/HEADSET-CHECKS.md`) (DECISIONS.md, 22 October); a firmware write is the riskiest thing Neap could do. |
 
 ### Swarm II's own settings
 
@@ -152,6 +152,12 @@ system tried with a real headset.
 
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
+
+- 2026-11-02 — Neap's firmware writer, read-only on the owner's headset: Neap's
+  own download-mode code found the chip on COM8 in its first poll, shook hands,
+  read the first firmware word 400107A2 and the three edited sections byte for
+  byte as read through the dock (SP2Tools F303). The edits' state is now read
+  live from the flash. Nothing written; checks 37-44 wait for the owner.
 
 - 2026-10-31 — Owner, Parametric headset checks with the try-it copy, through the Charging Dock: 34 (turn on, a built-in shape, an edit, Discard, Turn off from the menu, Swarm II's presets as before), 35 (Compare, and switching windows while held) and 36 (Bands and back) pass. 33, the Mode button stepping game presets: the headset goes to the ten bands; Neap noticed but its Equaliser page stayed on Parametric, fixed the same day and confirmed on the headset (the page goes to Bands and says so). 32, the phone app's change, passes with Neap open and with Neap closed. 31, a Swarm II flash, is skipped for 0.4.0 by the owner's call, as it would replace the owner's edited firmware; the screen check covers what Neap does after one. Turning on now first reads band 1: through the dock it answered 31.5 Hz on the first try.
 - 2026-10-31 — Owner: several users on Reddit have used Neap with the PlayStation edition and report it working. The README lists it as supported. Which ids it has, and which features each tried, is not recorded.

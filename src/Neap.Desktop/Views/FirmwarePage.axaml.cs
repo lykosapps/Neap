@@ -321,8 +321,7 @@ public partial class FirmwarePage : UserControl
 
     private static string PlanWords(EditPlan plan) =>
         plan.Nothing ? Strings.Get("Firmware_PlanNothing")
-        : plan.UpToSectors ? Strings.Format("Firmware_PlanUpTo", plan.Sectors.Count, plan.Sessions)
-        : plan.Sessions > 1 ? Strings.Format("Firmware_PlanMany", plan.Sectors.Count, plan.Sessions)
+        : plan.UpToSectors ? Strings.Format("Firmware_PlanUpTo", plan.Sectors.Count)
         : plan.Sectors.Count == 1 ? Strings.Get("Firmware_PlanOneSection")
         : Strings.Format("Firmware_PlanOnePlugIn", plan.Sectors.Count);
 

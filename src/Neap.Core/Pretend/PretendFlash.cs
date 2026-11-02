@@ -1,50 +1,63 @@
+using System.Security.Cryptography;
 using Neap.Core.Firmware;
 
 namespace Neap.Core.Pretend;
 
 /// <summary>The pretend headset's flash, as far as the firmware edits touch it.</summary>
 /// <remarks>
-/// Each section remembers which edits it holds; a byte an edit changes reads
-/// as the edit's where its section holds the edit and as factory where it does
-/// not, and every other byte reads as empty flash. The pretend writer changes
-/// the sections and the pretend headset answers reads from them, so the
-/// Firmware page sees what it would on a headset.
+/// <para>
+/// It holds whole sections, so the pretend run is written, read back and
+/// checked as a headset is. Neap carries no factory firmware, so the pretend
+/// factory sections are made up: filler, with each edit's factory bytes in
+/// their places, and empty flash for the section of new code. Their hashes
+/// stand in for <see cref="FirmwareEdit.FactorySections"/>.
+/// </para>
+/// <para>
+/// The pretend writer changes the sections and the pretend headset answers
+/// flash reads from them, so the Firmware page sees what it would on a headset.
+/// </para>
 /// </remarks>
 public sealed class PretendFlash
 {
     private readonly Lock _gate = new();
-    private readonly Dictionary<int, HashSet<string>> _held = [];
+    private readonly Dictionary<int, byte[]> _sections;
 
-    /// <summary>The edits a section holds.</summary>
-    public IReadOnlySet<string> Holds(int sector)
+    public PretendFlash()
     {
-        lock (_gate) return _held.TryGetValue(sector, out var ids) ? ids.ToHashSet() : [];
+        _sections = FirmwareEdit.FactorySections.Keys.ToDictionary(sector => sector, Factory);
+        FactorySections = _sections.ToDictionary(pair => pair.Key, pair => Convert.ToHexString(SHA256.HashData(pair.Value)));
     }
 
-    /// <summary>Has a section hold exactly these edits.</summary>
-    public void Write(int sector, IEnumerable<string> ids)
+    /// <summary>The SHA-256 of each pretend factory section.</summary>
+    public IReadOnlyDictionary<int, string> FactorySections { get; }
+
+    /// <summary>A whole section as it is now.</summary>
+    public byte[] Read(int sector)
     {
-        lock (_gate) _held[sector] = ids.ToHashSet();
+        lock (_gate) return _sections.TryGetValue(sector, out var bytes) ? bytes.ToArray() : Empty();
+    }
+
+    /// <summary>Has a section hold these bytes.</summary>
+    public void Write(int sector, ReadOnlySpan<byte> bytes)
+    {
+        lock (_gate) _sections[sector] = bytes.ToArray();
     }
 
     /// <summary>The four bytes at an address.</summary>
     public byte[] Word(int address)
     {
-        var word = new byte[FlashRead.WordSize];
-        for (int i = 0; i < word.Length; i++) word[i] = Byte(address + i);
-        return word;
+        int sector = address & ~(FirmwareEdit.SectorSize - 1);
+        return Read(sector).AsSpan(address - sector, FlashRead.WordSize).ToArray();
     }
 
-    private byte Byte(int address)
+    private static byte[] Factory(int sector)
     {
-        foreach (var edit in FirmwareEdit.All)
-            foreach (var change in edit.Changes)
-            {
-                int at = address - change.Address;
-                if (at < 0 || at >= change.Factory.Count) continue;
-                bool held = Holds(change.Address & ~(FirmwareEdit.SectorSize - 1)).Contains(edit.Id);
-                return (held ? change.Active : change.Factory)[at];
-            }
-        return 0xFF;
+        bool code = FirmwareEdit.All.SelectMany(edit => edit.Changes).Any(change => change.Address == sector && change.Factory.All(b => b == 0xFF));
+        var bytes = code ? Empty() : Enumerable.Range(0, FirmwareEdit.SectorSize).Select(i => (byte)(i * 31 + (sector >> 12))).ToArray();
+        foreach (var change in FirmwareEdit.All.SelectMany(edit => edit.Changes).Where(change => (change.Address & ~(FirmwareEdit.SectorSize - 1)) == sector))
+            change.Factory.ToArray().CopyTo(bytes, change.Address - sector);
+        return bytes;
     }
+
+    private static byte[] Empty() => Enumerable.Repeat((byte)0xFF, FirmwareEdit.SectorSize).ToArray();
 }

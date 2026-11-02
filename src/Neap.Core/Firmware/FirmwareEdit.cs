@@ -53,8 +53,9 @@ public enum EditBlocker
 
 /// <summary>One step of writing the edits, in the order they run.</summary>
 /// <remarks>
-/// From <see cref="Plug"/> to <see cref="Reconnect"/> is one session in the
-/// headset's download mode, and runs once for each session the plan needs.
+/// The headset is plugged in once. <see cref="Backup"/> to <see cref="Verify"/>
+/// run once for each session the plan needs: after a write the chip restarts
+/// with the cable still in and comes back in download mode by itself.
 /// </remarks>
 public enum EditStep
 {
@@ -64,17 +65,19 @@ public enum EditStep
     /// <summary>The person switches the headset off and plugs USB-C into the left ear cup.</summary>
     Plug,
 
-    /// <summary>Neap reaches the headset in download mode and reads which firmware is on the chip.</summary>
+    /// <summary>Neap reaches the headset's chip in download mode.</summary>
     Connect,
+
+    /// <summary>Neap saves each section, and checks it holds the factory firmware and Neap's edits, nothing else.</summary>
 
     Backup,
 
     Write,
 
-    /// <summary>The headset reads back what it wrote, and puts stock back itself if it does not match.</summary>
+    /// <summary>Neap reads back what was written, and puts back what was there if it does not match.</summary>
     Verify,
 
-    /// <summary>The person unplugs the cable and switches the headset on.</summary>
+    /// <summary>The person unplugs the cable, and the headset starts by itself.</summary>
     Reconnect,
 
     /// <summary>The flash is read to see the edits took.</summary>
@@ -245,19 +248,20 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     /// <param name="sector">The section, by address.</param>
     /// <param name="held">The section as read from the headset.</param>
     /// <param name="wanted">The edits ticked.</param>
+    /// <param name="factory">The SHA-256 of each factory section, as <see cref="FactorySections"/> holds them for a headset.</param>
     /// <returns>
     /// The section to write, or null where the section with every edit taken out
     /// is not the factory one, so writing it would keep something Neap does not know.
     /// </returns>
-    public static byte[]? Compose(int sector, ReadOnlySpan<byte> held, IReadOnlySet<FirmwareEdit> wanted)
+    public static byte[]? Compose(int sector, ReadOnlySpan<byte> held, IReadOnlySet<FirmwareEdit> wanted, IReadOnlyDictionary<int, string> factory)
     {
-        if (held.Length != SectorSize || !FactorySections.TryGetValue(sector, out string? factory)) return null;
+        if (held.Length != SectorSize || !factory.TryGetValue(sector, out string? factoryHash)) return null;
         byte[] section = held.ToArray();
         var inSector = All.SelectMany(edit => edit.Changes.Select(change => (edit, change)))
             .Where(pair => pair.change.Address - sector is >= 0 and < SectorSize)
             .ToList();
         foreach (var (_, change) in inSector) Put(section, sector, change.Address, change.Factory);
-        if (!Convert.ToHexString(SHA256.HashData(section)).Equals(factory, StringComparison.Ordinal)) return null;
+        if (!Convert.ToHexString(SHA256.HashData(section)).Equals(factoryHash, StringComparison.Ordinal)) return null;
         foreach (var (edit, change) in inSector.Where(pair => wanted.Contains(pair.edit))) Put(section, sector, change.Address, change.Active);
         return section;
     }
@@ -284,11 +288,6 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
         int sessions = (sectors.Count + SectorsPerSession - 1) / SectorsPerSession;
         return new EditPlan(changing, sectors, sessions, UpToSectors: installed is null);
     }
-
-    /// <summary>The ticked edits that a section holds once it is written.</summary>
-    /// <remarks>Everything else in the section is stock.</remarks>
-    public static IReadOnlyList<FirmwareEdit> In(int sector, IReadOnlySet<FirmwareEdit> wanted) =>
-        All.Where(edit => wanted.Contains(edit) && edit.Sectors.Contains(sector)).ToList();
 
     /// <summary>The sections written in each session, in order.</summary>
     public static IReadOnlyList<IReadOnlyList<int>> Sessions(EditPlan plan) =>

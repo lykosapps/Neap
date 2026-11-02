@@ -49,7 +49,8 @@ public class FlashReadTests
 
         Assert.Equal(Call.Factory, client.ReadFlash(Call.Address, Call.Factory.Count, Wait));
 
-        headset.Flash.Write(0x08232000, [Cycle.Id]);
+        var flash = headset.Flash;
+        flash.Write(0x08232000, FirmwareEdit.Compose(0x08232000, flash.Read(0x08232000), new HashSet<FirmwareEdit> { Cycle }, flash.FactorySections)!);
         Assert.Equal(Call.Active, client.ReadFlash(Call.Address, Call.Factory.Count, Wait));
     }
 
@@ -57,17 +58,31 @@ public class FlashReadTests
     public void ARunNotOnAWordBoundaryIsCutFromTheWordsRead()
     {
         var headset = new PretendHeadset();
-        headset.Flash.Write(0x082F9000, [FirmwareEdit.LightOffWhenDisconnected.Id]);
+        headset.Flash.Write(0x082F9000, FirmwareEdit.Compose(0x082F9000, headset.Flash.Read(0x082F9000),
+            new HashSet<FirmwareEdit> { FirmwareEdit.LightOffWhenDisconnected }, headset.Flash.FactorySections)!);
         using var client = new HeadsetClient(transport: headset.Open());
 
         Assert.Equal([0x00], client.ReadFlash(0x082F9B94, 1, Wait));
     }
 
     [Fact]
+    public void ThePretendFactorySectionsPassTheirOwnFactoryCheck()
+    {
+        var flash = new PretendFlash();
+        Assert.All(FirmwareEdit.FactorySections.Keys, sector =>
+            Assert.Equal(flash.Read(sector), FirmwareEdit.Compose(sector, flash.Read(sector), new HashSet<FirmwareEdit>(), flash.FactorySections)));
+    }
+
+    [Fact]
+    public void ThePretendSectionOfNewCodeIsEmptyFlashAsOnAHeadset() =>
+        Assert.Equal(FirmwareEdit.FactorySections[0x08349000], new PretendFlash().FactorySections[0x08349000]);
+
+    [Fact]
     public void TheStatusFollowsWhatThePretendFlashHolds()
     {
         var headset = new PretendHeadset();
-        headset.Flash.Write(0x08349000, [Cycle.Id]);
+        headset.Flash.Write(0x08349000, FirmwareEdit.Compose(0x08349000, headset.Flash.Read(0x08349000),
+            new HashSet<FirmwareEdit> { Cycle }, headset.Flash.FactorySections)!);
         using var client = new HeadsetClient(transport: headset.Open());
         var flash = Cycle.Changes.ToDictionary(change => change.Address, change => client.ReadFlash(change.Address, change.Factory.Count, Wait)!);
 

@@ -1814,7 +1814,7 @@
     <value>Firmware</value>
   </data>
   <data name="Firmware_Intro.Text" xml:space="preserve">
-    <value>Edits change your headset's firmware. Neap backs up each section before writing it, and the headset puts stock back itself if a write doesn't verify. An edit can still stop the headset starting, and Turtle Beach can't help with an edited headset.</value>
+    <value>Edits change your headset's firmware. Neap backs up each section before writing it, reads each write back, and puts back what was there if it doesn't match. An edit can still stop the headset starting, and Turtle Beach can't help with an edited headset. A Swarm II update or recovery removes the edits.</value>
   </data>
   <data name="Firmware_StepState" xml:space="preserve">
     <value>{0}: {1}</value>
@@ -1824,7 +1824,7 @@
     <value>This version of Neap can't install edits yet</value>
   </data>
   <data name="Firmware_CannotWrite.Message" xml:space="preserve">
-    <value>It shows which edits fit your headset. Installing and removing them works in pretend mode only for now.</value>
+    <value>It shows which edits fit your headset and whether they're on. This headset's firmware can't be changed from Neap.</value>
   </data>
   <data name="Firmware_EditsHeading.Text" xml:space="preserve">
     <value>Edits for this headset</value>
@@ -1965,12 +1965,8 @@
     <value>Writes {0} sections of the headset's firmware, with one plug-in.</value>
     <comment>{0} is a number of sections, more than one.</comment>
   </data>
-  <data name="Firmware_PlanMany" xml:space="preserve">
-    <value>Writes {0} sections of the headset's firmware, with {1} plug-ins.</value>
-    <comment>{0} is a number of sections, {1} a number of plug-ins, both more than one.</comment>
-  </data>
   <data name="Firmware_PlanUpTo" xml:space="preserve">
-    <value>Neap can't tell which edits are on, so it reads each section first and writes only those that differ: up to {0} sections, with up to {1} plug-ins.</value>
+    <value>Neap can't tell which edits are on, so it reads each section first and writes only those that differ: up to {0} sections, with one plug-in.</value>
     <comment>{0} is a number of sections, {1} a number of plug-ins.</comment>
   </data>
   <data name="Firmware_ApplyTitle" xml:space="preserve">
@@ -1980,7 +1976,7 @@
     <value>Restore stock firmware?</value>
   </data>
   <data name="Firmware_ApplyWarning" xml:space="preserve">
-    <value>You'll switch the headset off and plug a USB-C cable into its left ear cup. Neap backs up each section first, and the headset checks each write and puts stock back itself if it doesn't match. An edit can still stop the headset starting.</value>
+    <value>You'll switch the headset off and plug a USB-C cable into its left ear cup. Keep it plugged in until Neap says to unplug. Neap backs up each section first, reads each write back and puts back what was there if it doesn't match. An edit can still stop the headset starting.</value>
   </data>
   <data name="Firmware_RunApplying" xml:space="preserve">
     <value>Applying edits</value>
@@ -1996,16 +1992,16 @@
     <comment>{0} and {1} are numbers of plug-ins.</comment>
   </data>
   <data name="Firmware_GuidePlug" xml:space="preserve">
-    <value>Switch the headset off, then plug a USB-C cable from this PC into its left ear cup.</value>
+    <value>Switch the headset off, then plug a USB-C cable from this PC into its left ear cup. Don't press Power.</value>
   </data>
   <data name="Firmware_GuideReconnect" xml:space="preserve">
-    <value>Unplug the cable from the ear cup and switch the headset on.</value>
+    <value>Unplug the cable. The headset starts by itself in about half a minute.</value>
   </data>
   <data name="Firmware_StepPlug" xml:space="preserve">
     <value>Plug in</value>
   </data>
   <data name="Firmware_StepConnect" xml:space="preserve">
-    <value>Check the firmware on the chip</value>
+    <value>Reach the headset</value>
   </data>
   <data name="Firmware_StepVerify" xml:space="preserve">
     <value>Verify</value>
@@ -2024,16 +2020,16 @@
     <value>Done. The headset has the edits you ticked.</value>
   </data>
   <data name="Firmware_OutcomeUnconfirmed" xml:space="preserve">
-    <value>Written and verified. The headset doesn't say which edits it has yet, so Neap can't confirm them.</value>
+    <value>Written and read back. Neap couldn't read the headset after it restarted, so it can't confirm the edits yet.</value>
   </data>
   <data name="Firmware_OutcomeCancelled" xml:space="preserve">
     <value>Stopped while waiting for the headset. Nothing was written after that.</value>
   </data>
   <data name="Firmware_OutcomeRefused" xml:space="preserve">
-    <value>Nothing was written: the firmware on the headset's chip isn't the one these edits are made for.</value>
+    <value>Nothing was written: part of the headset's firmware isn't the factory firmware these edits are made for.</value>
   </data>
   <data name="Firmware_OutcomeReverted" xml:space="preserve">
-    <value>A section didn't verify, so the headset put it back to stock itself. The headset starts as before, but the edits may be only partly on.</value>
+    <value>A section didn't read back as written, so Neap put back what was there. The headset starts as before, but the edits may be only partly on.</value>
   </data>
   <data name="Firmware_OutcomeFailed" xml:space="preserve">
     <value>A step failed, and the app log says which. If the headset doesn't start, restore the newest backups below.</value>
@@ -2043,7 +2039,7 @@
     <comment>{0} is when the backup was made, {1} the section's address, {2} the firmware version it was taken from.</comment>
   </data>
   <data name="Firmware_RestoreWarning" xml:space="preserve">
-    <value>You'll switch the headset off and plug a USB-C cable into its left ear cup. Neap writes the section as the backup holds it, and the headset checks the write.</value>
+    <value>You'll switch the headset off and plug a USB-C cable into its left ear cup. Neap writes the section as the backup holds it and reads it back.</value>
   </data>
   <data name="Parametric_BandCurveName" xml:space="preserve">
     <value>Equaliser curve</value>

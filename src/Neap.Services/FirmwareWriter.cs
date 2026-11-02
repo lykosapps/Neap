@@ -1,116 +1,168 @@
-using System.Text;
+using Neap.Core.Connection;
 using Neap.Core.Firmware;
 using Neap.Core.Pretend;
 
 namespace Neap.Services;
 
-/// <summary>How a section's write ended, as the headset said after reading it back.</summary>
-public enum WriteResult
-{
-    /// <summary>What was read back is what was written.</summary>
-    Verified,
-
-    /// <summary>It did not match, and the headset put stock back itself before restarting.</summary>
-    Reverted,
-}
-
-/// <summary>What writes sections of a headset's firmware, in its download mode.</summary>
+/// <summary>What reads and writes sections of a headset's firmware, in its download mode.</summary>
 /// <remarks>
 /// <para>
-/// Pretend mode has <see cref="PretendFirmwareWriter"/>. A writer for a real
-/// headset is still to come, ported from SP2Tools' flasher; until then a real
-/// headset has none, and nothing is written to it.
+/// A writer does what it is asked and throws when it cannot.
+/// <see cref="FirmwareEditService"/> decides what is written and in what
+/// order, saves the backups, reads each write back and puts a section back
+/// as it was when the read back does not match.
 /// </para>
 /// <para>
-/// A writer does what it is asked and throws when it cannot.
-/// <see cref="FirmwareEditService"/> decides the order and what is written.
+/// One plug-in serves the whole job: after a write the chip restarts with the
+/// cable still in, and the writer greets it again in download mode before
+/// <see cref="Write"/> returns.
 /// </para>
 /// </remarks>
 public interface IFirmwareWriter
 {
-    /// <summary>Waits until the headset is plugged in in download mode.</summary>
+    /// <summary>The SHA-256 of each factory section on this headset, by address.</summary>
+    IReadOnlyDictionary<int, string> FactorySections { get; }
+
+    /// <summary>Waits until the person has plugged the switched-off headset in, and greets it in download mode.</summary>
     Task WaitForDownloadMode(CancellationToken cancel);
 
-    /// <summary>Reaches the headset in download mode, and gives the firmware version on its chip.</summary>
-    Task<string> Connect();
+    /// <summary>Reads a whole section.</summary>
+    Task<byte[]> Read(int sector);
 
-    /// <summary>Saves a section as it is now, and gives the file it went to.</summary>
-    Task<string> Backup(int sector, string folder);
+    /// <summary>Writes one or two sections, then waits for the chip to come back in download mode.</summary>
+    /// <param name="sections">Each section's address and its bytes, in the order written.</param>
+    /// <param name="percent">Told how far the write has got, from 0 to 100.</param>
+    Task Write(IReadOnlyList<(int Sector, byte[] Bytes)> sections, IProgress<int> percent);
 
-    /// <summary>Writes a section as stock with these edits in it.</summary>
-    /// <param name="sector">The section, by address.</param>
-    /// <param name="held">The edits the section holds once written; everything else in it is stock.</param>
-    /// <param name="percent">Told how much is written, from 0 to 100.</param>
-    Task Write(int sector, IReadOnlyList<FirmwareEdit> held, IProgress<int> percent);
-
-    /// <summary>Has the headset read back the section it last wrote, and put stock back itself if it does not match.</summary>
-    Task<WriteResult> Verify(int sector);
-
-    /// <summary>Writes a section back as a backup holds it, and verifies it the same way.</summary>
-    Task<WriteResult> Restore(string backup, IProgress<int> percent);
-
-    /// <summary>Waits until the headset is back, connected as usual.</summary>
+    /// <summary>Lets the headset go, and waits until it is back, connected as usual.</summary>
     Task WaitForHeadset(CancellationToken cancel);
+}
+
+/// <summary>Writes a Stealth Pro II's firmware through its chip's download mode.</summary>
+/// <remarks>
+/// <para>
+/// The sections' bytes are loaded at <see cref="WriteProgram.PayloadAddress"/>,
+/// the program that writes them at <see cref="WriteProgram.LoadAddress"/>, and
+/// the program is started. It erases and programs each section and restarts
+/// the chip, so the port goes; with the cable still in, the chip comes back in
+/// download mode for half a second and is greeted again (SP2Tools F290).
+/// </para>
+/// <para>
+/// After the person unplugs, the chip's session ends on its own in about 30
+/// seconds and the headset starts by itself (F292).
+/// </para>
+/// </remarks>
+/// <param name="headset">The headset's connection as usual, to see it come back.</param>
+public sealed class BootRomFirmwareWriter(HeadsetService headset) : IFirmwareWriter
+{
+    private static readonly TimeSpan PortGone = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan BackAgain = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan HeadsetBack = TimeSpan.FromMinutes(2);
+
+    private BootRom? _chip;
+
+    public IReadOnlyDictionary<int, string> FactorySections => FirmwareEdit.FactorySections;
+
+    public async Task WaitForDownloadMode(CancellationToken cancel)
+    {
+        Release();
+        _chip = await BootRomPort.Open(cancel);
+    }
+
+    public Task<byte[]> Read(int sector) => Task.Run(() =>
+        Chip.ReadSector(sector) ?? throw new IOException($"section {sector:X8} could not be read in download mode"));
+
+    public async Task Write(IReadOnlyList<(int Sector, byte[] Bytes)> sections, IProgress<int> percent)
+    {
+        var program = WriteProgram.For(sections.Select(section => section.Sector).ToList());
+        byte[] payload = [.. sections.SelectMany(section => section.Bytes)];
+        await Task.Run(() =>
+        {
+            percent.Report(0);
+            if (!Chip.SendDa(WriteProgram.PayloadAddress, payload)) throw new IOException("the chip did not take the sections' bytes");
+            percent.Report(40);
+            if (!Chip.SendDa(WriteProgram.LoadAddress, program)) throw new IOException("the chip did not take the program that writes them");
+            percent.Report(50);
+            Chip.JumpDa(WriteProgram.LoadAddress | 1);
+        });
+        Release();
+
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        while (BootRomPort.Present && clock.Elapsed < PortGone) await Task.Delay(50);
+        if (BootRomPort.Present) throw new IOException("the chip did not restart after writing; the sections may be part written");
+        percent.Report(80);
+        using var back = new CancellationTokenSource(BackAgain);
+        try
+        {
+            _chip = await BootRomPort.Open(back.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            throw new IOException("the chip did not come back in download mode to be read back; is the cable still in?");
+        }
+        percent.Report(100);
+    }
+
+    /// <remarks>A headset not back in time is left for the confirming read to find unreadable, rather than failing here.</remarks>
+    public async Task WaitForHeadset(CancellationToken cancel)
+    {
+        Release();
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        while (headset.Status.Link != Link.Connected && clock.Elapsed < HeadsetBack) await Task.Delay(250, cancel);
+    }
+
+    private BootRom Chip => _chip ?? throw new InvalidOperationException("the headset is not in download mode");
+
+    private void Release()
+    {
+        _chip?.Dispose();
+        _chip = null;
+    }
 }
 
 /// <summary>The pretend headset's firmware: the whole flow, with a pause at each step, and nothing real written.</summary>
 /// <remarks>
-/// It writes the pretend headset's <see cref="PretendFlash"/>, which the
-/// headset's flash reads answer from, so a plan cut short shows as it would on
-/// a headset. The person plugging the headset in is a short wait.
+/// It reads and writes the pretend headset's <see cref="PretendFlash"/>, which
+/// the headset's flash reads answer from, so a run cut short shows as it would
+/// on a headset. The person plugging the headset in is a short wait.
 /// </remarks>
 /// <param name="flash">The pretend headset's flash.</param>
-/// <param name="build">The firmware version its chip holds.</param>
-/// <param name="reverts">Whether every write fails its read back, so the headset's own revert can be seen.</param>
-public sealed class PretendFirmwareWriter(PretendFlash flash, string build, bool reverts) : IFirmwareWriter
+/// <param name="lost">Whether every write is lost, so a write that does not read back, and Neap putting the section back, can be seen.</param>
+public sealed class PretendFirmwareWriter(PretendFlash flash, bool lost) : IFirmwareWriter
 {
     private static readonly TimeSpan Pause = TimeSpan.FromMilliseconds(600);
     private static readonly TimeSpan Plugging = TimeSpan.FromSeconds(3);
+    private bool _lostOnce;
 
-    private (int Sector, IReadOnlyList<FirmwareEdit> Held)? _written;
+    public IReadOnlyDictionary<int, string> FactorySections => flash.FactorySections;
 
     public Task WaitForDownloadMode(CancellationToken cancel) => Task.Delay(Plugging, cancel);
 
-    public async Task<string> Connect()
+    public async Task<byte[]> Read(int sector)
     {
         await Task.Delay(Pause);
-        return build;
+        return flash.Read(sector);
     }
 
-    public async Task<string> Backup(int sector, string folder)
-    {
-        await Task.Delay(Pause);
-        Directory.CreateDirectory(folder);
-        string file = Path.Combine(folder, FirmwareBackup.FileName(DateTime.Now, sector, build));
-        await File.WriteAllTextAsync(file, string.Join('\n', flash.Holds(sector)), Encoding.UTF8);
-        return file;
-    }
-
-    public async Task Write(int sector, IReadOnlyList<FirmwareEdit> held, IProgress<int> percent)
+    public async Task Write(IReadOnlyList<(int Sector, byte[] Bytes)> sections, IProgress<int> percent)
     {
         for (int done = 0; done <= 100; done += 10)
         {
             percent.Report(done);
             await Task.Delay(Pause / 6);
         }
-        _written = (sector, held);
+        // Lost once, so the put back that follows lands and the headset is left as it was.
+        if (lost && !_lostOnce)
+        {
+            _lostOnce = true;
+            return;
+        }
+        foreach (var (sector, bytes) in sections) flash.Write(sector, bytes);
     }
 
-    public async Task<WriteResult> Verify(int sector)
+    public Task WaitForHeadset(CancellationToken cancel)
     {
-        await Task.Delay(Pause);
-        if (reverts || _written is not { } written || written.Sector != sector) return WriteResult.Reverted;
-        flash.Write(sector, written.Held.Select(edit => edit.Id));
-        return WriteResult.Verified;
+        _lostOnce = false;
+        return Task.Delay(Plugging, cancel);
     }
-
-    public async Task<WriteResult> Restore(string backup, IProgress<int> percent)
-    {
-        var saved = FirmwareBackup.Of(backup) ?? throw new InvalidDataException($"{Path.GetFileName(backup)} is not a backup Neap made");
-        var ids = (await File.ReadAllTextAsync(backup)).Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        await Write(saved.Sector, FirmwareEdit.All.Where(edit => ids.Contains(edit.Id)).ToList(), percent);
-        return await Verify(saved.Sector);
-    }
-
-    public Task WaitForHeadset(CancellationToken cancel) => Task.Delay(Plugging, cancel);
 }

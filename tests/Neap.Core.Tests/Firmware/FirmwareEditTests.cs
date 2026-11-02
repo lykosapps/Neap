@@ -114,25 +114,25 @@ public class FirmwareEditTests
 
     [Fact]
     public void TickingAnEditPutsItsBytesInAndLeavesTheRestAsHeld() =>
-        Assert.Equal(WithCode(), FirmwareEdit.Compose(CodeSector, Empty(), Set(Cycle)));
+        Assert.Equal(WithCode(), FirmwareEdit.Compose(CodeSector, Empty(), Set(Cycle), FirmwareEdit.FactorySections));
 
     [Fact]
     public void UntickingAnEditPutsTheFactoryBytesBack() =>
-        Assert.Equal(Empty(), FirmwareEdit.Compose(CodeSector, WithCode(), Set()));
+        Assert.Equal(Empty(), FirmwareEdit.Compose(CodeSector, WithCode(), Set(), FirmwareEdit.FactorySections));
 
     [Fact]
     public void ASectionHoldingSomethingUnknownIsNotWritten()
     {
         byte[] held = Empty();
         held[0x800] = 0;
-        Assert.Null(FirmwareEdit.Compose(CodeSector, held, Set(Cycle)));
+        Assert.Null(FirmwareEdit.Compose(CodeSector, held, Set(Cycle), FirmwareEdit.FactorySections));
     }
 
     [Fact]
-    public void APartSectionIsNotWritten() => Assert.Null(FirmwareEdit.Compose(CodeSector, Empty().AsSpan(0, 16), Set(Cycle)));
+    public void APartSectionIsNotWritten() => Assert.Null(FirmwareEdit.Compose(CodeSector, Empty().AsSpan(0, 16), Set(Cycle), FirmwareEdit.FactorySections));
 
     [Fact]
-    public void ASectionNoEditTouchesIsNotWritten() => Assert.Null(FirmwareEdit.Compose(0x08100000, Empty(), Set(Cycle)));
+    public void ASectionNoEditTouchesIsNotWritten() => Assert.Null(FirmwareEdit.Compose(0x08100000, Empty(), Set(Cycle), FirmwareEdit.FactorySections));
 
     // -- the plan ---------------------------------------------------------------
 
@@ -192,13 +192,6 @@ public class FirmwareEditTests
         var plan = FirmwareEdit.Plan(Edits, Set(Light), installed: null);
         Assert.True(plan.UpToSectors);
         Assert.Equal(3, plan.Sectors.Count);
-    }
-
-    [Fact]
-    public void ASectionHoldsOnlyTheTickedEditsInIt()
-    {
-        Assert.Equal([Light], FirmwareEdit.In(0x082F9000, Set(Cycle, Light)));
-        Assert.Empty(FirmwareEdit.In(0x082F9000, Set(Cycle)));
     }
 
     // -- before writing ---------------------------------------------------------

@@ -172,6 +172,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         if (writer is null) throw new InvalidOperationException("this headset's firmware cannot be written by this build");
         var plan = Plan(wanted);
         var sessions = FirmwareEdit.Sessions(plan);
+        string build = Build ?? "unknown";
         AppLog.Write(string.Create(CultureInfo.InvariantCulture,
             $"firmware edits: applying [{string.Join(", ", wanted.Select(edit => edit.Id))}], {plan.Sectors.Count} sections in {sessions.Count} sessions: {string.Join(", ", plan.Sectors.Select(sector => sector.ToString("X8", CultureInfo.InvariantCulture)))}"));
 
@@ -181,36 +182,47 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             var blockers = FirmwareEdit.Blockers(plan.Changing, Readiness);
             if (blockers.Count > 0) return Stop(ApplyResult.Failed, $"not ready: {string.Join(", ", blockers)}");
 
+            say(EditStep.Plug, 1, null);
+            await writer.WaitForDownloadMode(cancel);
+            say(EditStep.Connect, 1, null);
+
             int session = 0;
             foreach (var sectors in sessions)
             {
                 session++;
-                say(EditStep.Plug, session, null);
-                await writer.WaitForDownloadMode(cancel);
-                say(EditStep.Connect, session, null);
-                string chip = await writer.Connect();
-                if (plan.Changing.Any(edit => edit.FirmwareBuild != chip))
-                    return Stop(ApplyResult.Refused, $"the chip holds firmware {chip}, which the edits are not made for");
+                say(EditStep.Backup, session, null);
+                var before = new List<(int Sector, byte[] Bytes)>();
+                var after = new List<(int Sector, byte[] Bytes)>();
                 foreach (int sector in sectors)
                 {
-                    say(EditStep.Backup, session, null);
-                    Backed(await writer.Backup(sector, BackupFolder));
-                    say(EditStep.Write, session, 0);
-                    await writer.Write(sector, FirmwareEdit.In(sector, wanted), new Reporter(done => say(EditStep.Write, session, done)));
-                    say(EditStep.Verify, session, null);
-                    if (await writer.Verify(sector) == WriteResult.Reverted)
-                        return Stop(ApplyResult.Reverted, string.Create(CultureInfo.InvariantCulture, $"section {sector:X8} did not read back as written, and the headset put stock back"));
+                    byte[] held = await writer.Read(sector);
+                    Backed(SaveBackup(sector, held, build));
+                    if (FirmwareEdit.Compose(sector, held, wanted, writer.FactorySections) is not { } section)
+                        return Stop(ApplyResult.Refused, Hex($"section {sector:X8} holds something other than the factory firmware and Neap's edits"));
+                    before.Add((sector, held));
+                    after.Add((sector, section));
                 }
-                say(EditStep.Reconnect, session, null);
-                await writer.WaitForHeadset(CancellationToken.None);
+                if (after.Zip(before).All(pair => pair.First.Bytes.AsSpan().SequenceEqual(pair.Second.Bytes)))
+                {
+                    AppLog.Write($"firmware edits: session {session} already holds what is wanted; nothing written");
+                    continue;
+                }
+
+                if (await WriteAndCheck(after, say, session)) continue;
+                AppLog.Write($"firmware edits: session {session} did not read back as written; putting back what was there");
+                return await WriteAndCheck(before, say, session)
+                    ? Stop(ApplyResult.Reverted, "a section did not read back as written; what was there before is back")
+                    : Stop(ApplyResult.Failed, "a section did not read back as written, and putting back what was there did not read back either");
             }
 
+            say(EditStep.Reconnect, session, null);
+            await writer.WaitForHeadset(CancellationToken.None);
             say(EditStep.Confirm, session, null);
             Flash = await ReadEditedFlash();
-            if (Flash is null) return Stop(ApplyResult.Unconfirmed, "written and verified; the flash could not be read to confirm it");
+            if (Flash is null) return Stop(ApplyResult.Unconfirmed, "written and read back; the flash could not be read to confirm it after the restart");
             if (Installed is not { } on || !on.SetEquals(wanted))
                 return Stop(ApplyResult.Failed, $"the flash shows [{string.Join(", ", Edits.Select(edit => $"{edit.Id} {StatusOf(edit)}"))}] after the restart");
-            return Stop(ApplyResult.Done, "every section written, verified and confirmed");
+            return Stop(ApplyResult.Done, "every section written, read back and confirmed");
         });
     }
 
@@ -222,16 +234,15 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
 
         return await Run(1, report, cancel: cancel, steps: async say =>
         {
+            byte[] saved = await File.ReadAllBytesAsync(backup.File, cancel);
+            if (saved.Length != FirmwareEdit.SectorSize) return Stop(ApplyResult.Refused, $"{Path.GetFileName(backup.File)} is not a whole section");
             say(EditStep.Plug, 1, null);
             await writer.WaitForDownloadMode(cancel);
             say(EditStep.Connect, 1, null);
-            string chip = await writer.Connect();
-            if (chip != backup.FirmwareBuild)
-                return Stop(ApplyResult.Refused, $"the chip holds firmware {chip}, and the backup was taken from {backup.FirmwareBuild}");
-            say(EditStep.Write, 1, 0);
-            var result = await writer.Restore(backup.File, new Reporter(done => say(EditStep.Write, 1, done)));
-            say(EditStep.Verify, 1, null);
-            if (result == WriteResult.Reverted) return Stop(ApplyResult.Reverted, "the backup did not read back as written, and the headset put stock back");
+            say(EditStep.Backup, 1, null);
+            Backed(SaveBackup(backup.Sector, await writer.Read(backup.Sector), Build ?? "unknown"));
+            if (!await WriteAndCheck([(backup.Sector, saved)], say, 1))
+                return Stop(ApplyResult.Failed, "the backup did not read back as written");
             say(EditStep.Reconnect, 1, null);
             await writer.WaitForHeadset(CancellationToken.None);
             say(EditStep.Confirm, 1, null);
@@ -239,6 +250,32 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             return Stop(Flash is null ? ApplyResult.Unconfirmed : ApplyResult.Done, "restored");
         });
     }
+
+    /// <summary>Writes sections and reads them back, and says whether every one reads back as written.</summary>
+    private async Task<bool> WriteAndCheck(IReadOnlyList<(int Sector, byte[] Bytes)> sections, Action<EditStep, int, int?> say, int session)
+    {
+        say(EditStep.Write, session, 0);
+        await writer!.Write(sections, new Reporter(done => say(EditStep.Write, session, done)));
+        say(EditStep.Verify, session, null);
+        foreach (var (sector, bytes) in sections)
+        {
+            if ((await writer.Read(sector)).AsSpan().SequenceEqual(bytes)) continue;
+            AppLog.Write(Hex($"firmware edits: section {sector:X8} does not read back as written"));
+            return false;
+        }
+        return true;
+    }
+
+    /// <summary>Saves a section as it was read, and gives the file.</summary>
+    private static string SaveBackup(int sector, byte[] held, string build)
+    {
+        Directory.CreateDirectory(BackupFolder);
+        string file = Path.Combine(BackupFolder, FirmwareBackup.FileName(DateTime.Now, sector, build));
+        File.WriteAllBytes(file, held);
+        return file;
+    }
+
+    private static string Hex(FormattableString text) => text.ToString(CultureInfo.InvariantCulture);
 
     private List<string> _backups = [];
     private EditStep? _at;
