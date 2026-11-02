@@ -81,7 +81,9 @@ public static class NvKey
 /// every input report's data is joined in order and the record is looked for
 /// by its length and its first bytes. A read of the input report hands back
 /// the latest one again until a new one arrives, so a report identical to the
-/// one before it is taken as that repeat.
+/// one before it is taken as that repeat. An input report that carries nothing
+/// can come between a report and its repeat, so it is passed over without
+/// becoming the one before.
 /// </remarks>
 public sealed class NvKeyReader
 {
@@ -97,9 +99,9 @@ public sealed class NvKeyReader
     public void Add(ReadOnlySpan<byte> report)
     {
         if (report.Length < 3 || report[0] != Frames.InReportId) return;
-        if (_last is not null && report.SequenceEqual(_last)) return;
-        _last = report.ToArray();
         int length = Math.Min(report[1] | ((report[2] & 0x7F) << 8), report.Length - 3);
+        if (length == 0 || (_last is not null && report.SequenceEqual(_last))) return;
+        _last = report.ToArray();
         _stream.AddRange(report.Slice(3, length).ToArray());
     }
 

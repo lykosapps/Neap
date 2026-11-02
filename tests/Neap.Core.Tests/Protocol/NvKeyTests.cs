@@ -85,6 +85,37 @@ public class NvKeyTests
     }
 
     [Fact]
+    public void AnEmptyReportBetweenAReportAndItsRepeatDoesNotLetTheRepeatIn()
+    {
+        // Seen on the Stealth Pro II through the dock (SP2Tools, 2 November 2026).
+        var record = GameEqRecordTests.Record();
+        var reader = new NvKeyReader(GameEqRecord.Length);
+        foreach (var piece in Pieces(new byte[] { 0xBA, 0x00 }.Concat(record).ToArray()))
+        {
+            reader.Add(Input(piece));
+            reader.Add(Input([]));
+            reader.Add(Input(piece));
+        }
+
+        Assert.Equal(record, reader.Record(GameEqRecord.Header));
+    }
+
+    [Fact]
+    public void ThroughTheDockTheRelayBitIsNotTakenForLength()
+    {
+        var record = GameEqRecordTests.Record();
+        var reader = new NvKeyReader(GameEqRecord.Length);
+        foreach (var piece in Pieces(new byte[] { 0xBA, 0x00 }.Concat(record).ToArray()))
+        {
+            byte[] report = Input(piece);
+            report[2] = 0x80;
+            reader.Add(report);
+        }
+
+        Assert.Equal(record, reader.Record(GameEqRecord.Header));
+    }
+
+    [Fact]
     public void ReportsThatAreNotInputReportsAreIgnored()
     {
         var reader = new NvKeyReader(GameEqRecord.Length);

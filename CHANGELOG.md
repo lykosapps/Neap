@@ -12,6 +12,12 @@ stays in the commit history.
 
 ## Unreleased
 
+### Fixed
+
+- **Equaliser reads through the dock.** Reading the game equaliser's stored
+  settings no longer goes wrong when the headset sends an empty report
+  between a reply and its repeat.
+
 ## 0.4.0 — 2026-10-31
 
 **The Atlas Air, and a parametric equaliser for the Stealth Pro II.**
