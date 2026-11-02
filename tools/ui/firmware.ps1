@@ -62,7 +62,8 @@ try {
 finally { Stop-NeapPretend }
 
 $light = 'Light off when disconnected'
-function Test-LightReads([string]$State) { (Get-Texts) -like "Low risk*$State" }
+# Each edit's state is a chip with the state's word; the light edit is the one ticked.
+function Get-StateCount([string]$State) { @(Get-Texts | Where-Object { $_ -eq $State }).Count }
 
 # Presses a page button, then the same button in the dialog that asks first.
 # The dialog can be a window of its own or drawn over the page, so its button
@@ -88,30 +89,40 @@ function Close-Run {
 Section 'an edit applied reads as active, and restoring stock reads as factory'
 Start-NeapPretend -Page firmware -Flags @()
 try {
-    Check (Wait-Until { Test-LightReads 'Factory' } 15) "'$light' reads as factory from the pretend flash"
+    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) 'both edits read as factory from the pretend flash'
     Press (Find-Tick $light)
     Confirm-Press 'Apply'
     Check (Wait-Until { Find-Text 'Done. The headset has the edits you ticked.' } 60) 'applying ends done'
-    Check (Wait-Until { Test-LightReads 'Active' } 10) "and '$light' then reads as active"
+    Check (Wait-Until { (Get-StateCount 'Active') -eq 1 -and (Get-StateCount 'Factory') -eq 1 } 10) "and '$light' then reads as active, the other as factory"
     Save-Shot 'firmware-applied' -Whole | ForEach-Object { $_.Dispose() }
     Close-Run
 
     Confirm-Press 'Restore to stock'
     Check (Wait-Until { Find-Text 'Done. The headset has the edits you ticked.' } 60) 'restoring stock ends done'
-    Check (Wait-Until { Test-LightReads 'Factory' } 10) "and '$light' reads as factory again"
+    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 10) 'and both read as factory again'
 }
 finally { Stop-NeapPretend }
 
 Section 'a write that is lost is put back'
 Start-NeapPretend -Page firmware -Flags @('--firmware-reverts')
 try {
-    Check (Wait-Until { Test-LightReads 'Factory' } 15) "'$light' starts as factory"
+    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) 'both edits start as factory'
     Press (Find-Tick $light)
     Confirm-Press 'Apply'
     Check (Wait-Until { Find-Text "A section didn't read back as written, so Neap put back what was there. The headset starts as before, but the edits may be only partly on." } 60) 'the run says the section was put back'
     Save-Shot 'firmware-put-back' -Whole | ForEach-Object { $_.Dispose() }
 }
 finally { Stop-NeapPretend }
+
+Section 'the state chips in light and high contrast, for a person to look over'
+foreach ($theme in @(@{ Theme = 'light'; Flags = @() }, @{ Theme = 'dark'; Flags = @('--highcontrast') })) {
+    Start-NeapPretend -Page firmware -Theme $theme.Theme -Flags $theme.Flags
+    try {
+        Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) "the chips show in $($theme.Theme) $($theme.Flags)"
+        Save-Shot "firmware-chips-$($theme.Theme)$($theme.Flags -join '')" -Whole | ForEach-Object { $_.Dispose() }
+    }
+    finally { Stop-NeapPretend }
+}
 
 Write-Host "$script:Fails failures"
 exit ([int]($script:Fails -gt 0))

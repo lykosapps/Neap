@@ -1892,6 +1892,15 @@
     <value>Doesn't fit this firmware. Your headset has {0}; this edit is made for {1}.</value>
     <comment>{0} and {1} are firmware versions.</comment>
   </data>
+  <data name="Firmware_StateAltered" xml:space="preserve">
+    <value>Altered</value>
+  </data>
+  <data name="Firmware_StateDoesNotFit" xml:space="preserve">
+    <value>Doesn't fit</value>
+  </data>
+  <data name="Firmware_StateUnknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
   <data name="Firmware_Altered" xml:space="preserve">
     <value>Neither factory nor this edit. Something else has changed this part of the firmware.</value>
   </data>

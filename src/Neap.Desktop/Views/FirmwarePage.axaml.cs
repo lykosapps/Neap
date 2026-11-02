@@ -2,6 +2,7 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
@@ -180,14 +181,56 @@ public partial class FirmwarePage : UserControl
             _wanted = wanted;
             Paint();
         };
-        string about = Strings.Format("Firmware_RiskAndStatus", RiskWords(edit.Risk), StatusWords(status, firmware.Build, edit));
-        AutomationProperties.SetHelpText(tick, $"{Description(edit)} {about}");
+        // Active and factory say all they need in the chip; anything else is explained under the edit.
+        string about = status is EditStatus.Installed or EditStatus.NotInstalled
+            ? RiskWords(edit.Risk)
+            : Strings.Format("Firmware_RiskAndStatus", RiskWords(edit.Risk), StatusWords(status, firmware.Build, edit));
+        AutomationProperties.SetHelpText(tick, $"{Description(edit)} {StateWords(status)}. {about}");
+
+        var header = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
+        header.Children.Add(tick);
+        var state = StateChip(status);
+        Grid.SetColumn(state, 1);
+        header.Children.Add(state);
 
         var details = new StackPanel { Margin = new Avalonia.Thickness(32, 0, 0, 0), Spacing = Space.Hairline };
         details.Children.Add(new TextBlock { Text = Description(edit), Classes = { "secondary" }, TextWrapping = TextWrapping.Wrap });
         details.Children.Add(new TextBlock { Text = about, Classes = { "caption", "secondary" }, TextWrapping = TextWrapping.Wrap });
-        return new StackPanel { Spacing = Space.Hairline, Children = { tick, details } };
+        return new StackPanel { Spacing = Space.Hairline, Children = { header, details } };
     }
+
+    /// <summary>Whether an edit is on, as a dot in the state's tone and its word.</summary>
+    /// <remarks>Its word is read out with the tick's help text, so a screen reader hears it with the edit.</remarks>
+    private static Border StateChip(EditStatus status) => new()
+    {
+        Classes = { "tag" },
+        Child = new StackPanel
+        {
+            Classes = { "gaprow" },
+            Children =
+                {
+                    new Ellipse { Classes = { "statusdot", StateTone(status) }, VerticalAlignment = VerticalAlignment.Center },
+                    new TextBlock { Text = StateWords(status) },
+                },
+        },
+    };
+
+    private static string StateTone(EditStatus status) => status switch
+    {
+        EditStatus.Installed => "good",
+        EditStatus.NotInstalled => "neutral",
+        EditStatus.Altered => "critical",
+        _ => "caution",
+    };
+
+    private static string StateWords(EditStatus status) => status switch
+    {
+        EditStatus.Installed => Strings.Get("Firmware_Installed"),
+        EditStatus.NotInstalled => Strings.Get("Firmware_NotInstalled"),
+        EditStatus.Altered => Strings.Get("Firmware_StateAltered"),
+        EditStatus.DoesNotFit => Strings.Get("Firmware_StateDoesNotFit"),
+        _ => Strings.Get("Firmware_StateUnknown"),
+    };
 
     /// <summary>Asks before writing, with the plan and what can go wrong, then runs it on the run card.</summary>
     private async Task AskToApply(HashSet<FirmwareEdit> wanted, bool restoringStock)
@@ -356,10 +399,9 @@ public partial class FirmwarePage : UserControl
     private static string RiskWords(EditRisk risk) =>
         Strings.Get(risk == EditRisk.Low ? "Firmware_RiskLow" : "Firmware_RiskHigher");
 
+    /// <summary>Why an edit is neither active nor factory, said under it.</summary>
     private static string StatusWords(EditStatus status, string? build, FirmwareEdit edit) => status switch
     {
-        EditStatus.Installed => Strings.Get("Firmware_Installed"),
-        EditStatus.NotInstalled => Strings.Get("Firmware_NotInstalled"),
         EditStatus.DoesNotFit => Strings.Format("Firmware_DoesNotFit", build, edit.FirmwareBuild),
         EditStatus.Altered => Strings.Get("Firmware_Altered"),
         _ => Strings.Get("Firmware_Unknown"),
