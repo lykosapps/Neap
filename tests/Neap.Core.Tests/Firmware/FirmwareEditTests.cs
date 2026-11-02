@@ -68,6 +68,103 @@ public class FirmwareEditTests
     [Fact]
     public void TheMarkOfTheWantedEditsHasTheirBits() => Assert.Equal(0b11, FirmwareEdit.MarkOf([Cycle, Light]));
 
+    // -- read live from the flash ---------------------------------------------
+
+    private static Dictionary<int, byte[]> Flash(params (FlashChange Change, bool Active)[] read) =>
+        read.ToDictionary(r => r.Change.Address, r => (r.Active ? r.Change.Active : r.Change.Factory).ToArray());
+
+    private static FlashChange CycleCode => Cycle.Changes[0];
+    private static FlashChange CycleCall => Cycle.Changes[1];
+
+    [Fact]
+    public void EveryChangeLiesInASectionItsEditListsAndKeepsItsLength() =>
+        Assert.All(FirmwareEdit.All.SelectMany(edit => edit.Changes.Select(change => (edit, change))), pair =>
+        {
+            Assert.Contains(pair.change.Address & ~(FirmwareEdit.SectorSize - 1), pair.edit.Sectors);
+            Assert.Equal(pair.change.Factory.Count, pair.change.Active.Count);
+        });
+
+    [Fact]
+    public void FactoryBytesEverywhereIsOff() =>
+        Assert.Equal(EditStatus.NotInstalled, Cycle.StatusIn(Build, Flash((CycleCode, false), (CycleCall, false))));
+
+    [Fact]
+    public void TheEditsBytesEverywhereIsOn() =>
+        Assert.Equal(EditStatus.Installed, Cycle.StatusIn(Build, Flash((CycleCode, true), (CycleCall, true))));
+
+    [Fact]
+    public void NewCodeThatNothingCallsIsOff() =>
+        Assert.Equal(EditStatus.NotInstalled, Cycle.StatusIn(Build, Flash((CycleCode, true), (CycleCall, false))));
+
+    [Fact]
+    public void ACallToCodeThatIsNotThereIsAltered() =>
+        Assert.Equal(EditStatus.Altered, Cycle.StatusIn(Build, Flash((CycleCode, false), (CycleCall, true))));
+
+    [Fact]
+    public void BytesThatAreNeitherAreAltered()
+    {
+        var flash = Flash((CycleCode, true), (CycleCall, true));
+        flash[CycleCall.Address] = [1, 2, 3, 4];
+        Assert.Equal(EditStatus.Altered, Cycle.StatusIn(Build, flash));
+    }
+
+    [Fact]
+    public void APlaceNotReadLeavesTheStatusUnknown() =>
+        Assert.Equal(EditStatus.Unknown, Cycle.StatusIn(Build, Flash((CycleCode, true))));
+
+    [Fact]
+    public void FlashThatCouldNotBeReadLeavesTheStatusUnknown() =>
+        Assert.Equal(EditStatus.Unknown, Cycle.StatusIn(Build, null));
+
+    [Fact]
+    public void AnotherBuildDoesNotFitWhateverTheFlashHolds() =>
+        Assert.Equal(EditStatus.DoesNotFit, Cycle.StatusIn("4.108.0.0", Flash((CycleCode, true), (CycleCall, true))));
+
+    [Fact]
+    public void TheFlashListsTheEditsOn() =>
+        Assert.Equal(Set(Light), FirmwareEdit.InstalledIn(Edits, Build,
+            Flash((CycleCode, false), (CycleCall, false), (Light.Changes[0], true))));
+
+    [Fact]
+    public void AnAlteredEditLeavesWhatIsOnUnknown() =>
+        Assert.Null(FirmwareEdit.InstalledIn(Edits, Build,
+            Flash((CycleCode, false), (CycleCall, true), (Light.Changes[0], true))));
+
+    // -- what a section is written as -------------------------------------------
+
+    private const int CodeSector = 0x08349000;
+
+    private static byte[] Empty() => Enumerable.Repeat((byte)0xFF, FirmwareEdit.SectorSize).ToArray();
+
+    private static byte[] WithCode()
+    {
+        byte[] section = Empty();
+        CycleCode.Active.ToArray().CopyTo(section, 0);
+        return section;
+    }
+
+    [Fact]
+    public void TickingAnEditPutsItsBytesInAndLeavesTheRestAsHeld() =>
+        Assert.Equal(WithCode(), FirmwareEdit.Compose(CodeSector, Empty(), Set(Cycle)));
+
+    [Fact]
+    public void UntickingAnEditPutsTheFactoryBytesBack() =>
+        Assert.Equal(Empty(), FirmwareEdit.Compose(CodeSector, WithCode(), Set()));
+
+    [Fact]
+    public void ASectionHoldingSomethingUnknownIsNotWritten()
+    {
+        byte[] held = Empty();
+        held[0x800] = 0;
+        Assert.Null(FirmwareEdit.Compose(CodeSector, held, Set(Cycle)));
+    }
+
+    [Fact]
+    public void APartSectionIsNotWritten() => Assert.Null(FirmwareEdit.Compose(CodeSector, Empty().AsSpan(0, 16), Set(Cycle)));
+
+    [Fact]
+    public void ASectionNoEditTouchesIsNotWritten() => Assert.Null(FirmwareEdit.Compose(0x08100000, Empty(), Set(Cycle)));
+
     // -- the plan ---------------------------------------------------------------
 
     [Fact]

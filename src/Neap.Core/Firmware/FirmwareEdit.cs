@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace Neap.Core.Firmware;
 
 /// <summary>Whether a firmware edit is on the headset.</summary>
@@ -14,6 +16,20 @@ public enum EditStatus
 
     /// <summary>The headset's firmware is not the build the edit is made for.</summary>
     DoesNotFit,
+
+    /// <summary>The flash holds neither the factory bytes nor the edit's at the places it changes.</summary>
+    Altered,
+}
+
+/// <summary>One run of bytes an edit changes, with what the factory firmware and the edit put there.</summary>
+/// <param name="Address">Where the run starts in flash.</param>
+/// <param name="Factory">The bytes the factory firmware has there.</param>
+/// <param name="Active">The bytes the edit puts there.</param>
+public sealed record FlashChange(int Address, IReadOnlyList<byte> Factory, IReadOnlyList<byte> Active)
+{
+    /// <summary>The change for a run of bytes, from their hex.</summary>
+    public static FlashChange Of(int address, string factory, string active) =>
+        new(address, Convert.FromHexString(factory), Convert.FromHexString(active));
 }
 
 /// <summary>How much an edit changes, for the person to weigh before ticking it.</summary>
@@ -110,8 +126,18 @@ public sealed record EditPlan(IReadOnlyList<FirmwareEdit> Changing, IReadOnlyLis
 /// headset was stopped from starting on 15 October.
 /// </para>
 /// <para>
-/// The sections each edit touches come from SP2Tools' findings. The bytes
-/// written come from SP2Tools' list of edits when the real writer is built.
+/// The sections and bytes come from SP2Tools' findings and were read back
+/// from a headset carrying the edits. Neap holds only the bytes an edit
+/// changes and a hash of each factory section, never the firmware itself: a
+/// section is written as what the headset holds, checked against that hash
+/// with every edit taken out, with the ticked edits put in.
+/// </para>
+/// <para>
+/// Whether an edit is on is read live from the flash at the places it
+/// changes. Its last change is the one that turns it on, such as the call
+/// that reaches new code, so with that one at factory the edit is off even
+/// where earlier changes remain, as a firmware update leaves new code that
+/// nothing calls.
 /// </para>
 /// </remarks>
 /// <param name="Id">The edit's name in the app log and recordings.</param>
@@ -120,7 +146,8 @@ public sealed record EditPlan(IReadOnlyList<FirmwareEdit> Changing, IReadOnlyLis
 /// <param name="Bit">The edit's bit in the mark.</param>
 /// <param name="Risk">How much it changes.</param>
 /// <param name="Sectors">The sections of flash it touches, by address, in the order they are written to put it on.</param>
-public sealed record FirmwareEdit(string Id, HeadsetModel Model, string FirmwareBuild, int Bit, EditRisk Risk, IReadOnlyList<int> Sectors)
+/// <param name="Changes">The bytes it changes, in the order they are written to put it on.</param>
+public sealed record FirmwareEdit(string Id, HeadsetModel Model, string FirmwareBuild, int Bit, EditRisk Risk, IReadOnlyList<int> Sectors, IReadOnlyList<FlashChange> Changes)
 {
     /// <summary>Whether firmware edits are in this release of Neap at all.</summary>
     /// <remarks>
@@ -155,14 +182,33 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     /// then the call at 0x08232094 that reaches it (SP2Tools F090).
     /// </summary>
     public static FirmwareEdit NoiseCycle { get; } =
-        new("noise_cycle", HeadsetModels.StealthProII, "4.107.703.0", 0, EditRisk.Higher, [0x08349000, 0x08232000]);
+        new("noise_cycle", HeadsetModels.StealthProII, "4.107.703.0", 0, EditRisk.Higher, [0x08349000, 0x08232000],
+        [
+            FlashChange.Of(0x08349000, new string('F', 108 * 2),
+                "70B582B000240094019475206946E8F63DF840B3762001A9E8F638F818B3009B53B1019B322B03D264240125092606E0FF240025FF26" +
+                "02E000240125FF26FF2C04D00194762001A9E8F6D0FD009575206946E4F69DFFFF2E02D03046DBF67CFA012002B070BD002002B070BD"),
+            FlashChange.Of(0x08232094, "FFF746F8", "16F1B4FF"),
+        ]);
 
     /// <summary>The headset's light switches off when it loses its connection, rather than blinking: one byte (SP2Tools, live since 22 October).</summary>
     public static FirmwareEdit LightOffWhenDisconnected { get; } =
-        new("light_off_disconnected", HeadsetModels.StealthProII, "4.107.703.0", 1, EditRisk.Low, [0x082F9000]);
+        new("light_off_disconnected", HeadsetModels.StealthProII, "4.107.703.0", 1, EditRisk.Low, [0x082F9000],
+        [FlashChange.Of(0x082F9B94, "02", "00")]);
 
     /// <summary>Gets every edit Neap knows of.</summary>
     public static IReadOnlyList<FirmwareEdit> All { get; } = [NoiseCycle, LightOffWhenDisconnected];
+
+    /// <summary>The SHA-256 of each section an edit touches, as the factory firmware holds it.</summary>
+    /// <remarks>
+    /// From the factory 4.107.703.0 image, checked against a headset read before
+    /// any edit; the section of new code is empty flash in the factory firmware.
+    /// </remarks>
+    public static IReadOnlyDictionary<int, string> FactorySections { get; } = new Dictionary<int, string>
+    {
+        [0x08232000] = "AC4290E1BC232049B8548650C786BE969338990CAF4C2203D4B80631CA3C9118",
+        [0x082F9000] = "9CA08519E75F4CCA8F10B05013CAF12BE54DB9107950698F7CFCA47CF8A5D334",
+        [0x08349000] = "F47A8EC3E9AFF2318D896942282AD4FE37D6391C82914F54A5DA8A37DE1300C6",
+    };
 
     /// <summary>Gets the steps of applying, in order; see <see cref="EditStep"/>.</summary>
     public static IReadOnlyList<EditStep> Steps { get; } = Enum.GetValues<EditStep>();
@@ -181,6 +227,57 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
         (_, null) => EditStatus.Unknown,
         (_, int bits) => (bits >> Bit & 1) == 1 ? EditStatus.Installed : EditStatus.NotInstalled,
     };
+
+    /// <summary>Whether this edit is on, from the flash read at the places it changes.</summary>
+    /// <param name="firmwareBuild">The firmware version the headset reports, or null before it has.</param>
+    /// <param name="flash">The bytes read at each change's address, or null where the flash could not be read.</param>
+    public EditStatus StatusIn(string? firmwareBuild, IReadOnlyDictionary<int, byte[]>? flash)
+    {
+        if (firmwareBuild is null) return EditStatus.Unknown;
+        if (firmwareBuild != FirmwareBuild) return EditStatus.DoesNotFit;
+        if (flash is null || Changes.Any(change => !flash.ContainsKey(change.Address))) return EditStatus.Unknown;
+        bool Holds(FlashChange change, IReadOnlyList<byte> bytes) => flash[change.Address].SequenceEqual(bytes);
+        if (Changes.All(change => Holds(change, change.Active))) return EditStatus.Installed;
+        var last = Changes[^1];
+        return Holds(last, last.Factory) && Changes.All(change => Holds(change, change.Factory) || Holds(change, change.Active))
+            ? EditStatus.NotInstalled
+            : EditStatus.Altered;
+    }
+
+    /// <summary>The edits on, from the flash, or null where any edit's state is not clear.</summary>
+    public static IReadOnlySet<FirmwareEdit>? InstalledIn(IReadOnlyList<FirmwareEdit> edits, string? firmwareBuild, IReadOnlyDictionary<int, byte[]>? flash)
+    {
+        var statuses = edits.ToDictionary(edit => edit, edit => edit.StatusIn(firmwareBuild, flash));
+        return statuses.Values.All(status => status is EditStatus.Installed or EditStatus.NotInstalled)
+            ? statuses.Where(pair => pair.Value == EditStatus.Installed).Select(pair => pair.Key).ToHashSet()
+            : null;
+    }
+
+    /// <summary>A section as it is to be written: what the headset holds, with every edit taken out and the ticked ones put in.</summary>
+    /// <param name="sector">The section, by address.</param>
+    /// <param name="held">The section as read from the headset.</param>
+    /// <param name="wanted">The edits ticked.</param>
+    /// <returns>
+    /// The section to write, or null where the section with every edit taken out
+    /// is not the factory one, so writing it would keep something Neap does not know.
+    /// </returns>
+    public static byte[]? Compose(int sector, ReadOnlySpan<byte> held, IReadOnlySet<FirmwareEdit> wanted)
+    {
+        if (held.Length != SectorSize || !FactorySections.TryGetValue(sector, out string? factory)) return null;
+        byte[] section = held.ToArray();
+        var inSector = All.SelectMany(edit => edit.Changes.Select(change => (edit, change)))
+            .Where(pair => pair.change.Address - sector is >= 0 and < SectorSize)
+            .ToList();
+        foreach (var (_, change) in inSector) Put(section, sector, change.Address, change.Factory);
+        if (!Convert.ToHexString(SHA256.HashData(section)).Equals(factory, StringComparison.Ordinal)) return null;
+        foreach (var (edit, change) in inSector.Where(pair => wanted.Contains(pair.edit))) Put(section, sector, change.Address, change.Active);
+        return section;
+    }
+
+    private static void Put(byte[] section, int sector, int address, IReadOnlyList<byte> bytes)
+    {
+        for (int i = 0; i < bytes.Count; i++) section[address - sector + i] = bytes[i];
+    }
 
     /// <summary>The edits a mark says are on, or null where there is no mark.</summary>
     public static IReadOnlySet<FirmwareEdit>? Installed(IReadOnlyList<FirmwareEdit> edits, int? mark) =>
