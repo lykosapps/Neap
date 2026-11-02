@@ -27,10 +27,6 @@ public class FirmwareEditTests
     public void AnUnknownHeadsetHasNoEdits() => Assert.Empty(FirmwareEdit.For(null));
 
     [Fact]
-    public void EveryEditHasABitOfItsOwn() =>
-        Assert.Equal(FirmwareEdit.All.Count, FirmwareEdit.All.Select(edit => (edit.Model, edit.Bit)).Distinct().Count());
-
-    [Fact]
     public void EverySectionStartsOnASectionBoundary() =>
         Assert.All(FirmwareEdit.All.SelectMany(edit => edit.Sectors), sector => Assert.Equal(0, sector % FirmwareEdit.SectorSize));
 
@@ -40,33 +36,6 @@ public class FirmwareEditTests
         Assert.Equal(EditRisk.Higher, Cycle.Risk);
         Assert.Equal(EditRisk.Low, Light.Risk);
     }
-
-    [Theory]
-    [InlineData(0b1, EditStatus.Installed)]
-    [InlineData(0b0, EditStatus.NotInstalled)]
-    [InlineData(0b10, EditStatus.NotInstalled)]
-    public void TheMarkSaysWhetherTheEditIsOn(int mark, EditStatus status) =>
-        Assert.Equal(status, Cycle.StatusOn(Build, mark));
-
-    [Fact]
-    public void WithNoMarkTheStatusIsUnknown() => Assert.Equal(EditStatus.Unknown, Cycle.StatusOn(Build, null));
-
-    [Fact]
-    public void BeforeTheFirmwareIsReportedTheStatusIsUnknown() =>
-        Assert.Equal(EditStatus.Unknown, Cycle.StatusOn(null, 1));
-
-    [Fact]
-    public void AnotherFirmwareBuildDoesNotFitWhateverTheMarkSays() =>
-        Assert.Equal(EditStatus.DoesNotFit, Cycle.StatusOn("4.108.0.0", 1));
-
-    [Fact]
-    public void TheMarkListsTheEditsOn() => Assert.Equal(Set(Light), FirmwareEdit.Installed(Edits, 0b10));
-
-    [Fact]
-    public void WithNoMarkWhatIsOnIsNotKnown() => Assert.Null(FirmwareEdit.Installed(Edits, null));
-
-    [Fact]
-    public void TheMarkOfTheWantedEditsHasTheirBits() => Assert.Equal(0b11, FirmwareEdit.MarkOf([Cycle, Light]));
 
     // -- read live from the flash ---------------------------------------------
 

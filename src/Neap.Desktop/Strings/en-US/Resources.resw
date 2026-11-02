@@ -1883,17 +1883,20 @@
     <value>The Mode button steps through off, transparency and noise cancellation by itself, with a tone for each.</value>
   </data>
   <data name="Firmware_Installed" xml:space="preserve">
-    <value>Installed</value>
+    <value>Active</value>
   </data>
   <data name="Firmware_NotInstalled" xml:space="preserve">
-    <value>Not installed</value>
+    <value>Factory</value>
   </data>
   <data name="Firmware_DoesNotFit" xml:space="preserve">
     <value>Doesn't fit this firmware. Your headset has {0}; this edit is made for {1}.</value>
     <comment>{0} and {1} are firmware versions.</comment>
   </data>
+  <data name="Firmware_Altered" xml:space="preserve">
+    <value>Neither factory nor this edit. Something else has changed this part of the firmware.</value>
+  </data>
   <data name="Firmware_Unknown" xml:space="preserve">
-    <value>Can't tell whether it's installed. This headset doesn't say which edits it has yet.</value>
+    <value>Can't tell whether it's active. Neap couldn't read the headset's firmware.</value>
   </data>
   <data name="Firmware_BlockedNotConnected" xml:space="preserve">
     <value>Connect the headset first.</value>

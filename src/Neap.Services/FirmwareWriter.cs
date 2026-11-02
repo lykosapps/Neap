@@ -1,5 +1,6 @@
 using System.Text;
 using Neap.Core.Firmware;
+using Neap.Core.Pretend;
 
 namespace Neap.Services;
 
@@ -27,9 +28,6 @@ public enum WriteResult
 /// </remarks>
 public interface IFirmwareWriter
 {
-    /// <summary>The mark the edits leave, one bit per edit, read while the headset is connected as usual, or null where it leaves none.</summary>
-    Task<int?> ReadMark();
-
     /// <summary>Waits until the headset is plugged in in download mode.</summary>
     Task WaitForDownloadMode(CancellationToken cancel);
 
@@ -57,22 +55,19 @@ public interface IFirmwareWriter
 
 /// <summary>The pretend headset's firmware: the whole flow, with a pause at each step, and nothing real written.</summary>
 /// <remarks>
-/// Each section remembers which edits it holds, and an edit is on once every
-/// section it touches holds it, so a plan cut short shows as it would on a
-/// headset. The person plugging the headset in is a short wait.
+/// It writes the pretend headset's <see cref="PretendFlash"/>, which the
+/// headset's flash reads answer from, so a plan cut short shows as it would on
+/// a headset. The person plugging the headset in is a short wait.
 /// </remarks>
+/// <param name="flash">The pretend headset's flash.</param>
 /// <param name="build">The firmware version its chip holds.</param>
 /// <param name="reverts">Whether every write fails its read back, so the headset's own revert can be seen.</param>
-public sealed class PretendFirmwareWriter(string build, bool reverts) : IFirmwareWriter
+public sealed class PretendFirmwareWriter(PretendFlash flash, string build, bool reverts) : IFirmwareWriter
 {
     private static readonly TimeSpan Pause = TimeSpan.FromMilliseconds(600);
     private static readonly TimeSpan Plugging = TimeSpan.FromSeconds(3);
 
-    private readonly Dictionary<int, HashSet<string>> _held = [];
     private (int Sector, IReadOnlyList<FirmwareEdit> Held)? _written;
-
-    public Task<int?> ReadMark() => Task.FromResult<int?>(FirmwareEdit.MarkOf(
-        FirmwareEdit.All.Where(edit => edit.Sectors.All(sector => Holds(sector).Contains(edit.Id)))));
 
     public Task WaitForDownloadMode(CancellationToken cancel) => Task.Delay(Plugging, cancel);
 
@@ -87,7 +82,7 @@ public sealed class PretendFirmwareWriter(string build, bool reverts) : IFirmwar
         await Task.Delay(Pause);
         Directory.CreateDirectory(folder);
         string file = Path.Combine(folder, FirmwareBackup.FileName(DateTime.Now, sector, build));
-        await File.WriteAllTextAsync(file, string.Join('\n', Holds(sector)), Encoding.UTF8);
+        await File.WriteAllTextAsync(file, string.Join('\n', flash.Holds(sector)), Encoding.UTF8);
         return file;
     }
 
@@ -105,7 +100,7 @@ public sealed class PretendFirmwareWriter(string build, bool reverts) : IFirmwar
     {
         await Task.Delay(Pause);
         if (reverts || _written is not { } written || written.Sector != sector) return WriteResult.Reverted;
-        _held[sector] = written.Held.Select(edit => edit.Id).ToHashSet();
+        flash.Write(sector, written.Held.Select(edit => edit.Id));
         return WriteResult.Verified;
     }
 
@@ -118,6 +113,4 @@ public sealed class PretendFirmwareWriter(string build, bool reverts) : IFirmwar
     }
 
     public Task WaitForHeadset(CancellationToken cancel) => Task.Delay(Plugging, cancel);
-
-    private HashSet<string> Holds(int sector) => _held.TryGetValue(sector, out var ids) ? ids : [];
 }

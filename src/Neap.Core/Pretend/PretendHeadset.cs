@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using Neap.Core.Audio;
 using Neap.Core.Connection;
+using Neap.Core.Firmware;
 using Neap.Core.Hid;
 using Neap.Core.Presets;
 using Neap.Core.Protocol;
@@ -221,6 +222,9 @@ public sealed class PretendHeadset : IDeviceSource
     /// <summary>Bytes given in place of the stored record when it is read, for a record Neap does not understand.</summary>
     public byte[]? UnknownRecord { get; init; }
 
+    /// <summary>The flash the firmware edits touch, which flash reads are answered from.</summary>
+    public PretendFlash Flash { get; } = new();
+
     /// <summary>Every frame sent, in order.</summary>
     public IReadOnlyList<byte[]> Sent
     {
@@ -377,6 +381,8 @@ public sealed class PretendHeadset : IDeviceSource
             }
             else if (IsLoudnessCommand(frame))
                 Loudness(frame);
+            else if (IsFlashRead(frame))
+                ReplyFlash(frame);
             else if (_atlas && IsLightRead(frame))
                 ReplyLight();
             else if (_atlas && IsInputsRead(frame))
@@ -572,6 +578,21 @@ public sealed class PretendHeadset : IDeviceSource
         message[5] = (byte)(LoudnessBoost.CommandId >> 8);
         payload.CopyTo(message, 6);
         Fragment(message);
+    }
+
+    // -- flash reads (RACE command 0x1680) ------------------------------------
+
+    private static bool IsFlashRead(byte[] frame) =>
+        frame.Length >= 15 && frame[0] == Frames.OutReportId
+        && frame[3] == Frames.RaceStart && frame[4] == Frames.RaceCommand
+        && (frame[7] | (frame[8] << 8)) == FlashRead.CommandId;
+
+    /// <summary>Queues the headset's answer to a flash read, from <see cref="Flash"/>.</summary>
+    private void ReplyFlash(byte[] frame)
+    {
+        if (_atlas || !_on) return;
+        int address = BinaryPrimitives.ReadInt32LittleEndian(frame.AsSpan(11, 4));
+        Fragment(FlashRead.Reply(address, Flash.Word(address)));
     }
 
     // -- the transmitter's light (a RACE command the transmitter answers) -----

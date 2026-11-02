@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 using Neap.Core.Audio;
+using Neap.Core.Firmware;
 using Neap.Core.Hid;
 using Neap.Core.Presets;
 using Neap.Core.Protocol;
@@ -617,6 +618,29 @@ public sealed class HeadsetClient : IDisposable
     /// <summary>Reads the transmitter's light level as the transmitter gives it, or null when it gives none; see <see cref="TransmitterLight"/>.</summary>
     public int? ReadTransmitterLight(TimeSpan wait) =>
         Exchange(TransmitterLight.ReadFrame, report => TransmitterLight.LevelInReply(report), wait);
+
+    /// <summary>Reads a run of the headset's flash, or null when any part of it gives no reply; see <see cref="FlashRead"/>.</summary>
+    /// <param name="address">Where the run starts.</param>
+    /// <param name="length">How many bytes.</param>
+    /// <param name="wait">How long to wait for each four-byte read.</param>
+    public byte[]? ReadFlash(int address, int length, TimeSpan wait)
+    {
+        var run = new List<byte>();
+        int first = address & ~(FlashRead.WordSize - 1);
+        foreach (int word in FlashRead.Words(address, length))
+        {
+            uint? read = null;
+            for (int attempt = 0; attempt < FlashTries && read is null; attempt++)
+                read = Exchange(FlashRead.ReadFrame(word, RelayThroughBase), report => FlashRead.WordInReply(report, word), wait);
+            if (read is not uint bytes) return null;
+            run.AddRange(BitConverter.GetBytes(bytes));
+        }
+        return run.GetRange(address - first, length).ToArray();
+    }
+
+    /// <summary>How many times a four-byte flash read is asked before it is taken as unanswered.</summary>
+    /// <remarks>Reads through the dock go unanswered now and then (SP2Tools: about one in a thousand).</remarks>
+    private const int FlashTries = 3;
 
     /// <summary>
     /// Sends one request and watches the input report for a reply the matcher

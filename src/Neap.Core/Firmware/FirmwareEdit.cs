@@ -5,13 +5,13 @@ namespace Neap.Core.Firmware;
 /// <summary>Whether a firmware edit is on the headset.</summary>
 public enum EditStatus
 {
-    /// <summary>The headset's mark says the edit is on.</summary>
+    /// <summary>The flash holds the edit.</summary>
     Installed,
 
-    /// <summary>The headset's mark says the edit is not on.</summary>
+    /// <summary>The flash is as the factory made it, where the edit would change it.</summary>
     NotInstalled,
 
-    /// <summary>The headset leaves no mark Neap can read, or has not reported its firmware.</summary>
+    /// <summary>The flash could not be read, or the headset has not reported its firmware.</summary>
     Unknown,
 
     /// <summary>The headset's firmware is not the build the edit is made for.</summary>
@@ -77,7 +77,7 @@ public enum EditStep
     /// <summary>The person unplugs the cable and switches the headset on.</summary>
     Reconnect,
 
-    /// <summary>The headset's mark is read to see the edits took.</summary>
+    /// <summary>The flash is read to see the edits took.</summary>
     Confirm,
 }
 
@@ -100,8 +100,8 @@ public sealed record EditPlan(IReadOnlyList<FirmwareEdit> Changing, IReadOnlyLis
 }
 
 /// <summary>
-/// A firmware edit Neap knows of: what it changes, the headset and firmware
-/// build it is made for, and its bit in the mark the edits leave.
+/// A firmware edit Neap knows of: what it changes and the headset and
+/// firmware build it is made for.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -143,11 +143,10 @@ public sealed record EditPlan(IReadOnlyList<FirmwareEdit> Changing, IReadOnlyLis
 /// <param name="Id">The edit's name in the app log and recordings.</param>
 /// <param name="Model">The headset the edit is made for.</param>
 /// <param name="FirmwareBuild">The firmware version the edit is made against.</param>
-/// <param name="Bit">The edit's bit in the mark.</param>
 /// <param name="Risk">How much it changes.</param>
 /// <param name="Sectors">The sections of flash it touches, by address, in the order they are written to put it on.</param>
 /// <param name="Changes">The bytes it changes, in the order they are written to put it on.</param>
-public sealed record FirmwareEdit(string Id, HeadsetModel Model, string FirmwareBuild, int Bit, EditRisk Risk, IReadOnlyList<int> Sectors, IReadOnlyList<FlashChange> Changes)
+public sealed record FirmwareEdit(string Id, HeadsetModel Model, string FirmwareBuild, EditRisk Risk, IReadOnlyList<int> Sectors, IReadOnlyList<FlashChange> Changes)
 {
     /// <summary>Whether firmware edits are in this release of Neap at all.</summary>
     /// <remarks>
@@ -182,7 +181,7 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     /// then the call at 0x08232094 that reaches it (SP2Tools F090).
     /// </summary>
     public static FirmwareEdit NoiseCycle { get; } =
-        new("noise_cycle", HeadsetModels.StealthProII, "4.107.703.0", 0, EditRisk.Higher, [0x08349000, 0x08232000],
+        new("noise_cycle", HeadsetModels.StealthProII, "4.107.703.0", EditRisk.Higher, [0x08349000, 0x08232000],
         [
             FlashChange.Of(0x08349000, new string('F', 108 * 2),
                 "70B582B000240094019475206946E8F63DF840B3762001A9E8F638F818B3009B53B1019B322B03D264240125092606E0FF240025FF26" +
@@ -192,7 +191,7 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
 
     /// <summary>The headset's light switches off when it loses its connection, rather than blinking: one byte (SP2Tools, live since 22 October).</summary>
     public static FirmwareEdit LightOffWhenDisconnected { get; } =
-        new("light_off_disconnected", HeadsetModels.StealthProII, "4.107.703.0", 1, EditRisk.Low, [0x082F9000],
+        new("light_off_disconnected", HeadsetModels.StealthProII, "4.107.703.0", EditRisk.Low, [0x082F9000],
         [FlashChange.Of(0x082F9B94, "02", "00")]);
 
     /// <summary>Gets every edit Neap knows of.</summary>
@@ -216,17 +215,6 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     /// <summary>The edits made for a headset, or none for an unknown one.</summary>
     public static IReadOnlyList<FirmwareEdit> For(HeadsetModel? model) =>
         model is null ? [] : All.Where(edit => edit.Model == model).ToList();
-
-    /// <summary>Whether this edit is on a headset with this firmware and mark.</summary>
-    /// <param name="firmwareBuild">The firmware version the headset reports, or null before it has.</param>
-    /// <param name="mark">The mark the headset reports, or null where it leaves none.</param>
-    public EditStatus StatusOn(string? firmwareBuild, int? mark) => (firmwareBuild, mark) switch
-    {
-        (null, _) => EditStatus.Unknown,
-        _ when firmwareBuild != FirmwareBuild => EditStatus.DoesNotFit,
-        (_, null) => EditStatus.Unknown,
-        (_, int bits) => (bits >> Bit & 1) == 1 ? EditStatus.Installed : EditStatus.NotInstalled,
-    };
 
     /// <summary>Whether this edit is on, from the flash read at the places it changes.</summary>
     /// <param name="firmwareBuild">The firmware version the headset reports, or null before it has.</param>
@@ -279,10 +267,6 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
         for (int i = 0; i < bytes.Count; i++) section[address - sector + i] = bytes[i];
     }
 
-    /// <summary>The edits a mark says are on, or null where there is no mark.</summary>
-    public static IReadOnlySet<FirmwareEdit>? Installed(IReadOnlyList<FirmwareEdit> edits, int? mark) =>
-        mark is int bits ? edits.Where(edit => (bits >> edit.Bit & 1) == 1).ToHashSet() : null;
-
     /// <summary>What applying would write, to have exactly the wanted edits on.</summary>
     /// <param name="edits">The edits made for the headset.</param>
     /// <param name="wanted">The edits ticked.</param>
@@ -304,14 +288,11 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     /// <summary>The ticked edits that a section holds once it is written.</summary>
     /// <remarks>Everything else in the section is stock.</remarks>
     public static IReadOnlyList<FirmwareEdit> In(int sector, IReadOnlySet<FirmwareEdit> wanted) =>
-        wanted.Where(edit => edit.Sectors.Contains(sector)).OrderBy(edit => edit.Bit).ToList();
+        All.Where(edit => wanted.Contains(edit) && edit.Sectors.Contains(sector)).ToList();
 
     /// <summary>The sections written in each session, in order.</summary>
     public static IReadOnlyList<IReadOnlyList<int>> Sessions(EditPlan plan) =>
         plan.Sectors.Chunk(SectorsPerSession).Select(chunk => (IReadOnlyList<int>)chunk).ToList();
-
-    /// <summary>The mark the headset should report once the wanted edits are on.</summary>
-    public static int MarkOf(IEnumerable<FirmwareEdit> wanted) => wanted.Aggregate(0, (mark, edit) => mark | 1 << edit.Bit);
 
     /// <summary>Everything that stops the edits being written now, or none.</summary>
     /// <remarks>

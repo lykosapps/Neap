@@ -69,7 +69,7 @@ public partial class FirmwarePage : UserControl
         AppServices.Headset.Changed += Paint;
         AppServices.Headset.StatusChanged += OnStatus;
         Paint();
-        await AppServices.Firmware.ReadMark();
+        await AppServices.Firmware.ReadFlash();
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)
@@ -93,7 +93,8 @@ public partial class FirmwarePage : UserControl
         var plan = firmware.Plan(Wanted);
         var blockers = FirmwareEdit.Blockers(plan.Changing, firmware.Readiness);
         string shown = string.Join("|",
-            firmware.CanWrite, firmware.Busy, firmware.Build, firmware.Readiness, firmware.Mark,
+            firmware.CanWrite, firmware.Busy, firmware.Build, firmware.Readiness,
+            string.Join(",", edits.Select(firmware.StatusOf)),
             string.Join(",", Wanted.Select(edit => edit.Id).Order()),
             string.Join(",", edits.Select(edit => edit.Id)),
             string.Join(",", FirmwareEditService.Backups.Select(backup => backup.File)));
@@ -347,6 +348,7 @@ public partial class FirmwarePage : UserControl
         EditStatus.Installed => Strings.Get("Firmware_Installed"),
         EditStatus.NotInstalled => Strings.Get("Firmware_NotInstalled"),
         EditStatus.DoesNotFit => Strings.Format("Firmware_DoesNotFit", build, edit.FirmwareBuild),
+        EditStatus.Altered => Strings.Get("Firmware_Altered"),
         _ => Strings.Get("Firmware_Unknown"),
     };
 

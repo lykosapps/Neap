@@ -94,9 +94,12 @@ public static class Pretend
     public static bool Active { get; } = Given(Flag);
 
     /// <summary>The pretend headset's firmware, or null outside pretend mode, where no headset's firmware is written yet.</summary>
-    public static IFirmwareWriter? Firmware { get; } = Active
-        ? new PretendFirmwareWriter(Core.Firmware.FirmwareEdit.NoiseCycle.FirmwareBuild, Given(FirmwareRevertsFlag))
-        : null;
+    /// <remarks>Made when first asked for, so the pretend headset whose flash it writes is there by then.</remarks>
+    public static IFirmwareWriter? Firmware => FirmwareWriter.Value;
+
+    private static readonly Lazy<IFirmwareWriter?> FirmwareWriter = new(() => Headset is { } headset
+        ? new PretendFirmwareWriter(headset.Flash, Core.Firmware.FirmwareEdit.NoiseCycle.FirmwareBuild, Given(FirmwareRevertsFlag))
+        : null);
 
     /// <summary>Whether a pretend run is shown in high contrast.</summary>
     public static bool HighContrast { get; } = Active && Given(HighContrastFlag);

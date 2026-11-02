@@ -8,10 +8,10 @@ namespace Neap.Services;
 /// <summary>How applying the edits, or restoring a backup, ended.</summary>
 public enum ApplyResult
 {
-    /// <summary>Every section was written and verified, and the mark shows the edits wanted.</summary>
+    /// <summary>Every section was written and verified, and the flash shows the edits wanted.</summary>
     Done,
 
-    /// <summary>Every section was written and verified, but the headset leaves no mark to confirm it by.</summary>
+    /// <summary>Every section was written and verified, but the flash could not be read afterwards to confirm it.</summary>
     Unconfirmed,
 
     /// <summary>The person stopped while Neap was waiting for the headset in download mode.</summary>
@@ -79,12 +79,12 @@ public sealed record FirmwareBackup(string File, DateTime Taken, int Sector, str
 /// </para>
 /// <para>
 /// A headset with no writer can be looked at but not changed: its edits are
-/// listed, and <see cref="CanWrite"/> is false.
+/// listed with their state read from its flash, and <see cref="CanWrite"/> is false.
 /// </para>
 /// </remarks>
 public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter? writer)
 {
-    /// <summary>The mark or the running state changed.</summary>
+    /// <summary>The flash read or the running state changed.</summary>
     public event Action? Changed;
 
     /// <summary>Gets whether this headset's firmware can be written by this build of Neap.</summary>
@@ -93,8 +93,8 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     /// <summary>Gets whether applying or a restore is under way.</summary>
     public bool Busy { get; private set; }
 
-    /// <summary>Gets the mark last read from the headset, or null where it leaves none.</summary>
-    public int? Mark { get; private set; }
+    /// <summary>Gets the bytes last read at each place an edit changes, by address, or null where the flash could not be read.</summary>
+    public IReadOnlyDictionary<int, byte[]>? Flash { get; private set; }
 
     /// <summary>Gets the firmware version the headset reports, or null before it has.</summary>
     public string? Build => headset.GetText("firmware_version");
@@ -103,7 +103,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     public IReadOnlyList<FirmwareEdit> Edits => FirmwareEdit.For(headset.Model);
 
     /// <summary>Gets the edits on now, or null where that is not known.</summary>
-    public IReadOnlySet<FirmwareEdit>? Installed => FirmwareEdit.Installed(Edits, Mark);
+    public IReadOnlySet<FirmwareEdit>? Installed => FirmwareEdit.InstalledIn(Edits, Build, Flash);
 
     /// <summary>Gets what Neap knows of the headset before writing.</summary>
     /// <remarks>
@@ -129,16 +129,38 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         : [];
 
     /// <summary>Whether an edit is on the connected headset.</summary>
-    public EditStatus StatusOf(FirmwareEdit edit) => edit.StatusOn(Build, Mark);
+    public EditStatus StatusOf(FirmwareEdit edit) => edit.StatusIn(Build, Flash);
 
     /// <summary>What applying these edits would write.</summary>
     public EditPlan Plan(IReadOnlySet<FirmwareEdit> wanted) => FirmwareEdit.Plan(Edits, wanted, Installed);
 
-    /// <summary>Reads the mark again.</summary>
-    public async Task ReadMark()
+    /// <summary>Reads the flash again at every place the headset's edits change.</summary>
+    public async Task ReadFlash()
     {
-        Mark = writer is null ? null : await writer.ReadMark();
+        Flash = await ReadEditedFlash();
         Changed?.Invoke();
+    }
+
+    private static readonly TimeSpan FlashWait = TimeSpan.FromMilliseconds(500);
+
+    /// <summary>The bytes at every place the headset's edits change, or null when any could not be read.</summary>
+    private async Task<IReadOnlyDictionary<int, byte[]>?> ReadEditedFlash()
+    {
+        var changes = Edits.SelectMany(edit => edit.Changes).ToList();
+        if (changes.Count == 0 || headset.Status.Link != Link.Connected) return null;
+        var read = await headset.Post(client =>
+        {
+            var bytes = new Dictionary<int, byte[]>();
+            foreach (var change in changes)
+            {
+                if (client.ReadFlash(change.Address, change.Factory.Count, FlashWait) is not { } run) return null;
+                bytes[change.Address] = run;
+            }
+            return bytes;
+        });
+        if (read is null) AppLog.Write("firmware edits: the flash could not be read");
+        else AppLog.Write($"firmware edits: read {string.Join(", ", Edits.Select(edit => $"{edit.Id} {edit.StatusIn(Build, read)}"))}");
+        return read;
     }
 
     /// <summary>Writes what it takes to have exactly these edits on, one step at a time.</summary>
@@ -184,10 +206,10 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             }
 
             say(EditStep.Confirm, session, null);
-            Mark = await writer.ReadMark();
-            if (Mark is null) return Stop(ApplyResult.Unconfirmed, "written and verified; the headset leaves no mark to confirm it by");
-            if (Installed is { } on && !on.SetEquals(wanted))
-                return Stop(ApplyResult.Failed, $"the mark shows [{string.Join(", ", on.Select(edit => edit.Id))}] after the restart");
+            Flash = await ReadEditedFlash();
+            if (Flash is null) return Stop(ApplyResult.Unconfirmed, "written and verified; the flash could not be read to confirm it");
+            if (Installed is not { } on || !on.SetEquals(wanted))
+                return Stop(ApplyResult.Failed, $"the flash shows [{string.Join(", ", Edits.Select(edit => $"{edit.Id} {StatusOf(edit)}"))}] after the restart");
             return Stop(ApplyResult.Done, "every section written, verified and confirmed");
         });
     }
@@ -213,8 +235,8 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             say(EditStep.Reconnect, 1, null);
             await writer.WaitForHeadset(CancellationToken.None);
             say(EditStep.Confirm, 1, null);
-            Mark = await writer.ReadMark();
-            return Stop(Mark is null ? ApplyResult.Unconfirmed : ApplyResult.Done, "restored");
+            Flash = await ReadEditedFlash();
+            return Stop(Flash is null ? ApplyResult.Unconfirmed : ApplyResult.Done, "restored");
         });
     }
 
