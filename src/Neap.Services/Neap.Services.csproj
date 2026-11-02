@@ -7,4 +7,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Neap.Core\Neap.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- The headset chip's download mode is a USB serial port; .NET reaches serial ports only through this package. -->
+    <PackageReference Include="System.IO.Ports" Version="10.0.0" />
+  </ItemGroup>
 </Project>
