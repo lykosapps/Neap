@@ -135,11 +135,23 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     public EditPlan Plan(IReadOnlySet<FirmwareEdit> wanted) => FirmwareEdit.Plan(Edits, wanted, Installed);
 
     /// <summary>Reads the flash again at every place the headset's edits change.</summary>
+    /// <remarks>A read already under way is not started twice.</remarks>
     public async Task ReadFlash()
     {
-        Flash = await ReadEditedFlash();
+        if (_reading) return;
+        _reading = true;
+        try
+        {
+            Flash = await ReadEditedFlash();
+        }
+        finally
+        {
+            _reading = false;
+        }
         Changed?.Invoke();
     }
+
+    private bool _reading;
 
     private static readonly TimeSpan FlashWait = TimeSpan.FromMilliseconds(500);
 
@@ -147,7 +159,13 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     private async Task<IReadOnlyDictionary<int, byte[]>?> ReadEditedFlash()
     {
         var changes = Edits.SelectMany(edit => edit.Changes).ToList();
-        if (changes.Count == 0 || headset.Status.Link != Link.Connected) return null;
+        if (headset.Status.Link != Link.Connected || changes.Count == 0)
+        {
+            AppLog.Write(changes.Count == 0
+                ? "firmware edits: the flash is not read, as no edits are known for this headset yet"
+                : "firmware edits: the flash is not read while the headset is not connected");
+            return null;
+        }
         var read = await headset.Post(client =>
         {
             var bytes = new Dictionary<int, byte[]>();

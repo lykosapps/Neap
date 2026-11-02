@@ -153,6 +153,13 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
+- 2026-11-02 — Headset check 37 passed, read-only, owner's headset on the dock:
+  the Firmware page read both edits as active from the flash 2 seconds after
+  the headset connected (log: noise_cycle Installed, light_off_disconnected
+  Installed). The first two tries showed "can't tell": the page read once,
+  before the headset had connected, and never again; it now reads again as
+  the headset connects, and a skipped read leaves a line in the app log.
+
 - 2026-11-02 — Neap's firmware writer, read-only on the owner's headset: Neap's
   own download-mode code found the chip on COM8 in its first poll, shook hands,
   read the first firmware word 400107A2 and the three edited sections byte for

@@ -80,7 +80,21 @@ public partial class FirmwarePage : UserControl
         AppServices.Headset.StatusChanged -= OnStatus;
     }
 
-    private void OnStatus(Core.Connection.HeadsetStatus status) => Paint();
+    /// <remarks>
+    /// The page often opens before the headset has connected, so the flash is
+    /// read again as it connects, if it could not be read yet.
+    /// </remarks>
+    private async void OnStatus(Core.Connection.HeadsetStatus status)
+    {
+        Paint();
+        bool connected = status.Link == Core.Connection.Link.Connected;
+        bool justConnected = connected && !_connected;
+        _connected = connected;
+        if (justConnected && AppServices.Firmware.Flash is null && !AppServices.Firmware.Busy)
+            await AppServices.Firmware.ReadFlash();
+    }
+
+    private bool _connected = AppServices.Headset.Status.Link == Core.Connection.Link.Connected;
 
     /// <summary>The edits ticked: as set by the person, or else what is on.</summary>
     private IReadOnlySet<FirmwareEdit> Wanted =>
