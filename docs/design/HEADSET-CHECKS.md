@@ -158,8 +158,8 @@ plugged in again; the headset's lights read as before throughout.
 Neap's own writer is built: it reads each mod's state from the flash, finds
 the chip's download mode, writes with SP2Tools' proven program and reads every
 write back. `FirmwareEdit.Released` stays off until these pass on the owner's
-headset, run from a build with the page opened over the pretend flag's page
-switch, one at a time, with SP2Tools' recovery kit at hand. Each write needs
+headset, run from a local build with `Released` set on (never committed),
+one at a time, with SP2Tools' recovery kit at hand. Each write needs
 the owner's go first.
 
 37. **Status, read live:** open the Firmware page with the headset on the dock,
