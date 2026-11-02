@@ -17,6 +17,9 @@ stays in the commit history.
 - **Equaliser reads through the dock.** Reading the game equaliser's stored
   settings no longer goes wrong when the headset sends an empty report
   between a reply and its repeat.
+- When saving or deleting an equaliser preset fails, as when the headset is
+  unplugged part way, Neap says so in plain words rather than showing the
+  system's own error. The detail goes to the app log.
 
 ## 0.4.0 — 2026-10-31
 
