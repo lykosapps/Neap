@@ -1808,29 +1808,29 @@
     <value>Firmware edits</value>
   </data>
   <data name="Settings_FirmwareEdits.Description" xml:space="preserve">
-    <value>Adds a Firmware page for installing edits made for your headset. An edit can stop the headset starting.</value>
+    <value>Adds a Firmware page for applying edits made for your headset. An edit can stop the headset starting.</value>
   </data>
   <data name="Firmware_Title.Text" xml:space="preserve">
     <value>Firmware</value>
   </data>
   <data name="Firmware_Intro.Text" xml:space="preserve">
-    <value>Edits change your headset's firmware. Neap backs up each section before writing it, reads each write back, and puts back what was there if it doesn't match. An edit can still stop the headset starting, and Turtle Beach can't help with an edited headset. A Swarm II update or recovery removes the edits.</value>
+    <value>An edit to the firmware can stop the headset starting, and Turtle Beach can't help with an edited headset. A Swarm II update or recovery removes the edits.</value>
   </data>
   <data name="Firmware_StepState" xml:space="preserve">
     <value>{0}: {1}</value>
     <comment>A step of a firmware change as a screen reader says it. {0} is the step; {1} is how far it has got.</comment>
   </data>
   <data name="Firmware_CannotWrite.Title" xml:space="preserve">
-    <value>This version of Neap can't install edits yet</value>
+    <value>This version of Neap can't apply edits yet</value>
   </data>
   <data name="Firmware_CannotWrite.Message" xml:space="preserve">
-    <value>It shows which edits fit your headset and whether they're on. This headset's firmware can't be changed from Neap.</value>
+    <value>It shows which edits fit your headset and whether they're active. This headset's firmware can't be changed from Neap.</value>
   </data>
   <data name="Firmware_EditsHeading.Text" xml:space="preserve">
     <value>Edits for this headset</value>
   </data>
   <data name="Firmware_NoEdits.Text" xml:space="preserve">
-    <value>There are no edits for this headset.</value>
+    <value>Neap has no edits for this headset.</value>
   </data>
   <data name="Firmware_BackupsHeading.Text" xml:space="preserve">
     <value>Backups</value>
@@ -1842,7 +1842,7 @@
     <value>Done</value>
   </data>
   <data name="Firmware_StepFailed" xml:space="preserve">
-    <value>Failed</value>
+    <value>Didn't finish</value>
   </data>
   <data name="Firmware_StepSkipped" xml:space="preserve">
     <value>Not run</value>
@@ -1851,7 +1851,7 @@
     <value>Waiting</value>
   </data>
   <data name="Firmware_StepWorking" xml:space="preserve">
-    <value>Working</value>
+    <value>Working…</value>
   </data>
   <data name="Firmware_StepCheck" xml:space="preserve">
     <value>Check the headset</value>
@@ -1870,17 +1870,17 @@
   </data>
   <data name="Firmware_RestoreName" xml:space="preserve">
     <value>Restore {0}</value>
-    <comment>{0} says when the backup was made, for which edit and from which firmware.</comment>
+    <comment>{0} says which edit's section the backup holds and when it was saved.</comment>
   </data>
   <data name="Firmware_RestoreTitle" xml:space="preserve">
     <value>Restore this backup?</value>
   </data>
   <data name="Firmware_NoiseCycle" xml:space="preserve">
-    <value>Noise cycle</value>
+    <value>Noise cancellation cycle</value>
     <comment>The name of a firmware edit.</comment>
   </data>
   <data name="Firmware_NoiseCycleDescription" xml:space="preserve">
-    <value>The Mode button steps through off, transparency and noise cancellation by itself, with a tone for each.</value>
+    <value>The Mode button cycles off, transparency and cancelling.</value>
   </data>
   <data name="Firmware_Installed" xml:space="preserve">
     <value>Active</value>
@@ -1902,10 +1902,10 @@
     <value>Unknown</value>
   </data>
   <data name="Firmware_Altered" xml:space="preserve">
-    <value>Neither factory nor this edit. Something else has changed this part of the firmware.</value>
+    <value>Something other than this edit has changed this part of the firmware. Restore a backup below to undo it.</value>
   </data>
   <data name="Firmware_Unknown" xml:space="preserve">
-    <value>Can't tell whether it's active. Neap couldn't read the headset's firmware.</value>
+    <value>Neap couldn't read the headset's firmware, so it can't tell whether this edit is active. Reconnect the headset to try again.</value>
   </data>
   <data name="Firmware_BlockedNotConnected" xml:space="preserve">
     <value>Connect the headset first.</value>
@@ -1920,6 +1920,10 @@
   <data name="Firmware_BlockedSwarm" xml:space="preserve">
     <value>Quit Swarm II first.</value>
   </data>
+  <data name="Firmware_BlockersJoin" xml:space="preserve">
+    <value>{0} {1}</value>
+    <comment>Two things that stop the edits being written, each a sentence, in the order to deal with them. {0} may itself be two or more joined the same way.</comment>
+  </data>
   <data name="Firmware_Apply.Content" xml:space="preserve">
     <value>Apply</value>
   </data>
@@ -1927,13 +1931,13 @@
     <value>Apply</value>
   </data>
   <data name="Firmware_RestoreStock.Content" xml:space="preserve">
-    <value>Restore to stock</value>
+    <value>Restore factory</value>
   </data>
   <data name="Firmware_RestoreStock" xml:space="preserve">
-    <value>Restore to stock</value>
+    <value>Restore factory</value>
   </data>
   <data name="Firmware_Progress.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Progress</value>
+    <value>Write progress</value>
   </data>
   <data name="Firmware_Steps.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Steps</value>
@@ -1948,57 +1952,74 @@
     <value>Neap saves each section before writing it. If an edit leaves your headset unwell, restore the newest backups.</value>
   </data>
   <data name="Firmware_RiskAndStatus" xml:space="preserve">
-    <value>{0} · {1}</value>
-    <comment>{0} is how risky the edit is, {1} whether it is installed.</comment>
+    <value>{0} {1}</value>
+    <comment>{0} is how risky the edit is, {1} why it is neither active nor factory. Both are sentences.</comment>
+  </data>
+  <data name="Firmware_TickHelp" xml:space="preserve">
+    <value>{0} State: {1}. {2}</value>
+    <comment>What a screen reader says about an edit's tick box. {0} is what the edit does, a sentence; {1} its state as its chip shows it, such as Active or Factory; {2} its risk and anything more about its state, as sentences.</comment>
+  </data>
+  <data name="Firmware_EditState" xml:space="preserve">
+    <value>{0}: {1}</value>
+    <comment>An edit's state as a screen reader says it when it changes. {0} is the edit; {1} its state, such as Active or Factory.</comment>
   </data>
   <data name="Firmware_RiskLow" xml:space="preserve">
-    <value>Low risk</value>
+    <value>Low risk: it changes a setting in the firmware.</value>
   </data>
   <data name="Firmware_RiskHigher" xml:space="preserve">
-    <value>Higher risk: adds code to the firmware</value>
+    <value>Higher risk: it adds code to the firmware.</value>
   </data>
   <data name="Firmware_LightOff" xml:space="preserve">
     <value>Light off when disconnected</value>
     <comment>The name of a firmware edit.</comment>
   </data>
   <data name="Firmware_LightOffDescription" xml:space="preserve">
-    <value>The headset's light switches off when it loses its connection, instead of blinking.</value>
+    <value>The light goes off, not blinking, when disconnected.</value>
   </data>
   <data name="Firmware_PlanNothing" xml:space="preserve">
     <value>Nothing to change.</value>
   </data>
-  <data name="Firmware_PlanOneSection" xml:space="preserve">
-    <value>Writes 1 section of the headset's firmware, with one plug-in.</value>
-  </data>
-  <data name="Firmware_PlanOnePlugIn" xml:space="preserve">
-    <value>Writes {0} sections of the headset's firmware, with one plug-in.</value>
-    <comment>{0} is a number of sections, more than one.</comment>
+  <data name="Firmware_PlanWrites" xml:space="preserve">
+    <value>Sections of the headset's firmware to write: {0}. Times you plug the headset in: {1}.</value>
+    <comment>{0} is how many sections are written; {1} is how many times the headset is plugged in. Both are counts of 1 or more.</comment>
   </data>
   <data name="Firmware_PlanUpTo" xml:space="preserve">
-    <value>Neap can't tell which edits are on, so it reads each section first and writes only those that differ: up to {0} sections, with one plug-in.</value>
-    <comment>{0} is a number of sections, {1} a number of plug-ins.</comment>
+    <value>Neap can't tell which edits are active, so it reads each section first and writes only those that differ. Sections it may write: {0}. Most times you plug the headset in: {1}.</value>
+    <comment>{0} is the most sections it may write; {1} is the most times the headset is plugged in. Both are counts of 1 or more.</comment>
   </data>
   <data name="Firmware_ApplyTitle" xml:space="preserve">
     <value>Apply these edits?</value>
   </data>
   <data name="Firmware_RestoreStockTitle" xml:space="preserve">
-    <value>Restore stock firmware?</value>
+    <value>Restore the factory firmware?</value>
   </data>
   <data name="Firmware_ApplyWarning" xml:space="preserve">
     <value>You'll switch the headset off and plug a USB-C cable into its left ear cup. Keep it plugged in until Neap says to unplug. Neap backs up each section first, reads each write back and puts back what was there if it doesn't match. An edit can still stop the headset starting.</value>
   </data>
   <data name="Firmware_RunApplying" xml:space="preserve">
-    <value>Applying edits</value>
+    <value>Applying edits…</value>
   </data>
   <data name="Firmware_RunRestoringStock" xml:space="preserve">
-    <value>Restoring stock firmware</value>
+    <value>Restoring the factory firmware…</value>
   </data>
   <data name="Firmware_RunRestoring" xml:space="preserve">
-    <value>Restoring a backup</value>
+    <value>Restoring a backup…</value>
+  </data>
+  <data name="Firmware_RunApplied" xml:space="preserve">
+    <value>Apply edits</value>
+    <comment>The run card's heading once applying edits has ended, however it ended; the result is said under it.</comment>
+  </data>
+  <data name="Firmware_RunRestoredStock" xml:space="preserve">
+    <value>Restore the factory firmware</value>
+    <comment>The run card's heading once restoring the factory firmware has ended, however it ended.</comment>
+  </data>
+  <data name="Firmware_RunRestored" xml:space="preserve">
+    <value>Restore a backup</value>
+    <comment>The run card's heading once restoring a backup has ended, however it ended.</comment>
   </data>
   <data name="Firmware_RunSession" xml:space="preserve">
     <value>Plug-in {0} of {1}</value>
-    <comment>{0} and {1} are numbers of plug-ins.</comment>
+    <comment>{0} is which time the headset is plugged in, {1} how many times in all.</comment>
   </data>
   <data name="Firmware_GuidePlug" xml:space="preserve">
     <value>Switch the headset off, then plug a USB-C cable from this PC into its left ear cup. Don't press Power.</value>
@@ -2035,17 +2056,25 @@
     <value>Stopped while waiting for the headset. Nothing was written after that.</value>
   </data>
   <data name="Firmware_OutcomeRefused" xml:space="preserve">
-    <value>Nothing was written: part of the headset's firmware isn't the factory firmware these edits are made for.</value>
+    <value>Nothing was written. Part of the headset's firmware isn't the factory firmware these edits are made for. Restore a backup below to undo the change.</value>
   </data>
   <data name="Firmware_OutcomeReverted" xml:space="preserve">
-    <value>A section didn't read back as written, so Neap put back what was there. The headset starts as before, but the edits may be only partly on.</value>
+    <value>A section didn't read back as written, so Neap put back what was there. Each edit's state is shown above; tick an edit and choose Apply to try again.</value>
   </data>
   <data name="Firmware_OutcomeFailed" xml:space="preserve">
-    <value>A step failed, and the app log says which. If the headset doesn't start, restore the newest backups below.</value>
+    <value>Something stopped the write before it finished, and the app log says where. If the headset doesn't start, restore the newest backups below.</value>
+  </data>
+  <data name="Firmware_BackupLinePart" xml:space="preserve">
+    <value>{0}, section {1} of {2}, saved {3}</value>
+    <comment>{0} is the edit, {1} which of its sections this is, {2} how many it has, {3} when it was saved.</comment>
+  </data>
+  <data name="Firmware_BackupLineOther" xml:space="preserve">
+    <value>Firmware section {0}, saved {1}</value>
+    <comment>{0} is the section's address, for a section no edit Neap knows of uses; {1} when it was saved.</comment>
   </data>
   <data name="Firmware_BackupLine" xml:space="preserve">
-    <value>{0} · section {1} · firmware {2}</value>
-    <comment>{0} is when the backup was made, {1} the section's address, {2} the firmware version it was taken from.</comment>
+    <value>{0}, saved {1}</value>
+    <comment>{0} is the edit the saved section belongs to, {1} when it was saved.</comment>
   </data>
   <data name="Firmware_RestoreWarning" xml:space="preserve">
     <value>You'll switch the headset off and plug a USB-C cable into its left ear cup. Neap writes the section as the backup holds it and reads it back.</value>

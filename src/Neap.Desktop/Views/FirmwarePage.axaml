@@ -38,14 +38,18 @@
             <TextBlock loc:Uid.Value="Firmware_EditsHeading" Classes="sectionheader" />
             <Border x:Name="EditsCard" Classes="card">
                 <StackPanel Spacing="{StaticResource NeapSpaceM}">
-                    <StackPanel x:Name="EditList" Spacing="{StaticResource NeapSpaceM}" />
+                    <StackPanel x:Name="EditList" Spacing="{StaticResource NeapSpaceS}" />
                     <StackPanel Spacing="{StaticResource NeapSpaceXS}">
                         <TextBlock x:Name="PlanText" TextWrapping="Wrap" />
-                        <TextBlock x:Name="BlockersText" Classes="caption secondary" TextWrapping="Wrap" />
+                        <TextBlock
+                            x:Name="BlockersText"
+                            Classes="caption secondary"
+                            AutomationProperties.LiveSetting="Polite"
+                            TextWrapping="Wrap" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
                         <Button x:Name="ApplyButton" loc:Uid.Value="Firmware_Apply" Classes="accent" />
-                        <Button x:Name="StockButton" loc:Uid.Value="Firmware_RestoreStock" />
+                        <Button x:Name="FactoryButton" loc:Uid.Value="Firmware_RestoreStock" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -58,13 +62,16 @@
             -->
             <Border
                 x:Name="RunCard"
-                Margin="0,8,0,0"
+                Margin="{StaticResource NeapCardGap}"
                 Classes="card"
                 IsVisible="False">
                 <StackPanel Spacing="{StaticResource NeapSpaceM}">
-                    <StackPanel Spacing="{StaticResource NeapSpaceHairline}">
+                    <StackPanel Spacing="{StaticResource NeapSpaceXS}">
                         <TextBlock x:Name="RunTitle" Classes="cardtitle" AutomationProperties.HeadingLevel="2" />
-                        <TextBlock x:Name="RunSession" Classes="caption secondary" />
+                        <TextBlock
+                            x:Name="RunSession"
+                            Classes="caption secondary"
+                            AutomationProperties.LiveSetting="Polite" />
                     </StackPanel>
                     <TextBlock
                         x:Name="Guide"
@@ -76,7 +83,12 @@
                         loc:Uid.Value="Firmware_Progress"
                         Maximum="100"
                         Minimum="0" />
-                    <StackPanel x:Name="StepList" loc:Uid.Value="Firmware_Steps" Spacing="{StaticResource NeapSpaceXS}" />
+                    <!-- One row per step; the step names share a width, so the states form one column. -->
+                    <StackPanel
+                        x:Name="StepList"
+                        loc:Uid.Value="Firmware_Steps"
+                        Grid.IsSharedSizeScope="True"
+                        Spacing="{StaticResource NeapSpaceS}" />
                     <TextBlock
                         x:Name="OutcomeText"
                         Classes="bodystrong"
@@ -94,14 +106,17 @@
                 the way out for a headset an edit has left unwell.
             -->
             <TextBlock loc:Uid.Value="Firmware_BackupsHeading" Classes="sectionheader" />
-            <TextBlock
-                loc:Uid.Value="Firmware_BackupsNote"
-                MaxWidth="760"
-                Margin="0,0,0,8"
-                HorizontalAlignment="Left"
-                Classes="caption secondary" />
-            <StackPanel x:Name="BackupList" Spacing="{StaticResource NeapSpaceXS}" />
-            <TextBlock x:Name="NoBackups" loc:Uid.Value="Firmware_NoBackups" Classes="secondary" />
+            <Border Classes="card">
+                <StackPanel Spacing="{StaticResource NeapSpaceS}">
+                    <TextBlock
+                        loc:Uid.Value="Firmware_BackupsNote"
+                        MaxWidth="760"
+                        HorizontalAlignment="Left"
+                        Classes="caption secondary" />
+                    <StackPanel x:Name="BackupList" Spacing="{StaticResource NeapSpaceS}" />
+                    <TextBlock x:Name="NoBackups" loc:Uid.Value="Firmware_NoBackups" Classes="secondary" />
+                </StackPanel>
+            </Border>
 
             </StackPanel>
 

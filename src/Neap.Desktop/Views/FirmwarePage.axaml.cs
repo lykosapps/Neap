@@ -27,7 +27,7 @@ namespace Neap.Desktop.Views;
 /// <para>
 /// The ticks start as what is on, so Apply with nothing changed writes nothing,
 /// and the plan under the list says what Apply would write before it is
-/// pressed. Restore to stock is Apply with nothing ticked.
+/// pressed. Restore factory is Apply with nothing ticked.
 /// </para>
 /// <para>
 /// A run shows on its own card under the list: the one thing the person has to
@@ -43,6 +43,20 @@ public partial class FirmwarePage : UserControl
     /// <summary>What the list was last drawn from, so a report that changes nothing on it leaves it, and the focus, alone.</summary>
     private string? _drawn;
 
+    /// <summary>The edits the rows were built for.</summary>
+    private string? _rowsFor;
+
+    /// <summary>Puts each edit's row in step with its state.</summary>
+    /// <remarks>
+    /// The rows are kept and changed in place, so a state that changes on its
+    /// own, such as Unknown becoming Factory once the flash is read, is
+    /// announced, and the keyboard focus stays where it is.
+    /// </remarks>
+    private readonly List<Action> _paintRows = [];
+
+    /// <summary>Set while the rows are put in step, so a tick set from the headset's state is not taken as the person's.</summary>
+    private bool _painting;
+
     private CancellationTokenSource? _stopping;
     private ApplyProgress? _progress;
     private ApplyOutcome? _outcome;
@@ -50,8 +64,8 @@ public partial class FirmwarePage : UserControl
     public FirmwarePage()
     {
         InitializeComponent();
-        ApplyButton.Click += async (_, _) => await AskToApply(Wanted.ToHashSet(), restoringStock: false);
-        StockButton.Click += async (_, _) => await AskToApply([], restoringStock: true);
+        ApplyButton.Click += async (_, _) => await AskToApply(Wanted.ToHashSet(), toFactory: false);
+        FactoryButton.Click += async (_, _) => await AskToApply([], toFactory: true);
         FlashEdits.IsVisible = FirmwareEdit.Released || Pretend.Active;
         Intro.IsVisible = FirmwareEdit.Released || Pretend.Active;
         CancelButton.Click += (_, _) => _stopping?.Cancel();
@@ -120,32 +134,44 @@ public partial class FirmwarePage : UserControl
         EditsCard.IsVisible = edits.Count > 0;
         NoEdits.IsVisible = edits.Count == 0;
 
-        Refill(EditList, () =>
+        string rowsFor = string.Join(",", edits.Select(edit => edit.Id));
+        if (rowsFor != _rowsFor)
         {
-            foreach (var edit in edits) EditList.Children.Add(Row(edit));
-        });
+            _rowsFor = rowsFor;
+            _paintRows.Clear();
+            Refill(EditList, () =>
+            {
+                foreach (var edit in edits) EditList.Children.Add(Row(edit));
+            });
+        }
+        _painting = true;
+        foreach (var paintRow in _paintRows) paintRow();
+        _painting = false;
 
         PlanText.Text = PlanWords(plan);
-        BlockersText.Text = string.Join(" ", blockers.Select(BlockerWords));
+        BlockersText.Text = blockers.Count == 0
+            ? ""
+            : blockers.Select(BlockerWords).Aggregate((before, next) => Strings.Format("Firmware_BlockersJoin", before, next));
         BlockersText.IsVisible = !plan.Nothing && blockers.Count > 0;
         bool free = firmware.CanWrite && !firmware.Busy;
         ApplyButton.IsEnabled = free && !plan.Nothing && blockers.Count == 0;
-        var stock = firmware.Plan(new HashSet<FirmwareEdit>());
-        StockButton.IsEnabled = free && !stock.Nothing
-            && FirmwareEdit.Blockers(stock.Changing, firmware.Readiness).Count == 0;
+        var factory = firmware.Plan(new HashSet<FirmwareEdit>());
+        FactoryButton.IsEnabled = free && !factory.Nothing
+            && FirmwareEdit.Blockers(factory.Changing, firmware.Readiness).Count == 0;
 
         var backups = FirmwareEditService.Backups;
         Refill(BackupList, () =>
         {
             foreach (var backup in backups) BackupList.Children.Add(BackupRow(backup, free));
         });
+        BackupList.IsVisible = backups.Count > 0;
         NoBackups.IsVisible = backups.Count == 0;
     }
 
     /// <summary>Draws a list again, leaving the keyboard focus on the same row if it can still take it.</summary>
     /// <remarks>
-    /// A tick or a restore redraws the list it is in, which would otherwise
-    /// drop the focus from under the keyboard.
+    /// A new backup redraws the list of them, and a new list of edits the
+    /// rows, which would otherwise drop the focus from under the keyboard.
     /// </remarks>
     private void Refill(Panel list, Action fill)
     {
@@ -163,57 +189,60 @@ public partial class FirmwarePage : UserControl
     }
 
     /// <summary>An edit's tick, with what it does, how much it risks and whether it is on.</summary>
+    /// <remarks>
+    /// What changes with the headset is set by the row's entry in
+    /// <see cref="_paintRows"/>. The chip's name says the edit and its state,
+    /// and is announced when it changes.
+    /// </remarks>
     private Control Row(FirmwareEdit edit)
     {
-        var firmware = AppServices.Firmware;
-        var status = firmware.StatusOf(edit);
-        var tick = new CheckBox
-        {
-            Content = EditName(edit),
-            IsChecked = Wanted.Contains(edit),
-            IsEnabled = firmware.CanWrite && !firmware.Busy && status != EditStatus.DoesNotFit,
-        };
+        var tick = new CheckBox { Content = EditName(edit) };
         tick.IsCheckedChanged += (_, _) =>
         {
+            if (_painting) return;
             var wanted = Wanted.ToHashSet();
             if (tick.IsChecked == true) wanted.Add(edit);
             else wanted.Remove(edit);
             _wanted = wanted;
             Paint();
         };
-        // Active and factory say all they need in the chip; anything else is explained under the edit.
-        string about = status is EditStatus.Installed or EditStatus.NotInstalled
-            ? RiskWords(edit.Risk)
-            : Strings.Format("Firmware_RiskAndStatus", RiskWords(edit.Risk), StatusWords(status, firmware.Build, edit));
-        AutomationProperties.SetHelpText(tick, $"{Description(edit)} {StateWords(status)}. {about}");
+
+        var dot = new Ellipse { VerticalAlignment = VerticalAlignment.Center };
+        var word = new TextBlock();
+        var state = new Border
+        {
+            Classes = { "chip" },
+            Child = new StackPanel { Classes = { "gaprow" }, Children = { dot, word } },
+        };
+        AutomationProperties.SetLiveSetting(state, AutomationLiveSetting.Polite);
+        var about = new TextBlock { Classes = { "caption", "secondary" }, TextWrapping = TextWrapping.Wrap };
+
+        _paintRows.Add(() =>
+        {
+            var firmware = AppServices.Firmware;
+            var status = firmware.StatusOf(edit);
+            tick.IsChecked = Wanted.Contains(edit);
+            tick.IsEnabled = firmware.CanWrite && !firmware.Busy && status != EditStatus.DoesNotFit;
+            dot.Classes.Replace(["statusdot", StateTone(status)]);
+            word.Text = StateWords(status);
+            AutomationProperties.SetName(state, Strings.Format("Firmware_EditState", EditName(edit), word.Text));
+            // Active and factory say all they need in the chip; anything else is explained under the edit.
+            about.Text = status is EditStatus.Installed or EditStatus.NotInstalled
+                ? RiskWords(edit.Risk)
+                : Strings.Format("Firmware_RiskAndStatus", RiskWords(edit.Risk), StatusWords(status, firmware.Build, edit));
+            AutomationProperties.SetHelpText(tick, Strings.Format("Firmware_TickHelp", Description(edit), word.Text, about.Text));
+        });
 
         var header = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
         header.Children.Add(tick);
-        var state = StateChip(status);
         Grid.SetColumn(state, 1);
         header.Children.Add(state);
 
-        var details = new StackPanel { Margin = new Avalonia.Thickness(32, 0, 0, 0), Spacing = Space.Hairline };
+        var details = new StackPanel { Classes = { "checkdetail" } };
         details.Children.Add(new TextBlock { Text = Description(edit), Classes = { "secondary" }, TextWrapping = TextWrapping.Wrap });
-        details.Children.Add(new TextBlock { Text = about, Classes = { "caption", "secondary" }, TextWrapping = TextWrapping.Wrap });
-        return new StackPanel { Spacing = Space.Hairline, Children = { header, details } };
+        details.Children.Add(about);
+        return new StackPanel { Spacing = Space.XS, Children = { header, details } };
     }
-
-    /// <summary>Whether an edit is on, as a dot in the state's tone and its word.</summary>
-    /// <remarks>Its word is read out with the tick's help text, so a screen reader hears it with the edit.</remarks>
-    private static Border StateChip(EditStatus status) => new()
-    {
-        Classes = { "tag" },
-        Child = new StackPanel
-        {
-            Classes = { "gaprow" },
-            Children =
-                {
-                    new Ellipse { Classes = { "statusdot", StateTone(status) }, VerticalAlignment = VerticalAlignment.Center },
-                    new TextBlock { Text = StateWords(status) },
-                },
-        },
-    };
 
     private static string StateTone(EditStatus status) => status switch
     {
@@ -233,12 +262,12 @@ public partial class FirmwarePage : UserControl
     };
 
     /// <summary>Asks before writing, with the plan and what can go wrong, then runs it on the run card.</summary>
-    private async Task AskToApply(HashSet<FirmwareEdit> wanted, bool restoringStock)
+    private async Task AskToApply(HashSet<FirmwareEdit> wanted, bool toFactory)
     {
         var plan = AppServices.Firmware.Plan(wanted);
         bool go = await new NeapDialog
         {
-            Heading = Strings.Get(restoringStock ? "Firmware_RestoreStockTitle" : "Firmware_ApplyTitle"),
+            Heading = Strings.Get(toFactory ? "Firmware_RestoreStockTitle" : "Firmware_ApplyTitle"),
             Body = new StackPanel
             {
                 MaxWidth = 440,
@@ -249,13 +278,15 @@ public partial class FirmwarePage : UserControl
                     new TextBlock { Text = Strings.Get("Firmware_ApplyWarning"), TextWrapping = TextWrapping.Wrap },
                 },
             },
-            PrimaryButtonText = Strings.Get(restoringStock ? "Firmware_RestoreStock" : "Firmware_Apply"),
+            PrimaryButtonText = Strings.Get(toFactory ? "Firmware_RestoreStock" : "Firmware_Apply"),
             CloseButtonText = Strings.Get("Dialog_Cancel"),
         }.ShowAsync(this);
         if (!go) return;
 
-        RunTitle.Text = Strings.Get(restoringStock ? "Firmware_RunRestoringStock" : "Firmware_RunApplying");
-        await Running(cancel => AppServices.Firmware.Apply(wanted, Report, cancel));
+        await Running(
+            toFactory ? "Firmware_RunRestoringStock" : "Firmware_RunApplying",
+            toFactory ? "Firmware_RunRestoredStock" : "Firmware_RunApplied",
+            cancel => AppServices.Firmware.Apply(wanted, Report, cancel));
         _wanted = null;
         Paint();
     }
@@ -271,14 +302,16 @@ public partial class FirmwarePage : UserControl
         }.ShowAsync(this);
         if (!go) return;
 
-        RunTitle.Text = Strings.Get("Firmware_RunRestoring");
-        await Running(cancel => AppServices.Firmware.Restore(backup, Report, cancel));
+        await Running("Firmware_RunRestoring", "Firmware_RunRestored", cancel => AppServices.Firmware.Restore(backup, Report, cancel));
         _wanted = null;
         Paint();
     }
 
-    private async Task Running(Func<CancellationToken, Task<ApplyOutcome>> run)
+    /// <summary>Runs a write with the run card showing, headed by what is under way and then by what was done.</summary>
+    /// <remarks>The finished heading names the action, not its result, as the outcome under it says how it ended.</remarks>
+    private async Task Running(string doingKey, string doneKey, Func<CancellationToken, Task<ApplyOutcome>> run)
     {
+        RunTitle.Text = Strings.Get(doingKey);
         using var stopping = new CancellationTokenSource();
         _stopping = stopping;
         _progress = null;
@@ -286,6 +319,7 @@ public partial class FirmwarePage : UserControl
         PaintRun(running: true);
         _outcome = await run(stopping.Token);
         _stopping = null;
+        RunTitle.Text = Strings.Get(doneKey);
         PaintRun(running: false);
     }
 
@@ -308,6 +342,7 @@ public partial class FirmwarePage : UserControl
         if (!RunCard.IsVisible) return;
 
         var at = _progress;
+        // One plug-in writes every section; which plug-in this is is said only when there is more than one.
         RunSession.Text = at is { Sessions: > 1, Session: > 0 }
             ? Strings.Format("Firmware_RunSession", at.Session, at.Sessions)
             : "";
@@ -329,12 +364,24 @@ public partial class FirmwarePage : UserControl
         StepList.Children.Clear();
         foreach (var step in FirmwareEdit.Steps)
         {
-            string state = StepState(step, at, _outcome);
-            var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
-            row.Children.Add(new TextBlock { Text = StepWords(step) });
-            var said = new TextBlock { Text = state, Classes = { "secondary" } };
-            Grid.SetColumn(said, 1);
-            row.Children.Add(said);
+            var (state, tone) = StepState(step, at, _outcome);
+            var row = new Grid
+            {
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition(GridLength.Auto),
+                    new ColumnDefinition(GridLength.Auto) { SharedSizeGroup = "StepName" },
+                    new ColumnDefinition(GridLength.Star),
+                },
+                ColumnSpacing = Space.S,
+            };
+            var name = new TextBlock { Text = StepWords(step) };
+            var words = new TextBlock { Text = state, Classes = { "secondary" } };
+            Grid.SetColumn(name, 1);
+            Grid.SetColumn(words, 2);
+            row.Children.Add(new Ellipse { Classes = { "statusdot", tone }, VerticalAlignment = VerticalAlignment.Center });
+            row.Children.Add(name);
+            row.Children.Add(words);
             AutomationProperties.SetName(row, Strings.Format("Firmware_StepState", StepWords(step), state));
             StepList.Children.Add(row);
         }
@@ -345,27 +392,30 @@ public partial class FirmwarePage : UserControl
         CloseButton.IsVisible = !running;
     }
 
-    private static string StepState(EditStep step, ApplyProgress? at, ApplyOutcome? outcome)
+    /// <summary>How far a step has got, as its word and the tone of its dot.</summary>
+    private static (string Words, string Tone) StepState(EditStep step, ApplyProgress? at, ApplyOutcome? outcome)
     {
-        if (outcome is { Stopped: null }) return Strings.Get("Firmware_StepDone");
+        var done = (Strings.Get("Firmware_StepDone"), "good");
+        if (outcome is { Stopped: null }) return done;
         var current = outcome?.Stopped ?? at?.Step;
-        if (current is not { } now) return Strings.Get("Firmware_StepWaiting");
-        if (step < now) return Strings.Get("Firmware_StepDone");
-        if (step > now) return Strings.Get(outcome is null ? "Firmware_StepWaiting" : "Firmware_StepSkipped");
+        if (current is not { } now) return (Strings.Get("Firmware_StepWaiting"), "neutral");
+        if (step < now) return done;
+        if (step > now) return (Strings.Get(outcome is null ? "Firmware_StepWaiting" : "Firmware_StepSkipped"), "neutral");
         if (outcome is not null)
-            return Strings.Get(outcome.Result == ApplyResult.Cancelled ? "Firmware_StepStopped" : "Firmware_StepFailed");
+        {
+            return outcome.Result == ApplyResult.Cancelled
+                ? (Strings.Get("Firmware_StepStopped"), "neutral")
+                : (Strings.Get("Firmware_StepFailed"), "critical");
+        }
         return at?.Percent is int percent
-            ? Strings.Format("Firmware_StepPercent", percent)
-            : Strings.Get("Firmware_StepWorking");
+            ? (Strings.Format("Firmware_StepPercent", percent), "accent")
+            : (Strings.Get("Firmware_StepWorking"), "accent");
     }
 
-    /// <summary>A backup's row: when it was made, of which section, from which firmware, and putting it back.</summary>
+    /// <summary>A backup's row: the edit its section belongs to, when it was saved, and putting it back.</summary>
     private Border BackupRow(FirmwareBackup backup, bool free)
     {
-        string what = Strings.Format("Firmware_BackupLine",
-            backup.Taken.ToString("g", CultureInfo.CurrentCulture),
-            backup.Sector.ToString("X8", CultureInfo.InvariantCulture),
-            backup.FirmwareBuild);
+        string what = BackupWords(backup);
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
         grid.Children.Add(new TextBlock { Text = what, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap });
         var restore = new Button { Content = Strings.Get("Firmware_Restore"), IsEnabled = free };
@@ -373,14 +423,33 @@ public partial class FirmwarePage : UserControl
         restore.Click += async (_, _) => await AskToRestore(backup);
         Grid.SetColumn(restore, 1);
         grid.Children.Add(restore);
-        return new Border { Classes = { "card", "compact" }, Child = grid };
+        return new Border { Classes = { "insetrow" }, Child = grid };
     }
 
-    private static string PlanWords(EditPlan plan) =>
-        plan.Nothing ? Strings.Get("Firmware_PlanNothing")
-        : plan.UpToSectors ? Strings.Format("Firmware_PlanUpTo", plan.Sectors.Count)
-        : plan.Sectors.Count == 1 ? Strings.Get("Firmware_PlanOneSection")
-        : Strings.Format("Firmware_PlanOnePlugIn", plan.Sectors.Count);
+    /// <summary>Names a backup by the edit whose section it holds, and which of its sections when it has more than one.</summary>
+    /// <remarks>
+    /// A section's address means nothing to the person; the edit it was saved
+    /// for does. Two edits can share a section, and the first that uses it
+    /// names it. A section no edit for this headset and firmware uses keeps its
+    /// address.
+    /// </remarks>
+    private static string BackupWords(FirmwareBackup backup)
+    {
+        string saved = backup.Taken.ToString("g", CultureInfo.CurrentCulture);
+        var edit = AppServices.Firmware.Edits.FirstOrDefault(edit =>
+            edit.FirmwareBuild == backup.FirmwareBuild && edit.Sectors.Contains(backup.Sector));
+        if (edit is null)
+            return Strings.Format("Firmware_BackupLineOther", backup.Sector.ToString("X8", CultureInfo.InvariantCulture), saved);
+        if (edit.Sectors.Count == 1) return Strings.Format("Firmware_BackupLine", EditName(edit), saved);
+        int part = edit.Sectors.ToList().IndexOf(backup.Sector) + 1;
+        return Strings.Format("Firmware_BackupLinePart", EditName(edit), part, edit.Sectors.Count, saved);
+    }
+
+    private static string PlanWords(EditPlan plan)
+    {
+        if (plan.Nothing) return Strings.Get("Firmware_PlanNothing");
+        return Strings.Format(plan.UpToSectors ? "Firmware_PlanUpTo" : "Firmware_PlanWrites", plan.Sectors.Count, plan.Sessions);
+    }
 
     private static string EditName(FirmwareEdit edit) => edit.Id switch
     {

@@ -160,7 +160,8 @@ internal static class HighContrast
         // Buttons, fields, segmented controls, the lists that open from them and the switch: outlined in
         // the text colour, where Neap's own themes draw soft fills with no edge, and the highlight where they are on. The toolkit's
         // own controls take these through FluentKeys.
-        foreach (string name in new[] { "NeapButtonBrush", "NeapButtonHoverBrush", "NeapButtonPressedBrush", "NeapButtonDisabledBrush", "NeapFlyoutBrush" })
+        foreach (string name in new[] { "NeapButtonBrush", "NeapButtonHoverBrush", "NeapButtonPressedBrush", "NeapButtonDisabledBrush", "NeapFlyoutBrush",
+            "NeapInsetButtonBrush", "NeapInsetButtonHoverBrush", "NeapInsetButtonPressedBrush" })
             Brush(name, p.Window);
         Brush("NeapButtonStrokeBrush", p.Text);
         Brush("NeapButtonDisabledStrokeBrush", p.Gray);

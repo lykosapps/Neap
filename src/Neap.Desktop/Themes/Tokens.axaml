@@ -71,6 +71,10 @@
             <SolidColorBrush x:Key="NeapButtonHoverBrush" Color="#27272C" />
             <SolidColorBrush x:Key="NeapButtonPressedBrush" Color="#19191C" />
             <SolidColorBrush x:Key="NeapButtonDisabledBrush" Color="#151517" />
+            <!-- A button set into an inset row: one step up from the inset, as a button on a card is from the card. -->
+            <SolidColorBrush x:Key="NeapInsetButtonBrush" Color="#27272C" />
+            <SolidColorBrush x:Key="NeapInsetButtonHoverBrush" Color="#2F2F35" />
+            <SolidColorBrush x:Key="NeapInsetButtonPressedBrush" Color="#222226" />
             <SolidColorBrush x:Key="NeapButtonStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapButtonDisabledStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapFlyoutBrush" Color="#25252A" />
@@ -169,6 +173,10 @@
             <SolidColorBrush x:Key="NeapButtonHoverBrush" Color="#E3E3E8" />
             <SolidColorBrush x:Key="NeapButtonPressedBrush" Color="#DADAE0" />
             <SolidColorBrush x:Key="NeapButtonDisabledBrush" Color="#F4F4F6" />
+            <!-- A button set into an inset row: one step up from the inset, as a button on a card is from the card. -->
+            <SolidColorBrush x:Key="NeapInsetButtonBrush" Color="#DCDCE2" />
+            <SolidColorBrush x:Key="NeapInsetButtonHoverBrush" Color="#D4D4DB" />
+            <SolidColorBrush x:Key="NeapInsetButtonPressedBrush" Color="#E5E5EA" />
             <SolidColorBrush x:Key="NeapButtonStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapButtonDisabledStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapFlyoutBrush" Color="#FFFFFF" />
@@ -292,6 +300,10 @@
     <x:Double x:Key="NeapDialogScrollHeight">420</x:Double>
     <x:Double x:Key="NeapNoticeEdge">3</x:Double>
     <x:Double x:Key="NeapStatusDot">8</x:Double>
+    <!-- A state word with its dot, as a pill: XS above and below the caption, S at the ends. -->
+    <Thickness x:Key="NeapPaddingChip">8,4</Thickness>
+    <!-- Lines under a check box's words start where its words do: the toolkit's 20px box and the 8px after it. -->
+    <Thickness x:Key="NeapCheckIndent">28,0,0,0</Thickness>
     <!-- Sets a status dot level with the middle of the first line of body text beside it. -->
     <Thickness x:Key="NeapStatusDotLine">0,4,0,0</Thickness>
     <x:Double x:Key="NeapMenuWidth">220</x:Double>
@@ -311,6 +323,8 @@
     <!-- The curves' small shapes, and the icons in a row. -->
     <CornerRadius x:Key="NeapRadiusTag">4</CornerRadius>
     <CornerRadius x:Key="NeapRadiusPill">10</CornerRadius>
+    <!-- Fully round, for pills and badges whatever their height. -->
+    <CornerRadius x:Key="NeapRadiusFull">999</CornerRadius>
     <x:Double x:Key="NeapIconRow">16</x:Double>
     <x:Double x:Key="NeapIconTile">20</x:Double>
     <x:Double x:Key="NeapTileHeadHeight">24</x:Double>

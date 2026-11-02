@@ -369,6 +369,33 @@
         <Setter Property="Margin" Value="32,0,0,0" />
     </Style>
 
+    <!--
+        A row of a list set into a card, such as a backup: one fill step above
+        the card, with no hover, as the row itself is not a control. High
+        contrast draws its edge, as the fill steps are gone there.
+    -->
+    <Style Selector="Border.insetrow">
+        <Setter Property="Background" Value="{DynamicResource NeapInsetBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
+        <Setter Property="Padding" Value="{StaticResource NeapPaddingRow}" />
+    </Style>
+
+    <!--
+        A button in an inset row steps up from the inset, not from the card,
+        so it stays one gentle step from the surface it sits on.
+    -->
+    <Style Selector="Border.insetrow Button">
+        <Setter Property="Background" Value="{DynamicResource NeapInsetButtonBrush}" />
+        <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource NeapInsetButtonHoverBrush}" />
+        </Style>
+        <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource NeapInsetButtonPressedBrush}" />
+        </Style>
+    </Style>
+
     <!-- A panel as quiet as a row of settings: the same corners and padding. -->
     <Style Selector="Border.card.compact">
         <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusInset}" />
@@ -427,6 +454,35 @@
     </Style>
     <Style Selector="Ellipse.critical">
         <Setter Property="Fill" Value="{DynamicResource NeapToneCriticalBrush}" />
+    </Style>
+    <!-- A step under way: in progress is the accent's, as an indicator with no text on it. -->
+    <Style Selector="Ellipse.accent">
+        <Setter Property="Fill" Value="{DynamicResource NeapAccentTextBrush}" />
+    </Style>
+
+    <!--
+        A state shown as a word with its dot, such as an edit's Active or
+        Factory: a soft fill one step from the card, fully round, with no
+        accent, as the dot carries the tone. High contrast keeps an outline,
+        as the fill steps are gone there.
+    -->
+    <Style Selector="Border.chip">
+        <Setter Property="Background" Value="{DynamicResource NeapInsetBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeapCardStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource NeapRadiusFull}" />
+        <Setter Property="Padding" Value="{StaticResource NeapPaddingChip}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.chip TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource NeapFontCaption}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeapTextBrush}" />
+    </Style>
+
+    <!-- What explains a check box, set under its words rather than its box. -->
+    <Style Selector="StackPanel.checkdetail">
+        <Setter Property="Margin" Value="{StaticResource NeapCheckIndent}" />
+        <Setter Property="Spacing" Value="{StaticResource NeapSpaceXS}" />
     </Style>
 
     <!-- A notice: outlined in the tone it speaks in, with an icon that says the same. -->
