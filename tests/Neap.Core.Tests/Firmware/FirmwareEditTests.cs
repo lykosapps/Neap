@@ -222,7 +222,50 @@ public class FirmwareEditTests
     [Fact]
     public void TheStepsRunAsTheSpecSetsThemOut() =>
         Assert.Equal(
-            [EditStep.Check, EditStep.Plug, EditStep.Connect, EditStep.Backup, EditStep.Write,
-             EditStep.Verify, EditStep.Reconnect, EditStep.Confirm],
+            [EditStep.Check, EditStep.Plug, EditStep.Connect, EditStep.Backup, EditStep.Write, EditStep.Verify],
             FirmwareEdit.Steps);
+
+    // -- each edit's state from the sections read back ------------------------
+
+    private static byte[] Section(int sector, params FlashChange[] active)
+    {
+        var bytes = new byte[FirmwareEdit.SectorSize];
+        foreach (var change in Edits.SelectMany(edit => edit.Changes).Where(change => (change.Address & ~(FirmwareEdit.SectorSize - 1)) == sector))
+            (active.Contains(change) ? change.Active : change.Factory).ToArray().CopyTo(bytes, change.Address - sector);
+        return bytes;
+    }
+
+    private static int SectorOf(FlashChange change) => change.Address & ~(FirmwareEdit.SectorSize - 1);
+
+    [Fact]
+    public void ASectionReadBackGivesTheStateOfTheEditInIt()
+    {
+        var light = Light.Changes[0];
+        var flash = FirmwareEdit.FlashFrom(Edits, new Dictionary<int, byte[]> { [SectorOf(light)] = Section(SectorOf(light), light) }, null);
+        Assert.Equal(EditStatus.Installed, Light.StatusIn(Build, flash));
+        Assert.Equal(EditStatus.Unknown, Cycle.StatusIn(Build, flash));
+    }
+
+    [Fact]
+    public void ASectionReadBackReplacesWhatWasKnownOfItAndKeepsTheRest()
+    {
+        var light = Light.Changes[0];
+        var before = Flash((CycleCode, true), (CycleCall, true), (light, true));
+        var flash = FirmwareEdit.FlashFrom(Edits, new Dictionary<int, byte[]> { [SectorOf(light)] = Section(SectorOf(light)) }, before);
+        Assert.Equal(EditStatus.NotInstalled, Light.StatusIn(Build, flash));
+        Assert.Equal(EditStatus.Installed, Cycle.StatusIn(Build, flash));
+    }
+
+    [Fact]
+    public void EverySectionReadBackGivesEveryEditsState()
+    {
+        var sections = Edits.SelectMany(edit => edit.Sectors).Distinct()
+            .ToDictionary(sector => sector, sector => Section(sector, CycleCode, CycleCall));
+        var flash = FirmwareEdit.FlashFrom(Edits, sections, null);
+        Assert.Equal(Set(Cycle), FirmwareEdit.InstalledIn(Edits, Build, flash));
+    }
+
+    [Fact]
+    public void NoSectionReadAndNothingKnownBeforeIsNothingKnown() =>
+        Assert.Null(FirmwareEdit.FlashFrom(Edits, new Dictionary<int, byte[]>(), null));
 }

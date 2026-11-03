@@ -1862,9 +1862,6 @@
   <data name="Firmware_StepWrite" xml:space="preserve">
     <value>Write</value>
   </data>
-  <data name="Firmware_StepConfirm" xml:space="preserve">
-    <value>Confirm</value>
-  </data>
   <data name="Firmware_Restore" xml:space="preserve">
     <value>Restore</value>
   </data>
@@ -2021,11 +2018,11 @@
     <value>Plug-in {0} of {1}</value>
     <comment>{0} is which time the headset is plugged in, {1} how many times in all.</comment>
   </data>
+  <data name="Firmware_GuidePlugAgain" xml:space="preserve">
+    <value>Unplug the cable, then plug it back in. Don't press Power.</value>
+  </data>
   <data name="Firmware_GuidePlug" xml:space="preserve">
     <value>Switch the headset off, then plug a USB-C cable from this PC into its left ear cup. Don't press Power.</value>
-  </data>
-  <data name="Firmware_GuideReconnect" xml:space="preserve">
-    <value>Unplug the cable. The headset starts by itself in about half a minute.</value>
   </data>
   <data name="Firmware_StepPlug" xml:space="preserve">
     <value>Plug in</value>
@@ -2036,8 +2033,8 @@
   <data name="Firmware_StepVerify" xml:space="preserve">
     <value>Verify</value>
   </data>
-  <data name="Firmware_StepReconnect" xml:space="preserve">
-    <value>Reconnect</value>
+  <data name="Firmware_StepNotChecked" xml:space="preserve">
+    <value>Not checked</value>
   </data>
   <data name="Firmware_StepStopped" xml:space="preserve">
     <value>Stopped</value>
@@ -2047,19 +2044,25 @@
     <comment>{0} is how much is written, from 0 to 100.</comment>
   </data>
   <data name="Firmware_OutcomeDone" xml:space="preserve">
-    <value>Done. The headset has the edits you ticked.</value>
+    <value>Done. The headset has the edits you ticked. Unplug the cable, and the headset starts by itself in about half a minute.</value>
   </data>
-  <data name="Firmware_OutcomeUnconfirmed" xml:space="preserve">
-    <value>Written and read back. Neap couldn't read the headset after it restarted, so it can't confirm the edits yet.</value>
+  <data name="Firmware_OutcomeNotReadBack" xml:space="preserve">
+    <value>Written, but Neap couldn't read it back to check it. Unplug the cable; once the headset is on, this page shows each edit's state.</value>
   </data>
   <data name="Firmware_OutcomeCancelled" xml:space="preserve">
     <value>Stopped while waiting for the headset. Nothing was written after that.</value>
+  </data>
+  <data name="Firmware_OutcomeStoppedPartWritten" xml:space="preserve">
+    <value>Stopped. Part of the change is written, and each edit's state is shown above. Unplug the cable; to finish, choose Apply again.</value>
+  </data>
+  <data name="Firmware_OutcomeStoppedBeforePutBack" xml:space="preserve">
+    <value>Stopped before Neap could put a section back, so the headset may not start. Plug it in again and restore the newest backup below.</value>
   </data>
   <data name="Firmware_OutcomeRefused" xml:space="preserve">
     <value>Nothing was written. Part of the headset's firmware isn't the factory firmware these edits are made for. Restore a backup below to undo the change.</value>
   </data>
   <data name="Firmware_OutcomeReverted" xml:space="preserve">
-    <value>A section didn't read back as written, so Neap put back what was there. Each edit's state is shown above; tick an edit and choose Apply to try again.</value>
+    <value>A section didn't read back as written, so Neap put back what was there. Unplug the cable, and the headset starts by itself. To try again, tick an edit and choose Apply.</value>
   </data>
   <data name="Firmware_OutcomeFailed" xml:space="preserve">
     <value>Something stopped the write before it finished, and the app log says where. If the headset doesn't start, restore the newest backups below.</value>

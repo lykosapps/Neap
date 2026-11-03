@@ -8,14 +8,20 @@ namespace Neap.Services;
 /// <summary>How applying the edits, or restoring a backup, ended.</summary>
 public enum ApplyResult
 {
-    /// <summary>Every section was written and verified, and the flash shows the edits wanted.</summary>
+    /// <summary>Every section was written and read back as written.</summary>
     Done,
 
-    /// <summary>Every section was written and verified, but the flash could not be read afterwards to confirm it.</summary>
-    Unconfirmed,
+    /// <summary>Every section was written, but could not be read back to check it.</summary>
+    NotReadBack,
 
-    /// <summary>The person stopped while Neap was waiting for the headset in download mode.</summary>
+    /// <summary>The person stopped while Neap was waiting for the headset in download mode, before anything was written.</summary>
     Cancelled,
+
+    /// <summary>The person stopped while Neap was waiting to plug in again, after part of the change was written.</summary>
+    StoppedPartWritten,
+
+    /// <summary>The person stopped before a section that did not read back as written could be put back.</summary>
+    StoppedBeforePutBack,
 
     /// <summary>The firmware on the chip is not the build the edits are made for, so nothing was written.</summary>
     Refused,
@@ -32,7 +38,8 @@ public enum ApplyResult
 /// <param name="Session">Which session in download mode, from 1, or 0 before the first.</param>
 /// <param name="Sessions">How many sessions the plan needs.</param>
 /// <param name="Percent">How much of the section is written, during <see cref="EditStep.Write"/>.</param>
-public sealed record ApplyProgress(EditStep Step, int Session, int Sessions, int? Percent);
+/// <param name="Again">Whether this plug-in comes after a write, so the cable is to be unplugged and plugged in again.</param>
+public sealed record ApplyProgress(EditStep Step, int Session, int Sessions, int? Percent, bool Again = false);
 
 /// <summary>How applying ended, and where.</summary>
 /// <param name="Result">How it ended.</param>
@@ -214,7 +221,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     /// <summary>Writes what it takes to have exactly these edits on, one step at a time.</summary>
     /// <param name="wanted">The edits ticked. None is restoring stock.</param>
     /// <param name="report">Told each step as it starts, and how far the write has got.</param>
-    /// <param name="cancel">Stops the wait for the headset in download mode; nothing else can be stopped part way.</param>
+    /// <param name="cancel">Stops a wait for the headset in download mode; nothing else can be stopped part way.</param>
     public async Task<ApplyOutcome> Apply(IReadOnlySet<FirmwareEdit> wanted, Action<ApplyProgress> report, CancellationToken cancel)
     {
         if (writer is null) throw new InvalidOperationException("this headset's firmware cannot be written by this build");
@@ -232,15 +239,12 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             var blockers = FirmwareEdit.Blockers(plan.Changing, Readiness);
             if (blockers.Count > 0) return Stop(ApplyResult.Failed, $"not ready: {string.Join(", ", blockers)}");
 
-            say(EditStep.Plug, 1, null);
-            await writer.WaitForDownloadMode(cancel);
-            say(EditStep.Connect, 1, null);
-
             int session = 0;
             foreach (var sectors in sessions)
             {
                 session++;
-                if (session > 1) await Again(say, session, cancel);
+                // The chip stays held after a session that wrote nothing; after a write it has restarted.
+                if (!writer.Held) await PlugIn(say, session, cancel);
                 say(EditStep.Backup, session, null);
                 var before = new List<(int Sector, byte[] Bytes)>();
                 var after = new List<(int Sector, byte[] Bytes)>();
@@ -256,25 +260,19 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
                 if (after.Zip(before).All(pair => pair.First.Bytes.AsSpan().SequenceEqual(pair.Second.Bytes)))
                 {
                     AppLog.Write($"firmware edits: session {session} already holds what is wanted; nothing written");
+                    Known(before);
                     continue;
                 }
 
                 if (await WriteAndCheck(after, say, session)) continue;
                 AppLog.Write($"firmware edits: session {session} did not read back as written; putting back what was there");
-                await Again(say, session, cancel);
+                _puttingBack = true;
+                await PlugIn(say, session, cancel);
                 return await WriteAndCheck(before, say, session)
                     ? Stop(ApplyResult.Reverted, "a section did not read back as written; what was there before is back")
                     : Stop(ApplyResult.Failed, "a section did not read back as written, and putting back what was there did not read back either");
             }
-
-            say(EditStep.Reconnect, session, null);
-            await writer.WaitForHeadset(CancellationToken.None);
-            say(EditStep.Confirm, session, null);
-            Flash = await ReadEditedFlash();
-            if (Flash is null) return Stop(ApplyResult.Unconfirmed, "written and read back; the flash could not be read to confirm it after the restart");
-            if (Installed is not { } on || !on.SetEquals(wanted))
-                return Stop(ApplyResult.Failed, $"the flash shows [{string.Join(", ", Edits.Select(edit => $"{edit.Id} {StatusOf(edit)}"))}] after the restart");
-            return Stop(ApplyResult.Done, "every section written, read back and confirmed");
+            return Stop(ApplyResult.Done, "every section written and read back");
         });
     }
 
@@ -288,40 +286,48 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         {
             byte[] saved = await File.ReadAllBytesAsync(backup.File, cancel);
             if (saved.Length != FirmwareEdit.SectorSize) return Stop(ApplyResult.Refused, $"{Path.GetFileName(backup.File)} is not a whole section");
-            say(EditStep.Plug, 1, null);
-            await writer.WaitForDownloadMode(cancel);
-            say(EditStep.Connect, 1, null);
+            await PlugIn(say, 1, cancel);
             say(EditStep.Backup, 1, null);
             Backed(SaveBackup(backup.Sector, await writer.Read(backup.Sector), Build ?? "unknown"));
-            if (!await WriteAndCheck([(backup.Sector, saved)], say, 1))
-                return Stop(ApplyResult.Failed, "the backup did not read back as written");
-            say(EditStep.Reconnect, 1, null);
-            await writer.WaitForHeadset(CancellationToken.None);
-            say(EditStep.Confirm, 1, null);
-            Flash = await ReadEditedFlash();
-            return Stop(Flash is null ? ApplyResult.Unconfirmed : ApplyResult.Done, "restored");
+            return await WriteAndCheck([(backup.Sector, saved)], say, 1)
+                ? Stop(ApplyResult.Done, "restored and read back")
+                : Stop(ApplyResult.Failed, "the backup did not read back as written");
         });
+    }
+
+    /// <summary>Asks for the headset in download mode: plugged in the first time, plugged in again after a write.</summary>
+    private async Task PlugIn(Action<EditStep, int, int?> say, int session, CancellationToken cancel)
+    {
+        _again = _written;
+        say(EditStep.Plug, session, null);
+        await writer!.WaitForDownloadMode(cancel);
+        _again = false;
+        say(EditStep.Connect, session, null);
     }
 
     /// <summary>Writes sections and reads them back, and says whether every one reads back as written.</summary>
     /// <remarks>
-    /// The write program restarts the chip into the firmware, with the cable still in. Each section is read back
-    /// through the headset's own connection once it is up (SP2Tools F318, F319): waiting instead for the chip's
-    /// half-second return to download mode missed it twice.
+    /// The write program restarts the chip into the firmware with the cable still in. Each section is read back
+    /// whole over the cable, which answers flash reads even while the switched-off headset shows as not connected
+    /// (SP2Tools F318, F319). What is read becomes the page's edit states.
     /// </remarks>
-    /// <exception cref="IOException">The headset did not come back, or its sections could not be read.</exception>
+    /// <exception cref="NotReadBackException">The sections were written but could not be read back.</exception>
     private async Task<bool> WriteAndCheck(IReadOnlyList<(int Sector, byte[] Bytes)> sections, Action<EditStep, int, int?> say, int session)
     {
+        // What the page showed of these sections is no longer known until they are read back.
+        Flash = null;
+        Changed?.Invoke();
         say(EditStep.Write, session, 0);
+        _written = true;
         await writer!.Write(sections, new Reporter(done => say(EditStep.Write, session, done)));
         say(EditStep.Verify, session, null);
-        await writer.WaitForHeadset(CancellationToken.None);
-        if (!Connected) throw new IOException("written, but the headset did not start again to be read back; read it once it is on");
+        var read = new List<(int Sector, byte[] Bytes)>();
         foreach (var (sector, bytes) in sections)
+            read.Add((sector, await ReadBack(sector, bytes.Length) ?? throw new NotReadBackException(Hex($"written, but section {sector:X8} could not be read back"))));
+        Known(read);
+        foreach (var ((sector, wantedBytes), (_, got)) in sections.Zip(read))
         {
-            var read = await headset.Post(client => client.ReadFlash(sector, bytes.Length, FlashWait))
-                ?? throw new IOException(Hex($"written, but section {sector:X8} could not be read back"));
-            if (read.AsSpan().SequenceEqual(bytes))
+            if (got.AsSpan().SequenceEqual(wantedBytes))
             {
                 AppLog.Write(Hex($"firmware edits: section {sector:X8} reads back as written"));
                 continue;
@@ -332,13 +338,42 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         return true;
     }
 
-    /// <summary>Asks for the headset in download mode again, for another session or to put a section back.</summary>
-    private async Task Again(Action<EditStep, int, int?> say, int session, CancellationToken cancel)
+    /// <summary>Takes whole sections as read as what the headset now holds, for the page's edit states.</summary>
+    private void Known(IEnumerable<(int Sector, byte[] Bytes)> sections)
     {
-        say(EditStep.Plug, session, null);
-        await writer!.WaitForDownloadMode(cancel);
-        say(EditStep.Connect, session, null);
+        foreach (var (sector, bytes) in sections) _sections[sector] = bytes;
+        Flash = FirmwareEdit.FlashFrom(Edits, _sections, _flashBefore);
+        Changed?.Invoke();
     }
+
+    private static readonly TimeSpan ReadBackWait = TimeSpan.FromMinutes(2);
+
+    /// <summary>Reads a section over the cable once the firmware is up, or null if it cannot within two minutes.</summary>
+    /// <remarks>
+    /// After the write program restarts it, the switched-off headset comes up on the cable and then shows as not
+    /// connected, as it is off, yet it still answers flash reads there (3 November 2026), and the connection stays
+    /// open while it shows as not connected. So the read is tried whatever the connection says, until it answers.
+    /// </remarks>
+    private async Task<byte[]?> ReadBack(int sector, int length)
+    {
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        while (clock.Elapsed < ReadBackWait)
+        {
+            try
+            {
+                if (await headset.Post(client => client.ReadFlash(sector, length, FlashWait)) is { } read) return read;
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                AppLog.Write($"firmware edits: reading back {sector:X8} not yet: {ex.Message}");
+            }
+            await Task.Delay(TimeSpan.FromSeconds(2));
+        }
+        return null;
+    }
+
+    /// <summary>The sections were written, but could not be read back to check them.</summary>
+    private sealed class NotReadBackException(string message) : IOException(message);
 
     /// <summary>Saves a section as it was read, and gives the file.</summary>
     private static string SaveBackup(int sector, byte[] held, string build)
@@ -353,6 +388,11 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
 
     private List<string> _backups = [];
     private EditStep? _at;
+    private bool _written;
+    private bool _again;
+    private bool _puttingBack;
+    private readonly Dictionary<int, byte[]> _sections = [];
+    private IReadOnlyDictionary<int, byte[]>? _flashBefore;
 
     private void Backed(string file)
     {
@@ -363,7 +403,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     private ApplyOutcome Stop(ApplyResult result, string why)
     {
         AppLog.Write($"firmware edits: {result} at {_at}: {why}");
-        return new ApplyOutcome(result, result is ApplyResult.Done or ApplyResult.Unconfirmed ? null : _at, _backups);
+        return new ApplyOutcome(result, result is ApplyResult.Done ? null : _at, _backups);
     }
 
     /// <summary>Runs the steps with the page told of each, and ends a cancel or a fault as an outcome rather than a throw.</summary>
@@ -373,6 +413,11 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         Busy = true;
         _backups = [];
         _at = null;
+        _written = false;
+        _again = false;
+        _puttingBack = false;
+        _sections.Clear();
+        _flashBefore = Flash;
         Changed?.Invoke();
         try
         {
@@ -380,12 +425,22 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             {
                 if (_at != step) AppLog.Write(string.Create(CultureInfo.InvariantCulture, $"firmware edits: {step}, session {session} of {sessions}"));
                 _at = step;
-                report(new ApplyProgress(step, session, sessions, percent));
+                report(new ApplyProgress(step, session, sessions, percent, _again));
             });
         }
         catch (OperationCanceledException) when (cancel.IsCancellationRequested && _at == EditStep.Plug)
         {
-            return Stop(ApplyResult.Cancelled, "stopped while waiting for the headset in download mode");
+            // Stopped while waiting to plug in again: something is already written, and while putting a section
+            // back, what is on the headset is not what was wanted.
+            return _puttingBack
+                ? Stop(ApplyResult.StoppedBeforePutBack, "stopped before a section that did not read back could be put back")
+                : _written
+                    ? Stop(ApplyResult.StoppedPartWritten, "stopped while waiting to plug in again; part of the change is written")
+                    : Stop(ApplyResult.Cancelled, "stopped while waiting for the headset in download mode");
+        }
+        catch (NotReadBackException ex)
+        {
+            return Stop(ApplyResult.NotReadBack, ex.Message);
         }
         catch (Exception ex)
         {
@@ -394,6 +449,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         }
         finally
         {
+            writer?.LetGo();
             Busy = false;
             Changed?.Invoke();
         }

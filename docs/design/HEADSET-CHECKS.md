@@ -189,7 +189,7 @@ on once.
     factory. Then tick it and apply: it reads as active and the light stays
     off on disconnect.
 40. **Both edits at once:** restore to stock, then tick both and apply. Three
-    sections with one plug-in; both read as active; the Mode button cycles
+    sections in two plug-ins (Neap asks to unplug and plug in again between them); both read as active; the Mode button cycles
     with its tones and the light stays off.
 41. **A backup restored:** restore the newest backup of the light section. It
     reads back, and the page shows the light edit as the backup holds it.
