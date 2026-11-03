@@ -98,24 +98,33 @@ public sealed class BootRomFirmwareWriter(HeadsetService headset) : IFirmwareWri
             }
             AppLog.Write($"firmware: write program started at {took.ElapsedMilliseconds} ms");
         });
-        try
+        // Closing a port that has gone can hang for half a minute (3 November 2026: 32 s), and the chip is back in
+        // download mode for only half a second after it restarts, so the port is closed in the background and the
+        // chip looked for at once.
+        var gone = _chip;
+        _chip = null;
+        _ = Task.Run(() =>
         {
-            Release();
-        }
-        catch (Exception ex) when (ex is IOException or InvalidOperationException or UnauthorizedAccessException)
-        {
-            _chip = null;
-            AppLog.Write($"firmware: closing the port after the write: {ex.Message}");
-        }
+            try
+            {
+                gone?.Dispose();
+            }
+            catch (Exception ex) when (ex is IOException or InvalidOperationException or UnauthorizedAccessException)
+            {
+                AppLog.Write($"firmware: closing the port after the write: {ex.Message}");
+            }
+        });
 
         var clock = System.Diagnostics.Stopwatch.StartNew();
-        while (BootRomPort.Present && clock.Elapsed < PortGone) await Task.Delay(50);
+        while (BootRomPort.Present && clock.Elapsed < PortGone) await Task.Delay(5);
         if (BootRomPort.Present) throw new IOException("the chip did not restart after writing; the sections may be part written");
+        AppLog.Write($"firmware: the chip restarted {took.ElapsedMilliseconds} ms after the write began");
         percent.Report(80);
         using var back = new CancellationTokenSource(BackAgain);
         try
         {
             _chip = await BootRomPort.Open(back.Token);
+            AppLog.Write($"firmware: back in download mode {took.ElapsedMilliseconds} ms after the write began");
         }
         catch (OperationCanceledException)
         {
