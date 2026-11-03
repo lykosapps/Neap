@@ -188,6 +188,7 @@ on once.
     each step done; the light blinks again on disconnect; the page reads it as
     factory. Then tick it and apply: it reads as active and the light stays
     off on disconnect.
+    *Passed 3 November 2026: on, then off, each ending Done with the read back matching (SP2Tools F321, F322).*
 40. **Both edits at once:** restore to stock, then tick both and apply. Three
     sections in two plug-ins (Neap asks to unplug and plug in again between them); both read as active; the Mode button cycles
     with its tones and the light stays off.
