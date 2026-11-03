@@ -324,18 +324,25 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         var read = new List<(int Sector, byte[] Bytes)>();
         foreach (var (sector, bytes) in sections)
             read.Add((sector, await ReadBack(sector, bytes.Length) ?? throw new NotReadBackException(Hex($"written, but section {sector:X8} could not be read back"))));
-        Known(read);
+        bool all = true;
+        var known = new List<(int Sector, byte[] Bytes)>();
         foreach (var ((sector, wantedBytes), (_, got)) in sections.Zip(read))
         {
-            if (got.AsSpan().SequenceEqual(wantedBytes))
+            // A word that read differently is read again before it is believed (SP2Tools F320).
+            int? differs = await headset.Post(client =>
+                FlashRead.FirstDifference(sector, wantedBytes, got, at => client.ReadFlash(at, FlashRead.WordSize, FlashWait)));
+            if (differs is null)
             {
                 AppLog.Write(Hex($"firmware edits: section {sector:X8} reads back as written"));
+                known.Add((sector, wantedBytes));
                 continue;
             }
-            AppLog.Write(Hex($"firmware edits: section {sector:X8} does not read back as written"));
-            return false;
+            AppLog.Write(Hex($"firmware edits: section {sector:X8} does not read back as written, first at {differs:X8}: read {Convert.ToHexString(got, (int)differs - sector, FlashRead.WordSize)}, written {Convert.ToHexString(wantedBytes, (int)differs - sector, FlashRead.WordSize)}"));
+            known.Add((sector, got));
+            all = false;
         }
-        return true;
+        Known(known);
+        return all;
     }
 
     /// <summary>Takes whole sections as read as what the headset now holds, for the page's edit states.</summary>

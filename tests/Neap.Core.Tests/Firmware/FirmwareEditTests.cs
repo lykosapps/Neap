@@ -265,6 +265,45 @@ public class FirmwareEditTests
         Assert.Equal(Set(Cycle), FirmwareEdit.InstalledIn(Edits, Build, flash));
     }
 
+    // -- a read back is believed only after a differing word is read again -----
+
+    private static readonly byte[] Written = [.. Enumerable.Range(0, 64).Select(i => (byte)(i + 1))];
+
+    private static byte[] WithWord(byte[] bytes, int word, params byte[] value)
+    {
+        var copy = bytes.ToArray();
+        value.CopyTo(copy, word * FlashRead.WordSize);
+        return copy;
+    }
+
+    [Fact]
+    public void AReadBackThatMatchesIsNotReadAgain()
+    {
+        int reads = 0;
+        Assert.Null(FlashRead.FirstDifference(0x1000, Written, Written, _ => { reads++; return null; }));
+        Assert.Equal(0, reads);
+    }
+
+    [Fact]
+    public void AWordWithItsLastBytesZeroedThatReadsRightAgainIsNoDifference()
+    {
+        // As seen over the cable on 3 November 2026: 5F494E20 read once as 5F490000.
+        var read = WithWord(Written, 3, Written[12], Written[13], 0, 0);
+        Assert.Null(FlashRead.FirstDifference(0x1000, Written, read, at => Written[(at - 0x1000)..(at - 0x1000 + 4)]));
+    }
+
+    [Fact]
+    public void AWordThatNeverReadsAsWrittenIsTheDifference()
+    {
+        var read = WithWord(Written, 5, 9, 9, 9, 9);
+        Assert.Equal(0x1000 + 5 * FlashRead.WordSize,
+            FlashRead.FirstDifference(0x1000, Written, read, _ => [9, 9, 9, 9]));
+    }
+
+    [Fact]
+    public void AWordThatGivesNoReplyWhenReadAgainIsTheDifference() =>
+        Assert.Equal(0x1000, FlashRead.FirstDifference(0x1000, Written, WithWord(Written, 0, 0, 0, 0, 0), _ => null));
+
     [Fact]
     public void NoSectionReadAndNothingKnownBeforeIsNothingKnown() =>
         Assert.Null(FirmwareEdit.FlashFrom(Edits, new Dictionary<int, byte[]>(), null));
