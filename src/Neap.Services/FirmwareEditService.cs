@@ -240,6 +240,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             foreach (var sectors in sessions)
             {
                 session++;
+                if (session > 1) await Again(say, session, cancel);
                 say(EditStep.Backup, session, null);
                 var before = new List<(int Sector, byte[] Bytes)>();
                 var after = new List<(int Sector, byte[] Bytes)>();
@@ -260,6 +261,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
 
                 if (await WriteAndCheck(after, say, session)) continue;
                 AppLog.Write($"firmware edits: session {session} did not read back as written; putting back what was there");
+                await Again(say, session, cancel);
                 return await WriteAndCheck(before, say, session)
                     ? Stop(ApplyResult.Reverted, "a section did not read back as written; what was there before is back")
                     : Stop(ApplyResult.Failed, "a section did not read back as written, and putting back what was there did not read back either");
@@ -302,18 +304,40 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     }
 
     /// <summary>Writes sections and reads them back, and says whether every one reads back as written.</summary>
+    /// <remarks>
+    /// The write program restarts the chip into the firmware, with the cable still in. Each section is read back
+    /// through the headset's own connection once it is up (SP2Tools F318, F319): waiting instead for the chip's
+    /// half-second return to download mode missed it twice.
+    /// </remarks>
+    /// <exception cref="IOException">The headset did not come back, or its sections could not be read.</exception>
     private async Task<bool> WriteAndCheck(IReadOnlyList<(int Sector, byte[] Bytes)> sections, Action<EditStep, int, int?> say, int session)
     {
         say(EditStep.Write, session, 0);
         await writer!.Write(sections, new Reporter(done => say(EditStep.Write, session, done)));
         say(EditStep.Verify, session, null);
+        await writer.WaitForHeadset(CancellationToken.None);
+        if (!Connected) throw new IOException("written, but the headset did not start again to be read back; read it once it is on");
         foreach (var (sector, bytes) in sections)
         {
-            if ((await writer.Read(sector)).AsSpan().SequenceEqual(bytes)) continue;
+            var read = await headset.Post(client => client.ReadFlash(sector, bytes.Length, FlashWait))
+                ?? throw new IOException(Hex($"written, but section {sector:X8} could not be read back"));
+            if (read.AsSpan().SequenceEqual(bytes))
+            {
+                AppLog.Write(Hex($"firmware edits: section {sector:X8} reads back as written"));
+                continue;
+            }
             AppLog.Write(Hex($"firmware edits: section {sector:X8} does not read back as written"));
             return false;
         }
         return true;
+    }
+
+    /// <summary>Asks for the headset in download mode again, for another session or to put a section back.</summary>
+    private async Task Again(Action<EditStep, int, int?> say, int session, CancellationToken cancel)
+    {
+        say(EditStep.Plug, session, null);
+        await writer!.WaitForDownloadMode(cancel);
+        say(EditStep.Connect, session, null);
     }
 
     /// <summary>Saves a section as it was read, and gives the file.</summary>

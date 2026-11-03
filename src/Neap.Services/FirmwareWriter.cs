@@ -13,9 +13,10 @@ namespace Neap.Services;
 /// as it was when the read back does not match.
 /// </para>
 /// <para>
-/// One plug-in serves the whole job: after a write the chip restarts with the
-/// cable still in, and the writer greets it again in download mode before
-/// <see cref="Write"/> returns.
+/// After a write the program restarts the chip into the firmware, with the
+/// cable still in, and <see cref="FirmwareEditService"/> reads the sections
+/// back over the headset's own connection. Another session, or putting a
+/// section back, asks for download mode again.
 /// </para>
 /// </remarks>
 public interface IFirmwareWriter
@@ -29,7 +30,7 @@ public interface IFirmwareWriter
     /// <summary>Reads a whole section.</summary>
     Task<byte[]> Read(int sector);
 
-    /// <summary>Writes one or two sections, then waits for the chip to come back in download mode.</summary>
+    /// <summary>Writes one or two sections; the chip then restarts into the firmware.</summary>
     /// <param name="sections">Each section's address and its bytes, in the order written.</param>
     /// <param name="percent">Told how far the write has got, from 0 to 100.</param>
     Task Write(IReadOnlyList<(int Sector, byte[] Bytes)> sections, IProgress<int> percent);
@@ -44,8 +45,8 @@ public interface IFirmwareWriter
 /// The sections' bytes are loaded at <see cref="WriteProgram.PayloadAddress"/>,
 /// the program that writes them at <see cref="WriteProgram.LoadAddress"/>, and
 /// the program is started. It erases and programs each section and restarts
-/// the chip, so the port goes; with the cable still in, the chip comes back in
-/// download mode for half a second and is greeted again (SP2Tools F290).
+/// the chip into the firmware, so the port goes. Closing a port that has gone
+/// can hang for half a minute, so it is closed in the background (F319).
 /// </para>
 /// <para>
 /// After the person unplugs, the chip's session ends on its own in about 30
@@ -55,8 +56,6 @@ public interface IFirmwareWriter
 /// <param name="headset">The headset's connection as usual, to see it come back.</param>
 public sealed class BootRomFirmwareWriter(HeadsetService headset) : IFirmwareWriter
 {
-    private static readonly TimeSpan PortGone = TimeSpan.FromSeconds(15);
-    private static readonly TimeSpan BackAgain = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan HeadsetBack = TimeSpan.FromMinutes(2);
 
     private BootRom? _chip;
@@ -115,21 +114,6 @@ public sealed class BootRomFirmwareWriter(HeadsetService headset) : IFirmwareWri
             }
         });
 
-        var clock = System.Diagnostics.Stopwatch.StartNew();
-        while (BootRomPort.Present && clock.Elapsed < PortGone) await Task.Delay(5);
-        if (BootRomPort.Present) throw new IOException("the chip did not restart after writing; the sections may be part written");
-        AppLog.Write($"firmware: the chip restarted {took.ElapsedMilliseconds} ms after the write began");
-        percent.Report(80);
-        using var back = new CancellationTokenSource(BackAgain);
-        try
-        {
-            _chip = await BootRomPort.Open(back.Token);
-            AppLog.Write($"firmware: back in download mode {took.ElapsedMilliseconds} ms after the write began");
-        }
-        catch (OperationCanceledException)
-        {
-            throw new IOException("the chip did not come back in download mode to be read back; is the cable still in?");
-        }
         percent.Report(100);
     }
 
@@ -162,7 +146,7 @@ public sealed class PretendFirmwareWriter(PretendFlash flash, bool lost) : IFirm
 {
     private static readonly TimeSpan Pause = TimeSpan.FromMilliseconds(600);
     private static readonly TimeSpan Plugging = TimeSpan.FromSeconds(3);
-    private bool _lostOnce;
+    private int _writes;
 
     public IReadOnlyDictionary<int, string> FactorySections => flash.FactorySections;
 
@@ -181,18 +165,10 @@ public sealed class PretendFirmwareWriter(PretendFlash flash, bool lost) : IFirm
             percent.Report(done);
             await Task.Delay(Pause / 6);
         }
-        // Lost once, so the put back that follows lands and the headset is left as it was.
-        if (lost && !_lostOnce)
-        {
-            _lostOnce = true;
-            return;
-        }
+        // Every other write is lost, so the put back that follows lands and the headset is left as it was.
+        if (lost && ++_writes % 2 == 1) return;
         foreach (var (sector, bytes) in sections) flash.Write(sector, bytes);
     }
 
-    public Task WaitForHeadset(CancellationToken cancel)
-    {
-        _lostOnce = false;
-        return Task.Delay(Plugging, cancel);
-    }
+    public Task WaitForHeadset(CancellationToken cancel) => Task.Delay(Plugging, cancel);
 }
