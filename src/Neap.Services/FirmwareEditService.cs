@@ -96,25 +96,54 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     /// <summary>Gets the bytes last read at each place an edit changes, by address, or null where the flash could not be read.</summary>
     public IReadOnlyDictionary<int, byte[]>? Flash { get; private set; }
 
-    /// <summary>Gets the firmware version the headset reports, or null before it has.</summary>
-    public string? Build => headset.GetText("firmware_version");
+    /// <summary>Gets the firmware version the headset reports, or the one it last reported while it is off.</summary>
+    public string? Build => Seen().Build;
 
-    /// <summary>Gets the edits made for the connected headset.</summary>
-    public IReadOnlyList<FirmwareEdit> Edits => FirmwareEdit.For(headset.Model);
+    /// <summary>Gets the edits made for the headset, connected or last seen.</summary>
+    public IReadOnlyList<FirmwareEdit> Edits => FirmwareEdit.For(Seen().Model);
 
     /// <summary>Gets the edits on now, or null where that is not known.</summary>
     public IReadOnlySet<FirmwareEdit>? Installed => FirmwareEdit.InstalledIn(Edits, Build, Flash);
 
     /// <summary>Gets what Neap knows of the headset before writing.</summary>
     /// <remarks>
+    /// <para>
+    /// The person need not have the headset on to apply: what was last seen of
+    /// it stands in while it is off, for <see cref="BatteryFresh"/>, and the
+    /// sections themselves are read in download mode before anything is written.
+    /// </para>
+    /// <para>
     /// Swarm II is not looked for yet: its program's name is not known, and
     /// nothing is written to a real headset until it is.
+    /// </para>
     /// </remarks>
-    public EditReadiness Readiness => new(
-        headset.Status.Link == Link.Connected,
-        Build,
-        headset.TryGetNumberByKey(Battery.Key, out int battery) ? battery : null,
-        SwarmRunning: false);
+    public EditReadiness Readiness
+    {
+        get
+        {
+            var seen = Seen();
+            bool fresh = seen.At is { } at && DateTime.UtcNow - at < BatteryFresh;
+            return new(Connected || (fresh && seen.Build is not null), seen.Build, fresh ? seen.Battery : null, SwarmRunning: false);
+        }
+    }
+
+    /// <summary>How long what was last seen of a headset that is off still counts.</summary>
+    public static readonly TimeSpan BatteryFresh = TimeSpan.FromMinutes(30);
+
+    private bool Connected => headset.Status.Link == Link.Connected;
+
+    private (HeadsetModel? Model, string? Build, int? Battery, DateTime? At) _seen;
+
+    /// <summary>The headset as it is now, remembered so it still stands once the headset is switched off.</summary>
+    private (HeadsetModel? Model, string? Build, int? Battery, DateTime? At) Seen()
+    {
+        if (!Connected) return _seen;
+        var model = headset.Model ?? _seen.Model;
+        string? build = headset.GetText("firmware_version") ?? _seen.Build;
+        int? level = headset.TryGetNumberByKey(Battery.Key, out int battery) ? battery : _seen.Battery;
+        _seen = (model, build, level, DateTime.UtcNow);
+        return _seen;
+    }
 
     /// <summary>Gets the folder backups are saved in.</summary>
     public static string BackupFolder => Path.Combine(AppFolder.Path, "Firmware backups");
@@ -135,14 +164,15 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     public EditPlan Plan(IReadOnlySet<FirmwareEdit> wanted) => FirmwareEdit.Plan(Edits, wanted, Installed);
 
     /// <summary>Reads the flash again at every place the headset's edits change.</summary>
-    /// <remarks>A read already under way is not started twice.</remarks>
+    /// <remarks>A read already under way is not started twice. While the headset is off, the last read stands.</remarks>
     public async Task ReadFlash()
     {
         if (_reading) return;
         _reading = true;
         try
         {
-            Flash = await ReadEditedFlash();
+            var read = await ReadEditedFlash();
+            if (read is not null || Connected) Flash = read;
         }
         finally
         {
@@ -188,7 +218,9 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     public async Task<ApplyOutcome> Apply(IReadOnlySet<FirmwareEdit> wanted, Action<ApplyProgress> report, CancellationToken cancel)
     {
         if (writer is null) throw new InvalidOperationException("this headset's firmware cannot be written by this build");
-        var plan = Plan(wanted);
+        // With the headset off, its edits as last read may be out of date, so every section the edits touch is read
+        // in download mode and only those that differ are written.
+        var plan = Connected ? Plan(wanted) : FirmwareEdit.Plan(Edits, wanted, null);
         var sessions = FirmwareEdit.Sessions(plan);
         string build = Build ?? "unknown";
         AppLog.Write(string.Create(CultureInfo.InvariantCulture,

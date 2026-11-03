@@ -59,7 +59,7 @@ public enum EditBlocker
 /// </remarks>
 public enum EditStep
 {
-    /// <summary>The headset is checked while it is still connected as usual.</summary>
+    /// <summary>The headset is checked, as it is connected now or as it was last seen.</summary>
     Check,
 
     /// <summary>The person switches the headset off and plugs USB-C into the left ear cup.</summary>
@@ -85,7 +85,7 @@ public enum EditStep
 }
 
 /// <summary>What Neap knows of the headset before the edits are written.</summary>
-/// <param name="Connected">Whether the headset's settings can be reached.</param>
+/// <param name="Connected">Whether the headset is known: connected now, or seen with its firmware and battery a short while ago, so it can be switched off before applying.</param>
 /// <param name="FirmwareBuild">The firmware version the headset reports, or null before it has.</param>
 /// <param name="Battery">The headset's battery level, or null before it has reported one.</param>
 /// <param name="SwarmRunning">Whether Swarm II is running, and could talk to the headset during the write.</param>
@@ -295,9 +295,9 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
 
     /// <summary>Everything that stops the edits being written now, or none.</summary>
     /// <remarks>
-    /// Asked while the headset is still connected as usual: in download mode its
-    /// battery cannot be read. A headset that cannot be reached is the only thing
-    /// said, since nothing else about it is known.
+    /// In download mode the battery cannot be read, so it is the level last seen.
+    /// A headset never seen is the only thing said, since nothing else about it
+    /// is known.
     /// </remarks>
     public static IReadOnlyList<EditBlocker> Blockers(IReadOnlyList<FirmwareEdit> changing, EditReadiness readiness)
     {

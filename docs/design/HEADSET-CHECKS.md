@@ -162,6 +162,21 @@ headset, run from a local build with `Released` set on (never committed),
 one at a time, with SP2Tools' recovery kit at hand. Each write needs
 the owner's go first.
 
+**Before each of these checks,** run `tools\ui\prepare-headset-check.ps1`
+and start the check only when it ends with 0 failures. It publishes the test
+build with both switches on and puts the source back, opens that build and
+confirms the Firmware page and its edits are there, and says how the headset
+is connected. A build or script mistake then shows on the desk, never as a
+request to the owner (3 November 2026: three such mistakes cost the owner
+round trips).
+
+**The headset need not be on to apply** (3 November 2026). Neap remembers what
+it last saw of the headset (model, firmware, battery, each edit's state) for
+30 minutes, so the person can switch it off first. With the headset off, every
+section an edit touches is read in download mode and only those that differ
+are written. A headset Neap has not seen since it started asks to be switched
+on once.
+
 37. **Status, read live:** open the Firmware page with the headset on the dock,
     then on the cable. Each edit reads as it is on the headset (both active on
     the owner's), and the app log lists each edit's state.
