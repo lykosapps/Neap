@@ -333,6 +333,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         }
         catch (Exception ex)
         {
+            AppLog.Write($"firmware edits: {ex}");
             return Stop(ApplyResult.Failed, ex.Message);
         }
         finally

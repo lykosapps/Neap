@@ -76,16 +76,37 @@ public sealed class BootRomFirmwareWriter(HeadsetService headset) : IFirmwareWri
     {
         var program = WriteProgram.For(sections.Select(section => section.Sector).ToList());
         byte[] payload = [.. sections.SelectMany(section => section.Bytes)];
+        var took = System.Diagnostics.Stopwatch.StartNew();
         await Task.Run(() =>
         {
             percent.Report(0);
             if (!Chip.SendDa(WriteProgram.PayloadAddress, payload)) throw new IOException("the chip did not take the sections' bytes");
+            AppLog.Write($"firmware: sections' bytes loaded in {took.ElapsedMilliseconds} ms");
             percent.Report(40);
             if (!Chip.SendDa(WriteProgram.LoadAddress, program)) throw new IOException("the chip did not take the program that writes them");
+            AppLog.Write($"firmware: write program loaded at {took.ElapsedMilliseconds} ms");
             percent.Report(50);
-            Chip.JumpDa(WriteProgram.LoadAddress | 1);
+            // The program restarts the chip when it has written, so the port can go mid-answer. That is the write
+            // finishing, not failing (SP2Tools F318); the read back after the restart decides.
+            try
+            {
+                Chip.JumpDa(WriteProgram.LoadAddress | 1);
+            }
+            catch (Exception ex) when (ex is IOException or InvalidOperationException or TimeoutException)
+            {
+                AppLog.Write($"firmware: the port went as the write program started ({ex.Message})");
+            }
+            AppLog.Write($"firmware: write program started at {took.ElapsedMilliseconds} ms");
         });
-        Release();
+        try
+        {
+            Release();
+        }
+        catch (Exception ex) when (ex is IOException or InvalidOperationException or UnauthorizedAccessException)
+        {
+            _chip = null;
+            AppLog.Write($"firmware: closing the port after the write: {ex.Message}");
+        }
 
         var clock = System.Diagnostics.Stopwatch.StartNew();
         while (BootRomPort.Present && clock.Elapsed < PortGone) await Task.Delay(50);
