@@ -12,6 +12,9 @@ $edit = Join-Path $root 'src\Neap.Core\Firmware\FirmwareEdit.cs'
 $window = Join-Path $root 'src\Neap.Desktop\MainWindow.axaml.cs'
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $stamp = Join-Path (Split-Path $script:Exe) 'test-build.stamp'
+# The stamp is the source's hash and the published Neap.Core.dll's hash: run.ps1 publishes the same folder for the pretend
+# checks, without the Firmware page, and a stamp on the source alone missed that (4 November 2026).
+$core = Join-Path (Split-Path $script:Exe) 'Neap.Core.dll' Get-BuildHash { if (Test-Path $core) { (Get-FileHash $core -Algorithm SHA256).Hash } else { '' } }
 
 function Get-SourceHash {
     $files = Get-ChildItem (Join-Path $root 'src') -Recurse -File -Include *.cs, *.axaml, *.resw, *.csproj, *.props |
@@ -27,8 +30,8 @@ function Get-SourceHash {
 
 Section 'prepare: publish the test build with the Firmware page on'
 $hash = Get-SourceHash
-if ((Test-Path $script:Exe) -and (Test-Path $stamp) -and (Get-Content $stamp) -eq $hash) {
-    Note 'the source has not changed since the test build was published; not publishing again'
+if ((Test-Path $script:Exe) -and (Test-Path $stamp) -and (Get-Content $stamp -Raw).Trim() -eq "$hash $(Get-BuildHash)") {
+    Note 'the source and the test build are as they were at the last publish; not publishing again'
 }
 else {    $sources = @{ $edit = [IO.File]::ReadAllText($edit); $window = [IO.File]::ReadAllText($window) }
     try {
@@ -45,7 +48,7 @@ else {    $sources = @{ $edit = [IO.File]::ReadAllText($edit); $window = [IO.Fil
         foreach ($file in $sources.Keys) { [IO.File]::WriteAllText($file, $sources[$file], $utf8) }
     }
     Check (@($sources.Keys | Where-Object { [IO.File]::ReadAllText($_) -ne $sources[$_] }).Count -eq 0) 'the source is back as it was'
-    if ($script:Fails -eq 0) { Set-Content $stamp $hash }
+    if ($script:Fails -eq 0) { Set-Content $stamp "$hash $(Get-BuildHash)" }
 }
 if ($PublishOnly) { Write-Host "$script:Fails failures"; exit $script:Fails }
 Section 'prepare: the test build shows the Firmware page'

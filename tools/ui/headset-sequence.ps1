@@ -106,7 +106,10 @@ else {
     & powershell -NoProfile -ExecutionPolicy Bypass -File "$PSScriptRoot\prepare-headset-check.ps1" -PublishOnly
     if ($LASTEXITCODE -ne 0) { throw 'the test build did not publish; not starting' }
     Protect-RealRun {
+        $lines = @(Get-RealLog).Count
         Start-NeapReal -Page firmware
+        [void](Wait-Until { Get-RealLog $lines | Where-Object { $_ -match 'firmware edits:|no page with the tag firmware' } } 20)
+        if (Get-RealLog $lines | Where-Object { $_ -match 'no page with the tag firmware' }) { throw 'the test build has no Firmware page; not starting' }
         Invoke-Sequence
         Get-Content (Join-Path $env:LOCALAPPDATA 'Neap\app.log') -Tail 80 | Where-Object { $_ -match 'firmware edits: (applying|restoring|section|Done|Failed|NotReadBack|Stopped)' } | ForEach-Object { Note "log: $_" }
     }
