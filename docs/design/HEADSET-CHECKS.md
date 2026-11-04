@@ -162,6 +162,23 @@ headset, run from a local build with `Released` set on (never committed),
 one at a time, with SP2Tools' recovery kit at hand. Each write needs
 the owner's go first.
 
+**Before each of these checks,** run `tools\ui\prepare-headset-check.ps1`
+and start the check only when it ends with 0 failures. It publishes the test
+build with both switches on and puts the source back, opens that build and
+confirms the Firmware page and its edits are there, and says how the headset
+is connected. A build or script mistake then shows on the desk, never as a
+request to the owner (3 November 2026: three such mistakes cost the owner
+round trips).
+
+**Checks 40 and 41 run together** with `tools\ui\headset-sequence.ps1` (4 November 2026): one copy of the app for both, the test build published only when the source changed, and a stop at the first result that is not the one expected. `-Pretend` runs the same steps on the pretend headset.
+
+**The headset need not be on to apply** (3 November 2026). Neap remembers what
+it last saw of the headset (model, firmware, battery, each edit's state) for
+30 minutes, so the person can switch it off first. With the headset off, every
+section an edit touches is read in download mode and only those that differ
+are written. A headset Neap has not seen since it started asks to be switched
+on once.
+
 37. **Status, read live:** open the Firmware page with the headset on the dock,
     then on the cable. Each edit reads as it is on the headset (both active on
     the owner's), and the app log lists each edit's state.
@@ -173,11 +190,14 @@ the owner's go first.
     each step done; the light blinks again on disconnect; the page reads it as
     factory. Then tick it and apply: it reads as active and the light stays
     off on disconnect.
+    *Passed 3 November 2026: on, then off, each ending Done with the read back matching (SP2Tools F321, F322).*
 40. **Both edits at once:** restore to stock, then tick both and apply. Three
-    sections with one plug-in; both read as active; the Mode button cycles
+    sections in two plug-ins (Neap asks to unplug and plug in again between them); both read as active; the Mode button cycles
     with its tones and the light stays off.
+    *Passed 4 November 2026: three sections in two plug-ins, each read back as written; Done with both edits active (SP2Tools F323).*
 41. **A backup restored:** restore the newest backup of the light section. It
     reads back, and the page shows the light edit as the backup holds it.
+    *Passed 4 November 2026: the light section's newest backup restored and read back; Restored, light factory, noise cycle active (F323).*
 42. **Unplugged part way (owner's choice, with the recovery kit ready):** pull
     the cable during Write. The page says the step failed; the next apply's
     check finds the section, and if the headset will not start, SP2Tools'

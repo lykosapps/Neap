@@ -3,7 +3,8 @@
 Checks the Firmware page on the published app in pretend mode: the keyboard
 focus stays on a ticked row, an edit applied reads as active from the
 pretend flash and as factory again after Restore factory, and a write that is
-lost is put back, each in dark, light and high contrast.
+lost is put back, each in dark, light and high contrast; and both edits at once,
+ which asks to plug in again for the second session, stopped there.
 
 .DESCRIPTION
 Run through run.ps1. The page is out of the menu until firmware edits are
@@ -87,8 +88,10 @@ function Close-Run {
     Wait-Until { -not (Find-Text $done) } 6 | Out-Null
 }
 
-$done = 'Done. The headset has the edits you ticked.'
-$putBack = "A section didn't read back as written, so Neap put back what was there. Each edit's state is shown above; tick an edit and choose Apply to try again."
+$done = 'Done. The headset has the edits you ticked. Unplug the cable, and the headset starts by itself in about half a minute.'
+$putBack = "A section didn't read back as written, so Neap put back what was there. Unplug the cable, and the headset starts by itself. To try again, tick an edit and choose Apply."
+$plugAgain = "Unplug the cable, then plug it back in. Don't press Power."
+$stoppedPart = "Stopped. Part of the change is written, and each edit's state is shown above. Unplug the cable; to finish, choose Apply again."
 
 # Makes the window tall enough that the Backups card, under the run card, is in the picture.
 function Show-Backups { Set-NeapSize 1400 1200 'Backups' }
@@ -146,6 +149,23 @@ foreach ($theme in $themes) {
     }
     finally { Stop-NeapPretend }
 }
+
+Section 'both edits at once: the second session asks to plug in again, and Stop there says part is written'
+Start-NeapPretend -Page firmware -Flags @()
+try {
+    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) 'both edits start as factory'
+    Press (Find-Tick $light)
+    Press (Find-Tick 'Noise cancellation cycle')
+    Confirm-Press 'Apply'
+    Check (Wait-Until { Find-Text $plugAgain } 90) 'after the first session is written and read back, the run asks to unplug and plug in again'
+    Save-Shot 'firmware-plug-again' -Whole | ForEach-Object { $_.Dispose() }
+    Press (Find-Anywhere 'Stop')
+    Check (Wait-Until { Find-Text $stoppedPart } 15) 'Stop there says part of the change is written'
+    Check (Wait-Until { (Get-StateCount 'Active') -eq 1 -and (Get-StateCount 'Factory') -eq 1 } 10) 'and the chips show what was read back: noise cycle active, the light factory'
+    Check ((Get-State (Find-Tick $light)) -eq 'On' -and (Find-Anywhere 'Apply').Current.IsEnabled) 'the light stays ticked and Apply can be pressed to finish'
+    Save-Shot 'firmware-stopped-part' -Whole | ForEach-Object { $_.Dispose() }
+}
+finally { Stop-NeapPretend }
 
 Write-Host "$script:Fails failures"
 exit ([int]($script:Fails -gt 0))

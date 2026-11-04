@@ -56,6 +56,33 @@ public static class FlashRead
         return message;
     }
 
+    /// <summary>How many times a word that read differently is read again before the difference is believed.</summary>
+    public const int Rereads = 3;
+
+    /// <summary>Whether a section read back is what was written, reading again any word that differs.</summary>
+    /// <remarks>
+    /// A read now and then comes back with its last bytes zeroed: over the cable 2 words in 1,024 on one pass and
+    /// none on the next (SP2Tools F320), through the dock about one in a thousand (F147). So a word that differs is
+    /// read again, and the section is taken as different only if a word never reads as written.
+    /// </remarks>
+    /// <param name="address">Where the section starts, on a four-byte boundary.</param>
+    /// <param name="written">What was written.</param>
+    /// <param name="read">What the first read gave, as long as <paramref name="written"/>.</param>
+    /// <param name="readWord">Reads the four bytes at an address again, or null when there is no reply.</param>
+    /// <returns>The first address that never read as written, or null when every word did.</returns>
+    public static int? FirstDifference(int address, ReadOnlySpan<byte> written, ReadOnlySpan<byte> read, Func<int, byte[]?> readWord)
+    {
+        for (int at = 0; at < written.Length; at += WordSize)
+        {
+            if (read.Slice(at, WordSize).SequenceEqual(written.Slice(at, WordSize))) continue;
+            bool matched = false;
+            for (int again = 0; again < Rereads && !matched; again++)
+                matched = readWord(address + at) is { } word && word.AsSpan().SequenceEqual(written.Slice(at, WordSize));
+            if (!matched) return address + at;
+        }
+        return null;
+    }
+
     /// <summary>The addresses of the four-byte reads that cover a run of bytes.</summary>
     public static IEnumerable<int> Words(int address, int length)
     {

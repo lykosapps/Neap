@@ -222,7 +222,89 @@ public class FirmwareEditTests
     [Fact]
     public void TheStepsRunAsTheSpecSetsThemOut() =>
         Assert.Equal(
-            [EditStep.Check, EditStep.Plug, EditStep.Connect, EditStep.Backup, EditStep.Write,
-             EditStep.Verify, EditStep.Reconnect, EditStep.Confirm],
+            [EditStep.Check, EditStep.Plug, EditStep.Connect, EditStep.Backup, EditStep.Write, EditStep.Verify],
             FirmwareEdit.Steps);
+
+    // -- each edit's state from the sections read back ------------------------
+
+    private static byte[] Section(int sector, params FlashChange[] active)
+    {
+        var bytes = new byte[FirmwareEdit.SectorSize];
+        foreach (var change in Edits.SelectMany(edit => edit.Changes).Where(change => (change.Address & ~(FirmwareEdit.SectorSize - 1)) == sector))
+            (active.Contains(change) ? change.Active : change.Factory).ToArray().CopyTo(bytes, change.Address - sector);
+        return bytes;
+    }
+
+    private static int SectorOf(FlashChange change) => change.Address & ~(FirmwareEdit.SectorSize - 1);
+
+    [Fact]
+    public void ASectionReadBackGivesTheStateOfTheEditInIt()
+    {
+        var light = Light.Changes[0];
+        var flash = FirmwareEdit.FlashFrom(Edits, new Dictionary<int, byte[]> { [SectorOf(light)] = Section(SectorOf(light), light) }, null);
+        Assert.Equal(EditStatus.Installed, Light.StatusIn(Build, flash));
+        Assert.Equal(EditStatus.Unknown, Cycle.StatusIn(Build, flash));
+    }
+
+    [Fact]
+    public void ASectionReadBackReplacesWhatWasKnownOfItAndKeepsTheRest()
+    {
+        var light = Light.Changes[0];
+        var before = Flash((CycleCode, true), (CycleCall, true), (light, true));
+        var flash = FirmwareEdit.FlashFrom(Edits, new Dictionary<int, byte[]> { [SectorOf(light)] = Section(SectorOf(light)) }, before);
+        Assert.Equal(EditStatus.NotInstalled, Light.StatusIn(Build, flash));
+        Assert.Equal(EditStatus.Installed, Cycle.StatusIn(Build, flash));
+    }
+
+    [Fact]
+    public void EverySectionReadBackGivesEveryEditsState()
+    {
+        var sections = Edits.SelectMany(edit => edit.Sectors).Distinct()
+            .ToDictionary(sector => sector, sector => Section(sector, CycleCode, CycleCall));
+        var flash = FirmwareEdit.FlashFrom(Edits, sections, null);
+        Assert.Equal(Set(Cycle), FirmwareEdit.InstalledIn(Edits, Build, flash));
+    }
+
+    // -- a read back is believed only after a differing word is read again -----
+
+    private static readonly byte[] Written = [.. Enumerable.Range(0, 64).Select(i => (byte)(i + 1))];
+
+    private static byte[] WithWord(byte[] bytes, int word, params byte[] value)
+    {
+        var copy = bytes.ToArray();
+        value.CopyTo(copy, word * FlashRead.WordSize);
+        return copy;
+    }
+
+    [Fact]
+    public void AReadBackThatMatchesIsNotReadAgain()
+    {
+        int reads = 0;
+        Assert.Null(FlashRead.FirstDifference(0x1000, Written, Written, _ => { reads++; return null; }));
+        Assert.Equal(0, reads);
+    }
+
+    [Fact]
+    public void AWordWithItsLastBytesZeroedThatReadsRightAgainIsNoDifference()
+    {
+        // As seen over the cable on 3 November 2026: 5F494E20 read once as 5F490000.
+        var read = WithWord(Written, 3, Written[12], Written[13], 0, 0);
+        Assert.Null(FlashRead.FirstDifference(0x1000, Written, read, at => Written[(at - 0x1000)..(at - 0x1000 + 4)]));
+    }
+
+    [Fact]
+    public void AWordThatNeverReadsAsWrittenIsTheDifference()
+    {
+        var read = WithWord(Written, 5, 9, 9, 9, 9);
+        Assert.Equal(0x1000 + 5 * FlashRead.WordSize,
+            FlashRead.FirstDifference(0x1000, Written, read, _ => [9, 9, 9, 9]));
+    }
+
+    [Fact]
+    public void AWordThatGivesNoReplyWhenReadAgainIsTheDifference() =>
+        Assert.Equal(0x1000, FlashRead.FirstDifference(0x1000, Written, WithWord(Written, 0, 0, 0, 0, 0), _ => null));
+
+    [Fact]
+    public void NoSectionReadAndNothingKnownBeforeIsNothingKnown() =>
+        Assert.Null(FirmwareEdit.FlashFrom(Edits, new Dictionary<int, byte[]>(), null));
 }

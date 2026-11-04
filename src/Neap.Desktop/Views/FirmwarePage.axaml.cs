@@ -60,6 +60,8 @@ public partial class FirmwarePage : UserControl
     private CancellationTokenSource? _stopping;
     private ApplyProgress? _progress;
     private ApplyOutcome? _outcome;
+    // Whether the run shown is a restore, which has no ticked edits to speak of when it is done.
+    private bool _restored;
 
     public FirmwarePage()
     {
@@ -149,10 +151,13 @@ public partial class FirmwarePage : UserControl
         _painting = false;
 
         PlanText.Text = PlanWords(plan);
+        // During a run the plan is worked out again from each section as it is read back, so it would say something
+        // other than the run card; the run card alone says what is happening.
+        PlanText.IsVisible = !firmware.Busy;
         BlockersText.Text = blockers.Count == 0
             ? ""
             : blockers.Select(BlockerWords).Aggregate((before, next) => Strings.Format("Firmware_BlockersJoin", before, next));
-        BlockersText.IsVisible = !plan.Nothing && blockers.Count > 0;
+        BlockersText.IsVisible = !firmware.Busy && !plan.Nothing && blockers.Count > 0;
         bool free = firmware.CanWrite && !firmware.Busy;
         ApplyButton.IsEnabled = free && !plan.Nothing && blockers.Count == 0;
         var factory = firmware.Plan(new HashSet<FirmwareEdit>());
@@ -283,11 +288,13 @@ public partial class FirmwarePage : UserControl
         }.ShowAsync(this);
         if (!go) return;
 
+        _restored = false;
         await Running(
             toFactory ? "Firmware_RunRestoringStock" : "Firmware_RunApplying",
             toFactory ? "Firmware_RunRestoredStock" : "Firmware_RunApplied",
             cancel => AppServices.Firmware.Apply(wanted, Report, cancel));
-        _wanted = null;
+        // A run that did not finish keeps what was ticked, so Apply finishes it; a finished one shows what is on.
+        _wanted = _outcome?.Result is ApplyResult.Done || toFactory ? null : wanted.ToHashSet();
         Paint();
     }
 
@@ -302,6 +309,7 @@ public partial class FirmwarePage : UserControl
         }.ShowAsync(this);
         if (!go) return;
 
+        _restored = true;
         await Running("Firmware_RunRestoring", "Firmware_RunRestored", cancel => AppServices.Firmware.Restore(backup, Report, cancel));
         _wanted = null;
         Paint();
@@ -342,7 +350,7 @@ public partial class FirmwarePage : UserControl
         if (!RunCard.IsVisible) return;
 
         var at = _progress;
-        // One plug-in writes every section; which plug-in this is is said only when there is more than one.
+        // Which session this is is said only when the plan has more than one.
         RunSession.Text = at is { Sessions: > 1, Session: > 0 }
             ? Strings.Format("Firmware_RunSession", at.Session, at.Sessions)
             : "";
@@ -351,8 +359,7 @@ public partial class FirmwarePage : UserControl
         // The person's part, said only while it is theirs.
         Guide.Text = running && at is not null ? at.Step switch
         {
-            EditStep.Plug => Strings.Get("Firmware_GuidePlug"),
-            EditStep.Reconnect => Strings.Get("Firmware_GuideReconnect"),
+            EditStep.Plug => Strings.Get(at.Again ? "Firmware_GuidePlugAgain" : "Firmware_GuidePlug"),
             _ => "",
         } : "";
         Guide.IsVisible = Guide.Text.Length > 0;
@@ -386,7 +393,9 @@ public partial class FirmwarePage : UserControl
             StepList.Children.Add(row);
         }
 
-        OutcomeText.Text = _outcome is { } outcome ? OutcomeWords(outcome.Result) : "";
+        OutcomeText.Text = _outcome is { } outcome
+            ? outcome.Result == ApplyResult.Done && _restored ? Strings.Get("Firmware_OutcomeRestored") : OutcomeWords(outcome.Result)
+            : "";
         OutcomeText.IsVisible = OutcomeText.Text.Length > 0;
         CancelButton.IsVisible = running && at?.Step == EditStep.Plug;
         CloseButton.IsVisible = !running;
@@ -403,9 +412,12 @@ public partial class FirmwarePage : UserControl
         if (step > now) return (Strings.Get(outcome is null ? "Firmware_StepWaiting" : "Firmware_StepSkipped"), "neutral");
         if (outcome is not null)
         {
-            return outcome.Result == ApplyResult.Cancelled
-                ? (Strings.Get("Firmware_StepStopped"), "neutral")
-                : (Strings.Get("Firmware_StepFailed"), "critical");
+            return outcome.Result switch
+            {
+                ApplyResult.Cancelled or ApplyResult.StoppedPartWritten or ApplyResult.StoppedBeforePutBack => (Strings.Get("Firmware_StepStopped"), "neutral"),
+                ApplyResult.NotReadBack => (Strings.Get("Firmware_StepNotChecked"), "caution"),
+                _ => (Strings.Get("Firmware_StepFailed"), "critical"),
+            };
         }
         return at?.Percent is int percent
             ? (Strings.Format("Firmware_StepPercent", percent), "accent")
@@ -491,16 +503,16 @@ public partial class FirmwarePage : UserControl
         EditStep.Connect => Strings.Get("Firmware_StepConnect"),
         EditStep.Backup => Strings.Get("Firmware_StepBackup"),
         EditStep.Write => Strings.Get("Firmware_StepWrite"),
-        EditStep.Verify => Strings.Get("Firmware_StepVerify"),
-        EditStep.Reconnect => Strings.Get("Firmware_StepReconnect"),
-        _ => Strings.Get("Firmware_StepConfirm"),
+        _ => Strings.Get("Firmware_StepVerify"),
     };
 
     private static string OutcomeWords(ApplyResult result) => result switch
     {
         ApplyResult.Done => Strings.Get("Firmware_OutcomeDone"),
-        ApplyResult.Unconfirmed => Strings.Get("Firmware_OutcomeUnconfirmed"),
+        ApplyResult.NotReadBack => Strings.Get("Firmware_OutcomeNotReadBack"),
         ApplyResult.Cancelled => Strings.Get("Firmware_OutcomeCancelled"),
+        ApplyResult.StoppedPartWritten => Strings.Get("Firmware_OutcomeStoppedPartWritten"),
+        ApplyResult.StoppedBeforePutBack => Strings.Get("Firmware_OutcomeStoppedBeforePutBack"),
         ApplyResult.Refused => Strings.Get("Firmware_OutcomeRefused"),
         ApplyResult.Reverted => Strings.Get("Firmware_OutcomeReverted"),
         _ => Strings.Get("Firmware_OutcomeFailed"),

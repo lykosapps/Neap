@@ -53,39 +53,36 @@ public enum EditBlocker
 
 /// <summary>One step of writing the edits, in the order they run.</summary>
 /// <remarks>
-/// The headset is plugged in once. <see cref="Backup"/> to <see cref="Verify"/>
-/// run once for each session the plan needs: after a write the chip restarts
-/// with the cable still in and comes back in download mode by itself.
+/// <see cref="Plug"/> to <see cref="Verify"/> run once for each session the
+/// plan needs. After a write the program restarts the chip into the firmware,
+/// with the cable still in, and the chip does not come back in download mode
+/// by itself (SP2Tools F318, F319), so a further session, or putting a section
+/// back, asks for the cable to be plugged in again. Once the last section reads
+/// back, the person unplugs and the headset starts by itself.
 /// </remarks>
 public enum EditStep
 {
-    /// <summary>The headset is checked while it is still connected as usual.</summary>
+    /// <summary>The headset is checked, as it is connected now or as it was last seen.</summary>
     Check,
 
-    /// <summary>The person switches the headset off and plugs USB-C into the left ear cup.</summary>
+    /// <summary>The person switches the headset off and plugs USB-C into the left ear cup, or plugs it in again.</summary>
     Plug,
 
     /// <summary>Neap reaches the headset's chip in download mode.</summary>
     Connect,
 
     /// <summary>Neap saves each section, and checks it holds the factory firmware and Neap's edits, nothing else.</summary>
-
     Backup,
 
+    /// <summary>Neap writes the sections; the chip then restarts into the firmware.</summary>
     Write,
 
-    /// <summary>Neap reads back what was written, and puts back what was there if it does not match.</summary>
+    /// <summary>Neap reads each section back over the cable, whole, and puts back what was there if it does not match.</summary>
     Verify,
-
-    /// <summary>The person unplugs the cable, and the headset starts by itself.</summary>
-    Reconnect,
-
-    /// <summary>The flash is read to see the edits took.</summary>
-    Confirm,
 }
 
 /// <summary>What Neap knows of the headset before the edits are written.</summary>
-/// <param name="Connected">Whether the headset's settings can be reached.</param>
+/// <param name="Connected">Whether the headset is known: connected now, or seen with its firmware and battery a short while ago, so it can be switched off before applying.</param>
 /// <param name="FirmwareBuild">The firmware version the headset reports, or null before it has.</param>
 /// <param name="Battery">The headset's battery level, or null before it has reported one.</param>
 /// <param name="SwarmRunning">Whether Swarm II is running, and could talk to the headset during the write.</param>
@@ -244,6 +241,25 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
             : null;
     }
 
+    /// <summary>The bytes at each place the edits change, from whole sections read, laid over what was known before.</summary>
+    /// <param name="edits">The edits whose places are wanted.</param>
+    /// <param name="sections">Whole sections as read, by address.</param>
+    /// <param name="before">The bytes known before, or null; any place a section read covers is taken from the section.</param>
+    /// <returns>Every place known, or null when none is.</returns>
+    public static IReadOnlyDictionary<int, byte[]>? FlashFrom(IReadOnlyList<FirmwareEdit> edits,
+        IReadOnlyDictionary<int, byte[]> sections, IReadOnlyDictionary<int, byte[]>? before)
+    {
+        var flash = before is null ? new Dictionary<int, byte[]>() : new Dictionary<int, byte[]>(before);
+        foreach (var change in edits.SelectMany(edit => edit.Changes))
+        {
+            int sector = change.Address & ~(SectorSize - 1);
+            int at = change.Address - sector;
+            if (sections.TryGetValue(sector, out var bytes) && at + change.Factory.Count <= bytes.Length)
+                flash[change.Address] = bytes[at..(at + change.Factory.Count)];
+        }
+        return flash.Count == 0 ? null : flash;
+    }
+
     /// <summary>A section as it is to be written: what the headset holds, with every edit taken out and the ticked ones put in.</summary>
     /// <param name="sector">The section, by address.</param>
     /// <param name="held">The section as read from the headset.</param>
@@ -295,9 +311,9 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
 
     /// <summary>Everything that stops the edits being written now, or none.</summary>
     /// <remarks>
-    /// Asked while the headset is still connected as usual: in download mode its
-    /// battery cannot be read. A headset that cannot be reached is the only thing
-    /// said, since nothing else about it is known.
+    /// In download mode the battery cannot be read, so it is the level last seen.
+    /// A headset never seen is the only thing said, since nothing else about it
+    /// is known.
     /// </remarks>
     public static IReadOnlyList<EditBlocker> Blockers(IReadOnlyList<FirmwareEdit> changing, EditReadiness readiness)
     {
