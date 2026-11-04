@@ -194,8 +194,10 @@ on once.
 40. **Both edits at once:** restore to stock, then tick both and apply. Three
     sections in two plug-ins (Neap asks to unplug and plug in again between them); both read as active; the Mode button cycles
     with its tones and the light stays off.
+    *Passed 4 November 2026: three sections in two plug-ins, each read back as written; Done with both edits active (SP2Tools F323).*
 41. **A backup restored:** restore the newest backup of the light section. It
     reads back, and the page shows the light edit as the backup holds it.
+    *Passed 4 November 2026: the light section's newest backup restored and read back; Restored, light factory, noise cycle active (F323).*
 42. **Unplugged part way (owner's choice, with the recovery kit ready):** pull
     the cable during Write. The page says the step failed; the next apply's
     check finds the section, and if the headset will not start, SP2Tools'
