@@ -2046,6 +2046,9 @@
   <data name="Firmware_OutcomeDone" xml:space="preserve">
     <value>Done. The headset has the edits you ticked. Unplug the cable, and the headset starts by itself in about half a minute.</value>
   </data>
+  <data name="Firmware_OutcomeRestored" xml:space="preserve">
+    <value>Restored. Unplug the cable, and the headset starts by itself in about half a minute.</value>
+  </data>
   <data name="Firmware_OutcomeNotReadBack" xml:space="preserve">
     <value>Written, but Neap couldn't read it back to check it. Unplug the cable; once the headset is on, this page shows each edit's state.</value>
   </data>

@@ -60,6 +60,8 @@ public partial class FirmwarePage : UserControl
     private CancellationTokenSource? _stopping;
     private ApplyProgress? _progress;
     private ApplyOutcome? _outcome;
+    // Whether the run shown is a restore, which has no ticked edits to speak of when it is done.
+    private bool _restored;
 
     public FirmwarePage()
     {
@@ -286,6 +288,7 @@ public partial class FirmwarePage : UserControl
         }.ShowAsync(this);
         if (!go) return;
 
+        _restored = false;
         await Running(
             toFactory ? "Firmware_RunRestoringStock" : "Firmware_RunApplying",
             toFactory ? "Firmware_RunRestoredStock" : "Firmware_RunApplied",
@@ -306,6 +309,7 @@ public partial class FirmwarePage : UserControl
         }.ShowAsync(this);
         if (!go) return;
 
+        _restored = true;
         await Running("Firmware_RunRestoring", "Firmware_RunRestored", cancel => AppServices.Firmware.Restore(backup, Report, cancel));
         _wanted = null;
         Paint();
@@ -389,7 +393,9 @@ public partial class FirmwarePage : UserControl
             StepList.Children.Add(row);
         }
 
-        OutcomeText.Text = _outcome is { } outcome ? OutcomeWords(outcome.Result) : "";
+        OutcomeText.Text = _outcome is { } outcome
+            ? outcome.Result == ApplyResult.Done && _restored ? Strings.Get("Firmware_OutcomeRestored") : OutcomeWords(outcome.Result)
+            : "";
         OutcomeText.IsVisible = OutcomeText.Text.Length > 0;
         CancelButton.IsVisible = running && at?.Step == EditStep.Plug;
         CloseButton.IsVisible = !running;

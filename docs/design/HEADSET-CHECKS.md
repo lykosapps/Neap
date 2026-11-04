@@ -170,6 +170,8 @@ is connected. A build or script mistake then shows on the desk, never as a
 request to the owner (3 November 2026: three such mistakes cost the owner
 round trips).
 
+**Checks 40 and 41 run together** with `tools\ui\headset-sequence.ps1` (4 November 2026): one copy of the app for both, the test build published only when the source changed, and a stop at the first result that is not the one expected. `-Pretend` runs the same steps on the pretend headset.
+
 **The headset need not be on to apply** (3 November 2026). Neap remembers what
 it last saw of the headset (model, firmware, battery, each edit's state) for
 30 minutes, so the person can switch it off first. With the headset off, every
