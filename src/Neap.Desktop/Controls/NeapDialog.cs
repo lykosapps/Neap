@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -66,6 +67,7 @@ public sealed class NeapDialog : Window
         {
             if (e.Key == Key.Escape && CanClose) Close(DialogAnswer.None);
         };
+        Opened += (_, _) => ShowWindowClose(CanClose);
     }
 
     /// <summary>Whether the dialog can be closed now: while it cannot, it has no close button, and Escape and the window's own close do nothing.</summary>
@@ -79,9 +81,30 @@ public sealed class NeapDialog : Window
         set
         {
             _close.IsVisible = value;
+            ShowWindowClose(value);
             if (value && IsVisible) _close.Focus();
         }
     }
+
+    /// <summary>Greys the close button on the window's own title bar while the dialog cannot be closed, so it does not look as if it would.</summary>
+    /// <remarks>Windows only; elsewhere that button does nothing while the dialog is held open.</remarks>
+    private void ShowWindowClose(bool enabled)
+    {
+        if (!OperatingSystem.IsWindows() || TryGetPlatformHandle() is not { } handle) return;
+        // The previous state, or -1 when the window's menu has no close.
+        if (EnableMenuItem(GetSystemMenu(handle.Handle, false), CloseCommand, enabled ? MenuEnabled : MenuGreyed) == -1)
+            AppLog.Write($"dialog: its title bar has no close button to {(enabled ? "enable" : "grey")}: {Heading}");
+    }
+
+    private const uint CloseCommand = 0xF060;
+    private const uint MenuEnabled = 0x0;
+    private const uint MenuGreyed = 0x1;
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetSystemMenu(IntPtr window, bool revert);
+
+    [DllImport("user32.dll")]
+    private static extern int EnableMenuItem(IntPtr menu, uint item, uint enable);
 
     /// <remarks>
     /// The app quitting or the system shutting down still closes a dialog held
