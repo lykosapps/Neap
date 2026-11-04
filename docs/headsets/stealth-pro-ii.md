@@ -153,6 +153,16 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
+- 2026-11-04 — From the log of checks 40 and 41: Neap hands the chip each
+  session's sections in about 50 ms and the chip writes and restarts on its own,
+  but the headset first answers on the cable 51 to 60 seconds later (SP2Tools
+  F328, cause open). The run showed "Write" done at once and then a minute of
+  "Verify" with nothing to do. Now a run is a dialog held open until it ends
+  (Quit from the notification area waits for it too), the two are one step,
+  "Write and check", with a bar kept in time with the usual minute and "Keep the
+  cable plugged in", and a note once it runs long. Built and checked in
+  practice runs only; not yet tried on the headset.
+
 - 2026-11-02 — Headset check 37 passed, read-only, owner's headset on the dock:
   the Firmware page read both edits as active from the flash 2 seconds after
   the headset connected (log: noise_cycle Installed, light_off_disconnected

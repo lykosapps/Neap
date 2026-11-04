@@ -53,7 +53,7 @@ public enum EditBlocker
 
 /// <summary>One step of writing the edits, in the order they run.</summary>
 /// <remarks>
-/// <see cref="Plug"/> to <see cref="Verify"/> run once for each session the
+/// <see cref="Plug"/> to <see cref="Write"/> run once for each session the
 /// plan needs. After a write the program restarts the chip into the firmware,
 /// with the cable still in, and the chip does not come back in download mode
 /// by itself (SP2Tools F318, F319), so a further session, or putting a section
@@ -74,11 +74,17 @@ public enum EditStep
     /// <summary>Neap saves each section, and checks it holds the factory firmware and Neap's edits, nothing else.</summary>
     Backup,
 
-    /// <summary>Neap writes the sections; the chip then restarts into the firmware.</summary>
+    /// <summary>
+    /// The chip writes the sections and restarts into the firmware, and Neap
+    /// reads each back over the cable, whole, putting back what was there if it
+    /// does not match.
+    /// </summary>
+    /// <remarks>
+    /// One step to the person, as Neap hands the chip the sections in a moment
+    /// and the chip does the writing on its own: nearly all of it is the wait
+    /// for the restarted headset to answer on the cable (SP2Tools F321, F328).
+    /// </remarks>
     Write,
-
-    /// <summary>Neap reads each section back over the cable, whole, and puts back what was there if it does not match.</summary>
-    Verify,
 }
 
 /// <summary>What Neap knows of the headset before the edits are written.</summary>
@@ -211,6 +217,25 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
 
     /// <summary>Gets the steps of applying, in order; see <see cref="EditStep"/>.</summary>
     public static IReadOnlyList<EditStep> Steps { get; } = Enum.GetValues<EditStep>();
+
+    /// <summary>How long a session's <see cref="EditStep.Write"/> usually takes, to the last section read back.</summary>
+    /// <remarks>51 to 60 seconds on the owner's headset (SP2Tools F328).</remarks>
+    public static readonly TimeSpan WriteUsually = TimeSpan.FromSeconds(60);
+
+    /// <summary>How long into <see cref="EditStep.Write"/> it is taking longer than usual.</summary>
+    /// <remarks>Half again the usual time, with half a minute left before Neap stops waiting for the read back.</remarks>
+    public static readonly TimeSpan WriteLate = TimeSpan.FromSeconds(90);
+
+    /// <summary>The share of the bar to fill this long into <see cref="EditStep.Write"/>, from 0 to 100.</summary>
+    /// <remarks>
+    /// Nothing reports how far the chip has got, so the bar keeps time with the
+    /// usual wait and stops short of full; it fills only when the step is done.
+    /// </remarks>
+    public static int WriteShown(TimeSpan elapsed) =>
+        elapsed <= TimeSpan.Zero ? 0 : (int)Math.Min(WriteShownMost, WriteShownMost * (elapsed / WriteUsually));
+
+    /// <summary>The most of the bar filled while <see cref="EditStep.Write"/> is under way.</summary>
+    public const int WriteShownMost = 90;
 
     /// <summary>The edits made for a headset, or none for an unknown one.</summary>
     public static IReadOnlyList<FirmwareEdit> For(HeadsetModel? model) =>

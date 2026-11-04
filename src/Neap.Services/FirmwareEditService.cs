@@ -37,9 +37,9 @@ public enum ApplyResult
 /// <param name="Step">The step under way.</param>
 /// <param name="Session">Which session in download mode, from 1, or 0 before the first.</param>
 /// <param name="Sessions">How many sessions the plan needs.</param>
-/// <param name="Percent">How much of the section is written, during <see cref="EditStep.Write"/>.</param>
+/// <param name="Since">When the step started, for a step whose progress is told by time.</param>
 /// <param name="Again">Whether this plug-in comes after a write, so the cable is to be unplugged and plugged in again.</param>
-public sealed record ApplyProgress(EditStep Step, int Session, int Sessions, int? Percent, bool Again = false);
+public sealed record ApplyProgress(EditStep Step, int Session, int Sessions, DateTime Since, bool Again = false);
 
 /// <summary>How applying ended, and where.</summary>
 /// <param name="Result">How it ended.</param>
@@ -235,7 +235,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
 
         return await Run(sessions.Count, report, cancel: cancel, steps: async say =>
         {
-            say(EditStep.Check, 0, null);
+            say(EditStep.Check, 0);
             var blockers = FirmwareEdit.Blockers(plan.Changing, Readiness);
             if (blockers.Count > 0) return Stop(ApplyResult.Failed, $"not ready: {string.Join(", ", blockers)}");
 
@@ -245,7 +245,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
                 session++;
                 // The chip stays held after a session that wrote nothing; after a write it has restarted.
                 if (!writer.Held) await PlugIn(say, session, cancel);
-                say(EditStep.Backup, session, null);
+                say(EditStep.Backup, session);
                 var before = new List<(int Sector, byte[] Bytes)>();
                 var after = new List<(int Sector, byte[] Bytes)>();
                 foreach (int sector in sectors)
@@ -287,7 +287,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             byte[] saved = await File.ReadAllBytesAsync(backup.File, cancel);
             if (saved.Length != FirmwareEdit.SectorSize) return Stop(ApplyResult.Refused, $"{Path.GetFileName(backup.File)} is not a whole section");
             await PlugIn(say, 1, cancel);
-            say(EditStep.Backup, 1, null);
+            say(EditStep.Backup, 1);
             Backed(SaveBackup(backup.Sector, await writer.Read(backup.Sector), Build ?? "unknown"));
             return await WriteAndCheck([(backup.Sector, saved)], say, 1)
                 ? Stop(ApplyResult.Done, "restored and read back")
@@ -296,13 +296,13 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     }
 
     /// <summary>Asks for the headset in download mode: plugged in the first time, plugged in again after a write.</summary>
-    private async Task PlugIn(Action<EditStep, int, int?> say, int session, CancellationToken cancel)
+    private async Task PlugIn(Action<EditStep, int> say, int session, CancellationToken cancel)
     {
         _again = _written;
-        say(EditStep.Plug, session, null);
+        say(EditStep.Plug, session);
         await writer!.WaitForDownloadMode(cancel);
         _again = false;
-        say(EditStep.Connect, session, null);
+        say(EditStep.Connect, session);
     }
 
     /// <summary>Writes sections and reads them back, and says whether every one reads back as written.</summary>
@@ -312,15 +312,14 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     /// (SP2Tools F318, F319). What is read becomes the page's edit states.
     /// </remarks>
     /// <exception cref="NotReadBackException">The sections were written but could not be read back.</exception>
-    private async Task<bool> WriteAndCheck(IReadOnlyList<(int Sector, byte[] Bytes)> sections, Action<EditStep, int, int?> say, int session)
+    private async Task<bool> WriteAndCheck(IReadOnlyList<(int Sector, byte[] Bytes)> sections, Action<EditStep, int> say, int session)
     {
         // What the page showed of these sections is no longer known until they are read back.
         Flash = null;
         Changed?.Invoke();
-        say(EditStep.Write, session, 0);
+        say(EditStep.Write, session);
         _written = true;
-        await writer!.Write(sections, new Reporter(done => say(EditStep.Write, session, done)));
-        say(EditStep.Verify, session, null);
+        await writer!.Write(sections);
         var read = new List<(int Sector, byte[] Bytes)>();
         foreach (var (sector, bytes) in sections)
             read.Add((sector, await ReadBack(sector, bytes.Length) ?? throw new NotReadBackException(Hex($"written, but section {sector:X8} could not be read back"))));
@@ -415,7 +414,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
 
     /// <summary>Runs the steps with the page told of each, and ends a cancel or a fault as an outcome rather than a throw.</summary>
     private async Task<ApplyOutcome> Run(int sessions, Action<ApplyProgress> report,
-        Func<Action<EditStep, int, int?>, Task<ApplyOutcome>> steps, CancellationToken cancel)
+        Func<Action<EditStep, int>, Task<ApplyOutcome>> steps, CancellationToken cancel)
     {
         Busy = true;
         _backups = [];
@@ -428,11 +427,11 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         Changed?.Invoke();
         try
         {
-            return await steps((step, session, percent) =>
+            return await steps((step, session) =>
             {
-                if (_at != step) AppLog.Write(string.Create(CultureInfo.InvariantCulture, $"firmware edits: {step}, session {session} of {sessions}"));
+                AppLog.Write(string.Create(CultureInfo.InvariantCulture, $"firmware edits: {step}, session {session} of {sessions}"));
                 _at = step;
-                report(new ApplyProgress(step, session, sessions, percent, _again));
+                report(new ApplyProgress(step, session, sessions, DateTime.UtcNow, _again));
             });
         }
         catch (OperationCanceledException) when (cancel.IsCancellationRequested && _at == EditStep.Plug)
@@ -460,11 +459,5 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             Busy = false;
             Changed?.Invoke();
         }
-    }
-
-    /// <summary>Tells of progress as it happens, on the writer's own thread, so a late report never lands after the next step.</summary>
-    private sealed class Reporter(Action<int> said) : IProgress<int>
-    {
-        public void Report(int value) => said(value);
     }
 }

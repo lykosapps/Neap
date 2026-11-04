@@ -7,7 +7,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Neap.Core.Firmware;
 using Neap.Desktop.Controls;
@@ -30,9 +29,10 @@ namespace Neap.Desktop.Views;
 /// pressed. Restore factory is Apply with nothing ticked.
 /// </para>
 /// <para>
-/// A run shows on its own card under the list: the one thing the person has to
-/// do, the steps, and how far the write has got, each updated where it is so a
-/// moving bar never takes the keyboard focus.
+/// A run shows in a dialog that holds the window until the run ends
+/// (<see cref="FirmwareRun"/>): while it runs the headset is off, in download
+/// mode or restarting, so nothing else in Neap can reach it, and each step's
+/// ask about the cable has to be where the person is looking.
 /// </para>
 /// </remarks>
 public partial class FirmwarePage : UserControl
@@ -57,12 +57,6 @@ public partial class FirmwarePage : UserControl
     /// <summary>Set while the rows are put in step, so a tick set from the headset's state is not taken as the person's.</summary>
     private bool _painting;
 
-    private CancellationTokenSource? _stopping;
-    private ApplyProgress? _progress;
-    private ApplyOutcome? _outcome;
-    // Whether the run shown is a restore, which has no ticked edits to speak of when it is done.
-    private bool _restored;
-
     public FirmwarePage()
     {
         InitializeComponent();
@@ -70,13 +64,6 @@ public partial class FirmwarePage : UserControl
         FactoryButton.Click += async (_, _) => await AskToApply([], toFactory: true);
         FlashEdits.IsVisible = FirmwareEdit.Released || Pretend.Active;
         Intro.IsVisible = FirmwareEdit.Released || Pretend.Active;
-        CancelButton.Click += (_, _) => _stopping?.Cancel();
-        CloseButton.Click += (_, _) =>
-        {
-            _progress = null;
-            _outcome = null;
-            PaintRun(running: false);
-        };
     }
 
     protected override async void OnLoaded(RoutedEventArgs e)
@@ -266,7 +253,7 @@ public partial class FirmwarePage : UserControl
         _ => Strings.Get("Firmware_StateUnknown"),
     };
 
-    /// <summary>Asks before writing, with the plan and what can go wrong, then runs it on the run card.</summary>
+    /// <summary>Asks before writing, with the plan and what can go wrong, then runs it.</summary>
     private async Task AskToApply(HashSet<FirmwareEdit> wanted, bool toFactory)
     {
         var plan = AppServices.Firmware.Plan(wanted);
@@ -288,13 +275,13 @@ public partial class FirmwarePage : UserControl
         }.ShowAsync(this);
         if (!go) return;
 
-        _restored = false;
-        await Running(
+        var outcome = await Running(
             toFactory ? "Firmware_RunRestoringStock" : "Firmware_RunApplying",
             toFactory ? "Firmware_RunRestoredStock" : "Firmware_RunApplied",
-            cancel => AppServices.Firmware.Apply(wanted, Report, cancel));
+            restore: false,
+            (report, cancel) => AppServices.Firmware.Apply(wanted, report, cancel));
         // A run that did not finish keeps what was ticked, so Apply finishes it; a finished one shows what is on.
-        _wanted = _outcome?.Result is ApplyResult.Done || toFactory ? null : wanted.ToHashSet();
+        _wanted = outcome.Result is ApplyResult.Done || toFactory ? null : wanted.ToHashSet();
         Paint();
     }
 
@@ -309,119 +296,34 @@ public partial class FirmwarePage : UserControl
         }.ShowAsync(this);
         if (!go) return;
 
-        _restored = true;
-        await Running("Firmware_RunRestoring", "Firmware_RunRestored", cancel => AppServices.Firmware.Restore(backup, Report, cancel));
+        await Running("Firmware_RunRestoring", "Firmware_RunRestored", restore: true,
+            (report, cancel) => AppServices.Firmware.Restore(backup, report, cancel));
         _wanted = null;
         Paint();
     }
 
-    /// <summary>Runs a write with the run card showing, headed by what is under way and then by what was done.</summary>
+    /// <summary>Runs a write in a dialog held open until it ends, headed by what is under way and then by what was done.</summary>
     /// <remarks>The finished heading names the action, not its result, as the outcome under it says how it ended.</remarks>
-    private async Task Running(string doingKey, string doneKey, Func<CancellationToken, Task<ApplyOutcome>> run)
+    private async Task<ApplyOutcome> Running(string doingKey, string doneKey, bool restore,
+        Func<Action<ApplyProgress>, CancellationToken, Task<ApplyOutcome>> run)
     {
-        RunTitle.Text = Strings.Get(doingKey);
         using var stopping = new CancellationTokenSource();
-        _stopping = stopping;
-        _progress = null;
-        _outcome = null;
-        PaintRun(running: true);
-        _outcome = await run(stopping.Token);
-        _stopping = null;
-        RunTitle.Text = Strings.Get(doneKey);
-        PaintRun(running: false);
-    }
-
-    /// <remarks>The writer reports from its own thread, and the card can be changed only from this one.</remarks>
-    private void Report(ApplyProgress progress)
-    {
-        if (!Dispatcher.UIThread.CheckAccess())
+        var shown = new FirmwareRun { Restore = restore };
+        shown.Stopping += stopping.Cancel;
+        var dialog = new NeapDialog
         {
-            Dispatcher.UIThread.Post(() => Report(progress));
-            return;
-        }
-        _progress = progress;
-        PaintRun(running: true);
-    }
-
-    /// <summary>Puts the run card in step with where the run has got, in place.</summary>
-    private void PaintRun(bool running)
-    {
-        RunCard.IsVisible = running || _outcome is not null;
-        if (!RunCard.IsVisible) return;
-
-        var at = _progress;
-        // Which session this is is said only when the plan has more than one.
-        RunSession.Text = at is { Sessions: > 1, Session: > 0 }
-            ? Strings.Format("Firmware_RunSession", at.Session, at.Sessions)
-            : "";
-        RunSession.IsVisible = RunSession.Text.Length > 0;
-
-        // The person's part, said only while it is theirs.
-        Guide.Text = running && at is not null ? at.Step switch
-        {
-            EditStep.Plug => Strings.Get(at.Again ? "Firmware_GuidePlugAgain" : "Firmware_GuidePlug"),
-            _ => "",
-        } : "";
-        Guide.IsVisible = Guide.Text.Length > 0;
-
-        Progress.IsVisible = running;
-        Progress.IsIndeterminate = at?.Percent is null;
-        Progress.Value = at?.Percent ?? 0;
-
-        StepList.Children.Clear();
-        foreach (var step in FirmwareEdit.Steps)
-        {
-            var (state, tone) = StepState(step, at, _outcome);
-            var row = new Grid
-            {
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition(GridLength.Auto),
-                    new ColumnDefinition(GridLength.Auto) { SharedSizeGroup = "StepName" },
-                    new ColumnDefinition(GridLength.Star),
-                },
-                ColumnSpacing = Space.S,
-            };
-            var name = new TextBlock { Text = StepWords(step) };
-            var words = new TextBlock { Text = state, Classes = { "secondary" } };
-            Grid.SetColumn(name, 1);
-            Grid.SetColumn(words, 2);
-            row.Children.Add(new Ellipse { Classes = { "statusdot", tone }, VerticalAlignment = VerticalAlignment.Center });
-            row.Children.Add(name);
-            row.Children.Add(words);
-            AutomationProperties.SetName(row, Strings.Format("Firmware_StepState", StepWords(step), state));
-            StepList.Children.Add(row);
-        }
-
-        OutcomeText.Text = _outcome is { } outcome
-            ? outcome.Result == ApplyResult.Done && _restored ? Strings.Get("Firmware_OutcomeRestored") : OutcomeWords(outcome.Result)
-            : "";
-        OutcomeText.IsVisible = OutcomeText.Text.Length > 0;
-        CancelButton.IsVisible = running && at?.Step == EditStep.Plug;
-        CloseButton.IsVisible = !running;
-    }
-
-    /// <summary>How far a step has got, as its word and the tone of its dot.</summary>
-    private static (string Words, string Tone) StepState(EditStep step, ApplyProgress? at, ApplyOutcome? outcome)
-    {
-        var done = (Strings.Get("Firmware_StepDone"), "good");
-        if (outcome is { Stopped: null }) return done;
-        var current = outcome?.Stopped ?? at?.Step;
-        if (current is not { } now) return (Strings.Get("Firmware_StepWaiting"), "neutral");
-        if (step < now) return done;
-        if (step > now) return (Strings.Get(outcome is null ? "Firmware_StepWaiting" : "Firmware_StepSkipped"), "neutral");
-        if (outcome is not null)
-        {
-            return outcome.Result switch
-            {
-                ApplyResult.Cancelled or ApplyResult.StoppedPartWritten or ApplyResult.StoppedBeforePutBack => (Strings.Get("Firmware_StepStopped"), "neutral"),
-                ApplyResult.NotReadBack => (Strings.Get("Firmware_StepNotChecked"), "caution"),
-                _ => (Strings.Get("Firmware_StepFailed"), "critical"),
-            };
-        }
-        return at?.Percent is int percent
-            ? (Strings.Format("Firmware_StepPercent", percent), "accent")
-            : (Strings.Get("Firmware_StepWorking"), "accent");
+            Heading = Strings.Get(doingKey),
+            Body = shown,
+            CloseButtonText = Strings.Get("Dialog_Close"),
+            CanClose = false,
+        };
+        var closed = dialog.Ask(this);
+        var outcome = await run(shown.Report, stopping.Token);
+        dialog.Heading = Strings.Get(doneKey);
+        shown.Finish(outcome);
+        dialog.CanClose = true;
+        await closed;
+        return outcome;
     }
 
     /// <summary>A backup's row: the edit its section belongs to, when it was saved, and putting it back.</summary>
@@ -494,27 +396,5 @@ public partial class FirmwarePage : UserControl
         EditBlocker.DoesNotFit => Strings.Get("Firmware_BlockedDoesNotFit"),
         EditBlocker.LowBattery => Strings.Format("Firmware_BlockedBattery", FirmwareEdit.MinimumBattery),
         _ => Strings.Get("Firmware_BlockedSwarm"),
-    };
-
-    private static string StepWords(EditStep step) => step switch
-    {
-        EditStep.Check => Strings.Get("Firmware_StepCheck"),
-        EditStep.Plug => Strings.Get("Firmware_StepPlug"),
-        EditStep.Connect => Strings.Get("Firmware_StepConnect"),
-        EditStep.Backup => Strings.Get("Firmware_StepBackup"),
-        EditStep.Write => Strings.Get("Firmware_StepWrite"),
-        _ => Strings.Get("Firmware_StepVerify"),
-    };
-
-    private static string OutcomeWords(ApplyResult result) => result switch
-    {
-        ApplyResult.Done => Strings.Get("Firmware_OutcomeDone"),
-        ApplyResult.NotReadBack => Strings.Get("Firmware_OutcomeNotReadBack"),
-        ApplyResult.Cancelled => Strings.Get("Firmware_OutcomeCancelled"),
-        ApplyResult.StoppedPartWritten => Strings.Get("Firmware_OutcomeStoppedPartWritten"),
-        ApplyResult.StoppedBeforePutBack => Strings.Get("Firmware_OutcomeStoppedBeforePutBack"),
-        ApplyResult.Refused => Strings.Get("Firmware_OutcomeRefused"),
-        ApplyResult.Reverted => Strings.Get("Firmware_OutcomeReverted"),
-        _ => Strings.Get("Firmware_OutcomeFailed"),
     };
 }

@@ -222,8 +222,17 @@ public class FirmwareEditTests
     [Fact]
     public void TheStepsRunAsTheSpecSetsThemOut() =>
         Assert.Equal(
-            [EditStep.Check, EditStep.Plug, EditStep.Connect, EditStep.Backup, EditStep.Write, EditStep.Verify],
+            [EditStep.Check, EditStep.Plug, EditStep.Connect, EditStep.Backup, EditStep.Write],
             FirmwareEdit.Steps);
+
+    [Theory]
+    [InlineData(-1, 0)]
+    [InlineData(0, 0)]
+    [InlineData(30, 45)]
+    [InlineData(60, 90)]
+    [InlineData(150, 90)]
+    public void TheWriteBarKeepsTimeWithTheUsualMinuteAndStopsShortOfFull(int seconds, int shown) =>
+        Assert.Equal(shown, FirmwareEdit.WriteShown(TimeSpan.FromSeconds(seconds)));
 
     // -- each edit's state from the sections read back ------------------------
 

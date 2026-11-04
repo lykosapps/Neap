@@ -282,8 +282,19 @@ public partial class MainWindow : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <remarks>
+    /// Not while the headset's firmware is being written: a write stopped part
+    /// way can leave the headset unable to start. The window comes forward
+    /// instead, with the run's dialog over it saying what it is doing.
+    /// </remarks>
     private void Quit()
     {
+        if (AppServices.Firmware.Busy)
+        {
+            AppLog.Write("quit from the notification area: not while the firmware is being written, so the window shows the run");
+            Reveal();
+            return;
+        }
         AppLog.Write("quit from the notification area");
         StopRunning();
         Shutdown();

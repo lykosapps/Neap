@@ -34,8 +34,7 @@ public interface IFirmwareWriter
 
     /// <summary>Writes one or two sections; the chip then restarts into the firmware and is no longer held.</summary>
     /// <param name="sections">Each section's address and its bytes, in the order written.</param>
-    /// <param name="percent">Told how far the write has got, from 0 to 100.</param>
-    Task Write(IReadOnlyList<(int Sector, byte[] Bytes)> sections, IProgress<int> percent);
+    Task Write(IReadOnlyList<(int Sector, byte[] Bytes)> sections);
 
     /// <summary>Lets the chip go at the end of a run, so the next run plugs in afresh.</summary>
     void LetGo();
@@ -78,7 +77,7 @@ public sealed class BootRomFirmwareWriter : IFirmwareWriter
     public Task<byte[]> Read(int sector) => Task.Run(() =>
         Chip.ReadSector(sector) ?? throw new IOException($"section {sector:X8} could not be read in download mode"));
 
-    public async Task Write(IReadOnlyList<(int Sector, byte[] Bytes)> sections, IProgress<int> percent)
+    public async Task Write(IReadOnlyList<(int Sector, byte[] Bytes)> sections)
     {
         var program = WriteProgram.For(sections.Select(section => section.Sector).ToList());
         byte[] payload = [.. sections.SelectMany(section => section.Bytes)];
@@ -87,13 +86,10 @@ public sealed class BootRomFirmwareWriter : IFirmwareWriter
         {
             await Task.Run(() =>
             {
-                percent.Report(0);
                 if (!Chip.SendDa(WriteProgram.PayloadAddress, payload)) throw new IOException("the chip did not take the sections' bytes");
                 AppLog.Write($"firmware: sections' bytes loaded in {took.ElapsedMilliseconds} ms");
-                percent.Report(40);
                 if (!Chip.SendDa(WriteProgram.LoadAddress, program)) throw new IOException("the chip did not take the program that writes them");
                 AppLog.Write($"firmware: write program loaded at {took.ElapsedMilliseconds} ms");
-                percent.Report(50);
                 // The program restarts the chip when it has written, so the port can go mid-answer. That is the write
                 // finishing, not failing (SP2Tools F318); the read back decides.
                 try
@@ -112,7 +108,6 @@ public sealed class BootRomFirmwareWriter : IFirmwareWriter
             // Started or not, the chip is not to be used again without plugging in afresh.
             Release();
         }
-        percent.Report(100);
     }
 
     public void LetGo() => Release();
@@ -174,13 +169,9 @@ public sealed class PretendFirmwareWriter(PretendFlash flash, bool lost) : IFirm
         return flash.Read(sector);
     }
 
-    public async Task Write(IReadOnlyList<(int Sector, byte[] Bytes)> sections, IProgress<int> percent)
+    public async Task Write(IReadOnlyList<(int Sector, byte[] Bytes)> sections)
     {
-        for (int done = 0; done <= 100; done += 10)
-        {
-            percent.Report(done);
-            await Task.Delay(Pause / 6);
-        }
+        await Task.Delay(Pause * 2);
         Held = false;
         _wrote = true;
         // Every other write is lost, so the put back that follows lands and the headset is left as it was.

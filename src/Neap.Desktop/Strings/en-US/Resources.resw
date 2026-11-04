@@ -1863,7 +1863,7 @@
     <value>Back up</value>
   </data>
   <data name="Firmware_StepWrite" xml:space="preserve">
-    <value>Write</value>
+    <value>Write and check</value>
   </data>
   <data name="Firmware_Restore" xml:space="preserve">
     <value>Restore</value>
@@ -1945,9 +1945,6 @@
   <data name="Firmware_StopWaiting.Content" xml:space="preserve">
     <value>Stop</value>
   </data>
-  <data name="Firmware_CloseRun.Content" xml:space="preserve">
-    <value>Close</value>
-  </data>
   <data name="Firmware_BackupsNote.Text" xml:space="preserve">
     <value>Neap saves each section before writing it. If an edit leaves your headset unwell, restore the newest backups.</value>
   </data>
@@ -2027,24 +2024,23 @@
   <data name="Firmware_GuidePlug" xml:space="preserve">
     <value>Switch the headset off, then plug a USB-C cable from this PC into its left ear cup. Don't press Power.</value>
   </data>
+  <data name="Firmware_GuideWrite" xml:space="preserve">
+    <value>Keep the cable plugged in. The headset writes the change and restarts, which takes about a minute.</value>
+  </data>
+  <data name="Firmware_GuideWriteLate" xml:space="preserve">
+    <value>This is taking longer than usual. Keep the cable plugged in.</value>
+  </data>
   <data name="Firmware_StepPlug" xml:space="preserve">
     <value>Plug in</value>
   </data>
   <data name="Firmware_StepConnect" xml:space="preserve">
     <value>Reach the headset</value>
   </data>
-  <data name="Firmware_StepVerify" xml:space="preserve">
-    <value>Verify</value>
-  </data>
   <data name="Firmware_StepNotChecked" xml:space="preserve">
     <value>Not checked</value>
   </data>
   <data name="Firmware_StepStopped" xml:space="preserve">
     <value>Stopped</value>
-  </data>
-  <data name="Firmware_StepPercent" xml:space="preserve">
-    <value>{0}%</value>
-    <comment>{0} is how much is written, from 0 to 100.</comment>
   </data>
   <data name="Firmware_OutcomeDone" xml:space="preserve">
     <value>Done. The headset has the edits you ticked. Unplug the cable, and the headset starts by itself in about half a minute.</value>
@@ -2059,19 +2055,19 @@
     <value>Stopped while waiting for the headset. Nothing was written after that.</value>
   </data>
   <data name="Firmware_OutcomeStoppedPartWritten" xml:space="preserve">
-    <value>Stopped. Part of the change is written, and each edit's state is shown above. Unplug the cable; to finish, choose Apply again.</value>
+    <value>Stopped. Part of the change is written, and the Firmware page shows each edit's state. Unplug the cable; to finish, choose Apply again.</value>
   </data>
   <data name="Firmware_OutcomeStoppedBeforePutBack" xml:space="preserve">
-    <value>Stopped before Neap could put a section back, so the headset may not start. Plug it in again and restore the newest backup below.</value>
+    <value>Stopped before Neap could put a section back, so the headset may not start. Plug it in again and restore the newest backup under Backups.</value>
   </data>
   <data name="Firmware_OutcomeRefused" xml:space="preserve">
-    <value>Nothing was written. Part of the headset's firmware isn't the factory firmware these edits are made for. Restore a backup below to undo the change.</value>
+    <value>Nothing was written. Part of the headset's firmware isn't the factory firmware these edits are made for. Restore a backup under Backups to undo the change.</value>
   </data>
   <data name="Firmware_OutcomeReverted" xml:space="preserve">
     <value>A section didn't read back as written, so Neap put back what was there. Unplug the cable, and the headset starts by itself. To try again, tick an edit and choose Apply.</value>
   </data>
   <data name="Firmware_OutcomeFailed" xml:space="preserve">
-    <value>Something stopped the write before it finished, and the app log says where. If the headset doesn't start, restore the newest backups below.</value>
+    <value>Something stopped the write before it finished, and the app log says where. If the headset doesn't start, restore the newest backups under Backups.</value>
   </data>
   <data name="Firmware_BackupLinePart" xml:space="preserve">
     <value>{0}, section {1} of {2}, saved {3}</value>

@@ -80,7 +80,7 @@ function Invoke-Sequence {
     Check (Wait-Until { @(Get-Chips | Where-Object { $_ -eq 'Active' }).Count -eq 2 } 10) 'both edits read as active'
     Save-Shot 'sequence-check40' -Whole | ForEach-Object { $_.Dispose() }
     if ($outcome -ne $done) { throw 'stopping: check 40 did not end as expected' }
-    Press (Find-Lowest 'Close')
+    Press (Find-Id 'CloseButton')
     Owner 'unplug the cable; the headset starts by itself'
 
     Section 'check 41: the newest backup of the light section restored'
@@ -95,6 +95,7 @@ function Invoke-Sequence {
     Check ($outcome -like 'Restored. *') 'check 41 ends Restored'
     Check (Wait-Until { (Get-Chips) -contains 'Active' -and (Get-Chips) -contains 'Factory' } 10) 'the light reads factory again and the noise cycle stays active'
     Save-Shot 'sequence-check41' -Whole | ForEach-Object { $_.Dispose() }
+    Press (Find-Id 'CloseButton')
     Owner 'unplug the cable; the headset starts by itself'
 }
 

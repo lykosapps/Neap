@@ -1,0 +1,43 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.FirmwareRun"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:loc="using:Neap.Desktop.Localization">
+
+    <!--
+        A firmware run, in the dialog that holds the window until it ends. The
+        one thing the person has to do is said largest, while it is theirs to
+        do; the rest is the steps and how far the run has got.
+    -->
+    <StackPanel Spacing="{StaticResource NeapSpaceM}">
+        <TextBlock
+            x:Name="RunSession"
+            Classes="caption secondary"
+            AutomationProperties.LiveSetting="Polite" />
+        <TextBlock
+            x:Name="Guide"
+            Classes="bodystrong"
+            AutomationProperties.LiveSetting="Polite"
+            TextWrapping="Wrap" />
+        <ProgressBar
+            x:Name="Progress"
+            loc:Uid.Value="Firmware_Progress"
+            Maximum="100"
+            Minimum="0" />
+        <!-- One row per step; the step names share a width, so the states form one column. -->
+        <StackPanel
+            x:Name="StepList"
+            loc:Uid.Value="Firmware_Steps"
+            Grid.IsSharedSizeScope="True"
+            Spacing="{StaticResource NeapSpaceS}" />
+        <TextBlock
+            x:Name="OutcomeText"
+            Classes="bodystrong"
+            AutomationProperties.LiveSetting="Polite"
+            TextWrapping="Wrap" />
+        <Button
+            x:Name="StopButton"
+            HorizontalAlignment="Left"
+            loc:Uid.Value="Firmware_StopWaiting" />
+    </StackPanel>
+</UserControl>
