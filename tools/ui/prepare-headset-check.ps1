@@ -14,7 +14,8 @@ $utf8 = New-Object System.Text.UTF8Encoding($false)
 $stamp = Join-Path (Split-Path $script:Exe) 'test-build.stamp'
 # The stamp is the source's hash and the published Neap.Core.dll's hash: run.ps1 publishes the same folder for the pretend
 # checks, without the Firmware page, and a stamp on the source alone missed that (4 November 2026).
-$core = Join-Path (Split-Path $script:Exe) 'Neap.Core.dll' Get-BuildHash { if (Test-Path $core) { (Get-FileHash $core -Algorithm SHA256).Hash } else { '' } }
+$core = Join-Path (Split-Path $script:Exe) 'Neap.Core.dll'
+function Get-BuildHash { if (Test-Path $core) { (Get-FileHash $core -Algorithm SHA256).Hash } else { '' } }
 
 function Get-SourceHash {
     $files = Get-ChildItem (Join-Path $root 'src') -Recurse -File -Include *.cs, *.axaml, *.resw, *.csproj, *.props |
