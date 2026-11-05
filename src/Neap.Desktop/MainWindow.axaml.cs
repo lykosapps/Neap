@@ -79,6 +79,28 @@ public partial class MainWindow : Window
         Open(Pretend.Page ?? "home");
         StartTray();
         AddHandler(KeyDownEvent, OnPlaceKey, RoutingStrategies.Tunnel);
+        TakeoverLayer.HeldChanged += OnHeld;
+    }
+
+    private IInputElement? _focusBeforeHeld;
+
+    /// <summary>Switches the rest of the window off while work is held over it, and on again after.</summary>
+    /// <remarks>
+    /// Off, the menu and the page take no clicks or keys, so Tab stays on the
+    /// work, and the window's own close is greyed, as closing it would hide
+    /// the work under way. The keyboard focus goes back where it was, or to
+    /// the menu when that can no longer take it.
+    /// </remarks>
+    private void OnHeld(bool held)
+    {
+        AppLog.Write(held ? "window: work under way over the whole window" : "window: the work over the window was closed");
+        if (held) _focusBeforeHeld = FocusManager?.GetFocusedElement();
+        Rail.IsEnabled = !held;
+        WindowClose.Allow(this, !held);
+        if (held) return;
+        if (_focusBeforeHeld is InputElement { IsEffectivelyEnabled: true, IsEffectivelyVisible: true } before) before.Focus();
+        else (Places.SelectedItem as NavItem ?? Foot.SelectedItem as NavItem)?.Focus();
+        _focusBeforeHeld = null;
     }
 
     /// <summary>
@@ -119,7 +141,7 @@ public partial class MainWindow : Window
         else if (!wanted && listed) Places.Items.Remove(FirmwareNav);
     }
 
-    /// <summary>Opens the page with this tag, and marks its place in the rail.</summary>
+    /// <summary>Opens the page with this tag, and marks its place in the rail; not while work is held over the window.</summary>
     /// <returns>Whether there is a page with that tag.</returns>
     public bool Open(string page)
     {
@@ -127,7 +149,8 @@ public partial class MainWindow : Window
             foreach (var item in rail.Items.OfType<NavItem>())
                 if (item.Page == page)
                 {
-                    rail.SelectedItem = item;
+                    if (TakeoverLayer.Held) AppLog.Write($"window: {page} not opened, as work is under way over the window");
+                    else rail.SelectedItem = item;
                     return true;
                 }
         AppLog.Write($"no page with the tag {page}: stayed where it was");

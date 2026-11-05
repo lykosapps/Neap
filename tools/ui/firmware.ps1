@@ -4,8 +4,9 @@ Checks the Firmware page on the published app in pretend mode: the keyboard
 focus stays on a ticked row, an edit applied reads as active from the
 pretend flash and as factory again after Restore factory, and a write that is
 lost is put back, each in dark, light and high contrast; and both edits at once,
- which asks to plug in again for the second session, stopped there. A run is a
-dialog that offers no Close until it ends.
+ which asks to plug in again for the second session, stopped there. A run takes
+over the whole window, with the rest of it switched off, and offers no Close
+until it ends.
 
 .DESCRIPTION
 Run through run.ps1. The page is out of the menu until firmware edits are
@@ -83,9 +84,9 @@ function Confirm-Press([string]$Name) {
     Press $script:asked
 }
 
-# The run dialog's Close, by its fixed name, not the window's own.
+# The run's Close, by its fixed name, not the window's own.
 function Close-Run {
-    Press (Find-Id 'CloseButton')
+    Press (Find-Id 'TakeoverCloseButton')
     Wait-Until { -not (Find-Text $done) } 6 | Out-Null
 }
 
@@ -160,7 +161,8 @@ try {
     Press (Find-Tick 'Noise cancellation cycle')
     Confirm-Press 'Apply'
     Check (Wait-Until { Find-Text $plugAgain } 90) 'after the first session is written and read back, the run asks to unplug and plug in again'
-    Check (-not (Test-Present (Find-Id 'CloseButton'))) 'while the run waits, its dialog offers no Close'
+    Check (-not (Test-Present (Find-Id 'TakeoverCloseButton'))) 'while the run waits, it offers no Close'
+    Check (-not (Find-Anywhere 'Apply').Current.IsEnabled -and -not (Find-Anywhere 'Restore factory').Current.IsEnabled) 'and the page behind it is switched off'
     Save-Shot 'firmware-plug-again' -Whole | ForEach-Object { $_.Dispose() }
     Press (Find-Anywhere 'Stop')
     Check (Wait-Until { Find-Text $stoppedPart } 15) 'Stop there says part of the change is written'

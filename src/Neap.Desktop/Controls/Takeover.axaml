@@ -1,0 +1,47 @@
+<UserControl
+    x:Class="Neap.Desktop.Controls.Takeover"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:chrome="using:Avalonia.Controls.Chrome"
+    xmlns:loc="using:Neap.Desktop.Localization"
+    Background="{DynamicResource NeapScrimBrush}"
+    IsVisible="False">
+
+    <!--
+        Work that must not be left part way, over the whole window: the rest of
+        the app is dimmed and switched off behind it, and Close, once the work
+        has ended, is the only way out. The title bar's row still drags the
+        window, which can be minimised with the work in it.
+    -->
+    <Grid RowDefinitions="Auto,*">
+        <Border
+            Height="{StaticResource NeapTitleBarHeight}"
+            chrome:WindowDecorationProperties.ElementRole="TitleBar"
+            Background="Transparent" />
+        <Border
+            x:Name="Card"
+            Grid.Row="1"
+            Width="480"
+            Margin="16"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            BorderBrush="{DynamicResource NeapPopupStrokeBrush}"
+            Classes="card"
+            Focusable="True">
+            <StackPanel Spacing="{StaticResource NeapSpaceL}">
+                <TextBlock
+                    x:Name="HeadingText"
+                    AutomationProperties.HeadingLevel="1"
+                    Classes="title" />
+                <ContentControl x:Name="Body" />
+                <Button
+                    x:Name="CloseButton"
+                    HorizontalAlignment="Right"
+                    AutomationProperties.AutomationId="TakeoverCloseButton"
+                    Classes="dialogbutton"
+                    IsVisible="False"
+                    loc:Uid.Value="Takeover_Close" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

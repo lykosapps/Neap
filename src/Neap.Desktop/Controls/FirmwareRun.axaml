@@ -5,7 +5,7 @@
     xmlns:loc="using:Neap.Desktop.Localization">
 
     <!--
-        A firmware run, in the dialog that holds the window until it ends. The
+        A firmware run, over the whole window until it ends. The
         one thing the person has to do is said largest, while it is theirs to
         do; the rest is the steps and how far the run has got.
     -->

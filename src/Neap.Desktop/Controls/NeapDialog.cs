@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -28,10 +27,6 @@ public enum DialogAnswer
 /// <para>
 /// A dialog made only to say something has no primary button, and only the
 /// close button.
-/// </para>
-/// <para>
-/// A dialog showing work that must not be left part way is held open with
-/// <see cref="CanClose"/> until the work ends.
 /// </para>
 /// </remarks>
 public sealed class NeapDialog : Window
@@ -65,55 +60,8 @@ public sealed class NeapDialog : Window
         _secondary.Click += (_, _) => Close(DialogAnswer.Secondary);
         KeyDown += (_, e) =>
         {
-            if (e.Key == Key.Escape && CanClose) Close(DialogAnswer.None);
+            if (e.Key == Key.Escape) Close(DialogAnswer.None);
         };
-        Opened += (_, _) => ShowWindowClose(CanClose);
-    }
-
-    /// <summary>Whether the dialog can be closed now: while it cannot, it has no close button, and Escape and the window's own close do nothing.</summary>
-    /// <remarks>
-    /// When it can be closed again, the keyboard focus goes to the close
-    /// button, the one thing left to press.
-    /// </remarks>
-    public bool CanClose
-    {
-        get => _close.IsVisible;
-        set
-        {
-            _close.IsVisible = value;
-            ShowWindowClose(value);
-            if (value && IsVisible) _close.Focus();
-        }
-    }
-
-    /// <summary>Greys the close button on the window's own title bar while the dialog cannot be closed, so it does not look as if it would.</summary>
-    /// <remarks>Windows only; elsewhere that button does nothing while the dialog is held open.</remarks>
-    private void ShowWindowClose(bool enabled)
-    {
-        if (!OperatingSystem.IsWindows() || TryGetPlatformHandle() is not { } handle) return;
-        // The previous state, or -1 when the window's menu has no close.
-        if (EnableMenuItem(GetSystemMenu(handle.Handle, false), CloseCommand, enabled ? MenuEnabled : MenuGreyed) == -1)
-            AppLog.Write($"dialog: its title bar has no close button to {(enabled ? "enable" : "grey")}: {Heading}");
-    }
-
-    private const uint CloseCommand = 0xF060;
-    private const uint MenuEnabled = 0x0;
-    private const uint MenuGreyed = 0x1;
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr GetSystemMenu(IntPtr window, bool revert);
-
-    [DllImport("user32.dll")]
-    private static extern int EnableMenuItem(IntPtr menu, uint item, uint enable);
-
-    /// <remarks>
-    /// The app quitting or the system shutting down still closes a dialog held
-    /// open: refusing would stop the system for everyone, not just this dialog.
-    /// </remarks>
-    protected override void OnClosing(WindowClosingEventArgs e)
-    {
-        base.OnClosing(e);
-        if (!CanClose && e.CloseReason is not (WindowCloseReason.ApplicationShutdown or WindowCloseReason.OSShutdown)) e.Cancel = true;
     }
 
     /// <summary>What the dialog is about, as its window's title and as a heading over its body.</summary>

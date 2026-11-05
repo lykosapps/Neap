@@ -29,10 +29,11 @@ namespace Neap.Desktop.Views;
 /// pressed. Restore factory is Apply with nothing ticked.
 /// </para>
 /// <para>
-/// A run shows in a dialog that holds the window until the run ends
-/// (<see cref="FirmwareRun"/>): while it runs the headset is off, in download
-/// mode or restarting, so nothing else in Neap can reach it, and each step's
-/// ask about the cable has to be where the person is looking.
+/// A run takes over the whole window until the person closes it after it ends
+/// (<see cref="Takeover"/>, <see cref="FirmwareRun"/>): while it runs the
+/// headset is off, in download mode or restarting, so nothing else in Neap
+/// can reach it, and each step's ask about the cable has to be where the
+/// person is looking.
 /// </para>
 /// </remarks>
 public partial class FirmwarePage : UserControl
@@ -302,26 +303,21 @@ public partial class FirmwarePage : UserControl
         Paint();
     }
 
-    /// <summary>Runs a write in a dialog held open until it ends, headed by what is under way and then by what was done.</summary>
+    /// <summary>Runs a write over the whole window until the person closes it, headed by what is under way and then by what was done.</summary>
     /// <remarks>The finished heading names the action, not its result, as the outcome under it says how it ended.</remarks>
     private async Task<ApplyOutcome> Running(string doingKey, string doneKey, bool restore,
         Func<Action<ApplyProgress>, CancellationToken, Task<ApplyOutcome>> run)
     {
+        var takeover = (TopLevel.GetTopLevel(this) as MainWindow)?.TakeoverLayer
+            ?? throw new InvalidOperationException("the Firmware page runs a write only from the main window");
         using var stopping = new CancellationTokenSource();
         var shown = new FirmwareRun { Restore = restore };
         shown.Stopping += stopping.Cancel;
-        var dialog = new NeapDialog
-        {
-            Heading = Strings.Get(doingKey),
-            Body = shown,
-            CloseButtonText = Strings.Get("Dialog_Close"),
-            CanClose = false,
-        };
-        var closed = dialog.Ask(this);
+        var closed = takeover.Hold(Strings.Get(doingKey), shown);
         var outcome = await run(shown.Report, stopping.Token);
-        dialog.Heading = Strings.Get(doneKey);
+        takeover.Heading = Strings.Get(doneKey);
         shown.Finish(outcome);
-        dialog.CanClose = true;
+        takeover.CanClose = true;
         await closed;
         return outcome;
     }

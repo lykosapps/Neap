@@ -79,6 +79,8 @@
             <SolidColorBrush x:Key="NeapButtonDisabledStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapFlyoutBrush" Color="#25252A" />
             <SolidColorBrush x:Key="NeapPopupStrokeBrush" Color="#3A3A42" />
+            <!-- Over the window while work holds it: the app behind is dimmed, and the card over it keeps its own edge. -->
+            <SolidColorBrush x:Key="NeapScrimBrush" Color="#B3000000" />
             <SolidColorBrush x:Key="NeapAccentFillBrush" Color="#6D4AFF" />
             <SolidColorBrush x:Key="NeapAccentFillHoverBrush" Color="#7253FF" />
             <SolidColorBrush x:Key="NeapAccentFillPressedBrush" Color="#5C3BE6" />
@@ -181,6 +183,7 @@
             <SolidColorBrush x:Key="NeapButtonDisabledStrokeBrush" Color="Transparent" />
             <SolidColorBrush x:Key="NeapFlyoutBrush" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NeapPopupStrokeBrush" Color="#D4D4DC" />
+            <SolidColorBrush x:Key="NeapScrimBrush" Color="#73000000" />
             <SolidColorBrush x:Key="NeapAccentFillBrush" Color="#6D4AFF" />
             <SolidColorBrush x:Key="NeapAccentFillHoverBrush" Color="#6340F2" />
             <SolidColorBrush x:Key="NeapAccentFillPressedBrush" Color="#5436D6" />

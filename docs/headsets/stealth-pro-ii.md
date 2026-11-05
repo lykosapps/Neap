@@ -159,6 +159,10 @@ was confirmed.
   on, so its plug-in wrote nothing). Two earlier tries waited at Plug in with
   nothing reaching the PC: the wrong cable (owner). Neap said nothing while it
   waited.
+  The owner then found the run's dialog could be minimised and lost, and the
+  app behind it reached: a run now takes over the whole main window instead,
+  with everything else switched off and Close the only way out once it ends
+  (practice runs only so far).
 
 - 2026-11-04 — From the log of checks 40 and 41: Neap hands the chip each
   session's sections in about 50 ms and the chip writes and restarts on its own,

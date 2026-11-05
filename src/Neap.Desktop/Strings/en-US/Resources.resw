@@ -2024,6 +2024,9 @@
   <data name="Firmware_GuidePlug" xml:space="preserve">
     <value>Switch the headset off, then plug a USB-C cable from this PC into its left ear cup. Don't press Power.</value>
   </data>
+  <data name="Takeover_Close.Content" xml:space="preserve">
+    <value>Close</value>
+  </data>
   <data name="Firmware_GuideWrite" xml:space="preserve">
     <value>Keep the cable plugged in. The headset writes the change and restarts, which takes about a minute.</value>
   </data>

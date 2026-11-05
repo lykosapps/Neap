@@ -17,8 +17,10 @@
         The menu and the page each run the window's full height, so the edge
         between them reaches the top. The title bar's row is the page
         column's first row, with the status in it; the menu's mark sits in the
-        same row on the left.
+        same row on the left. Work that must not be left part way covers it
+        all (Takeover).
     -->
+    <Panel>
     <SplitView
         x:Name="Rail"
         CompactPaneLength="52"
@@ -189,4 +191,6 @@
             </Grid>
         </Border>
     </SplitView>
+    <c:Takeover x:Name="TakeoverLayer" />
+    </Panel>
 </Window>

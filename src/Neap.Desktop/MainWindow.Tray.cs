@@ -103,12 +103,24 @@ public partial class MainWindow : IDisposable
 
     /// <summary>Opens the mini panel, or closes it when it is open.</summary>
     /// <remarks>
+    /// <para>
     /// A click on the icon takes focus from an open panel, which closes it
     /// before the click arrives; <see cref="MiniPanel.Opens"/> tells that
     /// click apart from one that asks to open it.
+    /// </para>
+    /// <para>
+    /// While work is held over the main window, the window comes forward
+    /// instead: the panel's controls would reach past it.
+    /// </para>
     /// </remarks>
     private void ToggleMini()
     {
+        if (TakeoverLayer.Held)
+        {
+            AppLog.Write("mini panel: not opened, as work is under way over the window, so the window shows it");
+            Reveal();
+            return;
+        }
         if (!MiniPanel.Opens(_mini is not null, Stopwatch.GetElapsedTime(_miniClosedAt)))
         {
             _mini?.Close();
@@ -202,6 +214,8 @@ public partial class MainWindow : IDisposable
             return;
         }
         e.Cancel = true;
+        // Hiding the window would hide work under way over it.
+        if (TakeoverLayer.Held) return;
         _ = TellThemOnceThenHide();
     }
 
