@@ -192,8 +192,8 @@
   <data name="Mix_Settings.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Mix settings</value>
   </data>
-  <data name="Mix_Settings.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Mix settings</value>
+  <data name="Mix_SettingsText.Text" xml:space="preserve">
+    <value>Settings</value>
   </data>
   <data name="MixOverlay_Name" xml:space="preserve">
     <value>Game and chat mix</value>
