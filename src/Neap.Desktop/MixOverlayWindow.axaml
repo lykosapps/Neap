@@ -2,7 +2,6 @@
     x:Class="Neap.Desktop.MixOverlayWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:loc="using:Neap.Desktop.Localization"
     Classes="mini"
     CanResize="False"
     Focusable="False"
@@ -25,9 +24,9 @@
 
     <!--
         The mini panel's mix made into a picture, in one row no bigger than
-        the system's own volume flyout: its two ends either side of a track
-        filled from the middle toward the side the mix leans to, with a mark
-        where it sits. Nothing in it takes a click or the keyboard.
+        the system's own volume flyout: a game pad and a speech bubble for its
+        two ends, either side of a track filled from the middle toward the side
+        the mix leans to, with a mark where it sits. Nothing in it takes a click or the keyboard.
     -->
     <Border
         Height="32"
@@ -39,10 +38,11 @@
             VerticalAlignment="Center"
             Orientation="Horizontal"
             Spacing="{StaticResource NeapSpaceS}">
-            <TextBlock
+            <PathIcon
+                Width="16"
+                Height="16"
                 VerticalAlignment="Center"
-                loc:Uid.Value="Mix_Game"
-                Classes="label"
+                Data="{StaticResource IconGame}"
                 Foreground="{DynamicResource NeapGameTextBrush}" />
             <Canvas
                 x:Name="Track"
@@ -68,10 +68,11 @@
                     Height="10"
                     Fill="{DynamicResource NeapSliderThumbBrush}" />
             </Canvas>
-            <TextBlock
+            <PathIcon
+                Width="16"
+                Height="16"
                 VerticalAlignment="Center"
-                loc:Uid.Value="Mix_Chat"
-                Classes="label"
+                Data="{StaticResource IconChat}"
                 Foreground="{DynamicResource NeapChatTextBrush}" />
         </StackPanel>
     </Border>

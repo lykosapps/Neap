@@ -5,8 +5,8 @@
 - **Options:** no overlay; an overlay by the notification area, where the
   mini panel opens; an overlay at the foot of the screen; off or on by
   default.
-- **Chosen:** one slim row, Game, the track and Chat, no bigger than the
-  system's own volume flyout (the owner's call), at the foot of the screen,
+- **Chosen:** one slim row, a game pad icon, the track and a chat bubble,
+  no bigger than the system's own volume flyout (the owner's call), at the foot of the screen,
   centred and raised clear of where Windows 11 draws that flyout, for a
   second and a half after the last move. Only for the chat wheel and the keys, and never while a Neap
   window is in front, where the dial already shows it. Never over an
