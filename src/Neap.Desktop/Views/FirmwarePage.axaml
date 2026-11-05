@@ -71,6 +71,11 @@
                         Classes="caption secondary" />
                     <StackPanel x:Name="BackupList" Spacing="{StaticResource NeapSpaceS}" />
                     <TextBlock x:Name="NoBackups" loc:Uid.Value="Firmware_NoBackups" Classes="secondary" />
+                    <!-- Older backups stay in the folder; a backup kept elsewhere is put back from its file. -->
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
+                        <Button x:Name="RestoreFileButton" loc:Uid.Value="Firmware_RestoreFromFile" />
+                        <Button x:Name="ShowFolderButton" loc:Uid.Value="Firmware_ShowFolder" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
 

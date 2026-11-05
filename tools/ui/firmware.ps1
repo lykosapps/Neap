@@ -140,6 +140,11 @@ foreach ($theme in $themes) {
             Confirm-Press 'Remove all edits'
             Check (Wait-Until { Find-Text $done } 60) 'restoring factory ends done'
             Check (Wait-Until { (Get-StateCount 'Not installed') -eq 2 } 10) 'and both read as factory again'
+            Close-Run
+            $rows = @(Search { $script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Button))) } |
+                Where-Object { $_.Current.Name -like "Restore $light, saved *" })
+            Check ($rows.Count -eq 1) "after two writes to its part, '$light' lists only its newest backup (rows: $($rows.Count))"
+            Check ((Test-Present (Find-Anywhere 'Restore from file')) -and (Test-Present (Find-Anywhere 'Show in folder'))) 'Restore from file and Show in folder are offered'
         }
     }
     finally { Stop-NeapPretend }

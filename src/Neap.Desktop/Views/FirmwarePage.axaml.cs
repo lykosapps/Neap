@@ -7,6 +7,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
 using Neap.Core.Firmware;
 using Neap.Desktop.Controls;
@@ -64,6 +65,8 @@ public partial class FirmwarePage : UserControl
         ApplyButton.Click += async (_, _) => await AskToApply(Wanted.ToHashSet(), toFactory: false);
         FactoryButton.Click += async (_, _) => await AskToApply([], toFactory: true);
         CheckAgainButton.Click += async (_, _) => await CheckAgain();
+        RestoreFileButton.Click += async (_, _) => await RestoreFromFile();
+        ShowFolderButton.Click += (_, _) => Platform.Current.Reveal(FirmwareEditService.Backups[0].File);
         FlashEdits.IsVisible = FirmwareEdit.Released || Pretend.Active;
         Intro.IsVisible = FirmwareEdit.Released || Pretend.Active;
     }
@@ -175,13 +178,15 @@ public partial class FirmwarePage : UserControl
         CheckAgainButton.IsVisible = FirmwareEdit.OffersCheckAgain(edits.Select(firmware.StatusOf), _connected);
         CheckAgainButton.IsEnabled = free && !_checking;
 
-        var backups = FirmwareEditService.Backups;
+        var backups = FirmwareBackup.NewestOfEach(FirmwareEditService.Backups);
         Refill(BackupList, () =>
         {
             foreach (var backup in backups) BackupList.Children.Add(BackupRow(backup, free));
         });
         BackupList.IsVisible = backups.Count > 0;
         NoBackups.IsVisible = backups.Count == 0;
+        RestoreFileButton.IsEnabled = free;
+        ShowFolderButton.IsVisible = backups.Count > 0;
     }
 
     /// <summary>Draws a list again, leaving the keyboard focus on the same row if it can still take it.</summary>
@@ -311,7 +316,7 @@ public partial class FirmwarePage : UserControl
 
     private async Task AskToRestore(FirmwareBackup backup)
     {
-        if (await SwarmInTheWay()) return;
+        if (await SwarmInTheWay() || !await Fits(backup)) return;
         bool go = await new NeapDialog
         {
             Heading = Strings.Get("Firmware_RestoreTitle"),
@@ -326,6 +331,65 @@ public partial class FirmwarePage : UserControl
         _wanted = null;
         Paint();
     }
+
+    /// <summary>Asks for a backup file, from the backups folder or anywhere else, and restores it once it is checked.</summary>
+    /// <remarks>The page lists only the newest backup of each section; an older one, or one kept elsewhere, comes back this way.</remarks>
+    private async Task RestoreFromFile()
+    {
+        if (TopLevel.GetTopLevel(this)?.StorageProvider is not { } storage) return;
+        var picked = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            AllowMultiple = false,
+            Title = Strings.Get("Firmware_PickBackupTitle"),
+            SuggestedStartLocation = await storage.TryGetFolderFromPathAsync(FirmwareEditService.BackupFolder),
+            FileTypeFilter = [new FilePickerFileType(Strings.Get("Firmware_BackupFileType")) { Patterns = ["*.bin"] }, FilePickerFileTypes.All],
+        });
+        if (picked.Count == 0) return;
+        if (picked[0].TryGetLocalPath() is { } path && FirmwareBackup.Of(path) is { } backup) await AskToRestore(backup);
+        else await Refuse(BackupFit.NotABackup, null);
+    }
+
+    /// <summary>Checks a backup can be put back on the headset as it is now, and says why not when it cannot.</summary>
+    private async Task<bool> Fits(FirmwareBackup backup)
+    {
+        var fit = AppServices.Firmware.Fit(backup, Read(backup.File));
+        if (fit == BackupFit.Fits) return true;
+        await Refuse(fit, backup);
+        return false;
+    }
+
+    /// <summary>A backup file's bytes, or none for a file too big to be one or one that cannot be read.</summary>
+    private static byte[] Read(string file)
+    {
+        try
+        {
+            return new FileInfo(file).Length == FirmwareEdit.SectorSize ? File.ReadAllBytes(file) : [];
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AppLog.Write($"firmware edits: could not read {System.IO.Path.GetFileName(file)}: {ex.Message}");
+            return [];
+        }
+    }
+
+    private async Task Refuse(BackupFit fit, FirmwareBackup? backup)
+    {
+        AppLog.Write($"firmware edits: not restoring {(backup is null ? "a file" : System.IO.Path.GetFileName(backup.File))}: {fit}");
+        await new NeapDialog
+        {
+            Heading = Strings.Get("Firmware_CantRestoreTitle"),
+            Body = new TextBlock { Text = FitWords(fit, backup), TextWrapping = TextWrapping.Wrap, MaxWidth = 440 },
+            CloseButtonText = Strings.Get("Dialog_OK"),
+        }.ShowAsync(this);
+    }
+
+    private static string FitWords(BackupFit fit, FirmwareBackup? backup) => fit switch
+    {
+        BackupFit.NoHeadset => Strings.Get("Firmware_BlockedNotConnected"),
+        BackupFit.OtherFirmware => Strings.Format("Firmware_BackupOtherFirmware", backup?.FirmwareBuild, AppServices.Firmware.Build),
+        BackupFit.Unknown => Strings.Get("Firmware_BackupUnknown"),
+        _ => Strings.Get("Firmware_NotABackup"),
+    };
 
     /// <summary>Says to quit Swarm II when it is running, as Apply or Restore is pressed, and says whether it was.</summary>
     /// <remarks>Said at the press rather than kept on the page, as looking for it lists every program.</remarks>

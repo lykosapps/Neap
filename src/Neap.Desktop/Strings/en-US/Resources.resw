@@ -1946,7 +1946,7 @@
     <value>Stop</value>
   </data>
   <data name="Firmware_BackupsNote.Text" xml:space="preserve">
-    <value>Neap saves the firmware before each change. If an edit stops the headset starting, restore the newest backups.</value>
+    <value>Neap saves the firmware before each change. If an edit stops the headset starting, restore these backups.</value>
   </data>
   <data name="Firmware_TickHelp" xml:space="preserve">
     <value>{0} State: {1}. {2}</value>
@@ -2034,6 +2034,31 @@
   <data name="Firmware_RunEndedRestore" xml:space="preserve">
     <value>Restore a backup</value>
     <comment>The heading once restoring a backup has ended any other way; what happened is said under it.</comment>
+  </data>
+  <data name="Firmware_RestoreFromFile.Content" xml:space="preserve">
+    <value>Restore from file</value>
+  </data>
+  <data name="Firmware_ShowFolder.Content" xml:space="preserve">
+    <value>Show in folder</value>
+  </data>
+  <data name="Firmware_PickBackupTitle" xml:space="preserve">
+    <value>Choose a firmware backup</value>
+  </data>
+  <data name="Firmware_BackupFileType" xml:space="preserve">
+    <value>Firmware backups</value>
+  </data>
+  <data name="Firmware_CantRestoreTitle" xml:space="preserve">
+    <value>Can't restore this backup</value>
+  </data>
+  <data name="Firmware_NotABackup" xml:space="preserve">
+    <value>This isn't a Neap firmware backup, or its name has changed.</value>
+  </data>
+  <data name="Firmware_BackupOtherFirmware" xml:space="preserve">
+    <value>This backup is from firmware {0}, and your headset has {1}.</value>
+    <comment>{0} and {1} are firmware versions: the backup's, then the headset's.</comment>
+  </data>
+  <data name="Firmware_BackupUnknown" xml:space="preserve">
+    <value>This backup holds changes Neap doesn't recognise, so Neap won't write it.</value>
   </data>
   <data name="Firmware_GuideWrite" xml:space="preserve">
     <value>Keep the cable plugged in. This takes about a minute.</value>

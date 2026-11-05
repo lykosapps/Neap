@@ -47,31 +47,6 @@ public sealed record ApplyProgress(EditStep Step, int Session, int Sessions, Dat
 /// <param name="Backups">The backups made on the way.</param>
 public sealed record ApplyOutcome(ApplyResult Result, EditStep? Stopped, IReadOnlyList<string> Backups);
 
-/// <summary>A section of firmware saved before it was written.</summary>
-/// <param name="File">Where it is.</param>
-/// <param name="Taken">When it was made.</param>
-/// <param name="Sector">The section, by address.</param>
-/// <param name="FirmwareBuild">The firmware it was taken from.</param>
-public sealed record FirmwareBackup(string File, DateTime Taken, int Sector, string FirmwareBuild)
-{
-    private const string Stamp = "yyyy-MM-dd HH.mm.ss";
-
-    /// <summary>The file name a backup is saved under, which says what it holds.</summary>
-    public static string FileName(DateTime taken, int sector, string build) =>
-        string.Create(CultureInfo.InvariantCulture, $"{taken.ToString(Stamp, CultureInfo.InvariantCulture)} {sector:X8} {build}.bin");
-
-    /// <summary>The backup a file holds, or null for a file not named by <see cref="FileName"/>.</summary>
-    public static FirmwareBackup? Of(string file)
-    {
-        var parts = Path.GetFileNameWithoutExtension(file).Split(' ');
-        return parts.Length == 4
-            && DateTime.TryParseExact($"{parts[0]} {parts[1]}", Stamp, CultureInfo.InvariantCulture, DateTimeStyles.None, out var taken)
-            && int.TryParse(parts[2], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int sector)
-            ? new FirmwareBackup(file, taken, sector, parts[3])
-            : null;
-    }
-}
-
 /// <summary>
 /// Firmware edits on the connected headset: which fit it, which are on, and
 /// applying the ones ticked.
@@ -136,6 +111,10 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             return new(Connected || (fresh && seen.Build is not null), seen.Build, fresh ? seen.Battery : null, SwarmRunning: false);
         }
     }
+
+    /// <summary>Whether a backup can be put back on the headset as it is now; see <see cref="FirmwareBackup.Judge"/>.</summary>
+    public BackupFit Fit(FirmwareBackup? named, ReadOnlySpan<byte> bytes) =>
+        FirmwareBackup.Judge(named, bytes, Build, writer?.FactorySections ?? FirmwareEdit.FactorySections);
 
     /// <summary>Whether Swarm II is running, and could talk to the headset during a write.</summary>
     /// <remarks>Looked for as a write is asked for and again as it starts, not on every redraw.</remarks>
@@ -390,8 +369,18 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     private sealed class NotReadBackException(string message) : IOException(message);
 
     /// <summary>Saves a section as it was read, and gives the file.</summary>
+    /// <remarks>
+    /// A section that holds what its newest backup already holds is not saved
+    /// again: a run reads every section a change could touch, and most of them
+    /// are as they were last time.
+    /// </remarks>
     private static string SaveBackup(int sector, byte[] held, string build)
     {
+        if (FirmwareBackup.NewestOf(Backups, sector, build) is { } newest && File.ReadAllBytes(newest.File).AsSpan().SequenceEqual(held))
+        {
+            AppLog.Write($"firmware edits: {sector:X8} is as its newest backup holds it, so it is not saved again");
+            return newest.File;
+        }
         Directory.CreateDirectory(BackupFolder);
         string file = Path.Combine(BackupFolder, FirmwareBackup.FileName(DateTime.Now, sector, build));
         File.WriteAllBytes(file, held);
