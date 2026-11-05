@@ -13,7 +13,8 @@ evidence/
 *.log.prev
 
 # Local tool settings
-.claude/
+.claude/*
+!.claude/skills/
 
 # Machine-specific notes for Claude
 CLAUDE.local.md
