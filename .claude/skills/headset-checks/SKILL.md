@@ -11,11 +11,11 @@ passes on the real headset. Run only what the change touched.
 ## 1. Size it first
 
 - **Write down what changed:** which screens and which headset behaviours. Then
-  pick only the checks and parts that cover them. Never `all`, never a check for
-  something that didn't change.
-- **Cheapest first:** `dotnet test`, then `dotnet format`, then the one check
-  part, then pictures. A failed part is fixed and rerun alone.
-- **Say the time** before a batch of more than two checks: ten minutes or more.
+  pick only the checks and parts that cover them. Sizing, the hidden desktop and
+  what needs the owner follow the `screen-checks` skill.
+- **A new key that follows a physical control** gets its write tested in the
+  same change: say how sure the write is (seen, proven, or only read from
+  firmware or Swarm II) and propose the on-headset test in the same reply.
 
 ## 2. What runs without the owner
 
@@ -45,6 +45,12 @@ passes on the real headset. Run only what the change touched.
   numbers that cover the change, one short step each.
 - **Prove which device answered.** A transmitter answers from memory for a
   headset it can no longer reach.
+- **A watcher prints each event** rather than writing a file another command
+  follows (on Windows the reader holds the file and later writes fail). Read
+  one event before asking the owner to start, so a silent watcher shows first.
+- **One reader of the control collection:** a probe or watcher beside a
+  running Neap steals its reports. Stop that copy first, or log from inside
+  Neap.
 
 ## 4. Record it
 

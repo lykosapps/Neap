@@ -33,6 +33,12 @@ Needs the screen on, and Windows switched into a high contrast theme and back.
 - **The chat app list on screen** in light and high contrast, and the screen
   checks' new steps for it, which have not had a full run.
 - **The tray icon's menu** in light and dark, on screen.
+- **Alignment, not re-measured since the 30 October fix:** the mini panel,
+  dialogs and open lists in light and high contrast (`run.ps1 align`).
+- **Why pictures sometimes come out black.** Not settled: the screen turns
+  off after five idle minutes, but some black pictures came while the PC was
+  in use. The deciding test: log lit or dark against idle time for six
+  minutes with no input.
 - **Interface leftovers.** The Default profile row has a few pixels more room
   below its drop-down than above it; Delete on a profile is a plain icon,
   not drawn as destructive (it asks for confirmation first).
@@ -140,7 +146,23 @@ first and say how sure each finding is.
   the one working method needs a Windows permission this machine currently
   refuses even to an administrator. Neap currently only asks the person to
   turn Dolby Access's equaliser off themselves, wherever Dolby Atmos is
-  offered.
+  offered. Dead end, not worth retrying: its two halves talk over a private
+  app-service channel (`SyncProfile` in its log) that only a packaged app can
+  join. The working method is its settings file (an offline registry hive in
+  its `LocalState\Settings`). Before retrying the write, sign out and in once,
+  or look for security software blocking the "back up / restore files"
+  privileges; then confirm in Dolby Access itself that the profile shows Off,
+  since a value that reads back is not proof.
+- **Volume stops following Windows after sleep** (issue #6, one of five
+  complaint groups). After the PC sleeps, the Windows slider moves and the
+  headset's volume doesn't, until the transmitter is replugged. Swarm II has
+  no sleep or resume handling at all, so Neap detecting the mismatch and
+  re-asserting the volume, possibly over the HID button-volume path
+  (`AppkeyCode` `0x0A`/`0x0B`, which Neap doesn't speak yet), would be new.
+  Reproduce first: sleep, wake, then compare the Windows slider with a raw
+  `0x0A`. The other groups are out of reach: "too quiet even at maximum" is
+  the hardware ceiling (both apps use the system volume; only pre-gain helps),
+  and call volume and phone spikes are on the Bluetooth path to the phone.
 
 ## 5. A Linux sitting
 

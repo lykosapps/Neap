@@ -12,7 +12,7 @@ preparing code for experienced reviewers.
 - **Accessibility target:** WCAG 2.2 level AA.
 - **Languages:** English only, written so it can be translated.
 - **Data and privacy:** no personal data kept, no analytics or tracking, nothing from the PC or the headset is sent anywhere. The one network call is the update check: a plain request to GitHub for the latest release, which sees the PC's internet address as any website does, and the download when asked. It can be turned off.
-- **Voice and brand:** Tenon's defaults: plain and restrained, no help text by default.
+- **Voice and brand:** plain and restrained, no help text by default (`docs/design/COPY.md`).
 
 ## The standard
 
@@ -37,7 +37,8 @@ preparing code for experienced reviewers.
   starts reading a new key so a button or switch on the headset shows in
   Neap, test the write for Neap's own control on the headset in the same
   change and ship them together. It becomes writable only once that test
-  passes.
+  passes. Say how sure the write is (seen, proven, or only read from firmware
+  or Swarm II) and propose the test in the same reply.
 - **On screen means in a window.** Work that finishes after a wait (opening
   a microphone or a tone, reading the headset) checks `InWindow()` before it
   uses the result, never `IsLoaded`, which can read false for a moment as a
@@ -62,6 +63,12 @@ preparing code for experienced reviewers.
   unavailable device either leaves a line in the app log or says so on
   screen. A parser that only matches what it expects turns "cannot read" into
   "does not exist"; treat anything unparsed as a failure.
+- **Look before building or investigating.** Search `FINDINGS.md`,
+  `DECISIONS.md` and `BACKLOG.md` first. Bugs and things for later go in
+  `BACKLOG.md` when reported; a line is removed in the commit that does it.
+- **Never round-trip source through `Get-Content` and `Set-Content`.**
+  Windows PowerShell re-encodes it and silently mangles non-ASCII text (an em
+  dash becomes `â€”`). Edit files with an editor or the Edit tool.
 
 ## Verifying
 
@@ -70,64 +77,14 @@ preparing code for experienced reviewers.
 - **Check by running, not by reading.** Drive the app through UI Automation
   (injected clicks do not reach the window's content) and take screenshots. When
   reporting, say which findings were confirmed by running and which were not.
-- **Screen checks go through `tools/ui/run.ps1`.** `run.ps1 banner`, `notes`,
-  `settings`, `profiles`, `mini`, `overlay`, `parametric` or `firmware` publishes if a source
-  file is newer than the build, then runs the check from outside the package;
-  `all` runs them in a few minutes.
-  Logs and pictures land in `TestResults/ui`. Only one practice run of the app
-  can be open at a time, so run one check at a time. A screen that is off
-  captures as pure black, and the screen turns itself off after five idle
-  minutes, so a check that stops saying the screen is off needs rerunning
-  with the screen on. The check judges this from the app's own window, not
-  the desktop, which can be black with the screen on. A new check is a script
-  beside it that uses `Ui.ps1`. `run.ps1 access` walks every page in both
-  themes for names, target sizes, Tab order, a visible focus mark and text
-  contrast in about a minute and a half; `-Headset atlas` walks them
-  with the pretend Atlas Air. It moves focus by asking the
-  practice run over its pipe to do what Tab does, so the window stays behind
-  and the keyboard is left alone, and it can run while the owner works; that
-  a real Tab press reaches the app is check 12 of "Before a release" in
-  `CONTRIBUTING.md`. Colour contrast is also a test
-  (`ThemeContrastTests`), so a colour change is caught by every build.
-  `run.ps1 atlas` checks the
-  pretend Atlas Air. `looks.ps1` has the app draw every page in dark,
-  light and high contrast for a person to look over; it opens the app behind
-  other windows without taking the keyboard, needs no screen, and can run
-  while the owner works. Every other check runs through
-  `tools/pretend-quiet.ps1 -Run '<check> -Inside'` on a desktop of its own,
-  such as `-Run 'tools\ui\run.ps1 notes -Inside'`, so it never waits for the
-  owner to be away, `all` included. Menu items that answer only Enter are
-  pressed inside the practice run over its pipe (`press NAME`), and `mini`
-  opens the mini panel there, so no key is sent. Two parts still need the
-  screen: part E of `banner`, as the system reports no focus for a window on
-  a desktop of its own (it skips itself there), and part K of the headset
-  checks, the mix's keyboard shortcuts. Those wait until the owner says they
-  are away. `run.ps1 mini` checks the mini panel: its tiles' lists, a choice
-  from each, and Open Neap.
+- **Screen checks follow the `screen-checks` skill:** sized to the change, run
+  on a desktop of their own through `tools/pretend-quiet.ps1`, and only the
+  parts that need the screen wait for the owner.
 - **Before tagging, run `tools\release-check.ps1`.** It reads, and changes
   nothing: main checked out and clean, in step with GitHub both ways, the
   unpushed commits scanned for anything identifying, the version, changelog
   date and Unreleased section agreeing, no tag yet, and the backlog's items
   for before the tag.
-- **Size the check to the change.** Notes and docs need only the build. A
-  rule in Core needs its tests, and the check for its page if what the page
-  shows changes. One screen needs that screen's check. What every screen
-  shares (startup, navigation, themes, `Ui.ps1` and `run.ps1`) needs `all`.
-  A release needs `all`, `access`, `tools/pretend.ps1` and the checks on the
-  headset. Run a check of a minute or more in the background.
-  `tools/pretend.ps1` takes about three minutes and comes to the front, as
-  UI Automation's select, toggle, set value and expand all bring the window
-  forward. `tools/pretend-quiet.ps1` runs it on a desktop of its own, so it
-  interrupts nobody and can run while the owner works; it stops at once if a
-  practice window ever shows on the owner's desktop. Its Windows steps still
-  change the PC's volume, mute and audio format for a moment. With `-Run` it
-  runs the headset checks that send no keys the same way, such as
-  `-Run 'tools\ui\run.ps1 hardware -Parts BLT -Inside'`; with no tray on that
-  desktop, the sign-in check's "opens no window" step fails there, so check it
-  on the owner's desktop. It is known to
-  trip on timing in a different place some runs, where it looks for a control
-  once rather than waiting for it; read each failure before calling it a bug,
-  and rerun.
 - **Sample, do not snapshot.** One reading after the fact shows where a value
   settled, not whether it moved.
 - **Read the app's folder from outside Claude.** The desktop app runs
@@ -137,9 +94,10 @@ preparing code for experienced reviewers.
   log nothing. Read the real folder through a process Windows starts outside
   the package, such as `Win32_Process.Create`.
 - **The headset is the last word.** Anything that changes how the app behaves
-  with the hardware goes on a list of checks to run with the owner. It is not
-  done until those pass. A transmitter answers from memory for a headset it
-  can no longer reach, so prove which device answered.
+  with the hardware goes on a list of checks to run with the owner (the
+  `headset-checks` skill). It is not done until those pass. A transmitter
+  answers from memory for a headset it can no longer reach, so prove which
+  device answered.
 
 ## Commits
 
@@ -164,4 +122,4 @@ dotnet publish src/Neap.Desktop -c Release -r win-x64 -f net10.0-windows10.0.190
 ```
 
 ## Working notes
-Claude working notes for this project are kept privately by the owner, outside this repository (`claude-profile`, `projects/neap/knowledge/INDEX.md`). Read them first when available; never add them here.
+The owner keeps private working notes outside this repository; they load on their own where available. Never add them here.

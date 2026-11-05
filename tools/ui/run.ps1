@@ -118,8 +118,11 @@ if (-not $Inside) {
         }
         if ($null -eq $code) {
             Write-Host "the check had not finished after $TimeoutSeconds s; stopping it"
-            Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'ui\\run.ps1.* -Inside' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
-            Get-CimInstance Win32_Process -Filter "Name='Neap.Desktop.exe'" | Where-Object { $_.CommandLine -match '--pretend' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+            # Only this folder's own run and the copies it built, never another
+            # checkout's check or the person's own copy.
+            Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and $_.CommandLine.Contains($PSCommandPath) -and $_.CommandLine -match ' -Inside' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+            $built = Join-Path $root 'src'
+            Get-CimInstance Win32_Process -Filter "Name='Neap.Desktop.exe'" | Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($built, [StringComparison]::OrdinalIgnoreCase) -and $_.CommandLine -match '--pretend' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
             exit 2
         }
         Write-Host "(log: $log)"

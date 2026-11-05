@@ -294,6 +294,25 @@ its accent. Neap takes those qualities and keeps its own identity.
 - **All text is in `Strings/en-US/Resources.resw`.** Write whole sentences,
   never fragments joined in code.
 
+## 10. Flows and states
+
+- **Replace a confusing state; don't annotate it.** List what the state shows
+  and strike everything the person can't act on at that moment. Deleting a
+  preset replaces the chip's face with `Delete | Cancel`, rather than adding
+  a red button beside a name, a tag and a cross that changed meaning.
+- **No control changes meaning between states.** A cross that deletes in one
+  state and confirms in another is worse than no cross.
+- **The safe option gets focus,** and the layout does not move when the state
+  changes, so the answer stays under the pointer that asked.
+- **One intent, one visible control.** When a control quietly resolves two
+  intents, surface both. Saving a preset under a new name was the only way to
+  keep the old one, and nothing on screen said so.
+- **Review flows from real situations.** Write three or four ("a game about to
+  launch") before walking a flow, and at each input ask what the person could
+  need that this doesn't offer: a list that shows only what's running can't
+  pick a game before it starts. Compare with two or three similar apps, and
+  don't lower a gap's severity because it is by design or untested.
+
 ---
 
 ## What we take from MultiDrive, and what we don't

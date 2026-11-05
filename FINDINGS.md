@@ -558,7 +558,10 @@ in, `0x250` at 0 while `0x290` still says USB, read at the same moment.
 reads. It keeps reporting with the phone's Bluetooth off, so it most likely
 measures the 2.4 GHz link *(inferred)*. `0x300` accepts a write and keeps it
 across a power cycle, but is not a Bluetooth switch: Bluetooth connects
-either way.
+either way. Once, during early probing, a write to `0x300` left every
+physical button on the headset unresponsive until the battery was pulled; the
+cause was never found and it has not happened again *(seen once)*. Treat
+writes there as high risk until it is explained.
 
 ### Mix, microphone and noise
 

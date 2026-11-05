@@ -31,10 +31,9 @@ that step.
 
 ## 3. The checks a release needs
 
-Run them on the Release build, one at a time. Ask before any that takes the
-screen; the rest run on the hidden desktop through `tools\pretend-quiet.ps1`,
-as the only thing in the command. Say the time before starting: together they
-take about half an hour.
+Run them on the Release build, one at a time, as the `screen-checks` skill
+says: on the hidden desktop, asking only for parts that need the screen. Say
+the time before starting: together they take about half an hour.
 
 - **Every screen check:** `-Run 'tools\ui\run.ps1 all -Inside'`. A release is
   the one time `all` is right; for a single change, size the checks instead.
@@ -52,3 +51,8 @@ A failed part is fixed and rerun alone, never the whole batch.
   `main` if the work is on a branch, push `main`, then push the tag
   `v<version>`. Pushing the tag starts `.github/workflows/release.yml`, which
   builds and publishes the release.
+- **Test builds** carry a fourth number (`0.4.1.1`) and are published as
+  pre-releases.
+- **Windows PowerShell has no `&&`:** chain steps with `; if ($?) { ... }`.
+- **Editing a published release** needs the project's GitHub account signed in
+  (`gh auth status`, then `gh auth switch`); switch back afterwards.
