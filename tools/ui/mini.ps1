@@ -111,10 +111,14 @@ foreach ($theme in 'dark', 'light') {
         Open-Page 'Settings'
         Set-Tick 'Spatial sound' $false
         Set-Tick 'Superhuman Hearing' $false
+        Set-Tick 'Microphone' $false
         Check (Open-Panel) 'the panel opens again after the choice changes'
         Check ($null -eq (Find-Named 'Spatial sound') -or -not (Test-Present (Find-Named 'Spatial sound'))) 'unticking Spatial sound takes its tile out'
         Check (-not (Test-Present (Find-Named 'Superhuman Hearing'))) 'unticking Superhuman Hearing takes its tile out'
-        Check ((Get-Texts) -contains 'Microphone' -and (Get-Texts) -contains 'Noise') 'the microphone and noise tiles stay'
+        # The microphone's tile shows itself whenever the headset reports, so this looks after the headset has.
+        Wait-Stable { (Get-Texts) -join '|' } | Out-Null
+        Check (-not ((Get-Texts) -contains 'Microphone')) 'unticking the microphone takes its tile out, and the headset reporting does not bring it back'
+        Check ((Get-Texts) -contains 'Noise') 'the noise tile stays'
         Save-Shot "mini-fewer-$theme" -Whole | ForEach-Object { $_.Dispose() }
         $script:Window = $app; $script:Handle = $appHandle
     }

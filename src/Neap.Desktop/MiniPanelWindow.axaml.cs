@@ -245,7 +245,7 @@ public partial class MiniPanelWindow : Window
     private void PaintTiles()
     {
         var headset = AppServices.Headset;
-        Mic.IsVisible = _chosen.Contains(MiniTile.Microphone);
+        MicCell.IsVisible = _chosen.Contains(MiniTile.Microphone) && HeadsetModels.Shows(headset.Model, Feature.Microphone);
         NoiseTile.IsVisible = _chosen.Contains(MiniTile.NoiseCancellation) && HeadsetModels.Shows(headset.Model, Feature.NoiseControl);
         Spatial.IsVisible = _chosen.Contains(MiniTile.SpatialSound) && Platform.Current.Spatial.Supported;
         HearingTile.IsVisible = _chosen.Contains(MiniTile.SuperhumanHearing) && HeadsetModels.Shows(headset.Model, HearingOn.Name);

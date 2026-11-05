@@ -148,7 +148,14 @@
             <Panel x:Name="TilesArea">
                 <c:HeadsetSection Explain="False" Spacing="{StaticResource NeapSpaceS}">
                     <UniformGrid x:Name="Tiles" ColumnSpacing="{StaticResource NeapSpaceS}" RowSpacing="{StaticResource NeapSpaceS}">
-                        <c:MicTile x:Name="Mic" AsTile="True" />
+                        <!--
+                            In a cell of its own: the tile shows and hides itself with
+                            the headset's reports, and the cell is the person's choice,
+                            so neither undoes the other.
+                        -->
+                        <Panel x:Name="MicCell">
+                            <c:MicTile x:Name="Mic" AsTile="True" />
+                        </Panel>
                         <c:QuickTile x:Name="NoiseTile" />
                         <c:SpatialTile x:Name="Spatial" AsTile="True" />
                         <c:QuickTile x:Name="HearingTile" />

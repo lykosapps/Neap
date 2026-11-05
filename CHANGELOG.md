@@ -20,6 +20,9 @@ stays in the commit history.
 - When saving or deleting an equaliser preset fails, as when the headset is
   unplugged part way, Neap says so in plain words rather than showing the
   system's own error. The detail goes to the app log.
+- The mini panel keeps to the controls chosen for it in Settings. The
+  microphone showed even when it was left out, then vanished as soon as the
+  mix moved.
 
 ## 0.4.0 — 2026-10-31
 
