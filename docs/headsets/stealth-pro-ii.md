@@ -153,6 +153,13 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
+- 2026-11-05 — Owner, the try-it copy with the Firmware page on, first real
+  write with the held run dialog: the light edit applied through "Write and
+  check" in 48.5 seconds and read back as written (the noise cycle was already
+  on, so its plug-in wrote nothing). Two earlier tries waited at Plug in with
+  nothing reaching the PC: the wrong cable (owner). Neap said nothing while it
+  waited.
+
 - 2026-11-04 — From the log of checks 40 and 41: Neap hands the chip each
   session's sections in about 50 ms and the chip writes and restarts on its own,
   but the headset first answers on the cable 51 to 60 seconds later (SP2Tools
