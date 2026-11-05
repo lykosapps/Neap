@@ -226,6 +226,14 @@ public class FirmwareEditTests
             FirmwareEdit.Steps);
 
     [Theory]
+    [InlineData(true, new[] { EditStatus.Installed, EditStatus.Unknown }, true)]
+    [InlineData(true, new[] { EditStatus.Installed, EditStatus.NotInstalled }, false)]
+    [InlineData(true, new[] { EditStatus.DoesNotFit, EditStatus.Altered }, false)]
+    [InlineData(false, new[] { EditStatus.Unknown, EditStatus.Unknown }, false)]
+    public void CheckAgainIsOfferedOnlyForAnUnknownStateOnAConnectedHeadset(bool connected, EditStatus[] statuses, bool offered) =>
+        Assert.Equal(offered, FirmwareEdit.OffersCheckAgain(statuses, connected));
+
+    [Theory]
     [InlineData(-1, 0)]
     [InlineData(0, 0)]
     [InlineData(30, 45)]

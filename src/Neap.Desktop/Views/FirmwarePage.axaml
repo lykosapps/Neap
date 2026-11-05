@@ -50,6 +50,8 @@
                     <StackPanel Orientation="Horizontal" Spacing="{StaticResource NeapSpaceS}">
                         <Button x:Name="ApplyButton" loc:Uid.Value="Firmware_Apply" Classes="accent" />
                         <Button x:Name="FactoryButton" loc:Uid.Value="Firmware_RestoreStock" />
+                        <!-- Only while an edit's state could not be read from a connected headset. -->
+                        <Button x:Name="CheckAgainButton" loc:Uid.Value="Firmware_CheckAgain" />
                     </StackPanel>
                 </StackPanel>
             </Border>

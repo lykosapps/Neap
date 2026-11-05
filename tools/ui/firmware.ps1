@@ -4,7 +4,8 @@ Checks the Firmware page on the published app in pretend mode: the keyboard
 focus stays on a ticked row, an edit applied reads as active from the
 pretend flash and as factory again after Restore factory, and a write that is
 lost is put back, each in dark, light and high contrast; and both edits at once,
- which asks to plug in again for the second session, stopped there. A run takes
+ which asks to plug in again for the second session, stopped there; and a Swarm II
+recovery while the headset is off, read again as it connects. A run takes
 over the whole window, with the rest of it switched off, and offers no Close
 until it ends.
 
@@ -152,6 +153,24 @@ foreach ($theme in $themes) {
     }
     finally { Stop-NeapPretend }
 }
+
+Section 'a Swarm II recovery while the headset is off reads as factory once it connects again'
+Start-NeapPretend -Page firmware -Flags @()
+try {
+    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) 'both edits start as factory'
+    Press (Find-Tick $light)
+    Confirm-Press 'Apply'
+    Check (Wait-Until { Find-Text $done } 60) 'applying ends done'
+    Close-Run
+    Check (Wait-Until { (Get-StateCount 'Active') -eq 1 } 10) "'$light' reads as active"
+    Send-Pretend 'off' | Out-Null
+    Check (Wait-Until { (Get-Texts) -notcontains 'Headset connected' } 30) 'Neap sees the headset switch off'
+    Send-Pretend 'recover' | Out-Null
+    Send-Pretend 'on' | Out-Null
+    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 30) 'once the headset connects again, both read as factory, as the recovery left them'
+    Check (-not (Test-Present (Find-Anywhere 'Check again'))) 'with every state known, Check again is not offered'
+}
+finally { Stop-NeapPretend }
 
 Section 'both edits at once: the second session asks to plug in again, and Stop there says part is written'
 Start-NeapPretend -Page firmware -Flags @()

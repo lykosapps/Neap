@@ -73,7 +73,8 @@ public sealed partial class AppStringsTests
         file.Contains($"{Path.DirectorySeparatorChar}{folder}{Path.DirectorySeparatorChar}",
             StringComparison.Ordinal);
 
-    [GeneratedRegex("\"([A-Z][A-Za-z]*_[A-Za-z]+)\"")]
+    // Avalonia names a control template's parts PART_..., a shape no resource key has.
+    [GeneratedRegex("\"(?!PART_)([A-Z][A-Za-z]*_[A-Za-z]+)\"")]
     private static partial Regex KeyLiteral();
 
     /// <summary>A control's uid in a screen: <c>loc:Uid.Value="Mix_Title"</c>.</summary>

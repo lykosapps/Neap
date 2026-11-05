@@ -43,6 +43,14 @@ public sealed class PretendFlash
         lock (_gate) _sections[sector] = bytes.ToArray();
     }
 
+    /// <summary>Puts back what a Swarm II recovery does: every section the factory firmware fills, with the section of new code left as it is.</summary>
+    /// <remarks>A recovery rewrites the firmware it carries and nothing else, so code an edit added stays, with nothing calling it (SP2Tools F297, F317).</remarks>
+    public void Recover()
+    {
+        lock (_gate)
+            foreach (int sector in _sections.Keys.Where(sector => !IsCode(sector)).ToList()) _sections[sector] = Factory(sector);
+    }
+
     /// <summary>The four bytes at an address.</summary>
     public byte[] Word(int address)
     {
@@ -50,10 +58,13 @@ public sealed class PretendFlash
         return Read(sector).AsSpan(address - sector, FlashRead.WordSize).ToArray();
     }
 
+    /// <summary>Whether a section is empty in the factory firmware, where an edit puts new code.</summary>
+    private static bool IsCode(int sector) =>
+        FirmwareEdit.All.SelectMany(edit => edit.Changes).Any(change => change.Address == sector && change.Factory.All(b => b == 0xFF));
+
     private static byte[] Factory(int sector)
     {
-        bool code = FirmwareEdit.All.SelectMany(edit => edit.Changes).Any(change => change.Address == sector && change.Factory.All(b => b == 0xFF));
-        var bytes = code ? Empty() : Enumerable.Range(0, FirmwareEdit.SectorSize).Select(i => (byte)(i * 31 + (sector >> 12))).ToArray();
+        var bytes = IsCode(sector) ? Empty() : Enumerable.Range(0, FirmwareEdit.SectorSize).Select(i => (byte)(i * 31 + (sector >> 12))).ToArray();
         foreach (var change in FirmwareEdit.All.SelectMany(edit => edit.Changes).Where(change => (change.Address & ~(FirmwareEdit.SectorSize - 1)) == sector))
             change.Factory.ToArray().CopyTo(bytes, change.Address - sector);
         return bytes;

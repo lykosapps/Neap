@@ -334,6 +334,15 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     public static IReadOnlyList<IReadOnlyList<int>> Sessions(EditPlan plan) =>
         plan.Sectors.Chunk(SectorsPerSession).Select(chunk => (IReadOnlyList<int>)chunk).ToList();
 
+    /// <summary>Whether to offer reading the headset's flash again: an edit's state is not known while the headset is connected.</summary>
+    /// <remarks>
+    /// A read through the dock can fail now and then, and the page reads again
+    /// only as it opens or the headset connects. A headset that is not connected
+    /// cannot be read, and the page says to switch it on instead.
+    /// </remarks>
+    public static bool OffersCheckAgain(IEnumerable<EditStatus> statuses, bool connected) =>
+        connected && statuses.Contains(EditStatus.Unknown);
+
     /// <summary>Everything that stops the edits being written now, or none.</summary>
     /// <remarks>
     /// In download mode the battery cannot be read, so it is the level last seen.

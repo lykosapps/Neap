@@ -1,6 +1,7 @@
 using System.IO.Pipes;
 using System.Text.Json;
 using Neap.Core.Connection;
+using Neap.Core.Firmware;
 using Neap.Core.Pretend;
 
 namespace Neap.Core.Tests.Pretend;
@@ -227,6 +228,24 @@ public class PretendControlTests
     [Fact]
     public void ClosingAProgramThatIsNotRunningIsRefused() =>
         Assert.False(Reply(Make().Item2, "stop Nothing").GetProperty("ok").GetBoolean());
+
+    [Fact]
+    public void ARecoveryPutsTheFactoryFirmwareBackAndLeavesAnEditsNewCode()
+    {
+        var (headset, control) = Make();
+        var factory = new PretendFlash();
+        int light = FirmwareEdit.LightOffWhenDisconnected.Sectors[0];
+        int call = FirmwareEdit.NoiseCycle.Sectors[1];
+        int code = FirmwareEdit.NoiseCycle.Sectors[0];
+        byte[] edited = Enumerable.Repeat((byte)0x5A, FirmwareEdit.SectorSize).ToArray();
+        foreach (int sector in new[] { light, call, code }) headset.Flash.Write(sector, edited);
+
+        Assert.True(Reply(control, "recover").GetProperty("ok").GetBoolean());
+
+        Assert.Equal(factory.Read(light), headset.Flash.Read(light));
+        Assert.Equal(factory.Read(call), headset.Flash.Read(call));
+        Assert.Equal(edited, headset.Flash.Read(code));
+    }
 
     [Fact]
     public void TheProgramsPlayingToTheHeadsetAreRunning() =>

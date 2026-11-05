@@ -27,6 +27,7 @@ namespace Neap.Core.Pretend;
 ///   value KEY               what the headset holds for a key
 ///   report KEY VALUE        the headset changes a value itself and says so
 ///   on | off                switch the headset on or off
+///   recover                 put the firmware back as a Swarm II recovery does, new code from an edit left in place
 ///   spare PERCENT|empty     put a spare battery in the Charging Dock's slot, or take it out
 ///   presets game|mic        the custom presets' names, by slot
 ///   volume output|input     Windows' volume and mute for the headset
@@ -195,6 +196,7 @@ public sealed class PretendControl : IDisposable
                 ("bands", 1) => new JsonArray(_headset.Bands
                     .Select(b => (JsonNode)new JsonObject { ["type"] = b.Type.ToString(), ["hertz"] = b.Hertz, ["gain"] = b.Gain }).ToArray()),
                 ("report", 3) => Done(() => _headset.Report(Key(words[1]), words[2])),
+                ("recover", 1) => Done(_headset.Flash.Recover),
                 ("on", 1) => Done(() => _headset.On = true),
                 ("off", 1) => Done(() => _headset.On = false),
                 ("spare", 2) => Done(() => _headset.Spare(ChargeOf(words[1]))),

@@ -63,6 +63,7 @@ public partial class FirmwarePage : UserControl
         InitializeComponent();
         ApplyButton.Click += async (_, _) => await AskToApply(Wanted.ToHashSet(), toFactory: false);
         FactoryButton.Click += async (_, _) => await AskToApply([], toFactory: true);
+        CheckAgainButton.Click += async (_, _) => await CheckAgain();
         FlashEdits.IsVisible = FirmwareEdit.Released || Pretend.Active;
         Intro.IsVisible = FirmwareEdit.Released || Pretend.Active;
     }
@@ -86,18 +87,38 @@ public partial class FirmwarePage : UserControl
     }
 
     /// <remarks>
-    /// The page often opens before the headset has connected, so the flash is
-    /// read again as it connects, if it could not be read yet.
+    /// The flash is read again each time the headset connects, not only when
+    /// it could not be read yet: the page often opens before the headset has
+    /// connected, and a Swarm II update or recovery while it was off changes
+    /// what is on it, so a state from before could say an edit is on that has
+    /// gone (SP2Tools F297, F317).
     /// </remarks>
     private async void OnStatus(Core.Connection.HeadsetStatus status)
     {
-        Paint();
         bool connected = status.Link == Core.Connection.Link.Connected;
         bool justConnected = connected && !_connected;
         _connected = connected;
-        if (justConnected && AppServices.Firmware.Flash is null && !AppServices.Firmware.Busy)
-            await AppServices.Firmware.ReadFlash();
+        Paint();
+        if (justConnected && !AppServices.Firmware.Busy) await AppServices.Firmware.ReadFlash();
     }
+
+    /// <summary>Reads the flash again when the person asks, with the button off until the read is done.</summary>
+    private async Task CheckAgain()
+    {
+        _checking = true;
+        Paint();
+        try
+        {
+            await AppServices.Firmware.ReadFlash();
+        }
+        finally
+        {
+            _checking = false;
+            Paint();
+        }
+    }
+
+    private bool _checking;
 
     private bool _connected = AppServices.Headset.Status.Link == Core.Connection.Link.Connected;
 
@@ -112,7 +133,7 @@ public partial class FirmwarePage : UserControl
         var plan = firmware.Plan(Wanted);
         var blockers = FirmwareEdit.Blockers(plan.Changing, firmware.Readiness);
         string shown = string.Join("|",
-            firmware.CanWrite, firmware.Busy, firmware.Build, firmware.Readiness,
+            firmware.CanWrite, firmware.Busy, firmware.Build, firmware.Readiness, _connected, _checking,
             string.Join(",", edits.Select(firmware.StatusOf)),
             string.Join(",", Wanted.Select(edit => edit.Id).Order()),
             string.Join(",", edits.Select(edit => edit.Id)),
@@ -151,6 +172,8 @@ public partial class FirmwarePage : UserControl
         var factory = firmware.Plan(new HashSet<FirmwareEdit>());
         FactoryButton.IsEnabled = free && !factory.Nothing
             && FirmwareEdit.Blockers(factory.Changing, firmware.Readiness).Count == 0;
+        CheckAgainButton.IsVisible = FirmwareEdit.OffersCheckAgain(edits.Select(firmware.StatusOf), _connected);
+        CheckAgainButton.IsEnabled = free && !_checking;
 
         var backups = FirmwareEditService.Backups;
         Refill(BackupList, () =>

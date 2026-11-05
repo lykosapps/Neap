@@ -163,6 +163,10 @@ was confirmed.
   app behind it reached: a run now takes over the whole main window instead,
   with everything else switched off and Close the only way out once it ends
   (practice runs only so far).
+  The page also read the flash again on reconnect only if it never had, so after
+  a Swarm II recovery it could still show an edit as active; it now reads again
+  every time the headset connects, and offers Check again only for a state it
+  could not read (practice runs, with the pretend headset's new "recover").
 
 - 2026-11-04 — From the log of checks 40 and 41: Neap hands the chip each
   session's sections in about 50 ms and the chip writes and restarts on its own,
