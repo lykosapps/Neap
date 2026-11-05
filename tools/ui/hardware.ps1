@@ -199,7 +199,7 @@ Protect-RealRun {
         # The switch does not report its state to automation, so the saved setting is read.
         $savedKeys = { (Get-Content (Join-Path $env:LOCALAPPDATA 'Neap\app-settings.json') -Raw | ConvertFrom-Json).mix_hotkeys -eq $true }
         $keys = & $openKeys
-        Check ($null -ne $keys) 'the shortcuts switch is in the mix card's settings'
+        Check ($null -ne $keys) 'the shortcuts switch is in the mix card''s settings'
         $wasOn = & $savedKeys
         if (-not $wasOn) { Press $keys; Start-Sleep -Seconds 2 }
         Check (& $savedKeys) 'the shortcuts are on'
