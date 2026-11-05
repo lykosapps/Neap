@@ -167,6 +167,10 @@ was confirmed.
   a Swarm II recovery it could still show an edit as active; it now reads again
   every time the headset connects, and offers Check again only for a state it
   could not read (practice runs, with the pretend headset's new "recover").
+  Swarm II is now looked for as Apply or Restore is pressed and again as the
+  write starts: any program named "Turtle Beach ..." counts (the owner's PC has
+  the app, its device service, a session monitor, an updater and a media
+  control; which talk to the headset is not known). Practice runs only.
 
 - 2026-11-04 — From the log of checks 40 and 41: Neap hands the chip each
   session's sections in about 50 ms and the chip writes and restarts on its own,

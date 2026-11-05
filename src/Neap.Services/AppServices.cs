@@ -54,7 +54,8 @@ public static class AppServices
         Headset = new HeadsetService(Devices, cabled: () => Pretend.Wired || AudioRoute.Cable.Length > 0);
         Mix = new MixService(Headset);
         Noise = new NoiseService(Headset);
-        Firmware = new FirmwareEditService(Headset, Pretend.Active ? Pretend.Firmware : new BootRomFirmwareWriter());
+        Firmware = new FirmwareEditService(Headset, Pretend.Active ? Pretend.Firmware : new BootRomFirmwareWriter(),
+            Pretend.Windows is { } pretendWindows ? pretendWindows.Programs : AutoSwitchService.RunningPrograms);
         Presets = new PresetService(Headset);
         Parametric = new ParametricService(Headset);
         Parametric.Watch();

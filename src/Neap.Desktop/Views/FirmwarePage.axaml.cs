@@ -280,6 +280,7 @@ public partial class FirmwarePage : UserControl
     /// <summary>Asks before writing, with the plan and what can go wrong, then runs it.</summary>
     private async Task AskToApply(HashSet<FirmwareEdit> wanted, bool toFactory)
     {
+        if (await SwarmInTheWay()) return;
         var plan = AppServices.Firmware.Plan(wanted);
         bool go = await new NeapDialog
         {
@@ -311,6 +312,7 @@ public partial class FirmwarePage : UserControl
 
     private async Task AskToRestore(FirmwareBackup backup)
     {
+        if (await SwarmInTheWay()) return;
         bool go = await new NeapDialog
         {
             Heading = Strings.Get("Firmware_RestoreTitle"),
@@ -324,6 +326,21 @@ public partial class FirmwarePage : UserControl
             (report, cancel) => AppServices.Firmware.Restore(backup, report, cancel));
         _wanted = null;
         Paint();
+    }
+
+    /// <summary>Says to quit Swarm II when it is running, as Apply or Restore is pressed, and says whether it was.</summary>
+    /// <remarks>Said at the press rather than kept on the page, as looking for it lists every program.</remarks>
+    private async Task<bool> SwarmInTheWay()
+    {
+        if (!AppServices.Firmware.SwarmRunning()) return false;
+        AppLog.Write("firmware edits: not started, as Swarm II is running");
+        await new NeapDialog
+        {
+            Heading = Strings.Get("Firmware_BlockedSwarm"),
+            Body = new TextBlock { Text = Strings.Get("Firmware_SwarmRunning"), TextWrapping = TextWrapping.Wrap, MaxWidth = 440 },
+            CloseButtonText = Strings.Get("Dialog_OK"),
+        }.ShowAsync(this);
+        return true;
     }
 
     /// <summary>Runs a write over the whole window until the person closes it, headed by what is under way and then by what was done.</summary>

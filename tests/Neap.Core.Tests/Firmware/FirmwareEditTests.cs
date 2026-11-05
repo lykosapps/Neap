@@ -226,6 +226,15 @@ public class FirmwareEditTests
             FirmwareEdit.Steps);
 
     [Theory]
+    [InlineData("Turtle Beach Swarm II", true)]
+    [InlineData("Turtle Beach Device Service", true)]
+    [InlineData("turtle beach swarm ii updater", true)]
+    [InlineData("Neap.Desktop", false)]
+    [InlineData("Discord", false)]
+    public void AnyOfSwarmIIsProgramsCountsAsSwarmRunning(string program, bool swarm) =>
+        Assert.Equal(swarm, FirmwareEdit.SwarmIn(["explorer", program]));
+
+    [Theory]
     [InlineData(true, new[] { EditStatus.Installed, EditStatus.Unknown }, true)]
     [InlineData(true, new[] { EditStatus.Installed, EditStatus.NotInstalled }, false)]
     [InlineData(true, new[] { EditStatus.DoesNotFit, EditStatus.Altered }, false)]

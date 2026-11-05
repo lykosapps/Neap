@@ -343,6 +343,18 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     public static bool OffersCheckAgain(IEnumerable<EditStatus> statuses, bool connected) =>
         connected && statuses.Contains(EditStatus.Unknown);
 
+    /// <summary>Whether Swarm II is among the programs running, by process name.</summary>
+    /// <remarks>
+    /// Swarm II installs as several programs, each named "Turtle Beach ...":
+    /// the app, its device service, a session monitor, an updater and a media
+    /// control. Which of them talk to the headset is not known, so any of them
+    /// counts.
+    /// </remarks>
+    public static bool SwarmIn(IEnumerable<string> programs) =>
+        programs.Any(program => program.StartsWith(SwarmPrefix, StringComparison.OrdinalIgnoreCase));
+
+    private const string SwarmPrefix = "Turtle Beach";
+
     /// <summary>Everything that stops the edits being written now, or none.</summary>
     /// <remarks>
     /// In download mode the battery cannot be read, so it is the level last seen.

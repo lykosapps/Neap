@@ -2030,6 +2030,9 @@
   <data name="Firmware_CheckAgain.Content" xml:space="preserve">
     <value>Check again</value>
   </data>
+  <data name="Firmware_SwarmRunning" xml:space="preserve">
+    <value>Swarm II is running, and it could talk to the headset while Neap writes its firmware. Quit it, then try again.</value>
+  </data>
   <data name="Firmware_GuideWrite" xml:space="preserve">
     <value>Keep the cable plugged in. The headset writes the change and restarts, which takes about a minute.</value>
   </data>

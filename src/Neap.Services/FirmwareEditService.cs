@@ -89,7 +89,10 @@ public sealed record FirmwareBackup(string File, DateTime Taken, int Sector, str
 /// listed with their state read from its flash, and <see cref="CanWrite"/> is false.
 /// </para>
 /// </remarks>
-public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter? writer)
+/// <param name="headset">The headset whose firmware is read and written.</param>
+/// <param name="writer">What writes it, or null for a headset this build cannot write.</param>
+/// <param name="programs">Every program running, by process name, to look for Swarm II.</param>
+public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter? writer, Func<IReadOnlyCollection<string>> programs)
 {
     /// <summary>The flash read or the running state changed.</summary>
     public event Action? Changed;
@@ -120,8 +123,8 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     /// sections themselves are read in download mode before anything is written.
     /// </para>
     /// <para>
-    /// Swarm II is not looked for yet: its program's name is not known, and
-    /// nothing is written to a real headset until it is.
+    /// Swarm II is not looked for here, as this is asked for on every redraw
+    /// and looking lists every program: see <see cref="SwarmRunning"/>.
     /// </para>
     /// </remarks>
     public EditReadiness Readiness
@@ -133,6 +136,10 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             return new(Connected || (fresh && seen.Build is not null), seen.Build, fresh ? seen.Battery : null, SwarmRunning: false);
         }
     }
+
+    /// <summary>Whether Swarm II is running, and could talk to the headset during a write.</summary>
+    /// <remarks>Looked for as a write is asked for and again as it starts, not on every redraw.</remarks>
+    public bool SwarmRunning() => FirmwareEdit.SwarmIn(programs());
 
     /// <summary>How long what was last seen of a headset that is off still counts.</summary>
     public static readonly TimeSpan BatteryFresh = TimeSpan.FromMinutes(30);
@@ -236,7 +243,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         return await Run(sessions.Count, report, cancel: cancel, steps: async say =>
         {
             say(EditStep.Check, 0);
-            var blockers = FirmwareEdit.Blockers(plan.Changing, Readiness);
+            var blockers = FirmwareEdit.Blockers(plan.Changing, Readiness with { SwarmRunning = SwarmRunning() });
             if (blockers.Count > 0) return Stop(ApplyResult.Failed, $"not ready: {string.Join(", ", blockers)}");
 
             int session = 0;
@@ -286,6 +293,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         {
             byte[] saved = await File.ReadAllBytesAsync(backup.File, cancel);
             if (saved.Length != FirmwareEdit.SectorSize) return Stop(ApplyResult.Refused, $"{Path.GetFileName(backup.File)} is not a whole section");
+            if (SwarmRunning()) return Stop(ApplyResult.Failed, "not ready: SwarmRunning");
             await PlugIn(say, 1, cancel);
             say(EditStep.Backup, 1);
             Backed(SaveBackup(backup.Sector, await writer.Read(backup.Sector), Build ?? "unknown"));

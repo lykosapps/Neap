@@ -5,7 +5,8 @@ focus stays on a ticked row, an edit applied reads as active from the
 pretend flash and as factory again after Restore factory, and a write that is
 lost is put back, each in dark, light and high contrast; and both edits at once,
  which asks to plug in again for the second session, stopped there; and a Swarm II
-recovery while the headset is off, read again as it connects. A run takes
+recovery while the headset is off, read again as it connects; and Apply refused
+while Swarm II runs. A run takes
 over the whole window, with the rest of it switched off, and offers no Close
 until it ends.
 
@@ -94,6 +95,8 @@ function Close-Run {
 $done = 'Done. The headset has the edits you ticked. Unplug the cable, and the headset starts by itself in about half a minute.'
 $putBack = "A section didn't read back as written, so Neap put back what was there. Unplug the cable, and the headset starts by itself. To try again, tick an edit and choose Apply."
 $plugAgain = "Unplug the cable, then plug it back in. Don't press Power."
+$plug = "Switch the headset off, then plug a USB-C cable from this PC into its left ear cup. Don't press Power."
+$swarm = 'Swarm II is running, and it could talk to the headset while Neap writes its firmware. Quit it, then try again.'
 $stoppedPart = "Stopped. Part of the change is written, and the Firmware page shows each edit's state. Unplug the cable; to finish, choose Apply again."
 
 # Makes the window tall enough that the Backups card, under the run card, is in the picture.
@@ -153,6 +156,23 @@ foreach ($theme in $themes) {
     }
     finally { Stop-NeapPretend }
 }
+
+Section 'with Swarm II running, Apply says to quit it and writes nothing; once it quits, Apply works'
+Start-NeapPretend -Page firmware -Flags @()
+try {
+    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) 'both edits start as factory'
+    Send-Pretend 'start Turtle Beach Swarm II' | Out-Null
+    Press (Find-Tick $light)
+    Press (Find-Anywhere 'Apply')
+    Check (Wait-Until { Find-Text $swarm } 6) 'pressing Apply says to quit Swarm II'
+    Press (Find-Id 'CloseButton')
+    Check (Wait-Until { -not (Find-Text $swarm) } 6) 'OK closes it'
+    Check ((Get-StateCount 'Factory') -eq 2 -and -not (Find-Text $plug)) 'and no run started'
+    Send-Pretend 'stop Turtle Beach Swarm II' | Out-Null
+    Confirm-Press 'Apply'
+    Check (Wait-Until { Find-Text $done } 60) 'with Swarm II closed, applying ends done'
+}
+finally { Stop-NeapPretend }
 
 Section 'a Swarm II recovery while the headset is off reads as factory once it connects again'
 Start-NeapPretend -Page firmware -Flags @()
