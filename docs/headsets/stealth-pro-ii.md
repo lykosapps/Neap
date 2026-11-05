@@ -171,6 +171,12 @@ was confirmed.
   write starts: any program named "Turtle Beach ..." counts (the owner's PC has
   the app, its device service, a session monitor, an updater and a media
   control; which talk to the headset is not known). Practice runs only.
+  Backups now list the newest of each part of the firmware (every file stays in
+  its folder, and a part as its newest backup holds it is not saved again),
+  with Show in folder and Restore from file. Every restore is checked first: a
+  Neap backup, from the firmware the headset has now, holding only the factory
+  firmware and Neap's edits, so a backup from before a Swarm II update is
+  refused. Practice runs only, on the hidden desktop.
 
 - 2026-11-04 — From the log of checks 40 and 41: Neap hands the chip each
   session's sections in about 50 ms and the chip writes and restarts on its own,
