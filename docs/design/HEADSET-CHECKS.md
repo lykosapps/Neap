@@ -59,13 +59,16 @@ a headset it can no longer reach.
     turn the chat wheel. The mix shows at the foot of the screen, the game
     keeps the mouse and keyboard, a click where the overlay sits reaches the
     game, and it goes about a second and a half after the wheel stops.
+    *Passed 5 November 2026: over Moonlighter 2 in a window, through the Charging Dock; the pill showed and its mark moved with the wheel, and a click on it reached the game.*
 46. **With the system's volume:** turn the volume and chat wheels together.
     Windows' own volume flyout and the overlay both show, neither over the
     other.
+    *Passed 5 November 2026: both showed, apart, and the overlay is the smaller.*
 47. **Exclusive full screen:** in a game set to exclusive full screen, turn
     the wheel. Nothing shows, and the game stays in full screen.
 48. **Started at sign-in:** after a restart, before opening Neap's window,
     turn the wheel over a game. The overlay shows.
+    *Passed 5 November 2026: started with `--startup` into the notification area, no window opened; the overlay showed over the game.*
 
 ## Look
 

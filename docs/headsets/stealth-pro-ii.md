@@ -49,7 +49,7 @@ system tried with a real headset.
 | Superhuman Hearing, on/off | Listed | Yes | Has | Confirmed | Confirmed | `0x720` | — |
 | Superhuman Hearing, type (Legacy, Footsteps, Gunshots) | Listed | Yes | Has | Confirmed | Confirmed | `0x730` | — |
 | Superhuman Hearing, intensity | Listed | Yes | Has | Confirmed | Confirmed | `0x740` | — |
-| Game and chat mix | Listed, Waves driver only | Yes, on the PC | Has | Confirmed | Confirmed | Done on the PC; the chat wheel reports at `0x510` | Works on the Xbox edition, unlike Swarm II's. Once, the mix didn't follow the wheel; see Problems. |
+| Game and chat mix | Listed, Waves driver only | Yes, on the PC | Has | Confirmed | Confirmed | Done on the PC; the chat wheel reports at `0x510` | Works on the Xbox edition, unlike Swarm II's. On Windows a turn of the wheel shows the mix on screen, seen over a game on 5 November 2026. Once, the mix didn't follow the wheel; see Problems. |
 | Active noise cancellation, on/off | Listed | Yes | Has | Confirmed | Confirmed | `0x750` | Neap adds transparency: noise cancellation at zero. |
 | Active noise cancellation, level | Listed | Yes | Has | Confirmed | Confirmed | `0x760` | — |
 | Chat Boost (Bold, Dynamic, Active) | Listed, Waves driver only | Only with Neap's own sound processing | Missing | — | — | Waves software on the PC | Decide whether Neap should do it. |
