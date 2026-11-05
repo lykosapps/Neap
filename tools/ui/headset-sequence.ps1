@@ -18,12 +18,12 @@ theirs.
 param([switch]$Pretend)
 . "$PSScriptRoot\Ui.ps1"
 
-$light = 'Light off when disconnected'
-$cycle = 'Noise cancellation cycle'
+$light = 'No blinking when disconnected'
+$cycle = 'Noise cancellation on the Mode button'
 $plug = "Switch the headset off, then plug a USB-C cable from this PC into its left ear cup. Don't press Power."
 $plugAgain = "Unplug the cable, then plug it back in. Don't press Power."
-$done = 'Unplug the cable. The headset starts by itself in about half a minute.'
-$outcomes = '^(Unplug the cable\. The headset starts|Written, but|Stopped|Neap couldn.t confirm|The change didn|Nothing was changed)'
+$done = "It's now safe to unplug the cable and switch the headset on."
+$outcomes = '^(It.s now safe to unplug|Written, but|Stopped|Neap couldn.t confirm|The change didn|Nothing was changed)'
 
 function Find-Tick([string]$Name) {
     Search {
@@ -81,7 +81,7 @@ function Invoke-Sequence {
     Save-Shot 'sequence-check40' -Whole | ForEach-Object { $_.Dispose() }
     if ($outcome -ne $done) { throw 'stopping: check 40 did not end as expected' }
     Press (Find-Id 'TakeoverCloseButton')
-    Owner 'unplug the cable; the headset starts by itself'
+    Owner 'unplug the cable and switch the headset on'
 
     Section 'check 41: the newest backup of the light section restored'
     $backup = $null
@@ -96,7 +96,7 @@ function Invoke-Sequence {
     Check (Wait-Until { (Get-Chips) -contains 'Installed' -and (Get-Chips) -contains 'Not installed' } 10) 'the light reads factory again and the noise cycle stays active'
     Save-Shot 'sequence-check41' -Whole | ForEach-Object { $_.Dispose() }
     Press (Find-Id 'TakeoverCloseButton')
-    Owner 'unplug the cable; the headset starts by itself'
+    Owner 'unplug the cable and switch the headset on'
 }
 
 if ($Pretend) {

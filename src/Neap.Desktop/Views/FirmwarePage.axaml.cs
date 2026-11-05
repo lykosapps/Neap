@@ -204,7 +204,7 @@ public partial class FirmwarePage : UserControl
             ?.Focus(NavigationMethod.Tab);
     }
 
-    /// <summary>An edit's tick, with what it does, how much it risks and whether it is on.</summary>
+    /// <summary>An edit's tick, with what it does and whether it is on.</summary>
     /// <remarks>
     /// What changes with the headset is set by the row's entry in
     /// <see cref="_paintRows"/>. The chip's name says the edit and its state,
@@ -242,10 +242,9 @@ public partial class FirmwarePage : UserControl
             dot.Classes.Replace(["statusdot", StateTone(status)]);
             word.Text = StateWords(status);
             AutomationProperties.SetName(state, Strings.Format("Firmware_EditState", EditName(edit), word.Text));
-            // Active and factory say all they need in the chip; anything else is explained under the edit.
-            about.Text = status is EditStatus.Installed or EditStatus.NotInstalled
-                ? RiskWords(edit.Risk)
-                : Strings.Format("Firmware_RiskAndStatus", RiskWords(edit.Risk), StatusWords(status, firmware.Build, edit));
+            // Installed and not installed say all they need in the chip; anything else is explained under the edit.
+            about.Text = status is EditStatus.Installed or EditStatus.NotInstalled ? "" : StatusWords(status, firmware.Build, edit);
+            about.IsVisible = about.Text.Length > 0;
             AutomationProperties.SetHelpText(tick, Strings.Format("Firmware_TickHelp", Description(edit), word.Text, about.Text));
         });
 
@@ -418,9 +417,6 @@ public partial class FirmwarePage : UserControl
         "light_off_disconnected" => Strings.Get("Firmware_LightOffDescription"),
         _ => "",
     };
-
-    private static string RiskWords(EditRisk risk) =>
-        Strings.Get(risk == EditRisk.Low ? "Firmware_RiskLow" : "Firmware_RiskHigher");
 
     /// <summary>Why an edit is neither active nor factory, said under it.</summary>
     private static string StatusWords(EditStatus status, string? build, FirmwareEdit edit) => status switch

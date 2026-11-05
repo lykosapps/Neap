@@ -59,7 +59,7 @@ Protect-RealRun {
     [void](Wait-Until { Get-RealLog $lines | Where-Object { $_ -match 'firmware edits:' } } 15)
     $log = @(Get-RealLog $lines)
     Check (-not ($log -match 'no page with the tag firmware')) 'the Firmware page is in the build'
-    $listed = Wait-Until { Find-Named 'Light off when disconnected' } 15
+    $listed = Wait-Until { Find-Named 'No blinking when disconnected' } 15
     Check $listed "the edits are listed (if not, switch the headset on once so Neap sees it)"
     $log | Where-Object { $_ -match 'headset: (Quiet|Connected|its firmware)|firmware edits: read' } | ForEach-Object { Note "log: $_" }
 }

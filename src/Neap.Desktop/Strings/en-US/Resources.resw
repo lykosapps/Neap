@@ -1811,13 +1811,13 @@
     <value>Firmware edits</value>
   </data>
   <data name="Settings_FirmwareEdits.Description" xml:space="preserve">
-    <value>Adds the Firmware page. An edit can stop the headset starting.</value>
+    <value>Adds the Firmware page, for changing how the headset works.</value>
   </data>
   <data name="Firmware_Title.Text" xml:space="preserve">
     <value>Firmware</value>
   </data>
   <data name="Firmware_Intro.Text" xml:space="preserve">
-    <value>An edit can stop the headset starting, and Turtle Beach can't help with an edited headset. A Swarm II update or recovery removes all edits.</value>
+    <value>Edits change your headset's firmware. Neap backs it up before every change and checks the result. Remove the edits before you contact Turtle Beach; a Swarm II update removes them too.</value>
   </data>
   <data name="Firmware_StepState" xml:space="preserve">
     <value>{0}: {1}</value>
@@ -1876,11 +1876,11 @@
     <value>Restore this backup?</value>
   </data>
   <data name="Firmware_NoiseCycle" xml:space="preserve">
-    <value>Noise cancellation cycle</value>
+    <value>Noise cancellation on the Mode button</value>
     <comment>The name of a firmware edit.</comment>
   </data>
   <data name="Firmware_NoiseCycleDescription" xml:space="preserve">
-    <value>The Mode button steps through Off, Transparency and Cancelling.</value>
+    <value>Press Mode to block the room, hear it or neither, even with Neap closed.</value>
   </data>
   <data name="Firmware_Installed" xml:space="preserve">
     <value>Installed</value>
@@ -1948,30 +1948,20 @@
   <data name="Firmware_BackupsNote.Text" xml:space="preserve">
     <value>Neap saves the firmware before each change. If an edit stops the headset starting, restore the newest backups.</value>
   </data>
-  <data name="Firmware_RiskAndStatus" xml:space="preserve">
-    <value>{0} {1}</value>
-    <comment>{0} is how risky the edit is, {1} why it is neither active nor factory. Both are sentences.</comment>
-  </data>
   <data name="Firmware_TickHelp" xml:space="preserve">
     <value>{0} State: {1}. {2}</value>
-    <comment>What a screen reader says about an edit's tick box. {0} is what the edit does, a sentence; {1} its state as its chip shows it, such as Active or Factory; {2} its risk and anything more about its state, as sentences.</comment>
+    <comment>What a screen reader says about an edit's tick box. {0} is what the edit does, a sentence; {1} its state as its chip shows it, such as Installed or Not installed; {2} anything more about its state, a sentence, or nothing.</comment>
   </data>
   <data name="Firmware_EditState" xml:space="preserve">
     <value>{0}: {1}</value>
-    <comment>An edit's state as a screen reader says it when it changes. {0} is the edit; {1} its state, such as Active or Factory.</comment>
-  </data>
-  <data name="Firmware_RiskLow" xml:space="preserve">
-    <value>Low risk: changes one setting.</value>
-  </data>
-  <data name="Firmware_RiskHigher" xml:space="preserve">
-    <value>Higher risk: adds new code.</value>
+    <comment>An edit's state as a screen reader says it when it changes. {0} is the edit; {1} its state, such as Installed or Not installed.</comment>
   </data>
   <data name="Firmware_LightOff" xml:space="preserve">
-    <value>Light off when disconnected</value>
+    <value>No blinking when disconnected</value>
     <comment>The name of a firmware edit.</comment>
   </data>
   <data name="Firmware_LightOffDescription" xml:space="preserve">
-    <value>The light stays off instead of blinking.</value>
+    <value>The headset's light stays dark until it connects again.</value>
   </data>
   <data name="Firmware_PlanNothing" xml:space="preserve">
     <value>Nothing to change.</value>
@@ -1991,7 +1981,7 @@
     <value>Remove all edits?</value>
   </data>
   <data name="Firmware_ApplyWarning" xml:space="preserve">
-    <value>You'll switch the headset off and plug a USB-C cable from this PC into its left ear cup. Neap backs up the firmware first and checks every change. An edit can still stop the headset starting.</value>
+    <value>You'll switch the headset off and plug a USB-C cable from this PC into its left ear cup. Neap backs up the firmware first and checks every change, and you can restore a backup at any time.</value>
   </data>
   <data name="Firmware_RunApplying" xml:space="preserve">
     <value>Applying edits…</value>
@@ -2064,7 +2054,7 @@
     <value>Stopped</value>
   </data>
   <data name="Firmware_OutcomeDone" xml:space="preserve">
-    <value>Unplug the cable. The headset starts by itself in about half a minute.</value>
+    <value>It's now safe to unplug the cable and switch the headset on.</value>
   </data>
   <data name="Firmware_OutcomeNotReadBack" xml:space="preserve">
     <value>Written, but Neap couldn't check it. Unplug the cable, then switch the headset on to see each edit's state.</value>
@@ -2082,7 +2072,7 @@
     <value>Nothing was changed. Something else has changed part of the headset's firmware. Restore a backup to undo that.</value>
   </data>
   <data name="Firmware_OutcomeReverted" xml:space="preserve">
-    <value>Neap couldn't confirm the change, so it put back what was there. Unplug the cable, and the headset starts by itself. Then try again.</value>
+    <value>Neap couldn't confirm the change, so it put back what was there. It's safe to unplug the cable and switch the headset on, then try again.</value>
   </data>
   <data name="Firmware_OutcomeFailed" xml:space="preserve">
     <value>The change didn't finish. If the headset doesn't start, restore the newest backups.</value>

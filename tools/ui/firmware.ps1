@@ -36,7 +36,7 @@ function Get-State($Element) { [string]$Element.GetCurrentPattern([System.Window
 Section 'the Firmware page keeps focus on a ticked row'
 Start-NeapPretend -Page firmware -Flags @()
 try {
-    $names = 'Light off when disconnected', 'Noise cancellation cycle'
+    $names = 'No blinking when disconnected', 'Noise cancellation on the Mode button'
     Wait-Until { $null -ne (Find-Tick $names[0]) -or $null -ne (Find-Tick $names[1]) } 15 | Out-Null
     $name = $names | Where-Object { Find-Tick $_ } | Select-Object -First 1
     Check ($null -ne $name) 'the Firmware page opens in a practice run, with edits to tick'
@@ -67,7 +67,7 @@ try {
 }
 finally { Stop-NeapPretend }
 
-$light = 'Light off when disconnected'
+$light = 'No blinking when disconnected'
 # Each edit's state is a chip with the state's word; the light edit is the one ticked.
 function Get-StateCount([string]$State) { @(Get-Texts | Where-Object { $_ -eq $State }).Count }
 
@@ -92,8 +92,8 @@ function Close-Run {
     Wait-Until { -not (Find-Text $done) } 6 | Out-Null
 }
 
-$done = 'Unplug the cable. The headset starts by itself in about half a minute.'
-$putBack = "Neap couldn't confirm the change, so it put back what was there. Unplug the cable, and the headset starts by itself. Then try again."
+$done = "It's now safe to unplug the cable and switch the headset on."
+$putBack = "Neap couldn't confirm the change, so it put back what was there. It's safe to unplug the cable and switch the headset on, then try again."
 $plugAgain = "Unplug the cable, then plug it back in. Don't press Power."
 $plug = "Switch the headset off, then plug a USB-C cable from this PC into its left ear cup. Don't press Power."
 $swarm = 'Swarm II could interrupt the change. Quit it, then try again.'
@@ -197,7 +197,7 @@ Start-NeapPretend -Page firmware -Flags @()
 try {
     Check (Wait-Until { (Get-StateCount 'Not installed') -eq 2 } 15) 'both edits start as factory'
     Press (Find-Tick $light)
-    Press (Find-Tick 'Noise cancellation cycle')
+    Press (Find-Tick 'Noise cancellation on the Mode button')
     Confirm-Press 'Apply'
     Check (Wait-Until { Find-Text $plugAgain } 90) 'after the first session is written and read back, the run asks to unplug and plug in again'
     Check (-not (Test-Present (Find-Id 'TakeoverCloseButton'))) 'while the run waits, it offers no Close'

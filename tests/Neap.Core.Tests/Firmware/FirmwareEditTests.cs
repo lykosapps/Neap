@@ -30,13 +30,6 @@ public class FirmwareEditTests
     public void EverySectionStartsOnASectionBoundary() =>
         Assert.All(FirmwareEdit.All.SelectMany(edit => edit.Sectors), sector => Assert.Equal(0, sector % FirmwareEdit.SectorSize));
 
-    [Fact]
-    public void NewCodeIsTheHigherRisk()
-    {
-        Assert.Equal(EditRisk.Higher, Cycle.Risk);
-        Assert.Equal(EditRisk.Low, Light.Risk);
-    }
-
     // -- read live from the flash ---------------------------------------------
 
     private static Dictionary<int, byte[]> Flash(params (FlashChange Change, bool Active)[] read) =>

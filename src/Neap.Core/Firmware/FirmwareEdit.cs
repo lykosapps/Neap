@@ -32,16 +32,6 @@ public sealed record FlashChange(int Address, IReadOnlyList<byte> Factory, IRead
         new(address, Convert.FromHexString(factory), Convert.FromHexString(active));
 }
 
-/// <summary>How much an edit changes, for the person to weigh before ticking it.</summary>
-public enum EditRisk
-{
-    /// <summary>A setting's value in the firmware's data.</summary>
-    Low,
-
-    /// <summary>New code the firmware runs.</summary>
-    Higher,
-}
-
 /// <summary>Something that stops the edits being written now.</summary>
 public enum EditBlocker
 {
@@ -149,10 +139,9 @@ public sealed record EditPlan(IReadOnlyList<FirmwareEdit> Changing, IReadOnlyLis
 /// <param name="Id">The edit's name in the app log and recordings.</param>
 /// <param name="Model">The headset the edit is made for.</param>
 /// <param name="FirmwareBuild">The firmware version the edit is made against.</param>
-/// <param name="Risk">How much it changes.</param>
 /// <param name="Sectors">The sections of flash it touches, by address, in the order they are written to put it on.</param>
 /// <param name="Changes">The bytes it changes, in the order they are written to put it on.</param>
-public sealed record FirmwareEdit(string Id, HeadsetModel Model, string FirmwareBuild, EditRisk Risk, IReadOnlyList<int> Sectors, IReadOnlyList<FlashChange> Changes)
+public sealed record FirmwareEdit(string Id, HeadsetModel Model, string FirmwareBuild, IReadOnlyList<int> Sectors, IReadOnlyList<FlashChange> Changes)
 {
     /// <summary>Whether firmware edits are in this release of Neap at all.</summary>
     /// <remarks>
@@ -187,7 +176,7 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     /// then the call at 0x08232094 that reaches it (SP2Tools F090).
     /// </summary>
     public static FirmwareEdit NoiseCycle { get; } =
-        new("noise_cycle", HeadsetModels.StealthProII, "4.107.703.0", EditRisk.Higher, [0x08349000, 0x08232000],
+        new("noise_cycle", HeadsetModels.StealthProII, "4.107.703.0", [0x08349000, 0x08232000],
         [
             FlashChange.Of(0x08349000, new string('F', 108 * 2),
                 "70B582B000240094019475206946E8F63DF840B3762001A9E8F638F818B3009B53B1019B322B03D264240125092606E0FF240025FF26" +
@@ -197,7 +186,7 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
 
     /// <summary>The headset's light switches off when it loses its connection, rather than blinking: one byte (SP2Tools, live since 22 October).</summary>
     public static FirmwareEdit LightOffWhenDisconnected { get; } =
-        new("light_off_disconnected", HeadsetModels.StealthProII, "4.107.703.0", EditRisk.Low, [0x082F9000],
+        new("light_off_disconnected", HeadsetModels.StealthProII, "4.107.703.0", [0x082F9000],
         [FlashChange.Of(0x082F9B94, "02", "00")]);
 
     /// <summary>Gets every edit Neap knows of.</summary>
