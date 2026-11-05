@@ -92,30 +92,6 @@
                 </Border>
             </c:HeadsetSection>
 
-            <!--
-                The keyboard moves the mix as the chat wheel does, so its
-                shortcuts sit with the headset's controls. Neap listens for
-                them itself, so they stay whether the headset is on or off.
-                Left out where the system cannot register keys for the whole
-                desktop.
-            -->
-            <StackPanel x:Name="Keyboard">
-                <TextBlock loc:Uid.Value="Controls_KeyboardHeading" Classes="sectionheader" />
-                <c:MixKeysPanel />
-            </StackPanel>
-
-            <!--
-                The mix shown for a moment as the wheel or the keys move it,
-                where the system can show it over a game without getting in
-                its way.
-            -->
-            <StackPanel x:Name="OnScreen">
-                <TextBlock loc:Uid.Value="Controls_OnScreenHeading" Classes="sectionheader" />
-                <c:SettingsCard loc:Uid.Value="MixOverlay_Card" Icon="{StaticResource IconVolume}">
-                    <ToggleSwitch x:Name="OverlayOn" />
-                </c:SettingsCard>
-            </StackPanel>
-
         </StackPanel>
     </c:PageView>
 </UserControl>

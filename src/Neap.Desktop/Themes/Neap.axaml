@@ -246,6 +246,10 @@
         marker is drawn in the row itself, as in a list box's, so a list of plain
         words has it too.
     -->
+    <!-- A flyout of settings cards, wider than the toolkit's cap so a switch sits beside its name. -->
+    <Style Selector="FlyoutPresenter.settings">
+        <Setter Property="MaxWidth" Value="560" />
+    </Style>
     <Style Selector="FlyoutPresenter ListBox">
         <Setter Property="Background" Value="Transparent" />
     </Style>

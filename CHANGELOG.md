@@ -18,8 +18,14 @@ stays in the commit history.
   pressing the mix's keyboard shortcuts shows the game and chat mix in a
   slim bar for a moment at the foot of the screen, over a game in a window, without taking
   the mouse or keyboard. It stays away from games that have the screen to
-  themselves and from Windows' own volume display. It can be turned off on
-  the Controls page.
+  themselves and from Windows' own volume display. It can be turned off
+  with the settings button on Home's Game and chat card.
+
+### Changed
+
+- **The mix's settings sit with the mix.** The keyboard shortcuts for the
+  mix moved from the Controls page to the settings button on Home's Game
+  and chat card, beside the switch for showing the mix on screen.
 
 ### Fixed
 

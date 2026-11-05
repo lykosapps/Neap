@@ -189,12 +189,17 @@ Protect-RealRun {
         Note ("chat apps: {0}; shortcuts were on: {1}" -f ($settings.chat_apps -join ', '), $settings.mix_hotkeys)
         Note ("volumes before: " + ((& $probe volumes) -join ' | '))
         $skip = @(Get-RealLog).Count
-        Start-NeapReal -Page controls
+        Start-NeapReal -Page home
         Start-Sleep -Seconds 7
+        # The shortcuts' switch is in the flyout of the mix card's settings button.
+        $openKeys = {
+            if (-not (Find-Anywhere 'Keyboard shortcuts')) { Press (Find-Named 'Mix settings'); Start-Sleep -Seconds 1 }
+            Find-Anywhere 'Keyboard shortcuts'
+        }
         # The switch does not report its state to automation, so the saved setting is read.
         $savedKeys = { (Get-Content (Join-Path $env:LOCALAPPDATA 'Neap\app-settings.json') -Raw | ConvertFrom-Json).mix_hotkeys -eq $true }
-        $keys = Find-Named 'Keyboard shortcuts'
-        Check ($null -ne $keys) 'the shortcuts switch is on the Controls page'
+        $keys = & $openKeys
+        Check ($null -ne $keys) 'the shortcuts switch is in the mix card's settings'
         $wasOn = & $savedKeys
         if (-not $wasOn) { Press $keys; Start-Sleep -Seconds 2 }
         Check (& $savedKeys) 'the shortcuts are on'
@@ -210,7 +215,7 @@ Protect-RealRun {
         Stop-Process -Id $script:Proc.Id -Force
         Start-Sleep -Seconds 2
         Note ("volumes after the app was ended: " + ((& $probe volumes) -join ' | '))
-        Start-NeapReal -Page controls
+        Start-NeapReal -Page home
         Start-Sleep -Seconds 8
         $back = @(& $probe volumes)
         Note ("volumes after starting it again: " + ($back -join ' | '))
@@ -220,7 +225,7 @@ Protect-RealRun {
         Start-Sleep -Seconds 3
         if (-not $wasOn) {
             Start-Sleep -Seconds 1
-            $keys = Find-Named 'Keyboard shortcuts'
+            $keys = & $openKeys
             if ($keys) { Press $keys; Start-Sleep -Seconds 2 }
             Check (-not (& $savedKeys)) 'the shortcuts are back off, as found'
         }

@@ -78,8 +78,12 @@ public partial class MixPanel : UserControl
             foreach (var removed in e.RemovedItems.OfType<ListBoxItem>()) Choose((string)removed.Tag!, on: false);
         };
         Layout.SizeChanged += (_, _) => Arrange();
-        KeysLink.IsVisible = AppServices.Hotkeys.Supported;
-        KeysLink.Click += (_, _) => (TopLevel.GetTopLevel(this) as MainWindow)?.Open("controls");
+        // The shortcuts where the system can take keys for the whole desktop, the overlay on Windows.
+        Keys.IsVisible = AppServices.Hotkeys.Supported;
+        OverlayCard.IsVisible = OperatingSystem.IsWindows();
+        SettingsButton.IsVisible = Keys.IsVisible || OverlayCard.IsVisible;
+        OverlayOn.IsChecked = AppSettings.Current.MixOverlay;
+        OverlayOn.IsCheckedChanged += (_, _) => AppSettings.Update(settings => settings.MixOverlay = OverlayOn.IsChecked == true);
     }
 
     /// <summary>

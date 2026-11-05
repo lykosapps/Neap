@@ -183,14 +183,17 @@
   <data name="Mix_Chat.Text" xml:space="preserve">
     <value>Chat</value>
   </data>
-  <data name="Mix_KeysLink.Content" xml:space="preserve">
-    <value>Keyboard shortcuts</value>
-  </data>
   <data name="Mix_KeysCard.Description" xml:space="preserve">
     <value>Move the mix while you play.</value>
   </data>
   <data name="Mix_KeysCard.Header" xml:space="preserve">
     <value>Keyboard shortcuts</value>
+  </data>
+  <data name="Mix_Settings.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Mix settings</value>
+  </data>
+  <data name="Mix_Settings.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Mix settings</value>
   </data>
   <data name="MixOverlay_Name" xml:space="preserve">
     <value>Game and chat mix</value>
@@ -200,9 +203,6 @@
   </data>
   <data name="MixOverlay_Card.Description" xml:space="preserve">
     <value>When the chat wheel or a shortcut moves it.</value>
-  </data>
-  <data name="Controls_OnScreenHeading.Text" xml:space="preserve">
-    <value>On your screen</value>
   </data>
   <data name="Mix_KeysOnWayland" xml:space="preserve">
     <value>On Wayland, these work only while an X11 program is in front, as most games are.</value>
@@ -275,9 +275,6 @@
   </data>
   <data name="Controls_OnHeadsetHeading.Text" xml:space="preserve">
     <value>Assignable controls</value>
-  </data>
-  <data name="Controls_KeyboardHeading.Text" xml:space="preserve">
-    <value>On your keyboard</value>
   </data>
   <data name="Controls_ModeButton.Description" xml:space="preserve">
     <value>The button above the volume dial.</value>

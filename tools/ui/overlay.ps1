@@ -2,17 +2,19 @@
 .SYNOPSIS
 Checks the mix overlay on the published app in pretend mode: turning the
 headset's chat wheel shows the mix at the foot of the main screen, centred,
-clear of the system's volume flyout and no bigger than it, without taking the keyboard, with
-clicks passing through it, and gone again soon after the wheel stops. With
-the overlay switched off, the wheel shows nothing.
+clear of the system's volume flyout and no bigger than it, without taking
+the keyboard, with clicks passing through it, and gone again soon after the
+wheel stops. The settings flyout on Home's mix card holds its switch and the
+keyboard shortcuts'; switched off there, the wheel shows nothing.
 
 .DESCRIPTION
 Run through run.ps1. The wheel is turned over the practice run's pipe, as the
 headset reports it. On a desktop of its own no window is in front, so Neap
 is not, as when someone is playing. That it never takes the keyboard is read
-from how the window is marked, as a desktop of its own has no keyboard. Whether it stays away from an
-exclusive full-screen game is not checked here: that is the system's own
-report, and the rule that follows it is a test in Core.
+from how the window is marked, as a desktop of its own has no keyboard.
+Whether it stays away from an exclusive full-screen game is not checked
+here: that is the system's own report, and the rule that follows it is a
+test in Core.
 #>
 
 . "$PSScriptRoot\Ui.ps1"
@@ -93,9 +95,19 @@ foreach ($theme in 'dark', 'light') {
     finally { Stop-NeapPretend }
 }
 
-Section 'the mix overlay, switched off'
-Start-WithMix 'dark' $false
+Section 'the mix overlay, switched off from the mix card'
+Start-WithMix 'dark' $true
 try {
+    $saved = { (Get-Content (Join-Path $env:LOCALAPPDATA 'Neap\Pretend\app-settings.json') -Raw | ConvertFrom-Json).mix_overlay }
+    $button = Find-Named 'Mix settings'
+    Check ($null -ne $button) 'the mix card on Home has a settings button'
+    if ($button) { Press $button }
+    Check (Wait-Until { $null -ne (Find-Anywhere 'Show the mix as it moves') } 4) 'its flyout has the overlay switch'
+    Check ($null -ne (Find-Anywhere 'Keyboard shortcuts')) 'and the keyboard shortcuts switch'
+    Save-ListShot 'overlay-settings'
+    Press (Find-Anywhere 'Show the mix as it moves')
+    Check (Wait-Until { (& $saved) -eq $false } 4) 'switching it off is saved'
+
     $start = Send-Pretend 'mix'
     Turn-Wheel
     Check (Wait-Until { (Send-Pretend 'mix') -ne $start } 4) 'the wheel still moves the mix'

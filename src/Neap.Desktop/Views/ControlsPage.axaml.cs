@@ -12,10 +12,6 @@ public partial class ControlsPage : UserControl
     public ControlsPage()
     {
         InitializeComponent();
-        Keyboard.IsVisible = AppServices.Hotkeys.Supported;
-        OnScreen.IsVisible = OperatingSystem.IsWindows();
-        OverlayOn.IsChecked = AppSettings.Current.MixOverlay;
-        OverlayOn.IsCheckedChanged += (_, _) => AppSettings.Update(settings => settings.MixOverlay = OverlayOn.IsChecked == true);
         _fixed = new()
         {
             [FixedControl.VolumeWheel] = (VolumeWheel, VolumeWheelDoes),

@@ -1,5 +1,18 @@
 # Decisions
 
+## 2026-11-05 — The mix's settings live on its card
+
+- **Options:** keep the keyboard shortcuts and the overlay's switch on the
+  Controls page, under one heading, with Home's mix card linking there; or a
+  settings button on the mix card itself, opening a flyout with both.
+- **Chosen:** the settings button and its flyout, the owner's call. The
+  Controls page is left to the headset's own buttons and dials.
+- **Why:** both settings are about the mix, and people look for them on the
+  mix, not on a page about the headset's buttons; the card already linked
+  away to them. A flyout keeps Home for changing things, with the setup one
+  press away beside what it sets up.
+- **Revisit if:** the mix gains enough settings that a flyout gets long.
+
 ## 2026-11-05 — The mix shows on screen as the wheel or the keys move it
 
 - **Options:** no overlay; an overlay by the notification area, where the

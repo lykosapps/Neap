@@ -52,15 +52,41 @@
                     Classes="cardtitle"
                     AutomationProperties.HeadingLevel="2" />
                 <!--
-                    The keys move the mix as the chat wheel does, and are a headset's only
-                    way to do it without one, so the card's header links to where they are set.
+                    How the mix is moved and shown away from Neap: the keyboard
+                    shortcuts, which move it as the chat wheel does, and the overlay
+                    that shows it as the wheel or the keys move it. Set beside the
+                    mix they serve, in a flyout so Home stays for changing things.
                 -->
                 <Button
-                    x:Name="KeysLink"
-                    loc:Uid.Value="Mix_KeysLink"
+                    x:Name="SettingsButton"
+                    loc:Uid.Value="Mix_Settings"
                     Grid.Column="1"
                     HorizontalAlignment="Right"
-                    Classes="link" />
+                    Classes="iconbutton quiet">
+                    <PathIcon
+                        Width="{StaticResource NeapIconRow}"
+                        Height="{StaticResource NeapIconRow}"
+                        Data="{StaticResource IconSettings}" />
+                    <Button.Flyout>
+                        <Flyout FlyoutPresenterClasses="settings" Placement="BottomEdgeAlignedRight">
+                            <StackPanel Width="460">
+                                <!-- The flyout is narrower than a page, and a switch or a key still fits beside its name. -->
+                                <StackPanel.Styles>
+                                    <Style Selector="c|SettingsCard">
+                                        <Setter Property="SideBySideWidth" Value="360" />
+                                    </Style>
+                                </StackPanel.Styles>
+                                <c:MixKeysPanel x:Name="Keys" />
+                                <c:SettingsCard
+                                    x:Name="OverlayCard"
+                                    loc:Uid.Value="MixOverlay_Card"
+                                    Icon="{StaticResource IconVolume}">
+                                    <ToggleSwitch x:Name="OverlayOn" />
+                                </c:SettingsCard>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
             </Grid>
 
             <!--
