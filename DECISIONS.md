@@ -1,5 +1,24 @@
 # Decisions
 
+## 2026-11-05 — The mix shows on screen as the wheel or the keys move it
+
+- **Options:** no overlay; an overlay by the notification area, where the
+  mini panel opens; an overlay at the foot of the screen; off or on by
+  default.
+- **Chosen:** at the foot of the screen, centred and raised clear of where
+  Windows 11 draws its own volume flyout, for a second and a half after the
+  last move. Only for the chat wheel and the keys, and never while a Neap
+  window is in front, where the dial already shows it. Never over an
+  exclusive full-screen game or a presentation; over a game in a borderless
+  window it shows without taking the keyboard or a click. On by default,
+  with a switch on the Controls page. Windows only for now.
+- **Why:** a mix moved mid-game gave nothing to see. The owner asked that it
+  never get in the way of the system's volume flyout or of a full-screen
+  game: a window put over an exclusive full-screen game can knock the game
+  out of full screen, so there it stays away.
+- **Revisit if:** people want it over exclusive full-screen games, on
+  another screen than the main one, or on Linux.
+
 ## 2026-10-31 — A release's changelog is a short summary by theme
 
 - **Options:** keep every line under the version, with Highlights first, as

@@ -68,6 +68,10 @@ public sealed class AppSettings
     /// </remarks>
     [JsonPropertyName("mix_hotkeys")] public bool MixHotkeys { get; set; }
 
+    /// <summary>Whether the mix shows on screen for a moment as the chat wheel or the keys move it.</summary>
+    /// <remarks>On by default: without it, a mix moved mid-game gives nothing to see.</remarks>
+    [JsonPropertyName("mix_overlay")] public bool MixOverlay { get; set; } = true;
+
     /// <summary>The level noise cancellation comes back at, or null if it has never been used.</summary>
     /// <remarks>
     /// Transparency is noise cancellation at zero, so while it is on the

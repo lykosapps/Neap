@@ -53,6 +53,20 @@ a headset it can no longer reach.
 16. **Tray icon:** sharp and readable at the tray's size, in a light and a
     dark taskbar.
 
+## Mix overlay
+
+45. **The wheel, over a game:** with a game in a borderless window in front,
+    turn the chat wheel. The mix shows at the foot of the screen, the game
+    keeps the mouse and keyboard, a click where the overlay sits reaches the
+    game, and it goes about a second and a half after the wheel stops.
+46. **With the system's volume:** turn the volume and chat wheels together.
+    Windows' own volume flyout and the overlay both show, neither over the
+    other.
+47. **Exclusive full screen:** in a game set to exclusive full screen, turn
+    the wheel. Nothing shows, and the game stays in full screen.
+48. **Started at sign-in:** after a restart, before opening Neap's window,
+    turn the wheel over a game. The overlay shows.
+
 ## Look
 
 17. **Flat look:** on your own screen, every control still reads as one with

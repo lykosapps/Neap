@@ -1,3 +1,5 @@
+using Neap.Core.Mix;
+
 namespace Neap.Services;
 
 /// <summary>
@@ -129,7 +131,7 @@ public abstract class MixHotkeys : IHotkeys
             MixKey.TowardGame => now - Step,
             MixKey.TowardChat => now + Step,
             _ => 50,
-        }, "keyboard");
+        }, MixCause.Keys);
     }
 
     public void Dispose()

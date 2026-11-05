@@ -192,6 +192,18 @@
   <data name="Mix_KeysCard.Header" xml:space="preserve">
     <value>Keyboard shortcuts</value>
   </data>
+  <data name="MixOverlay_Name" xml:space="preserve">
+    <value>Game and chat mix</value>
+  </data>
+  <data name="MixOverlay_Card.Header" xml:space="preserve">
+    <value>Show the mix as it moves</value>
+  </data>
+  <data name="MixOverlay_Card.Description" xml:space="preserve">
+    <value>When the chat wheel or a shortcut moves it.</value>
+  </data>
+  <data name="Controls_OnScreenHeading.Text" xml:space="preserve">
+    <value>On your screen</value>
+  </data>
   <data name="Mix_KeysOnWayland" xml:space="preserve">
     <value>On Wayland, these work only while an X11 program is in front, as most games are.</value>
   </data>

@@ -1,6 +1,7 @@
 using Neap.Core;
 using Neap.Core.Audio;
 using Neap.Core.Connection;
+using Neap.Core.Mix;
 using Neap.Core.Presets;
 using Neap.Core.Profiles;
 using Neap.Core.Settings;
@@ -241,7 +242,7 @@ public sealed class ProfileService : IDisposable
         Set("dial_function", s.DialFunction);
         Set("mode_button_function", s.ModeButton.Function);
         if (ProfileGate.Holds(model, "mode_button_function")) AppServices.Noise.SetCycling(s.ModeButton.Cycles);
-        if (ProfileGate.HoldsMix(model) && s.Mix is { } mix) AppServices.Mix.Apply(mix, $"profile {profile.Name}");
+        if (ProfileGate.HoldsMix(model) && s.Mix is { } mix) AppServices.Mix.Apply(mix, MixCause.Profile, profile.Name);
         await Platform.Current.Spatial.Apply(s.Spatial);
 
         AppSettings.Update(a => a.ActiveProfileId = profile.Id);

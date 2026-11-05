@@ -78,6 +78,7 @@ public partial class MainWindow : Window
         FirmwareSettingChanged();
         Open(Pretend.Page ?? "home");
         StartTray();
+        MixOverlayWindow.Watch();
         AddHandler(KeyDownEvent, OnPlaceKey, RoutingStrategies.Tunnel);
         TakeoverLayer.HeldChanged += OnHeld;
     }

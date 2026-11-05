@@ -104,6 +104,18 @@
                 <c:MixKeysPanel />
             </StackPanel>
 
+            <!--
+                The mix shown for a moment as the wheel or the keys move it,
+                where the system can show it over a game without getting in
+                its way.
+            -->
+            <StackPanel x:Name="OnScreen">
+                <TextBlock loc:Uid.Value="Controls_OnScreenHeading" Classes="sectionheader" />
+                <c:SettingsCard loc:Uid.Value="MixOverlay_Card" Icon="{StaticResource IconVolume}">
+                    <ToggleSwitch x:Name="OverlayOn" />
+                </c:SettingsCard>
+            </StackPanel>
+
         </StackPanel>
     </c:PageView>
 </UserControl>

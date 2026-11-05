@@ -51,6 +51,9 @@ public sealed class MixService : IDisposable
     /// <summary>The mix moved, or the engine started or stopped.</summary>
     public event Action? Changed;
 
+    /// <summary>The mix moved, and what moved it.</summary>
+    public event Action<MixCause>? Moved;
+
     public bool Running => _mix is not null;
 
     public int Mix => _lastApplied ?? 50;
@@ -121,30 +124,39 @@ public sealed class MixService : IDisposable
 
     // -- setting the mix ---------------------------------------------------
 
-    /// <summary>Set the mix from the dial or the keys.</summary>
+    /// <summary>Set the mix from the dial, the keys or a profile.</summary>
     /// <param name="value">The mix wanted, 0 to 100.</param>
-    /// <param name="why">
+    /// <param name="cause">
     /// What moved it, for the log, so a mix that moves with nobody touching
-    /// anything can be traced to its cause.
+    /// anything can be traced to its cause, and for the overlay.
     /// </param>
+    /// <param name="detail">More about the cause for the log, such as the profile's name.</param>
     /// <returns>The mix applied, or null when the mix is not running.</returns>
-    public int? Apply(int value, string why = "dial") => Move(value, why, wheel: false);
+    public int? Apply(int value, MixCause cause = MixCause.Dial, string? detail = null) => Move(value, cause, detail);
 
     /// <summary>
     /// Set the mix. The one path the dial, the keys and the wheel all take, so
     /// all of them land in the centre detent and sound its cue.
     /// </summary>
-    private int? Move(int value, string why, bool wheel)
+    private int? Move(int value, MixCause cause, string? detail)
     {
         int want = Math.Clamp(value, 0, 100);
         int? previous = _lastApplied;
 
-        var snap = _detent.Apply(want, previous, wheel);
+        var snap = _detent.Apply(want, previous, wheel: cause == MixCause.Wheel);
 
         var engine = _mix;
         if (engine is null) return null;
 
         int applied = engine.SetMix(snap.Value);
+        string word = cause switch
+        {
+            MixCause.Keys => "keyboard",
+            MixCause.Wheel => "wheel",
+            MixCause.Profile => "profile",
+            _ => "dial",
+        };
+        string why = detail is null ? word : $"{word} {detail}";
         if (snap.Cue && applied == 50) PlayCentreCue();
         // Said as it happens, so a beep someone expected can be told from one never asked for.
         if (previous is int was && (was - 50) * (applied - 50) < 0)
@@ -152,6 +164,7 @@ public sealed class MixService : IDisposable
         Note(why, previous, applied);
         _lastApplied = applied;
         Changed?.Invoke();
+        Moved?.Invoke(cause);
         return applied;
     }
 
@@ -217,7 +230,7 @@ public sealed class MixService : IDisposable
             AppLog.Write(FormattableString.Invariant(
                 $"mix: the wheel read {doubted} straight after rest; held until the next reading confirms it"));
         if (step is WheelStep moved && _mix is not null)
-            Move(ChatWheel.Follow(Mix, moved), FormattableString.Invariant($"wheel {moved.From}->{moved.To}"), wheel: true);
+            Move(ChatWheel.Follow(Mix, moved), MixCause.Wheel, FormattableString.Invariant($"{moved.From}->{moved.To}"));
     }
 
     private void OnLink(HeadsetStatus status) => _wheel.Link(status);

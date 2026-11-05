@@ -1,0 +1,67 @@
+<Window
+    x:Class="Neap.Desktop.MixOverlayWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:loc="using:Neap.Desktop.Localization"
+    Classes="mini"
+    CanResize="False"
+    Focusable="False"
+    ShowActivated="False"
+    ShowInTaskbar="False"
+    SizeToContent="WidthAndHeight"
+    Topmost="True"
+    TransparencyLevelHint="Transparent"
+    WindowDecorations="None"
+    Background="Transparent">
+
+    <Window.Styles>
+        <Style Selector="Rectangle#Fill.game">
+            <Setter Property="Fill" Value="{DynamicResource NeapGameBrush}" />
+        </Style>
+        <Style Selector="Rectangle#Fill.chat">
+            <Setter Property="Fill" Value="{DynamicResource NeapChatBrush}" />
+        </Style>
+    </Window.Styles>
+
+    <!--
+        The mini panel's mix made into a picture: its two ends over a track
+        filled from the middle toward the side the mix leans to, with a mark
+        where it sits. Nothing in it takes a click or the keyboard.
+    -->
+    <Border Classes="card" IsHitTestVisible="False">
+        <StackPanel Spacing="{StaticResource NeapSpaceS}">
+            <Grid ColumnDefinitions="*,*">
+                <TextBlock
+                    loc:Uid.Value="Mix_Game"
+                    Classes="label"
+                    Foreground="{DynamicResource NeapGameTextBrush}" />
+                <TextBlock
+                    Grid.Column="1"
+                    HorizontalAlignment="Right"
+                    loc:Uid.Value="Mix_Chat"
+                    Classes="label"
+                    Foreground="{DynamicResource NeapChatTextBrush}" />
+            </Grid>
+            <Canvas x:Name="Track" Width="240" Height="12">
+                <Rectangle
+                    Canvas.Top="4"
+                    Width="240"
+                    Height="4"
+                    RadiusX="2"
+                    RadiusY="2"
+                    Fill="{DynamicResource NeapControlTrackBrush}" />
+                <Rectangle
+                    x:Name="Fill"
+                    Canvas.Top="4"
+                    Height="4"
+                    RadiusX="2"
+                    RadiusY="2" />
+                <Ellipse
+                    x:Name="Mark"
+                    Width="12"
+                    Height="12"
+                    Fill="{DynamicResource NeapSliderThumbBrush}" />
+            </Canvas>
+        </StackPanel>
+    </Border>
+</Window>

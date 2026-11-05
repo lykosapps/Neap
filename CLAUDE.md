@@ -71,7 +71,7 @@ preparing code for experienced reviewers.
   (injected clicks do not reach the window's content) and take screenshots. When
   reporting, say which findings were confirmed by running and which were not.
 - **Screen checks go through `tools/ui/run.ps1`.** `run.ps1 banner`, `notes`,
-  `settings`, `profiles`, `mini`, `parametric` or `firmware` publishes if a source
+  `settings`, `profiles`, `mini`, `overlay`, `parametric` or `firmware` publishes if a source
   file is newer than the build, then runs the check from outside the package;
   `all` runs them in a few minutes.
   Logs and pictures land in `TestResults/ui`. Only one practice run of the app

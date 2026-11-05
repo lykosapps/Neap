@@ -156,6 +156,10 @@ Needs a Linux machine or the WSL distros, and for the Deck lines the Steam Deck.
   headset's stored equaliser record, proven through the dock on Windows (28
   October) and not yet tried on Linux. Sharing the dock with the WSL distro
   needs one administrator prompt at the PC.
+- **The mix overlay on Linux.** On Windows the mix shows on screen as the
+  wheel or the keys move it; on Linux it is not made yet. Needs a window that
+  never takes the keyboard, lets clicks through and stays away from a game
+  that has the screen, under X11 and Wayland.
 - **Gaming Mode on the Steam Deck.** Neap runs in desktop mode only. Wanted:
   the mix, the chat wheel and the headset's controls working while a game
   runs in Gaming Mode, with no window to open. Needs the Deck.
@@ -205,7 +209,6 @@ Needs the testers' replies on GitHub issue 1, not the owner's headset.
 ## 8. New features, not yet decided to build
 
 - **Profile hotkeys.** Switch profiles from the keyboard, as the mix can be.
-- A chat mix overlay: a small on-screen display when the mix moves.
 - Mode button presses that trigger actions on the PC.
 - Spot Swarm II running and offer to close it.
 - **Where an imported parametric preset came from,** shown beside the preset
