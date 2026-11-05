@@ -15,8 +15,8 @@ stays in the commit history.
 ### Added
 
 - **The mix on screen.** On Windows, turning the headset's chat wheel or
-  pressing the mix's keyboard shortcuts shows the game and chat mix for a
-  moment at the foot of the screen, over a game in a window, without taking
+  pressing the mix's keyboard shortcuts shows the game and chat mix in a
+  slim bar for a moment at the foot of the screen, over a game in a window, without taking
   the mouse or keyboard. It stays away from games that have the screen to
   themselves and from Windows' own volume display. It can be turned off on
   the Controls page.

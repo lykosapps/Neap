@@ -5,9 +5,10 @@
 - **Options:** no overlay; an overlay by the notification area, where the
   mini panel opens; an overlay at the foot of the screen; off or on by
   default.
-- **Chosen:** at the foot of the screen, centred and raised clear of where
-  Windows 11 draws its own volume flyout, for a second and a half after the
-  last move. Only for the chat wheel and the keys, and never while a Neap
+- **Chosen:** one slim row, Game, the track and Chat, no bigger than the
+  system's own volume flyout (the owner's call), at the foot of the screen,
+  centred and raised clear of where Windows 11 draws that flyout, for a
+  second and a half after the last move. Only for the chat wheel and the keys, and never while a Neap
   window is in front, where the dial already shows it. Never over an
   exclusive full-screen game or a presentation; over a game in a borderless
   window it shows without taking the keyboard or a click. On by default,

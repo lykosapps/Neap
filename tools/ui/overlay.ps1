@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
 Checks the mix overlay on the published app in pretend mode: turning the
-headset's chat wheel shows the mix at the foot of the main screen, centred
-and clear of the system's volume flyout, without taking the keyboard, with
+headset's chat wheel shows the mix at the foot of the main screen, centred,
+clear of the system's volume flyout and no bigger than it, without taking the keyboard, with
 clicks passing through it, and gone again soon after the wheel stops. With
 the overlay switched off, the wheel shows nothing.
 
@@ -74,6 +74,7 @@ foreach ($theme in 'dark', 'light') {
         $work = [System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea
         $box = $overlay.Current.BoundingRectangle
         $scale = [NeapUi]::GetDpiForWindow($handle) / 96
+        Check ($box.Width -le 180 * $scale -and $box.Height -le 40 * $scale) "its window is no bigger than the system's own volume flyout: $([Math]::Round($box.Width / $scale)) by $([Math]::Round($box.Height / $scale))"
         Check ([Math]::Abs(($box.Left + $box.Width / 2) - ($work.Left + $work.Width / 2)) -le 2) "it is centred across the screen ($($box.Left),$($box.Top) $($box.Width)x$($box.Height) in $work)"
         Check ($box.Bottom -le $work.Bottom - $band * $scale + 1) 'its foot is clear of the band where the system draws its volume flyout'
         Check ($box.Bottom -ge $work.Bottom - ($band * $scale) - $box.Height - 2) 'and it sits just above that band, at the foot of the screen'
