@@ -9,9 +9,9 @@ has changed (prepare-headset-check.ps1 -PublishOnly), and one copy of it serves 
 and can stay off or on its cable between them. Lines starting "OWNER:" are the person's part, said at the moment it is
 theirs.
 
-  40. Both edits ticked and applied: the plan says 3 sections and 2 plug-ins; after the first session the run asks to
-      unplug and plug in again; it ends Done with both edits Active.
-  41. The newest backup of the light section restored: it ends Done, the light reads Factory and the noise cycle Active.
+  40. Both edits ticked and applied: the plan says 2 plug-ins; after the first session the run asks to
+      unplug and plug in again; it ends "Edits applied" with both edits Installed.
+  41. The newest backup of the light section restored: it ends "Backup restored", the light reads Not installed and the noise cycle Installed.
 
 -Pretend runs the same steps on the pretend headset, writing nothing, to check the script itself on the desk.
 #>
@@ -22,8 +22,8 @@ $light = 'Light off when disconnected'
 $cycle = 'Noise cancellation cycle'
 $plug = "Switch the headset off, then plug a USB-C cable from this PC into its left ear cup. Don't press Power."
 $plugAgain = "Unplug the cable, then plug it back in. Don't press Power."
-$done = 'Done. The headset has the edits you ticked. Unplug the cable, and the headset starts by itself in about half a minute.'
-$outcomes = '^(Done\. |Restored\. |Written, but|Stopped|A section didn|Something stopped|Nothing was written)'
+$done = 'Unplug the cable. The headset starts by itself in about half a minute.'
+$outcomes = '^(Unplug the cable\. The headset starts|Written, but|Stopped|Neap couldn.t confirm|The change didn|Nothing was changed)'
 
 function Find-Tick([string]$Name) {
     Search {
@@ -48,7 +48,7 @@ function Find-NewestLightBackup {
         @($buttons) | Where-Object { $_.Current.Name -like "Restore $light, saved *" } | Select-Object -First 1
     }
 }
-function Get-Chips { @(Get-Texts | Where-Object { $_ -in 'Active', 'Factory', 'Neither', "Can't tell" }) }
+function Get-Chips { @(Get-Texts | Where-Object { $_ -in 'Installed', 'Not installed', 'Changed', 'Unknown', "Doesn't fit" }) }
 function Owner([string]$What) { Note "$(Get-Date -Format HH:mm:ss) OWNER: $What" }
 
 # Waits for the run to end, saying the person's part as each plug-in comes, and returns the outcome's words.
@@ -62,13 +62,13 @@ function Wait-Run {
 
 function Invoke-Sequence {
     Check (Wait-Until { Find-Named $light } 30) 'the Firmware page lists the edits (if not, switch the headset on so Neap sees it)'
-    Check (Wait-Until { @(Get-Chips | Where-Object { $_ -eq 'Factory' }).Count -eq 2 } 30) 'both edits read as factory before check 40'
-    if (@(Get-Chips | Where-Object { $_ -eq 'Factory' }).Count -ne 2) { throw "not starting: the edits read $(Get-Chips -join ', ')" }
+    Check (Wait-Until { @(Get-Chips | Where-Object { $_ -eq 'Not installed' }).Count -eq 2 } 30) 'both edits read as factory before check 40'
+    if (@(Get-Chips | Where-Object { $_ -eq 'Not installed' }).Count -ne 2) { throw "not starting: the edits read $(Get-Chips -join ', ')" }
 
     Section 'check 40: both edits at once'
     Press (Find-Tick $light)
     Press (Find-Tick $cycle)
-    Check (Wait-Until { (Get-Texts) -contains "Sections of the headset's firmware to write: 3. Times you plug the headset in: 2." } 6) 'the plan says 3 sections and 2 plug-ins'
+    Check (Wait-Until { (Get-Texts) -contains 'Plug-ins needed: 2.' } 6) 'the plan says 2 plug-ins'
     Confirm-Press 'Apply'
     Check (Wait-Until { Find-Text $plug } 15) 'the run waits at the plug-in step'
     Owner 'switch the headset off and plug the cable in'
@@ -76,8 +76,8 @@ function Invoke-Sequence {
     $outcome = Wait-Run
     Check $script:asked 'after the first session the run asked to unplug and plug in again'
     Note "outcome: $outcome"
-    Check ($outcome -eq $done) 'check 40 ends Done'
-    Check (Wait-Until { @(Get-Chips | Where-Object { $_ -eq 'Active' }).Count -eq 2 } 10) 'both edits read as active'
+    Check ($outcome -eq $done -and (Get-Texts) -contains 'Edits applied') 'check 40 ends with the edits applied'
+    Check (Wait-Until { @(Get-Chips | Where-Object { $_ -eq 'Installed' }).Count -eq 2 } 10) 'both edits read as active'
     Save-Shot 'sequence-check40' -Whole | ForEach-Object { $_.Dispose() }
     if ($outcome -ne $done) { throw 'stopping: check 40 did not end as expected' }
     Press (Find-Id 'TakeoverCloseButton')
@@ -92,8 +92,8 @@ function Invoke-Sequence {
     Owner 'switch the headset off and plug the cable in'
     $outcome = Wait-Run
     Note "outcome: $outcome"
-    Check ($outcome -like 'Restored. *') 'check 41 ends Restored'
-    Check (Wait-Until { (Get-Chips) -contains 'Active' -and (Get-Chips) -contains 'Factory' } 10) 'the light reads factory again and the noise cycle stays active'
+    Check ($outcome -eq $done -and (Get-Texts) -contains 'Backup restored') 'check 41 ends with the backup restored'
+    Check (Wait-Until { (Get-Chips) -contains 'Installed' -and (Get-Chips) -contains 'Not installed' } 10) 'the light reads factory again and the noise cycle stays active'
     Save-Shot 'sequence-check41' -Whole | ForEach-Object { $_.Dispose() }
     Press (Find-Id 'TakeoverCloseButton')
     Owner 'unplug the cable; the headset starts by itself'

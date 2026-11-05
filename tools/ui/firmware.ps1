@@ -2,7 +2,7 @@
 .SYNOPSIS
 Checks the Firmware page on the published app in pretend mode: the keyboard
 focus stays on a ticked row, an edit applied reads as active from the
-pretend flash and as factory again after Restore factory, and a write that is
+pretend flash and as not installed again after Remove all edits, and a write that is
 lost is put back, each in dark, light and high contrast; and both edits at once,
  which asks to plug in again for the second session, stopped there; and a Swarm II
 recovery while the headset is off, read again as it connects; and Apply refused
@@ -16,7 +16,7 @@ released, and a practice run opens on it all the same. Focus is put on an
 edit's tick box, the box is ticked over UI Automation, and the practice run's
 pipe is asked to move focus on as Tab would: it says where focus was when
 asked, which is how focus lost in the redraw shows as nowhere. Then the
-light edit is applied and taken off with Restore factory, through the pretend writer, which
+light edit is applied and taken off with Remove all edits, through the pretend writer, which
 writes the pretend headset's flash, and once more with the first write lost.
 Both runs are repeated in light and high contrast, with the window tall
 enough to show the backups, for a person to look over. Nothing real is written.
@@ -92,12 +92,12 @@ function Close-Run {
     Wait-Until { -not (Find-Text $done) } 6 | Out-Null
 }
 
-$done = 'Done. The headset has the edits you ticked. Unplug the cable, and the headset starts by itself in about half a minute.'
-$putBack = "A section didn't read back as written, so Neap put back what was there. Unplug the cable, and the headset starts by itself. To try again, tick an edit and choose Apply."
+$done = 'Unplug the cable. The headset starts by itself in about half a minute.'
+$putBack = "Neap couldn't confirm the change, so it put back what was there. Unplug the cable, and the headset starts by itself. Then try again."
 $plugAgain = "Unplug the cable, then plug it back in. Don't press Power."
 $plug = "Switch the headset off, then plug a USB-C cable from this PC into its left ear cup. Don't press Power."
-$swarm = 'Swarm II is running, and it could talk to the headset while Neap writes its firmware. Quit it, then try again.'
-$stoppedPart = "Stopped. Part of the change is written, and the Firmware page shows each edit's state. Unplug the cable; to finish, choose Apply again."
+$swarm = 'Swarm II could interrupt the change. Quit it, then try again.'
+$stoppedPart = 'Stopped part way, with some edits applied. Unplug the cable, then choose Apply to finish.'
 
 # Makes the window tall enough that the Backups card, under the run card, is in the picture.
 function Show-Backups { Set-NeapSize 1400 1200 'Backups' }
@@ -111,7 +111,7 @@ function Find-BackupRestore {
 }
 
 # The three themes the run card, the chips and the backups are looked over in:
-# dark, which also checks Restore factory, then light and high contrast.
+# dark, which also checks Remove all edits, then light and high contrast.
 $themes = @(
     @{ Theme = 'dark'; Flags = @(); Name = '' },
     @{ Theme = 'light'; Flags = @(); Name = '-light' },
@@ -124,12 +124,12 @@ foreach ($theme in $themes) {
     Section "an edit applied reads as active, and restoring factory reads as factory ($in)"
     Start-NeapPretend -Page firmware -Theme $theme.Theme -Flags $theme.Flags
     try {
-        Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) 'both edits read as factory from the pretend flash'
+        Check (Wait-Until { (Get-StateCount 'Not installed') -eq 2 } 15) 'both edits read as factory from the pretend flash'
         if ($theme.Name) { Save-Shot "firmware-chips$($theme.Name)" -Whole | ForEach-Object { $_.Dispose() } }
         Press (Find-Tick $light)
         Confirm-Press 'Apply'
         Check (Wait-Until { Find-Text $done } 60) 'applying ends done'
-        Check (Wait-Until { (Get-StateCount 'Active') -eq 1 -and (Get-StateCount 'Factory') -eq 1 } 10) "and '$light' then reads as active, the other as factory"
+        Check (Wait-Until { (Get-StateCount 'Installed') -eq 1 -and (Get-StateCount 'Not installed') -eq 1 } 10) "and '$light' then reads as active, the other as factory"
         Save-Shot "firmware-run-done$($theme.Name)" -Whole | ForEach-Object { $_.Dispose() }
         Close-Run
         Show-Backups
@@ -137,9 +137,9 @@ foreach ($theme in $themes) {
         Save-Shot "firmware-applied$($theme.Name)" -Whole | ForEach-Object { $_.Dispose() }
 
         if (-not $theme.Name) {
-            Confirm-Press 'Restore factory'
+            Confirm-Press 'Remove all edits'
             Check (Wait-Until { Find-Text $done } 60) 'restoring factory ends done'
-            Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 10) 'and both read as factory again'
+            Check (Wait-Until { (Get-StateCount 'Not installed') -eq 2 } 10) 'and both read as factory again'
         }
     }
     finally { Stop-NeapPretend }
@@ -147,7 +147,7 @@ foreach ($theme in $themes) {
     Section "a write that is lost is put back ($in)"
     Start-NeapPretend -Page firmware -Theme $theme.Theme -Flags (@('--firmware-reverts') + $theme.Flags)
     try {
-        Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) 'both edits start as factory'
+        Check (Wait-Until { (Get-StateCount 'Not installed') -eq 2 } 15) 'both edits start as factory'
         Press (Find-Tick $light)
         Confirm-Press 'Apply'
         Check (Wait-Until { Find-Text $putBack } 60) 'the run says the section was put back'
@@ -160,14 +160,14 @@ foreach ($theme in $themes) {
 Section 'with Swarm II running, Apply says to quit it and writes nothing; once it quits, Apply works'
 Start-NeapPretend -Page firmware -Flags @()
 try {
-    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) 'both edits start as factory'
+    Check (Wait-Until { (Get-StateCount 'Not installed') -eq 2 } 15) 'both edits start as factory'
     Send-Pretend 'start Turtle Beach Swarm II' | Out-Null
     Press (Find-Tick $light)
     Press (Find-Anywhere 'Apply')
     Check (Wait-Until { Find-Text $swarm } 6) 'pressing Apply says to quit Swarm II'
     Press (Find-Id 'CloseButton')
     Check (Wait-Until { -not (Find-Text $swarm) } 6) 'OK closes it'
-    Check ((Get-StateCount 'Factory') -eq 2 -and -not (Find-Text $plug)) 'and no run started'
+    Check ((Get-StateCount 'Not installed') -eq 2 -and -not (Find-Text $plug)) 'and no run started'
     Send-Pretend 'stop Turtle Beach Swarm II' | Out-Null
     Confirm-Press 'Apply'
     Check (Wait-Until { Find-Text $done } 60) 'with Swarm II closed, applying ends done'
@@ -177,17 +177,17 @@ finally { Stop-NeapPretend }
 Section 'a Swarm II recovery while the headset is off reads as factory once it connects again'
 Start-NeapPretend -Page firmware -Flags @()
 try {
-    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) 'both edits start as factory'
+    Check (Wait-Until { (Get-StateCount 'Not installed') -eq 2 } 15) 'both edits start as factory'
     Press (Find-Tick $light)
     Confirm-Press 'Apply'
     Check (Wait-Until { Find-Text $done } 60) 'applying ends done'
     Close-Run
-    Check (Wait-Until { (Get-StateCount 'Active') -eq 1 } 10) "'$light' reads as active"
+    Check (Wait-Until { (Get-StateCount 'Installed') -eq 1 } 10) "'$light' reads as active"
     Send-Pretend 'off' | Out-Null
     Check (Wait-Until { (Get-Texts) -notcontains 'Headset connected' } 30) 'Neap sees the headset switch off'
     Send-Pretend 'recover' | Out-Null
     Send-Pretend 'on' | Out-Null
-    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 30) 'once the headset connects again, both read as factory, as the recovery left them'
+    Check (Wait-Until { (Get-StateCount 'Not installed') -eq 2 } 30) 'once the headset connects again, both read as factory, as the recovery left them'
     Check (-not (Test-Present (Find-Anywhere 'Check again'))) 'with every state known, Check again is not offered'
 }
 finally { Stop-NeapPretend }
@@ -195,17 +195,17 @@ finally { Stop-NeapPretend }
 Section 'both edits at once: the second session asks to plug in again, and Stop there says part is written'
 Start-NeapPretend -Page firmware -Flags @()
 try {
-    Check (Wait-Until { (Get-StateCount 'Factory') -eq 2 } 15) 'both edits start as factory'
+    Check (Wait-Until { (Get-StateCount 'Not installed') -eq 2 } 15) 'both edits start as factory'
     Press (Find-Tick $light)
     Press (Find-Tick 'Noise cancellation cycle')
     Confirm-Press 'Apply'
     Check (Wait-Until { Find-Text $plugAgain } 90) 'after the first session is written and read back, the run asks to unplug and plug in again'
     Check (-not (Test-Present (Find-Id 'TakeoverCloseButton'))) 'while the run waits, it offers no Close'
-    Check (-not (Find-Anywhere 'Apply').Current.IsEnabled -and -not (Find-Anywhere 'Restore factory').Current.IsEnabled) 'and the page behind it is switched off'
+    Check (-not (Find-Anywhere 'Apply').Current.IsEnabled -and -not (Find-Anywhere 'Remove all edits').Current.IsEnabled) 'and the page behind it is switched off'
     Save-Shot 'firmware-plug-again' -Whole | ForEach-Object { $_.Dispose() }
     Press (Find-Anywhere 'Stop')
     Check (Wait-Until { Find-Text $stoppedPart } 15) 'Stop there says part of the change is written'
-    Check (Wait-Until { (Get-StateCount 'Active') -eq 1 -and (Get-StateCount 'Factory') -eq 1 } 10) 'and the chips show what was read back: noise cycle active, the light factory'
+    Check (Wait-Until { (Get-StateCount 'Installed') -eq 1 -and (Get-StateCount 'Not installed') -eq 1 } 10) 'and the chips show what was read back: noise cycle active, the light factory'
     Close-Run
     Check ((Get-State (Find-Tick $light)) -eq 'On' -and (Find-Anywhere 'Apply').Current.IsEnabled) 'the light stays ticked and Apply can be pressed to finish'
     Save-Shot 'firmware-stopped-part' -Whole | ForEach-Object { $_.Dispose() }

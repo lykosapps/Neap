@@ -303,7 +303,7 @@ public partial class FirmwarePage : UserControl
         var outcome = await Running(
             toFactory ? "Firmware_RunRestoringStock" : "Firmware_RunApplying",
             toFactory ? "Firmware_RunRestoredStock" : "Firmware_RunApplied",
-            restore: false,
+            toFactory ? "Firmware_RunEndedStock" : "Firmware_RunEndedApply",
             (report, cancel) => AppServices.Firmware.Apply(wanted, report, cancel));
         // A run that did not finish keeps what was ticked, so Apply finishes it; a finished one shows what is on.
         _wanted = outcome.Result is ApplyResult.Done || toFactory ? null : wanted.ToHashSet();
@@ -322,7 +322,7 @@ public partial class FirmwarePage : UserControl
         }.ShowAsync(this);
         if (!go) return;
 
-        await Running("Firmware_RunRestoring", "Firmware_RunRestored", restore: true,
+        await Running("Firmware_RunRestoring", "Firmware_RunRestored", "Firmware_RunEndedRestore",
             (report, cancel) => AppServices.Firmware.Restore(backup, report, cancel));
         _wanted = null;
         Paint();
@@ -343,19 +343,23 @@ public partial class FirmwarePage : UserControl
         return true;
     }
 
-    /// <summary>Runs a write over the whole window until the person closes it, headed by what is under way and then by what was done.</summary>
-    /// <remarks>The finished heading names the action, not its result, as the outcome under it says how it ended.</remarks>
-    private async Task<ApplyOutcome> Running(string doingKey, string doneKey, bool restore,
+    /// <summary>Runs a write over the whole window until the person closes it, headed by what is under way and then by how it ended.</summary>
+    /// <remarks>
+    /// A run that did everything says so in its heading. One that ended any
+    /// other way is headed by the action alone, and the outcome under it says
+    /// what happened.
+    /// </remarks>
+    private async Task<ApplyOutcome> Running(string doingKey, string doneKey, string endedKey,
         Func<Action<ApplyProgress>, CancellationToken, Task<ApplyOutcome>> run)
     {
         var takeover = (TopLevel.GetTopLevel(this) as MainWindow)?.TakeoverLayer
             ?? throw new InvalidOperationException("the Firmware page runs a write only from the main window");
         using var stopping = new CancellationTokenSource();
-        var shown = new FirmwareRun { Restore = restore };
+        var shown = new FirmwareRun();
         shown.Stopping += stopping.Cancel;
         var closed = takeover.Hold(Strings.Get(doingKey), shown);
         var outcome = await run(shown.Report, stopping.Token);
-        takeover.Heading = Strings.Get(doneKey);
+        takeover.Heading = Strings.Get(outcome.Result == ApplyResult.Done ? doneKey : endedKey);
         shown.Finish(outcome);
         takeover.CanClose = true;
         await closed;
@@ -398,7 +402,7 @@ public partial class FirmwarePage : UserControl
     private static string PlanWords(EditPlan plan)
     {
         if (plan.Nothing) return Strings.Get("Firmware_PlanNothing");
-        return Strings.Format(plan.UpToSectors ? "Firmware_PlanUpTo" : "Firmware_PlanWrites", plan.Sectors.Count, plan.Sessions);
+        return Strings.Format(plan.UpToSectors ? "Firmware_PlanUpTo" : "Firmware_PlanWrites", plan.Sessions);
     }
 
     private static string EditName(FirmwareEdit edit) => edit.Id switch

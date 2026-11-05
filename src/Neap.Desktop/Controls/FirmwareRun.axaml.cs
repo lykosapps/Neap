@@ -41,9 +41,6 @@ public partial class FirmwareRun : UserControl
     /// <summary>The person asked to stop, which a run takes only while it waits for the headset to be plugged in.</summary>
     public event Action? Stopping;
 
-    /// <summary>Gets or sets whether the run puts a backup back, which a finished run says in its own words.</summary>
-    public bool Restore { get; init; }
-
     /// <summary>Shows where the run has got.</summary>
     /// <remarks>The writer reports from its own thread, and the controls can be changed only from this one.</remarks>
     public void Report(ApplyProgress progress)
@@ -110,9 +107,7 @@ public partial class FirmwareRun : UserControl
             StepList.Children.Add(row);
         }
 
-        OutcomeText.Text = _outcome is { } outcome
-            ? outcome.Result == ApplyResult.Done && Restore ? Strings.Get("Firmware_OutcomeRestored") : OutcomeWords(outcome.Result)
-            : "";
+        OutcomeText.Text = _outcome is { } outcome ? OutcomeWords(outcome.Result) : "";
         OutcomeText.IsVisible = OutcomeText.Text.Length > 0;
         StopButton.IsVisible = Running && at?.Step == EditStep.Plug;
         PaintWrite();
