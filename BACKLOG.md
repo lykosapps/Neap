@@ -13,20 +13,18 @@ group only; a line that touches two says so in its text.
 
 Needs only the code and the tests. Safe to do in one go.
 
-Nothing here at the moment.
+- **Checks on the hidden desktop wait 2 s per action.** On the desktop
+  `tools\pretend-quiet.ps1` makes, every toggle, slider, list or page choice
+  made through UI Automation lands in the app exactly 2.00 s later, whether
+  the caller waits or not; threading mode and event listeners make no
+  difference, and reads are fast. On the visible desktop the same actions take
+  under 0.05 s (6 November), so people and screen readers are not affected.
+  It is most of what is left of the pretend walk's seven minutes.
 
 ## 2. A screen sitting on Windows
 
 Needs the screen on, and Windows switched into a high contrast theme and back.
 `tools\ui\looks.ps1` covers the pages as drawn by default; the rest is by eye.
-
-- **Every UI Automation action takes 2 s.** On the hidden check desktop, a
-  toggle, slider, list or page choice made through UI Automation takes exactly
-  2.00 s inside the app, whether the caller waits or not, and threading mode
-  makes no difference; reading values is fast. Avalonia raises its automation
-  events from inside each action, so the wait is likely there. Not yet known
-  whether it happens on the visible desktop, where a screen reader would feel
-  it. It is most of what is left of the pretend walk's seven minutes.
 
 - **High contrast, changing while Neap is open.** Neap kept the colours it
   read when it started. It now reads them again on each change (26 October),
