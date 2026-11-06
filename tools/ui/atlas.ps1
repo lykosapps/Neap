@@ -15,26 +15,12 @@ so what was there is put back afterwards.
 
 . "$PSScriptRoot\Ui.ps1"
 
-$pipe = $null
-
-function Ask([string]$Line) {
-    $script:writer.WriteLine($Line)
-    $reply = $script:reader.ReadLine() | ConvertFrom-Json
-    if (-not $reply.ok) { throw "pretend headset: $Line -> $($reply.error)" }
-    $reply.result
-}
-
 function Find-Typed([string]$Name, $Type) {
     Find-All $Name | Where-Object { $_.Current.ControlType -eq $Type } | Select-Object -First 1
 }
 
 Start-NeapPretend -Theme dark -Page home -Flags @('--atlas')
 try {
-    $pipe = New-Object System.IO.Pipes.NamedPipeClientStream('.', 'Neap.Pretend', [System.IO.Pipes.PipeDirection]::InOut)
-    $pipe.Connect(10000)
-    $script:reader = New-Object System.IO.StreamReader($pipe)
-    $script:writer = New-Object System.IO.StreamWriter($pipe)
-    $script:writer.AutoFlush = $true
     Wait-Until { (Get-Texts) -contains 'Home' } 15 | Out-Null
     Set-NeapSize 1536 900 'Home'
 
@@ -54,14 +40,14 @@ try {
         $clock = [Diagnostics.Stopwatch]::StartNew()
         $battery = 60
         while ($clock.Elapsed.TotalSeconds -lt 4) {
-            if ($seen.Count % 5 -eq 0) { Ask "report 0x240 $battery" | Out-Null; $battery-- }
+            if ($seen.Count % 5 -eq 0) { Send-Pretend "report 0x240 $battery" | Out-Null; $battery-- }
             $seen.Add($range.Current.Value)
             Start-Sleep -Milliseconds 100
         }
         Note "the slider read $(($seen | Select-Object -Unique) -join ', ') over $($seen.Count) samples"
         Check (-not ($seen -contains 100)) 'the slider never jumps to 100 as the headset reports'
         Check ($seen[-1] -eq 70) 'the slider stays where it was put'
-        Check ((Ask 'value 0x260') -eq '70' -and (Ask 'value 0x2a0') -eq '100') 'the headset mirrors the level at 0x260 while 0x2a0 stays at 100'
+        Check ((Send-Pretend 'value 0x260') -eq '70' -and (Send-Pretend 'value 0x2a0') -eq '100') 'the headset mirrors the level at 0x260 while 0x2a0 stays at 100'
     }
     Save-Shot 'atlas-audio' -Top 700 | ForEach-Object { $_.Dispose() }
 
@@ -74,10 +60,10 @@ try {
     Section 'Bluetooth'
     Open-Page 'Device'
     Check (Wait-Until { (Get-Texts) -contains 'Not in use' } 5) 'on its transmitter, Bluetooth says Not in use'
-    Ask 'report 0x290 0' | Out-Null
+    Send-Pretend 'report 0x290 0' | Out-Null
     Check (Wait-Until { (Get-Texts) -contains 'In use' } 5) 'switched to Bluetooth, it says In use'
     Check (-not ((Get-Texts) -contains 'Connected')) 'it never says Connected'
-    Ask 'report 0x290 1' | Out-Null
+    Send-Pretend 'report 0x290 1' | Out-Null
     Check (Wait-Until { (Get-Texts) -contains 'Not in use' } 5) 'back on its transmitter, it says Not in use again'
 
     Section 'copying what the headset reports'
@@ -112,11 +98,10 @@ try {
     if (Test-Path $log) {
         Get-Content $log | Where-Object { $_ -match 'profiles:' } | Select-Object -Last 5 | ForEach-Object { Note "log: $_" }
     }
-    $refusals = @(Ask 'refusals')
+    $refusals = @(Send-Pretend 'refusals')
     Check ($refusals.Count -eq 0) "the pretend headset refused nothing ($($refusals.Count))"
 }
 finally {
-    if ($pipe) { $pipe.Dispose() }
     Stop-NeapPretend
 }
 

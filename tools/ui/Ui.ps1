@@ -176,12 +176,16 @@ function Press($Element) {
     foreach ($pattern in @([System.Windows.Automation.InvokePattern]::Pattern, [System.Windows.Automation.TogglePattern]::Pattern)) {
         $found = $null
         if ($Element.TryGetCurrentPattern($pattern, [ref]$found)) {
-            if ($found -is [System.Windows.Automation.InvokePattern]) { $found.Invoke() } else { $found.Toggle() }
+            if ($found -is [System.Windows.Automation.InvokePattern]) { if (-not (Send-Act $Element invoke)) { $found.Invoke() } }
+            elseif (-not (Send-Act $Element toggle)) { $found.Toggle() }
             return
         }
     }
     $found = $null
-    if ($Element.TryGetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern, [ref]$found)) { $found.Select(); return }
+    if ($Element.TryGetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern, [ref]$found)) {
+        if (-not (Send-Act $Element select)) { $found.Select() }
+        return
+    }
     # A menu item that only takes the keyboard: focus it and press Enter. On a
     # desktop of its own, where the key would land on the person's, the
     # practice run presses it from inside instead.
@@ -205,19 +209,40 @@ function Send-Pretend([string]$Line) {
     }
     finally { $stream.Dispose() }
 }
+# On a desktop of its own each action UI Automation carries into the app lands
+# two seconds late, so there the practice run acts from inside, through the
+# same automation provider, on the control found by its automation id or, for
+# one with none, by its name inside the nearest control with one. Says whether
+# it did; elsewhere, or with no control to find it by, the caller acts itself.
+function Send-Act($Element, [string]$Verb) {
+    if (-not $env:NEAP_QUIET_DESKTOP) { return $false }
+    $id = $Element.Current.AutomationId
+    if ($id) { Send-Pretend "act $Verb $id" | Out-Null; return $true }
+    $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
+    $owner = $walker.GetParent($Element)
+    while ($null -ne $owner -and -not $owner.Current.AutomationId) { $owner = $walker.GetParent($owner) }
+    if ($null -eq $owner) { return $false }
+    Send-Pretend "act $Verb $($owner.Current.AutomationId) $($Element.Current.Name)" | Out-Null
+    $true
+}
 # Opens a page from the rail by its name, and waits until it has drawn: its
 # heading is there and what is on it has stopped moving.
 function Open-Page([string]$Name) {
-    $item = Find-All $Name | Where-Object { $_.GetSupportedPatterns() -contains [System.Windows.Automation.SelectionItemPattern]::Pattern } | Select-Object -First 1
-    $item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select()
+    if ($env:NEAP_QUIET_DESKTOP) { Send-Pretend "page $($Name.ToLowerInvariant())" | Out-Null }
+    else {
+        $item = Find-All $Name | Where-Object { $_.GetSupportedPatterns() -contains [System.Windows.Automation.SelectionItemPattern]::Pattern } | Select-Object -First 1
+        $item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select()
+    }
     Wait-Until { (Get-Texts) -contains $Name } 5 | Out-Null
     Wait-Stable { (Get-Texts) -join ';' } | Out-Null
 }
 function Open-Menu($Element) {
-    try { $Element.GetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern).Expand() } catch { Press $Element }
+    try { if (-not (Send-Act $Element expand)) { $Element.GetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern).Expand() } }
+    catch { Press $Element }
 }
 function Close-Menu($Element) {
-    try { $Element.GetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern).Collapse() } catch { Write-Verbose 'no menu to close' }
+    try { if (-not (Send-Act $Element collapse)) { $Element.GetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern).Collapse() } }
+    catch { Write-Verbose 'no menu to close' }
 }
 
 # Starts the app against the pretend headset, behind every other window so it

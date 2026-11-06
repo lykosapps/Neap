@@ -72,6 +72,26 @@ public class PretendControlTests
     }
 
     [Fact]
+    public void AnActionNamesItsControlByIdAndCarriesTheRestAsItsValue()
+    {
+        var (_, control) = Make();
+        Assert.False(Reply(control, "act toggle noise_gate").GetProperty("ok").GetBoolean());
+
+        var acts = new List<(string, string, string?)>();
+        control.Act = (verb, id, value) =>
+        {
+            if (id == "missing") throw new ArgumentException("nothing with the automation id 'missing'");
+            acts.Add((verb, id, value));
+        };
+
+        Assert.True(Reply(control, "act toggle noise_gate").GetProperty("ok").GetBoolean());
+        Assert.True(Reply(control, "act select output_format 24-bit, 96 kHz (Studio quality)").GetProperty("ok").GetBoolean());
+        Assert.False(Reply(control, "act toggle missing").GetProperty("ok").GetBoolean());
+        Assert.False(Reply(control, "act toggle").GetProperty("ok").GetBoolean());
+        Assert.Equal([("toggle", "noise_gate", null), ("select", "output_format", "24-bit, 96 kHz (Studio quality)")], acts);
+    }
+
+    [Fact]
     public void FocusWithNoWindowOrNoDirectionIsRefused()
     {
         var (_, control) = Make();

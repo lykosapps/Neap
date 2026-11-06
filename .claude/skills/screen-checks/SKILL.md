@@ -21,7 +21,7 @@ The one place for how Neap's screen checks are chosen and run. The `headset-chec
 - **A failure is fixed and rerun alone,** never the whole check or batch. Read each failure before calling it a bug:
   `tools/pretend.ps1` sometimes trips on timing, looking for a control once instead of waiting for it.
 - **Say the time** before a batch of more than two checks. Rough costs: `check.ps1` about 40 s, `snap.ps1` about
-  10 s, a walk section 15 s to 70 s (Settings is the longest), `all` a few minutes, the whole walk about 7 minutes, a release's checks
+  10 s, a walk section 3 s to 50 s (Profiles is the longest), `all` a few minutes, the whole walk about 3 minutes, a release's checks
   about half an hour.
 - **Before changing on-screen text,** search `tools/` for the exact old sentence and update the checks in the same
   change, or a whole walk fails on one line.

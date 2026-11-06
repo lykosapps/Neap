@@ -43,6 +43,9 @@ namespace Neap.Core.Pretend;
 ///   page NAME               open a page from the menu, such as audio
 ///   mini                    open the mini panel, as a click on the icon by the clock does
 ///   press NAME              press the control or menu item a screen reader calls NAME, in any of the app's windows
+///   act VERB ID [VALUE]     act on the control with automation id ID as UI Automation would, from inside the app:
+///                           value NUMBER, text TEXT, or toggle, invoke, expand, collapse, select or focus, given
+///                           the name of an item inside it to act on that instead
 /// </code>
 /// <para>
 /// The pipe is open to the current user only.
@@ -105,6 +108,16 @@ public sealed class PretendControl : IDisposable
     /// inside the app instead.
     /// </remarks>
     public Func<string, bool>? Press { get; set; }
+
+    /// <summary>Gets or sets what acts on a control found by its automation id: a verb, the id, and the value or item name the verb takes, if any.</summary>
+    /// <remarks>
+    /// On a desktop of its own, each action UI Automation carries into the app
+    /// lands two seconds late, while the same action made inside the app lands
+    /// at once. A script there acts through this, on the same automation
+    /// provider a screen reader uses, and reads the result back as usual. It
+    /// throws <see cref="ArgumentException"/> for a control or verb it cannot act on.
+    /// </remarks>
+    public Action<string, string, string?>? Act { get; set; }
 
     /// <summary>Gets or sets what gives the colours of the text at a point on the screen, in physical pixels: the text's own colour and what is behind it, each as drawn over what lies beneath, or null when no text is there.</summary>
     /// <remarks>
@@ -219,6 +232,11 @@ public sealed class PretendControl : IDisposable
                 ("mini", 1) => Done(OpenMini ?? throw new ArgumentException("there is no window to open the mini panel from")),
                 ("press", >= 2) => (Press ?? throw new ArgumentException("there is no window to press in"))(Rest(line))
                     ? "ok" : throw new ArgumentException($"nothing called '{Rest(line)}' to press"),
+                ("act", 3) => Done(() =>
+                {
+                    string[] target = words[2].Split(' ', 2, StringSplitOptions.TrimEntries);
+                    (Act ?? throw new ArgumentException("there is no window to act in"))(words[1], target[0], target.ElementAtOrDefault(1));
+                }),
                 ("scroll", 2) => (Scroll ?? throw new ArgumentException("there is no page to scroll"))(words[1] switch
                 {
                     "top" => true,

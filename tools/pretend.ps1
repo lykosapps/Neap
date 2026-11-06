@@ -217,6 +217,45 @@ function Control([string]$name, $type) {
 
 function Pattern($element, $pattern) { $element.GetCurrentPattern($pattern::Pattern) }
 
+# Works a control: toggle, invoke, expand, collapse, select, focus, value (a
+# number) or text. On a desktop of its own each action UI Automation carries
+# into the app lands two seconds late, so there the app acts on the control
+# from inside, through the same automation provider, found by its automation
+# id or, for one with none, by its name inside the nearest control with one.
+# With a value, select picks the item of that name inside the control.
+function Act($element, [string]$verb, $value = $null) {
+    if ($env:NEAP_QUIET_DESKTOP) {
+        $id = $element.Current.AutomationId
+        if ($id) {
+            Ask ("act $verb $id" + $(if ($null -ne $value) { " $value" } else { '' })) | Out-Null
+            return
+        }
+        if ($verb -notin 'value', 'text') {
+            $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
+            $owner = $walker.GetParent($element)
+            while ($null -ne $owner -and -not $owner.Current.AutomationId) { $owner = $walker.GetParent($owner) }
+            if ($null -ne $owner) {
+                Ask "act $verb $($owner.Current.AutomationId) $($element.Current.Name)" | Out-Null
+                return
+            }
+        }
+    }
+    switch ($verb) {
+        'toggle' { (Pattern $element ([System.Windows.Automation.TogglePattern])).Toggle() }
+        'invoke' { (Pattern $element ([System.Windows.Automation.InvokePattern])).Invoke() }
+        'expand' { (Pattern $element ([System.Windows.Automation.ExpandCollapsePattern])).Expand() }
+        'collapse' { (Pattern $element ([System.Windows.Automation.ExpandCollapsePattern])).Collapse() }
+        'focus' { $element.SetFocus() }
+        'value' { (Pattern $element ([System.Windows.Automation.RangeValuePattern])).SetValue([double]$value) }
+        'text' { (Pattern $element ([System.Windows.Automation.ValuePattern])).SetValue([string]$value) }
+        'select' {
+            $item = if ($null -ne $value) { Item $element $value } else { $element }
+            (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select()
+        }
+        default { throw "not something to do to a control: $verb" }
+    }
+}
+
 # The groups the app reads all the time while it is connected: the state it
 # checks every beat, the groups it watches, and the transmitter slots it
 # looks over now and then. A page never waits on these, which never stop.
@@ -241,7 +280,9 @@ function Page([string]$name) {
         Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem }
     $item = Pattern $items[0] ([System.Windows.Automation.SelectionItemPattern])
     if ($item.Current.IsSelected) { return }
-    $item.Select()
+    # The app's own way to a page; a selection made through UI Automation
+    # lands two seconds late on a desktop of its own.
+    if ($env:NEAP_QUIET_DESKTOP) { Ask "page $($name.ToLowerInvariant())" | Out-Null } else { $item.Select() }
     Until { @(FindAll $script:window 'NameProperty' $name | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Text }).Count -gt 0 } | Out-Null
     $clock = [Diagnostics.Stopwatch]::StartNew()
     $count = Busy
@@ -260,7 +301,7 @@ function Bank([string]$name) {
     $script:step = "the $name equaliser"
     $tab = Control $name ([System.Windows.Automation.ControlType]::RadioButton)
     if ($null -eq $tab) { Fail "the Equaliser page has a $name tab"; return }
-    (Pattern $tab ([System.Windows.Automation.SelectionItemPattern])).Select()
+    Act $tab select
     Start-Sleep -Milliseconds 500
 }
 
@@ -316,33 +357,33 @@ function Item($element, [string]$label) {
 # for them rather than look once.
 function Options($element) {
     $expand = Pattern $element ([System.Windows.Automation.ExpandCollapsePattern])
-    $expand.Expand()
+    Act $element expand
     Until { @(Items $element).Count -gt 0 } | Out-Null
     $names = @(Items $element | Where-Object { $_.Current.IsEnabled } | ForEach-Object { $_.Current.Name })
-    $expand.Collapse()
+    Act $element collapse
     Start-Sleep -Milliseconds 200
     return $names
 }
 
 function Choose($element, [string]$label) {
     $expand = Pattern $element ([System.Windows.Automation.ExpandCollapsePattern])
-    $expand.Expand()
+    Act $element expand
     # A list opened just after it closed can miss the opening; it is opened
     # once more before the option is called missing.
     if (-not (Until { $null -ne (Item $element $label) })) {
-        $expand.Collapse()
+        Act $element collapse
         Start-Sleep -Milliseconds 300
-        $expand.Expand()
+        Act $element expand
     }
-    if (-not (Until { $null -ne (Item $element $label) })) { $expand.Collapse(); throw "no option '$label' in $($element.Current.Name)" }
+    if (-not (Until { $null -ne (Item $element $label) })) { Act $element collapse; throw "no option '$label' in $($element.Current.Name)" }
     $item = Item $element $label
-    try { (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select() }
+    try { Act $element select $item.Current.Name }
     catch [System.Windows.Automation.ElementNotEnabledException] {
         # The format list disables itself while the change is applied, and
         # the call reports that even though the selection was made.
     }
     Start-Sleep -Milliseconds 200
-    if ($expand.Current.ExpandCollapseState -ne 'Collapsed') { $expand.Collapse() }
+    if ($expand.Current.ExpandCollapseState -ne 'Collapsed') { Act $element collapse }
 }
 
 function Shown($element) {
@@ -362,13 +403,13 @@ function Shown($element) {
 
 function Operate($element, $value) {
     switch (Kind $element) {
-        'slider' { (Pattern $element ([System.Windows.Automation.RangeValuePattern])).SetValue([double]$value) }
+        'slider' { Act $element value $value }
         'choice' { Choose $element $value }
         'segments' {
             $item = Segments $element | Where-Object { $_.Current.Name -eq $value } | Select-Object -First 1
-            (Pattern $item ([System.Windows.Automation.SelectionItemPattern])).Select()
+            Act $item select
         }
-        default { (Pattern $element ([System.Windows.Automation.TogglePattern])).Toggle() }
+        default { Act $element toggle }
     }
 }
 
@@ -497,7 +538,7 @@ function ExpandAll {
         if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::ComboBox) { continue }
         $expand = $null
         if ($element.TryGetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern, [ref]$expand) -and
-            $expand.Current.ExpandCollapseState -eq 'Collapsed') { $expand.Expand() }
+            $expand.Current.ExpandCollapseState -eq 'Collapsed') { Act $element expand }
     }
     Start-Sleep -Milliseconds 400
 }
@@ -527,9 +568,9 @@ function Band([string]$page, [string]$label, [string]$key) {
     if ($null -eq $away) { Fail "the $page equaliser has a button to leave the band for"; return }
 
     Ask 'clear' | Out-Null
-    $band.SetFocus()
-    (Pattern $band ([System.Windows.Automation.ValuePattern])).SetValue('3')
-    $away.SetFocus()
+    Act $band focus
+    Act $band text '3'
+    Act $away focus
     Check (Until { @(Writes | Where-Object { $_.key -eq $key -and $_.value -eq '30' }).Count -gt 0 }) "$page $label band sends $key=30"
     Collect
 }
@@ -542,7 +583,7 @@ function Preset([string]$page, [string]$name, [string]$key, [string]$id) {
     $button = & $find
 
     Ask 'clear' | Out-Null
-    (Pattern $button ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act $button invoke
     Check (Until { @(Writes | Where-Object { $_.key -eq $key -and $_.value -eq $id }).Count -gt 0 }) "$page preset $name sends $key=$id"
     Check (Until { (& $find).Current.ItemStatus -eq 'Selected' }) "$page marks the preset $name as selected"
     Collect
@@ -580,16 +621,16 @@ function PresetTools {
     Ask 'clear' | Out-Null
     $new = { Control 'Start a new preset' ([System.Windows.Automation.ControlType]::Button) }
     if (-not (Until { $null -ne (& $new) })) { Fail 'the preset list offers a new preset'; return }
-    (Pattern (& $new) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act (& $new) invoke
     Check (Until { (Find $script:window 'AutomationIdProperty' 'PresetName').Current.Name -eq 'New preset' }) 'New preset starts a preset from flat'
     Collect
 
     $delete = { Control 'Delete Night Raid' ([System.Windows.Automation.ControlType]::Button) }
     if (-not (Until { $null -ne (& $delete) })) { Fail 'the preset list offers to delete Night Raid'; return }
-    (Pattern (& $delete) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act (& $delete) invoke
     Check (Until { $null -ne (Control 'Keep Night Raid' ([System.Windows.Automation.ControlType]::Button)) }) 'deleting Night Raid asks first'
     Check (@(Writes | Where-Object { $_.key -eq '0x1610' }).Count -eq 0) 'asking deletes nothing'
-    (Pattern (& $delete) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act (& $delete) invoke
     Check (Until { @(Writes | Where-Object { $_.key -eq '0x1610' }).Count -gt 0 }) 'confirming deletes Night Raid on the headset'
     # Deleting reads the bank back, a second for each empty slot.
     Check (Until { $null -eq (Control 'Night Raid' ([System.Windows.Automation.ControlType]::Button)) } 10) 'Night Raid leaves the list'
@@ -608,7 +649,7 @@ function HomeExtras {
     $script:step = 'Equaliser settings on Home'
     $open = { Control 'Equaliser settings' ([System.Windows.Automation.ControlType]::Button) }
     if ($null -eq (& $open)) { Fail 'the equaliser tile has an Equaliser settings link'; return }
-    (Pattern (& $open) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act (& $open) invoke
     $equaliser = {
         FindAll $script:window 'NameProperty' 'Equaliser' |
             Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem } | Select-Object -First 1
@@ -623,12 +664,12 @@ function WindowsOwned {
     Page 'Audio'
     Ask 'clear' | Out-Null
     $volume = Control 'Master volume' ([System.Windows.Automation.ControlType]::Slider)
-    (Pattern $volume ([System.Windows.Automation.RangeValuePattern])).SetValue(30)
+    Act $volume value 30
     Check (Until { (Ask 'volume output').percent -eq 30 }) 'master volume sets Windows'' volume'
     $mute = Control 'Mute' ([System.Windows.Automation.ControlType]::Button)
-    (Pattern $mute ([System.Windows.Automation.TogglePattern])).Toggle()
+    Act $mute toggle
     Check (Until { (Ask 'volume output').muted }) 'mute mutes Windows'' output'
-    (Pattern $mute ([System.Windows.Automation.TogglePattern])).Toggle()
+    Act $mute toggle
     Check (Until { -not (Ask 'volume output').muted }) 'mute unmutes it again'
     Start-Sleep -Milliseconds 500
     Check (@(Writes).Count -eq 0) 'the Windows volume controls write nothing to the headset'
@@ -657,7 +698,7 @@ function Wheel {
     if ($null -eq $chooser) { Fail 'Home offers a choice of chat apps'; return }
     Check ($chooser.Current.Name -eq 'Chat comes from No app chosen yet') "with no chat app chosen, the field says so: $($chooser.Current.Name)"
     $top = $chooser.Current.BoundingRectangle.Top
-    (Pattern $chooser ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act $chooser invoke
     $box = { param($name) Everywhere 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::ListItem) | Where-Object { $_.Current.Name -like $name } | Select-Object -First 1 }
     # A row of the list that takes several: chosen if it is not, cleared if it is.
     $flip = { param($row) $p = Pattern $row ([System.Windows.Automation.SelectionItemPattern]); if ($p.Current.IsSelected) { $p.RemoveFromSelection() } else { $p.AddToSelection() } }
@@ -700,10 +741,10 @@ function MicTile {
     Check (Until { $tile.Current.IsEnabled -and $toggle.Current.ToggleState -eq 'On' }) 'with the arm down and Windows unmuted, the microphone tile is live'
 
     Ask 'clear' | Out-Null
-    $toggle.Toggle()
+    Act $tile toggle
     Check (Until { (Ask 'volume input').muted }) 'the microphone tile mutes the microphone in Windows'
     Check (Until { $toggle.Current.ToggleState -eq 'Off' }) 'the microphone tile shows it muted'
-    $toggle.Toggle()
+    Act $tile toggle
     Check (Until { -not (Ask 'volume input').muted }) 'the microphone tile unmutes it again'
     Check (@(Writes).Count -eq 0) 'the microphone tile writes nothing to the headset'
     Collect
@@ -818,11 +859,11 @@ function Profiles {
 
     $script:step = 'saving the current settings as a new profile'
     Ask 'clear' | Out-Null
-    (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act $bar invoke
     $newButton = { Control 'New profile' ([System.Windows.Automation.ControlType]::Button) }
     if (-not (Until { $null -ne (& $newButton) -and (& $newButton).Current.IsEnabled })) { Fail 'the profile menu offers to save the current settings as a new profile'; return }
     Screenshot 'profile-flyout'
-    (Pattern (& $newButton) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act (& $newButton) invoke
 
     $field = { Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit) }
     if (-not (Until { $null -ne (& $field) })) { Fail 'saving a new profile opens a name dialog'; return }
@@ -830,12 +871,12 @@ function Profiles {
     # field exists, which shows both it and the dialog half-composited.
     Start-Sleep -Milliseconds 500
     Screenshot 'profile-new-dialog'
-    (Pattern (& $field) ([System.Windows.Automation.ValuePattern])).SetValue('Gaming')
+    Act (& $field) text 'Gaming'
     $save = Control 'Save' ([System.Windows.Automation.ControlType]::Button)
     if ($null -eq $save) { Fail 'the name dialog has a Save button'; return }
     # Save is on only once there is a name to save.
     Until { $save.Current.IsEnabled } | Out-Null
-    (Pattern $save ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act $save invoke
     Check (Until { $null -ne (Control 'Gaming' ([System.Windows.Automation.ControlType]::TextBlock)) -or $null -ne (Find $script:window 'NameProperty' 'Gaming') }) 'saving names the profile Gaming'
     Start-Sleep -Milliseconds 300
     Screenshot 'profile-active'
@@ -851,11 +892,11 @@ function Profiles {
 
     # Save and Discard live in the profile menu, and Discard is there only
     # while something is edited, so the menu is opened to find it.
-    (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act $bar invoke
     Until { $null -ne (Control 'Discard' ([System.Windows.Automation.ControlType]::Button)) } | Out-Null
     $discard = Control 'Discard' ([System.Windows.Automation.ControlType]::Button)
     if ($null -ne $discard) {
-        (Pattern $discard ([System.Windows.Automation.InvokePattern])).Invoke()
+        Act $discard invoke
         Check (Until { $null -eq (Find $script:window 'NameProperty' 'Edited') }) 'discarding clears the edited mark'
     }
     else { Fail 'the bar offers Discard while edited' }
@@ -866,11 +907,11 @@ function Profiles {
 
     $rename = Control 'Rename Gaming' ([System.Windows.Automation.ControlType]::Button)
     if ($null -ne $rename) {
-        (Pattern $rename ([System.Windows.Automation.InvokePattern])).Invoke()
+        Act $rename invoke
         if (Until { $null -ne (Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit)) }) {
             Screenshot 'profile-rename-dialog'
             $cancelRename = Control 'Cancel' ([System.Windows.Automation.ControlType]::Button)
-            if ($null -ne $cancelRename) { (Pattern $cancelRename ([System.Windows.Automation.InvokePattern])).Invoke() }
+            if ($null -ne $cancelRename) { Act $cancelRename invoke }
         }
         else { Fail 'renaming opens a name dialog' }
     }
@@ -878,19 +919,19 @@ function Profiles {
 
     $apps = Control 'Apps for Gaming' ([System.Windows.Automation.ControlType]::Button)
     if ($null -ne $apps) {
-        (Pattern $apps ([System.Windows.Automation.InvokePattern])).Invoke()
+        Act $apps invoke
         Until { @(FindAll $script:window 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox)).Count -gt 0 } | Out-Null
         Start-Sleep -Milliseconds 300
         Check ($null -ne (Control "Browse for a program$([char]0x2026)" ([System.Windows.Automation.ControlType]::Button))) 'the apps picker offers to browse for a program'
         Screenshot 'profile-apps-dialog'
         $box = @(FindAll $script:window 'ControlTypeProperty' ([System.Windows.Automation.ControlType]::CheckBox)) | Select-Object -First 1
-        if ($null -ne $box) { (Pattern $box ([System.Windows.Automation.TogglePattern])).Toggle() }
+        if ($null -ne $box) { Act $box toggle }
         # The check mark has its own brief animation; screenshotting the
         # instant the toggle call returns catches it still fading in.
         Start-Sleep -Milliseconds 400
         Screenshot 'profile-apps-checked'
         $ok = Control 'OK' ([System.Windows.Automation.ControlType]::Button)
-        if ($null -ne $ok) { (Pattern $ok ([System.Windows.Automation.InvokePattern])).Invoke() }
+        if ($null -ne $ok) { Act $ok invoke }
         Check (Until { $null -eq (Find $script:window 'NameProperty' 'Not assigned to any app') }) 'checking an app in the picker assigns it'
         Start-Sleep -Milliseconds 300
         Screenshot 'profiles-assigned'
@@ -899,10 +940,10 @@ function Profiles {
 
     $delete = Control 'Delete Gaming' ([System.Windows.Automation.ControlType]::Button)
     if ($null -ne $delete) {
-        (Pattern $delete ([System.Windows.Automation.InvokePattern])).Invoke()
+        Act $delete invoke
         if (Until { $null -ne (Control 'Keep Gaming' ([System.Windows.Automation.ControlType]::Button)) }) {
             Screenshot 'profile-delete-confirm'
-            (Pattern (Control 'Keep Gaming' ([System.Windows.Automation.ControlType]::Button)) ([System.Windows.Automation.InvokePattern])).Invoke()
+            Act (Control 'Keep Gaming' ([System.Windows.Automation.ControlType]::Button)) invoke
         }
         else { Fail 'deleting Gaming asks first' }
     }
@@ -919,16 +960,16 @@ function AutoSwitching {
     Page 'Profiles'
     $bar = Control 'Profile' ([System.Windows.Automation.ControlType]::Button)
     $on = { $bar.Current.ItemStatus -replace ', Edited$', '' }
-    (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act $bar invoke
     $newButton = { Control 'New profile' ([System.Windows.Automation.ControlType]::Button) }
     if (-not (Until { $null -ne (& $newButton) -and (& $newButton).Current.IsEnabled })) { Fail 'the profile bar offers to save Desk'; return }
-    (Pattern (& $newButton) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act (& $newButton) invoke
     if (-not (Until { $null -ne (Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit)) })) { Fail 'saving Desk opens a name dialog'; return }
     Start-Sleep -Milliseconds 500
-    (Pattern (Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit)) ([System.Windows.Automation.ValuePattern])).SetValue('Desk')
+    Act (Control 'Profile name' ([System.Windows.Automation.ControlType]::Edit)) text 'Desk'
     $save = Control 'Save' ([System.Windows.Automation.ControlType]::Button)
     Until { $save.Current.IsEnabled } | Out-Null
-    (Pattern $save ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act $save invoke
     Check (Until { (& $on) -eq 'Desk' }) 'saving Desk puts it on'
 
     $default = Control 'Default profile' ([System.Windows.Automation.ControlType]::ComboBox)
@@ -953,13 +994,13 @@ function AutoSwitching {
     $script:step = 'switching profiles as an app uses the microphone'
     $apps = Control 'Apps for Gaming' ([System.Windows.Automation.ControlType]::Button)
     if ($null -eq $apps) { Fail 'the Gaming row offers to choose its apps'; return }
-    (Pattern $apps ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act $apps invoke
     $when = { Control 'When Pretend Chat switches' ([System.Windows.Automation.ControlType]::ComboBox) }
     if (-not (Until { $null -ne (& $when) })) { Fail 'the apps picker asks when Pretend Chat switches'; return }
     Check ((Shown (& $when)) -eq "While it's open") 'Pretend Chat switches while it is open until told otherwise'
     Choose (& $when) "While it's using the microphone"
     Screenshot 'profile-apps-microphone'
-    (Pattern (Control 'OK' ([System.Windows.Automation.ControlType]::Button)) ([System.Windows.Automation.InvokePattern])).Invoke()
+    Act (Control 'OK' ([System.Windows.Automation.ControlType]::Button)) invoke
     # The row's line of apps is drawn; its apps button says it to a screen reader.
     $appsButton = { Control 'Apps for Gaming' ([System.Windows.Automation.ControlType]::Button) }
     Check (Until { $b = & $appsButton; $null -ne $b -and $b.Current.HelpText -eq 'Pretend Chat (while using the microphone)' }) 'the Gaming row says Pretend Chat switches on the microphone'
@@ -978,12 +1019,12 @@ function PowerCycle {
     $script:step = 'the profile bar with the headset off'
     $bar = Control 'Profile' ([System.Windows.Automation.ControlType]::Button)
     if ($null -ne $bar) {
-        (Pattern $bar ([System.Windows.Automation.InvokePattern])).Invoke()
+        Act $bar invoke
         Check (Until { @(Everywhere 'NameProperty' "Neap can't reach the headset's settings.").Count -gt 0 }) 'with the headset off, the profile list says why it is unavailable'
         $save = Control 'New profile' ([System.Windows.Automation.ControlType]::Button)
         Check ($null -ne $save -and -not $save.Current.IsEnabled) 'with the headset off, saving a new profile is not offered'
         Screenshot 'profile-off'
-        try { (Pattern $bar ([System.Windows.Automation.ExpandCollapsePattern])).Collapse() } catch { }
+        try { Act $bar collapse } catch { }
     }
     else { Fail 'the window has a profile bar while the headset is off' }
     Ask 'on' | Out-Null

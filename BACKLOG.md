@@ -13,13 +13,13 @@ group only; a line that touches two says so in its text.
 
 Needs only the code and the tests. Safe to do in one go.
 
-- **Checks on the hidden desktop wait 2 s per action.** On the desktop
-  `tools\pretend-quiet.ps1` makes, every toggle, slider, list or page choice
-  made through UI Automation lands in the app exactly 2.00 s later, whether
-  the caller waits or not; threading mode and event listeners make no
-  difference, and reads are fast. On the visible desktop the same actions take
-  under 0.05 s (6 November), so people and screen readers are not affected.
-  It is most of what is left of the pretend walk's seven minutes.
+- **Some screen checks still wait 2 s per action.** On the desktop
+  `tools\pretend-quiet.ps1` makes, an action carried into the app by UI
+  Automation lands exactly 2.00 s later (on the visible desktop, under
+  0.05 s). The walk, `Press`, `Open-Page` and the menus act from inside the
+  app over the practice pipe instead, but about 25 direct calls in the
+  `tools\ui` checks (sliders, text and lists in `firmware`, `parametric-*`,
+  `align` and others) still go through UI Automation.
 
 ## 2. A screen sitting on Windows
 

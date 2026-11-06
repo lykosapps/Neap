@@ -242,7 +242,7 @@ public partial class MainWindow : Window
         FitRail(Bounds.Width);
         if (Pretend.Active)
             Pretend.Drives(move => PretendFocus.Move(this, move), page => Dispatcher.UIThread.Invoke(() => Open(page)),
-                () => Dispatcher.UIThread.Invoke(() => { if (_mini is null) ToggleMini(); }), PretendPress.Press, PretendColours.At, PretendPicture.Save, top => Dispatcher.UIThread.Invoke(() => ScrollPage(top)));
+                () => Dispatcher.UIThread.Invoke(() => { if (_mini is null) ToggleMini(); }), PretendPress.Press, PretendPress.Act, PretendColours.At, PretendPicture.Save, top => Dispatcher.UIThread.Invoke(() => ScrollPage(top)));
         if (Pretend.Snapshot is { } file) _ = SaveAndExit(file);
 
         // A launch at sign-in lives in the notification area rather than open
