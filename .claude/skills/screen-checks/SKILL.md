@@ -9,6 +9,9 @@ The one place for how Neap's screen checks are chosen and run. The `headset-chec
 
 ## 1. Size it first
 
+- **Ask the script first:** `tools/which-checks.ps1` (`-Since main` for a branch) maps the changed files to the exact
+  commands, cheapest first, and lists any file it has no rule for. Run what it prints, nothing more; a file with no rule
+  gets its checks by hand and a new rule in the script.
 - **List what changed:** write down which screens the change touched, then run only their checks and only the parts
   that cover the change. Never a check for a screen that didn't change.
 - **Cheapest first:** `tools/check.ps1`, then `tools/ui/snap.ps1` for the changed page, then the one check part or
@@ -18,7 +21,7 @@ The one place for how Neap's screen checks are chosen and run. The `headset-chec
 - **A failure is fixed and rerun alone,** never the whole check or batch. Read each failure before calling it a bug:
   `tools/pretend.ps1` sometimes trips on timing, looking for a control once instead of waiting for it.
 - **Say the time** before a batch of more than two checks. Rough costs: `check.ps1` about 40 s, `snap.ps1` about
-  10 s, a walk section 15 s to 2 minutes (Settings is the longest), `all` a few minutes, the whole walk about 7 minutes, a release's checks
+  10 s, a walk section 15 s to 70 s (Settings is the longest), `all` a few minutes, the whole walk about 7 minutes, a release's checks
   about half an hour.
 - **Before changing on-screen text,** search `tools/` for the exact old sentence and update the checks in the same
   change, or a whole walk fails on one line.
@@ -47,8 +50,8 @@ Its Windows steps still change the PC's volume, mute and audio format for a mome
 
 - **`tools/ui/run.ps1 <check>`:** the check is the name of a script in `tools/ui`, such as `banner`, `notes`,
   `settings`, `profiles`, `lists`, `mini` (the mini panel's tiles, a choice from each, Open Neap), `overlay`, the
-  `parametric-*` checks, `firmware`, `atlas` (the pretend Atlas Air) or `hardware`; `-Parts` picks parts; `all` runs
-  every screen check. It publishes if a source file is newer than the build, then runs from outside the package. Logs
+  `parametric-*` checks, `loudness`, `firmware`, `atlas` (the pretend Atlas Air) or `hardware` (the real headset, never per change); `-Parts` picks parts; `all` runs
+  banner, notes, settings, profiles, lists, mini, overlay, the `parametric-*` checks and firmware (not `access`, `atlas`, `loudness`). It publishes if a source file is newer than the build, then runs from outside the package. Logs
   and pictures land in `TestResults/ui`. A new check is a script beside it that uses `Ui.ps1`.
 - **`run.ps1 access`:** every page in both themes for names, target sizes, Tab order, focus mark and text contrast,
   in about a minute and a half; `-Headset atlas` uses the pretend Atlas Air. It moves focus over the practice run's

@@ -193,6 +193,22 @@ function Everywhere([string]$property, $value) {
     return $hits
 }
 
+# Every element of the window with an automation id, by id: one search in
+# place of one for each id wanted.
+function IdIndex {
+    $request = New-Object System.Windows.Automation.CacheRequest
+    $request.Add($A::AutomationIdProperty)
+    $active = $request.Activate()
+    try { $all = @($script:window.FindAll($Scopes::Descendants, [System.Windows.Automation.Condition]::TrueCondition)) }
+    finally { $active.Dispose() }
+    $index = @{}
+    foreach ($element in $all) {
+        $id = $element.Cached.AutomationId
+        if ($id -and -not $index.ContainsKey($id)) { $index[$id] = $element }
+    }
+    $index
+}
+
 # The first control of a type with this name; its label often shares the name.
 function Control([string]$name, $type) {
     Everywhere 'NameProperty' $name | Where-Object { $_.Current.ControlType -eq $type } |
@@ -214,15 +230,18 @@ function Busy {
     $count
 }
 
-# Opens a page and waits for the app to stop asking the headset things. A
-# page with an equaliser reads the preset slots on arrival, an empty one
-# taking a second, and a write made meanwhile waits behind them. Only what
-# the page asks counts: the app's background reading goes on all the time.
+# Opens a page and waits for the app to stop asking the headset things. A page
+# already open is left as it is. A page with an equaliser reads the preset
+# slots on arrival, an empty one taking a second, and a write made meanwhile
+# waits behind them. Only what the page asks counts: the app's background
+# reading goes on all the time.
 function Page([string]$name) {
     $script:step = "the $name page"
     $items = FindAll $script:window 'NameProperty' $name |
         Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem }
-    (Pattern $items[0] ([System.Windows.Automation.SelectionItemPattern])).Select()
+    $item = Pattern $items[0] ([System.Windows.Automation.SelectionItemPattern])
+    if ($item.Current.IsSelected) { return }
+    $item.Select()
     Until { @(FindAll $script:window 'NameProperty' $name | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Text }).Count -gt 0 } | Out-Null
     $clock = [Diagnostics.Stopwatch]::StartNew()
     $count = Busy
@@ -418,9 +437,9 @@ function Collect {
 
 # -- the checks ----------------------------------------------------------------
 
-# Moves one setting's control, checks what was sent, then has the headset
-# change the setting and checks the control follows.
-function Exercise($element, $setting) {
+# Moves one setting's control and checks what was sent. Returns what Follow
+# needs, or nothing when the control is not enabled.
+function MoveControl($element, $setting) {
     $name = $setting.name
     $script:step = $name
     $kind = Kind $element
@@ -431,6 +450,7 @@ function Exercise($element, $setting) {
     $want = Another $setting $shown $kind
     $wire = Wire $setting $want $kind
     Operate $element $want
+    $since = [Diagnostics.Stopwatch]::StartNew()
 
     Until { @(Writes | Where-Object { $_.key -eq $setting.key }).Count -gt 0 } | Out-Null
     Start-Sleep -Milliseconds 300
@@ -440,16 +460,33 @@ function Exercise($element, $setting) {
     Check (@($sent | Where-Object { $_.key -ne $setting.key }).Count -eq 0) "$name writes nothing else"
     Check ((Ask "value $($setting.key)") -eq $wire) "the headset holds $name=$wire"
     Collect
+    @{ Element = $element; Setting = $setting; Kind = $kind; Shown = $shown; Want = $want; Since = $since }
+}
 
-    # The value the person just set is theirs for a moment; let it pass.
-    Start-Sleep -Milliseconds 1800
-    $back = if ($kind -in 'choice', 'segments') { $shown } else { Another $setting $want $kind }
-    $backWire = Wire $setting $back $kind
+# Has the headset change a moved setting and checks the control follows.
+function Follow($moved) {
+    $setting = $moved.Setting
+    $name = $setting.name
+    $script:step = $name
+    $back = if ($moved.Kind -in 'choice', 'segments') { $moved.Shown } else { Another $setting $moved.Want $moved.Kind }
+    $backWire = Wire $setting $back $moved.Kind
     try { Ask "report $($setting.key) $backWire" | Out-Null }
     catch { Write-Host "  note  $name is set only from the app: $($_.Exception.Message)"; return }
-    Check (Until { [string](Shown $element) -eq [string]$back }) "$name follows the headset to $backWire"
+    Check (Until { [string](Shown $moved.Element) -eq [string]$back }) "$name follows the headset to $backWire"
     Check (@(Writes).Count -eq 0) "following the headset, $name sends nothing back"
     Collect
+}
+
+# Moves every control given, then has the headset change each one back. The
+# value the person just set is theirs for 1.8 seconds, so each control waits
+# out only what is left of that, which is nothing for all but the last few.
+function Exercise([object[]]$pairs) {
+    $moved = @(foreach ($pair in $pairs) { MoveControl $pair[0] $pair[1] })
+    foreach ($one in $moved) {
+        $left = 1800 - $one.Since.ElapsedMilliseconds
+        if ($left -gt 0) { Start-Sleep -Milliseconds $left }
+        Follow $one
+    }
 }
 
 # Opens every expander on the page, so the settings folded inside one can
@@ -468,15 +505,15 @@ function ExpandAll {
 function Settings([string]$page) {
     Page $page
     ExpandAll
-    $found = 0
-    foreach ($setting in $script:registry | Where-Object { $_.writable -and $_.kind -ne 'Text' }) {
-        $element = Find $script:window 'AutomationIdProperty' $setting.name
-        if ($null -eq $element) { continue }
-        $found++
-        $script:covered[$setting.name] = $true
-        Exercise $element $setting
-    }
-    Check ($found -gt 0) "$page shows setting controls"
+    $index = IdIndex
+    $pairs = @(foreach ($setting in $script:registry | Where-Object { $_.writable -and $_.kind -ne 'Text' }) {
+            $element = $index[$setting.name]
+            if ($null -eq $element) { continue }
+            $script:covered[$setting.name] = $true
+            , @($element, $setting)
+        })
+    Check ($pairs.Count -gt 0) "$page shows setting controls"
+    Exercise $pairs
 }
 
 # Each band is a text field named for its frequency, in decibels. What is
@@ -519,15 +556,16 @@ function Drawer([string]$page, [string]$switch, [string[]]$options) {
     Page $page
     $script:step = "the options under $switch"
     Ask "report $switch 1" | Out-Null
-    foreach ($name in $options) {
-        $setting = $script:registry | Where-Object { $_.name -eq $name }
-        if (-not (Until { $null -ne ($script:found = Find $script:window 'AutomationIdProperty' $name) })) {
-            Fail "$page shows $name while $switch is on"
-            continue
-        }
-        $script:covered[$name] = $true
-        Exercise $script:found $setting
-    }
+    $pairs = @(foreach ($name in $options) {
+            $setting = $script:registry | Where-Object { $_.name -eq $name }
+            if (-not (Until { $null -ne ($script:found = Find $script:window 'AutomationIdProperty' $name) })) {
+                Fail "$page shows $name while $switch is on"
+                continue
+            }
+            $script:covered[$name] = $true
+            , @($script:found, $setting)
+        })
+    Exercise $pairs
     Ask "report $switch 0" | Out-Null
     Check (Until { $null -eq (Find $script:window 'AutomationIdProperty' $options[0]) }) "$page hides the options under $switch while it is off"
     Collect
@@ -565,7 +603,7 @@ function HomeExtras {
     $script:step = 'Superhuman Hearing on Home'
     $tile = Find $script:window 'AutomationIdProperty' 'superhuman_hearing'
     if ($null -eq $tile) { Fail 'Home has a Superhuman Hearing tile' }
-    else { Exercise $tile ($script:registry | Where-Object { $_.name -eq 'superhuman_hearing' }) }
+    else { Exercise @(, @($tile, ($script:registry | Where-Object { $_.name -eq 'superhuman_hearing' }))) }
 
     $script:step = 'Equaliser settings on Home'
     $open = { Control 'Equaliser settings' ([System.Windows.Automation.ControlType]::Button) }
@@ -1000,9 +1038,10 @@ try {
 
     if (Wanted 'Settings') {
         Section 'Settings'
-        foreach ($page in 'Audio', 'Controls', 'Device') { Settings $page }
+        Settings 'Audio'
         Drawer 'Audio' 'superhuman_hearing' 'shh_preset', 'shh_level'
         Drawer 'Audio' 'noise_gate' 'noise_gate_threshold'
+        foreach ($page in 'Controls', 'Device') { Settings $page }
         $missed = @($script:registry | Where-Object { $_.writable -and $_.kind -ne 'Text' -and -not $script:covered[$_.name] } | ForEach-Object { $_.name })
         Write-Host "  note  writable settings with no control on these pages: $($missed -join ', ')"
     }
