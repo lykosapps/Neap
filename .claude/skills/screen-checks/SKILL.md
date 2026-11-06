@@ -11,14 +11,15 @@ The one place for how Neap's screen checks are chosen and run. The `headset-chec
 
 - **List what changed:** write down which screens the change touched, then run only their checks and only the parts
   that cover the change. Never a check for a screen that didn't change.
-- **Cheapest first:** `dotnet test`, then `dotnet format`, then the one check part, then pictures. Notes and docs need
-  only the build. A rule in Core needs its tests, and its page's check only if what the page shows changes.
+- **Cheapest first:** `tools/check.ps1`, then `tools/ui/snap.ps1` for the changed page, then the one check part or
+  walk section that covers it. Notes and docs need only the build. A rule in Core needs its tests, and its page's check only if what the page shows changes.
 - **`all` only** for a release or a change to what every screen shares (startup, navigation, themes, `Ui.ps1`,
   `run.ps1`).
 - **A failure is fixed and rerun alone,** never the whole check or batch. Read each failure before calling it a bug:
   `tools/pretend.ps1` sometimes trips on timing, looking for a control once instead of waiting for it.
-- **Say the time** before a batch of more than two checks. Rough costs: build about 15 s, tests 20 s, publish 40 to
-  60 s, `all` a few minutes, `tools/pretend.ps1` about 3 minutes, a release's checks about half an hour.
+- **Say the time** before a batch of more than two checks. Rough costs: `check.ps1` about 40 s, `snap.ps1` about
+  10 s, a walk section 15 s to 2 minutes (Settings is the longest), `all` a few minutes, the whole walk about 7 minutes, a release's checks
+  about half an hour.
 - **Before changing on-screen text,** search `tools/` for the exact old sentence and update the checks in the same
   change, or a whole walk fails on one line.
 
@@ -55,11 +56,14 @@ Its Windows steps still change the PC's volume, mute and audio format for a mome
 - **`run.ps1 align`:** the alignment audit. It misreads Home's microphone tile (icon above its title) as 2 px off.
 - **`looks.ps1`:** draws every page in dark, light and high contrast for a person to look over. It does not publish
   when a source is newer, unlike `run.ps1`. Never use it for one page.
-- **One page, one picture:** launch the published app once per theme with that page's flags, for example
-  `Neap.Desktop.exe --pretend --behind --page equaliser --parametric --wired --wait 15 --snapshot <file> --dark`, then
-  `--light` and `--highcontrast`. Under a minute.
-- **`tools/pretend.ps1`:** the full walk of every page and setting. Once per finished change that is wide, or a
-  release; never to iterate on one screenshot.
+- **`tools/check.ps1`:** build, tests, whitespace format and publish, one `ok` or `FAIL` line each, in about 40 s.
+  The first step for every code change; `-NoPublish` when no screen check follows.
+- **`tools/ui/snap.ps1 -Page <page>`:** one page in dark, light and high contrast at once, in about 10 s, into
+  `TestResults/ui/snap`. `-Theme light` for one; `-More '--parametric','--wired'` for the page's own flags. The way
+  to look at a change to one page; it runs behind other windows, so it needs no hidden desktop.
+- **`tools/pretend.ps1`:** the walk of every page and setting. `-Only Equaliser,ChatWheel` runs just those sections
+  (names as it prints them, spaces left out); Connecting and the closing refusal check always run. A changed or
+  failed section reruns alone; the whole walk only for a release or a change every page shares.
 - **Menu items that answer only Enter** are pressed over the practice run's pipe (`press NAME`), so no key is sent.
 
 ## 5. Known traps

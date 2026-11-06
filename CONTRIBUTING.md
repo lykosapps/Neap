@@ -76,7 +76,11 @@ every screen through UI Automation, checks each command sent against the
 registry, and takes screenshots. It comes to the front as it changes page,
 so run it while nobody is using the machine. Add `-Theme Light` or
 `-Theme Dark` to see every screen in that theme without changing Windows'
-own.
+own, and `-Only Equaliser,ChatWheel` to run just those sections.
+
+`tools\check.ps1` builds, tests, checks formatting and publishes in one
+step, and `tools\ui\snap.ps1 -Page equaliser` draws one page in every theme
+into `TestResults\ui\snap`.
 
 To look at a screen while somebody works, launch it on that screen instead:
 `Neap.exe --pretend --behind --page audio` opens behind every window and

@@ -55,8 +55,17 @@ stopping.
 Show the app in Light or Dark, whatever Windows is set to. Left out, it
 follows Windows.
 
+.PARAMETER Only
+Run only these sections, by the names the walk prints, separated by commas
+and with their spaces left out: Pages, Settings, Equaliser, Windows,
+ChatWheel, Home, NoiseControl, Profiles, Headset. Connecting and Everything
+sent always run. All by default.
+
 .EXAMPLE
 powershell -ExecutionPolicy Bypass -File tools\pretend.ps1
+
+.EXAMPLE
+powershell -ExecutionPolicy Bypass -File tools\pretend.ps1 -Only Equaliser,ChatWheel
 #>
 param(
     [string]$Exe = (Join-Path $PSScriptRoot '..\src\Neap.Desktop\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\Neap.Desktop.exe'),
@@ -64,7 +73,8 @@ param(
     [switch]$KeepOpen,
     [switch]$Unattended,
     [ValidateSet('', 'Light', 'Dark')]
-    [string]$Theme = ''
+    [string]$Theme = '',
+    [string]$Only = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -93,6 +103,13 @@ $script:passes = 0
 
 # A section's heading, with how long the one before it took.
 $script:sectionClock = $null
+$sections = 'Pages', 'Settings', 'Equaliser', 'Windows', 'ChatWheel', 'Home', 'NoiseControl', 'Profiles', 'Headset'
+$chosen = @($Only -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+$unknown = @($chosen | Where-Object { $_ -notin $sections })
+if ($unknown.Count) { throw "no section named $($unknown -join ', '); the sections are $($sections -join ', ')" }
+
+function Wanted([string]$name) { $chosen.Count -eq 0 -or $chosen -contains ($name -replace ' ', '') }
+
 function Section([string]$name) {
     if ($script:sectionClock) { Write-Host ("  time  {0:0.0}s" -f $script:sectionClock.Elapsed.TotalSeconds) }
     $script:sectionClock = [Diagnostics.Stopwatch]::StartNew()
@@ -971,52 +988,70 @@ try {
     Check (Until { (Header) -eq 'Headset connected' } 20) 'the app reads the pretend headset as connected'
     Check ($script:window.Current.Name -like '*pretend*') 'the window says it is a pretend run'
 
-    Section 'Pages'
-    foreach ($page in 'Home', 'Audio', 'Equaliser', 'Controls', 'Profiles', 'Device', 'Settings') {
-        Page $page
-        # A moment for the page's entrance to finish drawing.
-        Start-Sleep -Milliseconds 400
-        Screenshot $page.ToLowerInvariant()
+    if (Wanted 'Pages') {
+        Section 'Pages'
+        foreach ($page in 'Home', 'Audio', 'Equaliser', 'Controls', 'Profiles', 'Device', 'Settings') {
+            Page $page
+            # A moment for the page's entrance to finish drawing.
+            Start-Sleep -Milliseconds 400
+            Screenshot $page.ToLowerInvariant()
+        }
     }
 
-    Section 'Settings'
-    foreach ($page in 'Audio', 'Controls', 'Device') { Settings $page }
-    Drawer 'Audio' 'superhuman_hearing' 'shh_preset', 'shh_level'
-    Drawer 'Audio' 'noise_gate' 'noise_gate_threshold'
-    $missed = @($script:registry | Where-Object { $_.writable -and $_.kind -ne 'Text' -and -not $script:covered[$_.name] } | ForEach-Object { $_.name })
-    Write-Host "  note  writable settings with no control on these pages: $($missed -join ', ')"
+    if (Wanted 'Settings') {
+        Section 'Settings'
+        foreach ($page in 'Audio', 'Controls', 'Device') { Settings $page }
+        Drawer 'Audio' 'superhuman_hearing' 'shh_preset', 'shh_level'
+        Drawer 'Audio' 'noise_gate' 'noise_gate_threshold'
+        $missed = @($script:registry | Where-Object { $_.writable -and $_.kind -ne 'Text' -and -not $script:covered[$_.name] } | ForEach-Object { $_.name })
+        Write-Host "  note  writable settings with no control on these pages: $($missed -join ', ')"
+    }
 
-    Section 'Equaliser'
-    Band 'Game' '1 kHz' '0x1270'
-    Preset 'Game' 'Vocal Boost' '0x1210' '4'
-    Band 'Microphone' '1 kHz' '0x1370'
-    Preset 'Microphone' 'Clarity' '0x1310' '3'
+    if (Wanted 'Equaliser') {
+        Section 'Equaliser'
+        Band 'Game' '1 kHz' '0x1270'
+        Preset 'Game' 'Vocal Boost' '0x1210' '4'
+        Band 'Microphone' '1 kHz' '0x1370'
+        Preset 'Microphone' 'Clarity' '0x1310' '3'
+        PresetTools
+    }
 
-    Section 'Windows'
-    WindowsOwned
-    Format
+    if (Wanted 'Windows') {
+        Section 'Windows'
+        WindowsOwned
+        Format
+    }
 
-    Section 'Chat wheel'
-    Wheel
+    if (Wanted 'Chat wheel') {
+        Section 'Chat wheel'
+        Wheel
+    }
 
-    PresetTools
+    if (Wanted 'Home') {
+        Section 'Home'
+        Quick
+        HomeExtras
+    }
 
-    Section 'Home'
-    Quick
-    HomeExtras
+    if (Wanted 'Noise control') {
+        Section 'Noise control'
+        NoiseControl
+    }
 
-    Section 'Noise control'
-    NoiseControl
+    if (Wanted 'Profiles') {
+        Section 'Profiles'
+        Profiles
+        AutoSwitching
+    }
 
-    Section 'Profiles'
-    Profiles
-    AutoSwitching
+    if (Wanted 'Headset') {
+        Section 'Headset'
+        Battery
+        Spare
+        PowerCycle
+    }
 
-    Section 'Headset'
-    Battery
-    Spare
-    PowerCycle
-
+    # Always, for whichever sections ran: nothing refused, no slot base address.
     Section 'Everything sent'
     Collect
     $refusals = @(Ask 'refusals')

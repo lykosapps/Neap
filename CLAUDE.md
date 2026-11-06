@@ -115,6 +115,7 @@ preparing code for experienced reviewers.
 ## Commands
 
 ```
+powershell -ExecutionPolicy Bypass -File tools\check.ps1
 dotnet build Neap.sln -c Release
 dotnet test --project tests/Neap.Core.Tests -c Release
 dotnet format Neap.sln --verify-no-changes
