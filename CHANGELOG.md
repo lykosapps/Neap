@@ -10,7 +10,7 @@ section it belongs to. At a release, those lines are bundled by theme
 into a short summary under the version number and date, and the detail
 stays in the commit history.
 
-## Unreleased
+## 0.5.0 — 2026-11-06
 
 ### Added
 

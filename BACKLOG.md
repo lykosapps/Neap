@@ -205,7 +205,7 @@ Needs the testers' replies on GitHub issue 1, not the owner's headset.
   (DECISIONS.md, 31 October). Left, on GitHub issue 1: the noise gate's
   reading at start, which the headset refuses; sound stopping while
   connected; and the replug on Linux after Neap is started by hand.
-- **Parametric on the Atlas Air, for 0.4.1.** Its firmware has the same live
+- **Parametric on the Atlas Air, after 0.5.0.** Its firmware has the same live
   band controls (read from its code); 0.4.0 only reads its bands into the
   log. Test build 0.4.0.1 turns it on (branch `test/0.4.0.1`, to be put on
   top of the 0.4.0 commit before it is tagged). It ships once a tester hears
