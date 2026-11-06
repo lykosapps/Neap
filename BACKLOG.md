@@ -20,6 +20,14 @@ Nothing here at the moment.
 Needs the screen on, and Windows switched into a high contrast theme and back.
 `tools\ui\looks.ps1` covers the pages as drawn by default; the rest is by eye.
 
+- **Every UI Automation action takes 2 s.** On the hidden check desktop, a
+  toggle, slider, list or page choice made through UI Automation takes exactly
+  2.00 s inside the app, whether the caller waits or not, and threading mode
+  makes no difference; reading values is fast. Avalonia raises its automation
+  events from inside each action, so the wait is likely there. Not yet known
+  whether it happens on the visible desktop, where a screen reader would feel
+  it. It is most of what is left of the pretend walk's seven minutes.
+
 - **High contrast, changing while Neap is open.** Neap kept the colours it
   read when it started. It now reads them again on each change (26 October),
   not yet seen: switch high contrast themes with Neap open and check the
