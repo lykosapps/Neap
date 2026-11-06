@@ -256,7 +256,9 @@ if ($Parts.Contains('F')) {
             finally { $script:Handle = $main }
         }
 
-        Press (Find-Id 'CloseButton')
+        # The old version shut its services down for the update, the practice
+        # run's pipe among them, so Close is pressed through UI Automation.
+        (Find-Id 'CloseButton').GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
         Check ($script:Proc.WaitForExit(8000)) 'Close ends the old version'
     }
     finally { Stop-NeapPretend }
