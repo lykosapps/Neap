@@ -56,7 +56,7 @@ public class ProfileEditsTests
     public void AHeadsetWithNoParametricEqualiserKeepsTheProfilesShape()
     {
         var saved = With("Bass Boost", "Clarity") with { GameShape = Shape(3) };
-        Assert.Equal(Shape(3), ProfileEdits.Keeping(OnAnAtlasAir(), saved, HeadsetModels.AtlasAir).GameShape);
+        Assert.Equal(Shape(3), ProfileEdits.Keeping(OnAnAtlasAir(), saved, HeadsetModels.AtlasAir with { HasParametricBands = false }).GameShape);
         Assert.Null(ProfileEdits.Keeping(With("Bass Boost", "Clarity"), saved, HeadsetModels.StealthProII).GameShape);
     }
 

@@ -12,8 +12,20 @@ stays in the commit history.
 
 ## 0.5.0 — 2026-11-06
 
+**Firmware edits for the Stealth Pro II, a parametric equaliser for the
+Atlas Air, and the mix on screen.**
+
 ### Added
 
+- **Firmware edits for the Stealth Pro II.** On Windows, turning on
+  Firmware edits in Settings adds a Firmware page with two changes to the
+  headset's firmware: the Mode button steps through noise cancellation,
+  transparency and off even with Neap closed, and the headset's light stays
+  dark while it is disconnected. Neap backs up the firmware before every
+  change, checks what it wrote, and can put the factory firmware back.
+- **A parametric equaliser for the Atlas Air.** The Atlas Air gets the
+  Stealth Pro II's parametric equaliser: choose where each band sits, how
+  wide it is and how much it boosts or cuts.
 - **The mix on screen.** On Windows, turning the headset's chat wheel or
   pressing the mix's keyboard shortcuts shows the game and chat mix in a
   slim bar for a moment at the foot of the screen, over a game in a window, without taking

@@ -241,6 +241,7 @@ public static class HeadsetModels
         ReadsMonitoringBack = true,
         LogsInputs = true,
         LogsParametricBands = true,
+        HasParametricBands = true,
     };
 
     public static readonly IReadOnlyList<HeadsetModel> All = [StealthProII, AtlasAir];

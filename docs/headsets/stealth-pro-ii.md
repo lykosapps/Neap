@@ -82,7 +82,7 @@ system tried with a real headset.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (chosen on Controls, hidden until firmware edits are released): the headset steps through off, transparency and noise cancellation itself, and Neap only follows; on the owner's headset Neap shows Transparency while the headset is in noise cancellation; see Evidence. |
+| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (chosen on Controls, shown on Windows from 0.5.0 once firmware edits are turned on): the headset steps through off, transparency and noise cancellation itself, and Neap only follows; on the owner's headset Neap shows Transparency while the headset is in noise cancellation; see Evidence. |
 | Lower wheel: monitoring, game and chat mix, bass, treble, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xA20` | — |
 
 ### Additional settings
@@ -102,7 +102,7 @@ system tried with a real headset.
 | Voice prompt for each transmitter (none, 1–4) | Listed | Unknown: not yet found | Missing | — | — | Unknown | Turtle Beach's article lists it under Charging Hub. Find where it's kept. |
 | Voice prompt volume | Listed; mobile app only since June 2026 | Yes | Has | Confirmed | Confirmed | `0x2D0` | Swarm II's desktop app has had it switched off since 1.0.0.47. |
 | Dock light brightness, two lights | Listed | Yes | Has | Confirmed | Confirmed | `0x401`, `0x402` | — |
-| Firmware updates | Listed | Yes, but Neap leaves updates to Swarm II | Not planned | — | — | — | Neap never updates the firmware. SP2Tools' firmware edits have a page in Neap, kept out of every release until Neap's own writer is proven on a headset (built 2 November 2026: live state from the flash, download mode found and read on the owner's headset, writes untried; checks 37-44 in `docs/design/HEADSET-CHECKS.md`) (DECISIONS.md, 22 October); a firmware write is the riskiest thing Neap could do. |
+| Firmware updates | Listed | Yes, but Neap leaves updates to Swarm II | Not planned | — | — | — | Neap never updates the firmware. SP2Tools' firmware edits have a page in Neap, on Windows from 0.5.0 and for a Stealth Pro II only (DECISIONS.md, 6 November): checks 37 to 41 in `docs/design/HEADSET-CHECKS.md` passed on the owner's headset; 42 (unplugged part way), 43 (Swarm II recovery) and 44 (Linux, in test build 0.5.0.1) are still to run. A firmware write is the riskiest thing Neap could do. |
 
 ### Swarm II's own settings
 
@@ -153,6 +153,9 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
+- 2026-11-06 — Firmware edits go into 0.5.0 on Windows, the owner's call,
+  shown only once a Stealth Pro II has connected. Test build 0.5.0.1 turns
+  them on for Linux testers, for check 44.
 - 2026-11-05 — Owner, the try-it copy with the Firmware page on, first real
   write with the held run dialog: the light edit applied through "Write and
   check" in 48.5 seconds and read back as written (the noise cycle was already

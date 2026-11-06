@@ -27,6 +27,14 @@ public class FirmwareEditTests
     public void AnUnknownHeadsetHasNoEdits() => Assert.Empty(FirmwareEdit.For(null));
 
     [Fact]
+    public void EditsAreOfferedForTheStealthProIIAlone()
+    {
+        Assert.Equal(OperatingSystem.IsWindows(), FirmwareEdit.Offered(HeadsetModels.StealthProII));
+        Assert.False(FirmwareEdit.Offered(HeadsetModels.AtlasAir));
+        Assert.False(FirmwareEdit.Offered(null));
+    }
+
+    [Fact]
     public void EverySectionStartsOnASectionBoundary() =>
         Assert.All(FirmwareEdit.All.SelectMany(edit => edit.Sectors), sector => Assert.Equal(0, sector % FirmwareEdit.SectorSize));
 

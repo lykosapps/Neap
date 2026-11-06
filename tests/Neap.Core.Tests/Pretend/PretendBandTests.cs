@@ -64,17 +64,14 @@ public class PretendBandTests
     }
 
     [Fact]
-    public void ABandIsNotSentToAHeadsetItIsNotKnownFor()
+    public void ABandIsSentToTheAtlasAirThroughItsTransmitter()
     {
         var headset = new PretendHeadset(atlas: true);
         using var client = new HeadsetClient(allowWrites: true, transport: headset.Open());
-        var attempts = new List<WriteAttempt>();
-        client.Wrote += attempts.Add;
 
-        Assert.Throws<InvalidOperationException>(() => client.SetBand(new BandWrite(5, BandParameter.Gain, 4)));
+        client.SetBand(new BandWrite(5, BandParameter.Gain, 4));
 
-        Assert.Equal(StockBands.Game, headset.Bands);
-        Assert.NotNull(Assert.Single(attempts).Refused);
+        Assert.Equal(4, headset.Bands[5].Gain);
     }
 
     [Fact]
@@ -102,6 +99,6 @@ public class PretendBandTests
         Assert.Equal(["Atlas Air"], HeadsetModels.All.Where(model => model.LogsParametricBands).Select(model => model.Name));
 
     [Fact]
-    public void OnlyTheStealthProIIHasParametricBands() =>
-        Assert.Equal(["Stealth Pro II"], HeadsetModels.All.Where(model => model.HasParametricBands).Select(model => model.Name));
+    public void BothHeadsetsHaveParametricBands() =>
+        Assert.Equal(["Stealth Pro II", "Atlas Air"], HeadsetModels.All.Where(model => model.HasParametricBands).Select(model => model.Name));
 }

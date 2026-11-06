@@ -2,8 +2,6 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Layout;
-using Neap.Core;
-using Neap.Core.Diagnostics;
 using Neap.Core.Settings;
 
 namespace Neap.Desktop.Controls;
@@ -148,8 +146,7 @@ public sealed class ModeButtonChoice : UserControl
         _options.IsEnabled = shown is not null && _link.CanWrite;
         if (_noiseButton is not null)
             _noiseButton.Content = headsetCycles ? Strings.Get("Mode_NoiseCycleFirmware") : _noiseLabel;
-        _firmware.IsVisible = Core.Firmware.FirmwareEdit.Released
-            && HeadsetModels.Shows(AppServices.Headset.Model, Feature.NoiseControl);
+        _firmware.IsVisible = Core.Firmware.FirmwareEdit.Offered(AppServices.Headset.Model);
         _painting = true;
         try
         {

@@ -76,6 +76,7 @@ public partial class MainWindow : Window
         DrawOwnTitleBar();
 
         FirmwareSettingChanged();
+        AppServices.Headset.StatusChanged += _ => FirmwareSettingChanged();
         Open(Pretend.Page ?? "home");
         StartTray();
         MixOverlayWindow.Watch();
@@ -129,13 +130,14 @@ public partial class MainWindow : Window
     /// <summary>Puts the Firmware page in the menu when it is asked for in Settings, and takes it out when it is not.</summary>
     /// <remarks>
     /// Taken out of the list rather than hidden: the list's panel shows every
-    /// item it lays out, whatever the item says. Never shown in a release
-    /// without firmware edits (<see cref="Core.Firmware.FirmwareEdit.Released"/>),
-    /// except to a pretend run asked to open it, so a picture of it can be taken.
+    /// item it lays out, whatever the item says. Shown only where edits are
+    /// offered for the headset (<see cref="Core.Firmware.FirmwareEdit.Offered"/>),
+    /// so it follows the headset as it connects, except to a pretend run asked
+    /// to open it, so a picture of it can be taken.
     /// </remarks>
     public void FirmwareSettingChanged()
     {
-        bool wanted = (Core.Firmware.FirmwareEdit.Released && AppSettings.Current.ShowFirmwareEdits)
+        bool wanted = (Core.Firmware.FirmwareEdit.Offered(AppServices.Headset.Model) && AppSettings.Current.ShowFirmwareEdits)
             || (Pretend.Active && Pretend.Page == "firmware");
         bool listed = Places.Items.Contains(FirmwareNav);
         if (wanted && !listed) Places.Items.Add(FirmwareNav);

@@ -63,6 +63,7 @@ asks for. SP2Tools has read the headset's firmware for every open question
 |---|---|---|---|---|---|---|---|
 | Game equaliser, 4 presets | Listed | Yes | Has | Seen | Blocked | `0x1210` | Encoded as on the Stealth Pro II (F122, Read). Ask the tester to listen. |
 | Game equaliser, 10 bands | Listed | Yes | Has | Seen | Blocked | `0x1220`–`0x12B0`, tenths of a dB, ±9 dB | As above. Bands are not kept through a power cycle (F122). |
+| Parametric game equaliser: each band's filter, frequency, width and gain, live | Not listed | Yes, as on the Stealth Pro II (read from its firmware) | Has | Heard, system not said | Heard, system not said | `0x000A`, `0x500B` | On from 0.5.0 (DECISIONS.md, 6 November). Both testers heard a band change in test build 0.4.0.1; one hears crackling while a band is dragged. Whether a band change turns Superhuman Hearing off is not known. |
 | Mic equaliser, 4 presets | Listed | Yes | Has | Seen | Blocked | `0x1310` | As above. |
 | Mic equaliser, 10 bands | Listed | Yes | Has | Seen | Blocked | `0x1320`–`0x13B0` | As above. |
 | Custom presets, save and delete | Listed | Yes | Has | Untried | Blocked | `0x1600`–`0x1630` | Ask the tester to save and delete one. |
@@ -159,6 +160,9 @@ From the quick start guide. Neap describes them; it doesn't set them.
 
 Newest first.
 
+- 2026-11-06 — Parametric goes into 0.5.0, the owner's call. On GitHub
+  issue 1 both testers said a band change is heard with 0.4.0.1; one hears
+  crackling while dragging a band, which the headset's filter swap explains.
 - 2026-10-31 — Test build 0.4.0.1 published, 0.4.0 with Parametric on for
   the Atlas Air. Both testers asked to turn it on, raise one band by a lot
   and say whether they hear it; the Linux tester also asked to attach the

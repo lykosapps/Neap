@@ -65,7 +65,7 @@ public partial class SettingsPage : UserControl
         MiniCard.IsVisible = TrayAvailability.Exists;
         MiniTilesCard.Below = MiniTileChoices();
         MiniTilesCard.IsVisible = TrayAvailability.Exists && AppSettings.Current.MiniPanel;
-        Advanced.IsVisible = Core.Firmware.FirmwareEdit.Released || Pretend.Active;
+        Advanced.IsVisible = Core.Firmware.FirmwareEdit.Offered(AppServices.Headset.Model) || Pretend.Active;
 
         _painting = true;
         MiniPanelSwitch.IsChecked = AppSettings.Current.MiniPanel;

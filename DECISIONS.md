@@ -1,5 +1,39 @@
 # Decisions
 
+## 2026-11-06 — Firmware edits ship in 0.5.0, on Windows, for the Stealth Pro II
+
+- **Options:** keep them out until checks 42 to 44 pass; ship them on
+  Windows and Linux; ship them on Windows only, with Linux in a test build.
+- **Chosen:** Windows only, the owner's call. `FirmwareEdit.Released` is on
+  for Windows, and the page, its switch in Settings and the Mode button's
+  firmware choice show only once a Stealth Pro II has connected
+  (`FirmwareEdit.Offered`). Linux testers get the page in test build
+  0.5.0.1.
+- **Why:** Neap's own writer has written and restored the owner's headset
+  on Windows (checks 37 to 41), which is what the hold of 22 October waited
+  for. It has never run on Linux. The edits are made for the Stealth Pro
+  II's firmware alone, so another headset has nothing to apply.
+- **Not yet tried on the headset:** unplugging part way (check 42), a
+  Swarm II recovery (43), Linux (44), and the run over the whole window,
+  the backups list and Restore from file, which have run only against the
+  pretend headset.
+- **Changes:** "Firmware edits wait for a later release" (22 October).
+- **Revisit if** a write on a user's headset goes wrong, or check 44 passes:
+  turn it on for Linux.
+
+## 2026-11-06 — Parametric is on for the Atlas Air in 0.5.0
+
+- **Options:** keep it in test builds only; turn it on for everyone.
+- **Chosen:** on for everyone, the owner's call; the Atlas Air has
+  `HasParametricBands`.
+- **Why:** both testers heard a band change in test build 0.4.0.1 (GitHub
+  issue 1), which is what the decision of 31 October waited for. One hears
+  crackling while a band is dragged, as the headset swaps filters with no
+  fade between them.
+- **Changes:** "Parametric is on for the Stealth Pro II in 0.4.0"
+  (31 October), for the Atlas Air.
+- **Revisit if** a tester reports a shape that does not play as drawn.
+
 ## 2026-11-05 — The mix's settings live on its card
 
 - **Options:** keep the keyboard shortcuts and the overlay's switch on the

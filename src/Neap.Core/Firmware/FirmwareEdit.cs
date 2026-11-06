@@ -143,14 +143,19 @@ public sealed record EditPlan(IReadOnlyList<FirmwareEdit> Changing, IReadOnlyLis
 /// <param name="Changes">The bytes it changes, in the order they are written to put it on.</param>
 public sealed record FirmwareEdit(string Id, HeadsetModel Model, string FirmwareBuild, IReadOnlyList<int> Sectors, IReadOnlyList<FlashChange> Changes)
 {
-    /// <summary>Whether firmware edits are in this release of Neap at all.</summary>
+    /// <summary>Whether firmware edits are in this release of Neap on this system.</summary>
     /// <remarks>
-    /// Off until Neap has its own writer for a real headset. While it is off
-    /// the Firmware page and its switch in Settings are nowhere to be found,
-    /// whatever the settings file says; only a pretend run asked to open the
-    /// page shows it, against the pretend headset.
+    /// On Windows only: Neap's writer has written a real headset there, and
+    /// has not been tried on Linux. Off, the Firmware page and its switch in
+    /// Settings are nowhere to be found, whatever the settings file says; only
+    /// a pretend run asked to open the page shows it, against the pretend
+    /// headset.
     /// </remarks>
-    public const bool Released = false;
+    public static bool Released { get; } = OperatingSystem.IsWindows();
+
+    /// <summary>Whether firmware edits are offered for a headset: in a release that has them, for a headset with edits made for it.</summary>
+    /// <remarks>Only the Stealth Pro II has any, so another headset, or none known yet, is offered nothing.</remarks>
+    public static bool Offered(HeadsetModel? model) => Released && For(model).Count > 0;
 
     /// <summary>Whether the parametric equaliser is in this release of Neap.</summary>
     /// <remarks>
