@@ -50,6 +50,16 @@ public class FirmwareEditTests
     }
 
     [Fact]
+    public void AChangeAccountsForTheFactorysBytesAndTheEditsAndNothingElse()
+    {
+        var call = Cycle.Changes[1];
+        Assert.True(call.Accounts([.. call.Factory]));
+        Assert.True(call.Accounts([.. call.Active]));
+        Assert.False(call.Accounts([0x00, 0x00, 0x00, 0x00]));
+        Assert.False(call.Accounts([.. call.Active.Take(3)]));
+    }
+
+    [Fact]
     public void TheAtlasAirHasNoEdits() => Assert.Empty(FirmwareEdit.For(HeadsetModels.AtlasAir));
 
     [Fact]

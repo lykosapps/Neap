@@ -27,6 +27,10 @@ public enum EditStatus
 /// <param name="Active">The bytes the edit puts there.</param>
 public sealed record FlashChange(int Address, IReadOnlyList<byte> Factory, IReadOnlyList<byte> Active)
 {
+    /// <summary>Whether bytes read at the address are ones this change accounts for: the factory's or the edit's.</summary>
+    /// <remarks>Anything else is either another change to the firmware or a read gone wrong, so it is worth reading again before it is believed.</remarks>
+    public bool Accounts(ReadOnlySpan<byte> read) => read.SequenceEqual([.. Factory]) || read.SequenceEqual([.. Active]);
+
     /// <summary>The change for a run of bytes, from their hex.</summary>
     public static FlashChange Of(int address, string factory, string active) =>
         new(address, Convert.FromHexString(factory), Convert.FromHexString(active));

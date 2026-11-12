@@ -64,12 +64,11 @@ Needs the headset on the Windows app, and the owner present. Run
 `tools\ui\run.ps1 hardware` first.
 
 ### To check
-- **Before 0.5.0 is tagged: the noise cycle edit's last checks.** The
-  reworked edit was written to the owner's headset on 12 November, and every Mode
-  press then showed the right mode in Neap (headset tracker). Still to do:
-  switch the headset off and on in transparency and see Neap show it, choose
-  each mode from Neap and press Mode after each, and hear that the three
-  modes and their tones are as before.
+- **A firmware read that comes back wrong, read again.** Once, straight
+  after the headset reconnected, an edit that was intact read as Changed (13
+  November). A read that fits neither the factory's bytes nor the edit's is
+  now asked a second time; not yet seen to catch one. Watch the app log for
+  "so it is read again", and for a Changed that outlasts it.
 - **Neap's own cycle in its new order, by ear.** It now steps off,
   transparency, cancelling, and goes to transparency by turning the level
   down after the headset has turned noise cancellation on. Tests and

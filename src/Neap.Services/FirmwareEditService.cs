@@ -195,6 +195,15 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             foreach (var change in changes)
             {
                 if (client.ReadFlash(change.Address, change.Factory.Count, FlashWait) is not { } run) return null;
+                // A read can come back wrong, most often straight after the headset connects, and would show
+                // an edit that is intact as changed by something else. So a read that fits neither is asked again.
+                if (!change.Accounts(run))
+                {
+                    AppLog.Write(string.Create(CultureInfo.InvariantCulture,
+                        $"firmware edits: {change.Address:X8} read as neither the factory's bytes nor the edit's, so it is read again"));
+                    if (client.ReadFlash(change.Address, change.Factory.Count, FlashWait) is not { } again) return null;
+                    run = again;
+                }
                 bytes[change.Address] = run;
             }
             return bytes;

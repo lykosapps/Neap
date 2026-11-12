@@ -147,6 +147,17 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
+- 2026-11-13 — Owner, the try-it copy, through the Charging Dock, the
+  reworked noise cycle edit's last checks, each matched in the app log.
+  Switched off and on in transparency, the headset came back in
+  transparency and Neap showed it (`0x750` 1, `0x760` 0 on reconnect). Each
+  mode chosen in Neap, then one Mode press, moved on to the next step from
+  where Neap had put it. The three modes and their tones sounded as before
+  the re-write (owner, by ear). In the same sitting the flash read two
+  seconds after the reconnect gave the noise cycle as Changed, while the
+  edit went on working and every earlier read had said Installed: a read
+  gone wrong. Neap now reads such a value again before believing it (not
+  yet seen to catch one).
 - 2026-11-12 — Owner, the try-it copy: the reworked noise cycle edit applied
   over the older code, which read as Changed. Both sections read back as
   written; the light edit was already on, so its session wrote nothing.
