@@ -5,6 +5,7 @@ using Avalonia.Automation.Peers;
 using Avalonia.Automation.Provider;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Threading;
@@ -96,11 +97,37 @@ internal static class PretendPress
         _ => peer.IsKeyboardFocusable(),
     };
 
-    private static List<Control> Controls() =>
-        Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.Windows.SelectMany(window => window.GetLogicalDescendants().OfType<Control>())
-                .Where(c => c.IsAttachedToVisualTree() && c.IsEffectivelyVisible).ToList()
-            : [];
+    /// <summary>Every control on show: those a page declares first, then the parts drawn inside them and what is open over them.</summary>
+    /// <remarks>
+    /// A page's own controls come first, so a name or id is matched to one of
+    /// them before a part inside another control that shares it. The parts are
+    /// still needed: an expander's header is drawn by the expander, and what a
+    /// flyout or a popup shows is drawn in a host of its own, outside the tree
+    /// of the window it opens over.
+    /// </remarks>
+    private static List<Control> Controls()
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) return [];
+        var declared = desktop.Windows.SelectMany(window => window.GetLogicalDescendants().OfType<Control>()).ToList();
+        var drawn = new List<Control>();
+        var roots = new Queue<Visual>(desktop.Windows);
+        var seen = new HashSet<Visual>(desktop.Windows);
+        while (roots.TryDequeue(out var root))
+            foreach (var control in root.GetVisualDescendants().OfType<Control>())
+            {
+                drawn.Add(control);
+                var over = control switch
+                {
+                    Popup { IsOpen: true, Child: { } shown } => shown,
+                    Button { Flyout: Flyout { IsOpen: true, Content: Control shown } } => shown,
+                    _ => null,
+                };
+                if (over is null || !seen.Add(over)) continue;
+                drawn.Add(over);
+                roots.Enqueue(over);
+            }
+        return declared.Concat(drawn.Except(declared)).Where(c => c.IsAttachedToVisualTree() && c.IsEffectivelyVisible).ToList();
+    }
 
     private static T Provider<T>(AutomationPeer peer, string verb, string id) where T : class =>
         peer.GetProvider<T>() ?? throw new ArgumentException($"'{id}' cannot {verb}");

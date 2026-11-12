@@ -13,6 +13,11 @@ group only; a line that touches two says so in its text.
 
 Needs only the code and the tests. Safe to do in one go.
 
+- **Before 0.5.0 is tagged: the saved parametric presets check.**
+  `tools\ui\run.ps1 parametric-presets` fails on the hidden desktop at "it
+  asks for a name", after Duplicate is pressed (12 November, twice). Not yet
+  known whether the dialog does not open or the check does not find it
+  there; run it on the screen to tell, then fix whichever it is.
 - **Some screen checks still wait 2 s per action.** On the desktop
   `tools\pretend-quiet.ps1` makes, an action carried into the app by UI
   Automation lands exactly 2.00 s later (on the visible desktop, under
