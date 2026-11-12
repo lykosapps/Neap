@@ -1,5 +1,25 @@
 # Decisions
 
+## 2026-11-12 — Which firmware runs the Mode button is read, not asked
+
+- **Options:** keep the Stock or Edited choice on Controls; read the noise
+  cycle edit from the headset's flash and keep the choice as a fallback;
+  read it and drop the choice.
+- **Chosen:** read it and drop the choice. Each time the headset connects
+  Neap reads the flash where the edit changes it, and noise cancellation's
+  modes and the Mode button's jobs follow what is there. What the flash last
+  said is kept for when it cannot be read: the headset off, or a write under
+  way.
+- **Why:** the owner's headset had the edit installed, shown as Installed on
+  the Firmware page, while Controls still said Stock, so the modes were in
+  the wrong order and the app's own cycle was still offered. Neap has read
+  the edits from the flash since 2 November, which the choice was made
+  before.
+- **Changes:** the Mode button's firmware choice in "Firmware edits ship in
+  0.5.0" (6 November).
+- **Revisit if:** a headset is found whose flash cannot be read through its
+  transmitter.
+
 ## 2026-11-06 — Firmware edits ship in 0.5.0, on Windows, for the Stealth Pro II
 
 - **Options:** keep them out until checks 42 to 44 pass; ship them on

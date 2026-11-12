@@ -1,4 +1,6 @@
 using System.Globalization;
+using Neap.Core.Connection;
+using Neap.Core.Firmware;
 using Neap.Core.Settings;
 
 namespace Neap.Services;
@@ -14,6 +16,11 @@ namespace Neap.Services;
 /// the Mode button cycles through all three modes.
 /// </para>
 /// <para>
+/// Whether the headset's own firmware runs that cycle is read from its flash
+/// each time it connects, since an update or an edit while it was off changes
+/// it. What the flash last said is kept, for the moments it cannot be read.
+/// </para>
+/// <para>
 /// Every change the app makes to noise control goes through here, so that a
 /// change nobody here made can be taken for a press of the Mode button.
 /// Runs on the UI thread, with the headset service's events.
@@ -22,20 +29,24 @@ namespace Neap.Services;
 public sealed class NoiseService : IDisposable
 {
     private readonly HeadsetService _headset;
+    private readonly FirmwareEditService _firmware;
     private readonly NoiseControl _noise;
+    private bool _connected;
 
-    public NoiseService(HeadsetService headset)
+    public NoiseService(HeadsetService headset, FirmwareEditService firmware)
     {
         _headset = headset;
+        _firmware = firmware;
         var saved = AppSettings.Current;
-        // A firmware choice saved while firmware edits were shown is not acted on
-        // where it cannot be seen or changed.
+        // What a release with firmware edits saved is not acted on by one without them.
         _noise = new NoiseControl(saved.NoiseBlocking)
         {
             Cycling = saved.ModeCyclesNoise,
-            HeadsetCycles = Core.Firmware.FirmwareEdit.Released && saved.HeadsetCyclesNoise,
+            HeadsetCycles = FirmwareEdit.Released && saved.HeadsetCyclesNoise,
         };
         _headset.Changed += OnChanged;
+        _headset.StatusChanged += OnStatus;
+        _firmware.Changed += OnFirmware;
     }
 
     /// <summary>The mode, the remembered level or the cycling changed.</summary>
@@ -85,19 +96,37 @@ public sealed class NoiseService : IDisposable
         Changed?.Invoke();
     }
 
-    /// <summary>Set whether the headset's own firmware steps the Mode button through all three modes.</summary>
-    public void SetHeadsetCycles(bool headsetCycles)
+    private async void OnStatus(HeadsetStatus status)
     {
-        _noise.HeadsetCycles = headsetCycles;
-        AppSettings.Update(s => s.HeadsetCyclesNoise = headsetCycles);
-        AppLog.Write(headsetCycles
+        bool connected = status.Link == Link.Connected;
+        bool justConnected = connected && !_connected;
+        _connected = connected;
+        if (justConnected && FirmwareEdit.Released && !_firmware.Busy) await _firmware.ReadFlash();
+    }
+
+    private void OnFirmware()
+    {
+        if (FollowFirmware()) Changed?.Invoke();
+    }
+
+    /// <summary>Takes whether the headset runs the cycle from its flash as last read, and says whether that changed.</summary>
+    private bool FollowFirmware()
+    {
+        if (!FirmwareEdit.Released) return false;
+        bool cycles = NoiseControl.HeadsetCyclesFor(_firmware.StatusOf(FirmwareEdit.NoiseCycle), _noise.HeadsetCycles);
+        if (cycles == _noise.HeadsetCycles) return false;
+        _noise.HeadsetCycles = cycles;
+        AppSettings.Update(s => s.HeadsetCyclesNoise = cycles);
+        AppLog.Write(cycles
             ? "noise control: the headset's edited firmware runs the Mode button's cycle"
-            : "noise control: the headset's firmware is stock, so Neap runs the Mode button's cycle when asked");
-        Changed?.Invoke();
+            : "noise control: the headset's firmware does not run the Mode button's cycle, so Neap does when asked");
+        return true;
     }
 
     private void OnChanged()
     {
+        // The flash can be read before the headset has reported the firmware version it is judged against.
+        FollowFirmware();
         var before = _noise.Mode;
         var writes = _noise.Observe(Number(NoiseControl.AncKey), Number(NoiseControl.LevelKey));
         if (writes.Count > 0)
@@ -127,5 +156,10 @@ public sealed class NoiseService : IDisposable
         foreach (var write in writes) _headset.SetKey(write.Key, write.Value, hold);
     }
 
-    public void Dispose() => _headset.Changed -= OnChanged;
+    public void Dispose()
+    {
+        _headset.Changed -= OnChanged;
+        _headset.StatusChanged -= OnStatus;
+        _firmware.Changed -= OnFirmware;
+    }
 }

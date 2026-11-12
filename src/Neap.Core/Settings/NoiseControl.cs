@@ -1,3 +1,5 @@
+using Neap.Core.Firmware;
+
 namespace Neap.Core.Settings;
 
 /// <summary>What the headset does with the sound around it.</summary>
@@ -35,9 +37,9 @@ public readonly record struct SettingWrite(int Key, int Value);
 /// A Stealth Pro II with edited firmware runs the whole cycle itself, as off,
 /// transparency, then cancelling, and writes both keys as it goes. With
 /// <see cref="HeadsetCycles"/> on, a press is only followed, never finished,
-/// since a step sent here would move the headset on a second time. Nothing
-/// the headset reports tells the two firmwares apart, so the person says
-/// which one it has.
+/// since a step sent here would move the headset on a second time. The
+/// headset reports the same version either way, so which firmware it has is
+/// read from its flash; see <see cref="HeadsetCyclesFor"/>.
 /// </para>
 /// </remarks>
 /// <param name="blocking">The level noise cancellation was last used at, or null if never.</param>
@@ -72,6 +74,17 @@ public sealed class NoiseControl(int? blocking)
     public static IReadOnlyList<NoiseMode> Order(bool headsetCycles) => headsetCycles
         ? [NoiseMode.Off, NoiseMode.Transparency, NoiseMode.Cancelling]
         : [NoiseMode.Off, NoiseMode.Cancelling, NoiseMode.Transparency];
+
+    /// <summary>Whether the headset's own firmware runs the Mode button's cycle, from the edit that adds it.</summary>
+    /// <param name="edit">The state of <see cref="FirmwareEdit.NoiseCycle"/>, as read from the headset's flash.</param>
+    /// <param name="lastKnown">What the flash last said, which stands while it gives no clear answer.</param>
+    /// <remarks>The flash cannot be read while the headset is off or being written, and the Mode button still works then.</remarks>
+    public static bool HeadsetCyclesFor(EditStatus edit, bool lastKnown) => edit switch
+    {
+        EditStatus.Installed => true,
+        EditStatus.NotInstalled or EditStatus.DoesNotFit => false,
+        _ => lastKnown,
+    };
 
     /// <summary>Sets the level noise cancellation comes back at, such as one a profile saved.</summary>
     public void SetBlocking(int level) => Blocking = Math.Clamp(level, LeastBlocking, 100);

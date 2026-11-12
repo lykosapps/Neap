@@ -82,7 +82,7 @@ system tried with a real headset.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (chosen on Controls, shown on Windows from 0.5.0 once firmware edits are turned on): the headset steps through off, transparency and noise cancellation itself, and Neap only follows; on the owner's headset Neap shows Transparency while the headset is in noise cancellation; see Evidence. |
+| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (read from the headset's flash as it connects, on Windows from 0.5.0): the headset steps through off, transparency and noise cancellation itself, and Neap only follows; on the owner's headset Neap shows Transparency while the headset is in noise cancellation; see Evidence. |
 | Lower wheel: monitoring, game and chat mix, bass, treble, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xA20` | — |
 
 ### Additional settings
@@ -137,11 +137,7 @@ system tried with a real headset.
 ## Next
 
 - [ ] Firmware edit, in SP2Tools: report `0x760` on each level change of the
-      noise cycle, and set a mark Neap can read that says which edits are
-      installed.
-- [ ] Neap, once SP2Tools has chosen the mark: read it, show each screen for
-      the edits found, and keep the Stock or Edited choice on Controls only as a
-      fallback.
+      noise cycle.
 - [ ] Find where the per-transmitter voice prompt (none, 1–4) is kept.
 - [ ] Decide on hotkeys for more than the mix, Chat Boost and battery warnings.
 - [ ] Read the Xbox edition's article for anything it lists differently.
@@ -153,6 +149,12 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
+- 2026-11-12 — Owner's headset, the try-it copy: the Firmware page read the
+  noise cycle as Installed (app log) while Audio and Home offered Off,
+  Cancelling, Transparency, the stock order, since Controls still said Stock.
+  Neap now reads the edit as the headset connects and drops the Stock or
+  Edited choice (DECISIONS.md, 12 November). Tests and a practice run only;
+  not yet tried on the headset.
 - 2026-11-06 — Firmware edits go into 0.5.0 on Windows, the owner's call,
   shown only once a Stealth Pro II has connected. Test build 0.5.0.1 turns
   them on for Linux testers, for check 44.

@@ -1,3 +1,4 @@
+using Neap.Core.Firmware;
 using Neap.Core.Settings;
 
 namespace Neap.Core.Tests.Settings;
@@ -45,6 +46,17 @@ public class NoiseControlTests
     [Fact]
     public void EditedFirmwareShowsTheModesInTheHeadsetsCycle() =>
         Assert.Equal([NoiseMode.Off, NoiseMode.Transparency, NoiseMode.Cancelling], NoiseControl.Order(headsetCycles: true));
+
+    [Theory]
+    [InlineData(EditStatus.Installed, false, true)]
+    [InlineData(EditStatus.NotInstalled, true, false)]
+    [InlineData(EditStatus.DoesNotFit, true, false)]
+    [InlineData(EditStatus.Unknown, true, true)]
+    [InlineData(EditStatus.Unknown, false, false)]
+    [InlineData(EditStatus.Altered, true, true)]
+    [InlineData(EditStatus.Altered, false, false)]
+    public void TheHeadsetsCycleFollowsTheFlashAndStandsWhileItIsUnclear(EditStatus edit, bool lastKnown, bool cycles) =>
+        Assert.Equal(cycles, NoiseControl.HeadsetCyclesFor(edit, lastKnown));
 
     [Fact]
     public void NoiseCancellationRemembersTheLevelItWasUsedAt()

@@ -22,7 +22,9 @@ Atlas Air, and the mix on screen.**
   headset's firmware: the Mode button steps through noise cancellation,
   transparency and off even with Neap closed, and the headset's light stays
   dark while it is disconnected. Neap backs up the firmware before every
-  change, checks what it wrote, and can put the factory firmware back.
+  change, checks what it wrote, and can put the factory firmware back. It
+  reads which edits the headset has, and shows noise cancellation's modes in
+  the order the Mode button steps through them.
 - **A parametric equaliser for the Atlas Air.** The Atlas Air gets the
   Stealth Pro II's parametric equaliser: choose where each band sits, how
   wide it is and how much it boosts or cuts.

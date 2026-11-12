@@ -4,7 +4,8 @@ Checks the Firmware page on the published app in pretend mode: the keyboard
 focus stays on a ticked row, an edit applied reads as active from the
 pretend flash and as not installed again after Remove all edits, and a write that is
 lost is put back, each in dark, light and high contrast; and both edits at once,
- which asks to plug in again for the second session, stopped there; and a Swarm II
+ which asks to plug in again for the second session, stopped there, with noise
+cancellation's modes then offered in the headset's order; and a Swarm II
 recovery while the headset is off, read again as it connects; and Apply refused
 while Swarm II runs. A run takes
 over the whole window, with the rest of it switched off, and offers no Close
@@ -214,6 +215,13 @@ try {
     Close-Run
     Check ((Get-State (Find-Tick $light)) -eq 'On' -and (Find-Anywhere 'Apply').Current.IsEnabled) 'the light stays ticked and Apply can be pressed to finish'
     Save-Shot 'firmware-stopped-part' -Whole | ForEach-Object { $_.Dispose() }
+
+    # With the noise cycle on the headset, the modes are offered in the order its Mode button steps through them.
+    Open-Page 'Audio'
+    $radio = New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::RadioButton)
+    $order = @((Find-Id 'noise_control').FindAll($Scope::Children, $radio) | ForEach-Object { $_.Current.Name }) -join ', '
+    Check ($order -eq 'Off, Transparency, Cancelling') "Audio offers noise cancellation's modes in the headset's order (shown: $order)"
+    Save-Shot 'firmware-noise-order' | ForEach-Object { $_.Dispose() }
 }
 finally { Stop-NeapPretend }
 
