@@ -96,6 +96,13 @@ public sealed class AppSettings
     /// <remarks>Off by default: a firmware edit can stop a headset starting, so nothing about them shows until asked for.</remarks>
     [JsonPropertyName("show_firmware_edits")] public bool ShowFirmwareEdits { get; set; }
 
+    /// <summary>The headset firmware edits were last offered for, by its name, or null before one has connected.</summary>
+    /// <remarks>Kept with <see cref="FirmwareSeenBuild"/> so a headset an edit has stopped starting can still be put right after Neap is restarted.</remarks>
+    [JsonPropertyName("firmware_seen_headset")] public string? FirmwareSeenHeadset { get; set; }
+
+    /// <summary>The firmware version that headset last reported, which a backup must match to be put back.</summary>
+    [JsonPropertyName("firmware_seen_build")] public string? FirmwareSeenBuild { get; set; }
+
     /// <summary>Whether the Charging Dock's status ring is turned purple again after the microphone opens.</summary>
     /// <remarks>
     /// On by default: without it the ring shows white through every call.

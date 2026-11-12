@@ -63,11 +63,26 @@ public partial class MixOverlayWindow : Window
         _shown.ShowMix(AppServices.Mix.Mix);
     }
 
-    /// <summary>Draws the mix, shows the window if it is not showing, and starts its time over.</summary>
+    /// <summary>Shows the overlay once, with the mix as it is, as its switch is turned on.</summary>
+    /// <remarks>
+    /// Shown though Neap is in front, where a move of the mix would not show
+    /// it: the switch is in Neap, and without this the person never sees what
+    /// they turned on until a game is running.
+    /// </remarks>
+    public static void Preview()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        _shown ??= new MixOverlayWindow();
+        _shown.ShowMix(AppServices.Mix.Mix);
+    }
+
+    /// <summary>Draws the mix, shows the window if it is not showing, puts it in place, and starts its time over.</summary>
+    /// <remarks>Put in place each time, as the screens, their scaling or the taskbar can change while Neap runs.</remarks>
     private void ShowMix(int mix)
     {
         Paint(mix);
         if (!IsVisible) Show();
+        Place();
         _going.Stop();
         _going.Start();
     }

@@ -143,7 +143,8 @@ public partial class FirmwareRun : UserControl
         if (outcome is null) return (Strings.Get("Firmware_StepWorking"), "accent");
         return outcome.Result switch
         {
-            ApplyResult.Cancelled or ApplyResult.StoppedPartWritten or ApplyResult.StoppedBeforePutBack => (Strings.Get("Firmware_StepStopped"), "neutral"),
+            ApplyResult.Cancelled or ApplyResult.StoppedPartWritten or ApplyResult.StoppedBeforePutBack or ApplyResult.LeavesHalfOn
+                => (Strings.Get("Firmware_StepStopped"), "neutral"),
             ApplyResult.NotReadBack => (Strings.Get("Firmware_StepNotChecked"), "caution"),
             _ => (Strings.Get("Firmware_StepFailed"), "critical"),
         };
@@ -167,6 +168,7 @@ public partial class FirmwareRun : UserControl
         ApplyResult.StoppedBeforePutBack => Strings.Get("Firmware_OutcomeStoppedBeforePutBack"),
         ApplyResult.Refused => Strings.Get("Firmware_OutcomeRefused"),
         ApplyResult.Reverted => Strings.Get("Firmware_OutcomeReverted"),
+        ApplyResult.LeavesHalfOn => Strings.Get("Firmware_OutcomeLeavesHalfOn"),
         _ => Strings.Get("Firmware_OutcomeFailed"),
     };
 }

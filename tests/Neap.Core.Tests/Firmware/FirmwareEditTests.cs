@@ -59,6 +59,42 @@ public class FirmwareEditTests
         Assert.False(call.Accounts([.. call.Active.Take(3)]));
     }
 
+    // A whole section with each of the noise cycle's changes in it as the factory has it or as the edit does.
+    private static byte[] Holding(int sector, bool on)
+    {
+        byte[] bytes = new byte[FirmwareEdit.SectorSize];
+        foreach (var change in Cycle.Changes.Where(change => (change.Address & ~(FirmwareEdit.SectorSize - 1)) == sector))
+            (on ? change.Active : change.Factory).ToArray().CopyTo(bytes, change.Address - sector);
+        return bytes;
+    }
+
+    [Theory]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, true)]
+    public void PuttingBackASectionIsRefusedOnlyWhenItLeavesACallToCodeThatIsNotThere(bool code, bool call, bool halfOn)
+    {
+        int codeSector = Cycle.Sectors[0], callSector = Cycle.Sectors[1];
+        var after = new Dictionary<int, byte[]> { [codeSector] = Holding(codeSector, code), [callSector] = Holding(callSector, call) };
+        Assert.Equal(halfOn ? Cycle : null, FirmwareEdit.LeftHalfOn(after));
+    }
+
+    [Fact]
+    public void ASectionSaysWhetherItHoldsTheEditOrTheFactorysBytes()
+    {
+        int callSector = Cycle.Sectors[1];
+        Assert.True(Cycle.HeldIn(callSector, Holding(callSector, true)));
+        Assert.False(Cycle.HeldIn(callSector, Holding(callSector, false)));
+        Assert.Null(Cycle.HeldIn(callSector, new byte[FirmwareEdit.SectorSize]));
+        Assert.Null(Light.HeldIn(callSector, Holding(callSector, true)));
+        Assert.Null(Cycle.HeldIn(callSector, []));
+    }
+
+    [Fact]
+    public void AnEditWhoseSectionsAreNotAllKnownIsNotJudged() =>
+        Assert.Null(FirmwareEdit.LeftHalfOn(new Dictionary<int, byte[]> { [Cycle.Sectors[1]] = Holding(Cycle.Sectors[1], true) }));
+
     [Fact]
     public void TheAtlasAirHasNoEdits() => Assert.Empty(FirmwareEdit.For(HeadsetModels.AtlasAir));
 

@@ -29,6 +29,9 @@ public enum ApplyResult
     /// <summary>A section did not read back as written, and the headset put stock back in it itself.</summary>
     Reverted,
 
+    /// <summary>Putting back one section alone would leave an edit half on, so nothing was written; see <see cref="FirmwareEdit.LeftHalfOn"/>.</summary>
+    LeavesHalfOn,
+
     /// <summary>A step failed for another reason; the app log says which.</summary>
     Failed,
 }
@@ -125,9 +128,21 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
 
     private bool Connected => headset.Status.Link == Link.Connected;
 
-    private (HeadsetModel? Model, string? Build, int? Battery, DateTime? At) _seen;
+    private (HeadsetModel? Model, string? Build, int? Battery, DateTime? At) _seen = (
+        HeadsetModels.All.FirstOrDefault(model => model.Name == AppSettings.Current.FirmwareSeenHeadset),
+        AppSettings.Current.FirmwareSeenBuild, null, null);
+
+    /// <summary>Gets whether firmware edits are offered: in a release that has them, for the headset connected or last seen.</summary>
+    /// <remarks>
+    /// The headset last seen counts across a restart, as one an edit has
+    /// stopped starting never connects again, and the page is the way to
+    /// restore it. Its battery is not kept, so the edits cannot be applied
+    /// until it connects.
+    /// </remarks>
+    public bool Offered => FirmwareEdit.Released && Edits.Count > 0;
 
     /// <summary>The headset as it is now, remembered so it still stands once the headset is switched off.</summary>
+    /// <remarks>A headset with edits made for it is also kept in the settings; see <see cref="Offered"/>.</remarks>
     private (HeadsetModel? Model, string? Build, int? Battery, DateTime? At) Seen()
     {
         if (!Connected) return _seen;
@@ -135,6 +150,9 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         string? build = headset.GetText("firmware_version") ?? _seen.Build;
         int? level = headset.TryGetNumberByKey(Battery.Key, out int battery) ? battery : _seen.Battery;
         _seen = (model, build, level, DateTime.UtcNow);
+        var saved = AppSettings.Current;
+        if (FirmwareEdit.For(model).Count > 0 && (saved.FirmwareSeenHeadset != model!.Name || saved.FirmwareSeenBuild != build))
+            AppSettings.Update(settings => (settings.FirmwareSeenHeadset, settings.FirmwareSeenBuild) = (model.Name, build));
         return _seen;
     }
 
@@ -246,9 +264,11 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
                 foreach (int sector in sectors)
                 {
                     byte[] held = await writer.Read(sector);
-                    Backed(SaveBackup(sector, held, build));
+                    // Checked before it is saved: a refused section is not written, so needs no backup, and saved it
+                    // would become the newest one, which the page lists as the way back and Restore then refuses.
                     if (FirmwareEdit.Compose(sector, held, wanted, writer.FactorySections) is not { } section)
-                        return Stop(ApplyResult.Refused, Hex($"section {sector:X8} holds something other than the factory firmware and Neap's edits"));
+                        return Stop(ApplyResult.Refused, Hex($"section {sector:X8} holds something other than the factory firmware and Neap's edits, so it is neither saved nor written"));
+                    Backed(SaveBackup(sector, held, build));
                     before.Add((sector, held));
                     after.Add((sector, section));
                 }
@@ -284,6 +304,13 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
             if (SwarmRunning()) return Stop(ApplyResult.Failed, "not ready: SwarmRunning");
             await PlugIn(say, 1, cancel);
             say(EditStep.Backup, 1);
+            // The sections an edit shares with this one are read as the headset holds them now, to see what putting this one back leaves.
+            var after = new Dictionary<int, byte[]> { [backup.Sector] = saved };
+            foreach (int other in FirmwareEdit.All.Where(edit => edit.Sectors.Contains(backup.Sector))
+                .SelectMany(edit => edit.Sectors).Where(sector => sector != backup.Sector).Distinct())
+                after[other] = await writer.Read(other);
+            if (FirmwareEdit.LeftHalfOn(after) is { } split)
+                return Stop(ApplyResult.LeavesHalfOn, $"putting back {Path.GetFileName(backup.File)} alone would leave {split.Id} half on, so nothing is written");
             Backed(SaveBackup(backup.Sector, await writer.Read(backup.Sector), Build ?? "unknown"));
             return await WriteAndCheck([(backup.Sector, saved)], say, 1)
                 ? Stop(ApplyResult.Done, "restored and read back")

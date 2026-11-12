@@ -202,7 +202,8 @@
     <value>Show the mix as it moves</value>
   </data>
   <data name="MixOverlay_Card.Description" xml:space="preserve">
-    <value>When the chat wheel or a shortcut moves it.</value>
+    <value>A bar at the foot of the main screen, kept off full-screen games.</value>
+    <comment>Under the switch that shows the game and chat mix on screen as the chat wheel or a shortcut moves it.</comment>
   </data>
   <data name="Mix_KeysOnWayland" xml:space="preserve">
     <value>On Wayland, these work only while an X11 program is in front, as most games are.</value>
@@ -568,7 +569,8 @@
     <value>Use the dial, or {0} and {1}.</value>
   </data>
   <data name="State_MixKeysInSettings" xml:space="preserve">
-    <value>Use the dial or keyboard shortcuts.</value>
+    <value>Use the dial, or turn on keyboard shortcuts with Settings on the Game and chat card.</value>
+    <comment>When the chat wheel can't move the mix and the keyboard shortcuts are off. Settings is the button on Home's Game and chat card.</comment>
   </data>
   <data name="Quick_BandsHeading" xml:space="preserve">
     <value>Bands</value>
@@ -2101,12 +2103,32 @@
   <data name="Firmware_OutcomeReverted" xml:space="preserve">
     <value>Neap couldn't confirm the change, so it put back what was there. It's safe to unplug the cable and switch the headset on, then try again.</value>
   </data>
+  <data name="Firmware_OutcomeLeavesHalfOn" xml:space="preserve">
+    <value>Nothing was changed. Putting back this part alone would leave the edit half installed, and the headset might not start. Restore its other part first.</value>
+    <comment>After a restore of one part of an edit made of two parts was refused.</comment>
+  </data>
   <data name="Firmware_OutcomeFailed" xml:space="preserve">
     <value>The change didn't finish. If the headset doesn't start, restore the newest backups.</value>
   </data>
   <data name="Firmware_BackupLinePart" xml:space="preserve">
     <value>{0}, part {1} of {2}, saved {3}</value>
     <comment>{0} is the edit, {1} which of its parts of the firmware this is, {2} how many it has, {3} when it was saved.</comment>
+  </data>
+  <data name="Firmware_BackupHoldsEdit" xml:space="preserve">
+    <value>Holds the edit</value>
+    <comment>Under a backup: the saved part of the firmware has the edit in it.</comment>
+  </data>
+  <data name="Firmware_BackupHoldsFactory" xml:space="preserve">
+    <value>Holds the factory firmware</value>
+    <comment>Under a backup: the saved part of the firmware is as the factory made it.</comment>
+  </data>
+  <data name="Firmware_BackupHoldsOther" xml:space="preserve">
+    <value>Holds changes Neap doesn't recognise</value>
+    <comment>Under a backup: the saved part of the firmware is neither the factory's nor Neap's edit.</comment>
+  </data>
+  <data name="Firmware_BackupSpoken" xml:space="preserve">
+    <value>{0}, {1}</value>
+    <comment>A backup as a screen reader names it. {0} is the edit, part and when it was saved; {1} what it holds, such as Holds the edit.</comment>
   </data>
   <data name="Firmware_BackupLineOther" xml:space="preserve">
     <value>Firmware at {0}, saved {1}</value>

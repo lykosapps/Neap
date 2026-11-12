@@ -22,7 +22,11 @@ Atlas Air, and the mix on screen.**
   headset's firmware: the Mode button steps through noise cancellation,
   transparency and off even with Neap closed, and the headset's light stays
   dark while it is disconnected. Neap backs up the firmware before every
-  change, checks what it wrote, and can put the factory firmware back. It
+  change, checks what it wrote, and can put the factory firmware back. Each
+  backup says whether it holds an edit or the factory firmware, and Neap
+  won't put back half of an edit, or keep a part of the firmware it doesn't
+  recognise as the backup to restore. The page stays, with its backups, for
+  a headset that no longer starts, even after Neap restarts. It
   reads which edits the headset has, and shows noise cancellation's modes in
   the order the Mode button steps through them. On Controls, the Mode
   button's card shows both ways to step through transparency, Neap's own
@@ -35,7 +39,8 @@ Atlas Air, and the mix on screen.**
   slim bar for a moment at the foot of the screen, over a game in a window, without taking
   the mouse or keyboard. It stays away from games that have the screen to
   themselves and from Windows' own volume display. It can be turned off
-  with the settings button on Home's Game and chat card.
+  with the settings button on Home's Game and chat card, and turning it on
+  there shows it once.
 
 ### Changed
 
@@ -45,7 +50,8 @@ Atlas Air, and the mix on screen.**
   shown in that order everywhere.
 - **The mix's settings sit with the mix.** The keyboard shortcuts for the
   mix moved from the Controls page to the settings button on Home's Game
-  and chat card, beside the switch for showing the mix on screen.
+  and chat card, beside the switch for showing the mix on screen. When the
+  chat wheel can't move the mix, Home says where to turn them on.
 
 ### Fixed
 

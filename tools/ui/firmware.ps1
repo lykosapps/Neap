@@ -153,6 +153,7 @@ foreach ($theme in $themes) {
             $rows = @(Search { $script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Button))) } |
                 Where-Object { $_.Current.Name -like "Restore $light, saved *" })
             Check ($rows.Count -eq 1) "after two writes to its part, '$light' lists only its newest backup (rows: $($rows.Count))"
+            Check ($rows.Count -eq 1 -and $rows[0].Current.Name -like '*Holds the edit') "and it says it holds the edit, as it was saved before Remove all edits ($($rows[0].Current.Name))"
             Check ((Test-Present (Find-Anywhere 'Restore from file')) -and (Test-Present (Find-Anywhere 'Show in folder'))) 'Restore from file and Show in folder are offered'
         }
     }
@@ -243,6 +244,24 @@ try {
     Save-Shot 'firmware-controls-installed' -Whole | ForEach-Object { $_.Dispose() }
     Press (Find-Anywhere 'Open Firmware page')
     Check (Wait-Until { $null -ne (Find-Tick $light) } 6) 'Open Firmware page goes to the Firmware page'
+
+    # Putting back the noise cycle's code alone, as its backup holds it from before, would leave its call calling nothing.
+    $halfOn = 'Nothing was changed. Putting back this part alone would leave the edit half installed, and the headset might not start. Restore its other part first.'
+    Show-Backups
+    $part1 = Search {
+        @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Button)))) |
+            Where-Object { $_.Current.Name -like 'Restore Noise cancellation on the Mode button, part 1 of 2, saved *' } | Select-Object -First 1
+    }
+    Check ($null -ne $part1 -and $part1.Current.Name -like '*Holds the factory firmware') "the code's backup is listed, holding the factory firmware ($($part1.Current.Name))"
+    if ($part1) {
+        Press $part1
+        Check (Wait-Until { $null -ne (Find-Anywhere 'Restore') } 6) 'restoring it asks first'
+        Press (Find-Anywhere 'Restore')
+        Check (Wait-Until { Find-Text $halfOn } 60) 'putting it back alone is refused, and says to restore the other part first'
+        Save-Shot 'firmware-half-on' -Whole | ForEach-Object { $_.Dispose() }
+        Close-Run
+        Check (Wait-Until { (Get-StateCount 'Installed') -eq 1 } 10) 'and the noise cycle still reads as installed'
+    }
 }
 finally { Stop-NeapPretend }
 

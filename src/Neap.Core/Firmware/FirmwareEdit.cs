@@ -292,6 +292,39 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
         return flash.Count == 0 ? null : flash;
     }
 
+    /// <summary>Whether a whole section holds this edit's changes in it, or the factory's bytes there.</summary>
+    /// <param name="sector">The section, by address.</param>
+    /// <param name="section">The section's bytes, such as a backup holds them.</param>
+    /// <returns>True for the edit, false for the factory's, null for neither, or for a section the edit does not touch.</returns>
+    public bool? HeldIn(int sector, byte[] section)
+    {
+        var here = Changes.Where(change => change.Address - sector is >= 0 and < SectorSize).ToList();
+        if (here.Count == 0 || section.Length != SectorSize) return null;
+        bool Holds(FlashChange change, IReadOnlyList<byte> bytes) =>
+            section.AsSpan(change.Address - sector, bytes.Count).SequenceEqual([.. bytes]);
+        if (here.All(change => Holds(change, change.Active))) return true;
+        return here.All(change => Holds(change, change.Factory)) ? false : null;
+    }
+
+    /// <summary>The edit that sections, as they would be after one is put back, leave half on, or null when they leave none.</summary>
+    /// <param name="sections">Whole sections by address: the one to be put back as its backup holds it, and every other an edit shares with it as the headset holds it.</param>
+    /// <remarks>
+    /// An edit is half on when its last change, the one that turns it on, is in
+    /// place and an earlier one is not: a call to code that is not there, which
+    /// is how the headset was stopped from starting on 15 October. The other
+    /// way round, code that nothing calls, is harmless, and is what a firmware
+    /// update leaves. Putting back an edit's sections one at a time is safe in
+    /// one order and not the other, whichever way it goes, so the one refused
+    /// is always the one to do second.
+    /// </remarks>
+    public static FirmwareEdit? LeftHalfOn(IReadOnlyDictionary<int, byte[]> sections)
+    {
+        if (FlashFrom(All, sections, null) is not { } flash) return null;
+        bool On(FlashChange change) => flash[change.Address].AsSpan().SequenceEqual([.. change.Active]);
+        return All.FirstOrDefault(edit => edit.Changes.All(change => flash.ContainsKey(change.Address))
+            && On(edit.Changes[^1]) && !edit.Changes.All(On));
+    }
+
     /// <summary>A section as it is to be written: what the headset holds, with every edit taken out and the ticked ones put in.</summary>
     /// <param name="sector">The section, by address.</param>
     /// <param name="held">The section as read from the headset.</param>

@@ -431,12 +431,25 @@ public partial class FirmwarePage : UserControl
         return outcome;
     }
 
-    /// <summary>A backup's row: the edit its section belongs to, when it was saved, and putting it back.</summary>
+    /// <summary>A backup's row: the edit its section belongs to, when it was saved, what it holds, and putting it back.</summary>
+    /// <remarks>
+    /// What it holds is said because the newest backup of a section is what
+    /// was there before the last change: after the edits are removed it holds
+    /// them, and restoring it puts them back.
+    /// </remarks>
     private Border BackupRow(FirmwareBackup backup, bool free)
     {
         string what = BackupWords(backup);
+        string holds = HoldsWords(backup);
+        var words = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+        words.Children.Add(new TextBlock { Text = what, TextWrapping = TextWrapping.Wrap });
+        if (holds.Length > 0)
+        {
+            words.Children.Add(new TextBlock { Text = holds, Classes = { "caption", "secondary" }, TextWrapping = TextWrapping.Wrap });
+            what = Strings.Format("Firmware_BackupSpoken", what, holds);
+        }
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = Space.M };
-        grid.Children.Add(new TextBlock { Text = what, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap });
+        grid.Children.Add(words);
         var restore = new Button { Content = Strings.Get("Firmware_Restore"), IsEnabled = free };
         AutomationProperties.SetName(restore, Strings.Format("Firmware_RestoreName", what));
         restore.Click += async (_, _) => await AskToRestore(backup);
@@ -462,6 +475,21 @@ public partial class FirmwarePage : UserControl
         if (edit.Sectors.Count == 1) return Strings.Format("Firmware_BackupLine", EditName(edit), saved);
         int part = edit.Sectors.ToList().IndexOf(backup.Sector) + 1;
         return Strings.Format("Firmware_BackupLinePart", EditName(edit), part, edit.Sectors.Count, saved);
+    }
+
+    /// <summary>Whether a backup holds its edit or the factory firmware, or nothing for one that cannot be read or belongs to no edit.</summary>
+    private static string HoldsWords(FirmwareBackup backup)
+    {
+        var edit = AppServices.Firmware.Edits.FirstOrDefault(edit =>
+            edit.FirmwareBuild == backup.FirmwareBuild && edit.Sectors.Contains(backup.Sector));
+        byte[] bytes = Read(backup.File);
+        if (edit is null || bytes.Length == 0) return "";
+        return edit.HeldIn(backup.Sector, bytes) switch
+        {
+            true => Strings.Get("Firmware_BackupHoldsEdit"),
+            false => Strings.Get("Firmware_BackupHoldsFactory"),
+            null => Strings.Get("Firmware_BackupHoldsOther"),
+        };
     }
 
     private static string PlanWords(EditPlan plan)

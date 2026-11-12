@@ -113,5 +113,9 @@ try {
     Check (Wait-Until { (Send-Pretend 'mix') -ne $start } 4) 'the wheel still moves the mix'
     Start-Sleep -Milliseconds 800
     Check ($null -eq (Find-Overlay)) 'with the overlay off, the wheel shows nothing'
+
+    Press (Find-Anywhere 'Show the mix as it moves')
+    Check (Wait-Until { (& $saved) -eq $true } 4) 'switching it on again is saved'
+    Check (Wait-Until { $null -ne (Find-Overlay) } 4) 'and shows the mix once, so the person sees what they turned on'
 }
 finally { Stop-NeapPretend }

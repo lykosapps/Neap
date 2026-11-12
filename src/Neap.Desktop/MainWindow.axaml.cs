@@ -131,13 +131,14 @@ public partial class MainWindow : Window
     /// <remarks>
     /// Taken out of the list rather than hidden: the list's panel shows every
     /// item it lays out, whatever the item says. Shown only where edits are
-    /// offered for the headset (<see cref="Core.Firmware.FirmwareEdit.Offered"/>),
-    /// so it follows the headset as it connects, except to a pretend run asked
-    /// to open it, so a picture of it can be taken.
+    /// offered for the headset connected or last seen
+    /// (<see cref="FirmwareEditService.Offered"/>), so it follows the headset
+    /// as it connects and stays for one that no longer starts, except to a
+    /// pretend run asked to open it, so a picture of it can be taken.
     /// </remarks>
     public void FirmwareSettingChanged()
     {
-        bool wanted = (Core.Firmware.FirmwareEdit.Offered(AppServices.Headset.Model) && AppSettings.Current.ShowFirmwareEdits)
+        bool wanted = (AppServices.Firmware.Offered && AppSettings.Current.ShowFirmwareEdits)
             || (Pretend.Active && Pretend.Page == "firmware");
         bool listed = Places.Items.Contains(FirmwareNav);
         if (wanted && !listed) Places.Items.Add(FirmwareNav);

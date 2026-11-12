@@ -83,7 +83,12 @@ public partial class MixPanel : UserControl
         OverlayCard.IsVisible = OperatingSystem.IsWindows();
         SettingsButton.IsVisible = Keys.IsVisible || OverlayCard.IsVisible;
         OverlayOn.IsChecked = AppSettings.Current.MixOverlay;
-        OverlayOn.IsCheckedChanged += (_, _) => AppSettings.Update(settings => settings.MixOverlay = OverlayOn.IsChecked == true);
+        OverlayOn.IsCheckedChanged += (_, _) =>
+        {
+            bool on = OverlayOn.IsChecked == true;
+            AppSettings.Update(settings => settings.MixOverlay = on);
+            if (on) MixOverlayWindow.Preview();
+        };
     }
 
     /// <summary>

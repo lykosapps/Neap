@@ -91,8 +91,9 @@ public static class StateCopy
     /// <summary>What still moves the mix when the wheel cannot.</summary>
     /// <remarks>
     /// The keyboard is named precisely. The shortcuts ship off, so this gives
-    /// the actual keys when they are on, and only names them when they are
-    /// not: the mix card's "Keyboard shortcuts" link beside it turns them on.
+    /// the actual keys when they are on, and when they are not, says where
+    /// they are turned on: the Settings button on Home's Game and chat card,
+    /// where they moved from the Controls page.
     /// </remarks>
     public static string MixWithoutWheel()
     {

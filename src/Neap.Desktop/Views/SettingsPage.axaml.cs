@@ -65,7 +65,6 @@ public partial class SettingsPage : UserControl
         MiniCard.IsVisible = TrayAvailability.Exists;
         MiniTilesCard.Below = MiniTileChoices();
         MiniTilesCard.IsVisible = TrayAvailability.Exists && AppSettings.Current.MiniPanel;
-        Advanced.IsVisible = Core.Firmware.FirmwareEdit.Offered(AppServices.Headset.Model) || Pretend.Active;
 
         _painting = true;
         MiniPanelSwitch.IsChecked = AppSettings.Current.MiniPanel;
@@ -160,6 +159,8 @@ public partial class SettingsPage : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
+        // Each time the page shows, not once: it is kept, and often first opened before the headset has connected.
+        Advanced.IsVisible = AppServices.Firmware.Offered || Pretend.Active;
         AppServices.Recorder.Changed += PaintRecording;
         PaintRecording();
         AppServices.Updates.Changed += PaintUpdates;

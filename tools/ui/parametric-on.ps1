@@ -8,7 +8,7 @@ Run through run.ps1. Part A chooses Parametric through the Charging Dock, which
 asks first and then opens the editor; part B declines, which goes back to the
 ten bands; part C turns it off from the editor; part D is a headset Swarm II
 has reset, turned on again from the page; part E is a battery too low to risk
-the write; part F is an Atlas Air, which has no Parametric choice; part G
+the write; part F is an Atlas Air, turned on the same way; part G
 makes a shape, goes to the ten bands and back, and finds the shape as it was;
 part H is a headset whose firmware gives no reading of a band, which is not
 turned on.
@@ -116,12 +116,15 @@ if ($Parts.Contains('E')) {
 }
 
 if ($Parts.Contains('F')) {
-    Section 'an Atlas Air: no Parametric choice'
-    Start-NeapPretend -Page equaliser -Flags @('--atlas')
+    Section 'an Atlas Air: choosing Parametric asks, then turns it on, as on the Stealth Pro II'
+    Open-Equaliser @('--atlas')
     try {
-        Wait-Until { $null -ne (Find-Named 'Equaliser') } 15 | Out-Null
-        Start-Sleep -Seconds 4
-        Check ($null -eq (Find-Named 'Parametric')) 'there is no Parametric choice'
+        Check ($null -ne (Find-Named 'Parametric')) 'it offers Parametric'
+        Check ($null -eq (Find-Named 'All bands')) 'and starts on the ten bands'
+        Press (Find-Named 'Parametric')
+        Answer-Dialog $on 'Turn on'
+        Check (Test-Editor) 'the parametric editor opens'
+        Save-Shot 'parametric-atlas-on' -Whole | ForEach-Object { $_.Dispose() }
     }
     finally { Stop-NeapPretend }
 }
