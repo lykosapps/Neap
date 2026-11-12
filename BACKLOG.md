@@ -13,11 +13,15 @@ group only; a line that touches two says so in its text.
 
 Needs only the code and the tests. Safe to do in one go.
 
-- **Before 0.5.0 is tagged: the saved parametric presets check.**
-  `tools\ui\run.ps1 parametric-presets` fails on the hidden desktop at "it
-  asks for a name", after Duplicate is pressed (12 November, twice). Not yet
-  known whether the dialog does not open or the check does not find it
-  there; run it on the screen to tell, then fix whichever it is.
+- **The saved parametric presets check fails on the hidden desktop.**
+  `tools\ui\run.ps1 parametric-presets` passes on the screen, every step (12
+  November), so the app is right. Through `tools\pretend-quiet.ps1` its
+  Rename step fails at "it asks for a name": Rename is chosen from the More
+  menu straight after the picker's list is opened and closed and Save is
+  pressed. Opening More and choosing Rename by themselves work there. Tried
+  without effect: choosing the menu item inside the practice run, and
+  waiting for the list to read as closed. Until it is found, run this check
+  on the screen for a release.
 - **Some screen checks still wait 2 s per action.** On the desktop
   `tools\pretend-quiet.ps1` makes, an action carried into the app by UI
   Automation lands exactly 2.00 s later (on the visible desktop, under
