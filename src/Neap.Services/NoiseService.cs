@@ -128,7 +128,12 @@ public sealed class NoiseService : IDisposable
         // The flash can be read before the headset has reported the firmware version it is judged against.
         FollowFirmware();
         var before = _noise.Mode;
-        var writes = _noise.Observe(Number(NoiseControl.AncKey), Number(NoiseControl.LevelKey));
+        int? anc = Number(NoiseControl.AncKey), level = Number(NoiseControl.LevelKey);
+        var writes = _noise.Observe(anc, level);
+        // A mode Neap chose is already known here, so this is the headset's own doing: its Mode button, or another app.
+        if (NoiseControl.Of(anc, level) is { } reported && reported != before)
+            AppLog.Write(string.Create(CultureInfo.InvariantCulture,
+                $"noise control: the headset reports {reported} (0x750 {anc}, 0x760 {level}), after {before?.ToString() ?? "no reading"}"));
         if (writes.Count > 0)
         {
             AppLog.Write(string.Create(CultureInfo.InvariantCulture,
