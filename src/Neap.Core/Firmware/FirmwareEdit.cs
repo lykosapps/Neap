@@ -180,12 +180,21 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     /// by itself, with a tone for each: new code in empty flash at 0x08349000,
     /// then the call at 0x08232094 that reaches it (SP2Tools F090).
     /// </summary>
+    /// <remarks>
+    /// The headset has two chips, and the one that answers the PC learns of a
+    /// change only when it is sent one. The firmware sends noise cancellation
+    /// turning on and off but never its level, so the new code sends the level
+    /// itself after setting it, as the firmware sends the rest. Without that
+    /// the PC is told 100 in every mode, and cannot tell transparency from
+    /// noise cancellation.
+    /// </remarks>
     public static FirmwareEdit NoiseCycle { get; } =
         new("noise_cycle", HeadsetModels.StealthProII, "4.107.703.0", [0x08349000, 0x08232000],
         [
-            FlashChange.Of(0x08349000, new string('F', 108 * 2),
-                "70B582B000240094019475206946E8F63DF840B3762001A9E8F638F818B3009B53B1019B322B03D264240125092606E0FF240025FF26" +
-                "02E000240125FF26FF2C04D00194762001A9E8F6D0FD009575206946E4F69DFFFF2E02D03046DBF67CFA012002B070BD002002B070BD"),
+            FlashChange.Of(0x08349000, new string('F', 158 * 2),
+                "70B582B000240094019475206946E8F63DF860B3762001A9E8F638F838B3009B53B1019B322B03D264240125092606E0FF240025FF26" +
+                "02E000240125FF26FF2C08D00194762001A9E8F6D0FD10B1204600F010F8009575206946E4F699FFFF2E02D03046DBF678FA012002B070BD002002B070BD" +
+                "00B599B030237622CDE9033205904FF2A433C1F223431B68009303AA54230E212320D6F679F819B000BD"),
             FlashChange.Of(0x08232094, "FFF746F8", "16F1B4FF"),
         ]);
 

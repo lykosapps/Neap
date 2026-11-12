@@ -155,8 +155,12 @@ was confirmed.
   cancellation sent nothing, and the step to off was reported. Asked about
   every 0.7 seconds, `0x760` stayed 100 throughout. So Neap shows Cancelling
   in transparency. SP2Tools reads in the firmware that a level change is
-  never passed to the chip that answers the PC *(read from the code)*; the
-  edit is being reworked there to pass it on (BACKLOG.md).
+  never passed to the chip that answers the PC *(read from the code)*. The
+  edit Neap carries now sends the level itself after setting it, 158 bytes
+  in place of 108 at the same address with the same call *(SP2Tools, read
+  from the firmware of both chips and checked by decoding the bytes; never
+  run on a headset)*. The owner's headset holds the older code, which Neap
+  reads as Changed and writes over (BACKLOG.md).
 - 2026-11-12 — Owner's headset, the try-it copy: the Firmware page read the
   noise cycle as Installed (app log) while Audio and Home offered Off,
   Cancelling, Transparency, the stock order, since Controls still said Stock.

@@ -20,6 +20,35 @@ public class FirmwareEditTests
     [Fact]
     public void TheStealthProIIHasTheNoiseCycleAndTheLight() => Assert.Equal([Cycle, Light], Edits);
 
+    // SHA-256 of the code as SP2Tools assembled and checked it, so a mistyped byte is caught here and not on a headset.
+    [Fact]
+    public void TheNoiseCyclesCodeIsByteForByteWhatSp2ToolsBuilt()
+    {
+        var code = Cycle.Changes[0];
+        Assert.Equal(158, code.Active.Count);
+        Assert.Equal(code.Active.Count, code.Factory.Count);
+        Assert.Equal("005202A9DB97FF819E15CBCDE7C5C40BAB82D1E3789E7CEF9A7BD3554B1E0553",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData([.. code.Active])));
+    }
+
+    [Fact]
+    public void AHeadsetWithTheNoiseCyclesOlderCodeReadsAsChangedAndIsWrittenOver()
+    {
+        // The code before it sent the level: shorter, with empty flash after it.
+        byte[] older = Convert.FromHexString(
+            "70B582B000240094019475206946E8F63DF840B3762001A9E8F638F818B3009B53B1019B322B03D264240125092606E0FF240025FF26" +
+            "02E000240125FF26FF2C04D00194762001A9E8F6D0FD009575206946E4F69DFFFF2E02D03046DBF67CFA012002B070BD002002B070BD");
+        var code = Cycle.Changes[0];
+        byte[] held = [.. older, .. Enumerable.Repeat((byte)0xFF, code.Active.Count - older.Length)];
+        var flash = new Dictionary<int, byte[]> { [code.Address] = held, [Cycle.Changes[1].Address] = [.. Cycle.Changes[1].Active] };
+        Assert.Equal(EditStatus.Altered, Cycle.StatusIn(Build, flash));
+
+        byte[] section = [.. held, .. Enumerable.Repeat((byte)0xFF, FirmwareEdit.SectorSize - held.Length)];
+        byte[]? written = FirmwareEdit.Compose(code.Address, section, Set(Cycle), FirmwareEdit.FactorySections);
+        Assert.NotNull(written);
+        Assert.Equal(code.Active, written[..code.Active.Count]);
+    }
+
     [Fact]
     public void TheAtlasAirHasNoEdits() => Assert.Empty(FirmwareEdit.For(HeadsetModels.AtlasAir));
 

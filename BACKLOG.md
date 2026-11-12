@@ -59,9 +59,12 @@ Needs the headset on the Windows app, and the owner present. Run
   the edit on, the headset changes the level it uses but the level Neap is
   told stays as it was, so Neap shows Cancelling in transparency and nothing
   for the press between them (seen 12 November, headset tracker). The edit
-  is being reworked in SP2Tools to announce the level; its new bytes then go
-  into `FirmwareEdit.NoiseCycle`, the owner's headset is written again, and
-  the Mode button is pressed through all three steps with Neap watching.
+  now sends the level to the chip that answers the PC *(read from the
+  firmware; never run on a headset)*. To do, with the owner's go-ahead for
+  the write: apply it over the older code on the owner's headset, where it
+  reads as Changed, then press Mode through all three steps with Neap
+  watching, switch off and on in transparency, and choose each mode from
+  Neap.
 - **The firmware's cycle comes back at full strength.** The edit sets noise
   cancellation to 100 on the step from transparency, whatever Strength was
   set; Neap's own cycle puts the Strength back. Decide whether Neap puts it
