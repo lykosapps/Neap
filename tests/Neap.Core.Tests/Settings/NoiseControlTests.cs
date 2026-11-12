@@ -32,20 +32,19 @@ public class NoiseControlTests
     }
 
     [Fact]
-    public void TheCycleRunsOffThenCancellingThenTransparency()
+    public void TheCycleRunsOffThenTransparencyThenCancellingAsTheFirmwaresDoes()
     {
-        Assert.Equal(NoiseMode.Cancelling, NoiseControl.Next(NoiseMode.Off));
-        Assert.Equal(NoiseMode.Transparency, NoiseControl.Next(NoiseMode.Cancelling));
-        Assert.Equal(NoiseMode.Off, NoiseControl.Next(NoiseMode.Transparency));
+        Assert.Equal(NoiseMode.Transparency, NoiseControl.Next(NoiseMode.Off));
+        Assert.Equal(NoiseMode.Cancelling, NoiseControl.Next(NoiseMode.Transparency));
+        Assert.Equal(NoiseMode.Off, NoiseControl.Next(NoiseMode.Cancelling));
     }
 
     [Fact]
-    public void StockFirmwareShowsTheModesInTheAppsCycle() =>
-        Assert.Equal([NoiseMode.Off, NoiseMode.Cancelling, NoiseMode.Transparency], NoiseControl.Order(headsetCycles: false));
-
-    [Fact]
-    public void EditedFirmwareShowsTheModesInTheHeadsetsCycle() =>
-        Assert.Equal([NoiseMode.Off, NoiseMode.Transparency, NoiseMode.Cancelling], NoiseControl.Order(headsetCycles: true));
+    public void TheModesAreShownInTheOrderTheButtonStepsThroughThem()
+    {
+        Assert.Equal([NoiseMode.Off, NoiseMode.Transparency, NoiseMode.Cancelling], NoiseControl.Order);
+        Assert.All(NoiseControl.Order.Zip(NoiseControl.Order.Skip(1)), pair => Assert.Equal(pair.Second, NoiseControl.Next(pair.First)));
+    }
 
     [Theory]
     [InlineData(EditStatus.Installed, false, true)]
@@ -99,32 +98,43 @@ public class NoiseControlTests
         Assert.Empty(At(1, 80).Choose(NoiseMode.Cancelling));
 
     [Fact]
-    public void APressFromCancellingGoesOnToTransparency()
+    public void APressFromOffGoesOnToTransparency()
     {
-        var noise = At(1, 80, cycling: true);
-        Assert.Equal([new SettingWrite(Level, 0), new SettingWrite(Anc, 1)], noise.Observe(0, 80));
+        var noise = At(0, 80, cycling: true);
+        Assert.Equal([new SettingWrite(Level, 0)], noise.Observe(1, 80));
         Assert.Equal(NoiseMode.Transparency, noise.Mode);
     }
 
     [Fact]
-    public void APressFromTransparencyStaysOffAndPutsTheLevelBack()
+    public void APressFromTransparencyGoesOnToCancellingAtTheLevelRemembered()
     {
         var noise = At(1, 0, cycling: true);
-        Assert.Equal([new SettingWrite(Level, 80)], noise.Observe(0, 0));
-        Assert.Equal(NoiseMode.Off, noise.Mode);
-    }
-
-    [Fact]
-    public void APressFromOffLandsOnCancellingWithNothingToWrite()
-    {
-        var noise = At(0, 80, cycling: true);
-        Assert.Empty(noise.Observe(1, 80));
+        Assert.Equal([new SettingWrite(Level, 80), new SettingWrite(Anc, 1)], noise.Observe(0, 0));
         Assert.Equal(NoiseMode.Cancelling, noise.Mode);
     }
 
     [Fact]
-    public void APressFromOffWithTheLevelLeftAtZeroPutsItBack() =>
-        Assert.Equal([new SettingWrite(Level, 80)], At(0, 0, cycling: true).Observe(1, 0));
+    public void APressFromCancellingLandsOnOffWithNothingToWrite()
+    {
+        var noise = At(1, 80, cycling: true);
+        Assert.Empty(noise.Observe(0, 80));
+        Assert.Equal(NoiseMode.Off, noise.Mode);
+    }
+
+    [Fact]
+    public void APressFromOffWithTheLevelLeftAtZeroLandsOnTransparencyWithNothingToWrite() =>
+        Assert.Empty(At(0, 0, cycling: true).Observe(1, 0));
+
+    [Fact]
+    public void ThreePressesComeBackToWhereTheyStarted()
+    {
+        var noise = At(0, 80, cycling: true);
+        Assert.Equal([new SettingWrite(Level, 0)], noise.Observe(1, 80));
+        Assert.Equal([new SettingWrite(Level, 80), new SettingWrite(Anc, 1)], noise.Observe(0, 0));
+        Assert.Empty(noise.Observe(0, 80));
+        Assert.Equal(NoiseMode.Off, noise.Mode);
+        Assert.Equal(80, noise.Blocking);
+    }
 
     [Fact]
     public void WithoutCyclingAPressIsLeftToTheHeadset()

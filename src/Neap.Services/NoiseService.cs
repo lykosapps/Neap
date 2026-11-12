@@ -60,9 +60,6 @@ public sealed class NoiseService : IDisposable
     /// <summary>Gets whether the headset's own firmware steps the Mode button through all three modes.</summary>
     public bool HeadsetCycles => _noise.HeadsetCycles;
 
-    /// <summary>Gets the modes in the order the Mode button steps through them.</summary>
-    public IReadOnlyList<NoiseMode> Order => NoiseControl.Order(_noise.HeadsetCycles);
-
     /// <summary>Gets the way noise control was last on, which a press of the mini panel's tile turns it back on to.</summary>
     /// <remarks>Noise cancellation until the headset has been seen in a mode other than off. Kept for as long as Neap runs.</remarks>
     public NoiseMode LastOn { get; private set; } = NoiseMode.Cancelling;

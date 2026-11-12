@@ -39,6 +39,10 @@ Atlas Air, and the mix on screen.**
 
 ### Changed
 
+- **The Mode button's cycle steps off, transparency, cancelling.** Neap's
+  own cycle went off, cancelling, transparency; it now runs in the same
+  order as the firmware edit's, and noise cancellation's three modes are
+  shown in that order everywhere.
 - **The mix's settings sit with the mix.** The keyboard shortcuts for the
   mix moved from the Controls page to the settings button on Home's Game
   and chat card, beside the switch for showing the mix on screen.

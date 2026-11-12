@@ -240,12 +240,14 @@ in front, signing out and updating from an installed copy stay by hand.
    purple.
 6. **Noise control.** Choose each mode on Audio and hear it change. Set
    Blocking to something other than full, then go to transparency and back:
-   noise cancellation returns at that level. Choose the Mode button's cycle
-   on Controls and press it six times, pausing on each: noise cancellation,
-   transparency, off, twice over, with only a moment of off on the way into
-   transparency. From off, the press lands on noise cancellation with no
-   transparency first. Close Neap: the button turns noise cancellation on
-   and off.
+   noise cancellation returns at that level. On factory firmware, choose the
+   Mode button's cycle on Controls and press it six times from off, pausing
+   on each: transparency, noise cancellation, off, twice over, with only a
+   moment of noise cancellation on the way into transparency and a moment of
+   off on the way into noise cancellation. Close Neap: the button turns
+   noise cancellation on and off. With the firmware's cycle on the headset,
+   press six times with Neap open and again with it closed: the same three
+   steps with a tone for each, and Neap shows each as it happens.
 7. **Spare battery.** With the headset on the Charging Dock and the Device
    page open, take the spare out of the dock's slot: the dock's panel says
    *Empty* within a couple of seconds. Put it back: it shows the charge the

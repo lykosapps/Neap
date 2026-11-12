@@ -28,14 +28,18 @@ public readonly record struct SettingWrite(int Key, int Value);
 /// cancellation: a press shows as <see cref="AncKey"/> changing after the
 /// headset has already changed it. With <see cref="Cycling"/> on, each press
 /// is taken as a step to the next mode instead, and the writes that finish
-/// the step are returned. Going to noise cancellation lands cleanly, because
-/// the level is put back while the headset is off, ready for the press that
-/// turns it on. Going to transparency passes through off: the headset turns
-/// noise cancellation off before anything here can answer.
+/// the step are returned. The steps run off, transparency, cancelling, as the
+/// edited firmware's do, so the modes sit in one order everywhere. Going to
+/// off lands cleanly, as that is the headset's own step. Going to
+/// transparency passes through noise cancellation, and going to noise
+/// cancellation passes through off: the headset has turned noise
+/// cancellation on or off before anything here can answer. The level is not
+/// left at zero while off to spare the first, as the button would then turn
+/// transparency on and off once the app is closed.
 /// </para>
 /// <para>
-/// A Stealth Pro II with edited firmware runs the whole cycle itself, as off,
-/// transparency, then cancelling, and writes both keys as it goes. With
+/// A Stealth Pro II with edited firmware runs the whole cycle itself, in the
+/// same order, and writes both keys as it goes. With
 /// <see cref="HeadsetCycles"/> on, a press is only followed, never finished,
 /// since a step sent here would move the headset on a second time. The
 /// headset reports the same version either way, so which firmware it has is
@@ -90,11 +94,9 @@ public sealed class NoiseControl(int? blocking)
         }
     }
 
-    /// <summary>The modes in the order the Mode button steps through them, for showing them side by side.</summary>
-    /// <param name="headsetCycles">Whether the headset's own firmware runs the cycle.</param>
-    public static IReadOnlyList<NoiseMode> Order(bool headsetCycles) => headsetCycles
-        ? [NoiseMode.Off, NoiseMode.Transparency, NoiseMode.Cancelling]
-        : [NoiseMode.Off, NoiseMode.Cancelling, NoiseMode.Transparency];
+    /// <summary>Gets the modes in the order the Mode button steps through them, for showing them side by side.</summary>
+    /// <remarks>One order, whichever of the app and the headset's firmware runs the cycle.</remarks>
+    public static IReadOnlyList<NoiseMode> Order { get; } = [NoiseMode.Off, NoiseMode.Transparency, NoiseMode.Cancelling];
 
     /// <summary>Whether the headset's own firmware runs the Mode button's cycle, from the edit that adds it.</summary>
     /// <param name="edit">The state of <see cref="FirmwareEdit.NoiseCycle"/>, as read from the headset's flash.</param>
@@ -125,8 +127,8 @@ public sealed class NoiseControl(int? blocking)
     /// <summary>The mode a press of the Mode button moves on to while cycling.</summary>
     public static NoiseMode Next(NoiseMode mode) => mode switch
     {
-        NoiseMode.Off => NoiseMode.Cancelling,
-        NoiseMode.Cancelling => NoiseMode.Transparency,
+        NoiseMode.Off => NoiseMode.Transparency,
+        NoiseMode.Transparency => NoiseMode.Cancelling,
         _ => NoiseMode.Off,
     };
 

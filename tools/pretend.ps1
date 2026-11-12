@@ -806,11 +806,11 @@ function NoiseControl {
 
     Page 'Controls'
     $mode = Find $script:window 'AutomationIdProperty' 'mode_button_function'
-    NoiseStep { Operate $mode 'Noise cancellation: cancelling, transparency and off' } '1' $level 'choosing the Mode button cycle'
+    NoiseStep { Operate $mode 'Noise cancellation: off, transparency and cancelling' } '1' $level 'choosing the Mode button cycle'
     Check ($null -ne (Find $script:window 'NameProperty' 'Works while Neap is running. Otherwise the button turns noise cancellation on and off.')) 'the cycle says it needs Neap running'
-    NoiseStep { Ask 'report anc 0' | Out-Null } '1' '0' 'a Mode press from noise cancellation'
-    NoiseStep { Ask 'report anc 0' | Out-Null } '0' $level 'a Mode press from transparency'
-    NoiseStep { Ask 'report anc 1' | Out-Null } '1' $level 'a Mode press from off'
+    NoiseStep { Ask 'report anc 0' | Out-Null } '0' $level 'a Mode press from noise cancellation'
+    NoiseStep { Ask 'report anc 1' | Out-Null } '1' '0' 'a Mode press from off'
+    NoiseStep { Ask 'report anc 0' | Out-Null } '1' $level 'a Mode press from transparency'
     NoiseStep { Operate $mode 'Noise cancellation on/off' } '1' $level 'choosing noise cancellation on/off again'
     NoiseStep { Ask 'report anc 0' | Out-Null } '0' $level 'a Mode press without the cycle'
     Ask 'report anc 1' | Out-Null

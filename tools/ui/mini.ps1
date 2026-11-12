@@ -86,7 +86,7 @@ foreach ($theme in 'dark', 'light') {
         Save-Shot "mini-hearing-$theme" -Whole | ForEach-Object { $_.Dispose() }
 
         foreach ($tile in @(
-                @{ List = 'Noise cancellation choices'; Words = 'Off', 'Cancelling', 'Transparency'; Pick = 'Transparency'; State = 'Noise cancellation' },
+                @{ List = 'Noise cancellation choices'; Words = 'Off', 'Transparency', 'Cancelling'; Pick = 'Transparency'; State = 'Noise cancellation' },
                 @{ List = 'Spatial sound choices'; Words = 'Off', 'Windows Sonic', 'Dolby Atmos'; Pick = 'Windows Sonic'; State = 'Spatial sound' })) {
             Press (Find-Named $tile.List)
             Check (Wait-Until { (Compare-Object (Get-Choices) $tile.Words -SyncWindow 0).Count -eq 0 } 4) "$($tile.List) lists $($tile.Words -join ', ')"

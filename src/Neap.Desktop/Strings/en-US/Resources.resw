@@ -1574,7 +1574,8 @@
     <value>Strength</value>
   </data>
   <data name="Mode_NoiseCycle" xml:space="preserve">
-    <value>Noise cancellation: cancelling, transparency and off</value>
+    <value>Noise cancellation: off, transparency and cancelling</value>
+    <comment>The Mode button's three-step cycle, in the order it steps, whether Neap or the headset's firmware runs it.</comment>
   </data>
   <data name="Mode_NoiseCycleNeedsApp" xml:space="preserve">
     <value>Works while Neap is running. Otherwise the button turns noise cancellation on and off.</value>
@@ -1584,12 +1585,8 @@
     <comment>Under the Mode button's jobs, beside whether that edit is installed on the headset.</comment>
   </data>
   <data name="Mode_OpenFirmware" xml:space="preserve">
-    <value>Open Firmware</value>
-    <comment>A button that opens the Firmware page.</comment>
-  </data>
-  <data name="Mode_NoiseCycleFirmware" xml:space="preserve">
-    <value>Noise cancellation: off, transparency and cancelling</value>
-    <comment>What the Mode button does on edited firmware, in the order it steps.</comment>
+    <value>Open Firmware page</value>
+    <comment>A button that opens the page named Firmware.</comment>
   </data>
   <data name="Equaliser_Mode.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Shape the sound by</value>

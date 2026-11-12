@@ -40,7 +40,7 @@ public sealed class NoiseControlPanel : UserControl
         AutomationProperties.SetName(_modes, title);
         AutomationProperties.SetAutomationId(_modes, "noise_control");
         NeapControls.AsGroup(_modes);
-        foreach (var mode in NoiseControl.Order(headsetCycles: false))
+        foreach (var mode in NoiseControl.Order)
         {
             var button = NeapControls.Segment(Strings.Get(QuickSettings.NoiseModeWord(mode)), "noise_control");
             button.Tag = mode;
@@ -90,7 +90,6 @@ public sealed class NoiseControlPanel : UserControl
     private void Paint()
     {
         var mode = AppServices.Noise.Mode;
-        NoiseModes.Arrange(_modes);
         IsVisible = HeadsetModels.Shows(AppServices.Headset.Model, Feature.NoiseControl);
         _modes.IsEnabled = AppServices.Noise.CanChoose;
         _painting = true;

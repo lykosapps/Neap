@@ -45,7 +45,7 @@ never cute, never alarmed and never blames anyone.
 ## 3. Short enough to read at a glance
 
 - **Labels are one to three words.** A segmented control's options are one
-  word each: Off, Cancelling, Transparency.
+  word each: Off, Transparency, Cancelling.
 - **A description is one line,** about 60 characters at most, and only when
   it is needed (see 4).
 - **Lead with the word that matters.** "Battery 76%", "Toward chat".
@@ -127,7 +127,7 @@ never cute, never alarmed and never blames anyone.
 | Setting name | The thing, one to three words | Master volume |
 | Description | Only if needed; one line; a sentence | Hear your own voice in the headset. |
 | Switch | Its state in a word beside it | On, Off |
-| Segmented options | One word each | Off · Cancelling · Transparency |
+| Segmented options | One word each | Off · Transparency · Cancelling |
 | Button | A verb first | Save as new |
 | State | What is happening, then what to do | Lost contact with the headset. Switch it off and on again. |
 | Empty state | What will be here, then how to start | No profiles yet. Set the headset up the way you want, then choose New profile. |
@@ -138,7 +138,7 @@ never cute, never alarmed and never blames anyone.
 | Use | Not | Means |
 | --- | --- | --- |
 | Noise cancellation | Noise control, ANC | The headset blocking or letting in the room |
-| Cancelling, Transparency, Off | Noise cancellation (as a mode) | Its three modes |
+| Off, Transparency, Cancelling | Noise cancellation (as a mode) | Its three modes, in the order the Mode button steps through them |
 | Strength | Blocking | How much noise cancellation keeps out |
 | Noise reduction | AI noise reduction | The microphone removing background noise |
 | Noise gate | Gate | The microphone staying silent until you speak |

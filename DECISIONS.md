@@ -11,6 +11,15 @@
   page; it is not a job, as putting it on takes a cable and a write. The row
   shows where the Firmware page has been asked for in Settings, or the edit
   is already on the headset.
+- **One order.** Both ways step off, transparency, cancelling, the
+  firmware's order, the owner's call, so the modes sit in the same order on
+  every screen whichever way is in use and the two ways share one name.
+  Neap's cycle ran off, cancelling, transparency before. It now goes to
+  transparency from off by turning the level down after the headset has
+  turned noise cancellation on, so that press passes through noise
+  cancellation for a moment, as the press to noise cancellation passes
+  through off; the level is not left at zero while off to avoid it, as the
+  button would then turn transparency on and off with Neap closed.
 - **Only one runs.** With the edit on, Neap's cycle is turned off and cannot
   be turned on, by a profile either, so a press never steps twice. Taking
   the edit off leaves the button at noise cancellation on and off: the cycle

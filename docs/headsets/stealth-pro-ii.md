@@ -155,7 +155,8 @@ was confirmed.
   transparency (`0x750` 1, `0x760` 0), then noise cancellation (`0x760`
   100), then off. So the level now reaches the PC, and the press from
   transparency to noise cancellation, silent before, is seen *(measured,
-  from the app log; what was heard at each step is not recorded)*.
+  from the app log)*. The owner then pressed through the modes again and the
+  mode Neap showed matched what was heard each time.
 - 2026-11-12 — Owner's headset, edited firmware, the try-it copy's log of
   four Mode presses through the Charging Dock: off to transparency was
   reported as `0x750` 1 with `0x760` still 100, the step to noise

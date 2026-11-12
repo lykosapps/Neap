@@ -30,7 +30,7 @@ public sealed class NoiseModes : StackPanel
         IsEnabled = false;
         Orientation = Orientation.Horizontal;
         NeapControls.AsGroup(this);
-        foreach (var mode in NoiseControl.Order(headsetCycles: false))
+        foreach (var mode in NoiseControl.Order)
         {
             var button = NeapControls.Segment(Strings.Get(QuickSettings.NoiseModeWord(mode)), "noise");
             button.Tag = mode;
@@ -57,21 +57,8 @@ public sealed class NoiseModes : StackPanel
         AppServices.Noise.Changed -= Paint;
     }
 
-    /// <summary>Puts a group's mode segments in the order the headset's Mode button steps through them.</summary>
-    /// <remarks>Edited firmware steps through them in another order, and can be chosen while the segments are on screen.</remarks>
-    internal static void Arrange(Panel segments)
-    {
-        var order = AppServices.Noise.Order.ToList();
-        var shown = segments.Children.OfType<RadioButton>().ToList();
-        var wanted = shown.OrderBy(segment => order.IndexOf((NoiseMode)segment.Tag!)).ToList();
-        if (wanted.SequenceEqual(shown)) return;
-        segments.Children.Clear();
-        segments.Children.AddRange(wanted);
-    }
-
     private void Paint()
     {
-        Arrange(this);
         IsEnabled = AppServices.Noise.CanChoose;
         var mode = AppServices.Noise.Mode;
         _painting = true;

@@ -61,6 +61,12 @@ Needs the headset on the Windows app, and the owner present. Run
   switch the headset off and on in transparency and see Neap show it, choose
   each mode from Neap and press Mode after each, and hear that the three
   modes and their tones are as before.
+- **Neap's own cycle in its new order, by ear.** It now steps off,
+  transparency, cancelling, and goes to transparency by turning the level
+  down after the headset has turned noise cancellation on. Tests and
+  practice runs only: it needs a headset on factory firmware, which the
+  owner's is not while the edit is on. Listen for how long noise
+  cancellation is heard on the way into transparency.
 - **The firmware's cycle comes back at full strength.** The edit sets noise
   cancellation to 100 on the step from transparency, whatever Strength was
   set; Neap's own cycle puts the Strength back. Decide whether Neap puts it
