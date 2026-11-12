@@ -55,8 +55,8 @@ Needs the headset on the Windows app, and the owner present. Run
 `tools\ui\run.ps1 hardware` first.
 
 ### To check
-- **Before 0.5.0 is tagged: the reworked noise cycle edit, the rest of its
-  checks.** Written to the owner's headset on 12 November, and every Mode
+- **Before 0.5.0 is tagged: the noise cycle edit's last checks.** The
+  reworked edit was written to the owner's headset on 12 November, and every Mode
   press then showed the right mode in Neap (headset tracker). Still to do:
   switch the headset off and on in transparency and see Neap show it, choose
   each mode from Neap and press Mode after each, and hear that the three
