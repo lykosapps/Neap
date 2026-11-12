@@ -82,7 +82,7 @@ system tried with a real headset.
 
 | Feature | Turtle Beach | Neap can | Neap | Windows | Linux | Keys | Next |
 |---|---|---|---|---|---|---|---|
-| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (read from the headset's flash as it connects, on Windows from 0.5.0): the headset steps through off, transparency and noise cancellation itself, and Neap only follows; on the owner's headset Neap shows Transparency while the headset is in noise cancellation; see Evidence. |
+| Mode button: noise cancellation, cycle game presets, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xB20` | Stock firmware: while Neap runs, the Mode button steps through noise cancellation, transparency and off. Edited firmware (read from the headset's flash as it connects, on Windows from 0.5.0): the headset steps through off, transparency and noise cancellation itself, and Neap only follows, each press seen on the owner's headset on 12 November; see Evidence. |
 | Lower wheel: monitoring, game and chat mix, bass, treble, noise gate | Listed | Yes | Has | Confirmed | Confirmed | `0xA20` | — |
 
 ### Additional settings
@@ -136,8 +136,6 @@ system tried with a real headset.
 
 ## Next
 
-- [ ] Firmware edit, in SP2Tools: report `0x760` on each level change of the
-      noise cycle.
 - [ ] Find where the per-transmitter voice prompt (none, 1–4) is kept.
 - [ ] Decide on hotkeys for more than the mix, Chat Boost and battery warnings.
 - [ ] Read the Xbox edition's article for anything it lists differently.
@@ -149,6 +147,15 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
+- 2026-11-12 — Owner, the try-it copy: the reworked noise cycle edit applied
+  over the older code, which read as Changed. Both sections read back as
+  written; the light edit was already on, so its session wrote nothing.
+  Switched on again through the Charging Dock, the edit read as Installed
+  and four Mode presses were each reported as they happened: off, then
+  transparency (`0x750` 1, `0x760` 0), then noise cancellation (`0x760`
+  100), then off. So the level now reaches the PC, and the press from
+  transparency to noise cancellation, silent before, is seen *(measured,
+  from the app log; what was heard at each step is not recorded)*.
 - 2026-11-12 — Owner's headset, edited firmware, the try-it copy's log of
   four Mode presses through the Charging Dock: off to transparency was
   reported as `0x750` 1 with `0x760` still 100, the step to noise
@@ -158,9 +165,7 @@ was confirmed.
   never passed to the chip that answers the PC *(read from the code)*. The
   edit Neap carries now sends the level itself after setting it, 158 bytes
   in place of 108 at the same address with the same call *(SP2Tools, read
-  from the firmware of both chips and checked by decoding the bytes; never
-  run on a headset)*. The owner's headset holds the older code, which Neap
-  reads as Changed and writes over (BACKLOG.md).
+  from the firmware of both chips and checked by decoding the bytes)*.
 - 2026-11-12 — Owner's headset, the try-it copy: the Firmware page read the
   noise cycle as Installed (app log) while Audio and Home offered Off,
   Cancelling, Transparency, the stock order, since Controls still said Stock.

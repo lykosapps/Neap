@@ -55,16 +55,12 @@ Needs the headset on the Windows app, and the owner present. Run
 `tools\ui\run.ps1 hardware` first.
 
 ### To check
-- **Before 0.5.0 is tagged: the noise cycle edit tells Neap the level.** With
-  the edit on, the headset changes the level it uses but the level Neap is
-  told stays as it was, so Neap shows Cancelling in transparency and nothing
-  for the press between them (seen 12 November, headset tracker). The edit
-  now sends the level to the chip that answers the PC *(read from the
-  firmware; never run on a headset)*. To do, with the owner's go-ahead for
-  the write: apply it over the older code on the owner's headset, where it
-  reads as Changed, then press Mode through all three steps with Neap
-  watching, switch off and on in transparency, and choose each mode from
-  Neap.
+- **Before 0.5.0 is tagged: the reworked noise cycle edit, the rest of its
+  checks.** Written to the owner's headset on 12 November, and every Mode
+  press then showed the right mode in Neap (headset tracker). Still to do:
+  switch the headset off and on in transparency and see Neap show it, choose
+  each mode from Neap and press Mode after each, and hear that the three
+  modes and their tones are as before.
 - **The firmware's cycle comes back at full strength.** The edit sets noise
   cancellation to 100 on the step from transparency, whatever Strength was
   set; Neap's own cycle puts the Strength back. Decide whether Neap puts it

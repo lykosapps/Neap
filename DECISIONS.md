@@ -23,9 +23,9 @@
   two ways differ in what they need and where they work. Without the row,
   nothing on Controls said the firmware way existed or why Neap's had gone.
 - **Not yet:** the edit as first written did not tell Neap the level, so the
-  modes shown were wrong after a press. The edit now sends it, which waits
-  to be proven on the headset (BACKLOG.md). The firmware's cycle also comes
-  back at full strength.
+  modes shown were wrong after a press. The edit now sends it, seen on the
+  owner's headset the same day (headset tracker). The firmware's cycle
+  still comes back at full strength (BACKLOG.md).
 
 ## 2026-11-12 — Which firmware runs the Mode button is read, not asked
 
