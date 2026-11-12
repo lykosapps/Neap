@@ -13,6 +13,15 @@ public class ProfileEditsTests
         game, mic, SpatialFormat.Off, 0, new ModeChoice(0, false), 1);
 
     [Fact]
+    public void AProfileThatAsksForTheAppsCycleIsNotEditedWhileTheHeadsetCycles()
+    {
+        var saved = With("Bass Boost", "Clarity") with { ModeButton = new ModeChoice(0, true) };
+        var live = With("Bass Boost", "Clarity");
+        Assert.True(ProfileEdits.IsEdited(saved, ProfileEdits.Keeping(live, saved, HeadsetModels.StealthProII)));
+        Assert.False(ProfileEdits.IsEdited(saved, ProfileEdits.Keeping(live, saved, HeadsetModels.StealthProII, headsetCycles: true)));
+    }
+
+    [Fact]
     public void TheSameSettingsAreNotEdited() =>
         Assert.False(ProfileEdits.IsEdited(With("Bass Boost", "Clarity"), With("Bass Boost", "Clarity")));
 

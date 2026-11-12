@@ -65,10 +65,18 @@ try {
     Wait-Stable { (Get-Texts) -join '|' } | Out-Null
     $moved = Send-Pretend 'focus next'
     Check ($null -ne $moved -and $moved.from -like "*CheckBox `"$name`"*") "and the keyboard focus is still on '$name' (focus was on: $($moved.from))"
+
+    # With no edit on the headset, the Mode button's jobs offer Neap's own cycle and name the firmware's as not installed.
+    Open-Page 'Controls'
+    Check ($null -ne (Find-Named 'Noise cancellation: cancelling, transparency and off')) "on factory firmware, Controls offers Neap's own cycle"
+    $texts = Get-Texts
+    $about = [array]::IndexOf($texts, 'With a firmware edit, the button steps through off, transparency and cancelling without Neap.')
+    Check ($about -ge 0 -and $texts[$about + 1] -eq 'Not installed') "and under the jobs the firmware's cycle reads as not installed"
+    Save-Shot 'firmware-controls-not-installed' -Whole | ForEach-Object { $_.Dispose() }
 }
 finally { Stop-NeapPretend }
 
-$light = 'No blinking when disconnected'
+$light ='No blinking when disconnected'
 # Each edit's state is a chip with the state's word; the light edit is the one ticked.
 function Get-StateCount([string]$State) { @(Get-Texts | Where-Object { $_ -eq $State }).Count }
 
@@ -222,6 +230,17 @@ try {
     $order = @((Find-Id 'noise_control').FindAll($Scope::Children, $radio) | ForEach-Object { $_.Current.Name }) -join ', '
     Check ($order -eq 'Off, Transparency, Cancelling') "Audio offers noise cancellation's modes in the headset's order (shown: $order)"
     Save-Shot 'firmware-noise-order' | ForEach-Object { $_.Dispose() }
+
+    # And the Mode button's jobs say the firmware runs the cycle, with the way back to this page.
+    Open-Page 'Controls'
+    Check ($null -ne (Find-Named 'Noise cancellation: off, transparency and cancelling')) "the Mode button's noise cancellation job is named as the headset's cycle"
+    Check ($null -eq (Find-Named 'Noise cancellation: cancelling, transparency and off')) "and Neap's own cycle is not offered"
+    $texts = Get-Texts
+    $about = [array]::IndexOf($texts, 'With a firmware edit, the button steps through off, transparency and cancelling without Neap.')
+    Check ($about -ge 0 -and $texts[$about + 1] -eq 'Installed') "under the jobs, the firmware's cycle is named and reads as installed"
+    Save-Shot 'firmware-controls-installed' -Whole | ForEach-Object { $_.Dispose() }
+    Press (Find-Anywhere 'Open Firmware')
+    Check (Wait-Until { $null -ne (Find-Tick $light) } 6) 'Open Firmware goes to the Firmware page'
 }
 finally { Stop-NeapPretend }
 

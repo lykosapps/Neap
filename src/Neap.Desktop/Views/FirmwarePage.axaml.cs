@@ -264,7 +264,8 @@ public partial class FirmwarePage : UserControl
         return new StackPanel { Spacing = Space.XS, Children = { header, details } };
     }
 
-    private static string StateTone(EditStatus status) => status switch
+    /// <summary>The colour of an edit's state, as a class of the status dot.</summary>
+    internal static string StateTone(EditStatus status) => status switch
     {
         EditStatus.Installed => "good",
         EditStatus.NotInstalled => "neutral",
@@ -272,7 +273,8 @@ public partial class FirmwarePage : UserControl
         _ => "caution",
     };
 
-    private static string StateWords(EditStatus status) => status switch
+    /// <summary>An edit's state in a word or two.</summary>
+    internal static string StateWords(EditStatus status) => status switch
     {
         EditStatus.Installed => Strings.Get("Firmware_Installed"),
         EditStatus.NotInstalled => Strings.Get("Firmware_NotInstalled"),

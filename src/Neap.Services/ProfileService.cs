@@ -141,7 +141,7 @@ public sealed class ProfileService : IDisposable
             new ModeChoice(modeFunction, AppServices.Noise.Cycling), dial,
             ProfileGate.HoldsMix(model) && AppServices.Mix.Running ? AppServices.Mix.Mix : null,
             model is { HasParametricBands: true } && ParametricService.Offered && AppSettings.Current.ParametricOn && ParametricService.Active
-                ? ParametricShape.Of(ParametricService.Shown) : null), Active?.Settings, model);
+                ? ParametricShape.Of(ParametricService.Shown) : null), Active?.Settings, model, AppServices.Noise.HeadsetCycles);
     }
 
     private static async Task<(BankState Game, BankState Mic)> EnsureBanks() => (

@@ -149,6 +149,14 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
+- 2026-11-12 — Owner's headset, edited firmware, the try-it copy's log of
+  four Mode presses through the Charging Dock: off to transparency was
+  reported as `0x750` 1 with `0x760` still 100, the step to noise
+  cancellation sent nothing, and the step to off was reported. Asked about
+  every 0.7 seconds, `0x760` stayed 100 throughout. So Neap shows Cancelling
+  in transparency. SP2Tools reads in the firmware that a level change is
+  never passed to the chip that answers the PC *(read from the code)*; the
+  edit is being reworked there to pass it on (BACKLOG.md).
 - 2026-11-12 — Owner's headset, the try-it copy: the Firmware page read the
   noise cycle as Installed (app log) while Audio and Home offered Off,
   Cancelling, Transparency, the stock order, since Controls still said Stock.

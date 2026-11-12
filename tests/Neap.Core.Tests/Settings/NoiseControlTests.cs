@@ -148,6 +148,27 @@ public class NoiseControlTests
     }
 
     [Fact]
+    public void TheHeadsetsCycleTurnsTheAppsOffAndItStaysOffOnceTheEditIsGone()
+    {
+        var noise = new NoiseControl(80) { Cycling = true };
+        noise.HeadsetCycles = true;
+        Assert.False(noise.Cycling);
+        noise.HeadsetCycles = false;
+        Assert.False(noise.Cycling);
+    }
+
+    [Fact]
+    public void TheAppsCycleCannotBeTurnedOnWhileTheHeadsetCycles()
+    {
+        var noise = new NoiseControl(80) { HeadsetCycles = true };
+        noise.Cycling = true;
+        Assert.False(noise.Cycling);
+        noise.HeadsetCycles = false;
+        noise.Cycling = true;
+        Assert.True(noise.Cycling);
+    }
+
+    [Fact]
     public void TheFirstReadingIsNotAPress()
     {
         var noise = new NoiseControl(80) { Cycling = true };

@@ -1,3 +1,4 @@
+using Neap.Core.Firmware;
 using Neap.Core.Settings;
 
 namespace Neap.Core.Tests.Settings;
@@ -34,4 +35,14 @@ public class ModeButtonTests
     [Fact]
     public void EditedFirmwareShowsNoiseCancellationEvenWithTheAppsCycleSaved() =>
         Assert.Equal(new ModeChoice(0, false), ModeButton.Shown(0, cycling: true, headsetCycles: true));
+
+    [Theory]
+    [InlineData(true, true, EditStatus.NotInstalled, true)]
+    [InlineData(true, true, EditStatus.Unknown, true)]
+    [InlineData(true, false, EditStatus.Installed, true)]
+    [InlineData(true, false, EditStatus.NotInstalled, false)]
+    [InlineData(true, false, EditStatus.Unknown, false)]
+    [InlineData(false, true, EditStatus.Installed, false)]
+    public void TheFirmwaresCycleShowsWhereItsPageIsAskedForOrItIsOnTheHeadset(bool offered, bool pageShown, EditStatus edit, bool shown) =>
+        Assert.Equal(shown, ModeButton.ShowsFirmwareCycle(offered, pageShown, edit));
 }

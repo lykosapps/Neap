@@ -55,6 +55,17 @@ Needs the headset on the Windows app, and the owner present. Run
 `tools\ui\run.ps1 hardware` first.
 
 ### To check
+- **Before 0.5.0 is tagged: the noise cycle edit tells Neap the level.** With
+  the edit on, the headset changes the level it uses but the level Neap is
+  told stays as it was, so Neap shows Cancelling in transparency and nothing
+  for the press between them (seen 12 November, headset tracker). The edit
+  is being reworked in SP2Tools to announce the level; its new bytes then go
+  into `FirmwareEdit.NoiseCycle`, the owner's headset is written again, and
+  the Mode button is pressed through all three steps with Neap watching.
+- **The firmware's cycle comes back at full strength.** The edit sets noise
+  cancellation to 100 on the step from transparency, whatever Strength was
+  set; Neap's own cycle puts the Strength back. Decide whether Neap puts it
+  back while it runs.
 - **Does CrossPlay report its presses?** Unknown.
 - **The spare battery** on the Charging Dock's panel: out, in, and gone
   on the USB Transmitter.
@@ -100,6 +111,11 @@ Needs the headset on the Windows app, and the owner present. Run
 Needs the headset, and for the first line two transmitters. Look in SP2Tools
 first and say how sure each finding is.
 
+- **Is Strength under 50 transparency?** SP2Tools reads in the firmware that
+  a noise cancellation level under 50 lets the room in at a varying gain,
+  and only 50 and over cancels *(read from the code, not heard)*. Neap calls
+  1 to 100 Strength and only 0 transparency. Listen at 49 and 50; if so, the
+  slider and the three modes need another look.
 - **Move the headset between PCs without switching it off and on.**
   *High priority.* The headset keeps its settings on the transmitter it was
   switched on with, and CrossPlay moves only its sound, so after moving

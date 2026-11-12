@@ -101,10 +101,15 @@ public static class ProfileEdits
     /// otherwise read as edited for ever, and saving over it would lose what
     /// the first headset had.
     /// </remarks>
-    public static ProfileSettings Keeping(ProfileSettings live, ProfileSettings? active, HeadsetModel? model)
+    /// <param name="live">The settings as they are now.</param>
+    /// <param name="active">The profile in use, or null with none.</param>
+    /// <param name="model">The headset connected.</param>
+    /// <param name="headsetCycles">Whether the headset's own firmware runs the Mode button's cycle, so the app's cycle cannot be on; a profile that asks for it keeps asking.</param>
+    public static ProfileSettings Keeping(ProfileSettings live, ProfileSettings? active, HeadsetModel? model, bool headsetCycles = false)
     {
         if (active is null) return live;
         bool Holds(string setting) => ProfileGate.Holds(model, setting);
+        if (headsetCycles) live = live with { ModeButton = live.ModeButton with { Cycles = active.ModeButton.Cycles } };
         return live with
         {
             NoiseMode = Holds("anc") ? live.NoiseMode : active.NoiseMode,

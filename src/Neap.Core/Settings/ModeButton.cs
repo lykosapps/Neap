@@ -1,3 +1,5 @@
+using Neap.Core.Firmware;
+
 namespace Neap.Core.Settings;
 
 /// <summary>A job the Mode button can be given.</summary>
@@ -35,4 +37,16 @@ public static class ModeButton
     /// <summary>The choice in effect, or null until the headset reports its function.</summary>
     public static ModeChoice? Shown(int? function, bool cycling, bool headsetCycles) =>
         function is int f ? new ModeChoice(f, f == NoiseCancellation && cycling && !headsetCycles) : null;
+
+    /// <summary>Whether the firmware's own cycle is shown under the Mode button's jobs, with its state.</summary>
+    /// <param name="offered">Whether firmware edits are offered for the headset.</param>
+    /// <param name="pageShown">Whether the Firmware page is in the menu.</param>
+    /// <param name="edit">The state of the edit that adds the cycle.</param>
+    /// <remarks>
+    /// The Firmware page is asked for in Settings, so an edit is not put in
+    /// front of someone who has not asked for it. One already on the headset
+    /// is shown all the same, as it is why the button does what it does.
+    /// </remarks>
+    public static bool ShowsFirmwareCycle(bool offered, bool pageShown, EditStatus edit) =>
+        offered && (pageShown || edit == EditStatus.Installed);
 }

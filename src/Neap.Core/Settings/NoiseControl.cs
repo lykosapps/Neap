@@ -63,11 +63,32 @@ public sealed class NoiseControl(int? blocking)
     /// <summary>Gets the level noise cancellation is used at.</summary>
     public int Blocking { get; private set; } = blocking is > 0 and <= 100 ? blocking.Value : FullBlocking;
 
-    /// <summary>Gets or sets whether a press of the Mode button steps through all three modes.</summary>
-    public bool Cycling { get; set; }
+    private bool _cycling;
+    private bool _headsetCycles;
+
+    /// <summary>Gets or sets whether the app turns a press of the Mode button into a step through all three modes.</summary>
+    /// <remarks>Never on while <see cref="HeadsetCycles"/> is, whoever asks: a profile saved on stock firmware asks for it too.</remarks>
+    public bool Cycling
+    {
+        get => _cycling;
+        set => _cycling = value && !_headsetCycles;
+    }
 
     /// <summary>Gets or sets whether the headset's own firmware steps the Mode button through all three modes.</summary>
-    public bool HeadsetCycles { get; set; }
+    /// <remarks>
+    /// Turning it on turns the app's cycle off for good, not for as long as
+    /// the edit lasts: once the edit is taken off, the button is back to noise
+    /// cancellation on and off until the app's cycle is chosen again.
+    /// </remarks>
+    public bool HeadsetCycles
+    {
+        get => _headsetCycles;
+        set
+        {
+            _headsetCycles = value;
+            if (value) _cycling = false;
+        }
+    }
 
     /// <summary>The modes in the order the Mode button steps through them, for showing them side by side.</summary>
     /// <param name="headsetCycles">Whether the headset's own firmware runs the cycle.</param>
@@ -124,7 +145,7 @@ public sealed class NoiseControl(int? blocking)
         _anc = anc;
         _level = level;
         if (Mode == NoiseMode.Cancelling) Blocking = level!.Value;
-        return pressed && Cycling && !HeadsetCycles && before is NoiseMode from ? Choose(Next(from)) : [];
+        return pressed && Cycling && before is NoiseMode from ? Choose(Next(from)) : [];
     }
 
     /// <summary>The writes that take the headset to a mode, in the order to send them.</summary>

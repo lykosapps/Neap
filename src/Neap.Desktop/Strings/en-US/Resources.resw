@@ -1579,6 +1579,14 @@
   <data name="Mode_NoiseCycleNeedsApp" xml:space="preserve">
     <value>Works while Neap is running. Otherwise the button turns noise cancellation on and off.</value>
   </data>
+  <data name="Mode_FirmwareCycle" xml:space="preserve">
+    <value>With a firmware edit, the button steps through off, transparency and cancelling without Neap.</value>
+    <comment>Under the Mode button's jobs, beside whether that edit is installed on the headset.</comment>
+  </data>
+  <data name="Mode_OpenFirmware" xml:space="preserve">
+    <value>Open Firmware</value>
+    <comment>A button that opens the Firmware page.</comment>
+  </data>
   <data name="Mode_NoiseCycleFirmware" xml:space="preserve">
     <value>Noise cancellation: off, transparency and cancelling</value>
     <comment>What the Mode button does on edited firmware, in the order it steps.</comment>

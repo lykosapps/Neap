@@ -1,8 +1,13 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Neap.Core.Firmware;
 using Neap.Core.Settings;
+using Neap.Desktop.Views;
 
 namespace Neap.Desktop.Controls;
 
@@ -24,6 +29,12 @@ namespace Neap.Desktop.Controls;
 /// while they are on screen.
 /// </para>
 /// <para>
+/// Under the jobs, where <see cref="ModeButton.ShowsFirmwareCycle"/> says, a
+/// row names the firmware's cycle as the other way to the same thing, with
+/// whether it is on the headset and a button to the Firmware page. It is not
+/// a job to choose, as putting it on takes a cable and a write.
+/// </para>
+/// <para>
 /// The radio group's automation id is "mode_button_function", the setting it
 /// writes. Until the headset reports the setting no job is chosen and the
 /// group is disabled.
@@ -41,6 +52,11 @@ public sealed class ModeButtonChoice : UserControl
     private readonly TextBlock _title = new() { Classes = { "cardtitle" } };
     private readonly TextBlock _description = new() { Classes = { "caption", "secondary" } };
     private readonly TextBlock _needsApp = new() { Classes = { "caption", "secondary" }, IsVisible = false };
+    private readonly Border _firmware = new() { Classes = { "insetrow" }, IsVisible = false };
+    private readonly Ellipse _firmwareDot = new() { VerticalAlignment = VerticalAlignment.Center };
+    private readonly TextBlock _firmwareWord = new();
+    private readonly Border _firmwareState;
+    private readonly Button _openFirmware = new() { Content = Strings.Get("Mode_OpenFirmware"), VerticalAlignment = VerticalAlignment.Center };
     private readonly SettingLink _link;
     private RadioButton? _noiseButton;
     private string? _noiseLabel;
@@ -50,10 +66,33 @@ public sealed class ModeButtonChoice : UserControl
     {
         _needsApp.Text = Strings.Get("Mode_NoiseCycleNeedsApp");
 
+        _firmwareState = new Border
+        {
+            Classes = { "chip" },
+            VerticalAlignment = VerticalAlignment.Center,
+            Child = new StackPanel { Classes = { "gaprow" }, Children = { _firmwareDot, _firmwareWord } },
+        };
+        // A screen reader meets the sentence and then the word, and is told when the word changes.
+        AutomationProperties.SetLiveSetting(_firmwareWord, AutomationLiveSetting.Polite);
+        _openFirmware.Click += (_, _) => (TopLevel.GetTopLevel(this) as MainWindow)?.Open("firmware");
+        var about = new TextBlock
+        {
+            Text = Strings.Get("Mode_FirmwareCycle"),
+            Classes = { "secondary" },
+            TextWrapping = TextWrapping.Wrap,
+        };
+        // The sentence gets the card's whole width, as the card is half the page's: beside the state and the button it ran to four lines.
+        var foot = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+        _firmwareState.HorizontalAlignment = HorizontalAlignment.Left;
+        Grid.SetColumn(_openFirmware, 1);
+        foot.Children.Add(_firmwareState);
+        foot.Children.Add(_openFirmware);
+        _firmware.Child = new StackPanel { Spacing = Space.S, Children = { about, foot } };
+
         Content = new Border
         {
             Classes = { "card" },
-            Child = new StackPanel { Spacing = Space.S, Children = { _title, _description, _options, _needsApp } },
+            Child = new StackPanel { Spacing = Space.S, Children = { _title, _description, _options, _needsApp, _firmware } },
         };
         _link = new SettingLink(this, () => "mode_button_function", Build, Paint);
     }
@@ -62,12 +101,14 @@ public sealed class ModeButtonChoice : UserControl
     {
         base.OnLoaded(e);
         AppServices.Noise.Changed += Paint;
+        AppServices.Firmware.Changed += Paint;
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
         AppServices.Noise.Changed -= Paint;
+        AppServices.Firmware.Changed -= Paint;
     }
 
     /// <summary>Gets or sets what the button is called.</summary>
@@ -146,5 +187,17 @@ public sealed class ModeButtonChoice : UserControl
         }
         finally { _painting = false; }
         _needsApp.IsVisible = shown is { Cycles: true };
+        PaintFirmware();
+    }
+
+    /// <summary>Shows the firmware's own cycle under the jobs, with whether it is on the headset and the way to the Firmware page.</summary>
+    private void PaintFirmware()
+    {
+        bool listed = TopLevel.GetTopLevel(this) is MainWindow { FirmwareListed: true };
+        var status = AppServices.Firmware.StatusOf(FirmwareEdit.NoiseCycle);
+        _firmware.IsVisible = ModeButton.ShowsFirmwareCycle(FirmwareEdit.Offered(AppServices.Headset.Model), listed, status);
+        _openFirmware.IsVisible = listed;
+        _firmwareDot.Classes.Replace(["statusdot", FirmwarePage.StateTone(status)]);
+        _firmwareWord.Text = FirmwarePage.StateWords(status);
     }
 }

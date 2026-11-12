@@ -144,6 +144,9 @@ public partial class MainWindow : Window
         else if (!wanted && listed) Places.Items.Remove(FirmwareNav);
     }
 
+    /// <summary>Gets whether the Firmware page is in the menu.</summary>
+    public bool FirmwareListed => Places.Items.Contains(FirmwareNav);
+
     /// <summary>Opens the page with this tag, and marks its place in the rail; not while work is held over the window.</summary>
     /// <returns>Whether there is a page with that tag.</returns>
     public bool Open(string page)

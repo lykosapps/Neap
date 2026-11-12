@@ -1,5 +1,31 @@
 # Decisions
 
+## 2026-11-12 — Transparency on the Mode button is one feature with two ways to it
+
+- **Options:** keep Neap's own cycle on Controls and the firmware's on the
+  Firmware page, with nothing joining them; show both on the Mode button's
+  card.
+- **Chosen:** both on the card, the owner's call. Neap's cycle is a job to
+  choose, and says it needs Neap running. Under the jobs a row names the
+  firmware's cycle, says whether it is on the headset and opens the Firmware
+  page; it is not a job, as putting it on takes a cable and a write. The row
+  shows where the Firmware page has been asked for in Settings, or the edit
+  is already on the headset.
+- **Only one runs.** With the edit on, Neap's cycle is turned off and cannot
+  be turned on, by a profile either, so a press never steps twice. Taking
+  the edit off leaves the button at noise cancellation on and off: the cycle
+  chosen before the edit is not brought back, which could be weeks old. A
+  profile that asks for Neap's cycle keeps asking, and does not read as
+  edited while the headset runs its own.
+- **Read everywhere.** The flash is read on Linux too, where edits are not
+  written, since a headset edited on Windows runs its cycle on every PC.
+- **Why:** to a person it is one thing, three steps on the button, and the
+  two ways differ in what they need and where they work. Without the row,
+  nothing on Controls said the firmware way existed or why Neap's had gone.
+- **Not yet:** the edit does not tell Neap the level, so the modes shown can
+  be wrong after a press (BACKLOG.md); and the firmware's cycle comes back
+  at full strength.
+
 ## 2026-11-12 — Which firmware runs the Mode button is read, not asked
 
 - **Options:** keep the Stock or Edited choice on Controls; read the noise

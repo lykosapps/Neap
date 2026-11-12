@@ -38,11 +38,10 @@ public sealed class NoiseService : IDisposable
         _headset = headset;
         _firmware = firmware;
         var saved = AppSettings.Current;
-        // What a release with firmware edits saved is not acted on by one without them.
         _noise = new NoiseControl(saved.NoiseBlocking)
         {
             Cycling = saved.ModeCyclesNoise,
-            HeadsetCycles = FirmwareEdit.Released && saved.HeadsetCyclesNoise,
+            HeadsetCycles = saved.HeadsetCyclesNoise,
         };
         _headset.Changed += OnChanged;
         _headset.StatusChanged += OnStatus;
@@ -89,19 +88,28 @@ public sealed class NoiseService : IDisposable
     }
 
     /// <summary>Set whether a press of the Mode button steps through all three modes.</summary>
+    /// <remarks>Left off while the headset's own firmware runs the cycle, as a profile saved on stock firmware can ask for it.</remarks>
     public void SetCycling(bool cycling)
     {
         _noise.Cycling = cycling;
-        AppSettings.Update(s => s.ModeCyclesNoise = cycling);
+        if (cycling && !_noise.Cycling)
+            AppLog.Write("noise control: Neap's cycle stays off, as the headset's firmware runs the Mode button's cycle");
+        AppSettings.Update(s => s.ModeCyclesNoise = _noise.Cycling);
         Changed?.Invoke();
     }
 
+    /// <remarks>
+    /// Read on every system, though edits are written only where
+    /// <see cref="FirmwareEdit.Released"/> says: a headset edited on one PC
+    /// runs its cycle on every other.
+    /// </remarks>
     private async void OnStatus(HeadsetStatus status)
     {
         bool connected = status.Link == Link.Connected;
         bool justConnected = connected && !_connected;
         _connected = connected;
-        if (justConnected && FirmwareEdit.Released && !_firmware.Busy) await _firmware.ReadFlash();
+        bool hasEdits = _headset.Model is not { } model || FirmwareEdit.For(model).Count > 0;
+        if (justConnected && hasEdits && !_firmware.Busy) await _firmware.ReadFlash();
     }
 
     private void OnFirmware()
@@ -112,14 +120,19 @@ public sealed class NoiseService : IDisposable
     /// <summary>Takes whether the headset runs the cycle from its flash as last read, and says whether that changed.</summary>
     private bool FollowFirmware()
     {
-        if (!FirmwareEdit.Released) return false;
-        bool cycles = NoiseControl.HeadsetCyclesFor(_firmware.StatusOf(FirmwareEdit.NoiseCycle), _noise.HeadsetCycles);
+        if (_headset.Model is not { } model) return false;
+        // An edit made for another headset is not on this one, whatever its firmware is numbered.
+        var edit = FirmwareEdit.For(model).Contains(FirmwareEdit.NoiseCycle)
+            ? _firmware.StatusOf(FirmwareEdit.NoiseCycle)
+            : EditStatus.DoesNotFit;
+        bool cycles = NoiseControl.HeadsetCyclesFor(edit, _noise.HeadsetCycles);
         if (cycles == _noise.HeadsetCycles) return false;
+        bool cycled = _noise.Cycling;
         _noise.HeadsetCycles = cycles;
-        AppSettings.Update(s => s.HeadsetCyclesNoise = cycles);
+        AppSettings.Update(s => (s.HeadsetCyclesNoise, s.ModeCyclesNoise) = (cycles, _noise.Cycling));
         AppLog.Write(cycles
-            ? "noise control: the headset's edited firmware runs the Mode button's cycle"
-            : "noise control: the headset's firmware does not run the Mode button's cycle, so Neap does when asked");
+            ? "noise control: the headset's edited firmware runs the Mode button's cycle" + (cycled ? ", so Neap's own is turned off" : "")
+            : "noise control: the headset's firmware no longer runs the Mode button's cycle, so the button turns noise cancellation on and off");
         return true;
     }
 

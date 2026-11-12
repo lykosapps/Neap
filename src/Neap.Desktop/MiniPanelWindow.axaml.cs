@@ -330,7 +330,7 @@ public partial class MiniPanelWindow : Window
         NoiseTile.Show(mode is NoiseMode.Cancelling or NoiseMode.Transparency,
             Strings.Get(mode is { } known ? QuickSettings.NoiseModeWord(known) : "Reading_None"), noise.CanChoose);
         NoiseTile.Offer(
-            Enum.GetValues<NoiseMode>().Select(choice =>
+            noise.Order.Select(choice =>
                 (Strings.Get(QuickSettings.NoiseModeWord(choice)), choice == mode, (Action)(() => noise.Choose(choice)))),
             noise.CanChoose);
     }
