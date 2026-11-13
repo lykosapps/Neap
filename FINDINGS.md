@@ -893,6 +893,11 @@ charging; the dock charges whatever is in the slot. Swarm II's desktop app
 does not show it; its phone app shows it as the Charging Hub's battery
 *(research)*. The USB Transmitter, with no slot, reports 0.
 
+The dock also reports 0 for an empty slot when the headset is switched on
+with nothing in it, not 255 *(measured, 13 November: switched off, spare
+taken out, switched on)*. It reports 255 only once a battery has gone in or
+out while the headset is on. A user saw the same on GitHub (issue 13).
+
 The spare's reading is not steady while it charges *(measured, 8 Oct)*. A
 battery that read 10% in the headset went into the dock; the dock first kept
 the previous spare's 100, then read 55, 57, 65 and 69 over about an hour and a

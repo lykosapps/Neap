@@ -5,7 +5,7 @@ namespace Neap.Core.Tests.Connection;
 public class SpareBatteryTests
 {
     [Theory]
-    [InlineData("0", 0)]
+    [InlineData("1", 1)]
     [InlineData("37", 37)]
     [InlineData("100", 100)]
     public void AChargeIsABatteryInTheSlot(string reported, int percent)
@@ -14,7 +14,7 @@ public class SpareBatteryTests
     }
 
     [Theory]
-    [InlineData("0", true)]
+    [InlineData("0", false)]
     [InlineData("57", true)]
     [InlineData("99", true)]
     [InlineData("100", false)]
@@ -29,6 +29,15 @@ public class SpareBatteryTests
     public void TwoFiftyFiveIsAnEmptySlot()
     {
         Assert.Equal(SpareState.Empty, SpareBattery.Parse("255").State);
+    }
+
+    // GitHub issue 13: switched on with the slot empty, the dock reported 0 and Home said Charging.
+    [Fact]
+    public void ZeroIsAnEmptySlotNotABatteryCharging()
+    {
+        var reading = SpareBattery.Parse("0");
+        Assert.Equal(SpareState.Empty, reading.State);
+        Assert.False(reading.Charging);
     }
 
     [Theory]

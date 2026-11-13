@@ -25,11 +25,17 @@ public readonly record struct SpareReading(SpareState State, int Percent)
 /// <summary>Reads the spare battery a Charging Dock reports inside its transmitter slot.</summary>
 /// <remarks>
 /// <para>
-/// The fourth entry of the dock's slot is the spare's charge, 0 to 100, and
+/// The fourth entry of the dock's slot is the spare's charge, 1 to 100, and
 /// 255 while the slot is empty. It went to 255 and back each time the spare
 /// was taken out and put back, and a drained battery put in the dock rose
-/// from 37 to 100 as it charged. The USB Transmitter, which has no slot,
-/// reports 0 there.
+/// from 37 to 100 as it charged.
+/// </para>
+/// <para>
+/// 0 is an empty slot too: a headset switched on with nothing in the slot
+/// reports 0, not 255, until a battery goes in or out. The USB Transmitter,
+/// which has no slot, also reports 0. A battery reads well above 0 in the
+/// dock however flat it is (a drained one read 37), so no charge is lost by
+/// taking 0 as none.
 /// </para>
 /// <para>
 /// Nothing separate says it is charging. The dock charges whatever is in the
@@ -42,8 +48,11 @@ public static class SpareBattery
     /// <summary>What the dock reports while its battery slot is empty.</summary>
     public const string EmptySlot = "255";
 
+    /// <summary>What the dock reports for an empty slot when the headset is switched on with nothing in it.</summary>
+    public const string NothingSeen = "0";
+
     public static SpareReading Parse(string reported) =>
-        reported == EmptySlot ? new SpareReading(SpareState.Empty, 0)
+        reported is EmptySlot or NothingSeen ? new SpareReading(SpareState.Empty, 0)
         : int.TryParse(reported, NumberStyles.None, CultureInfo.InvariantCulture, out int percent) && percent <= 100
             ? new SpareReading(SpareState.InSlot, percent)
             : new SpareReading(SpareState.Unreadable, 0);

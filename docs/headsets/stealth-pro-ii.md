@@ -147,6 +147,12 @@ system tried with a real headset.
 Newest first. [FINDINGS.md](../../FINDINGS.md) has every key and how each
 was confirmed.
 
+- 2026-11-13 — GitHub issue 13: Home said the spare battery was Charging
+  with the dock's slot empty, after Neap restarted or the headset
+  reconnected. Reproduced on the owner's headset: switched off, spare taken
+  out, switched on, and the dock reported the spare as 0, not the 255 of an
+  empty slot, which Neap read as a battery charging. 0 is now an empty slot
+  (0.5.1); not yet seen on the headset with the fix.
 - 2026-11-13 — Owner, the try-it copy, through the Charging Dock, the
   reworked noise cycle edit's last checks, each matched in the app log.
   Switched off and on in transparency, the headset came back in

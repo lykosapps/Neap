@@ -10,6 +10,16 @@ section it belongs to. At a release, those lines are bundled by theme
 into a short summary under the version number and date, and the detail
 stays in the commit history.
 
+## 0.5.1 — 2026-11-13
+
+**A fix for the Charging Dock's spare battery.**
+
+### Fixed
+
+- With the dock's battery slot empty, Home no longer says the spare battery
+  is charging after Neap restarts or the headset is switched on.
+  ([#13](https://github.com/lykosapps/Neap/issues/13))
+
 ## 0.5.0 — 2026-11-13
 
 **Firmware edits for the Stealth Pro II, a parametric equaliser for the
