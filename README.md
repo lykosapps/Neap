@@ -2,10 +2,10 @@
 
 # Neap
 
-**Full control of your Turtle Beach headset on Windows and Linux, without
-Swarm II.** A true parametric equaliser, a game and chat mix that needs no
-driver, profiles that follow your games, and every setting the headset has,
-in one quiet app.
+**Control your Turtle Beach headset on Windows and Linux, without Swarm II.**
+A true parametric equaliser, a game and chat mix that needs no driver,
+profiles that follow your games, and every setting the headset has, in one
+quiet app.
 
 [![Latest release](https://img.shields.io/github/v/release/lykosapps/Neap?label=release)](https://github.com/lykosapps/Neap/releases/latest)
 [![Licence: GPL-3.0](https://img.shields.io/badge/licence-GPL--3.0-blue)](LICENSE)
@@ -19,131 +19,181 @@ in one quiet app.
 
 ## Why Neap
 
-- **No Turtle Beach software.** No Swarm II running in the background, no
-  Waves driver, no admin rights, no reboot.
+- **No Turtle Beach software.** No Swarm II in the background, no Waves
+  driver, no admin rights, no reboot.
 - **Windows and Linux,** the same app on both, Steam Deck included.
-- **Private by design.** No account, no analytics, nothing from your PC or
-  headset leaves it. The one network call is the update check, and it can
-  be turned off.
+- **Private.** No account and no analytics. The only thing Neap sends
+  anywhere is its update check, and you can turn that off.
 - **Free and open source,** under the GPL.
 
-## Headsets
+## New in 0.5.0
 
-| Headset | Windows | Linux | Parametric equaliser |
-|---|---|---|---|
-| Stealth Pro II (Xbox) | Yes | Yes | Yes |
-| Stealth Pro II (PlayStation) | Yes | Yes | Yes |
-| Atlas Air | Yes, with two owners testing | Yes | In testing |
+- **Transparency on the Mode button, even with Neap closed.** On Windows,
+  Neap can change the Stealth Pro II's own firmware so its Mode button steps
+  through off, transparency and noise cancellation, and its light stays dark
+  while it's disconnected. It backs up first, checks every change, and can
+  put the factory firmware back.
+- **A parametric equaliser for the Atlas Air,** the same one the Stealth
+  Pro II has.
+- **The mix on screen.** Turn the chat wheel in a game and a slim bar shows
+  where the game and chat balance sits, without taking your mouse or
+  keyboard.
 
-Neap shows only what each headset has. Own another Turtle Beach headset
-that works with Swarm II? A ten-minute recording made in Neap is where its
-support starts, with no technical knowledge needed.
-**[Here's how](docs/MAPPING.md).**
+The [changelog](CHANGELOG.md) has every release.
 
 ## What it does
 
 ### A true parametric equaliser
 
-A ten-band equaliser gives you sliders at fixed frequencies. Neap unlocks
-the Stealth Pro II's own filters: choose where each of its ten bands
-sits, its shape and how wide it is, and the headset plays the curve as
-drawn, through the Charging Dock or the cable.
+Most headset apps give you ten sliders at fixed frequencies. Neap unlocks
+the headset's own filters: put each band where you want it, pick its shape
+and width, and the headset plays the curve as drawn.
 
 - **Six filter shapes:** bell, low and high shelf, low and high cut, and
-  notch, each with frequency, width and gain.
-- **Start from a measurement.** The Stealth Pro II's measured response is
-  built in, with and without noise cancellation. Set it against a target
-  and Auto-EQ fits the bands for you.
-- **Bring your own.** Import AutoEq and Equalizer APO filters, or load
-  your own measurements and targets.
-- **Tune by ear.** A test tone plays through the headset to find a peak,
-  hold Compare to hear it without your changes, and undo anything.
-- **Keep it.** Save presets, start from built-in shapes, and put a curve in
-  a profile.
-- **Safe to try.** Turn it off and the headset goes back to its own ten
-  bands. If the headset, its phone app or Swarm II changes the equaliser,
-  Neap steps back too, and keeps your curve.
-
-### Ten-band equalisers, stored on the headset
-
-Game and microphone equalisers with presets saved on the headset itself, so
-they show in the phone app too and survive uninstalling everything.
+  notch.
+- **Start from a measurement.** The Stealth Pro II's measured sound is built
+  in. Set it against a target and Auto-EQ fits the bands for you.
+- **Bring your own.** Import AutoEq and Equalizer APO filters, or load your
+  own measurements and targets.
+- **Tune by ear.** Play a test tone to find a peak, hold Compare to hear the
+  difference, and undo anything.
+- **Safe to try.** Turn it off and the headset goes back to its ten bands.
+  If another app changes the equaliser, Neap steps back and keeps your
+  curve.
 
 ### A game and chat mix, with nothing to install
 
 Pick your chat apps, such as Discord or Teams, and Neap balances them
-against everything else. Turn the headset's chat wheel, the dial on Home,
-or a keyboard shortcut in game. No virtual cable or driver, and it works on
-the Xbox edition, where Swarm II's mix isn't officially supported.
+against everything else. Use the headset's chat wheel, the dial on Home or
+a keyboard shortcut. There's no virtual cable or driver, and it works on the
+Xbox edition, where Swarm II's mix isn't supported.
 
 ![Home, with the headset's battery, the game and chat dial, and cards for the microphone, noise cancellation, the equaliser, Superhuman Hearing and spatial sound.](docs/screenshots/mix.png)
-
-### A mini panel for mid-game
-
-Click Neap's icon by the clock for the mix, the microphone, noise
-cancellation, spatial sound, Superhuman Hearing, the equaliser preset and
-the profile in use. Choose which ones it shows.
-
-![The mini panel, with the profile, the game and chat mix, tiles for the microphone, noise cancellation, spatial sound and Superhuman Hearing, and the equaliser preset.](docs/screenshots/mini.png)
 
 ### Profiles that follow your games
 
 Save your whole setup under a name, from noise cancellation to both
 equalisers and the mix. A profile comes on when its game starts and goes
-back to your default when it closes. A call app such as Teams can switch
-only while it's on a call.
+back to your default when it closes. A call app such as Teams switches only
+while you're on a call.
 
 ![The Profiles page, with a default profile and a second profile for a game.](docs/screenshots/profiles.png)
 
-### Everything else
+### A mini panel for mid-game
 
-- **Every setting the headset has:** noise cancellation and transparency,
-  the microphone and its noise gate, Superhuman Hearing, buttons, lights,
-  power and the Charging Dock's spare battery.
-- **The microphone follows the headset's mute,** from the boom arm or the
+Click Neap's icon by the clock for the mix, the microphone, noise
+cancellation, spatial sound, Superhuman Hearing, the equaliser preset and
+your profile. You choose which ones it shows.
+
+![The mini panel, with the profile, the game and chat mix, tiles for the microphone, noise cancellation, spatial sound and Superhuman Hearing, and the equaliser preset.](docs/screenshots/mini.png)
+
+### And the rest
+
+- **Every setting the headset has,** from the microphone's noise gate to
+  the lights and the Charging Dock's spare battery.
+- **Your microphone follows the headset's mute,** from the boom arm or the
   button.
-- **Pre-gain** lifts a headset that's too quiet, and leaves room for
-  equaliser boosts.
-- **Catches the wrong device** when sound or calls go somewhere the headset
-  isn't, and on Windows fixes it in one press.
-- **Clear status:** connected, no sound, off or out of range, each with what
-  still works and what to do.
-- **Updates itself** with one press, on Windows and from the Linux AppImage,
-  checked against the checksum published with each release.
+- **Sound in the right place.** Neap notices when sound or calls go to the
+  wrong device, and on Windows fixes it in one press.
+- **Clear status:** connected, no sound, off or out of range, each with
+  what still works and what to do.
+- **Updates itself** in one press, checked against the release's checksum.
 
-### Coming soon
+## Feature map
 
-**Changes to the headset's own firmware,** written by Neap: the Mode
-button stepping through transparency without Neap running, and new light
-patterns, starting with the light switching off when the headset
-disconnects instead of blinking.
+What each headset gets, and where it works. **New** marks what arrived in
+0.5.0.
 
-## Built to be relied on
+✓ works · **Try** the headset has it and Neap offers it, but can't read it
+back yet · — not on this headset or system
 
-- **Tested on the hardware.** Every release is checked on a real headset,
-  and Neap writes only settings already proven on one.
-- **Nearly 2,000 automated tests,** and scripted checks that drive every
-  screen in light, dark and high contrast.
-- **Accessible:** built to WCAG 2.2 AA, it works fully from the keyboard and
-  with screen readers.
-- **Nothing fails silently.** When something can't be done, Neap says so,
-  and a recording made in Settings captures what happened for a bug report.
+### Sound
 
-## Install on Windows
+| Feature | Stealth Pro II | Atlas Air | Windows | Linux |
+|---|:-:|:-:|:-:|:-:|
+| Parametric equaliser | ✓ | ✓ **New** | ✓ | ✓ |
+| Ten-band game equaliser, presets on the headset | ✓ | ✓ | ✓ | ✓ |
+| Auto-EQ from a built-in measurement | ✓ | — ¹ | ✓ | ✓ |
+| Pre-gain | ✓ | — | ✓ | ✓ |
+| Noise cancellation and transparency | ✓ | — | ✓ | ✓ |
+| Superhuman Hearing | ✓ | ✓ | ✓ | ✓ |
+| Spatial sound (Windows Sonic, Dolby Atmos) | ✓ | ✓ | ✓ | — |
+| Game and chat mix | ✓ | ✓ | ✓ | ✓ |
+| The mix on screen | ✓ | ✓ | ✓ **New** | — |
+| Keyboard shortcuts for the mix | ✓ | ✓ | ✓ | ✓ ² |
+
+### Microphone
+
+| Feature | Stealth Pro II | Atlas Air | Windows | Linux |
+|---|:-:|:-:|:-:|:-:|
+| Mute that follows the headset | ✓ | ✓ | ✓ | ✓ |
+| Monitoring (hear your own voice) | ✓ | ✓ | ✓ | ✓ |
+| Microphone equaliser | ✓ | ✓ | ✓ | ✓ |
+| Noise gate | ✓ | Try | ✓ | ✓ |
+| AI noise reduction | ✓ | — | ✓ | ✓ |
+
+### The headset
+
+| Feature | Stealth Pro II | Atlas Air | Windows | Linux |
+|---|:-:|:-:|:-:|:-:|
+| Battery, and the Charging Dock's spare | ✓ | Battery | ✓ | ✓ |
+| Mode button, lower dial and chat wheel | ✓ | — | ✓ | ✓ |
+| Transparency on the Mode button without Neap ³ | ✓ **New** | — | ✓ | — |
+| Light off while disconnected ³ | ✓ **New** | — | ✓ | — |
+| Lights | ✓ | Try | ✓ | ✓ |
+| Auto shut-off and voice prompts | ✓ | ✓ | ✓ | ✓ |
+| Wake on motion | ✓ | — | ✓ | ✓ |
+
+### The app
+
+| Feature | Stealth Pro II | Atlas Air | Windows | Linux |
+|---|:-:|:-:|:-:|:-:|
+| Profiles that follow your games | ✓ | ✓ | ✓ | ✓ |
+| Mini panel | ✓ | ✓ | ✓ | ✓ ⁴ |
+| Fixing sound sent to the wrong device | ✓ | ✓ | ✓ | Warns |
+| Updates itself | ✓ | ✓ | ✓ | ✓ |
+
+**Notes**
+
+1. There's no built-in measurement of the Atlas Air yet. Load one of your
+   own and Auto-EQ works the same.
+2. On Wayland, only while a game or another X11 program is in front.
+3. A firmware edit: turn on **Firmware edits** in Settings. Swarm II updates
+   remove them; remove them yourself before contacting Turtle Beach.
+4. On desktops that show tray icons.
+
+The full detail, headset by headset and with how sure each part is, is in
+[docs/headsets](docs/headsets).
+
+## Headsets
+
+| Headset | Windows | Linux |
+|---|---|---|
+| Stealth Pro II (Xbox) | ✓ | ✓ |
+| Stealth Pro II (PlayStation) | ✓ | ✓ |
+| Atlas Air | ✓, with two owners testing | ✓ |
+
+Neap shows only what your headset has. Own another Turtle Beach headset
+that works with Swarm II? A ten-minute recording made in Neap is how its
+support starts, and it needs no technical knowledge.
+**[Here's how](docs/MAPPING.md).**
+
+## Install
+
+### Windows
 
 1. Download `Neap-<version>-win-x64.zip` from the
    [latest release](https://github.com/lykosapps/Neap/releases/latest).
-2. Unzip it to a folder of its own and run `Neap.exe`. Windows warns the
-   first time, as the download isn't signed yet: choose **More info**, then
+2. Unzip it to a folder of its own and run `Neap.exe`. The download isn't
+   signed yet, so Windows warns the first time: choose **More info**, then
    **Run anyway**.
-3. Remove Swarm II, or stop it running, and remove the Waves audio driver;
+3. Remove Swarm II, or stop it starting, and remove the Waves audio driver;
    see [Alongside Swarm II](#alongside-swarm-ii-windows).
 
-**To update,** choose **Update and restart** in Settings when Neap says a
-newer version is out. **To remove it,** delete its folder and
-`%LOCALAPPDATA%\Neap`.
+**To update,** choose **Update and restart** when Neap says a new version
+is out. **To remove it,** delete its folder and `%LOCALAPPDATA%\Neap`.
 
-## Install on Linux
+### Linux
 
 1. Download `Neap-<version>-x86_64.AppImage` from the
    [latest release](https://github.com/lykosapps/Neap/releases/latest).
@@ -153,35 +203,43 @@ newer version is out. **To remove it,** delete its folder and
    password once.
 
 If it asks for FUSE, install `libfuse2`. **To update,** choose **Update and
-restart** when Neap says a newer version is out. **To remove it,** delete
-the file and `~/.local/share/Neap`, and `/etc/udev/rules.d/70-neap.rules` if
-you allowed access.
+restart** when Neap says a new version is out. **To remove it,** delete the
+file and `~/.local/share/Neap`, and `/etc/udev/rules.d/70-neap.rules` if you
+allowed access.
 
-**Not on Linux yet:** the Steam Deck's Gaming Mode (use desktop mode),
-Windows' spatial sound and audio format, and the mix's live meters. On
-Wayland, keyboard shortcuts work while a game, or another X11 program, is in
-front.
+**Not on Linux yet:** the Steam Deck's Gaming Mode (use desktop mode), and
+the parts of Neap that are Windows' own, marked in the feature map.
 
-## Alongside Swarm II (Windows)
+### Alongside Swarm II (Windows)
 
 Swarm II is optional. Neap covers the headset's settings, and the Turtle
 Beach phone app updates its firmware.
 
-1. **Remove Swarm II,** or, if you keep it, stop it starting with Windows,
-   as the two apps fight over the headset: in Swarm II, Settings → App
+1. **Remove Swarm II,** or if you keep it, stop it starting with Windows, as
+   the two apps fight over the headset: in Swarm II, Settings → App
    Settings → turn off **Autostart Swarm II**, then close it.
 2. **Remove the Waves audio driver.** In Windows Settings → Apps, uninstall
    **Turtle Beach Audio Driver**.
+
+## Built to be relied on
+
+- **Tested on the hardware.** Every release is checked on a real headset,
+  and Neap writes only settings already proven on one.
+- **Over 2,000 automated tests,** plus scripted checks that drive every
+  screen in light, dark and high contrast.
+- **Accessible.** Built to WCAG 2.2 AA, and fully usable from the keyboard
+  and with a screen reader.
+- **Nothing fails silently.** When something can't be done, Neap says so,
+  and a recording made in Settings captures what happened for a bug report.
 
 ## Help and feedback
 
 **Found a problem?** In **Settings → Problems and other headsets**, record
 while it happens, then choose **Report on GitHub**, or
 [open an issue](https://github.com/lykosapps/Neap/issues). For a security
-problem, see [SECURITY.md](SECURITY.md). The [changelog](CHANGELOG.md) says
-what's new in each release.
+problem, see [SECURITY.md](SECURITY.md).
 
-Neap is in daily use and young. It was written with AI assistance.
+Neap is young and in daily use. It was written with AI assistance.
 
 Not affiliated with or endorsed by Turtle Beach. Turtle Beach, Stealth Pro
 II, Atlas Air and Swarm II are trademarks of Turtle Beach Corporation.
@@ -190,9 +248,9 @@ II, Atlas Air and Swarm II are trademarks of Turtle Beach Corporation.
 
 - [CONTRIBUTING.md](CONTRIBUTING.md): building, testing, the probe, and the
   checks that need a headset
+- [ARCHITECTURE.md](ARCHITECTURE.md): how the app is put together
 - [FINDINGS.md](FINDINGS.md): the headset's protocol and behaviour, as
   measured
-- [ARCHITECTURE.md](ARCHITECTURE.md): how the app is put together
 - [BACKLOG.md](BACKLOG.md): bugs, features and work still to do
 
 ## Licence
