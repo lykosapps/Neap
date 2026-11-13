@@ -41,11 +41,11 @@
             <c:HeadsetNotice />
 
             <!--
-                With the headset off, the whole section is one card: the
-                system's volume goes on working without it, but on nothing
-                the person can hear. See HeadsetSection.WhenOff.
+                The system's volume and spatial sound go on working with the
+                headset off, on the dock or transmitter's sound device, so
+                only the headset's own rows fold. See HeadsetSection.SoundOnly.
             -->
-            <c:HeadsetSection loc:Uid.Value="Audio_Section" WhenOff="True">
+            <c:HeadsetSection loc:Uid.Value="Audio_Section" SoundOnly="True">
                 <TextBlock loc:Uid.Value="Audio_AroundYouHeading" Classes="sectionheader" />
 
                 <!--
@@ -107,9 +107,11 @@
                                 Icon="{StaticResource IconPrompt}"
                                 Setting="voice_prompt_volume" />
                         </c:HeadsetSection>
-                        <c:LoudnessBoostRow
-                            loc:Uid.Value="Audio_LoudnessBoost"
-                            Icon="{StaticResource IconBoost}" />
+                        <c:HeadsetSection Explain="False">
+                            <c:LoudnessBoostRow
+                                loc:Uid.Value="Audio_LoudnessBoost"
+                                Icon="{StaticResource IconBoost}" />
+                        </c:HeadsetSection>
                     </StackPanel>
                 </Border>
 
@@ -123,10 +125,10 @@
             </c:HeadsetSection>
 
             <!--
-                With the headset off, the whole section is one card, the
-                level included: see HeadsetSection.WhenOff.
+                The microphone's level is the system's, and stays with the
+                headset off: see HeadsetSection.SoundOnly.
             -->
-            <c:HeadsetSection loc:Uid.Value="Microphone_Section" WhenOff="True">
+            <c:HeadsetSection loc:Uid.Value="Microphone_Section" SoundOnly="True">
                 <TextBlock loc:Uid.Value="Microphone_VoiceHeading" Classes="sectionheader" />
                 <c:RoutingNotice Sound="False" />
 

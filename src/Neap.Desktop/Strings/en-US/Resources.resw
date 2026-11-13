@@ -369,6 +369,9 @@
   <data name="Device_PowerHeading.Text" xml:space="preserve">
     <value>Power</value>
   </data>
+  <data name="Device_PowerSection.What" xml:space="preserve">
+    <value>Auto shut-off and wake on motion</value>
+  </data>
   <data name="Device_AutoShutOff.Description" xml:space="preserve">
     <value>How long the headset waits before switching itself off.</value>
   </data>

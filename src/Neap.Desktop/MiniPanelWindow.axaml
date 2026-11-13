@@ -87,13 +87,13 @@
                 sections fold without explaining: the panel is for changing
                 things mid-game, and the window has the detail.
 
-                The mix goes on working with only the headset's settings out of
-                reach, so it folds only when the headset is away. It is a slider
+                The mix is the system's, and goes on working with the headset
+                off: see HeadsetSection.SoundOnly. It is a slider
                 here, Home's dial made small: game at the left, chat at the
                 right. Without chat apps chosen there is nothing to mix, so a
                 link to choose them stands in for the slider.
             -->
-            <c:HeadsetSection Explain="False" WhenOff="True">
+            <c:HeadsetSection Explain="False" SoundOnly="True">
                 <!-- Its two ends, and nothing more: where the thumb sits says the balance, and a screen reader hears the levels. -->
                 <StackPanel x:Name="DialArea" Spacing="{StaticResource NeapSpaceS}">
                     <Grid ColumnDefinitions="*,*">

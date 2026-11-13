@@ -134,8 +134,8 @@ public partial class QuickControls : UserControl
         _signal.Panel.IsVisible = showSignal;
 
         PaintNote(StateNote.For(status, _plugged is { Looked: true } plugged ? plugged.Products : null, headset.ReadOnly, headset.TransmitterStopped));
-        Fold(MixCard, SectionFold.For(status, whenOff: true, headset.AccessDenied));
-        Fold(SettingsCard, SectionFold.For(status, whenOff: false, headset.AccessDenied));
+        Fold(MixCard, SectionFold.For(status, soundOnly: true, headset.AccessDenied));
+        Fold(SettingsCard, SectionFold.For(status, soundOnly: false, headset.AccessDenied));
     }
 
     /// <summary>Shows a part of the block, or hides it while the note stands in for it.</summary>

@@ -10,6 +10,16 @@ section it belongs to. At a release, those lines are bundled by theme
 into a short summary under the version number and date, and the detail
 stays in the commit history.
 
+## Unreleased
+
+### Changed
+
+- With the headset off or out of range, or before Linux allows access, the
+  volume, microphone level, spatial sound, audio format and the mix stay on
+  screen. Only the headset's own settings fold away.
+- With the headset's settings out of reach, the Device page folds its power
+  settings instead of showing them empty.
+
 ## 0.5.1 — 2026-11-13
 
 **A fix for the Charging Dock's spare battery.**

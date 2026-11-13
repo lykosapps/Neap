@@ -6,9 +6,9 @@ using Neap.Core.Connection;
 namespace Neap.Desktop.Controls;
 
 /// <summary>
-/// A section of settings that folds into one plain card while the headset
-/// cannot be reached: switched off, out of range, or its settings on a
-/// transmitter that has been unplugged.
+/// A section of controls that folds into one plain card while what it needs
+/// cannot be reached: the headset switched off or out of range, or its
+/// settings on a transmitter that has been unplugged.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -33,8 +33,8 @@ public sealed class HeadsetSection : StackPanel
     public static readonly StyledProperty<string?> WhyOffProperty =
         AvaloniaProperty.Register<HeadsetSection, string?>(nameof(WhyOff), "");
 
-    public static readonly StyledProperty<bool> WhenOffProperty =
-        AvaloniaProperty.Register<HeadsetSection, bool>(nameof(WhenOff));
+    public static readonly StyledProperty<bool> SoundOnlyProperty =
+        AvaloniaProperty.Register<HeadsetSection, bool>(nameof(SoundOnly));
 
     public static readonly StyledProperty<bool> ExplainProperty =
         AvaloniaProperty.Register<HeadsetSection, bool>(nameof(Explain), defaultValue: true);
@@ -68,19 +68,20 @@ public sealed class HeadsetSection : StackPanel
     }
 
     /// <summary>
-    /// Whether to fold only when the headset is off, out of range or not
-    /// plugged in, and stay open while only its settings are out of reach.
+    /// Whether the section needs only the system's sound device for the
+    /// headset, not the headset's settings.
     /// </summary>
     /// <remarks>
-    /// For what goes on working without the headset's settings: the mix, the
-    /// system's volume and microphone level, and the audio format. With the
-    /// headset off they would act on the PC's own devices, so then they fold
-    /// too.
+    /// For the system's volume and microphone level, spatial sound, the audio
+    /// format and the mix. A dock or transmitter keeps the sound device while
+    /// the headset is off or out of range, so these stay open then, and only
+    /// the headset's own rows inside fold, each in a section of its own. See
+    /// <see cref="SectionFold"/>.
     /// </remarks>
-    public bool WhenOff
+    public bool SoundOnly
     {
-        get => GetValue(WhenOffProperty);
-        set => SetValue(WhenOffProperty, value);
+        get => GetValue(SoundOnlyProperty);
+        set => SetValue(SoundOnlyProperty, value);
     }
 
     /// <summary>Whether a card explains the folded section; false folds it away without one.</summary>
@@ -139,7 +140,7 @@ public sealed class HeadsetSection : StackPanel
     private void Paint()
     {
         var status = AppServices.Headset.Status;
-        var fold = SectionFold.For(status, WhenOff, AppServices.Headset.AccessDenied);
+        var fold = SectionFold.For(status, SoundOnly, AppServices.Headset.AccessDenied);
         if (fold == Fold.Unchanged) return;
         Gather();
 

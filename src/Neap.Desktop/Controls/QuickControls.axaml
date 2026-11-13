@@ -65,9 +65,8 @@
 
         <!--
             The mix, then the settings as tiles straight on the page. The mix
-            goes on working with only the headset's settings out of reach, so
-            it folds only when the headset is away. The tiles fold whenever
-            they cannot be reached.
+            is the system's, and goes on working with the headset off. The
+            tiles fold whenever the headset's settings cannot be reached.
         -->
         <Border x:Name="MixCard" Classes="card">
             <c:MixPanel ExplainsWheel="False" />

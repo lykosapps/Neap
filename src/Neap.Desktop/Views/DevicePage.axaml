@@ -13,10 +13,11 @@
             <c:HeadsetNotice />
 
             <!--
-                With the headset off, the whole page is one card, the audio
-                format included: see HeadsetSection.WhenOff.
+                The audio format is the system's, and stays with the headset
+                off: see HeadsetSection.SoundOnly. The power rows are the
+                headset's, and fold on their own.
             -->
-            <c:HeadsetSection loc:Uid.Value="Device_Section" WhenOff="True">
+            <c:HeadsetSection loc:Uid.Value="Device_Section" SoundOnly="True">
                 <!--
                     The format is Windows' to set: another system follows each
                     program's own, and the rows are left out.
@@ -46,16 +47,18 @@
 
                 <!-- How the headset switches itself off and back on: set once, like the format. -->
                 <TextBlock loc:Uid.Value="Device_PowerHeading" Classes="sectionheader" />
-                <StackPanel Spacing="{StaticResource NeapSpaceXS}">
-                    <c:SettingRow
-                        loc:Uid.Value="Device_AutoShutOff"
-                        Icon="{StaticResource IconPower}"
-                        Setting="auto_shutoff" />
-                    <c:SettingRow
-                        loc:Uid.Value="Device_WakeOnMotion"
-                        Icon="{StaticResource IconMotion}"
-                        Setting="wake_on_motion" />
-                </StackPanel>
+                <c:HeadsetSection loc:Uid.Value="Device_PowerSection">
+                    <StackPanel Spacing="{StaticResource NeapSpaceXS}">
+                        <c:SettingRow
+                            loc:Uid.Value="Device_AutoShutOff"
+                            Icon="{StaticResource IconPower}"
+                            Setting="auto_shutoff" />
+                        <c:SettingRow
+                            loc:Uid.Value="Device_WakeOnMotion"
+                            Icon="{StaticResource IconMotion}"
+                            Setting="wake_on_motion" />
+                    </StackPanel>
+                </c:HeadsetSection>
             </c:HeadsetSection>
 
             <!--

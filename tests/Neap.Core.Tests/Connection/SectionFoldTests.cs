@@ -5,18 +5,34 @@ namespace Neap.Core.Tests.Connection;
 public class SectionFoldTests
 {
     [Theory]
-    [InlineData(Link.Connecting, false, Fold.Unchanged)]
-    [InlineData(Link.Connecting, true, Fold.Unchanged)]
-    [InlineData(Link.Absent, false, Fold.Hidden)]
-    [InlineData(Link.Absent, true, Fold.Hidden)]
-    [InlineData(Link.Quiet, false, Fold.Off)]
-    [InlineData(Link.Quiet, true, Fold.Off)]
-    [InlineData(Link.Silent, false, Fold.Unreachable)]
-    [InlineData(Link.Silent, true, Fold.Open)]
-    [InlineData(Link.Connected, false, Fold.Open)]
-    [InlineData(Link.Connected, true, Fold.Open)]
-    public void FoldsForEachState(Link link, bool whenOff, Fold fold) =>
-        Assert.Equal(fold, SectionFold.For(new HeadsetStatus(link, Route.ChargingDock, "", ""), whenOff));
+    [InlineData(Link.Connecting, Fold.Unchanged)]
+    [InlineData(Link.Absent, Fold.Hidden)]
+    [InlineData(Link.Quiet, Fold.Off)]
+    [InlineData(Link.Silent, Fold.Unreachable)]
+    [InlineData(Link.Connected, Fold.Open)]
+    public void SettingsFoldForEachState(Link link, Fold fold) =>
+        Assert.Equal(fold, SectionFold.For(new HeadsetStatus(link, Route.ChargingDock, "", ""), soundOnly: false));
+
+    [Theory]
+    [InlineData(Link.Connecting, Fold.Unchanged)]
+    [InlineData(Link.Absent, Fold.Hidden)]
+    [InlineData(Link.Quiet, Fold.Open)]
+    [InlineData(Link.Silent, Fold.Open)]
+    [InlineData(Link.Connected, Fold.Open)]
+    public void SoundStaysOpenWhileATransmitterHoldsTheDevice(Link link, Fold fold) =>
+        Assert.Equal(fold, SectionFold.For(new HeadsetStatus(link, Route.UsbTransmitter, "", ""), soundOnly: true));
+
+    [Fact]
+    public void SoundFoldsWhenTheSettingsWentWithTheSound() =>
+        Assert.Equal(Fold.Unreachable,
+            SectionFold.For(new HeadsetStatus(Link.Silent, Route.ChargingDock, "", "", NoSound: true), soundOnly: true));
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SwitchedOffOnItsCableFoldsAsOff(bool soundOnly) =>
+        Assert.Equal(Fold.Off,
+            SectionFold.For(new HeadsetStatus(Link.Quiet, Route.DirectUsb, "", ""), soundOnly));
 
     [Theory]
     [InlineData(Link.Connecting)]
@@ -24,12 +40,10 @@ public class SectionFoldTests
     [InlineData(Link.Quiet)]
     [InlineData(Link.Silent)]
     [InlineData(Link.Connected)]
-    public void WithoutAccessEverySectionFoldsWithNothingInItsPlace(Link link) =>
-        Assert.Equal(Fold.Hidden,
-            SectionFold.For(new HeadsetStatus(link, Route.ChargingDock, "", ""), whenOff: true, accessDenied: true));
-
-    [Fact]
-    public void SwitchedOffOnItsCableFoldsAsOff() =>
-        Assert.Equal(Fold.Off,
-            SectionFold.For(new HeadsetStatus(Link.Quiet, Route.DirectUsb, "", ""), whenOff: true));
+    public void WithoutAccessSettingsFoldAndSoundStays(Link link)
+    {
+        var status = new HeadsetStatus(link, Route.ChargingDock, "", "");
+        Assert.Equal(Fold.Hidden, SectionFold.For(status, soundOnly: false, accessDenied: true));
+        Assert.Equal(Fold.Open, SectionFold.For(status, soundOnly: true, accessDenied: true));
+    }
 }
