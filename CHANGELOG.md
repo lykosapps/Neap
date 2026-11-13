@@ -10,7 +10,7 @@ section it belongs to. At a release, those lines are bundled by theme
 into a short summary under the version number and date, and the detail
 stays in the commit history.
 
-## 0.5.0 — 2026-11-06
+## 0.5.0 — 2026-11-13
 
 **Firmware edits for the Stealth Pro II, a parametric equaliser for the
 Atlas Air, and the mix on screen.**
