@@ -34,11 +34,7 @@ public partial class MixKeysPanel : UserControl
 
         // Keys that look set but do nothing in front of most programs would be
         // a silent failure, so where they are not heard is said where they are set.
-        if (AppServices.Hotkeys.Limit is { } limit)
-        {
-            KeysCard.Description = limit;
-            AutomationProperties.SetHelpText(KeysOn, limit);
-        }
+        if (AppServices.Hotkeys.Limit is { } limit) AutomationProperties.SetHelpText(KeysOn, limit);
 
         KeysOn.IsCheckedChanged += (_, _) =>
         {
@@ -63,6 +59,7 @@ public partial class MixKeysPanel : UserControl
     {
         base.OnLoaded(e);
         AppServices.Hotkeys.Changed += OnChanged;
+        AppServices.Mix.Changed += OnChanged;
         Paint();
     }
 
@@ -70,6 +67,8 @@ public partial class MixKeysPanel : UserControl
     {
         base.OnUnloaded(e);
         AppServices.Hotkeys.Changed -= OnChanged;
+        AppServices.Mix.Changed -= OnChanged;
+        AppServices.Hotkeys.Pause(false);
     }
 
     /// <summary>The service says so from its own thread.</summary>
@@ -91,6 +90,7 @@ public partial class MixKeysPanel : UserControl
         button.Click += (_, _) =>
         {
             _capturing = which;
+            AppServices.Hotkeys.Pause(true);
             button.Content = Strings.Get("Mix_PressKeys");
             AutomationProperties.SetName(button, Strings.Format("Mix_KeyName", row.Header, button.Content));
             button.Focus();
@@ -99,8 +99,7 @@ public partial class MixKeysPanel : UserControl
         button.LostFocus += (_, _) =>
         {
             if (_capturing != which) return;
-            _capturing = null;
-            Paint();
+            StopCapturing();
         };
 
         button.AddHandler(KeyDownEvent, (_, args) =>
@@ -110,8 +109,7 @@ public partial class MixKeysPanel : UserControl
 
             if (args.Key == Key.Escape)
             {
-                _capturing = null;
-                Paint();
+                StopCapturing();
                 return;
             }
 
@@ -124,11 +122,10 @@ public partial class MixKeysPanel : UserControl
             if (args.KeyModifiers.HasFlag(KeyModifiers.Alt)) modifiers |= Shortcut.Alt;
             if (args.KeyModifiers.HasFlag(KeyModifiers.Shift)) modifiers |= Shortcut.Shift;
 
-            _capturing = null;
             if (Keys.VirtualKey(args.Key) is not uint key)
             {
                 // A key with no code the system's hotkeys know is refused, not guessed at.
-                Paint();
+                StopCapturing();
                 return;
             }
 
@@ -137,18 +134,46 @@ public partial class MixKeysPanel : UserControl
             {
                 // Refused rather than accepted quietly: a bare key here is
                 // taken from every other program on the machine.
-                Paint();
-                Notice.Title = Strings.Get("Mix_NeedsModifierTitle");
-                Notice.Message = Strings.Get("Mix_NeedsModifier");
-                Notice.IsOpen = true;
+                StopCapturing();
+                Say(Strings.Get("Mix_NeedsModifierTitle"), Strings.Get("Mix_NeedsModifier"));
                 return;
             }
 
+            if (MixShortcuts.UsedBy(which, shortcut, AppServices.Hotkeys.Key) is { } other)
+            {
+                StopCapturing();
+                Say(Strings.Get("Mix_KeyInUseTitle"), Strings.Format("Mix_KeyInUse", RowOf(other).Header));
+                return;
+            }
+
+            _capturing = null;
             Notice.IsOpen = false;
             AppServices.Hotkeys.Rebind(which, shortcut);
             Paint();
         }, RoutingStrategies.Tunnel);
     }
+
+    /// <summary>Leaves the binding as it was and takes the keys again.</summary>
+    private void StopCapturing()
+    {
+        _capturing = null;
+        AppServices.Hotkeys.Pause(false);
+        Paint();
+    }
+
+    private void Say(string title, string message)
+    {
+        Notice.Title = title;
+        Notice.Message = message;
+        Notice.IsOpen = true;
+    }
+
+    private SettingsCard RowOf(MixKey which) => which switch
+    {
+        MixKey.TowardGame => GameRow,
+        MixKey.TowardChat => ChatRow,
+        _ => CentreRow,
+    };
 
     private void Paint()
     {
@@ -159,6 +184,9 @@ public partial class MixKeysPanel : UserControl
         _painting = true;
         KeysOn.IsChecked = AppServices.Hotkeys.Enabled;
         _painting = false;
+        // On with no chat app chosen, the keys are taken from every other program and move nothing, so that is said here.
+        KeysCard.Description = AppServices.Hotkeys.Limit
+            ?? Strings.Get(KeysOn.IsChecked == true && !AppServices.Mix.Running ? "Mix_KeysNeedChatApp" : "Mix_KeysCard.Description");
         KeyRows.IsVisible = KeysOn.IsChecked == true;
         KeysCard.Classes.Set("open", KeysOn.IsChecked == true);
     }

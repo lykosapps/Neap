@@ -99,8 +99,14 @@ public static class StateCopy
     {
         var keys = AppServices.Hotkeys;
         if (!keys.Supported) return Strings.Get("State_MixWithDial");
-        return keys.Enabled
-            ? Strings.Format("State_MixWithKeys", keys.Key(MixKey.TowardGame), keys.Key(MixKey.TowardChat))
-            : Strings.Get("State_MixKeysInSettings");
+        if (!keys.Enabled) return Strings.Get("State_MixKeysInSettings");
+        // A key the system refused does nothing, so it is not offered.
+        var working = new[] { MixKey.TowardGame, MixKey.TowardChat }.Where(which => keys.Trouble(which) is null).ToList();
+        return working.Count switch
+        {
+            2 => Strings.Format("State_MixWithKeys", keys.Key(MixKey.TowardGame), keys.Key(MixKey.TowardChat)),
+            1 => Strings.Format("State_MixWithKey", keys.Key(working[0])),
+            _ => Strings.Get("State_MixWithDial"),
+        };
     }
 }

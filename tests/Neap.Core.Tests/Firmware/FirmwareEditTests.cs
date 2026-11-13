@@ -292,8 +292,12 @@ public class FirmwareEditTests
         Assert.Equal(blocked, FirmwareEdit.Blockers([Cycle], Ready(battery: battery)).Contains(EditBlocker.LowBattery));
 
     [Fact]
-    public void ABatteryNotYetReportedIsTakenAsTooLow() =>
-        Assert.Contains(EditBlocker.LowBattery, FirmwareEdit.Blockers([Cycle], Ready(battery: null)));
+    public void ABatteryNotYetReportedStopsTheWriteAndIsSaidApartFromALowOne()
+    {
+        var blockers = FirmwareEdit.Blockers([Cycle], Ready(battery: null));
+        Assert.Contains(EditBlocker.BatteryUnknown, blockers);
+        Assert.DoesNotContain(EditBlocker.LowBattery, blockers);
+    }
 
     [Fact]
     public void TheStepsRunAsTheSpecSetsThemOut() =>

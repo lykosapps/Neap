@@ -248,7 +248,7 @@ public partial class FirmwarePage : UserControl
             word.Text = StateWords(status);
             AutomationProperties.SetName(state, Strings.Format("Firmware_EditState", EditName(edit), word.Text));
             // Installed and not installed say all they need in the chip; anything else is explained under the edit.
-            about.Text = status is EditStatus.Installed or EditStatus.NotInstalled ? "" : StatusWords(status, firmware.Build, edit);
+            about.Text = status is EditStatus.Installed or EditStatus.NotInstalled ? "" : StatusWords(status, firmware.Build, edit, _connected);
             about.IsVisible = about.Text.Length > 0;
             AutomationProperties.SetHelpText(tick, Strings.Format("Firmware_TickHelp", Description(edit), word.Text, about.Text));
         });
@@ -515,11 +515,12 @@ public partial class FirmwarePage : UserControl
     };
 
     /// <summary>Why an edit is neither active nor factory, said under it.</summary>
-    private static string StatusWords(EditStatus status, string? build, FirmwareEdit edit) => status switch
+    /// <remarks>Not known while the headset is off is not a fault: it is said as the way to know.</remarks>
+    private static string StatusWords(EditStatus status, string? build, FirmwareEdit edit, bool connected) => status switch
     {
         EditStatus.DoesNotFit => Strings.Format("Firmware_DoesNotFit", build, edit.FirmwareBuild),
         EditStatus.Altered => Strings.Get("Firmware_Altered"),
-        _ => Strings.Get("Firmware_Unknown"),
+        _ => Strings.Get(connected ? "Firmware_Unknown" : "Firmware_BlockedNotConnected"),
     };
 
     private static string BlockerWords(EditBlocker blocker) => blocker switch
@@ -527,6 +528,7 @@ public partial class FirmwarePage : UserControl
         EditBlocker.NotConnected => Strings.Get("Firmware_BlockedNotConnected"),
         EditBlocker.DoesNotFit => Strings.Get("Firmware_BlockedDoesNotFit"),
         EditBlocker.LowBattery => Strings.Format("Firmware_BlockedBattery", FirmwareEdit.MinimumBattery),
+        EditBlocker.BatteryUnknown => Strings.Get("Firmware_BlockedBatteryUnknown"),
         _ => Strings.Get("Firmware_BlockedSwarm"),
     };
 }

@@ -61,9 +61,18 @@ public abstract class MixHotkeys : IHotkeys
         if (enabled) Begin(); else End();
     }
 
+    public void Pause(bool paused)
+    {
+        if (!Enabled || paused == _paused) return;
+        _paused = paused;
+        if (paused) LetGo(); else Begin();
+    }
+
+    private bool _paused;
+
     /// <summary>
     /// Rebind one of them. Takes the lot again rather than the one, which is
-    /// simpler than asking a system to change a key it holds.
+    /// simpler than asking a system to change a key it holds. A pause ends here.
     /// </summary>
     public void Rebind(MixKey which, Shortcut shortcut)
     {
@@ -96,6 +105,7 @@ public abstract class MixHotkeys : IHotkeys
 
     private void Begin()
     {
+        _paused = false;
         Dictionary<MixKey, Shortcut> wanted;
         lock (_gate) wanted = new Dictionary<MixKey, Shortcut>(_keys);
 
@@ -113,6 +123,7 @@ public abstract class MixHotkeys : IHotkeys
     {
         if (!Enabled) return;
         Enabled = false;
+        _paused = false;
         LetGo();
         lock (_gate) _trouble.Clear();
         Changed?.Invoke();

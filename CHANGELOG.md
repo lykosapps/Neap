@@ -51,7 +51,11 @@ Atlas Air, and the mix on screen.**
 - **The mix's settings sit with the mix.** The keyboard shortcuts for the
   mix moved from the Controls page to the settings button on Home's Game
   and chat card, beside the switch for showing the mix on screen. When the
-  chat wheel can't move the mix, Home says where to turn them on.
+  chat wheel can't move the mix, Home says where to turn them on. They say
+  when they need a chat app chosen first, and a combination another of them
+  already uses is refused as such.
+- **Saving over a parametric preset asks first,** as saving over a
+  ten-band preset does.
 
 ### Fixed
 

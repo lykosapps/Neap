@@ -66,4 +66,12 @@ public static class MixShortcuts
             [MixKey.TowardChat] = new(Shortcut.Control | Shortcut.Alt, 0x21),   // Page Up
             [MixKey.Balanced] = new(Shortcut.Control | Shortcut.Alt, 0x24),     // Home
         };
+
+    /// <summary>The other mix key that already has this combination, or null when none does.</summary>
+    /// <param name="which">The key being set.</param>
+    /// <param name="shortcut">The combination wanted for it.</param>
+    /// <param name="keys">Each key's combination now.</param>
+    /// <remarks>Two keys on one combination would have the second refused, and the system would blame another program.</remarks>
+    public static MixKey? UsedBy(MixKey which, Shortcut shortcut, Func<MixKey, Shortcut> keys) =>
+        Enum.GetValues<MixKey>().Where(other => other != which && keys(other) == shortcut).Cast<MixKey?>().FirstOrDefault();
 }

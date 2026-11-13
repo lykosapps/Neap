@@ -102,6 +102,10 @@ public interface IHotkeys : IDisposable
 
     void Enable(bool enabled);
 
+    /// <summary>Lets the keys go while one is being set, and takes them again after; nothing while they are off.</summary>
+    /// <remarks>Held, a combination one of them uses never reaches Neap's window: it moves the mix instead of being recorded.</remarks>
+    void Pause(bool paused);
+
     void Rebind(MixKey which, Shortcut shortcut);
 
     void ResetToDefaults();
@@ -192,6 +196,7 @@ public static class Unsupported
         public string? Trouble(MixKey which) => null;
         public string? Limit => null;
         public void Enable(bool enabled) { }
+        public void Pause(bool paused) { }
         public void Rebind(MixKey which, Shortcut shortcut) { }
         public void ResetToDefaults() { }
         public void Dispose() { }

@@ -10,7 +10,7 @@ namespace Neap.Desktop.Controls;
 /// <summary>
 /// Where the parametric equaliser's shape comes from: one picker that lists
 /// the saved presets, each with a way to delete it, and the built-in shapes,
-/// with Discard, Save, Save as new and a menu of the rest in <see cref="Actions"/>.
+/// with Discard, Save (which asks first), Save as new and a menu of the rest in <see cref="Actions"/>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -43,6 +43,9 @@ public sealed class ParametricPresetBar : UserControl
     private readonly ChoiceList _choices;
     private readonly Button _discard = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Button _save = new() { HorizontalContentAlignment = HorizontalAlignment.Center };
+    private readonly TextBlock _saveQuestion = new() { TextWrapping = TextWrapping.Wrap };
+    private readonly Button _saveYes = new() { Content = Strings.Get("Equaliser_OverwriteYes.Content") };
+    private readonly Button _saveNo = new() { Content = Strings.Get("Equaliser_OverwriteNo.Content") };
     private readonly Button _saveAsNew = new() { MinWidth = 104, HorizontalContentAlignment = HorizontalAlignment.Center };
     private readonly Button _more = new() { Classes = { "quiet", "iconbutton" } };
     private readonly MenuItem _rename = new();
@@ -85,7 +88,34 @@ public sealed class ParametricPresetBar : UserControl
         _more.Flyout = new MenuFlyout { Items = { _rename, _import, new Separator(), _turnOff } };
 
         _discard.Click += (_, _) => Discard();
-        _save.Click += (_, _) => SaveOver();
+        // Saving over a preset replaces it for good, so it asks first, in place, with the safe answer focused, as the ten bands do.
+        var saveFlyout = new Flyout
+        {
+            Content = new StackPanel
+            {
+                MaxWidth = 280,
+                Spacing = Space.M,
+                Children =
+                {
+                    _saveQuestion,
+                    new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        Spacing = Space.S,
+                        Children = { _saveYes, _saveNo },
+                    },
+                },
+            },
+        };
+        saveFlyout.Opened += (_, _) => _saveNo.Focus();
+        _save.Flyout = saveFlyout;
+        _saveNo.Click += (_, _) => saveFlyout.Hide();
+        _saveYes.Click += (_, _) =>
+        {
+            saveFlyout.Hide();
+            SaveOver();
+        };
         _saveAsNew.Click += async (_, _) => await SaveAsNew();
         _rename.Click += async (_, _) => await Rename();
         _import.Click += (_, _) => ImportAsked?.Invoke();
@@ -136,7 +166,11 @@ public sealed class ParametricPresetBar : UserControl
         _discard.IsVisible = can.Buttons.Discard;
         _save.IsVisible = can.Buttons.OfferOverwrite;
         _save.IsEnabled = can.Buttons.Overwrite;
-        if (baseline is not null) _save.Content = Strings.Format("Equaliser_Overwrite", baseline.Name);
+        if (baseline is not null)
+        {
+            _save.Content = Strings.Format("Equaliser_Overwrite", baseline.Name);
+            _saveQuestion.Text = Strings.Format("Equaliser_OverwriteQuestion", baseline.Name);
+        }
         _saveAsNew.Content = Strings.Get(can.Buttons.Duplicate ? "Equaliser_Duplicate" : "Equaliser_SaveAsNew");
         _saveAsNew.Classes.Set("accent", can.Buttons.SaveLeads);
         _rename.IsEnabled = can.Rename;

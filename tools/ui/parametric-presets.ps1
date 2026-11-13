@@ -76,6 +76,8 @@ if ($Parts.Contains('A')) {
         Check ((Find-ListRow 'Bassy').GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) 'selected while edited, as every list shows what is in use'
         Close-Menu (Find-ParametricPicker)
         Press (Find-Named 'Save Bassy')
+        Check (Wait-Until { $null -ne (Find-Anywhere 'Replace') } 4) 'saving over it asks first'
+        Press (Find-Anywhere 'Replace')
         Check (Test-Picker 'Bassy') 'saving over it clears Edited'
 
         Press-PresetAction 'Rename'

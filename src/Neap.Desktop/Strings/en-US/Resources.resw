@@ -186,6 +186,17 @@
   <data name="Mix_KeysCard.Description" xml:space="preserve">
     <value>Move the mix while you play.</value>
   </data>
+  <data name="Mix_KeysNeedChatApp" xml:space="preserve">
+    <value>They work once a chat app is chosen on this card.</value>
+    <comment>Under the keyboard shortcuts switch, while it is on and no chat app is chosen on Home's Game and chat card.</comment>
+  </data>
+  <data name="Mix_KeyInUseTitle" xml:space="preserve">
+    <value>Already in use</value>
+  </data>
+  <data name="Mix_KeyInUse" xml:space="preserve">
+    <value>{0} uses this. Pick another.</value>
+    <comment>{0} is the other shortcut's name, such as Toward game.</comment>
+  </data>
   <data name="Mix_KeysCard.Header" xml:space="preserve">
     <value>Keyboard shortcuts</value>
   </data>
@@ -567,6 +578,10 @@
   </data>
   <data name="State_MixWithKeys" xml:space="preserve">
     <value>Use the dial, or {0} and {1}.</value>
+  </data>
+  <data name="State_MixWithKey" xml:space="preserve">
+    <value>Use the dial, or {0}.</value>
+    <comment>{0} is the one mix shortcut that works, such as Ctrl + Alt + Page Up; the other could not be taken.</comment>
   </data>
   <data name="State_MixKeysInSettings" xml:space="preserve">
     <value>Use the dial, or turn on keyboard shortcuts with Settings on the Game and chat card.</value>
@@ -1920,6 +1935,9 @@
   <data name="Firmware_BlockedBattery" xml:space="preserve">
     <value>Charge the headset to at least {0}%.</value>
     <comment>{0} is a battery level.</comment>
+  </data>
+  <data name="Firmware_BlockedBatteryUnknown" xml:space="preserve">
+    <value>Waiting for the headset to report its battery.</value>
   </data>
   <data name="Firmware_BlockedSwarm" xml:space="preserve">
     <value>Quit Swarm II first.</value>

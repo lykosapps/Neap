@@ -42,6 +42,9 @@ public enum EditBlocker
     NotConnected,
     DoesNotFit,
     LowBattery,
+
+    /// <summary>The headset has not reported its battery yet, so it cannot be known to last the write.</summary>
+    BatteryUnknown,
     SwarmRunning,
 }
 
@@ -407,7 +410,8 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
         if (!readiness.Connected) return [EditBlocker.NotConnected];
         var blockers = new List<EditBlocker>();
         if (changing.Any(edit => edit.FirmwareBuild != readiness.FirmwareBuild)) blockers.Add(EditBlocker.DoesNotFit);
-        if (readiness.Battery is not >= MinimumBattery) blockers.Add(EditBlocker.LowBattery);
+        if (readiness.Battery is null) blockers.Add(EditBlocker.BatteryUnknown);
+        else if (readiness.Battery < MinimumBattery) blockers.Add(EditBlocker.LowBattery);
         if (readiness.SwarmRunning) blockers.Add(EditBlocker.SwarmRunning);
         return blockers;
     }
