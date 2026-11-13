@@ -15,59 +15,35 @@ stays in the commit history.
 **Firmware edits for the Stealth Pro II, a parametric equaliser for the
 Atlas Air, and the mix on screen.**
 
-### Added
+### Highlights
 
-- **Firmware edits for the Stealth Pro II.** On Windows, turning on
-  Firmware edits in Settings adds a Firmware page with two changes to the
-  headset's firmware: the Mode button steps through noise cancellation,
-  transparency and off even with Neap closed, and the headset's light stays
-  dark while it is disconnected. Neap backs up the firmware before every
-  change, checks what it wrote, and can put the factory firmware back. Each
-  backup says whether it holds an edit or the factory firmware, and Neap
-  won't put back half of an edit, or keep a part of the firmware it doesn't
-  recognise as the backup to restore. The page stays, with its backups, for
-  a headset that no longer starts, even after Neap restarts. It
-  reads which edits the headset has, and shows noise cancellation's modes in
-  the order the Mode button steps through them. On Controls, the Mode
-  button's card shows both ways to step through transparency, Neap's own
-  and the firmware's, and whether the firmware's is on the headset.
-- **A parametric equaliser for the Atlas Air.** The Atlas Air gets the
-  Stealth Pro II's parametric equaliser: choose where each band sits, how
-  wide it is and how much it boosts or cuts.
-- **The mix on screen.** On Windows, turning the headset's chat wheel or
-  pressing the mix's keyboard shortcuts shows the game and chat mix in a
-  slim bar for a moment at the foot of the screen, over a game in a window, without taking
-  the mouse or keyboard. It stays away from games that have the screen to
-  themselves and from Windows' own volume display. It can be turned off
-  with the settings button on Home's Game and chat card, and turning it on
-  there shows it once.
+- **Transparency on the Mode button, even with Neap closed.** On Windows,
+  turn on Firmware edits in Settings to change the Stealth Pro II itself:
+  the Mode button steps through off, transparency and noise cancellation,
+  and the light stays dark while the headset is disconnected. Neap backs up
+  the firmware first, checks every change, and can put it back as it was.
+- **A parametric equaliser for the Atlas Air.** Place each band where you
+  want it and set its width and gain, as on the Stealth Pro II.
+- **The mix on screen.** On Windows, turning the chat wheel or pressing a
+  mix shortcut shows the game and chat balance in a slim bar at the bottom
+  of the screen. It never takes the mouse or keyboard, and stays off
+  full-screen games.
 
-### Changed
+### Improved
 
-- **The Mode button's cycle steps off, transparency, cancelling.** Neap's
-  own cycle went off, cancelling, transparency; it now runs in the same
-  order as the firmware edit's, and noise cancellation's three modes are
-  shown in that order everywhere.
-- **The mix's settings sit with the mix.** The keyboard shortcuts for the
-  mix moved from the Controls page to the settings button on Home's Game
-  and chat card, beside the switch for showing the mix on screen. When the
-  chat wheel can't move the mix, Home says where to turn them on. They say
-  when they need a chat app chosen first, and a combination another of them
-  already uses is refused as such.
-- **Saving over a parametric preset asks first,** as saving over a
-  ten-band preset does.
+- **One order for noise cancellation:** off, transparency, cancelling, on
+  the Mode button and on every screen.
+- **The mix's settings are with the mix:** the bar's switch and the
+  keyboard shortcuts are under Settings on Home's Game and chat card.
+- **Saving over a parametric preset asks first,** as on the ten bands.
 
 ### Fixed
 
-- **Equaliser reads through the dock.** Reading the game equaliser's stored
-  settings no longer goes wrong when the headset sends an empty report
-  between a reply and its repeat.
-- When saving or deleting an equaliser preset fails, as when the headset is
-  unplugged part way, Neap says so in plain words rather than showing the
-  system's own error. The detail goes to the app log.
-- The mini panel keeps to the controls chosen for it in Settings. The
-  microphone showed even when it was left out, then vanished as soon as the
-  mix moved.
+- Reading the equaliser through the Charging Dock no longer fails now and
+  then.
+- A preset that can't be saved or deleted, such as when the headset is
+  unplugged, says so plainly.
+- The mini panel shows only the controls you chose for it.
 
 ## 0.4.0 — 2026-10-31
 
