@@ -390,6 +390,7 @@ public partial class FirmwarePage : UserControl
         BackupFit.NoHeadset => Strings.Get("Firmware_BlockedNotConnected"),
         BackupFit.OtherFirmware => Strings.Format("Firmware_BackupOtherFirmware", backup?.FirmwareBuild, AppServices.Firmware.Build),
         BackupFit.Unknown => Strings.Get("Firmware_BackupUnknown"),
+        BackupFit.LeavesHalfOn => Strings.Get("Firmware_BackupLeavesHalfOn"),
         _ => Strings.Get("Firmware_NotABackup"),
     };
 
@@ -468,9 +469,7 @@ public partial class FirmwarePage : UserControl
     private static string BackupWords(FirmwareBackup backup)
     {
         string saved = backup.Taken.ToString("g", CultureInfo.CurrentCulture);
-        var edit = AppServices.Firmware.Edits.FirstOrDefault(edit =>
-            edit.FirmwareBuild == backup.FirmwareBuild && edit.Sectors.Contains(backup.Sector));
-        if (edit is null)
+        if (EditOf(backup) is not { } edit)
             return Strings.Format("Firmware_BackupLineOther", backup.Sector.ToString("X8", CultureInfo.InvariantCulture), saved);
         if (edit.Sectors.Count == 1) return Strings.Format("Firmware_BackupLine", EditName(edit), saved);
         int part = edit.Sectors.ToList().IndexOf(backup.Sector) + 1;
@@ -480,10 +479,9 @@ public partial class FirmwarePage : UserControl
     /// <summary>Whether a backup holds its edit or the factory firmware, or nothing for one that cannot be read or belongs to no edit.</summary>
     private static string HoldsWords(FirmwareBackup backup)
     {
-        var edit = AppServices.Firmware.Edits.FirstOrDefault(edit =>
-            edit.FirmwareBuild == backup.FirmwareBuild && edit.Sectors.Contains(backup.Sector));
+        if (EditOf(backup) is not { } edit) return "";
         byte[] bytes = Read(backup.File);
-        if (edit is null || bytes.Length == 0) return "";
+        if (bytes.Length == 0) return "";
         return edit.HeldIn(backup.Sector, bytes) switch
         {
             true => Strings.Get("Firmware_BackupHoldsEdit"),
@@ -491,6 +489,10 @@ public partial class FirmwarePage : UserControl
             null => Strings.Get("Firmware_BackupHoldsOther"),
         };
     }
+
+    /// <summary>The edit a backup's section belongs to, for this headset and the backup's firmware, or null for none.</summary>
+    private static FirmwareEdit? EditOf(FirmwareBackup backup) => AppServices.Firmware.Edits.FirstOrDefault(edit =>
+        edit.FirmwareBuild == backup.FirmwareBuild && edit.Sectors.Contains(backup.Sector));
 
     private static string PlanWords(EditPlan plan)
     {

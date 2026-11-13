@@ -105,7 +105,8 @@ public sealed class NoiseService : IDisposable
         bool connected = status.Link == Link.Connected;
         bool justConnected = connected && !_connected;
         _connected = connected;
-        bool hasEdits = _headset.Model is not { } model || FirmwareEdit.For(model).Count > 0;
+        // Known by the time it connects; a headset Neap cannot name is not read at another's addresses.
+        bool hasEdits = _headset.Model is { } model && FirmwareEdit.For(model).Count > 0;
         if (justConnected && hasEdits && !_firmware.Busy) await _firmware.ReadFlash();
     }
 

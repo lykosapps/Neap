@@ -307,7 +307,8 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     }
 
     /// <summary>The edit that sections, as they would be after one is put back, leave half on, or null when they leave none.</summary>
-    /// <param name="sections">Whole sections by address: the one to be put back as its backup holds it, and every other an edit shares with it as the headset holds it.</param>
+    /// <param name="sections">Whole sections by address: the one to be put back as its backup holds it, and any other an edit shares with it as the headset holds it.</param>
+    /// <param name="flash">The bytes known at each place the edits change, such as the last read, which the sections are laid over; or null.</param>
     /// <remarks>
     /// An edit is half on when its last change, the one that turns it on, is in
     /// place and an earlier one is not: a call to code that is not there, which
@@ -317,11 +318,11 @@ public sealed record FirmwareEdit(string Id, HeadsetModel Model, string Firmware
     /// one order and not the other, whichever way it goes, so the one refused
     /// is always the one to do second.
     /// </remarks>
-    public static FirmwareEdit? LeftHalfOn(IReadOnlyDictionary<int, byte[]> sections)
+    public static FirmwareEdit? LeftHalfOn(IReadOnlyDictionary<int, byte[]> sections, IReadOnlyDictionary<int, byte[]>? flash = null)
     {
-        if (FlashFrom(All, sections, null) is not { } flash) return null;
-        bool On(FlashChange change) => flash[change.Address].AsSpan().SequenceEqual([.. change.Active]);
-        return All.FirstOrDefault(edit => edit.Changes.All(change => flash.ContainsKey(change.Address))
+        if (FlashFrom(All, sections, flash) is not { } after) return null;
+        bool On(FlashChange change) => after[change.Address].AsSpan().SequenceEqual([.. change.Active]);
+        return All.FirstOrDefault(edit => edit.Changes.All(change => after.ContainsKey(change.Address))
             && On(edit.Changes[^1]) && !edit.Changes.All(On));
     }
 

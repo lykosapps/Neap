@@ -159,8 +159,9 @@ public partial class SettingsPage : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        // Each time the page shows, not once: it is kept, and often first opened before the headset has connected.
-        Advanced.IsVisible = AppServices.Firmware.Offered || Pretend.Active;
+        // Followed while the page shows, not set once: the page is kept, and often first opened before the headset connects.
+        AppServices.Headset.StatusChanged += PaintAdvanced;
+        PaintAdvanced(AppServices.Headset.Status);
         AppServices.Recorder.Changed += PaintRecording;
         PaintRecording();
         AppServices.Updates.Changed += PaintUpdates;
@@ -170,10 +171,15 @@ public partial class SettingsPage : UserControl
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
+        AppServices.Headset.StatusChanged -= PaintAdvanced;
         AppServices.Recorder.Changed -= PaintRecording;
         AppServices.Updates.Changed -= PaintUpdates;
         _ticking.Stop();
     }
+
+    /// <summary>Shows the Firmware edits switch where edits are offered for the headset connected or last seen.</summary>
+    private void PaintAdvanced(Core.Connection.HeadsetStatus status) =>
+        Advanced.IsVisible = AppServices.Firmware.Offered || Pretend.Active;
 
     /// <summary>
     /// Puts the card's buttons beside its name when there is room, and under

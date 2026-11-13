@@ -58,16 +58,14 @@ public partial class MixOverlayWindow : Window
 
     private static void OnMoved(MixCause cause)
     {
-        if (!MixOverlay.Shows(cause, AppSettings.Current.MixOverlay, NeapInFront(), ScreenTaken())) return;
-        _shown ??= new MixOverlayWindow();
-        _shown.ShowMix(AppServices.Mix.Mix);
+        if (MixOverlay.Shows(cause, AppSettings.Current.MixOverlay, NeapInFront(), ScreenTaken())) Preview();
     }
 
-    /// <summary>Shows the overlay once, with the mix as it is, as its switch is turned on.</summary>
+    /// <summary>Shows the overlay, with the mix as it is, whatever is in front: for a move the rules allow, and once as its switch is turned on.</summary>
     /// <remarks>
-    /// Shown though Neap is in front, where a move of the mix would not show
-    /// it: the switch is in Neap, and without this the person never sees what
-    /// they turned on until a game is running.
+    /// Turning the switch on shows it though Neap is in front, where a move of
+    /// the mix would not: the switch is in Neap, and without this the person
+    /// never sees what they turned on until a game is running.
     /// </remarks>
     public static void Preview()
     {

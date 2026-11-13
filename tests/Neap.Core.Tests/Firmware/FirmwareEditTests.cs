@@ -34,7 +34,7 @@ public class FirmwareEditTests
     [Fact]
     public void AHeadsetWithTheNoiseCyclesOlderCodeReadsAsChangedAndIsWrittenOver()
     {
-        // The code before it sent the level: shorter, with empty flash after it.
+        // The noise cycle's code that sends no level: 108 bytes, with empty flash after it.
         byte[] older = Convert.FromHexString(
             "70B582B000240094019475206946E8F63DF840B3762001A9E8F638F818B3009B53B1019B322B03D264240125092606E0FF240025FF26" +
             "02E000240125FF26FF2C04D00194762001A9E8F6D0FD009575206946E4F69DFFFF2E02D03046DBF67CFA012002B070BD002002B070BD");

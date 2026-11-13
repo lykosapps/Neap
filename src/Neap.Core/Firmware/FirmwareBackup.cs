@@ -19,6 +19,9 @@ public enum BackupFit
 
     /// <summary>It holds something other than the factory firmware and Neap's edits.</summary>
     Unknown,
+
+    /// <summary>Put back alone, it would leave an edit half on, from what was last read of the headset; see <see cref="FirmwareEdit.LeftHalfOn"/>.</summary>
+    LeavesHalfOn,
 }
 
 /// <summary>A section of firmware saved before it was written.</summary>
@@ -55,18 +58,25 @@ public sealed record FirmwareBackup(string File, DateTime Taken, int Sector, str
     /// <param name="bytes">What the file holds.</param>
     /// <param name="headsetBuild">The firmware the headset reports, or null before it has.</param>
     /// <param name="factory">The SHA-256 of each factory section, as <see cref="FirmwareEdit.FactorySections"/> holds them.</param>
+    /// <param name="flash">The bytes last read at each place the edits change, or null where none were.</param>
     /// <remarks>
     /// A section of other firmware, put back, would mix two versions of the
     /// firmware. A section with anything in it but the factory firmware and
     /// Neap's edits would write what Neap does not know, which is how a file
-    /// from anywhere else is kept off the headset.
+    /// from anywhere else is kept off the headset. Leaving an edit half on is
+    /// judged here from the last read, so the person is told before they
+    /// plug the cable in; the restore judges it again from the headset itself.
     /// </remarks>
-    public static BackupFit Judge(FirmwareBackup? named, ReadOnlySpan<byte> bytes, string? headsetBuild, IReadOnlyDictionary<int, string> factory)
+    public static BackupFit Judge(FirmwareBackup? named, ReadOnlySpan<byte> bytes, string? headsetBuild,
+        IReadOnlyDictionary<int, string> factory, IReadOnlyDictionary<int, byte[]>? flash = null)
     {
         if (named is null || bytes.Length != FirmwareEdit.SectorSize) return BackupFit.NotABackup;
         if (headsetBuild is null) return BackupFit.NoHeadset;
         if (named.FirmwareBuild != headsetBuild) return BackupFit.OtherFirmware;
-        return FirmwareEdit.Compose(named.Sector, bytes, new HashSet<FirmwareEdit>(), factory) is null ? BackupFit.Unknown : BackupFit.Fits;
+        if (FirmwareEdit.Compose(named.Sector, bytes, new HashSet<FirmwareEdit>(), factory) is null) return BackupFit.Unknown;
+        return FirmwareEdit.LeftHalfOn(new Dictionary<int, byte[]> { [named.Sector] = bytes.ToArray() }, flash) is null
+            ? BackupFit.Fits
+            : BackupFit.LeavesHalfOn;
     }
 
     /// <summary>The newest backup of each section and firmware, newest first.</summary>

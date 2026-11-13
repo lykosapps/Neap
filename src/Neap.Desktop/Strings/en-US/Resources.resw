@@ -2064,6 +2064,10 @@
   <data name="Firmware_BackupUnknown" xml:space="preserve">
     <value>This backup holds changes Neap doesn't recognise, so Neap won't write it.</value>
   </data>
+  <data name="Firmware_BackupLeavesHalfOn" xml:space="preserve">
+    <value>Putting back this part alone would leave the edit half installed, and the headset might not start. Restore its other part first.</value>
+    <comment>Why a backup of one part of an edit made of two parts can't be restored now.</comment>
+  </data>
   <data name="Firmware_GuideWrite" xml:space="preserve">
     <value>Keep the cable plugged in. This takes about a minute.</value>
   </data>

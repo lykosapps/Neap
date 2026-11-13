@@ -67,6 +67,12 @@ say so. The seven worst were fixed before the tag.
 - **Screen readers and the mix:** nothing is announced when the mix moves,
   and a refused shortcut's warning stays in a key's help text after it is
   fixed *(the second confirmed)*.
+- **Noise control checks the firmware on every headset report.** It runs
+  so the edit's state is judged once the firmware version arrives, which
+  can be after the flash read; cheap, but it runs on every volume, battery
+  and wheel report.
+- **The Firmware page reads each listed backup file** on every redraw of
+  the list, on the window's thread, to say what it holds.
 - **Two Stealth Pro IIs, one edited:** connecting the edited one turns
   Neap's own Mode button cycle off for the other for good.
 - **Some screen checks still wait 2 s per action.** On the desktop

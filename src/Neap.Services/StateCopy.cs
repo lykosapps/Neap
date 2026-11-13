@@ -93,7 +93,7 @@ public static class StateCopy
     /// The keyboard is named precisely. The shortcuts ship off, so this gives
     /// the actual keys when they are on, and when they are not, says where
     /// they are turned on: the Settings button on Home's Game and chat card,
-    /// where they moved from the Controls page.
+    /// which nothing else in the window points to.
     /// </remarks>
     public static string MixWithoutWheel()
     {

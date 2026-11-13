@@ -65,6 +65,20 @@ public class FirmwareBackupTests
     }
 
     [Fact]
+    public void TheCodesFactoryBackupIsRefusedWhileTheLastReadHasItsCallOn()
+    {
+        var flash = new PretendFlash();
+        var cycle = FirmwareEdit.NoiseCycle;
+        int code = cycle.Sectors[0];
+        var on = cycle.Changes.ToDictionary(change => change.Address, change => change.Active.ToArray());
+        var off = cycle.Changes.ToDictionary(change => change.Address, change => change.Factory.ToArray());
+
+        Assert.Equal(BackupFit.LeavesHalfOn, FirmwareBackup.Judge(At(code, 0), flash.Read(code), Build, flash.FactorySections, on));
+        Assert.Equal(BackupFit.Fits, FirmwareBackup.Judge(At(code, 0), flash.Read(code), Build, flash.FactorySections, off));
+        Assert.Equal(BackupFit.Fits, FirmwareBackup.Judge(At(code, 0), flash.Read(code), Build, flash.FactorySections));
+    }
+
+    [Fact]
     public void ASectionHoldingAnythingElseIsRefused()
     {
         var flash = new PretendFlash();

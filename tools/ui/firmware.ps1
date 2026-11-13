@@ -246,7 +246,8 @@ try {
     Check (Wait-Until { $null -ne (Find-Tick $light) } 6) 'Open Firmware page goes to the Firmware page'
 
     # Putting back the noise cycle's code alone, as its backup holds it from before, would leave its call calling nothing.
-    $halfOn = 'Nothing was changed. Putting back this part alone would leave the edit half installed, and the headset might not start. Restore its other part first.'
+    # Known from the last read, it is refused before the cable is asked for.
+    $halfOn = 'Putting back this part alone would leave the edit half installed, and the headset might not start. Restore its other part first.'
     Show-Backups
     $part1 = Search {
         @($script:Window.FindAll($Scope::Descendants, (New-Condition ControlTypeProperty ([System.Windows.Automation.ControlType]::Button)))) |
@@ -255,11 +256,10 @@ try {
     Check ($null -ne $part1 -and $part1.Current.Name -like '*Holds the factory firmware') "the code's backup is listed, holding the factory firmware ($($part1.Current.Name))"
     if ($part1) {
         Press $part1
-        Check (Wait-Until { $null -ne (Find-Anywhere 'Restore') } 6) 'restoring it asks first'
-        Press (Find-Anywhere 'Restore')
-        Check (Wait-Until { Find-Text $halfOn } 60) 'putting it back alone is refused, and says to restore the other part first'
+        Check (Wait-Until { Find-Text $halfOn } 6) 'putting it back alone is refused at once, and says to restore the other part first'
+        Check (-not (Find-Text $plug)) 'with no cable asked for'
         Save-Shot 'firmware-half-on' -Whole | ForEach-Object { $_.Dispose() }
-        Close-Run
+        if (Find-Anywhere 'OK') { Press (Find-Anywhere 'OK') }
         Check (Wait-Until { (Get-StateCount 'Installed') -eq 1 } 10) 'and the noise cycle still reads as installed'
     }
 }

@@ -117,7 +117,7 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
 
     /// <summary>Whether a backup can be put back on the headset as it is now; see <see cref="FirmwareBackup.Judge"/>.</summary>
     public BackupFit Fit(FirmwareBackup? named, ReadOnlySpan<byte> bytes) =>
-        FirmwareBackup.Judge(named, bytes, Build, writer?.FactorySections ?? FirmwareEdit.FactorySections);
+        FirmwareBackup.Judge(named, bytes, Build, writer?.FactorySections ?? FirmwareEdit.FactorySections, Flash);
 
     /// <summary>Whether Swarm II is running, and could talk to the headset during a write.</summary>
     /// <remarks>Looked for as a write is asked for and again as it starts, not on every redraw.</remarks>
@@ -175,7 +175,12 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
     public EditPlan Plan(IReadOnlySet<FirmwareEdit> wanted) => FirmwareEdit.Plan(Edits, wanted, Installed);
 
     /// <summary>Reads the flash again at every place the headset's edits change.</summary>
-    /// <remarks>A read already under way is not started twice. While the headset is off, the last read stands.</remarks>
+    /// <remarks>
+    /// A read already under way is not started twice. While the headset is
+    /// off, the last read stands, and so it does when the headset goes during
+    /// the read: callers wait on this from event handlers, where a throw would
+    /// end the app.
+    /// </remarks>
     public async Task ReadFlash()
     {
         if (_reading) return;
@@ -184,6 +189,10 @@ public sealed class FirmwareEditService(HeadsetService headset, IFirmwareWriter?
         {
             var read = await ReadEditedFlash();
             if (read is not null || Connected) Flash = read;
+        }
+        catch (Exception ex) when (ex is HeadsetUnavailableException or IOException or TimeoutException)
+        {
+            AppLog.Write($"firmware edits: the flash read stopped, so the last read stands: {ex.Message}");
         }
         finally
         {
