@@ -36,12 +36,9 @@ say so. The seven worst were fixed before the tag.
 - **A Parametric edit made while the headset is away is lost without a
   word,** and the screen keeps showing a shape the headset doesn't have
   *(confirmed; also so in 0.4.0)*.
-- **Mix shortcuts with no chat app chosen** are taken from every other
-  program and do nothing, with nothing saying why *(confirmed)*.
-- **Two mix shortcuts on one combination:** the message blames another
-  program, and pressing a shortcut in use while setting a key moves the mix
-  rather than recording it *(confirmed)*.
-- **The wheel's notice names shortcut keys that were refused** *(confirmed)*.
+- **Mix shortcuts with no chat app chosen** are still taken from every
+  other program while they move nothing; the card now says they need a chat
+  app, but they could let the keys go until one is chosen.
 - **Firmware edits, an edit whose state is unknown:** nothing is ticked, so
   Apply would remove an installed edit, and the question before it doesn't
   say which edits go on or off *(not yet verified)*.
@@ -50,16 +47,12 @@ say so. The seven worst were fixed before the tag.
 - **Firmware edits, the Settings switch turned off with edits on the
   headset:** the page goes, Controls loses its way there, and nothing says
   the edits are still on.
-- **Firmware edits, wording when the headset is only off:** "Couldn't read
-  the headset's firmware", and "Charge the headset" when the battery is
-  unknown rather than low.
 - **Firmware edits, the run card at the smallest window** may push Close out
   of view *(not measured)*.
 - **Atlas Air, no measurement:** Auto-EQ is hidden with no word, a target
   is drawn alone, and a measurement loaded for the Stealth Pro II stays
   chosen. The screen checks cover Parametric's turn-on on the Atlas Air,
   not editing, Compare or presets.
-- **Saving over a Parametric preset** asks nothing, unlike the ten bands.
 - **The test tone** can play in the other headset when both are plugged in
   *(not verified)*.
 - **The mix bar shows on the main screen only,** so a game on another
